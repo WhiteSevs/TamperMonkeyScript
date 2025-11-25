@@ -13,7 +13,7 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
@@ -51,7 +51,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, Utils, Qmsg, vue, Viewer, pinia, iconsVue, vueDemi, vueRouter, ElementPlus) {
+(function (Qmsg, DOMUtils, pops, Utils, vue, Viewer, pinia, iconsVue, vueDemi, vueRouter, ElementPlus) {
   "use strict";
 
   const d = new Set();
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-DdqjBCK0.js"(exports$1, module) {
+    "entrance-dDljVIBs.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -97,155 +97,6 @@
       var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
       var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
       var _monkeyWindow = (() => window)();
-      const BaiduRouter = {
-        isSearch() {
-          return Boolean(window.location.hostname.match(/^(m[0-9]{0,2}|www).baidu.com$/g));
-        },
-        isSearchBh() {
-          return this.isSearch() && window.location.pathname.startsWith("/bh");
-        },
-        isSearchVideo() {
-          return this.isSearch() && window.location.pathname.startsWith("/video/page");
-        },
-        isSearchHome() {
-          return (
-            this.isSearch() &&
-            ((window.location.pathname === "/" && window.location.search === "") ||
-              (window.location.pathname === "/" && window.location.search.startsWith("?")))
-          );
-        },
-        isSearchVSearch() {
-          return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
-        },
-        isSearchVSearch_image_content() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "image_content");
-        },
-        isSearchVSearch_note() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "note");
-        },
-        isSearchWenDaTab() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
-        },
-        isHealth() {
-          return window.location.hostname === "health.baidu.com" || this.isSearchBh();
-        },
-        isBaiJiaHao() {
-          return window.location.hostname === "baijiahao.baidu.com";
-        },
-        isTieBa() {
-          return (
-            Boolean(
-              window.location.hostname.match(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)
-            ) ||
-            window.location.hostname === "jump2.bdimg.com" ||
-            window.location.hostname === "www.tieba.com"
-          );
-        },
-        isTieBaPost() {
-          return this.isTieBa() && window.location.pathname.startsWith("/p/");
-        },
-        isTieBaNewTopic() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate");
-        },
-        isTieBaHottopic() {
-          return this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic");
-        },
-        isTieBaHybrid() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search");
-        },
-        isTieBaHybridUserGrowBase() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus");
-        },
-        isTieBaCheckUrl() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl");
-        },
-        isTieBaNei() {
-          return this.isTieBa() && window.location.pathname === "/f";
-        },
-        isTieBaIndex() {
-          return this.isTieBa() && window.location.pathname.startsWith("/index");
-        },
-        isTieBaHome() {
-          return this.isTieBa() && window.location.pathname.startsWith("/home/main");
-        },
-        isTieBaCollectionCenter() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter");
-        },
-        isWenKu() {
-          return window.location.hostname === "wk.baidu.com" || window.location.hostname === "tanbi.baidu.com";
-        },
-        isJingYan() {
-          return window.location.hostname === "jingyan.baidu.com";
-        },
-        isBaiKe() {
-          return window.location.hostname === "baike.baidu.com" || window.location.hostname === "wapbaike.baidu.com";
-        },
-        isBaiKeTaShuo() {
-          return this.isBaiKe() && window.location.pathname.startsWith("/tashuo");
-        },
-        isZhiDao() {
-          return window.location.hostname === "zhidao.baidu.com";
-        },
-        isFanYi() {
-          return window.location.hostname === "fanyi.baidu.com";
-        },
-        isFanYiApp() {
-          return window.location.hostname === "fanyi-app.baidu.com";
-        },
-        isImage() {
-          return window.location.hostname === "image.baidu.com";
-        },
-        isMap() {
-          return window.location.hostname === "map.baidu.com";
-        },
-        isMbd() {
-          return window.location.hostname === "mbd.baidu.com";
-        },
-        isXue() {
-          return window.location.hostname === "xue.baidu.com";
-        },
-        isAiQiCha() {
-          return window.location.hostname === "aiqicha.baidu.com";
-        },
-        isPos() {
-          return window.location.hostname === "pos.baidu.com";
-        },
-        isHaoKan() {
-          return window.location.hostname === "haokan.baidu.com";
-        },
-        isGraph() {
-          return window.location.hostname === "graph.baidu.com";
-        },
-        isPan() {
-          return window.location.hostname === "pan.baidu.com";
-        },
-        isYiYan() {
-          return window.location.hostname === "yiyan.baidu.com";
-        },
-        isChat() {
-          return window.location.hostname === "chat.baidu.com";
-        },
-        isMiniJiaoYu() {
-          return window.location.hostname === "uf9kyh.smartapps.cn";
-        },
-        isEasyLearn() {
-          return window.location.hostname === "easylearn.baidu.com";
-        },
-        isISite() {
-          return (
-            window.location.hostname === "isite.baidu.com" && window.location.pathname.startsWith("/site/wjz2tdly")
-          );
-        },
-        isAiStudy() {
-          return window.location.hostname === "aistudy.baidu.com";
-        },
-        isSmartApps_Tieba() {
-          return window.location.hostname === "byokpg.smartapps.baidu.com";
-        },
-      };
       const GM_RESOURCE_MAPPING = {
         ElementPlus: {
           keyName: "ElementPlusResourceCSS",
@@ -254,6 +105,20 @@
         Viewer: {
           keyName: "ViewerCSS",
           url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
+        },
+      };
+      const PanelSettingConfig = {
+        qmsg_config_position: {
+          key: "qmsg-config-position",
+          defaultValue: "bottom",
+        },
+        qmsg_config_maxnums: {
+          key: "qmsg-config-maxnums",
+          defaultValue: 3,
+        },
+        qmsg_config_showreverse: {
+          key: "qmsg-config-showreverse",
+          defaultValue: false,
         },
       };
       const CommonUtil = {
@@ -517,6 +382,149 @@
           return dataStr;
         },
       };
+      const utils = Utils.noConflict();
+      const domUtils = DOMUtils.noConflict();
+      const __pops__ = pops;
+      const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+      const SCRIPT_NAME = _GM_info?.script?.name || void 0;
+      const AnyTouch = pops.config.Utils.AnyTouch();
+      const DEBUG = false;
+      log.config({
+        debug: false,
+        logMaxCount: 250,
+        autoClearConsole: true,
+        tag: true,
+      });
+      Qmsg.config({
+        isHTML: true,
+        autoClose: true,
+        showClose: false,
+        consoleLogContent(qmsgInst) {
+          const qmsgType = qmsgInst.setting.type;
+          if (qmsgType === "loading") {
+            return false;
+          }
+          const content = qmsgInst.setting.content;
+          if (qmsgType === "warning") {
+            log.warn(content);
+          } else if (qmsgType === "error") {
+            log.error(content);
+          } else {
+            log.info(content);
+          }
+          return true;
+        },
+        get position() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_position.key,
+            PanelSettingConfig.qmsg_config_position.defaultValue
+          );
+        },
+        get maxNums() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_maxnums.key,
+            PanelSettingConfig.qmsg_config_maxnums.defaultValue
+          );
+        },
+        get showReverse() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_showreverse.key,
+            PanelSettingConfig.qmsg_config_showreverse.defaultValue
+          );
+        },
+        get zIndex() {
+          let maxZIndex = Utils.getMaxZIndex();
+          let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        },
+      });
+      __pops__.GlobalConfig.setGlobalConfig({
+        zIndex: () => {
+          const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+            if ($ele?.classList?.contains("qmsg-shadow-container")) {
+              return false;
+            }
+            if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
+              return false;
+            }
+          });
+          const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: false,
+            toHide: false,
+          },
+        },
+        drag: true,
+      });
+      const MenuRegister = new utils.GM_Menu({
+        GM_getValue: _GM_getValue,
+        GM_setValue: _GM_setValue,
+        GM_registerMenuCommand: _GM_registerMenuCommand,
+        GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
+      });
+      const httpx = new utils.Httpx({
+        xmlHttpRequest: _GM_xmlhttpRequest,
+        logDetails: DEBUG,
+      });
+      httpx.interceptors.request.use((data) => {
+        return data;
+      });
+      httpx.interceptors.response.use(void 0, (data) => {
+        log.error("拦截器-请求错误", data);
+        if (data.type === "onabort") {
+          Qmsg.warning("请求取消", { consoleLogContent: true });
+        } else if (data.type === "onerror") {
+          Qmsg.error("请求异常", { consoleLogContent: true });
+        } else if (data.type === "ontimeout") {
+          Qmsg.error("请求超时", { consoleLogContent: true });
+        } else {
+          Qmsg.error("其它错误", { consoleLogContent: true });
+        }
+        return data;
+      });
+      const OriginPrototype = {
+        Object: {
+          defineProperty: _unsafeWindow.Object.defineProperty,
+        },
+        Function: {
+          apply: _unsafeWindow.Function.prototype.apply,
+          call: _unsafeWindow.Function.prototype.call,
+        },
+        Element: {
+          appendChild: _unsafeWindow.Element.prototype.appendChild,
+        },
+        setTimeout: _unsafeWindow.setTimeout,
+      };
+      const addStyle$1 = domUtils.addStyle.bind(domUtils);
+      const $ = DOMUtils.selector.bind(DOMUtils);
+      const $$ = DOMUtils.selectorAll.bind(DOMUtils);
+      const VUE_ROOT_ID = "vite-app";
+      const MountVue = async function (rootComponent, plugins = []) {
+        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
+        await DOMUtils.ready();
+        const app = vue.createApp(rootComponent);
+        const $mount = DOMUtils.createElement("div", {
+          id: VUE_ROOT_ID,
+        });
+        {
+          if (ElementPlusIconsVue != null) {
+            for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+              app.component(key, component);
+            }
+          }
+        }
+        document.body.appendChild($mount);
+        plugins.forEach((item) => {
+          app.use(item);
+        });
+        const mountResult = app.mount($mount);
+        return mountResult;
+      };
+      new utils.GM_Cookie();
       const KEY = "GM_Panel";
       const ATTRIBUTE_INIT = "data-init";
       const ATTRIBUTE_KEY = "data-key";
@@ -2067,163 +2075,6 @@
           }
         },
       };
-      const PanelSettingConfig = {
-        qmsg_config_position: {
-          key: "qmsg-config-position",
-          defaultValue: "bottom",
-        },
-        qmsg_config_maxnums: {
-          key: "qmsg-config-maxnums",
-          defaultValue: 3,
-        },
-        qmsg_config_showreverse: {
-          key: "qmsg-config-showreverse",
-          defaultValue: false,
-        },
-      };
-      const utils = Utils.noConflict();
-      const domUtils = DOMUtils.noConflict();
-      const __pops__ = pops;
-      const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-      const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-      const AnyTouch = pops.config.Utils.AnyTouch();
-      const DEBUG = false;
-      log.config({
-        debug: false,
-        logMaxCount: 250,
-        autoClearConsole: true,
-        tag: true,
-      });
-      Qmsg.config({
-        isHTML: true,
-        autoClose: true,
-        showClose: false,
-        consoleLogContent(qmsgInst) {
-          const qmsgType = qmsgInst.setting.type;
-          if (qmsgType === "loading") {
-            return false;
-          }
-          const content = qmsgInst.setting.content;
-          if (qmsgType === "warning") {
-            log.warn(content);
-          } else if (qmsgType === "error") {
-            log.error(content);
-          } else {
-            log.info(content);
-          }
-          return true;
-        },
-        get position() {
-          return Panel.getValue(
-            PanelSettingConfig.qmsg_config_position.key,
-            PanelSettingConfig.qmsg_config_position.defaultValue
-          );
-        },
-        get maxNums() {
-          return Panel.getValue(
-            PanelSettingConfig.qmsg_config_maxnums.key,
-            PanelSettingConfig.qmsg_config_maxnums.defaultValue
-          );
-        },
-        get showReverse() {
-          return Panel.getValue(
-            PanelSettingConfig.qmsg_config_showreverse.key,
-            PanelSettingConfig.qmsg_config_showreverse.defaultValue
-          );
-        },
-        get zIndex() {
-          let maxZIndex = Utils.getMaxZIndex();
-          let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-        },
-      });
-      __pops__.GlobalConfig.setGlobalConfig({
-        zIndex: () => {
-          const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-            if ($ele?.classList?.contains("qmsg-shadow-container")) {
-              return false;
-            }
-            if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-              return false;
-            }
-          });
-          const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-        },
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: false,
-            toHide: false,
-          },
-        },
-        drag: true,
-      });
-      const MenuRegister = new utils.GM_Menu({
-        GM_getValue: _GM_getValue,
-        GM_setValue: _GM_setValue,
-        GM_registerMenuCommand: _GM_registerMenuCommand,
-        GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
-      });
-      const httpx = new utils.Httpx({
-        xmlHttpRequest: _GM_xmlhttpRequest,
-        logDetails: DEBUG,
-      });
-      httpx.interceptors.request.use((data) => {
-        return data;
-      });
-      httpx.interceptors.response.use(void 0, (data) => {
-        log.error("拦截器-请求错误", data);
-        if (data.type === "onabort") {
-          Qmsg.warning("请求取消", { consoleLogContent: true });
-        } else if (data.type === "onerror") {
-          Qmsg.error("请求异常", { consoleLogContent: true });
-        } else if (data.type === "ontimeout") {
-          Qmsg.error("请求超时", { consoleLogContent: true });
-        } else {
-          Qmsg.error("其它错误", { consoleLogContent: true });
-        }
-        return data;
-      });
-      const OriginPrototype = {
-        Object: {
-          defineProperty: _unsafeWindow.Object.defineProperty,
-        },
-        Function: {
-          apply: _unsafeWindow.Function.prototype.apply,
-          call: _unsafeWindow.Function.prototype.call,
-        },
-        Element: {
-          appendChild: _unsafeWindow.Element.prototype.appendChild,
-        },
-        setTimeout: _unsafeWindow.setTimeout,
-      };
-      const addStyle$1 = domUtils.addStyle.bind(domUtils);
-      const $ = DOMUtils.selector.bind(DOMUtils);
-      const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-      const VUE_ROOT_ID = "vite-app";
-      const MountVue = async function (rootComponent, plugins = []) {
-        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
-        await DOMUtils.ready();
-        const app = vue.createApp(rootComponent);
-        const $mount = DOMUtils.createElement("div", {
-          id: VUE_ROOT_ID,
-        });
-        {
-          if (ElementPlusIconsVue != null) {
-            for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-              app.component(key, component);
-            }
-          }
-        }
-        document.body.appendChild($mount);
-        plugins.forEach((item) => {
-          app.use(item);
-        });
-        const mountResult = app.mount($mount);
-        return mountResult;
-      };
-      new utils.GM_Cookie();
       class LoadingView {
         config;
         loadingViewElement;
@@ -2425,224 +2276,214 @@
       }
       _monkeyWindow.showdown || _unsafeWindow.showdown;
       const loadingView = new LoadingView(true);
-      const SearchShieldCSS = `.c-container.na-ec-item,\r
-.c-container.ec-container,\r
-div[data-type="ad"],\r
-.c-result.sfc-log[data-tpl="adv_wenku_fc"],\r
-.c-recomm-wrap.new-ux-recom-wrapper.animation,\r
-#results-pre,\r
-.video-recommend,\r
-.c-result.sfc-log[data-tpl="search_recomm"],\r
-.sfc-image-content-waterfall-item[wat-item-data-id="no-img"],\r
-.se-results-pre,\r
-.ec_wise_ad,\r
-div#copyright + div,\r
-div#pop-up,\r
-div[class*='ad-wrapper__'],\r
-div[class*='rec-wrapper__'],\r
-.brand-entry,\r
-.barea-ad,\r
-.swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],\r
-div#page-bd div.recommend,\r
-div.short-mini div[data-module="rec:undefined-undefined"],\r
-/* 相关软件 */\r
-div[srcid="sigma_celebrity_rela"],\r
-/* 搜一些隐私的内容时弹出的来的，开启无痕模式----保护隐私，安全浏览 */\r
-div:has(p.ivk-private-p),\r
-/* 智能卡片的 更多 按钮 */\r
-.c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {\r
-  display: none !important;\r
-}\r
-/* 搜索框 */\r
-.searchboxtop.newsearch-white-style .se-form {\r
-  border-color: #4e6ef2 !important;\r
-}\r
-/* 百度一下 按钮 */\r
-.searchboxtop.newsearch-white-style .se-bn {\r
-  color: #fff !important;\r
-  background: #4e6ef2 !important;\r
-}\r
-.se-head-logo .se-logo img {\r
-  display: inherit !important;\r
-}\r
-/* 选项卡，如综合、笔记、视频等 */\r
-.se-head-tablink {\r
-  border-bottom: 1px solid #e6e6e6 !important;\r
-  /*background-color: #fff !important;*/\r
-  background-color: transparent !important;\r
-}\r
-\r
-a.se-tabitem span {\r
-  color: #000 !important;\r
-}\r
-/*div.c-peak-layer{\r
-   display:none !important;\r
- } 百度关键字背景*/\r
-.se-tablink-scroll-wrapper .se-tab-cur:after {\r
-  border-bottom: 2px solid #38f !important;\r
-}\r
-.c-tags-scroll.c-padding-x {\r
-  display: none !important;\r
-}\r
-.white-bdsearch-isredirecrt {\r
-  display: inline-flex;\r
-  background: #43ba76;\r
-  color: #fff;\r
-  width: 28px;\r
-  font-size: 16px;\r
-  line-height: 25px;\r
-  justify-content: center;\r
-  align-items: center;\r
-  border-radius: 5px;\r
-  margin: 0 auto;\r
-  margin-right: 6px;\r
-}\r
-/* 修复图片显示问题 */\r
-.image-strong-card div[class*="image-content__"] > div {\r
-  display: inline-block;\r
-  overflow: hidden;\r
-  vertical-align: top;\r
-}\r
-.c-result-content div[class*="tieba-newxml-forum-img-class__"] {\r
-  display: -webkit-box;\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  align-items: center;\r
-}\r
-\r
-.c-result-content div[class*="tieba-newxml-forum-img__"] {\r
-  width: 0.553rem;\r
-  height: 0.553rem;\r
-}\r
-\r
-.c-result-content div[class*="tieba-newxml-forum-img__"] img {\r
-  width: 100%;\r
-  height: 100%;\r
-  border-radius: 0.09rem;\r
-}\r
-.c-result-content div[class*="tieba-newxml-forum-class__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-orient: vertical;\r
-  -moz-box-orient: vertical;\r
-  -webkit-box-direction: normal;\r
-  -moz-box-direction: normal;\r
-  -webkit-flex-direction: column;\r
-  -moz-flex-direction: column;\r
-  flex-direction: column;\r
-  -webkit-box-pack: center;\r
-  -moz-box-pack: center;\r
-  -webkit-justify-content: center;\r
-  -moz-justify-content: center;\r
-  justify-content: center;\r
-  max-width: 2.2rem;\r
-}\r
-.c-result-content div[class*="c-img-content-btn__"] {\r
-  position: absolute;\r
-  right: 0;\r
-  width: 0.55rem;\r
-  text-align: center;\r
-  line-height: 0.28rem;\r
-  border: 1px solid rgba(31, 31, 31, 0.5);\r
-  border-radius: 0.15rem;\r
-  font-family: PingFangSC-Medium;\r
-  font-size: 0.13rem;\r
-  color: #1f1f1f;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  -moz-align-items: center;\r
-  align-items: center;\r
-  margin-top: 0.03rem;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {\r
-  width: 0.16rem;\r
-  height: 0.16rem;\r
-  border-radius: 50%;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {\r
-  margin-right: 0.08rem;\r
-}\r
-.whitesev-gm-refactor-everyone-searching {\r
-  width: 100%;\r
-  box-sizing: border-box;\r
-  height: 2.857em;\r
-  line-height: 2.857;\r
-  background-color: #f5f6f9;\r
-  border-color: #f5f6f9;\r
-  padding: 0 0.08rem;\r
-  /*vertical-align: middle;*/\r
-  outline: 0;\r
-  font-size: 14px;\r
-  overflow: hidden;\r
-  border-radius: 9px;\r
-  text-align: center;\r
-  text-decoration: none;\r
-  -webkit-tap-highlight-color: transparent;\r
-  -moz-tap-highlight-color: transparent;\r
-  text-overflow: ellipsis;\r
-  white-space: nowrap;\r
-  -webkit-box-orient: horizontal;\r
-  -moz-box-orient: horizontal;\r
-  -webkit-box-align: stretch;\r
-  -moz-box-align: stretch;\r
-  display: block;\r
-  justify-content: space-between;\r
-  -webkit-justify-content: space-between;\r
-  -moz-justify-content: space-between;\r
-  -webkit-align-items: stretch;\r
-  -moz-align-items: stretch;\r
-  align-items: stretch;\r
-  flex-wrap: nowrap;\r
-  -webkit-flex-wrap: nowrap;\r
-  -moz-flex-wrap: nowrap;\r
-}\r
-\r
-/* 让搜索中某些视频的阶段可以横向滚动 */\r
-div[class^="new-summary-container_"] {\r
-  overflow: auto;\r
-}\r
-\r
-/* 智能卡片 展开更多，这里是拼音 */\r
-.c-result-content div[class*="multi-pinyin_"] div[class*="multi-pinyin-item"][style*="display: none"] {\r
-  display: block !important;\r
-}\r
-`;
-      const SearchHealthShieldCSS =
-        '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"],\r\n/* 底部的推荐的广告 */\r\n.moduleItemWrap:has([data-ad-id]) {\r\n  display: none !important;\r\n}\r\n';
-      const BaiduHeadlth = {
-        init() {
-          addStyle$1(SearchHealthShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
-            return this.shieldOtherInfo();
-          });
-          Panel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
-            return this.shieldServiceButtonsRow();
-          });
+      const BaiduRouter = {
+        isSearch() {
+          return Boolean(window.location.hostname.match(/^(m[0-9]{0,2}|www).baidu.com$/g));
         },
-        shieldOtherInfo() {
-          log.info("【屏蔽】底部其它信息");
-          return CommonUtil.addBlockCSS(
-            'article[class] > div[class^="index_container"]',
-            '#main > div[class^="index_container"]'
+        isSearchBh() {
+          return this.isSearch() && window.location.pathname.startsWith("/bh");
+        },
+        isSearchVideo() {
+          return this.isSearch() && window.location.pathname.startsWith("/video/page");
+        },
+        isSearchHome() {
+          return (
+            this.isSearch() &&
+            ((window.location.pathname === "/" && window.location.search === "") ||
+              (window.location.pathname === "/" && window.location.search.startsWith("?")))
           );
         },
-        shieldServiceButtonsRow() {
-          log.info("【屏蔽】底部工具栏");
-          return CommonUtil.addBlockCSS(
-            'article[class] > div[class^="index_healthServiceButtonsRow"]',
-            '#main > div[class^="index_interactWrap"]'
+        isSearchVSearch() {
+          return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
+        },
+        isSearchVSearch_image_content() {
+          let searchParams = new URLSearchParams(window.location.search);
+          return this.isSearchVSearch() && searchParams.has("pd", "image_content");
+        },
+        isSearchVSearch_note() {
+          let searchParams = new URLSearchParams(window.location.search);
+          return this.isSearchVSearch() && searchParams.has("pd", "note");
+        },
+        isSearchWenDaTab() {
+          let searchParams = new URLSearchParams(window.location.search);
+          return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
+        },
+        isHealth() {
+          return window.location.hostname === "health.baidu.com" || this.isSearchBh();
+        },
+        isBaiJiaHao() {
+          return window.location.hostname === "baijiahao.baidu.com";
+        },
+        isTieBa() {
+          return (
+            Boolean(
+              window.location.hostname.match(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)
+            ) ||
+            window.location.hostname === "jump2.bdimg.com" ||
+            window.location.hostname === "www.tieba.com"
           );
+        },
+        isTieBaPost() {
+          return this.isTieBa() && window.location.pathname.startsWith("/p/");
+        },
+        isTieBaNewTopic() {
+          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate");
+        },
+        isTieBaHottopic() {
+          return this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic");
+        },
+        isTieBaHybrid() {
+          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search");
+        },
+        isTieBaHybridUserGrowBase() {
+          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus");
+        },
+        isTieBaCheckUrl() {
+          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl");
+        },
+        isTieBaNei() {
+          return this.isTieBa() && window.location.pathname === "/f";
+        },
+        isTieBaIndex() {
+          return this.isTieBa() && window.location.pathname.startsWith("/index");
+        },
+        isTieBaHome() {
+          return this.isTieBa() && window.location.pathname.startsWith("/home/main");
+        },
+        isTieBaCollectionCenter() {
+          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter");
+        },
+        isWenKu() {
+          return window.location.hostname === "wk.baidu.com" || window.location.hostname === "tanbi.baidu.com";
+        },
+        isJingYan() {
+          return window.location.hostname === "jingyan.baidu.com";
+        },
+        isBaiKe() {
+          return window.location.hostname === "baike.baidu.com" || window.location.hostname === "wapbaike.baidu.com";
+        },
+        isBaiKeTaShuo() {
+          return this.isBaiKe() && window.location.pathname.startsWith("/tashuo");
+        },
+        isZhiDao() {
+          return window.location.hostname === "zhidao.baidu.com";
+        },
+        isFanYi() {
+          return window.location.hostname === "fanyi.baidu.com";
+        },
+        isFanYiApp() {
+          return window.location.hostname === "fanyi-app.baidu.com";
+        },
+        isImage() {
+          return window.location.hostname === "image.baidu.com";
+        },
+        isMap() {
+          return window.location.hostname === "map.baidu.com";
+        },
+        isMbd() {
+          return window.location.hostname === "mbd.baidu.com";
+        },
+        isXue() {
+          return window.location.hostname === "xue.baidu.com";
+        },
+        isAiQiCha() {
+          return window.location.hostname === "aiqicha.baidu.com";
+        },
+        isPos() {
+          return window.location.hostname === "pos.baidu.com";
+        },
+        isHaoKan() {
+          return window.location.hostname === "haokan.baidu.com";
+        },
+        isGraph() {
+          return window.location.hostname === "graph.baidu.com";
+        },
+        isPan() {
+          return window.location.hostname === "pan.baidu.com";
+        },
+        isYiYan() {
+          return window.location.hostname === "yiyan.baidu.com";
+        },
+        isChat() {
+          return window.location.hostname === "chat.baidu.com";
+        },
+        isMiniJiaoYu() {
+          return window.location.hostname === "uf9kyh.smartapps.cn";
+        },
+        isEasyLearn() {
+          return window.location.hostname === "easylearn.baidu.com";
+        },
+        isISite() {
+          return (
+            window.location.hostname === "isite.baidu.com" && window.location.pathname.startsWith("/site/wjz2tdly")
+          );
+        },
+        isAiStudy() {
+          return window.location.hostname === "aistudy.baidu.com";
+        },
+        isSmartApps_Tieba() {
+          return window.location.hostname === "byokpg.smartapps.baidu.com";
         },
       };
+      const AiQiChaShieldCSS =
+        'div.header-down-app,\r\ndiv.active-enter,\r\ndiv.app-enter,\r\ndiv.coupon-active,\r\ndiv.cpc-adv-container,\r\ndiv.detail-footer.detail-footer-test,\r\ndiv.index-more[data-show-id="indexMoreExposure"] {\r\n  display: none !important;\r\n}\r\n.bread-crumbs.has-down,\r\n.border-bottom-line {\r\n  top: 0 !important;\r\n}\r\n';
+      const BaiduAiQiCha = {
+        init() {
+          addStyle$1(AiQiChaShieldCSS);
+          log.info("插入CSS规则");
+          this.camouflageBottomPopup();
+          Panel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
+            return this.shieldCarousel();
+          });
+          Panel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
+            return this.shieldIndustryHostNews();
+          });
+        },
+        camouflageBottomPopup() {
+          log.info("伪装为已经弹窗过了");
+          _unsafeWindow.localStorage.setItem("coupon_bottom_popup", new Date().getTime().toString());
+        },
+        shieldCarousel() {
+          log.info("屏蔽轮播图");
+          return CommonUtil.addBlockCSS("div.index-banner-container.van-swipe");
+        },
+        shieldIndustryHostNews() {
+          log.info("屏蔽行业热点新闻");
+          return CommonUtil.addBlockCSS(" div.hot-news");
+        },
+      };
+      const AiStudyShieldCSS = "";
+      const BaiduAiStudy = {
+        init() {
+          addStyle$1(AiStudyShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
+            return this.shieldBottomToolBar();
+          });
+          Panel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
+            return this.autoExpandFullText();
+          });
+        },
+        shieldBottomToolBar() {
+          log.info("屏蔽底部工具栏");
+          return CommonUtil.addBlockCSS(".gt-edu-h5-c-article-bottom");
+        },
+        autoExpandFullText() {
+          log.info("自动展开全文");
+          return [
+            CommonUtil.addBlockCSS(".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"),
+            addStyle$1(
+              `
+			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
+				max-height: unset !important;
+			}
+			`
+            ),
+          ];
+        },
+      };
+      const BaiJiaHaoShieldCSS =
+        ".layer-wrap,\r\n.openImg,\r\n.oPadding,\r\n.bottomTTSStruct,\r\n.undefined,\r\n.headDeflectorContainer,\r\n.followSuper,\r\n#searchwordSdk,\r\ndiv#commentModule > div > div > span:nth-child(2),\r\n/* 顶部打开APP横幅 */\r\n#headDeflectorContainer,\r\n/* 展开全文 */\r\n.foldMaskWrapper {\r\n  display: none !important;\r\n}\r\nbody.scrollHide {\r\n  overflow: auto !important;\r\n}\r\n.mainContent,\r\n#mainContentContainer {\r\n  height: auto !important;\r\n}\r\n";
       const BaiduHook = {
         $isHook: {
           windowBoxJSBefore: false,
@@ -3116,27 +2957,1008 @@ div[class^="new-summary-container_"] {\r
           });
         },
       };
-      const BaiduSearchHook = {
+      const BaiJiaHaoHook = {
         init() {
-          Panel.execMenuOnce("baidu_search_hijack__onClick", () => {
-            log.success("hook: baidu onClick");
-            BaiduHook.objectDefineProperty_search("baidu_search_hijack__onClick");
+          Panel.execMenu("baijiahao_hijack_wakeup", () => {
+            log.success("hook: Function.property.call");
+            BaiduHook.functionCall("baijiahao_invoke");
           });
-          Panel.execMenuOnce("baidu_search_hijack_openbox", () => {
-            log.success("hook: window.OpenBox");
+          Panel.execMenu("baidu_baijiahao_hijack_iframe", () => {
+            log.success("hook: Element.append");
+            BaiduHook.elementAppendChild(function (element) {
+              if (element.localName === "script" && element?.src?.includes("landing-share")) {
+                log.success("阻止加载：" + element.src);
+                return true;
+              }
+            });
+          });
+          Panel.execMenu("baidu_baijiahao_hijack_openbox", () => {
+            log.success("hook: window.Box");
             BaiduHook.windowOpenBox();
           });
-          Panel.execMenuOnce("baidu_search_hijack_scheme", () => {
-            log.success("hook: Function.apply => scheme");
-            BaiduHook.functionApply("scheme");
+          Panel.execMenu("baidu_baijiahao_hijack_openContentBox", () => {
+            log.success("hook: window.openContentBox");
+            BaiduHook.window_openContentBox();
           });
-          Panel.execMenuOnce("baidu_search_hijack_copy", () => {
-            log.success("hook: Function.apply => copy");
-            BaiduHook.functionApply("copy");
+        },
+      };
+      const BaiduBaiJiaHao = {
+        init() {
+          addStyle$1(BaiJiaHaoShieldCSS);
+          log.info("插入CSS规则");
+          BaiJiaHaoHook.init();
+          Panel.execMenuOnce("baijiahao_shield_recommended_article", () => {
+            return this.shieldRecommendArticle();
           });
-          Panel.execMenuOnce("baidu_search_hijack_setTimeout", () => {
-            BaiduHook.setTimeout("getGeoLocation|loopPlay()|.videoAutoplay");
+          Panel.execMenuOnce("baijiahao_shield_user_comment", () => {
+            return this.shieldUserComment();
           });
+          Panel.execMenuOnce("baijiahao_shield_user_comment_input_box", () => {
+            return this.shieldBottomToolBar();
+          });
+        },
+        shieldRecommendArticle() {
+          log.info("【屏蔽】推荐文章");
+          return [
+            CommonUtil.addBlockCSS(
+              ".infinite-scroll-component__outerdiv",
+              "div#page_wrapper > div > div:nth-child(5)",
+              "div:has(+ .infinite-scroll-component__outerdiv)",
+              "#ssr-content > :last-child",
+              "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
+            ),
+            addStyle$1(
+              `
+			/* 电脑端的文章居中 */
+			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
+				width: 55% !important;
+			}`
+            ),
+            CommonUtil.addBlockCSS('#page_wrapper > div.other > div[class=""]:nth-child(4)'),
+            CommonUtil.addBlockCSS(
+              '#page_wrapper div.spider > div[class=""]:nth-child(4)',
+              'page_wrapper div.spider > div[class=""]:nth-child(5)'
+            ),
+            CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]'),
+          ];
+        },
+        shieldUserComment() {
+          log.info("【屏蔽】用户评论");
+          return CommonUtil.addBlockCSS("#commentModule");
+        },
+        shieldBottomToolBar() {
+          log.info("【屏蔽】底部悬浮工具栏");
+          return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
+        },
+      };
+      const BaiKeShieldCSS =
+        '/* 底部的广告 */\r\n#J_yitiao_container,\r\n/* 顶部广告 */\r\n#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,\r\n/* 底部的广告 */\r\n.BK-after-content-wrapper>div:has(a[onclick*="page"]) {\r\n  display: none !important;\r\n}\r\n';
+      const BaiduBaiKe = {
+        init() {
+          addStyle$1(BaiKeShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu-baike-hookBox", () => {
+            this.hookBox();
+          });
+        },
+        hookBox() {
+          log.info("通过劫持window.Box自动展开下一页");
+          let old_Box = Reflect.get(_unsafeWindow, "Box") ?? {};
+          OriginPrototype.Object.defineProperty(_unsafeWindow, "Box", {
+            get() {
+              if (old_Box == null) {
+                return;
+              }
+              return new Proxy(old_Box, {
+                get(target, prop, receiver) {
+                  if ((prop === "isBox" || prop === "$isBox") && Panel.getValue("baidu-baike-Box-isBox")) {
+                    return true;
+                  }
+                  if ((prop === "isLiteBox" || prop === "$isLiteBox") && Panel.getValue("baidu-baike-Box-isLiteBox")) {
+                    return true;
+                  }
+                  if ((prop === "isInfoBox" || prop === "$isInfoBox") && Panel.getValue("baidu-baike-Box-isInfoBox")) {
+                    return true;
+                  }
+                  if ((prop === "isIOS" || prop === "$isIOS") && Panel.getValue("baidu-baike-Box-isIOS")) {
+                    return true;
+                  }
+                  if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
+                    return true;
+                  }
+                  if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
+                    return true;
+                  }
+                  if (prop === "android") {
+                    let android = Reflect.get(target, prop, receiver);
+                    if (android["invokeApp"] && Panel.getValue("baidu-baike-Box-android.invokeApp")) {
+                      android["invokeApp"] = function (...args) {
+                        log.info(["阻止调用android.invokeApp", args]);
+                      };
+                    }
+                    if (android["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-android.invokeLiteApp")) {
+                      android["invokeLiteApp"] = function (...args) {
+                        log.info(["阻止调用android.invokeLiteApp", args]);
+                      };
+                    }
+                  }
+                  if (prop === "ios") {
+                    let ios = Reflect.get(target, prop, receiver);
+                    if (ios["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-ios.invokeApp")) {
+                      ios["invokeLiteApp"] = function (...args) {
+                        log.info(["阻止调用ios.invokeApp", args]);
+                      };
+                    }
+                  }
+                  return Reflect.get(target, prop, receiver);
+                },
+              });
+            },
+            set(value) {
+              old_Box = value;
+            },
+          });
+        },
+      };
+      const BaiKeTaShuoShieldCSS = "";
+      const BaiduBaiKeTaShuo = {
+        init() {
+          addStyle$1(BaiKeTaShuoShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
+            this.removeBottomAd();
+          });
+        },
+        removeBottomAd() {
+          domUtils.waitNode("#index_tashuo_list").then(($tashuoList) => {
+            log.info("去除底部广告");
+            utils.mutationObserver($tashuoList, {
+              callback() {
+                Array.from($tashuoList.children).forEach((item) => {
+                  if (item.className !== "J-hot-item-container") {
+                    log.info("存在广告-删除！");
+                    item.remove();
+                  }
+                });
+              },
+              config: { subtree: true, childList: true, attributes: true },
+            });
+          });
+        },
+      };
+      const ChatShieldCSS = "";
+      const BaiduChat = {
+        init() {
+          addStyle$1(ChatShieldCSS);
+          log.info("插入CSS规则");
+          domUtils.ready(() => {
+            Panel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
+              this.removeAiMask();
+            });
+          });
+        },
+        removeAiMask() {
+          log.info("去除AI的遮罩");
+          CommonUtil.addBlockCSS(".bot-body .watermark", '#searchChatApp div[class^="watermark"]');
+          let lockFunc = new utils.LockFunction(function () {
+            document.querySelectorAll("img[src*='style/wm_ai']").forEach((imgElement) => {
+              log.info("处理AI水印：" + imgElement.src);
+              imgElement.src = imgElement.src.replace(/style\/wm_ai/g, "");
+            });
+          }, 400);
+          utils.mutationObserver(document.body, {
+            config: { subtree: true, childList: true },
+            callback: lockFunc.run,
+          });
+        },
+      };
+      const EasyLearnShieldCSS =
+        "/* 中间弹窗-限时专享福利 */\r\n#app .pre-unpaid-wrap,\r\n/* 底部工具栏上面-月考全胜 您有xx元体验卡 */\r\n.question-bottom-bar .vip-bar,\r\n/* 解析-免费查看答案及解析 */\r\n.question-analysis-new .see-more,\r\n/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/\r\n.business-el-line,\r\n.business-el-line-background,\r\n/* 展开按钮 */\r\n.question-analysis-new .expand,\r\n/* 7日VIP限免 大学生免费领 */\r\n#app .bgk-question-detail .float-fixed {\r\n  display: none !important;\r\n}\r\n/* 显示答案及解析 */\r\n.ques-title.analysis-title + div {\r\n  display: unset !important;\r\n}\r\n.question-analysis-new .analysis-wrap,\r\n#analysis {\r\n  overflow: unset !important;\r\n  height: unset !important;\r\n  max-height: unset !important;\r\n}\r\n/* 电脑端 */\r\n/* 中间弹窗-限时专享福利 */\r\n.kaixue-dialog-mask,\r\n/* 解析-免费查看答案及解析 */\r\n.question-cont .mask,\r\n/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */\r\n.vip-banner-cont {\r\n  display: none !important;\r\n}\r\n";
+      const VueUtils = {
+        getVue($el) {
+          if ($el == null) {
+            return;
+          }
+          return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
+        },
+        getVue3($el) {
+          if ($el == null) {
+            return;
+          }
+          return $el["__vueParentComponent"];
+        },
+        waitVuePropToSet($el, checkOption) {
+          if (!Array.isArray(checkOption)) {
+            checkOption = [checkOption];
+          }
+          function getTarget() {
+            let __target__ = null;
+            if (typeof $el === "string") {
+              __target__ = domUtils.selector($el);
+            } else if (typeof $el === "function") {
+              __target__ = $el();
+            } else if ($el instanceof HTMLElement) {
+              __target__ = $el;
+            }
+            return __target__;
+          }
+          checkOption.forEach((needSetOption) => {
+            if (typeof needSetOption.msg === "string") {
+              log.info(needSetOption.msg);
+            }
+            function checkTarget() {
+              let $targetEl = getTarget();
+              if ($targetEl == null) {
+                return {
+                  status: false,
+                  isTimeout: true,
+                  inst: null,
+                  $el: $targetEl,
+                };
+              }
+              let vueInst = VueUtils.getVue($targetEl);
+              if (vueInst == null) {
+                return {
+                  status: false,
+                  isTimeout: false,
+                  inst: null,
+                  $el: $targetEl,
+                };
+              }
+              let checkResult = needSetOption.check(vueInst, $targetEl);
+              checkResult = Boolean(checkResult);
+              return {
+                status: checkResult,
+                isTimeout: false,
+                inst: vueInst,
+                $el: $targetEl,
+              };
+            }
+            utils
+              .waitVueByInterval(
+                () => {
+                  return getTarget();
+                },
+                () => checkTarget().status,
+                250,
+                1e4
+              )
+              .then((result) => {
+                let checkTargetResult = checkTarget();
+                if (checkTargetResult.status) {
+                  let vueInst = checkTargetResult.inst;
+                  needSetOption.set(vueInst, checkTargetResult.$el);
+                } else {
+                  if (typeof needSetOption.failWait === "function") {
+                    needSetOption.failWait(checkTargetResult.isTimeout);
+                  }
+                }
+              });
+          });
+        },
+        watchVuePropChange($el, key, callback, watchConfig, failWait) {
+          let config = utils.assign(
+            {
+              immediate: true,
+              deep: false,
+            },
+            watchConfig || {}
+          );
+          return new Promise((resolve) => {
+            VueUtils.waitVuePropToSet($el, {
+              check(vueInstance) {
+                return typeof vueInstance?.$watch === "function";
+              },
+              set(vueInstance) {
+                let removeWatch = null;
+                if (typeof key === "function") {
+                  removeWatch = vueInstance.$watch(
+                    () => {
+                      return key(vueInstance);
+                    },
+                    (newValue, oldValue) => {
+                      callback(vueInstance, newValue, oldValue);
+                    },
+                    config
+                  );
+                } else {
+                  removeWatch = vueInstance.$watch(
+                    key,
+                    (newValue, oldValue) => {
+                      callback(vueInstance, newValue, oldValue);
+                    },
+                    config
+                  );
+                }
+                resolve(removeWatch);
+              },
+              failWait,
+            });
+          });
+        },
+        goToUrl($el, path, useRouter = false) {
+          if ($el == null) {
+            Qmsg.error("跳转Url: $vueNode为空");
+            log.error("跳转Url: $vueNode为空：" + path);
+            return;
+          }
+          let vueInstance = VueUtils.getVue($el);
+          if (vueInstance == null) {
+            Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+            return;
+          }
+          let $router = vueInstance.$router;
+          let isBlank = true;
+          log.info("即将跳转URL：" + path);
+          if (useRouter) {
+            isBlank = false;
+          }
+          if (isBlank) {
+            window.open(path, "_blank");
+          } else {
+            if (path.startsWith("http") || path.startsWith("//")) {
+              if (path.startsWith("//")) {
+                path = window.location.protocol + path;
+              }
+              let urlObj = new URL(path);
+              if (urlObj.origin === window.location.origin) {
+                path = urlObj.pathname + urlObj.search + urlObj.hash;
+              } else {
+                log.info("不同域名，直接本页打开，不用Router：" + path);
+                window.location.href = path;
+                return;
+              }
+            }
+            log.info("$router push跳转Url：" + path);
+            $router.push(path);
+          }
+        },
+        hookGestureReturnByVueRouter(option) {
+          function popstateEvent() {
+            log.success("触发popstate事件");
+            resumeBack(true);
+          }
+          function banBack() {
+            log.success("监听地址改变");
+            option.vueInst.$router.history.push(option.hash);
+            domUtils.on(_unsafeWindow, "popstate", popstateEvent);
+          }
+          async function resumeBack(isFromPopState = false) {
+            domUtils.off(_unsafeWindow, "popstate", popstateEvent);
+            let callbackResult = option.callback(isFromPopState);
+            if (callbackResult) {
+              return;
+            }
+            while (1) {
+              if (option.vueInst.$router.history.current.hash === option.hash) {
+                log.info("后退！");
+                option.vueInst.$router.back();
+                await utils.sleep(250);
+              } else {
+                return;
+              }
+            }
+          }
+          banBack();
+          return {
+            resumeBack,
+          };
+        },
+      };
+      const BaiduEasyLearn = {
+        init() {
+          addStyle$1(EasyLearnShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
+            return this.shieldQuestionPaper();
+          });
+          Panel.execMenuOnce("baidu_easylearn_shield_good_questions_in_this_volume", () => {
+            return this.shieldGoodQuestionsInThisVolume();
+          });
+          Panel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
+            return this.shieldRelatedTestPapers();
+          });
+          Panel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
+            return this.shieldVideoExplanation();
+          });
+          Panel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
+            return this.shieldXuebaNotes();
+          });
+          Panel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
+            return this.shieldBottomToolbar();
+          });
+          Panel.execMenuOnce("baidu_easylearn_unlocking_the_upper_limit_of_search_questions", () => {
+            this.hijackUserSearchQuestCount();
+          });
+          Panel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
+            this.showAnswerContent();
+          });
+          domUtils.ready(() => {
+            Panel.execMenuOnce("baidu_easylearn_unlocking_top_search_input", () => {
+              this.allowUserSearchInput();
+            });
+          });
+        },
+        shieldQuestionPaper() {
+          log.info("屏蔽题卷");
+          return CommonUtil.addBlockCSS(".question-shijuan-wrap", ".question-cont .timu-wrap .doc-cont-v2 .left");
+        },
+        shieldGoodQuestionsInThisVolume() {
+          log.info("屏蔽本卷好题");
+          return CommonUtil.addBlockCSS(".exercise-questions-wrap");
+        },
+        shieldRelatedTestPapers() {
+          log.info("屏蔽本卷相关试卷");
+          return CommonUtil.addBlockCSS(".related-papers-wrap", ".question-cont .timu-wrap .doc-cont-v2 .right");
+        },
+        shieldVideoExplanation() {
+          log.info("屏蔽视频解析");
+          return CommonUtil.addBlockCSS(".video-doc-compo", ".container #questionVideo");
+        },
+        shieldXuebaNotes() {
+          log.info("屏蔽学霸");
+          return CommonUtil.addBlockCSS(".note-list");
+        },
+        shieldBottomToolbar() {
+          log.info("屏蔽底部工具栏");
+          return CommonUtil.addBlockCSS(".question-bottom-bar", "#app .bgk-question-detail .float-btm");
+        },
+        showAnswerContent() {
+          domUtils.waitNode("div.question-swiper").then(async ($questionSwiper) => {
+            log.info("显示答案内容");
+            await utils.waitVueByInterval(
+              $questionSwiper,
+              function (vueObj2) {
+                return "$watch" in vueObj2;
+              },
+              100,
+              1e4
+            );
+            let vueObj = VueUtils.getVue($questionSwiper);
+            if (!vueObj) {
+              log.error("获取vue属性失败 => div.question-swiper");
+              return;
+            }
+            vueObj.$watch(
+              ["isShowAnswer", "isShowAnswerContent"],
+              function (newVal, oldVal) {
+                log.success("显示答案");
+                this.isShowAnswer = true;
+                this.isShowAnswerContent = true;
+              },
+              {
+                deep: true,
+                immediate: true,
+              }
+            );
+            vueObj.$parent.$watch(
+              "isOnAlternativeDialog",
+              function (newVal, oldVal) {
+                log.success("禁止显示弹窗");
+                this.isOnAlternativeDialog = false;
+              },
+              {
+                deep: true,
+                immediate: true,
+              }
+            );
+            vueObj.$parent.$watch(
+              "userChangeQuestionCount",
+              function () {
+                log.success("滑动改变题目");
+                vueObj.isShowAnswer = true;
+                vueObj.isShowAnswerContent = true;
+              },
+              {
+                deep: true,
+                immediate: true,
+              }
+            );
+            vueObj.$parent.openBgkApp = function (...args) {
+              log.success(["openBgkApp：阻止调用App Scheme", args]);
+            };
+            vueObj.openApp = function (...args) {
+              log.success(["openApp：阻止调用App Scheme", args]);
+            };
+            vueObj.$parent.goToApp = function (...args) {
+              log.success(["goToApp：阻止调用App Scheme", args]);
+            };
+          });
+        },
+        hijackUserSearchQuestCount() {
+          log.info("移除-【今日搜题次数已达上限】的本次存储的记录");
+          _unsafeWindow.localStorage.removeItem("user_search_quest_count");
+        },
+        allowUserSearchInput() {
+          domUtils.waitNode(".search-input .search-box-wrap.search-box", 1e4).then(async ($searchBox) => {
+            if (!$searchBox) {
+              log.error("元素.search-input .search-box-wrap.search-box未出现");
+              return;
+            }
+            log.success("允许使用顶部的输入框");
+            await utils.waitVueByInterval(
+              $searchBox,
+              function (vueObj2) {
+                return "$watch" in vueObj2;
+              },
+              250,
+              1e4
+            );
+            let vueObj = VueUtils.getVue($searchBox);
+            if (vueObj == null) {
+              log.error("获取vue属性失败 => .search-input .search-box-wrap.search-box");
+              return;
+            }
+            vueObj.$watch(
+              "isFake",
+              function (newVal, oldVal) {
+                log.success("允许使用顶部搜索输入框");
+                this.isFake = false;
+              },
+              {
+                deep: true,
+                immediate: true,
+              }
+            );
+          });
+        },
+      };
+      const FanYiAppShieldCSS = ".fanyi-invoke-btn,\r\n.top-bn {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduFanYiApp = {
+        init() {
+          addStyle$1(FanYiAppShieldCSS);
+          log.info("插入CSS规则");
+          this.repairContentHeight();
+          Panel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
+            return this.shieldColumnInformation();
+          });
+          Panel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
+            return this.shieldRecommendedForYou();
+          });
+          Panel.execMenuOnce("baidu_fanyi_app_shield_i_need_to_follow_along", () => {
+            return this.shieldINeedToFollowAlong();
+          });
+        },
+        repairContentHeight() {
+          domUtils.waitNode("#page-content").then(($pageContent) => {
+            log.info("修复内容高度");
+            $pageContent.setAttribute("style", "max-height:unset !important");
+          });
+        },
+        shieldColumnInformation() {
+          log.info("隐藏专栏信息");
+          return CommonUtil.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
+        },
+        shieldRecommendedForYou() {
+          log.info("隐藏推荐");
+          return CommonUtil.addBlockCSS("#fr-section");
+        },
+        shieldINeedToFollowAlong() {
+          log.info("隐藏需要跟随");
+          return CommonUtil.addBlockCSS(".cover-all .daily-bottom");
+        },
+      };
+      const FanYiShieldCSS =
+        ".app-bar,\r\n.jifeng-container,\r\n.intro-title,\r\n.sideQrContainer,\r\n.inner.clearfix,\r\nsection.bottom-intro,\r\n#desktop-guide-wrapper {\r\n  display: none !important;\r\n}\r\n.new-header-dl {\r\n  visibility: hidden;\r\n}\r\n";
+      const BaiduFanYi = {
+        init() {
+          addStyle$1(FanYiShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
+            return this.shieldRecommendBottom();
+          });
+          Panel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
+            return this.shieldBottom();
+          });
+          Panel.execMenuOnce("baidu_fanyi_auto_focus", () => {
+            this.autoFocus();
+          });
+        },
+        shieldRecommendBottom() {
+          log.info("屏蔽底部推荐");
+          return CommonUtil.addBlockCSS("section.article.android-style");
+        },
+        shieldBottom() {
+          log.info("屏蔽底部");
+          return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
+        },
+        autoFocus() {
+          domUtils.waitNode("textarea#j-textarea").then(($textarea) => {
+            log.info("自动聚焦输入框");
+            setTimeout(() => {
+              $textarea.focus();
+            }, 2500);
+          });
+        },
+      };
+      const BaiduHaoKanHook = {
+        init() {
+          Panel.execMenu("baidu_haokan_hijack_wakeup", () => {
+            log.success("hook: window.webpackJsonp");
+            BaiduHook.windowWebpackJsonp_haokan();
+          });
+        },
+      };
+      const HaoKanShieldCSS =
+        "div.share-origin.wx-share-launch,\r\ndiv.open-app-top,\r\ndiv.open-app-bottom.wx-share-launch,\r\n/* 打开APP  好看更清晰(1080P) */\r\n.NewOpenApp,\r\n/* 顶部空白区域 */\r\n.placeholder,\r\n/* 底部好看视频图片 */\r\n.page-buttom,\r\n/* 暂停视频弹出来的打开百度好看视频 */\r\n.video-player-download-tips {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduHaoKan = {
+        init() {
+          addStyle$1(HaoKanShieldCSS);
+          log.info("插入CSS规则");
+          BaiduHaoKanHook.init();
+          Panel.execMenuOnce("baidu_haokan_shield_may_also_like", () => {
+            return this.shieldMayAlsoLike();
+          });
+          Panel.execMenuOnce("baidu_haokan_shield_today_s_hot_list", () => {
+            return this.shieldTodayHotList();
+          });
+          Panel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
+            return this.shieldRightVideoAction();
+          });
+          domUtils.ready(() => {
+            this.setPlayEvent();
+          });
+        },
+        setPlayEvent() {
+          let playBtn = $(".play-btn");
+          let playerShade = $(".video-player-shade");
+          log.success("覆盖播放按钮的点击事件");
+          domUtils.on(
+            playBtn,
+            "click",
+            function (event) {
+              domUtils.preventEvent(event);
+              domUtils.hide(playerShade);
+              let currentPageSee = $(".video-player .video-player-pause-btns .continue");
+              setTimeout(() => {
+                utils.getReactInstance(currentPageSee)["reactEventHandlers"]?.["onClick"]();
+                Panel.execMenu("baidu_haokan_play_video_and_automatically_enter_full_screen", () => {
+                  if (utils.isFullscreenEnabled()) {
+                    let videoElement = $("#video video.hplayer-video");
+                    utils.enterFullScreen(videoElement);
+                  }
+                });
+              }, 0);
+            },
+            {
+              capture: true,
+            }
+          );
+        },
+        shieldMayAlsoLike() {
+          log.info("屏蔽可能感兴趣");
+          return CommonUtil.addBlockCSS("div.top-video-list-container");
+        },
+        shieldTodayHotList() {
+          log.info("屏蔽今日热门");
+          return CommonUtil.addBlockCSS(".hot-rank-video");
+        },
+        shieldRightVideoAction() {
+          log.info("屏蔽右侧视频操作");
+          return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
+        },
+      };
+      const blockCSS$2 = "/* 底部的推荐文章 */\r\n.hui-pull__body {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduHealth = {
+        init() {
+          addStyle$1(blockCSS$2);
+        },
+      };
+      const ImageShieldCSS = "#boxBanner {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduImage = {
+        init() {
+          addStyle$1(ImageShieldCSS);
+          log.info("插入CSS规则");
+        },
+      };
+      const ISiteShieldCSS =
+        "/* 底部推荐广告项 */\r\n.gt-local-h5-advert-card-root-container {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduISite = {
+        init() {
+          addStyle$1(ISiteShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldBottomBarRootContainer", () => {
+            return this.shieldBottomBarRootContainer();
+          });
+          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar", () => {
+            return this.shieldRightSeeMoreToolBar();
+          });
+          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
+            return this.shieldArticleBottom();
+          });
+          Panel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
+            return this.autoExpandFullText();
+          });
+        },
+        shieldBottomBarRootContainer() {
+          log.info("屏蔽底部免费在线咨询");
+          return CommonUtil.addBlockCSS(".gt-local-h5-article-bottom-bar-root-container");
+        },
+        shieldRightSeeMoreToolBar() {
+          log.info("屏蔽右侧悬浮按钮-查看更多");
+          return CommonUtil.addBlockCSS(".icon-article-list.icon-article-list-exp");
+        },
+        shieldArticleBottom() {
+          log.info("屏蔽底部-大家还在看");
+          return CommonUtil.addBlockCSS(".article-bottom");
+        },
+        autoExpandFullText() {
+          log.info("自动展开全文");
+          return [
+            CommonUtil.addBlockCSS(".fold-wrapper"),
+            addStyle$1(
+              `
+			.gt-local-h5-article-detail-article-fold-exp{
+				max-height: unset !important;
+			}
+			`
+            ),
+          ];
+        },
+      };
+      const JingYanShieldCSS =
+        ".article-feed-next,\r\n.wgt-rel-exp-feed,\r\n.article-feed-btn-fixed,\r\n.read-whole-mask.app,\r\n.asp-self-rander,\r\n.baobao-image-item,\r\n#wgt-ad-guess {\r\n  display: none !important;\r\n}\r\n.exp-content-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
+      const BaiduJingYan = {
+        init() {
+          addStyle$1(JingYanShieldCSS);
+          log.info("插入CSS规则");
+        },
+      };
+      const MapShieldCSS =
+        '.index-widget-guidebanner,\r\n.common-widget-bottom-banner-changeId,\r\n#index-areaEntry-widget,\r\ndiv.common-widget-bottom-banner-changeId,\r\n#downloadnativepopup,\r\n.xiaoduVoiceCard,\r\n.index-widget-guidebanner,\r\n#message-center-panel,\r\n.xiaoduVoice-banner.-border-round,\r\n/* 底部中间横幅-打开百度地图APP */\r\n#main div[id^="fis_elm"] .btn-banner-float {\r\n  display: none !important;\r\n}\r\n';
+      const BaiduMapHook = {
+        init() {
+          addStyle$1(MapShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_map_hijack-element-appendChild", () => {
+            log.success("hook: Element.appendChild");
+            BaiduHook.elementAppendChild();
+          });
+          Panel.execMenuOnce("baidu_map_hijack-setTimeout", () => {
+            log.success("hook: window.setTimeout");
+            BaiduHook.setTimeout(
+              /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
+            );
+          });
+          domUtils.ready(function () {
+            Panel.execMenuOnce("baidu_map_hijack-jQuery-append", () => {
+              log.success("hook: $.append");
+              BaiduHook.windowJQueryAppend();
+            });
+          });
+        },
+      };
+      const BaiduMap = {
+        init() {
+          addStyle$1(MapShieldCSS);
+          log.info("插入CSS规则");
+          BaiduMapHook.init();
+        },
+      };
+      const MbdShieldCSS = `div.headDeflectorContainer,\r
+#bdrainrwDragButton,\r
+#page_wrapper .other div[class*='undefined'],\r
+#page_wrapper .other > div[class=""],\r
+/* 底部按钮-百度APP内播放 */\r
+div.common-wrap.single-pd,\r
+/* 顶部横幅-APP内播放 */\r
+div#app div.guid-new,\r
+/* 顶部横幅-APP内阅读 */\r
+#headDeflectorContainer,\r
+/* 底部 打开百度APP，阅读体验更佳 */\r
+#page_wrapper div[class^="foldMaskWrapper-"],\r
+/* 打开百度APP，阅读完整内容 */\r
+#content_wrapper .foldMaskWrapper,\r
+/* 影响定位元素的遮罩层 */\r
+#page_wrapper .bdboxshare>div:first-child,\r
+/* 来百度APP畅享高清图片 */\r
+.contentMedia .openImg,\r
+/* 精彩推荐右边的 打开APP看更多精彩推荐 */\r
+div[class*="relateTitle"] span[class*="subTitle"],\r
+/* 会自动在上面弹出的【百度热榜】 */\r
+#page_wrapper div:has(>div[class*="leftbox"]),\r
+/* dtlandingwise 右上角 App内打开 */\r
+.fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\r
+/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\r
+.fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,\r
+/* landingsuper 文章内容的展开的蒙板 */\r
+#mainContentContainer .oPadding,\r
+/* 底部的广告 */\r
+[class^="adsContainer-"],\r
+/* 弹窗 打开百度App弹窗 */\r
+[class^="alertModalContainer-"],\r
+/* 视频下面的广告推荐 */\r
+#hcgContainer > div:has([data-log-view*='"isAds":true']) {\r
+  display: none !important;\r
+}\r
+/* 展开阅读 */\r
+#page_wrapper #dynamicItem,\r
+/* 手机版-展开阅读 */\r
+#mainContentContainer {\r
+  height: auto !important;\r
+}\r
+`;
+      const BaiduMbdHook = {
+        init() {
+          Panel.execMenu("baidu_mbd_camouflage_lite_baiduboxapp", () => {
+            log.info("hook: navigator.userAgent ==> lite baiduboxapp");
+            let oldNavigatorUserAgent = _unsafeWindow.navigator.userAgent;
+            OriginPrototype.Object.defineProperty(_unsafeWindow.navigator, "userAgent", {
+              get() {
+                return oldNavigatorUserAgent + " lite baiduboxapp";
+              },
+            });
+          });
+          Panel.execMenu("baidu_mbd_hijack_wakeup", () => {
+            log.info("hook: Function.property.call");
+            BaiduHook.functionCall("map");
+          });
+          Panel.execMenu("baidu_mbd_hijack_BoxJSBefore", () => {
+            log.info("hook: window.BoxJSBefore");
+            BaiduHook.windowBoxJSBefore();
+          });
+          Panel.execMenu("baidu_mbd_hijack_iframe", () => {
+            log.info("hook: Element.appendChild");
+            BaiduHook.elementAppendChild();
+          });
+        },
+      };
+      const BaiduMbd = {
+        init() {
+          addStyle$1(MbdShieldCSS);
+          log.info("插入CSS规则");
+          BaiduMbdHook.init();
+          Panel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
+            return this.blockExcitingComments();
+          });
+          Panel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
+            return this.blockExcitingRecommendations();
+          });
+          Panel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
+            return this.shieldBottomToolbar();
+          });
+        },
+        blockExcitingComments() {
+          log.info("屏蔽最热评论");
+          return CommonUtil.addBlockCSS(
+            "div#commentModule",
+            "#comment",
+            '#page_wrapper > div > div[class^="borderBottom-"]'
+          );
+        },
+        blockExcitingRecommendations() {
+          log.info("屏蔽最热推荐");
+          return [
+            CommonUtil.addBlockCSS(
+              'div[class^="relateTitle"]',
+              ".infinite-scroll-component__outerdiv",
+              "div#fuseVideo + div[class]",
+              "#content_wrapper + div + div",
+              "#page_wrapper .searchCraft #content_wrapper + div",
+              '.fusionWrapper [class^="reco_"]:has(>[class^="recoConatainer_"])'
+            ),
+            CommonUtil.addBlockCSS("#page_wrapper > div > div:nth-child(6)"),
+          ];
+        },
+        shieldBottomToolbar() {
+          log.info("屏蔽底部工具栏");
+          return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
+        },
+      };
+      const MiniJiaoYuShieldCSS = "";
+      const BaiduMiniJiaoYu = {
+        init() {
+          addStyle$1(MiniJiaoYuShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("mini_baidu_jiaoyu_shield_bottom_pull_down_menu", () => {
+            this.shieldBottomPullDownMenu();
+          });
+          Panel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
+            return this.blockEveryOneSearch();
+          });
+        },
+        injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
+          if (!Panel.isTopWindow()) {
+            return;
+          }
+          domUtils.ready(() => {
+            domUtils.waitNode(iframeSelector, 1e4).then(($iframe) => {
+              if (!$iframe) {
+                return;
+              }
+              let iframe__document = $iframe.contentDocument;
+              let iframe__window = $iframe.contentWindow;
+              let iframe__globalThis = iframe__window;
+              let iframe__self = iframe__window;
+              let coreOption = {
+                document: iframe__document,
+                window: iframe__window,
+                globalThis: iframe__globalThis,
+                self: iframe__self,
+                top: _unsafeWindow.top,
+                setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+                setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+                clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+                clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
+              };
+              let iframeDOMUtils = domUtils.createDOMUtils(coreOption);
+              let iframeUtils = utils.createUtils(coreOption);
+              if (typeof readyCallback === "function") {
+                readyCallback({
+                  ...coreOption,
+                  utils: iframeUtils,
+                  DOMUtils: iframeDOMUtils,
+                });
+              }
+            });
+          });
+        },
+        shieldBottomPullDownMenu() {
+          let hideCSS = `
+        #page_loft{
+            display: none !important;
+        }`;
+          this.injectIframe(void 0, (iframeGlobal) => {
+            iframeGlobal.DOMUtils.ready(() => {
+              log.info("【屏蔽】底部下拉菜单");
+              iframeGlobal.DOMUtils.addStyle(hideCSS);
+            });
+          });
+        },
+        blockEveryOneSearch() {
+          let hideCSS = `
+        swan-everyone-search-box{
+            display: none !important;
+        }`;
+          this.injectIframe(void 0, (iframeGlobal) => {
+            iframeGlobal.DOMUtils.ready(() => {
+              log.info("【屏蔽】大家还在搜");
+              iframeGlobal.DOMUtils.addStyle(hideCSS);
+            });
+          });
+        },
+      };
+      const PanShieldCSS =
+        "/* 失败页底部广告推荐 */\r\ndiv.share-error-ad,\r\n/* 左侧导航栏底部下载百度网盘APP横栏 */\r\n#app div.download-app,\r\n/* 失败页-小飞机送惊喜 */\r\ndiv.errorWrap div.share-plane,\r\n/* 保存到网盘右上角的领红包图标 */\r\nimg.sharelist-savebutton-hb-tip {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduPan = {
+        init() {
+          addStyle$1(PanShieldCSS);
+          log.info("插入CSS规则");
+        },
+      };
+      const PosShieldCSS = "html,\r\nbody {\r\n  display: none !important;\r\n}\r\n";
+      const BaiduPos = {
+        init() {
+          addStyle$1(PosShieldCSS);
+          log.info("插入CSS规则");
+        },
+      };
+      const SearchHealthShieldCSS =
+        '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"],\r\n/* 底部的推荐的广告 */\r\n.moduleItemWrap:has([data-ad-id]) {\r\n  display: none !important;\r\n}\r\n';
+      const BaiduHeadlth = {
+        init() {
+          addStyle$1(SearchHealthShieldCSS);
+          log.info("插入CSS规则");
+          Panel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
+            return this.shieldOtherInfo();
+          });
+          Panel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
+            return this.shieldServiceButtonsRow();
+          });
+        },
+        shieldOtherInfo() {
+          log.info("【屏蔽】底部其它信息");
+          return CommonUtil.addBlockCSS(
+            'article[class] > div[class^="index_container"]',
+            '#main > div[class^="index_container"]'
+          );
+        },
+        shieldServiceButtonsRow() {
+          log.info("【屏蔽】底部工具栏");
+          return CommonUtil.addBlockCSS(
+            'article[class] > div[class^="index_healthServiceButtonsRow"]',
+            '#main > div[class^="index_interactWrap"]'
+          );
         },
       };
       const SearchHandleResultEveryOneSearch = {
@@ -3760,6 +4582,524 @@ div[class^="new-summary-container_"] {\r
           }
         },
       };
+      const BaiduSearchBlockRule = {
+        defaultRule: `
+// 百度健康
+// match-href##expert.baidu.com
+match-attr##srcid##med_wz
+// 百度健康病案库
+match-attr##srcid##med_medical_records_san
+// 百度健康卖药的
+match-attr##srcid##med_disease_drug
+// 大家还在搜
+match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
+// 大家还在搜:隐藏的(点击后，跳出来的)
+remove-child##.c-atom-afterclick-recomm-wrap
+// 百家号聚合
+match-href##author.baidu.com/home/
+// xxx 相关 xxx
+match-attr##srcid##(sigma|vid_fourfold)
+// 问一问
+match-attr##data-log##wenda_inquiry
+// 百度游戏
+match-attr##srcid##yx_entity_san
+// 大家还在看
+match-attr##srcid##yl_recommend_list
+// 百度-智能小程序
+match-attr##srcid##xcx_multi
+// 百度 xx精选商品问答
+match-attr##srcid##b2b_wenda_wise
+// 百度爱采购
+match-attr##srcid##b2b_straight_wise_vertical
+// ↓会误杀有些情况下是百度知道的回答链接
+// match-attr##srcid##lego_tpl
+match-href##^http(s|)://b2b.baidu.com
+// 百度优选
+match-attr##srcid##sp_purc_san
+// 全网热卖
+match-attr##srcid##sp_purc_atom
+// 百度本地生活
+match-attr##srcid##jy_bdb_in_store_service_2nd
+// AI智能体推广
+match-attr##srcid##ai_agent_distribute
+// AI智能体 智能回复
+match-attr##srcid##ai_agent_qa_recommend
+// AI智能体 超多相关角色-等你来聊 
+match-attr##srcid##yl_actor_agent
+// 百度游戏中心
+match-attr##srcid##yx_entity_pc_san
+
+
+// 搜索聚合
+// match-attr##srcid##note_lead
+// 资讯
+// match-attr##srcid##realtime
+// 百度有驾
+// match-attr##srcid##(car_kg2_san|car_view_point_san)
+// 动态(微博、百度动态...等)
+// match-attr##srcid##rel_ugc_san
+`,
+        rule: [],
+        init() {
+          this.initRule();
+          Panel.execMenuOnce("baidu-search-add-filter-button", () => {
+            const $css = addStyle$1(
+              `
+        .gm-search-filter-wrapper{
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
+        .sc-feedback:has(.gm-search-filter-wrapper){
+          justify-content: center;
+          gap: 6px;
+        }
+      `
+            );
+            const lockFn = new utils.LockFunction(() => {
+              BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
+                BaiduSearchBlockRule.addFilterButton($result);
+                const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
+                if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
+                  log.info(["触发自定义规则，屏蔽该搜索结果，url：", url]);
+                  $result.remove();
+                  return;
+                }
+              });
+            });
+            const observer = utils.mutationObserver(document, {
+              config: {
+                subtree: true,
+                childList: true,
+              },
+              immediate: true,
+              callback: () => {
+                lockFn.run();
+              },
+            });
+            return [
+              $css,
+              () => {
+                observer.disconnect();
+              },
+              () => {
+                domUtils.remove(".gm-search-filter-wrapper");
+              },
+            ];
+          });
+        },
+        getLocalRule() {
+          let localRule = Panel.getValue("baidu-search-interception-rules", "");
+          localRule = localRule.trim();
+          return localRule;
+        },
+        setLocalRule(rule) {
+          Panel.setValue("baidu-search-interception-rules", rule);
+        },
+        clearLocalRule() {
+          Panel.deleteValue("baidu-search-interception-rules");
+        },
+        addRule(rule) {
+          let localRule = this.getLocalRule();
+          localRule += "\n" + rule.trim();
+          this.setLocalRule(localRule);
+        },
+        initRule() {
+          let localRule = this.getLocalRule();
+          if (Panel.getValue("baidu-search-blockNoteLead")) {
+            this.defaultRule += "\nmatch-attr##srcid##note_lead";
+          }
+          if (Panel.getValue("baidu-search-enable-default-interception-rules")) {
+            localRule = this.defaultRule + "\n\n" + localRule;
+          }
+          if (Array.isArray(this.rule) && this.rule.length) {
+            this.rule.length = 0;
+          } else {
+            this.rule = [];
+          }
+          this.rule = this.parseRule(localRule);
+        },
+        parseRule(localRule) {
+          let result = [];
+          function parseOneRule(ruleItem) {
+            let cRuleItemSplit = ruleItem.split("##");
+            if (!cRuleItemSplit.length) {
+              log.error(["无效规则", ruleItem]);
+              return;
+            }
+            let ruleName = cRuleItemSplit[0];
+            let ruleNameLowerCase = ruleName.toLowerCase();
+            let endRule = ruleItem.replace(ruleName + "##", "");
+            if (ruleNameLowerCase === "match-href") {
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                matchText: new RegExp(endRule),
+              };
+            } else if (ruleNameLowerCase === "match-attr") {
+              let otherRuleSplit = endRule.split("##");
+              if (otherRuleSplit.length === 1) {
+                log.error(["无效规则", ruleItem]);
+                return;
+              }
+              let attrName = otherRuleSplit[0];
+              let attrValueMatch = endRule.replace(attrName + "##", "");
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                attr: attrName,
+                matchText: new RegExp(attrValueMatch),
+              };
+            } else if (ruleNameLowerCase === "contains-child" || ruleNameLowerCase === "remove-child") {
+              return {
+                rule: ruleItem,
+                mode: ruleNameLowerCase,
+                matchText: endRule,
+              };
+            } else {
+              log.error(["无效规则", ruleItem]);
+            }
+          }
+          localRule.split("\n").forEach((ruleItem) => {
+            ruleItem = ruleItem.trim();
+            if (ruleItem === "") {
+              return;
+            }
+            if (ruleItem.startsWith("//")) {
+              return;
+            }
+            let moreRule = ruleItem.split("&&&&");
+            if (moreRule.length === 1) {
+              let parsedRule = parseOneRule(ruleItem);
+              if (parsedRule) {
+                result.push(parsedRule);
+              }
+            } else {
+              let resultRule = [];
+              moreRule.forEach((oneRule) => {
+                oneRule = oneRule.trim();
+                let parsedRule = parseOneRule(oneRule);
+                if (parsedRule) {
+                  resultRule.push(parsedRule);
+                }
+              });
+              result.push({
+                mode: "more-rule",
+                moreRule: resultRule,
+              });
+            }
+          });
+          return result;
+        },
+        checkFilter($el, url) {
+          function handleOneRule(ruleItem) {
+            if (ruleItem.mode === "match-href") {
+              if (typeof url === "string" && url.match(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "match-attr") {
+              if ($el.hasAttribute(ruleItem.attr) && $el.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "contains-child") {
+              if ($el.querySelector(ruleItem.matchText)) {
+                return true;
+              }
+            } else if (ruleItem.mode === "remove-child") {
+              $el.querySelector(ruleItem["matchText"])?.remove();
+            }
+          }
+          for (const ruleItem of this.rule) {
+            if (ruleItem.moreRule) {
+              for (const oneRule of ruleItem.moreRule) {
+                if (handleOneRule(oneRule)) {
+                  return true;
+                }
+              }
+            } else {
+              if (handleOneRule(ruleItem)) {
+                return true;
+              }
+            }
+          }
+        },
+        createFilterButton() {
+          const $btn = domUtils.createElement("div", {
+            className: "gm-search-filter-wrapper",
+            innerHTML: `
+        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+          <path d="M512 512m-465.454545 0a465.454545 465.454545 0 1 0 930.90909 0 465.454545 465.454545 0 1 0-930.90909 0Z" fill="#FFF1F0"></path>
+          <path d="M512 1000.727273c269.917091 0 488.727273-218.810182 488.727273-488.727273S781.917091 23.272727 512 23.272727 23.272727 242.082909 23.272727 512 242.082909 1000.727273 512 1000.727273z m0-46.545455a442.181818 442.181818 0 1 1 0-884.363636 442.181818 442.181818 0 0 1 0 884.363636z" fill="#FFA39E"></path>
+          <path d="M621.940364 338.385455h51.944727c19.083636 0 34.583273 15.546182 34.583273 34.769454v176.407273c12.520727 5.864727 24.203636 13.312 34.676363 22.295273v-198.749091a69.352727 69.352727 0 0 0-69.306182-69.492364H327.493818a69.352727 69.352727 0 0 0-69.259636 69.538909v347.648c0 38.4 30.999273 69.492364 69.259636 69.492364h202.612364a153.181091 153.181091 0 0 1-23.458909-34.769455H327.493818a34.676364 34.676364 0 0 1-34.629818-34.722909v-347.694545c0-19.176727 15.499636-34.722909 34.629818-34.722909h294.446546z" fill="#F5222D"></path>
+          <path d="M362.123636 668.578909c0 9.634909 7.726545 17.408 17.314909 17.408h111.709091a153.134545 153.134545 0 0 1 4.514909-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.361454z m259.770182-191.162182H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h242.501819a17.361455 17.361455 0 0 0 0-34.769455z m-100.072727-77.405091H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h142.382546a17.361455 17.361455 0 0 0 0-34.769455z m-159.650909 181.713455c0 9.588364 7.68 17.361455 17.268363 17.361454h140.427637c9.634909-13.405091 21.410909-25.134545 34.769454-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408z m368.360727 22.481454a124.741818 124.741818 0 0 0-172.916364 0 116.782545 116.782545 0 0 0 0 168.261819 124.648727 124.648727 0 0 0 172.916364 0 116.782545 116.782545 0 0 0 0-168.261819z m-24.808727 23.45891c30.021818 29.184 33.698909 74.286545 11.077818 107.426909l-121.483636-118.225455a89.460364 89.460364 0 0 1 110.405818 10.798546z m-123.997091 120.692363a83.688727 83.688727 0 0 1-11.077818-107.473454l121.483636 118.272a89.553455 89.553455 0 0 1-110.405818-10.798546z" fill="#F5222D"></path>
+        </svg>
+      `,
+          });
+          return $btn;
+        },
+        addFilterButton($searchResult) {
+          if ($searchResult.hasAttribute("data-is-add-search-result-filter-button")) {
+            return;
+          }
+          $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
+          const $feedback =
+            $searchResult.querySelector(".cosc-feedback") || $searchResult.querySelector(`.sc-feedback`);
+          const $cardSection = $searchResult.querySelector("article.cosc-card section");
+          const $section = $searchResult.querySelector("article section");
+          const $filterBtn = this.createFilterButton();
+          domUtils.on(
+            $filterBtn,
+            "click",
+            (evt) => {
+              domUtils.preventEvent(evt);
+              const url = BaiduHandleResultItem.getSearchArticleOriginal_link($searchResult);
+              const ruleList = [];
+              const srcid = $searchResult.getAttribute("srcid");
+              let rule_attr_srcid, rule_attr_new_srcid, rule_attr_tpl, rule_href_hostname, rule_href_hostname_pathname;
+              if (utils.isNotNull(srcid)) {
+                rule_attr_srcid = `match-attr##srcid##${srcid}`;
+                ruleList.push(rule_attr_srcid);
+              }
+              const new_srcid = $searchResult.getAttribute("new_srcid");
+              if (utils.isNotNull(new_srcid)) {
+                rule_attr_new_srcid = `match-attr##new_srcid##${new_srcid}`;
+                ruleList.push(rule_attr_new_srcid);
+              }
+              const tpl = $searchResult.getAttribute("tpl");
+              if (utils.isNotNull(tpl)) {
+                rule_attr_tpl = `match-attr##tpl##${tpl}`;
+                ruleList.push(rule_attr_tpl);
+              }
+              if (utils.isNotNull(url)) {
+                try {
+                  const urlInst = new URL(url);
+                  rule_href_hostname = `match-href##${urlInst.hostname}`;
+                  rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
+                  ruleList.push(rule_href_hostname);
+                  ruleList.push(rule_href_hostname_pathname);
+                  if (utils.isNotNull(srcid)) {
+                    ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
+                  }
+                  if (utils.isNotNull(new_srcid)) {
+                    ruleList.push([rule_attr_new_srcid, rule_href_hostname].join("&&&&"));
+                  }
+                  if (utils.isNotNull(tpl)) {
+                    ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
+                  }
+                } catch (error) {
+                  ruleList.push(`match-href##url##${url}`);
+                }
+              }
+              if (!ruleList.length) {
+                Qmsg.error("生成过滤规则失败");
+                return;
+              }
+              const $dialog = __pops__.confirm({
+                title: {
+                  text: "快捷添加过滤规则",
+                  position: "center",
+                },
+                content: {
+                  text: `
+              <div class="quick-add-rule-wrapper">
+                ${ruleList
+                  .map((it, index) => {
+                    return `
+                      <div class="quick-add-rule-item" data-list-index="${index}">
+                        <code>${it}</code>
+                      </div>
+                    `;
+                  })
+                  .join("\n")}
+              </div>
+            `,
+                  html: true,
+                },
+                btn: {
+                  ok: {
+                    enable: false,
+                  },
+                  cancel: {
+                    enable: false,
+                  },
+                },
+                mask: {
+                  clickEvent: {
+                    toClose: true,
+                  },
+                },
+                width: PanelUISize.setting.width,
+                height: "auto",
+                style: `
+            .quick-add-rule-wrapper{
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 15px;
+              padding: 10px;
+            }
+            .quick-add-rule-item{
+              cursor: pointer;
+            }
+            .quick-add-rule-item code {
+              display: flex;
+              flex-wrap: nowrap;
+            }
+          `,
+              });
+              domUtils.on($dialog.$pops, "click", ".quick-add-rule-item", (evt2, selectorTarget) => {
+                domUtils.preventEvent(evt);
+                const index = Number(selectorTarget.getAttribute("data-list-index"));
+                const rule = ruleList[index];
+                if (rule == null) {
+                  log.error(rule, index);
+                  Qmsg.error("规则不存在");
+                  return;
+                }
+                log.info(["添加过滤规则：", rule]);
+                Qmsg.success("添加成功");
+                this.addRule(rule);
+                this.initRule();
+                BaiduHandleResultItem.removeAds();
+                $dialog.close();
+              });
+            },
+            {
+              capture: true,
+            }
+          );
+          const feedbackRect = $feedback?.getBoundingClientRect();
+          if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
+            domUtils.prepend($feedback, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "feedback");
+          } else if ($cardSection) {
+            domUtils.append($cardSection, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "cardSection");
+          } else if ($section) {
+            domUtils.append($section, $filterBtn);
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "section");
+          } else {
+            $searchResult.setAttribute("data-is-add-search-result-filter-button", "");
+          }
+        },
+      };
+      const BaiduSearchHook = {
+        init() {
+          Panel.execMenuOnce("baidu_search_hijack__onClick", () => {
+            log.success("hook: baidu onClick");
+            BaiduHook.objectDefineProperty_search("baidu_search_hijack__onClick");
+          });
+          Panel.execMenuOnce("baidu_search_hijack_openbox", () => {
+            log.success("hook: window.OpenBox");
+            BaiduHook.windowOpenBox();
+          });
+          Panel.execMenuOnce("baidu_search_hijack_scheme", () => {
+            log.success("hook: Function.apply => scheme");
+            BaiduHook.functionApply("scheme");
+          });
+          Panel.execMenuOnce("baidu_search_hijack_copy", () => {
+            log.success("hook: Function.apply => copy");
+            BaiduHook.functionApply("copy");
+          });
+          Panel.execMenuOnce("baidu_search_hijack_setTimeout", () => {
+            BaiduHook.setTimeout("getGeoLocation|loopPlay()|.videoAutoplay");
+          });
+        },
+      };
+      const SearchInputEvent = {
+        init() {
+          let suggestListSelector = "#se-box .suggest-content";
+          let suggestListBtnSelectorList = "#se-box .suggest-content button";
+          let suggestList2Selector = "#se-box2 .suggest-content";
+          let suggestListBtn2SelectorList = "#se-box2 .suggest-content button";
+          let suggestList_HOME_Selector = "#index-box .suggest-content";
+          let suggestListBtn_HOME_SelectorList = "#index-box .suggest-content button";
+          let searchInputSelector = "#kw";
+          let searchInput2Selector = "#kw2";
+          let searchBtnSelector = "#se-bn";
+          let searchBtn2Selector = "#se-bn2";
+          let searchInput_HOME_Selector = "#index-kw";
+          let searchBtn_HOME_Selector = "#index-bn";
+          domUtils.waitNode(suggestListSelector).then((element) => {
+            utils.mutationObserver(element, {
+              callback: () => {
+                SearchInputEvent.mutationObserverFunction(suggestListBtnSelectorList);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          domUtils.waitNode(suggestList2Selector).then((element) => {
+            utils.mutationObserver(element, {
+              callback: () => {
+                SearchInputEvent.mutationObserverFunction(suggestListBtn2SelectorList);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          domUtils.waitNode(suggestList_HOME_Selector).then((element) => {
+            utils.mutationObserver(element, {
+              callback: () => {
+                SearchInputEvent.mutationObserverFunction(suggestListBtn_HOME_SelectorList);
+              },
+              config: { childList: true, attributes: true },
+            });
+          });
+          domUtils.on(searchBtnSelector, "click", function (event) {
+            return SearchInputEvent.searchBtnJump(event, $(searchInputSelector));
+          });
+          domUtils.on(searchInputSelector, "keydown", function (event) {
+            return SearchInputEvent.enterKeyDownEvent(event, $(searchInputSelector));
+          });
+          domUtils.on(searchBtn2Selector, "click", function (event) {
+            return SearchInputEvent.searchBtnJump(event, $(searchInput2Selector));
+          });
+          domUtils.on($(searchInput2Selector), "keydown", function (event) {
+            return SearchInputEvent.enterKeyDownEvent(event, $(searchInput2Selector));
+          });
+          domUtils.on(searchBtn_HOME_Selector, "click", function (event) {
+            return SearchInputEvent.searchBtnJump(event, $(searchInput_HOME_Selector));
+          });
+          domUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
+            return SearchInputEvent.enterKeyDownEvent(event, $(searchInput_HOME_Selector));
+          });
+        },
+        mutationObserverFunction(elementSelector) {
+          log.success("设置搜索建议自定义click事件");
+          $$(elementSelector).forEach((item) => {
+            domUtils.on(item, "click", function (event) {
+              domUtils.preventEvent(event);
+              window?.stop();
+              let searchText = event.target.textContent;
+              let redirectURL = window.location.origin + "/s?word=" + searchText;
+              log.success("点击按钮跳转搜索 -> " + searchText);
+              log.success(redirectURL);
+              window.location.href = redirectURL;
+              return false;
+            });
+          });
+        },
+        searchBtnJump(event, searchInputElement) {
+          domUtils.preventEvent(event);
+          window?.stop();
+          let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
+          log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
+          log.success(redirectURL);
+          window.location.href = redirectURL;
+          return false;
+        },
+        enterKeyDownEvent(event, searchInputElement) {
+          if (event.keyCode === 108 || event.keyCode === 13) {
+            window?.stop();
+            domUtils.preventEvent(event);
+            let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
+            log.success("回车键跳转搜索 -> " + searchInputElement.value);
+            log.success(redirectURL);
+            window.location.href = redirectURL;
+            return false;
+          }
+          return true;
+        },
+      };
       const SearchNextPage = {
         initPageInfo: null,
         pageInfo: null,
@@ -4202,800 +5542,6 @@ div[class^="new-summary-container_"] {\r
           }
         },
       };
-      const SearchInputEvent = {
-        init() {
-          let suggestListSelector = "#se-box .suggest-content";
-          let suggestListBtnSelectorList = "#se-box .suggest-content button";
-          let suggestList2Selector = "#se-box2 .suggest-content";
-          let suggestListBtn2SelectorList = "#se-box2 .suggest-content button";
-          let suggestList_HOME_Selector = "#index-box .suggest-content";
-          let suggestListBtn_HOME_SelectorList = "#index-box .suggest-content button";
-          let searchInputSelector = "#kw";
-          let searchInput2Selector = "#kw2";
-          let searchBtnSelector = "#se-bn";
-          let searchBtn2Selector = "#se-bn2";
-          let searchInput_HOME_Selector = "#index-kw";
-          let searchBtn_HOME_Selector = "#index-bn";
-          domUtils.waitNode(suggestListSelector).then((element) => {
-            utils.mutationObserver(element, {
-              callback: () => {
-                SearchInputEvent.mutationObserverFunction(suggestListBtnSelectorList);
-              },
-              config: { childList: true, attributes: true },
-            });
-          });
-          domUtils.waitNode(suggestList2Selector).then((element) => {
-            utils.mutationObserver(element, {
-              callback: () => {
-                SearchInputEvent.mutationObserverFunction(suggestListBtn2SelectorList);
-              },
-              config: { childList: true, attributes: true },
-            });
-          });
-          domUtils.waitNode(suggestList_HOME_Selector).then((element) => {
-            utils.mutationObserver(element, {
-              callback: () => {
-                SearchInputEvent.mutationObserverFunction(suggestListBtn_HOME_SelectorList);
-              },
-              config: { childList: true, attributes: true },
-            });
-          });
-          domUtils.on(searchBtnSelector, "click", function (event) {
-            return SearchInputEvent.searchBtnJump(event, $(searchInputSelector));
-          });
-          domUtils.on(searchInputSelector, "keydown", function (event) {
-            return SearchInputEvent.enterKeyDownEvent(event, $(searchInputSelector));
-          });
-          domUtils.on(searchBtn2Selector, "click", function (event) {
-            return SearchInputEvent.searchBtnJump(event, $(searchInput2Selector));
-          });
-          domUtils.on($(searchInput2Selector), "keydown", function (event) {
-            return SearchInputEvent.enterKeyDownEvent(event, $(searchInput2Selector));
-          });
-          domUtils.on(searchBtn_HOME_Selector, "click", function (event) {
-            return SearchInputEvent.searchBtnJump(event, $(searchInput_HOME_Selector));
-          });
-          domUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
-            return SearchInputEvent.enterKeyDownEvent(event, $(searchInput_HOME_Selector));
-          });
-        },
-        mutationObserverFunction(elementSelector) {
-          log.success("设置搜索建议自定义click事件");
-          $$(elementSelector).forEach((item) => {
-            domUtils.on(item, "click", function (event) {
-              domUtils.preventEvent(event);
-              window?.stop();
-              let searchText = event.target.textContent;
-              let redirectURL = window.location.origin + "/s?word=" + searchText;
-              log.success("点击按钮跳转搜索 -> " + searchText);
-              log.success(redirectURL);
-              window.location.href = redirectURL;
-              return false;
-            });
-          });
-        },
-        searchBtnJump(event, searchInputElement) {
-          domUtils.preventEvent(event);
-          window?.stop();
-          let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
-          log.success("点击按钮跳转搜索 -> " + searchInputElement.value);
-          log.success(redirectURL);
-          window.location.href = redirectURL;
-          return false;
-        },
-        enterKeyDownEvent(event, searchInputElement) {
-          if (event.keyCode === 108 || event.keyCode === 13) {
-            window?.stop();
-            domUtils.preventEvent(event);
-            let redirectURL = window.location.origin + "/s?word=" + searchInputElement.value;
-            log.success("回车键跳转搜索 -> " + searchInputElement.value);
-            log.success(redirectURL);
-            window.location.href = redirectURL;
-            return false;
-          }
-          return true;
-        },
-      };
-      const BaiduSearchBlockRule = {
-        defaultRule: `
-// 百度健康
-// match-href##expert.baidu.com
-match-attr##srcid##med_wz
-// 百度健康病案库
-match-attr##srcid##med_medical_records_san
-// 百度健康卖药的
-match-attr##srcid##med_disease_drug
-// 大家还在搜
-match-href##recommend_list.baidu.com&&&&match-attr##tpl##recommend_list
-// 大家还在搜:隐藏的(点击后，跳出来的)
-remove-child##.c-atom-afterclick-recomm-wrap
-// 百家号聚合
-match-href##author.baidu.com/home/
-// xxx 相关 xxx
-match-attr##srcid##(sigma|vid_fourfold)
-// 问一问
-match-attr##data-log##wenda_inquiry
-// 百度游戏
-match-attr##srcid##yx_entity_san
-// 大家还在看
-match-attr##srcid##yl_recommend_list
-// 百度-智能小程序
-match-attr##srcid##xcx_multi
-// 百度 xx精选商品问答
-match-attr##srcid##b2b_wenda_wise
-// 百度爱采购
-match-attr##srcid##b2b_straight_wise_vertical
-// ↓会误杀有些情况下是百度知道的回答链接
-// match-attr##srcid##lego_tpl
-match-href##^http(s|)://b2b.baidu.com
-// 百度优选
-match-attr##srcid##sp_purc_san
-// 全网热卖
-match-attr##srcid##sp_purc_atom
-// 百度本地生活
-match-attr##srcid##jy_bdb_in_store_service_2nd
-// AI智能体推广
-match-attr##srcid##ai_agent_distribute
-// AI智能体 智能回复
-match-attr##srcid##ai_agent_qa_recommend
-// AI智能体 超多相关角色-等你来聊 
-match-attr##srcid##yl_actor_agent
-// 百度游戏中心
-match-attr##srcid##yx_entity_pc_san
-
-
-// 搜索聚合
-// match-attr##srcid##note_lead
-// 资讯
-// match-attr##srcid##realtime
-// 百度有驾
-// match-attr##srcid##(car_kg2_san|car_view_point_san)
-// 动态(微博、百度动态...等)
-// match-attr##srcid##rel_ugc_san
-`,
-        rule: [],
-        init() {
-          this.initRule();
-          Panel.execMenuOnce("baidu-search-add-filter-button", () => {
-            const $css = addStyle$1(
-              `
-        .gm-search-filter-wrapper{
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-        }
-        .sc-feedback:has(.gm-search-filter-wrapper){
-          justify-content: center;
-          gap: 6px;
-        }
-      `
-            );
-            const lockFn = new utils.LockFunction(() => {
-              BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
-                BaiduSearchBlockRule.addFilterButton($result);
-                const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
-                if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
-                  log.info(["触发自定义规则，屏蔽该搜索结果：", url]);
-                  $result.remove();
-                  return;
-                }
-              });
-            });
-            const observer = utils.mutationObserver(document, {
-              config: {
-                subtree: true,
-                childList: true,
-              },
-              immediate: true,
-              callback: () => {
-                lockFn.run();
-              },
-            });
-            return [
-              $css,
-              () => {
-                observer.disconnect();
-              },
-              () => {
-                domUtils.remove(".gm-search-filter-wrapper");
-              },
-            ];
-          });
-        },
-        getLocalRule() {
-          let localRule = Panel.getValue("baidu-search-interception-rules", "");
-          localRule = localRule.trim();
-          return localRule;
-        },
-        setLocalRule(rule) {
-          Panel.setValue("baidu-search-interception-rules", rule);
-        },
-        clearLocalRule() {
-          Panel.deleteValue("baidu-search-interception-rules");
-        },
-        addRule(rule) {
-          let localRule = this.getLocalRule();
-          localRule += "\n" + rule.trim();
-          this.setLocalRule(localRule);
-        },
-        initRule() {
-          let localRule = this.getLocalRule();
-          if (Panel.getValue("baidu-search-blockNoteLead")) {
-            this.defaultRule += "\nmatch-attr##srcid##note_lead";
-          }
-          if (Panel.getValue("baidu-search-enable-default-interception-rules")) {
-            localRule = this.defaultRule + "\n\n" + localRule;
-          }
-          if (Array.isArray(this.rule) && this.rule.length) {
-            this.rule.length = 0;
-          } else {
-            this.rule = [];
-          }
-          this.rule = this.parseRule(localRule);
-        },
-        parseRule(localRule) {
-          let result = [];
-          function parseOneRule(ruleItem) {
-            let cRuleItemSplit = ruleItem.split("##");
-            if (!cRuleItemSplit.length) {
-              log.error(["无效规则", ruleItem]);
-              return;
-            }
-            let ruleName = cRuleItemSplit[0];
-            let ruleNameLowerCase = ruleName.toLowerCase();
-            let endRule = ruleItem.replace(ruleName + "##", "");
-            if (ruleNameLowerCase === "match-href") {
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                matchText: new RegExp(endRule),
-              };
-            } else if (ruleNameLowerCase === "match-attr") {
-              let otherRuleSplit = endRule.split("##");
-              if (otherRuleSplit.length === 1) {
-                log.error(["无效规则", ruleItem]);
-                return;
-              }
-              let attrName = otherRuleSplit[0];
-              let attrValueMatch = endRule.replace(attrName + "##", "");
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                attr: attrName,
-                matchText: new RegExp(attrValueMatch),
-              };
-            } else if (ruleNameLowerCase === "contains-child" || ruleNameLowerCase === "remove-child") {
-              return {
-                rule: ruleItem,
-                mode: ruleNameLowerCase,
-                matchText: endRule,
-              };
-            } else {
-              log.error(["无效规则", ruleItem]);
-            }
-          }
-          localRule.split("\n").forEach((ruleItem) => {
-            ruleItem = ruleItem.trim();
-            if (ruleItem === "") {
-              return;
-            }
-            if (ruleItem.startsWith("//")) {
-              return;
-            }
-            let moreRule = ruleItem.split("&&&&");
-            if (moreRule.length === 1) {
-              let parsedRule = parseOneRule(ruleItem);
-              if (parsedRule) {
-                result.push(parsedRule);
-              }
-            } else {
-              let resultRule = [];
-              moreRule.forEach((oneRule) => {
-                oneRule = oneRule.trim();
-                let parsedRule = parseOneRule(oneRule);
-                if (parsedRule) {
-                  resultRule.push(parsedRule);
-                }
-              });
-              result.push({
-                mode: "more-rule",
-                moreRule: resultRule,
-              });
-            }
-          });
-          return result;
-        },
-        checkFilter($el, url) {
-          function handleOneRule(ruleItem) {
-            if (ruleItem.mode === "match-href") {
-              if (typeof url === "string" && url.match(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "match-attr") {
-              if ($el.hasAttribute(ruleItem.attr) && $el.getAttribute(ruleItem.attr)?.match(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "contains-child") {
-              if ($el.querySelector(ruleItem.matchText)) {
-                return true;
-              }
-            } else if (ruleItem.mode === "remove-child") {
-              $el.querySelector(ruleItem["matchText"])?.remove();
-            }
-          }
-          for (const ruleItem of this.rule) {
-            if (ruleItem.moreRule) {
-              for (const oneRule of ruleItem.moreRule) {
-                if (handleOneRule(oneRule)) {
-                  return true;
-                }
-              }
-            } else {
-              if (handleOneRule(ruleItem)) {
-                return true;
-              }
-            }
-          }
-        },
-        createFilterButton() {
-          const $btn = domUtils.createElement("div", {
-            className: "gm-search-filter-wrapper",
-            innerHTML: `
-        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-          <path d="M512 512m-465.454545 0a465.454545 465.454545 0 1 0 930.90909 0 465.454545 465.454545 0 1 0-930.90909 0Z" fill="#FFF1F0"></path>
-          <path d="M512 1000.727273c269.917091 0 488.727273-218.810182 488.727273-488.727273S781.917091 23.272727 512 23.272727 23.272727 242.082909 23.272727 512 242.082909 1000.727273 512 1000.727273z m0-46.545455a442.181818 442.181818 0 1 1 0-884.363636 442.181818 442.181818 0 0 1 0 884.363636z" fill="#FFA39E"></path>
-          <path d="M621.940364 338.385455h51.944727c19.083636 0 34.583273 15.546182 34.583273 34.769454v176.407273c12.520727 5.864727 24.203636 13.312 34.676363 22.295273v-198.749091a69.352727 69.352727 0 0 0-69.306182-69.492364H327.493818a69.352727 69.352727 0 0 0-69.259636 69.538909v347.648c0 38.4 30.999273 69.492364 69.259636 69.492364h202.612364a153.181091 153.181091 0 0 1-23.458909-34.769455H327.493818a34.676364 34.676364 0 0 1-34.629818-34.722909v-347.694545c0-19.176727 15.499636-34.722909 34.629818-34.722909h294.446546z" fill="#F5222D"></path>
-          <path d="M362.123636 668.578909c0 9.634909 7.726545 17.408 17.314909 17.408h111.709091a153.134545 153.134545 0 0 1 4.514909-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.361454z m259.770182-191.162182H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h242.501819a17.361455 17.361455 0 0 0 0-34.769455z m-100.072727-77.405091H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408c0 9.588364 7.68 17.361455 17.268363 17.361455h142.382546a17.361455 17.361455 0 0 0 0-34.769455z m-159.650909 181.713455c0 9.588364 7.68 17.361455 17.268363 17.361454h140.427637c9.634909-13.405091 21.410909-25.134545 34.769454-34.769454H379.438545a17.314909 17.314909 0 0 0-17.268363 17.408z m368.360727 22.481454a124.741818 124.741818 0 0 0-172.916364 0 116.782545 116.782545 0 0 0 0 168.261819 124.648727 124.648727 0 0 0 172.916364 0 116.782545 116.782545 0 0 0 0-168.261819z m-24.808727 23.45891c30.021818 29.184 33.698909 74.286545 11.077818 107.426909l-121.483636-118.225455a89.460364 89.460364 0 0 1 110.405818 10.798546z m-123.997091 120.692363a83.688727 83.688727 0 0 1-11.077818-107.473454l121.483636 118.272a89.553455 89.553455 0 0 1-110.405818-10.798546z" fill="#F5222D"></path>
-        </svg>
-      `,
-          });
-          return $btn;
-        },
-        addFilterButton($searchResult) {
-          if ($searchResult.hasAttribute("data-is-add-search-result-filter-button")) {
-            return;
-          }
-          $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
-          const $feedback =
-            $searchResult.querySelector(".cosc-feedback") || $searchResult.querySelector(`.sc-feedback`);
-          const $cardSection = $searchResult.querySelector("article.cosc-card section");
-          const $section = $searchResult.querySelector("article section");
-          const $filterBtn = this.createFilterButton();
-          domUtils.on(
-            $filterBtn,
-            "click",
-            (evt) => {
-              domUtils.preventEvent(evt);
-              const url = BaiduHandleResultItem.getSearchArticleOriginal_link($searchResult);
-              const ruleList = [];
-              const srcid = $searchResult.getAttribute("srcid");
-              let rule_attr_srcid, rule_attr_new_srcid, rule_attr_tpl, rule_href_hostname, rule_href_hostname_pathname;
-              if (utils.isNotNull(srcid)) {
-                rule_attr_srcid = `match-attr##srcid##${srcid}`;
-                ruleList.push(rule_attr_srcid);
-              }
-              const new_srcid = $searchResult.getAttribute("new_srcid");
-              if (utils.isNotNull(new_srcid)) {
-                rule_attr_new_srcid = `match-attr##new_srcid##${new_srcid}`;
-                ruleList.push(rule_attr_new_srcid);
-              }
-              const tpl = $searchResult.getAttribute("tpl");
-              if (utils.isNotNull(tpl)) {
-                rule_attr_tpl = `match-attr##tpl##${tpl}`;
-                ruleList.push(rule_attr_tpl);
-              }
-              if (utils.isNotNull(url)) {
-                try {
-                  const urlInst = new URL(url);
-                  rule_href_hostname = `match-href##${urlInst.hostname}`;
-                  rule_href_hostname_pathname = `match-href##${urlInst.hostname}${urlInst.pathname}`;
-                  ruleList.push(rule_href_hostname);
-                  ruleList.push(rule_href_hostname_pathname);
-                  if (utils.isNotNull(srcid)) {
-                    ruleList.push([rule_attr_srcid, rule_href_hostname].join("&&&&"));
-                  }
-                  if (utils.isNotNull(new_srcid)) {
-                    ruleList.push([rule_attr_new_srcid, rule_href_hostname].join("&&&&"));
-                  }
-                  if (utils.isNotNull(tpl)) {
-                    ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
-                  }
-                } catch (error) {
-                  ruleList.push(`match-href##url##${url}`);
-                }
-              }
-              if (!ruleList.length) {
-                Qmsg.error("生成过滤规则失败");
-                return;
-              }
-              const $dialog = __pops__.confirm({
-                title: {
-                  text: "快捷添加过滤规则",
-                  position: "center",
-                },
-                content: {
-                  text: `
-              <div class="quick-add-rule-wrapper">
-                ${ruleList
-                  .map((it, index) => {
-                    return `
-                      <div class="quick-add-rule-item" data-list-index="${index}">
-                        <code>${it}</code>
-                      </div>
-                    `;
-                  })
-                  .join("\n")}
-              </div>
-            `,
-                  html: true,
-                },
-                btn: {
-                  ok: {
-                    enable: false,
-                  },
-                  cancel: {
-                    enable: false,
-                  },
-                },
-                mask: {
-                  clickEvent: {
-                    toClose: true,
-                  },
-                },
-                width: PanelUISize.setting.width,
-                height: "auto",
-                style: `
-            .quick-add-rule-wrapper{
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 15px;
-              padding: 10px;
-            }
-            .quick-add-rule-item{
-              cursor: pointer;
-            }
-            .quick-add-rule-item code {
-              display: flex;
-              flex-wrap: nowrap;
-            }
-          `,
-              });
-              domUtils.on($dialog.$pops, "click", ".quick-add-rule-item", (evt2, selectorTarget) => {
-                domUtils.preventEvent(evt);
-                const index = Number(selectorTarget.getAttribute("data-list-index"));
-                const rule = ruleList[index];
-                if (rule == null) {
-                  log.error(rule, index);
-                  Qmsg.error("规则不存在");
-                  return;
-                }
-                log.info(["添加过滤规则：", rule]);
-                Qmsg.success("添加成功");
-                this.addRule(rule);
-                this.initRule();
-                BaiduHandleResultItem.removeAds();
-                $dialog.close();
-              });
-            },
-            {
-              capture: true,
-            }
-          );
-          const feedbackRect = $feedback?.getBoundingClientRect();
-          if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
-            domUtils.prepend($feedback, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "feedback");
-          } else if ($cardSection) {
-            domUtils.append($cardSection, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "cardSection");
-          } else if ($section) {
-            domUtils.append($section, $filterBtn);
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "section");
-          } else {
-            $searchResult.setAttribute("data-is-add-search-result-filter-button", "");
-          }
-        },
-      };
-      const blockCSS$2 =
-        '.short-mini > div:has(script[data-for="native-ads"]) {\r\n  display: none !important;\r\n}\r\n';
-      const BaiduSearchVideoBlock = {
-        init() {
-          addStyle$1(blockCSS$2);
-          Panel.execMenuOnce("baidu-search-video-blockBottomRecommendVideo", () => {
-            return this.blockBottomRecommendVideo();
-          });
-        },
-        blockBottomRecommendVideo() {
-          log.info("【屏蔽】底部推荐视频");
-          return CommonUtil.addBlockCSS(".short-mini-wrapper");
-        },
-      };
-      const BaiduSearchVideo = {
-        init() {
-          BaiduSearchVideoBlock.init();
-          Panel.execMenuOnce("baidu-search-video-autoJumpToOriginUrl", () => {
-            this.autoJumpToOriginUrl();
-          });
-        },
-        autoJumpToOriginUrl() {
-          domUtils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
-            if (!$showUrl) {
-              Qmsg.error("未找到.sfc-video-page-info-showurl元素");
-              return;
-            }
-            let url = $showUrl.getAttribute("data-url") || $showUrl.href;
-            if (utils.isNull(url)) {
-              Qmsg.error("获取原网页Url失败");
-              return;
-            }
-            window.location.href = url;
-          });
-        },
-      };
-      const VueUtils = {
-        getVue($el) {
-          if ($el == null) {
-            return;
-          }
-          return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
-        },
-        getVue3($el) {
-          if ($el == null) {
-            return;
-          }
-          return $el["__vueParentComponent"];
-        },
-        waitVuePropToSet($el, checkOption) {
-          if (!Array.isArray(checkOption)) {
-            checkOption = [checkOption];
-          }
-          function getTarget() {
-            let __target__ = null;
-            if (typeof $el === "string") {
-              __target__ = domUtils.selector($el);
-            } else if (typeof $el === "function") {
-              __target__ = $el();
-            } else if ($el instanceof HTMLElement) {
-              __target__ = $el;
-            }
-            return __target__;
-          }
-          checkOption.forEach((needSetOption) => {
-            if (typeof needSetOption.msg === "string") {
-              log.info(needSetOption.msg);
-            }
-            function checkTarget() {
-              let $targetEl = getTarget();
-              if ($targetEl == null) {
-                return {
-                  status: false,
-                  isTimeout: true,
-                  inst: null,
-                  $el: $targetEl,
-                };
-              }
-              let vueInst = VueUtils.getVue($targetEl);
-              if (vueInst == null) {
-                return {
-                  status: false,
-                  isTimeout: false,
-                  inst: null,
-                  $el: $targetEl,
-                };
-              }
-              let checkResult = needSetOption.check(vueInst, $targetEl);
-              checkResult = Boolean(checkResult);
-              return {
-                status: checkResult,
-                isTimeout: false,
-                inst: vueInst,
-                $el: $targetEl,
-              };
-            }
-            utils
-              .waitVueByInterval(
-                () => {
-                  return getTarget();
-                },
-                () => checkTarget().status,
-                250,
-                1e4
-              )
-              .then((result) => {
-                let checkTargetResult = checkTarget();
-                if (checkTargetResult.status) {
-                  let vueInst = checkTargetResult.inst;
-                  needSetOption.set(vueInst, checkTargetResult.$el);
-                } else {
-                  if (typeof needSetOption.failWait === "function") {
-                    needSetOption.failWait(checkTargetResult.isTimeout);
-                  }
-                }
-              });
-          });
-        },
-        watchVuePropChange($el, key, callback, watchConfig, failWait) {
-          let config = utils.assign(
-            {
-              immediate: true,
-              deep: false,
-            },
-            watchConfig || {}
-          );
-          return new Promise((resolve) => {
-            VueUtils.waitVuePropToSet($el, {
-              check(vueInstance) {
-                return typeof vueInstance?.$watch === "function";
-              },
-              set(vueInstance) {
-                let removeWatch = null;
-                if (typeof key === "function") {
-                  removeWatch = vueInstance.$watch(
-                    () => {
-                      return key(vueInstance);
-                    },
-                    (newValue, oldValue) => {
-                      callback(vueInstance, newValue, oldValue);
-                    },
-                    config
-                  );
-                } else {
-                  removeWatch = vueInstance.$watch(
-                    key,
-                    (newValue, oldValue) => {
-                      callback(vueInstance, newValue, oldValue);
-                    },
-                    config
-                  );
-                }
-                resolve(removeWatch);
-              },
-              failWait,
-            });
-          });
-        },
-        goToUrl($el, path, useRouter = false) {
-          if ($el == null) {
-            Qmsg.error("跳转Url: $vueNode为空");
-            log.error("跳转Url: $vueNode为空：" + path);
-            return;
-          }
-          let vueInstance = VueUtils.getVue($el);
-          if (vueInstance == null) {
-            Qmsg.error("获取vue属性失败", { consoleLogContent: true });
-            return;
-          }
-          let $router = vueInstance.$router;
-          let isBlank = true;
-          log.info("即将跳转URL：" + path);
-          if (useRouter) {
-            isBlank = false;
-          }
-          if (isBlank) {
-            window.open(path, "_blank");
-          } else {
-            if (path.startsWith("http") || path.startsWith("//")) {
-              if (path.startsWith("//")) {
-                path = window.location.protocol + path;
-              }
-              let urlObj = new URL(path);
-              if (urlObj.origin === window.location.origin) {
-                path = urlObj.pathname + urlObj.search + urlObj.hash;
-              } else {
-                log.info("不同域名，直接本页打开，不用Router：" + path);
-                window.location.href = path;
-                return;
-              }
-            }
-            log.info("$router push跳转Url：" + path);
-            $router.push(path);
-          }
-        },
-        hookGestureReturnByVueRouter(option) {
-          function popstateEvent() {
-            log.success("触发popstate事件");
-            resumeBack(true);
-          }
-          function banBack() {
-            log.success("监听地址改变");
-            option.vueInst.$router.history.push(option.hash);
-            domUtils.on(_unsafeWindow, "popstate", popstateEvent);
-          }
-          async function resumeBack(isFromPopState = false) {
-            domUtils.off(_unsafeWindow, "popstate", popstateEvent);
-            let callbackResult = option.callback(isFromPopState);
-            if (callbackResult) {
-              return;
-            }
-            while (1) {
-              if (option.vueInst.$router.history.current.hash === option.hash) {
-                log.info("后退！");
-                option.vueInst.$router.back();
-                await utils.sleep(250);
-              } else {
-                return;
-              }
-            }
-          }
-          banBack();
-          return {
-            resumeBack,
-          };
-        },
-      };
-      const BaiduSearchVSearchVueProp = {
-        init() {
-          domUtils.ready(() => {
-            if (BaiduRouter.isSearchVSearch_image_content()) {
-              Panel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
-                this.isBaiduBox();
-              });
-            }
-          });
-        },
-        isBaiduBox() {
-          VueUtils.waitVuePropToSet(".sf-image-content-page", [
-            {
-              msg: "等待设置属性 __vue__.isBaiduBox",
-              check(vueObj) {
-                return typeof vueObj.isBaiduBox === "boolean";
-              },
-              set(vueObj) {
-                log.info("成功设置属性 __vue__.isBaiduBox");
-                vueObj.isBaiduBox = true;
-              },
-            },
-          ]);
-        },
-      };
-      const BaiduSearchVSearch = {
-        init() {
-          this.listenRouterChange();
-          BaiduSearchVSearchVueProp.init();
-          domUtils.ready(() => {
-            this.replaceVSearchLink();
-          });
-        },
-        replaceVSearchLink() {
-          function replaceLink() {
-            document.querySelectorAll("#realtime-container  div:not([class])").forEach((element) => {
-              let linkElement = element.querySelector("a");
-              if (!linkElement) {
-                return;
-              }
-              if (linkElement.hasAttribute("data-sf-visited")) {
-                let dataSfVisited = linkElement.getAttribute("data-sf-visited");
-                if (dataSfVisited !== linkElement.href) {
-                  linkElement.href = dataSfVisited;
-                  log.success("替换链接  " + dataSfVisited);
-                }
-              }
-            });
-          }
-          domUtils.waitNode("#realtime-container .c-infinite-scroll").then((element) => {
-            let replaceVSearchLinkLonkFunction = new utils.LockFunction(replaceLink, 600);
-            utils.mutationObserver(element, {
-              config: {
-                subtree: true,
-                childList: true,
-              },
-              callback: () => {
-                replaceVSearchLinkLonkFunction.run();
-              },
-            });
-          });
-        },
-        listenRouterChange() {
-          log.info("监听路由变化");
-          const popstateEvent = (event) => {
-            console.log(event);
-          };
-          domUtils.on(_unsafeWindow, "popstate", popstateEvent);
-        },
-      };
-      const searchToolBarCSS =
-        ".search-toolbar-container {\r\n  --back-icon-size: 14px;\r\n  --back-icon-padding-top-bottom: 12px;\r\n  --back-icon-padding-left-right: 14px;\r\n  --empty-icon-size: 14px;\r\n  --container-padding: 10px;\r\n  --input-height: 36px;\r\n  --input-border-height: 2px;\r\n  --suggestion-text-color: #6d6d6d;\r\n  --suggestion-left-icon-size: 26px;\r\n  --suggestion-left-icon-color: #6d6d6d;\r\n  --suggestion-right-icon-size: 22px;\r\n}\r\n.search-toolbar-container {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  z-index: 10000;\r\n  width: 100vw;\r\n  opacity: 1;\r\n  visibility: visible;\r\n  transition: all 0.2s;\r\n}\r\n.search-toolbar-inner {\r\n  display: flex;\r\n  flex-direction: column;\r\n  height: 100%;\r\n}\r\n\r\n.search-toolbar {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: var(--container-padding) 0px;\r\n  background: #fff;\r\n  position: sticky;\r\n  bottom: 0;\r\n}\r\n\r\n.search-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n.search-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.search-toolbar-back {\r\n  width: var(--back-icon-size);\r\n  height: var(--back-icon-size);\r\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\r\n}\r\n.search-form {\r\n  width: 100%;\r\n  border: var(--input-border-height) solid #222;\r\n  height: var(--input-height);\r\n  border-radius: 10px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 10px;\r\n  position: relative;\r\n}\r\n.search-toolbar-input {\r\n  flex: 1;\r\n  margin: 12px;\r\n  border: 0;\r\n  background: transparent;\r\n}\r\n.search-toolbar-input::-webkit-search-cancel-button {\r\n  -webkit-appearance: none;\r\n}\r\n.search-toolbar-input::-moz-search-clear-button {\r\n  display: none;\r\n}\r\n.search-toolbar-input:focus,\r\n.search-toolbar-input:focus-visible,\r\n.search-toolbar-input:focus-within {\r\n  outline: none;\r\n}\r\n.search-toolbar-input-inner {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 12px;\r\n  margin-right: 16px;\r\n}\r\n.search-toolbar-empty {\r\n  width: var(--empty-icon-size);\r\n  height: var(--empty-icon-size);\r\n  padding: 2px;\r\n}\r\n.search-form-submit {\r\n  font-size: 14px;\r\n  background: transparent;\r\n  border: 0;\r\n  margin: 0;\r\n  padding: 0;\r\n  user-select: none;\r\n  -webkit-user-select: none;\r\n}\r\n.search-form-submit[disabled] {\r\n  color: #6d6d6d;\r\n}\r\n.search-suggestion {\r\n  background: #f2f2f2;\r\n  flex: 1;\r\n  display: flex;\r\n  flex-direction: column-reverse;\r\n  height: 100%;\r\n  height: -webkit-fill-available;\r\n  overflow-y: auto;\r\n}\r\n.search-suggestion-item {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: 8px 16px;\r\n}\r\n.search-suggestion-item-left-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: var(--suggestion-left-icon-size);\r\n  height: var(--suggestion-left-icon-size);\r\n}\r\n.search-suggestion-item-left-icon svg {\r\n  fill: var(--suggestion-left-icon-color);\r\n}\r\n.search-suggestion-item-text {\r\n  margin-left: 6px;\r\n  width: 100%;\r\n  text-align: left;\r\n  color: #000000;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  line-height: normal;\r\n}\r\n.search-suggestion-item-text em {\r\n  color: var(--suggestion-text-color);\r\n  font-style: unset;\r\n}\r\n.search-suggestion-item-right-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  width: var(--suggestion-right-icon-size);\r\n  height: var(--suggestion-right-icon-size);\r\n}\r\n";
       class GestureBack {
         isBacking = false;
         config;
@@ -5070,6 +5616,8 @@ match-attr##srcid##yx_entity_pc_san
           }
         }
       }
+      const searchToolBarCSS =
+        ".search-toolbar-container {\r\n  --back-icon-size: 14px;\r\n  --back-icon-padding-top-bottom: 12px;\r\n  --back-icon-padding-left-right: 14px;\r\n  --empty-icon-size: 14px;\r\n  --container-padding: 10px;\r\n  --input-height: 36px;\r\n  --input-border-height: 2px;\r\n  --suggestion-text-color: #6d6d6d;\r\n  --suggestion-left-icon-size: 26px;\r\n  --suggestion-left-icon-color: #6d6d6d;\r\n  --suggestion-right-icon-size: 22px;\r\n}\r\n.search-toolbar-container {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  z-index: 10000;\r\n  width: 100vw;\r\n  opacity: 1;\r\n  visibility: visible;\r\n  transition: all 0.2s;\r\n}\r\n.search-toolbar-inner {\r\n  display: flex;\r\n  flex-direction: column;\r\n  height: 100%;\r\n}\r\n\r\n.search-toolbar {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: var(--container-padding) 0px;\r\n  background: #fff;\r\n  position: sticky;\r\n  bottom: 0;\r\n}\r\n\r\n.search-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n.search-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.search-toolbar-back {\r\n  width: var(--back-icon-size);\r\n  height: var(--back-icon-size);\r\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\r\n}\r\n.search-form {\r\n  width: 100%;\r\n  border: var(--input-border-height) solid #222;\r\n  height: var(--input-height);\r\n  border-radius: 10px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 10px;\r\n  position: relative;\r\n}\r\n.search-toolbar-input {\r\n  flex: 1;\r\n  margin: 12px;\r\n  border: 0;\r\n  background: transparent;\r\n}\r\n.search-toolbar-input::-webkit-search-cancel-button {\r\n  -webkit-appearance: none;\r\n}\r\n.search-toolbar-input::-moz-search-clear-button {\r\n  display: none;\r\n}\r\n.search-toolbar-input:focus,\r\n.search-toolbar-input:focus-visible,\r\n.search-toolbar-input:focus-within {\r\n  outline: none;\r\n}\r\n.search-toolbar-input-inner {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 12px;\r\n  margin-right: 16px;\r\n}\r\n.search-toolbar-empty {\r\n  width: var(--empty-icon-size);\r\n  height: var(--empty-icon-size);\r\n  padding: 2px;\r\n}\r\n.search-form-submit {\r\n  font-size: 14px;\r\n  background: transparent;\r\n  border: 0;\r\n  margin: 0;\r\n  padding: 0;\r\n  user-select: none;\r\n  -webkit-user-select: none;\r\n}\r\n.search-form-submit[disabled] {\r\n  color: #6d6d6d;\r\n}\r\n.search-suggestion {\r\n  background: #f2f2f2;\r\n  flex: 1;\r\n  display: flex;\r\n  flex-direction: column-reverse;\r\n  height: 100%;\r\n  height: -webkit-fill-available;\r\n  overflow-y: auto;\r\n}\r\n.search-suggestion-item {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: 8px 16px;\r\n}\r\n.search-suggestion-item-left-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: var(--suggestion-left-icon-size);\r\n  height: var(--suggestion-left-icon-size);\r\n}\r\n.search-suggestion-item-left-icon svg {\r\n  fill: var(--suggestion-left-icon-color);\r\n}\r\n.search-suggestion-item-text {\r\n  margin-left: 6px;\r\n  width: 100%;\r\n  text-align: left;\r\n  color: #000000;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  line-height: normal;\r\n}\r\n.search-suggestion-item-text em {\r\n  color: var(--suggestion-text-color);\r\n  font-style: unset;\r\n}\r\n.search-suggestion-item-right-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  width: var(--suggestion-right-icon-size);\r\n  height: var(--suggestion-right-icon-size);\r\n}\r\n";
       const BaiduSearchToolBar = {
         $el: {
           $container: null,
@@ -5361,6 +5909,302 @@ match-attr##srcid##yx_entity_pc_san
           this.$el.$suggestion.appendChild($ele);
         },
       };
+      const SearchShieldCSS = `.c-container.na-ec-item,\r
+.c-container.ec-container,\r
+div[data-type="ad"],\r
+.c-result.sfc-log[data-tpl="adv_wenku_fc"],\r
+.c-recomm-wrap.new-ux-recom-wrapper.animation,\r
+#results-pre,\r
+.video-recommend,\r
+.c-result.sfc-log[data-tpl="search_recomm"],\r
+.sfc-image-content-waterfall-item[wat-item-data-id="no-img"],\r
+.se-results-pre,\r
+.ec_wise_ad,\r
+div#copyright + div,\r
+div#pop-up,\r
+div[class*='ad-wrapper__'],\r
+div[class*='rec-wrapper__'],\r
+.brand-entry,\r
+.barea-ad,\r
+.swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],\r
+div#page-bd div.recommend,\r
+div.short-mini div[data-module="rec:undefined-undefined"],\r
+/* 相关软件 */\r
+div[srcid="sigma_celebrity_rela"],\r
+/* 搜一些隐私的内容时弹出的来的，开启无痕模式----保护隐私，安全浏览 */\r
+div:has(p.ivk-private-p),\r
+/* 智能卡片的 更多 按钮 */\r
+.c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {\r
+  display: none !important;\r
+}\r
+/* 搜索框 */\r
+.searchboxtop.newsearch-white-style .se-form {\r
+  border-color: #4e6ef2 !important;\r
+}\r
+/* 百度一下 按钮 */\r
+.searchboxtop.newsearch-white-style .se-bn {\r
+  color: #fff !important;\r
+  background: #4e6ef2 !important;\r
+}\r
+.se-head-logo .se-logo img {\r
+  display: inherit !important;\r
+}\r
+/* 选项卡，如综合、笔记、视频等 */\r
+.se-head-tablink {\r
+  border-bottom: 1px solid #e6e6e6 !important;\r
+  /*background-color: #fff !important;*/\r
+  background-color: transparent !important;\r
+}\r
+\r
+a.se-tabitem span {\r
+  color: #000 !important;\r
+}\r
+/*div.c-peak-layer{\r
+   display:none !important;\r
+ } 百度关键字背景*/\r
+.se-tablink-scroll-wrapper .se-tab-cur:after {\r
+  border-bottom: 2px solid #38f !important;\r
+}\r
+.c-tags-scroll.c-padding-x {\r
+  display: none !important;\r
+}\r
+.white-bdsearch-isredirecrt {\r
+  display: inline-flex;\r
+  background: #43ba76;\r
+  color: #fff;\r
+  width: 28px;\r
+  font-size: 16px;\r
+  line-height: 25px;\r
+  justify-content: center;\r
+  align-items: center;\r
+  border-radius: 5px;\r
+  margin: 0 auto;\r
+  margin-right: 6px;\r
+}\r
+/* 修复图片显示问题 */\r
+.image-strong-card div[class*="image-content__"] > div {\r
+  display: inline-block;\r
+  overflow: hidden;\r
+  vertical-align: top;\r
+}\r
+.c-result-content div[class*="tieba-newxml-forum-img-class__"] {\r
+  display: -webkit-box;\r
+  display: -webkit-flex;\r
+  display: flex;\r
+  -webkit-box-align: center;\r
+  -moz-box-align: center;\r
+  -webkit-align-items: center;\r
+  align-items: center;\r
+}\r
+\r
+.c-result-content div[class*="tieba-newxml-forum-img__"] {\r
+  width: 0.553rem;\r
+  height: 0.553rem;\r
+}\r
+\r
+.c-result-content div[class*="tieba-newxml-forum-img__"] img {\r
+  width: 100%;\r
+  height: 100%;\r
+  border-radius: 0.09rem;\r
+}\r
+.c-result-content div[class*="tieba-newxml-forum-class__"] {\r
+  display: -webkit-flex;\r
+  display: flex;\r
+  -webkit-box-orient: vertical;\r
+  -moz-box-orient: vertical;\r
+  -webkit-box-direction: normal;\r
+  -moz-box-direction: normal;\r
+  -webkit-flex-direction: column;\r
+  -moz-flex-direction: column;\r
+  flex-direction: column;\r
+  -webkit-box-pack: center;\r
+  -moz-box-pack: center;\r
+  -webkit-justify-content: center;\r
+  -moz-justify-content: center;\r
+  justify-content: center;\r
+  max-width: 2.2rem;\r
+}\r
+.c-result-content div[class*="c-img-content-btn__"] {\r
+  position: absolute;\r
+  right: 0;\r
+  width: 0.55rem;\r
+  text-align: center;\r
+  line-height: 0.28rem;\r
+  border: 1px solid rgba(31, 31, 31, 0.5);\r
+  border-radius: 0.15rem;\r
+  font-family: PingFangSC-Medium;\r
+  font-size: 0.13rem;\r
+  color: #1f1f1f;\r
+}\r
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] {\r
+  display: -webkit-flex;\r
+  display: flex;\r
+  -webkit-box-align: center;\r
+  -moz-box-align: center;\r
+  -webkit-align-items: center;\r
+  -moz-align-items: center;\r
+  align-items: center;\r
+  margin-top: 0.03rem;\r
+}\r
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {\r
+  width: 0.16rem;\r
+  height: 0.16rem;\r
+  border-radius: 50%;\r
+}\r
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {\r
+  margin-right: 0.08rem;\r
+}\r
+.whitesev-gm-refactor-everyone-searching {\r
+  width: 100%;\r
+  box-sizing: border-box;\r
+  height: 2.857em;\r
+  line-height: 2.857;\r
+  background-color: #f5f6f9;\r
+  border-color: #f5f6f9;\r
+  padding: 0 0.08rem;\r
+  /*vertical-align: middle;*/\r
+  outline: 0;\r
+  font-size: 14px;\r
+  overflow: hidden;\r
+  border-radius: 9px;\r
+  text-align: center;\r
+  text-decoration: none;\r
+  -webkit-tap-highlight-color: transparent;\r
+  -moz-tap-highlight-color: transparent;\r
+  text-overflow: ellipsis;\r
+  white-space: nowrap;\r
+  -webkit-box-orient: horizontal;\r
+  -moz-box-orient: horizontal;\r
+  -webkit-box-align: stretch;\r
+  -moz-box-align: stretch;\r
+  display: block;\r
+  justify-content: space-between;\r
+  -webkit-justify-content: space-between;\r
+  -moz-justify-content: space-between;\r
+  -webkit-align-items: stretch;\r
+  -moz-align-items: stretch;\r
+  align-items: stretch;\r
+  flex-wrap: nowrap;\r
+  -webkit-flex-wrap: nowrap;\r
+  -moz-flex-wrap: nowrap;\r
+}\r
+\r
+/* 让搜索中某些视频的阶段可以横向滚动 */\r
+div[class^="new-summary-container_"] {\r
+  overflow: auto;\r
+}\r
+\r
+/* 智能卡片 展开更多，这里是拼音 */\r
+.c-result-content div[class*="multi-pinyin_"] div[class*="multi-pinyin-item"][style*="display: none"] {\r
+  display: block !important;\r
+}\r
+`;
+      const blockCSS$1 =
+        '.short-mini > div:has(script[data-for="native-ads"]) {\r\n  display: none !important;\r\n}\r\n';
+      const BaiduSearchVideoBlock = {
+        init() {
+          addStyle$1(blockCSS$1);
+          Panel.execMenuOnce("baidu-search-video-blockBottomRecommendVideo", () => {
+            return this.blockBottomRecommendVideo();
+          });
+        },
+        blockBottomRecommendVideo() {
+          log.info("【屏蔽】底部推荐视频");
+          return CommonUtil.addBlockCSS(".short-mini-wrapper");
+        },
+      };
+      const BaiduSearchVideo = {
+        init() {
+          BaiduSearchVideoBlock.init();
+          Panel.execMenuOnce("baidu-search-video-autoJumpToOriginUrl", () => {
+            this.autoJumpToOriginUrl();
+          });
+        },
+        autoJumpToOriginUrl() {
+          domUtils.waitNode(".sfc-video-page-info-showurl", 1e4).then(($showUrl) => {
+            if (!$showUrl) {
+              Qmsg.error("未找到.sfc-video-page-info-showurl元素");
+              return;
+            }
+            let url = $showUrl.getAttribute("data-url") || $showUrl.href;
+            if (utils.isNull(url)) {
+              Qmsg.error("获取原网页Url失败");
+              return;
+            }
+            window.location.href = url;
+          });
+        },
+      };
+      const BaiduSearchVSearchVueProp = {
+        init() {
+          domUtils.ready(() => {
+            if (BaiduRouter.isSearchVSearch_image_content()) {
+              Panel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
+                this.isBaiduBox();
+              });
+            }
+          });
+        },
+        isBaiduBox() {
+          VueUtils.waitVuePropToSet(".sf-image-content-page", [
+            {
+              msg: "等待设置属性 __vue__.isBaiduBox",
+              check(vueObj) {
+                return typeof vueObj.isBaiduBox === "boolean";
+              },
+              set(vueObj) {
+                log.info("成功设置属性 __vue__.isBaiduBox");
+                vueObj.isBaiduBox = true;
+              },
+            },
+          ]);
+        },
+      };
+      const BaiduSearchVSearch = {
+        init() {
+          this.listenRouterChange();
+          BaiduSearchVSearchVueProp.init();
+          domUtils.ready(() => {
+            this.replaceVSearchLink();
+          });
+        },
+        replaceVSearchLink() {
+          function replaceLink() {
+            document.querySelectorAll("#realtime-container  div:not([class])").forEach((element) => {
+              let linkElement = element.querySelector("a");
+              if (!linkElement) {
+                return;
+              }
+              if (linkElement.hasAttribute("data-sf-visited")) {
+                let dataSfVisited = linkElement.getAttribute("data-sf-visited");
+                if (dataSfVisited !== linkElement.href) {
+                  linkElement.href = dataSfVisited;
+                  log.success("替换链接  " + dataSfVisited);
+                }
+              }
+            });
+          }
+          domUtils.waitNode("#realtime-container .c-infinite-scroll").then((element) => {
+            let replaceVSearchLinkLonkFunction = new utils.LockFunction(replaceLink, 600);
+            utils.mutationObserver(element, {
+              config: {
+                subtree: true,
+                childList: true,
+              },
+              callback: () => {
+                replaceVSearchLinkLonkFunction.run();
+              },
+            });
+          });
+        },
+        listenRouterChange() {
+          log.info("监听路由变化");
+          const popstateEvent = (event) => {
+            console.log(event);
+          };
+          domUtils.on(_unsafeWindow, "popstate", popstateEvent);
+        },
+      };
       const UserCustomStyle = {
         getUserStyle() {
           return Panel.getValue("baidu-search-user-style", "");
@@ -5559,10 +6403,10 @@ match-attr##srcid##yx_entity_pc_san
           );
         },
       };
-      const SearchHomeShieldCSS =
-        "/* 右上角的 banner 热播爆款好剧 */\r\n#index-card #userinfo-wrap .index-banner {\r\n  display: none !important;\r\n}\r\n";
       const SearchHomeMinificationShieldCSS =
         "html,\r\nbody,\r\ndiv#header {\r\n  height: calc(100vh - 120px);\r\n}\r\nform#index-form {\r\n  position: static;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  margin: auto !important;\r\n  width: 90%;\r\n}\r\ndiv#navs ~ div,\r\n#login-wraps,\r\na.square-enterance,\r\ndiv#ts-image-uploader-icon,\r\ndiv.baiduappcall-wrap div.voice.call,\r\ndiv.tab_news,\r\ndiv#navs {\r\n  display: none !important;\r\n}\r\n/* 图片logo往下移40px */\r\n#logo {\r\n  padding-top: 40px;\r\n}\r\n";
+      const SearchHomeShieldCSS =
+        "/* 右上角的 banner 热播爆款好剧 */\r\n#index-card #userinfo-wrap .index-banner,\r\n/* 搜索框下面的轮播推广 */\r\n#header div:has(>div>div>#carousel-img-item) {\r\n  display: none !important;\r\n}\r\n";
       const BaiduSearchHome = {
         init() {
           addStyle$1(SearchHomeShieldCSS);
@@ -5576,80 +6420,41 @@ match-attr##srcid##yx_entity_pc_san
           return addStyle$1(SearchHomeMinificationShieldCSS);
         },
       };
-      const BaiJiaHaoShieldCSS =
-        ".layer-wrap,\r\n.openImg,\r\n.oPadding,\r\n.bottomTTSStruct,\r\n.undefined,\r\n.headDeflectorContainer,\r\n.followSuper,\r\n#searchwordSdk,\r\ndiv#commentModule > div > div > span:nth-child(2),\r\n/* 顶部打开APP横幅 */\r\n#headDeflectorContainer,\r\n/* 展开全文 */\r\n.foldMaskWrapper {\r\n  display: none !important;\r\n}\r\nbody.scrollHide {\r\n  overflow: auto !important;\r\n}\r\n.mainContent,\r\n#mainContentContainer {\r\n  height: auto !important;\r\n}\r\n";
-      const BaiJiaHaoHook = {
+      const blockCSS =
+        "/* 底部 继续访问 百度贴吧|手机百度 */\r\nswan-slient-wake-popup,\r\n/* 帖子内底部的推荐帖子 */\r\nswan-recommend-list {\r\n  display: none !important;\r\n}\r\n";
+      const SmartAppsTieba = {
         init() {
-          Panel.execMenu("baijiahao_hijack_wakeup", () => {
-            log.success("hook: Function.property.call");
-            BaiduHook.functionCall("baijiahao_invoke");
+          Panel.onceExec("smartapps-tieba-blockAds", () => {
+            return this.removeAds();
           });
-          Panel.execMenu("baidu_baijiahao_hijack_iframe", () => {
-            log.success("hook: Element.append");
-            BaiduHook.elementAppendChild(function (element) {
-              if (element.localName === "script" && element?.src?.includes("landing-share")) {
-                log.success("阻止加载：" + element.src);
-                return true;
-              }
+        },
+        removeAds() {
+          log.info(`屏蔽广告`);
+          let result = [addStyle$1(blockCSS)];
+          let selectorList = [
+            "swan-wake-app:has(swan-view):contains('App内看更多评论')",
+            "swan-wake-app:has(swan-view):contains('App内查看')",
+            "swan-wake-app:has(swan-view):contains('来贴吧参与讨论')",
+            "swan-wake-app:has(swan-view):contains('打开App查看高清大图')",
+          ];
+          let lockFn = new utils.LockFunction(() => {
+            selectorList.forEach((selector) => {
+              DOMUtils.selectorAll(selector).forEach(($el) => {
+                $el.remove();
+              });
             });
           });
-          Panel.execMenu("baidu_baijiahao_hijack_openbox", () => {
-            log.success("hook: window.Box");
-            BaiduHook.windowOpenBox();
+          utils.mutationObserver(document, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            immediate: true,
+            callback: () => {
+              lockFn.run();
+            },
           });
-          Panel.execMenu("baidu_baijiahao_hijack_openContentBox", () => {
-            log.success("hook: window.openContentBox");
-            BaiduHook.window_openContentBox();
-          });
-        },
-      };
-      const BaiduBaiJiaHao = {
-        init() {
-          addStyle$1(BaiJiaHaoShieldCSS);
-          log.info("插入CSS规则");
-          BaiJiaHaoHook.init();
-          Panel.execMenuOnce("baijiahao_shield_recommended_article", () => {
-            return this.shieldRecommendArticle();
-          });
-          Panel.execMenuOnce("baijiahao_shield_user_comment", () => {
-            return this.shieldUserComment();
-          });
-          Panel.execMenuOnce("baijiahao_shield_user_comment_input_box", () => {
-            return this.shieldBottomToolBar();
-          });
-        },
-        shieldRecommendArticle() {
-          log.info("【屏蔽】推荐文章");
-          return [
-            CommonUtil.addBlockCSS(
-              ".infinite-scroll-component__outerdiv",
-              "div#page_wrapper > div > div:nth-child(5)",
-              "div:has(+ .infinite-scroll-component__outerdiv)",
-              "#ssr-content > :last-child",
-              "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
-            ),
-            addStyle$1(
-              `
-			/* 电脑端的文章居中 */
-			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
-				width: 55% !important;
-			}`
-            ),
-            CommonUtil.addBlockCSS('#page_wrapper > div.other > div[class=""]:nth-child(4)'),
-            CommonUtil.addBlockCSS(
-              '#page_wrapper div.spider > div[class=""]:nth-child(4)',
-              'page_wrapper div.spider > div[class=""]:nth-child(5)'
-            ),
-            CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]'),
-          ];
-        },
-        shieldUserComment() {
-          log.info("【屏蔽】用户评论");
-          return CommonUtil.addBlockCSS("#commentModule");
-        },
-        shieldBottomToolBar() {
-          log.info("【屏蔽】底部悬浮工具栏");
-          return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
+          return result;
         },
       };
       const TieBaShieldCSS =
@@ -28819,514 +29624,11 @@ match-attr##srcid##yx_entity_pc_san
           return CommonUtil.addBlockCSS(".ai-chat-wrap");
         },
       };
-      const JingYanShieldCSS =
-        ".article-feed-next,\r\n.wgt-rel-exp-feed,\r\n.article-feed-btn-fixed,\r\n.read-whole-mask.app,\r\n.asp-self-rander,\r\n.baobao-image-item,\r\n#wgt-ad-guess {\r\n  display: none !important;\r\n}\r\n.exp-content-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
-      const BaiduJingYan = {
-        init() {
-          addStyle$1(JingYanShieldCSS);
-          log.info("插入CSS规则");
-        },
-      };
-      const BaiKeShieldCSS =
-        '/* 底部的广告 */\r\n#J_yitiao_container,\r\n/* 顶部广告 */\r\n#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,\r\n/* 底部的广告 */\r\n.BK-after-content-wrapper>div:has(a[onclick*="page"]) {\r\n  display: none !important;\r\n}\r\n';
-      const BaiduBaiKe = {
-        init() {
-          addStyle$1(BaiKeShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu-baike-hookBox", () => {
-            this.hookBox();
-          });
-        },
-        hookBox() {
-          log.info("通过劫持window.Box自动展开下一页");
-          let old_Box = Reflect.get(_unsafeWindow, "Box") ?? {};
-          OriginPrototype.Object.defineProperty(_unsafeWindow, "Box", {
-            get() {
-              if (old_Box == null) {
-                return;
-              }
-              return new Proxy(old_Box, {
-                get(target, prop, receiver) {
-                  if ((prop === "isBox" || prop === "$isBox") && Panel.getValue("baidu-baike-Box-isBox")) {
-                    return true;
-                  }
-                  if ((prop === "isLiteBox" || prop === "$isLiteBox") && Panel.getValue("baidu-baike-Box-isLiteBox")) {
-                    return true;
-                  }
-                  if ((prop === "isInfoBox" || prop === "$isInfoBox") && Panel.getValue("baidu-baike-Box-isInfoBox")) {
-                    return true;
-                  }
-                  if ((prop === "isIOS" || prop === "$isIOS") && Panel.getValue("baidu-baike-Box-isIOS")) {
-                    return true;
-                  }
-                  if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
-                    return true;
-                  }
-                  if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
-                    return true;
-                  }
-                  if (prop === "android") {
-                    let android = Reflect.get(target, prop, receiver);
-                    if (android["invokeApp"] && Panel.getValue("baidu-baike-Box-android.invokeApp")) {
-                      android["invokeApp"] = function (...args) {
-                        log.info(["阻止调用android.invokeApp", args]);
-                      };
-                    }
-                    if (android["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-android.invokeLiteApp")) {
-                      android["invokeLiteApp"] = function (...args) {
-                        log.info(["阻止调用android.invokeLiteApp", args]);
-                      };
-                    }
-                  }
-                  if (prop === "ios") {
-                    let ios = Reflect.get(target, prop, receiver);
-                    if (ios["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-ios.invokeApp")) {
-                      ios["invokeLiteApp"] = function (...args) {
-                        log.info(["阻止调用ios.invokeApp", args]);
-                      };
-                    }
-                  }
-                  return Reflect.get(target, prop, receiver);
-                },
-              });
-            },
-            set(value) {
-              old_Box = value;
-            },
-          });
-        },
-      };
-      const BaiKeTaShuoShieldCSS = "";
-      const BaiduBaiKeTaShuo = {
-        init() {
-          addStyle$1(BaiKeTaShuoShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
-            this.removeBottomAd();
-          });
-        },
-        removeBottomAd() {
-          domUtils.waitNode("#index_tashuo_list").then(($tashuoList) => {
-            log.info("去除底部广告");
-            utils.mutationObserver($tashuoList, {
-              callback() {
-                Array.from($tashuoList.children).forEach((item) => {
-                  if (item.className !== "J-hot-item-container") {
-                    log.info("存在广告-删除！");
-                    item.remove();
-                  }
-                });
-              },
-              config: { subtree: true, childList: true, attributes: true },
-            });
-          });
-        },
-      };
-      const ZhiDaoShieldCSS = `/* .dec + div, */\r
-#feed-recommend,\r
-.dec,\r
-.wgt-topic-hot,\r
-#respect-footer,\r
-#wap-youx-change-asp,\r
-div.question-line + div:not(.replies-container),\r
-.wgt-asp-youx,\r
-.w-detail-display-btn,\r
-.ask-for-friend,\r
-#knowledge-answer-list,\r
-.go-to-ask,\r
-div[class*='ads'],\r
-/* 免费领票 */\r
-.doodle-container,\r
-.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {\r
-  display: none !important;\r
-}\r
-.w-detail-container {\r
-  max-height: 100% !important;\r
-  overflow: auto !important;\r
-}\r
-`;
-      const BaiduZhiDao = {
-        init() {
-          addStyle$1(ZhiDaoShieldCSS);
-          log.info("插入CSS规则");
-          this.removeAd();
-          Panel.execMenuOnce("baidu_zhidao_block_recommend_more_exciting_content", () => {
-            return this.blockRecommendMoreExcitingContent();
-          });
-          Panel.execMenuOnce("baidu_zhidao_block_other_answers", () => {
-            return this.blockOtherAnswers();
-          });
-          Panel.execMenuOnce("baidu_zhidao_block_related_issues", () => {
-            return this.blockRelatedIssues();
-          });
-          Panel.execMenuOnce("baidu_zhidao_shield_top_fixed_toolbar", () => {
-            return this.shieldTopFloatToolBar();
-          });
-        },
-        removeAd() {
-          log.info("移除广告.ec-ad");
-          let $ec_ad = $$(".ec-ad");
-          if ($ec_ad.length) {
-            domUtils.remove(domUtils.parent($ec_ad));
-          }
-        },
-        blockRecommendMoreExcitingContent() {
-          log.info("屏蔽顶部悬浮工具栏");
-          return CommonUtil.addBlockCSS(
-            ".feed-recommend-title",
-            "#feed-recommend",
-            ".mm-content-box.mm-content-line.feed-recommend"
-          );
-        },
-        blockOtherAnswers() {
-          log.info("屏蔽其他回答");
-          return CommonUtil.addBlockCSS(".replies-container + div");
-        },
-        blockRelatedIssues() {
-          log.info("屏蔽相关问题");
-          return CommonUtil.addBlockCSS(
-            "div[id^=wahsd]",
-            'div[class^="w-question-list"]',
-            'div:has(>[id*="-related-list"])'
-          );
-        },
-        shieldTopFloatToolBar() {
-          log.info("屏蔽顶部悬浮工具栏");
-          return CommonUtil.addBlockCSS(
-            ".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
-          );
-        },
-      };
-      const FanYiShieldCSS =
-        ".app-bar,\r\n.jifeng-container,\r\n.intro-title,\r\n.sideQrContainer,\r\n.inner.clearfix,\r\nsection.bottom-intro,\r\n#desktop-guide-wrapper {\r\n  display: none !important;\r\n}\r\n.new-header-dl {\r\n  visibility: hidden;\r\n}\r\n";
-      const BaiduFanYi = {
-        init() {
-          addStyle$1(FanYiShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
-            return this.shieldRecommendBottom();
-          });
-          Panel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
-            return this.shieldBottom();
-          });
-          Panel.execMenuOnce("baidu_fanyi_auto_focus", () => {
-            this.autoFocus();
-          });
-        },
-        shieldRecommendBottom() {
-          log.info("屏蔽底部推荐");
-          return CommonUtil.addBlockCSS("section.article.android-style");
-        },
-        shieldBottom() {
-          log.info("屏蔽底部");
-          return CommonUtil.addBlockCSS(".trans-other-wrap.clearfix");
-        },
-        autoFocus() {
-          domUtils.waitNode("textarea#j-textarea").then(($textarea) => {
-            log.info("自动聚焦输入框");
-            setTimeout(() => {
-              $textarea.focus();
-            }, 2500);
-          });
-        },
-      };
-      const FanYiAppShieldCSS = ".fanyi-invoke-btn,\r\n.top-bn {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduFanYiApp = {
-        init() {
-          addStyle$1(FanYiAppShieldCSS);
-          log.info("插入CSS规则");
-          this.repairContentHeight();
-          Panel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
-            return this.shieldColumnInformation();
-          });
-          Panel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
-            return this.shieldRecommendedForYou();
-          });
-          Panel.execMenuOnce("baidu_fanyi_app_shield_i_need_to_follow_along", () => {
-            return this.shieldINeedToFollowAlong();
-          });
-        },
-        repairContentHeight() {
-          domUtils.waitNode("#page-content").then(($pageContent) => {
-            log.info("修复内容高度");
-            $pageContent.setAttribute("style", "max-height:unset !important");
-          });
-        },
-        shieldColumnInformation() {
-          log.info("隐藏专栏信息");
-          return CommonUtil.addBlockCSS("div.fanyi-zhuan-lan-wrapper");
-        },
-        shieldRecommendedForYou() {
-          log.info("隐藏推荐");
-          return CommonUtil.addBlockCSS("#fr-section");
-        },
-        shieldINeedToFollowAlong() {
-          log.info("隐藏需要跟随");
-          return CommonUtil.addBlockCSS(".cover-all .daily-bottom");
-        },
-      };
-      const ImageShieldCSS = "#boxBanner {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduImage = {
-        init() {
-          addStyle$1(ImageShieldCSS);
-          log.info("插入CSS规则");
-        },
-      };
-      const MapShieldCSS =
-        '.index-widget-guidebanner,\r\n.common-widget-bottom-banner-changeId,\r\n#index-areaEntry-widget,\r\ndiv.common-widget-bottom-banner-changeId,\r\n#downloadnativepopup,\r\n.xiaoduVoiceCard,\r\n.index-widget-guidebanner,\r\n#message-center-panel,\r\n.xiaoduVoice-banner.-border-round,\r\n/* 底部中间横幅-打开百度地图APP */\r\n#main div[id^="fis_elm"] .btn-banner-float {\r\n  display: none !important;\r\n}\r\n';
-      const BaiduMapHook = {
-        init() {
-          addStyle$1(MapShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_map_hijack-element-appendChild", () => {
-            log.success("hook: Element.appendChild");
-            BaiduHook.elementAppendChild();
-          });
-          Panel.execMenuOnce("baidu_map_hijack-setTimeout", () => {
-            log.success("hook: window.setTimeout");
-            BaiduHook.setTimeout(
-              /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
-            );
-          });
-          domUtils.ready(function () {
-            Panel.execMenuOnce("baidu_map_hijack-jQuery-append", () => {
-              log.success("hook: $.append");
-              BaiduHook.windowJQueryAppend();
-            });
-          });
-        },
-      };
-      const BaiduMap = {
-        init() {
-          addStyle$1(MapShieldCSS);
-          log.info("插入CSS规则");
-          BaiduMapHook.init();
-        },
-      };
-      const MbdShieldCSS = `div.headDeflectorContainer,\r
-#bdrainrwDragButton,\r
-#page_wrapper .other div[class*='undefined'],\r
-#page_wrapper .other > div[class=""],\r
-/* 底部按钮-百度APP内播放 */\r
-div.common-wrap.single-pd,\r
-/* 顶部横幅-APP内播放 */\r
-div#app div.guid-new,\r
-/* 顶部横幅-APP内阅读 */\r
-#headDeflectorContainer,\r
-/* 底部 打开百度APP，阅读体验更佳 */\r
-#page_wrapper div[class^="foldMaskWrapper-"],\r
-/* 打开百度APP，阅读完整内容 */\r
-#content_wrapper .foldMaskWrapper,\r
-/* 影响定位元素的遮罩层 */\r
-#page_wrapper .bdboxshare>div:first-child,\r
-/* 来百度APP畅享高清图片 */\r
-.contentMedia .openImg,\r
-/* 精彩推荐右边的 打开APP看更多精彩推荐 */\r
-div[class*="relateTitle"] span[class*="subTitle"],\r
-/* 会自动在上面弹出的【百度热榜】 */\r
-#page_wrapper div:has(>div[class*="leftbox"]),\r
-/* dtlandingwise 右上角 App内打开 */\r
-.fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\r
-/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\r
-.fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,\r
-/* landingsuper 文章内容的展开的蒙板 */\r
-#mainContentContainer .oPadding,\r
-/* 底部的广告 */\r
-[class^="adsContainer-"],\r
-/* 弹窗 打开百度App弹窗 */\r
-[class^="alertModalContainer-"],\r
-/* 视频下面的广告推荐 */\r
-#hcgContainer > div:has([data-log-view*='"isAds":true']) {\r
-  display: none !important;\r
-}\r
-/* 展开阅读 */\r
-#page_wrapper #dynamicItem,\r
-/* 手机版-展开阅读 */\r
-#mainContentContainer {\r
-  height: auto !important;\r
-}\r
-`;
-      const BaiduMbdHook = {
-        init() {
-          Panel.execMenu("baidu_mbd_camouflage_lite_baiduboxapp", () => {
-            log.info("hook: navigator.userAgent ==> lite baiduboxapp");
-            let oldNavigatorUserAgent = _unsafeWindow.navigator.userAgent;
-            OriginPrototype.Object.defineProperty(_unsafeWindow.navigator, "userAgent", {
-              get() {
-                return oldNavigatorUserAgent + " lite baiduboxapp";
-              },
-            });
-          });
-          Panel.execMenu("baidu_mbd_hijack_wakeup", () => {
-            log.info("hook: Function.property.call");
-            BaiduHook.functionCall("map");
-          });
-          Panel.execMenu("baidu_mbd_hijack_BoxJSBefore", () => {
-            log.info("hook: window.BoxJSBefore");
-            BaiduHook.windowBoxJSBefore();
-          });
-          Panel.execMenu("baidu_mbd_hijack_iframe", () => {
-            log.info("hook: Element.appendChild");
-            BaiduHook.elementAppendChild();
-          });
-        },
-      };
-      const BaiduMbd = {
-        init() {
-          addStyle$1(MbdShieldCSS);
-          log.info("插入CSS规则");
-          BaiduMbdHook.init();
-          Panel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
-            return this.blockExcitingComments();
-          });
-          Panel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
-            return this.blockExcitingRecommendations();
-          });
-          Panel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
-            return this.shieldBottomToolbar();
-          });
-        },
-        blockExcitingComments() {
-          log.info("屏蔽最热评论");
-          return CommonUtil.addBlockCSS(
-            "div#commentModule",
-            "#comment",
-            '#page_wrapper > div > div[class^="borderBottom-"]'
-          );
-        },
-        blockExcitingRecommendations() {
-          log.info("屏蔽最热推荐");
-          return [
-            CommonUtil.addBlockCSS(
-              'div[class^="relateTitle"]',
-              ".infinite-scroll-component__outerdiv",
-              "div#fuseVideo + div[class]",
-              "#content_wrapper + div + div",
-              "#page_wrapper .searchCraft #content_wrapper + div",
-              '.fusionWrapper [class^="reco_"]:has(>[class^="recoConatainer_"])'
-            ),
-            CommonUtil.addBlockCSS("#page_wrapper > div > div:nth-child(6)"),
-          ];
-        },
-        shieldBottomToolbar() {
-          log.info("屏蔽底部工具栏");
-          return CommonUtil.addBlockCSS("div#wise-invoke-interact-bar");
-        },
-      };
       const XueShieldCSS =
         ".sc-dkcEsn,\r\n.sc-fHSyak,\r\n.sc-gikAfH,\r\nswan-view.strategy-institution-list,\r\nswan-view.strategy-wrapper,\r\n.swan-spider-tap,\r\n.booking,\r\n.head-bar,\r\n.head-bar-placeholder {\r\n  display: none !important;\r\n}\r\n.sc-cHGmPC {\r\n  width: auto !important;\r\n}\r\n";
       const BaiduXue = {
         init() {
           addStyle$1(XueShieldCSS);
-          log.info("插入CSS规则");
-        },
-      };
-      const AiQiChaShieldCSS =
-        'div.header-down-app,\r\ndiv.active-enter,\r\ndiv.app-enter,\r\ndiv.coupon-active,\r\ndiv.cpc-adv-container,\r\ndiv.detail-footer.detail-footer-test,\r\ndiv.index-more[data-show-id="indexMoreExposure"] {\r\n  display: none !important;\r\n}\r\n.bread-crumbs.has-down,\r\n.border-bottom-line {\r\n  top: 0 !important;\r\n}\r\n';
-      const BaiduAiQiCha = {
-        init() {
-          addStyle$1(AiQiChaShieldCSS);
-          log.info("插入CSS规则");
-          this.camouflageBottomPopup();
-          Panel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
-            return this.shieldCarousel();
-          });
-          Panel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
-            return this.shieldIndustryHostNews();
-          });
-        },
-        camouflageBottomPopup() {
-          log.info("伪装为已经弹窗过了");
-          _unsafeWindow.localStorage.setItem("coupon_bottom_popup", new Date().getTime().toString());
-        },
-        shieldCarousel() {
-          log.info("屏蔽轮播图");
-          return CommonUtil.addBlockCSS("div.index-banner-container.van-swipe");
-        },
-        shieldIndustryHostNews() {
-          log.info("屏蔽行业热点新闻");
-          return CommonUtil.addBlockCSS(" div.hot-news");
-        },
-      };
-      const PosShieldCSS = "html,\r\nbody {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduPos = {
-        init() {
-          addStyle$1(PosShieldCSS);
-          log.info("插入CSS规则");
-        },
-      };
-      const BaiduHaoKanHook = {
-        init() {
-          Panel.execMenu("baidu_haokan_hijack_wakeup", () => {
-            log.success("hook: window.webpackJsonp");
-            BaiduHook.windowWebpackJsonp_haokan();
-          });
-        },
-      };
-      const HaoKanShieldCSS =
-        "div.share-origin.wx-share-launch,\r\ndiv.open-app-top,\r\ndiv.open-app-bottom.wx-share-launch,\r\n/* 打开APP  好看更清晰(1080P) */\r\n.NewOpenApp,\r\n/* 顶部空白区域 */\r\n.placeholder,\r\n/* 底部好看视频图片 */\r\n.page-buttom,\r\n/* 暂停视频弹出来的打开百度好看视频 */\r\n.video-player-download-tips {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduHaoKan = {
-        init() {
-          addStyle$1(HaoKanShieldCSS);
-          log.info("插入CSS规则");
-          BaiduHaoKanHook.init();
-          Panel.execMenuOnce("baidu_haokan_shield_may_also_like", () => {
-            return this.shieldMayAlsoLike();
-          });
-          Panel.execMenuOnce("baidu_haokan_shield_today_s_hot_list", () => {
-            return this.shieldTodayHotList();
-          });
-          Panel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
-            return this.shieldRightVideoAction();
-          });
-          domUtils.ready(() => {
-            this.setPlayEvent();
-          });
-        },
-        setPlayEvent() {
-          let playBtn = $(".play-btn");
-          let playerShade = $(".video-player-shade");
-          log.success("覆盖播放按钮的点击事件");
-          domUtils.on(
-            playBtn,
-            "click",
-            function (event) {
-              domUtils.preventEvent(event);
-              domUtils.hide(playerShade);
-              let currentPageSee = $(".video-player .video-player-pause-btns .continue");
-              setTimeout(() => {
-                utils.getReactInstance(currentPageSee)["reactEventHandlers"]?.["onClick"]();
-                Panel.execMenu("baidu_haokan_play_video_and_automatically_enter_full_screen", () => {
-                  if (utils.isFullscreenEnabled()) {
-                    let videoElement = $("#video video.hplayer-video");
-                    utils.enterFullScreen(videoElement);
-                  }
-                });
-              }, 0);
-            },
-            {
-              capture: true,
-            }
-          );
-        },
-        shieldMayAlsoLike() {
-          log.info("屏蔽可能感兴趣");
-          return CommonUtil.addBlockCSS("div.top-video-list-container");
-        },
-        shieldTodayHotList() {
-          log.info("屏蔽今日热门");
-          return CommonUtil.addBlockCSS(".hot-rank-video");
-        },
-        shieldRightVideoAction() {
-          log.info("屏蔽右侧视频操作");
-          return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
-        },
-      };
-      const PanShieldCSS =
-        "/* 失败页底部广告推荐 */\r\ndiv.share-error-ad,\r\n/* 左侧导航栏底部下载百度网盘APP横栏 */\r\n#app div.download-app,\r\n/* 失败页-小飞机送惊喜 */\r\ndiv.errorWrap div.share-plane,\r\n/* 保存到网盘右上角的领红包图标 */\r\nimg.sharelist-savebutton-hb-tip {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduPan = {
-        init() {
-          addStyle$1(PanShieldCSS);
           log.info("插入CSS规则");
         },
       };
@@ -29538,381 +29840,79 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           });
         },
       };
-      const ChatShieldCSS = "";
-      const BaiduChat = {
+      const ZhiDaoShieldCSS = `/* .dec + div, */\r
+#feed-recommend,\r
+.dec,\r
+.wgt-topic-hot,\r
+#respect-footer,\r
+#wap-youx-change-asp,\r
+div.question-line + div:not(.replies-container),\r
+.wgt-asp-youx,\r
+.w-detail-display-btn,\r
+.ask-for-friend,\r
+#knowledge-answer-list,\r
+.go-to-ask,\r
+div[class*='ads'],\r
+/* 免费领票 */\r
+.doodle-container,\r
+.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {\r
+  display: none !important;\r
+}\r
+.w-detail-container {\r
+  max-height: 100% !important;\r
+  overflow: auto !important;\r
+}\r
+`;
+      const BaiduZhiDao = {
         init() {
-          addStyle$1(ChatShieldCSS);
+          addStyle$1(ZhiDaoShieldCSS);
           log.info("插入CSS规则");
-          domUtils.ready(() => {
-            Panel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
-              this.removeAiMask();
-            });
+          this.removeAd();
+          Panel.execMenuOnce("baidu_zhidao_block_recommend_more_exciting_content", () => {
+            return this.blockRecommendMoreExcitingContent();
+          });
+          Panel.execMenuOnce("baidu_zhidao_block_other_answers", () => {
+            return this.blockOtherAnswers();
+          });
+          Panel.execMenuOnce("baidu_zhidao_block_related_issues", () => {
+            return this.blockRelatedIssues();
+          });
+          Panel.execMenuOnce("baidu_zhidao_shield_top_fixed_toolbar", () => {
+            return this.shieldTopFloatToolBar();
           });
         },
-        removeAiMask() {
-          log.info("去除AI的遮罩");
-          CommonUtil.addBlockCSS(".bot-body .watermark", '#searchChatApp div[class^="watermark"]');
-          let lockFunc = new utils.LockFunction(function () {
-            document.querySelectorAll("img[src*='style/wm_ai']").forEach((imgElement) => {
-              log.info("处理AI水印：" + imgElement.src);
-              imgElement.src = imgElement.src.replace(/style\/wm_ai/g, "");
-            });
-          }, 400);
-          utils.mutationObserver(document.body, {
-            config: { subtree: true, childList: true },
-            callback: lockFunc.run,
-          });
-        },
-      };
-      const MiniJiaoYuShieldCSS = "";
-      const BaiduMiniJiaoYu = {
-        init() {
-          addStyle$1(MiniJiaoYuShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("mini_baidu_jiaoyu_shield_bottom_pull_down_menu", () => {
-            this.shieldBottomPullDownMenu();
-          });
-          Panel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
-            return this.blockEveryOneSearch();
-          });
-        },
-        injectIframe(iframeSelector = "iframe.swan-web-iframe", readyCallback) {
-          if (!Panel.isTopWindow()) {
-            return;
+        removeAd() {
+          log.info("移除广告.ec-ad");
+          let $ec_ad = $$(".ec-ad");
+          if ($ec_ad.length) {
+            domUtils.remove(domUtils.parent($ec_ad));
           }
-          domUtils.ready(() => {
-            domUtils.waitNode(iframeSelector, 1e4).then(($iframe) => {
-              if (!$iframe) {
-                return;
-              }
-              let iframe__document = $iframe.contentDocument;
-              let iframe__window = $iframe.contentWindow;
-              let iframe__globalThis = iframe__window;
-              let iframe__self = iframe__window;
-              let coreOption = {
-                document: iframe__document,
-                window: iframe__window,
-                globalThis: iframe__globalThis,
-                self: iframe__self,
-                top: _unsafeWindow.top,
-                setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
-                setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
-                clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
-                clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-              };
-              let iframeDOMUtils = domUtils.createDOMUtils(coreOption);
-              let iframeUtils = utils.createUtils(coreOption);
-              if (typeof readyCallback === "function") {
-                readyCallback({
-                  ...coreOption,
-                  utils: iframeUtils,
-                  DOMUtils: iframeDOMUtils,
-                });
-              }
-            });
-          });
         },
-        shieldBottomPullDownMenu() {
-          let hideCSS = `
-        #page_loft{
-            display: none !important;
-        }`;
-          this.injectIframe(void 0, (iframeGlobal) => {
-            iframeGlobal.DOMUtils.ready(() => {
-              log.info("【屏蔽】底部下拉菜单");
-              iframeGlobal.DOMUtils.addStyle(hideCSS);
-            });
-          });
+        blockRecommendMoreExcitingContent() {
+          log.info("屏蔽顶部悬浮工具栏");
+          return CommonUtil.addBlockCSS(
+            ".feed-recommend-title",
+            "#feed-recommend",
+            ".mm-content-box.mm-content-line.feed-recommend"
+          );
         },
-        blockEveryOneSearch() {
-          let hideCSS = `
-        swan-everyone-search-box{
-            display: none !important;
-        }`;
-          this.injectIframe(void 0, (iframeGlobal) => {
-            iframeGlobal.DOMUtils.ready(() => {
-              log.info("【屏蔽】大家还在搜");
-              iframeGlobal.DOMUtils.addStyle(hideCSS);
-            });
-          });
+        blockOtherAnswers() {
+          log.info("屏蔽其他回答");
+          return CommonUtil.addBlockCSS(".replies-container + div");
         },
-      };
-      const EasyLearnShieldCSS =
-        "/* 中间弹窗-限时专享福利 */\r\n#app .pre-unpaid-wrap,\r\n/* 底部工具栏上面-月考全胜 您有xx元体验卡 */\r\n.question-bottom-bar .vip-bar,\r\n/* 解析-免费查看答案及解析 */\r\n.question-analysis-new .see-more,\r\n/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/\r\n.business-el-line,\r\n.business-el-line-background,\r\n/* 展开按钮 */\r\n.question-analysis-new .expand,\r\n/* 7日VIP限免 大学生免费领 */\r\n#app .bgk-question-detail .float-fixed {\r\n  display: none !important;\r\n}\r\n/* 显示答案及解析 */\r\n.ques-title.analysis-title + div {\r\n  display: unset !important;\r\n}\r\n.question-analysis-new .analysis-wrap,\r\n#analysis {\r\n  overflow: unset !important;\r\n  height: unset !important;\r\n  max-height: unset !important;\r\n}\r\n/* 电脑端 */\r\n/* 中间弹窗-限时专享福利 */\r\n.kaixue-dialog-mask,\r\n/* 解析-免费查看答案及解析 */\r\n.question-cont .mask,\r\n/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */\r\n.vip-banner-cont {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduEasyLearn = {
-        init() {
-          addStyle$1(EasyLearnShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
-            return this.shieldQuestionPaper();
-          });
-          Panel.execMenuOnce("baidu_easylearn_shield_good_questions_in_this_volume", () => {
-            return this.shieldGoodQuestionsInThisVolume();
-          });
-          Panel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
-            return this.shieldRelatedTestPapers();
-          });
-          Panel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
-            return this.shieldVideoExplanation();
-          });
-          Panel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
-            return this.shieldXuebaNotes();
-          });
-          Panel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
-            return this.shieldBottomToolbar();
-          });
-          Panel.execMenuOnce("baidu_easylearn_unlocking_the_upper_limit_of_search_questions", () => {
-            this.hijackUserSearchQuestCount();
-          });
-          Panel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
-            this.showAnswerContent();
-          });
-          domUtils.ready(() => {
-            Panel.execMenuOnce("baidu_easylearn_unlocking_top_search_input", () => {
-              this.allowUserSearchInput();
-            });
-          });
+        blockRelatedIssues() {
+          log.info("屏蔽相关问题");
+          return CommonUtil.addBlockCSS(
+            "div[id^=wahsd]",
+            'div[class^="w-question-list"]',
+            'div:has(>[id*="-related-list"])'
+          );
         },
-        shieldQuestionPaper() {
-          log.info("屏蔽题卷");
-          return CommonUtil.addBlockCSS(".question-shijuan-wrap", ".question-cont .timu-wrap .doc-cont-v2 .left");
-        },
-        shieldGoodQuestionsInThisVolume() {
-          log.info("屏蔽本卷好题");
-          return CommonUtil.addBlockCSS(".exercise-questions-wrap");
-        },
-        shieldRelatedTestPapers() {
-          log.info("屏蔽本卷相关试卷");
-          return CommonUtil.addBlockCSS(".related-papers-wrap", ".question-cont .timu-wrap .doc-cont-v2 .right");
-        },
-        shieldVideoExplanation() {
-          log.info("屏蔽视频解析");
-          return CommonUtil.addBlockCSS(".video-doc-compo", ".container #questionVideo");
-        },
-        shieldXuebaNotes() {
-          log.info("屏蔽学霸");
-          return CommonUtil.addBlockCSS(".note-list");
-        },
-        shieldBottomToolbar() {
-          log.info("屏蔽底部工具栏");
-          return CommonUtil.addBlockCSS(".question-bottom-bar", "#app .bgk-question-detail .float-btm");
-        },
-        showAnswerContent() {
-          domUtils.waitNode("div.question-swiper").then(async ($questionSwiper) => {
-            log.info("显示答案内容");
-            await utils.waitVueByInterval(
-              $questionSwiper,
-              function (vueObj2) {
-                return "$watch" in vueObj2;
-              },
-              100,
-              1e4
-            );
-            let vueObj = VueUtils.getVue($questionSwiper);
-            if (!vueObj) {
-              log.error("获取vue属性失败 => div.question-swiper");
-              return;
-            }
-            vueObj.$watch(
-              ["isShowAnswer", "isShowAnswerContent"],
-              function (newVal, oldVal) {
-                log.success("显示答案");
-                this.isShowAnswer = true;
-                this.isShowAnswerContent = true;
-              },
-              {
-                deep: true,
-                immediate: true,
-              }
-            );
-            vueObj.$parent.$watch(
-              "isOnAlternativeDialog",
-              function (newVal, oldVal) {
-                log.success("禁止显示弹窗");
-                this.isOnAlternativeDialog = false;
-              },
-              {
-                deep: true,
-                immediate: true,
-              }
-            );
-            vueObj.$parent.$watch(
-              "userChangeQuestionCount",
-              function () {
-                log.success("滑动改变题目");
-                vueObj.isShowAnswer = true;
-                vueObj.isShowAnswerContent = true;
-              },
-              {
-                deep: true,
-                immediate: true,
-              }
-            );
-            vueObj.$parent.openBgkApp = function (...args) {
-              log.success(["openBgkApp：阻止调用App Scheme", args]);
-            };
-            vueObj.openApp = function (...args) {
-              log.success(["openApp：阻止调用App Scheme", args]);
-            };
-            vueObj.$parent.goToApp = function (...args) {
-              log.success(["goToApp：阻止调用App Scheme", args]);
-            };
-          });
-        },
-        hijackUserSearchQuestCount() {
-          log.info("移除-【今日搜题次数已达上限】的本次存储的记录");
-          _unsafeWindow.localStorage.removeItem("user_search_quest_count");
-        },
-        allowUserSearchInput() {
-          domUtils.waitNode(".search-input .search-box-wrap.search-box", 1e4).then(async ($searchBox) => {
-            if (!$searchBox) {
-              log.error("元素.search-input .search-box-wrap.search-box未出现");
-              return;
-            }
-            log.success("允许使用顶部的输入框");
-            await utils.waitVueByInterval(
-              $searchBox,
-              function (vueObj2) {
-                return "$watch" in vueObj2;
-              },
-              250,
-              1e4
-            );
-            let vueObj = VueUtils.getVue($searchBox);
-            if (vueObj == null) {
-              log.error("获取vue属性失败 => .search-input .search-box-wrap.search-box");
-              return;
-            }
-            vueObj.$watch(
-              "isFake",
-              function (newVal, oldVal) {
-                log.success("允许使用顶部搜索输入框");
-                this.isFake = false;
-              },
-              {
-                deep: true,
-                immediate: true,
-              }
-            );
-          });
-        },
-      };
-      const AiStudyShieldCSS = "";
-      const BaiduAiStudy = {
-        init() {
-          addStyle$1(AiStudyShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
-            return this.shieldBottomToolBar();
-          });
-          Panel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
-            return this.autoExpandFullText();
-          });
-        },
-        shieldBottomToolBar() {
-          log.info("屏蔽底部工具栏");
-          return CommonUtil.addBlockCSS(".gt-edu-h5-c-article-bottom");
-        },
-        autoExpandFullText() {
-          log.info("自动展开全文");
-          return [
-            CommonUtil.addBlockCSS(".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"),
-            addStyle$1(
-              `
-			.gt-edu-h5-c-article-content .content-wrapper .detail-wrapper{
-				max-height: unset !important;
-			}
-			`
-            ),
-          ];
-        },
-      };
-      const ISiteShieldCSS =
-        "/* 底部推荐广告项 */\r\n.gt-local-h5-advert-card-root-container {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduISite = {
-        init() {
-          addStyle$1(ISiteShieldCSS);
-          log.info("插入CSS规则");
-          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldBottomBarRootContainer", () => {
-            return this.shieldBottomBarRootContainer();
-          });
-          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar", () => {
-            return this.shieldRightSeeMoreToolBar();
-          });
-          Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
-            return this.shieldArticleBottom();
-          });
-          Panel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
-            return this.autoExpandFullText();
-          });
-        },
-        shieldBottomBarRootContainer() {
-          log.info("屏蔽底部免费在线咨询");
-          return CommonUtil.addBlockCSS(".gt-local-h5-article-bottom-bar-root-container");
-        },
-        shieldRightSeeMoreToolBar() {
-          log.info("屏蔽右侧悬浮按钮-查看更多");
-          return CommonUtil.addBlockCSS(".icon-article-list.icon-article-list-exp");
-        },
-        shieldArticleBottom() {
-          log.info("屏蔽底部-大家还在看");
-          return CommonUtil.addBlockCSS(".article-bottom");
-        },
-        autoExpandFullText() {
-          log.info("自动展开全文");
-          return [
-            CommonUtil.addBlockCSS(".fold-wrapper"),
-            addStyle$1(
-              `
-			.gt-local-h5-article-detail-article-fold-exp{
-				max-height: unset !important;
-			}
-			`
-            ),
-          ];
-        },
-      };
-      const blockCSS$1 =
-        "/* 底部 继续访问 百度贴吧|手机百度 */\r\nswan-slient-wake-popup,\r\n/* 帖子内底部的推荐帖子 */\r\nswan-recommend-list {\r\n  display: none !important;\r\n}\r\n";
-      const SmartAppsTieba = {
-        init() {
-          Panel.onceExec("smartapps-tieba-blockAds", () => {
-            return this.removeAds();
-          });
-        },
-        removeAds() {
-          log.info(`屏蔽广告`);
-          let result = [addStyle$1(blockCSS$1)];
-          let selectorList = [
-            "swan-wake-app:has(swan-view):contains('App内看更多评论')",
-            "swan-wake-app:has(swan-view):contains('App内查看')",
-            "swan-wake-app:has(swan-view):contains('来贴吧参与讨论')",
-            "swan-wake-app:has(swan-view):contains('打开App查看高清大图')",
-          ];
-          let lockFn = new utils.LockFunction(() => {
-            selectorList.forEach((selector) => {
-              DOMUtils.selectorAll(selector).forEach(($el) => {
-                $el.remove();
-              });
-            });
-          });
-          utils.mutationObserver(document, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            immediate: true,
-            callback: () => {
-              lockFn.run();
-            },
-          });
-          return result;
-        },
-      };
-      const blockCSS = "/* 底部的推荐文章 */\r\n.hui-pull__body {\r\n  display: none !important;\r\n}\r\n";
-      const BaiduHealth = {
-        init() {
-          addStyle$1(blockCSS);
+        shieldTopFloatToolBar() {
+          log.info("屏蔽顶部悬浮工具栏");
+          return CommonUtil.addBlockCSS(
+            ".iknow-root-dom-element .question-answer-container .question-answer-layer.fixed"
+          );
         },
       };
       const Baidu = {
@@ -30007,6 +30007,273 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             log.error("该Router暂未适配，请联系开发者：" + window.location.href);
           }
         },
+      };
+      const PanelAiQiChaSettingUI = {
+        id: "baidu-panel-config-aiqicha",
+        title: "爱企查",
+        headerTitle: "爱企查<br />aiqicha.baidu.com",
+        isDefault() {
+          return BaiduRouter.isAiQiCha();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "屏蔽",
+            type: "container",
+            views: [
+              UISwitch("【屏蔽】轮播图", "baidu_aiqicha_shield_carousel", true),
+              UISwitch("【屏蔽】行业热点新闻", "baidu_aiqicha_shield_industry_host_news", true),
+            ],
+          },
+        ],
+      };
+      const PanelAiStudySettingUI = {
+        id: "baidu-panel-config-ai-study",
+        title: "知了爱学",
+        headerTitle: "知了爱学<br />aistudy.baidu.com<br />isite.baidu.com/site/wjz2tdly",
+        isDefault() {
+          return BaiduRouter.isAiStudy() || BaiduRouter.isISite();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "知了爱学",
+                description: "isite",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】底部免费在线咨询", "baidu_isite_wjz2tdly_shieldBottomBarRootContainer", true),
+                      UISwitch(
+                        "【屏蔽】右侧悬浮按钮-查看更多",
+                        "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
+                        false
+                      ),
+                      UISwitch("【屏蔽】大家还在看", "baidu_isite_wjz2tdly_shieldArticleBottom", true),
+                    ],
+                  },
+                  {
+                    text: "功能",
+                    type: "container",
+                    views: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
+                  },
+                ],
+              },
+              {
+                text: "知了爱学",
+                description: "aistudy",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
+                  },
+                  {
+                    text: "功能",
+                    type: "container",
+                    views: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const PanelBaiJiaHaoSettingUI = {
+        id: "baidu-panel-config-baijiahao",
+        title: "百家号",
+        headerTitle: "百家号<br />baijiahao.baidu.com<br />mbd.baidu.com",
+        isDefault() {
+          return BaiduRouter.isBaiJiaHao() || BaiduRouter.isMbd();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "百家号",
+                description: "baijiahao.baidu.com",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】推荐文章", "baijiahao_shield_recommended_article", true),
+                      UISwitch("【屏蔽】用户评论", "baijiahao_shield_user_comment", false),
+                      UISwitch("【屏蔽】底部悬浮工具栏", "baijiahao_shield_user_comment_input_box", false),
+                    ],
+                  },
+                  {
+                    text: "劫持/拦截",
+                    type: "container",
+                    views: [
+                      UISwitch("劫持-唤醒App", "baijiahao_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
+                      UISwitch("劫持-iframe唤醒App", "baidu_baijiahao_hijack_iframe", true, void 0, "阻止唤醒调用App"),
+                      UISwitch("劫持-OpenBox函数", "baidu_baijiahao_hijack_openbox", true),
+                      UISwitch("劫持-openContentBox函数", "baidu_baijiahao_hijack_openContentBox", true),
+                    ],
+                  },
+                ],
+              },
+              {
+                text: "百家号",
+                type: "deepMenu",
+                description: "mbd.baidu.com",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】精彩评论", "baidu_mbd_block_exciting_comments", false),
+                      UISwitch("【屏蔽】精彩推荐", "baidu_mbd_block_exciting_recommendations", false),
+                      UISwitch("【屏蔽】底部工具栏", "baidu_mbd_shield_bottom_toolbar", false),
+                    ],
+                  },
+                  {
+                    text: "功能",
+                    type: "container",
+                    views: [
+                      UISwitch(
+                        "伪装成lite baiduboxapp",
+                        "baidu_mbd_camouflage_lite_baiduboxapp",
+                        true,
+                        void 0,
+                        "可以优化浏览体验"
+                      ),
+                    ],
+                  },
+                  {
+                    text: "劫持/拦截",
+                    type: "container",
+                    views: [
+                      UISwitch("拦截-唤醒App", "baidu_mbd_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
+                      UISwitch("拦截-iframe唤醒App", "baidu_mbd_hijack_iframe", true, void 0, "阻止唤醒调用App"),
+                      UISwitch("劫持-BoxJSBefore函数", "baidu_mbd_hijack_BoxJSBefore", true, void 0, "阻止唤醒调用App"),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const PanelBaiKeSettingUI = {
+        id: "baidu-panel-config-baike",
+        title: "百科",
+        headerTitle: "百度百科<br />baike.baidu.com<br />wapbaike.baidu.com",
+        isDefault() {
+          return BaiduRouter.isBaiKe();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "他说",
+                description: "/tashuo",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "劫持",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "劫持Box",
+                    type: "container",
+                    views: [
+                      UISwitch("劫持全局Box", "baidu-baike-hookBox", true, void 0, "开启后下面的选项才会生效"),
+                      UISwitch("isBox", "baidu-baike-Box-isBox", true, void 0, "Box.isBox和Box.$isBox强制返回true"),
+                      UISwitch(
+                        "isLiteBox",
+                        "baidu-baike-Box-isLiteBox",
+                        false,
+                        void 0,
+                        "Box.isLiteBox和Box.$isLiteBox强制返回true"
+                      ),
+                      UISwitch(
+                        "isInfoBox",
+                        "baidu-baike-Box-isInfoBox",
+                        false,
+                        void 0,
+                        "Box.isInfoBox和Box.$isInfoBox强制返回true"
+                      ),
+                      UISwitch("isIOS", "baidu-baike-Box-isIOS", false, void 0, "Box.isIOS和Box.$isIOS强制返回true"),
+                      UISwitch(
+                        "isAndroid",
+                        "baidu-baike-Box-isAndroid",
+                        false,
+                        void 0,
+                        "Box.isAndroid和Box.$isAndroid强制返回true"
+                      ),
+                      UISwitch(
+                        "android.invokeApp",
+                        "baidu-baike-Box-android.invokeApp",
+                        true,
+                        void 0,
+                        "Box.android.invokeApp()置空"
+                      ),
+                      UISwitch(
+                        "android.invokeLiteApp",
+                        "baidu-baike-Box-android.invokeLiteApp",
+                        true,
+                        void 0,
+                        "Box.android.invokeLiteApp()置空"
+                      ),
+                      UISwitch(
+                        "ios.invokeApp",
+                        "baidu-baike-Box-ios.invokeApp",
+                        true,
+                        void 0,
+                        "Box.ios.invokeApp()置空"
+                      ),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const PanelChatSettingUI = {
+        id: "baidu-panel-config-chat",
+        title: "AI伙伴",
+        headerTitle: "搜索AI伙伴<br />chat.baidu.com",
+        isDefault() {
+          return BaiduRouter.isChat();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "屏蔽",
+            type: "container",
+            views: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
+          },
+        ],
       };
       const PanelCommonSettingUI = {
         id: "baidu-panel-config-common",
@@ -30139,6 +30406,198 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                   },
                 ],
               },
+            ],
+          },
+        ],
+      };
+      const PanelEasyLearnSettingUI = {
+        id: "baidu-panel-config-easy-learn",
+        title: "教育",
+        headerTitle: "百度教育<br />easylearn.baidu.com<br />uf9kyh.smartapps.cn",
+        isDefault() {
+          return BaiduRouter.isEasyLearn() || BaiduRouter.isMiniJiaoYu();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "小程序",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "屏蔽",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】底部下拉菜单", "mini_baidu_jiaoyu_shield_bottom_pull_down_menu", false),
+                      UISwitch("【屏蔽】大家还在搜", "mini_baidu_jiaoyu-blockEveryOneSearch", false),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "功能",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "",
+                    type: "container",
+                    views: [
+                      UISwitch("解锁顶部搜索框", "baidu_easylearn_unlocking_top_search_input", true),
+                      UISwitch("解锁搜题上限", "baidu_easylearn_unlocking_the_upper_limit_of_search_questions", true),
+                      UISwitch("自动显示答案", "baidu_easylearn_auto_show_answer", true),
+                    ],
+                  },
+                ],
+              },
+              {
+                text: "屏蔽",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】本题试卷", "baidu_easylearn_shield_this_question_paper", false),
+                      UISwitch("【屏蔽】本卷好题", "baidu_easylearn_shield_good_questions_in_this_volume", false),
+                      UISwitch("【屏蔽】相关试卷", "baidu_easylearn_shield_related_test_papers", false),
+                      UISwitch("【屏蔽】视频讲解", "baidu_easylearn_shield_video_explanation", false),
+                      UISwitch("【屏蔽】学霸笔记", "baidu_easylearn_shield_xueba_notes", false),
+                      UISwitch("【屏蔽】底部工具栏", "baidu_easylearn_shield_bottom_toolbar", false),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const PanelFanYiSettingUI = {
+        id: "baidu-panel-config-fanyi",
+        title: "翻译",
+        headerTitle: "百度翻译<br />fanyi.baidu.com<br />fanyi-app.baidu.com",
+        isDefault() {
+          return BaiduRouter.isFanYi() || BaiduRouter.isFanYiApp();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "App",
+                type: "deepMenu",
+                description: "fanyi-app",
+                views: [
+                  {
+                    text: "",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】专栏信息", "baidu_fanyi_app_shield_column_information", false),
+                      UISwitch("【屏蔽】为你推荐", "baidu_fanyi_app_shield_recommended_for_you", false),
+                      UISwitch("【屏蔽】我要跟读", "baidu_fanyi_app_shield_i_need_to_follow_along", false),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: "",
+            type: "container",
+            views: [
+              {
+                text: "功能",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "",
+                    type: "container",
+                    views: [UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)],
+                  },
+                ],
+              },
+              {
+                text: "屏蔽",
+                type: "deepMenu",
+                views: [
+                  {
+                    text: "",
+                    type: "container",
+                    views: [
+                      UISwitch("【屏蔽】底部推荐", "baidu_fanyi_recommended_shielding_bottom", true),
+                      UISwitch("【屏蔽】底部其它", "baidu_fanyi_other_shielding_bottom", true),
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const PanelHaoKanSettingUI = {
+        id: "baidu-panel-config-haokan",
+        title: "好看视频",
+        headerTitle: "好看视频<br />haokan.baidu.com",
+        isDefault() {
+          return BaiduRouter.isHaoKan();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "屏蔽",
+            type: "container",
+            views: [
+              UISwitch("【屏蔽】猜你喜欢", "baidu_haokan_shield_may_also_like", true),
+              UISwitch("【屏蔽】今日热播榜单", "baidu_haokan_shield_today_s_hot_list", true),
+              UISwitch("【屏蔽】右侧工具栏", "baidu_haokan_shield_right_video_action", true),
+            ],
+          },
+          {
+            text: "功能",
+            type: "container",
+            views: [
+              UISwitch("播放视频自动进入全屏", "baidu_haokan_play_video_and_automatically_enter_full_screen", false),
+            ],
+          },
+          {
+            text: "劫持/拦截",
+            type: "container",
+            views: [UISwitch("拦截-唤醒App", "baidu_haokan_hijack_wakeup", true, void 0, "阻止唤醒调用App")],
+          },
+        ],
+      };
+      const PanelMapSettingUI = {
+        id: "baidu-panel-config-map",
+        title: "地图",
+        headerTitle: "百度地图<br />map.baidu.com",
+        isDefault() {
+          return BaiduRouter.isMap();
+        },
+        scrollToDefaultView: true,
+        views: [
+          {
+            text: "劫持/拦截",
+            type: "container",
+            views: [
+              UISwitch(
+                "劫持Element.appendChild",
+                "baidu_map_hijack-element-appendChild",
+                true,
+                void 0,
+                "阻止唤醒调用App"
+              ),
+              UISwitch("劫持$.append", "baidu_map_hijack-jQuery-append", true, void 0, "阻止唤醒调用App"),
+              UISwitch("劫持setTimeout", "baidu_map_hijack-setTimeout", true, void 0, "阻止唤醒调用App和剪贴板复制"),
             ],
           },
         ],
@@ -30524,87 +30983,6 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
                         );
                         return $li;
                       }),
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-      const PanelBaiJiaHaoSettingUI = {
-        id: "baidu-panel-config-baijiahao",
-        title: "百家号",
-        headerTitle: "百家号<br />baijiahao.baidu.com<br />mbd.baidu.com",
-        isDefault() {
-          return BaiduRouter.isBaiJiaHao() || BaiduRouter.isMbd();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "百家号",
-                description: "baijiahao.baidu.com",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】推荐文章", "baijiahao_shield_recommended_article", true),
-                      UISwitch("【屏蔽】用户评论", "baijiahao_shield_user_comment", false),
-                      UISwitch("【屏蔽】底部悬浮工具栏", "baijiahao_shield_user_comment_input_box", false),
-                    ],
-                  },
-                  {
-                    text: "劫持/拦截",
-                    type: "container",
-                    views: [
-                      UISwitch("劫持-唤醒App", "baijiahao_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
-                      UISwitch("劫持-iframe唤醒App", "baidu_baijiahao_hijack_iframe", true, void 0, "阻止唤醒调用App"),
-                      UISwitch("劫持-OpenBox函数", "baidu_baijiahao_hijack_openbox", true),
-                      UISwitch("劫持-openContentBox函数", "baidu_baijiahao_hijack_openContentBox", true),
-                    ],
-                  },
-                ],
-              },
-              {
-                text: "百家号",
-                type: "deepMenu",
-                description: "mbd.baidu.com",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】精彩评论", "baidu_mbd_block_exciting_comments", false),
-                      UISwitch("【屏蔽】精彩推荐", "baidu_mbd_block_exciting_recommendations", false),
-                      UISwitch("【屏蔽】底部工具栏", "baidu_mbd_shield_bottom_toolbar", false),
-                    ],
-                  },
-                  {
-                    text: "功能",
-                    type: "container",
-                    views: [
-                      UISwitch(
-                        "伪装成lite baiduboxapp",
-                        "baidu_mbd_camouflage_lite_baiduboxapp",
-                        true,
-                        void 0,
-                        "可以优化浏览体验"
-                      ),
-                    ],
-                  },
-                  {
-                    text: "劫持/拦截",
-                    type: "container",
-                    views: [
-                      UISwitch("拦截-唤醒App", "baidu_mbd_hijack_wakeup", true, void 0, "阻止唤醒调用App"),
-                      UISwitch("拦截-iframe唤醒App", "baidu_mbd_hijack_iframe", true, void 0, "阻止唤醒调用App"),
-                      UISwitch("劫持-BoxJSBefore函数", "baidu_mbd_hijack_BoxJSBefore", true, void 0, "阻止唤醒调用App"),
                     ],
                   },
                 ],
@@ -31216,260 +31594,6 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
         ],
       };
-      const PanelBaiKeSettingUI = {
-        id: "baidu-panel-config-baike",
-        title: "百科",
-        headerTitle: "百度百科<br />baike.baidu.com<br />wapbaike.baidu.com",
-        isDefault() {
-          return BaiduRouter.isBaiKe();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "他说",
-                description: "/tashuo",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [UISwitch("【屏蔽】底部广告", "baidu_baike_tashuo_remove_bottom_ad", true)],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "劫持",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "劫持Box",
-                    type: "container",
-                    views: [
-                      UISwitch("劫持全局Box", "baidu-baike-hookBox", true, void 0, "开启后下面的选项才会生效"),
-                      UISwitch("isBox", "baidu-baike-Box-isBox", true, void 0, "Box.isBox和Box.$isBox强制返回true"),
-                      UISwitch(
-                        "isLiteBox",
-                        "baidu-baike-Box-isLiteBox",
-                        false,
-                        void 0,
-                        "Box.isLiteBox和Box.$isLiteBox强制返回true"
-                      ),
-                      UISwitch(
-                        "isInfoBox",
-                        "baidu-baike-Box-isInfoBox",
-                        false,
-                        void 0,
-                        "Box.isInfoBox和Box.$isInfoBox强制返回true"
-                      ),
-                      UISwitch("isIOS", "baidu-baike-Box-isIOS", false, void 0, "Box.isIOS和Box.$isIOS强制返回true"),
-                      UISwitch(
-                        "isAndroid",
-                        "baidu-baike-Box-isAndroid",
-                        false,
-                        void 0,
-                        "Box.isAndroid和Box.$isAndroid强制返回true"
-                      ),
-                      UISwitch(
-                        "android.invokeApp",
-                        "baidu-baike-Box-android.invokeApp",
-                        true,
-                        void 0,
-                        "Box.android.invokeApp()置空"
-                      ),
-                      UISwitch(
-                        "android.invokeLiteApp",
-                        "baidu-baike-Box-android.invokeLiteApp",
-                        true,
-                        void 0,
-                        "Box.android.invokeLiteApp()置空"
-                      ),
-                      UISwitch(
-                        "ios.invokeApp",
-                        "baidu-baike-Box-ios.invokeApp",
-                        true,
-                        void 0,
-                        "Box.ios.invokeApp()置空"
-                      ),
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-      const PanelZhiDaoSettingUI = {
-        id: "baidu-panel-config-zhidao",
-        title: "知道",
-        headerTitle: "百度知道<br />zhidao.baidu.com",
-        isDefault() {
-          return BaiduRouter.isZhiDao();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "屏蔽",
-            type: "container",
-            views: [
-              UISwitch("【屏蔽】推荐更多精彩内容", "baidu_zhidao_block_recommend_more_exciting_content", true),
-              UISwitch("【屏蔽】相关问题", "baidu_zhidao_block_related_issues", true),
-              UISwitch("【屏蔽】其他回答", "baidu_zhidao_block_other_answers", false),
-              UISwitch("【屏蔽】顶部浮动工具栏", "baidu_zhidao_shield_top_fixed_toolbar", false),
-            ],
-          },
-        ],
-      };
-      const PanelFanYiSettingUI = {
-        id: "baidu-panel-config-fanyi",
-        title: "翻译",
-        headerTitle: "百度翻译<br />fanyi.baidu.com<br />fanyi-app.baidu.com",
-        isDefault() {
-          return BaiduRouter.isFanYi() || BaiduRouter.isFanYiApp();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "App",
-                type: "deepMenu",
-                description: "fanyi-app",
-                views: [
-                  {
-                    text: "",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】专栏信息", "baidu_fanyi_app_shield_column_information", false),
-                      UISwitch("【屏蔽】为你推荐", "baidu_fanyi_app_shield_recommended_for_you", false),
-                      UISwitch("【屏蔽】我要跟读", "baidu_fanyi_app_shield_i_need_to_follow_along", false),
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "功能",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "",
-                    type: "container",
-                    views: [UISwitch("自动聚焦输入框", "baidu_fanyi_auto_focus", true)],
-                  },
-                ],
-              },
-              {
-                text: "屏蔽",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】底部推荐", "baidu_fanyi_recommended_shielding_bottom", true),
-                      UISwitch("【屏蔽】底部其它", "baidu_fanyi_other_shielding_bottom", true),
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-      const PanelMapSettingUI = {
-        id: "baidu-panel-config-map",
-        title: "地图",
-        headerTitle: "百度地图<br />map.baidu.com",
-        isDefault() {
-          return BaiduRouter.isMap();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "劫持/拦截",
-            type: "container",
-            views: [
-              UISwitch(
-                "劫持Element.appendChild",
-                "baidu_map_hijack-element-appendChild",
-                true,
-                void 0,
-                "阻止唤醒调用App"
-              ),
-              UISwitch("劫持$.append", "baidu_map_hijack-jQuery-append", true, void 0, "阻止唤醒调用App"),
-              UISwitch("劫持setTimeout", "baidu_map_hijack-setTimeout", true, void 0, "阻止唤醒调用App和剪贴板复制"),
-            ],
-          },
-        ],
-      };
-      const PanelAiQiChaSettingUI = {
-        id: "baidu-panel-config-aiqicha",
-        title: "爱企查",
-        headerTitle: "爱企查<br />aiqicha.baidu.com",
-        isDefault() {
-          return BaiduRouter.isAiQiCha();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "屏蔽",
-            type: "container",
-            views: [
-              UISwitch("【屏蔽】轮播图", "baidu_aiqicha_shield_carousel", true),
-              UISwitch("【屏蔽】行业热点新闻", "baidu_aiqicha_shield_industry_host_news", true),
-            ],
-          },
-        ],
-      };
-      const PanelHaoKanSettingUI = {
-        id: "baidu-panel-config-haokan",
-        title: "好看视频",
-        headerTitle: "好看视频<br />haokan.baidu.com",
-        isDefault() {
-          return BaiduRouter.isHaoKan();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "屏蔽",
-            type: "container",
-            views: [
-              UISwitch("【屏蔽】猜你喜欢", "baidu_haokan_shield_may_also_like", true),
-              UISwitch("【屏蔽】今日热播榜单", "baidu_haokan_shield_today_s_hot_list", true),
-              UISwitch("【屏蔽】右侧工具栏", "baidu_haokan_shield_right_video_action", true),
-            ],
-          },
-          {
-            text: "功能",
-            type: "container",
-            views: [
-              UISwitch("播放视频自动进入全屏", "baidu_haokan_play_video_and_automatically_enter_full_screen", false),
-            ],
-          },
-          {
-            text: "劫持/拦截",
-            type: "container",
-            views: [UISwitch("拦截-唤醒App", "baidu_haokan_hijack_wakeup", true, void 0, "阻止唤醒调用App")],
-          },
-        ],
-      };
       const PanelYiYanSettingUI = {
         id: "baidu-panel-config-yiyan",
         title: "文心一言",
@@ -31527,157 +31651,31 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           },
         ],
       };
-      const PanelChatSettingUI = {
-        id: "baidu-panel-config-chat",
-        title: "AI伙伴",
-        headerTitle: "搜索AI伙伴<br />chat.baidu.com",
+      const PanelZhiDaoSettingUI = {
+        id: "baidu-panel-config-zhidao",
+        title: "知道",
+        headerTitle: "百度知道<br />zhidao.baidu.com",
         isDefault() {
-          return BaiduRouter.isChat();
+          return BaiduRouter.isZhiDao();
         },
         scrollToDefaultView: true,
         views: [
           {
             text: "屏蔽",
             type: "container",
-            views: [UISwitch("【屏蔽】文字/图片水印", "baidu_chat_remove_ai_mask", true)],
-          },
-        ],
-      };
-      const PanelEasyLearnSettingUI = {
-        id: "baidu-panel-config-easy-learn",
-        title: "教育",
-        headerTitle: "百度教育<br />easylearn.baidu.com<br />uf9kyh.smartapps.cn",
-        isDefault() {
-          return BaiduRouter.isEasyLearn() || BaiduRouter.isMiniJiaoYu();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "",
-            type: "container",
             views: [
-              {
-                text: "小程序",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】底部下拉菜单", "mini_baidu_jiaoyu_shield_bottom_pull_down_menu", false),
-                      UISwitch("【屏蔽】大家还在搜", "mini_baidu_jiaoyu-blockEveryOneSearch", false),
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "功能",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "",
-                    type: "container",
-                    views: [
-                      UISwitch("解锁顶部搜索框", "baidu_easylearn_unlocking_top_search_input", true),
-                      UISwitch("解锁搜题上限", "baidu_easylearn_unlocking_the_upper_limit_of_search_questions", true),
-                      UISwitch("自动显示答案", "baidu_easylearn_auto_show_answer", true),
-                    ],
-                  },
-                ],
-              },
-              {
-                text: "屏蔽",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】本题试卷", "baidu_easylearn_shield_this_question_paper", false),
-                      UISwitch("【屏蔽】本卷好题", "baidu_easylearn_shield_good_questions_in_this_volume", false),
-                      UISwitch("【屏蔽】相关试卷", "baidu_easylearn_shield_related_test_papers", false),
-                      UISwitch("【屏蔽】视频讲解", "baidu_easylearn_shield_video_explanation", false),
-                      UISwitch("【屏蔽】学霸笔记", "baidu_easylearn_shield_xueba_notes", false),
-                      UISwitch("【屏蔽】底部工具栏", "baidu_easylearn_shield_bottom_toolbar", false),
-                    ],
-                  },
-                ],
-              },
+              UISwitch("【屏蔽】推荐更多精彩内容", "baidu_zhidao_block_recommend_more_exciting_content", true),
+              UISwitch("【屏蔽】相关问题", "baidu_zhidao_block_related_issues", true),
+              UISwitch("【屏蔽】其他回答", "baidu_zhidao_block_other_answers", false),
+              UISwitch("【屏蔽】顶部浮动工具栏", "baidu_zhidao_shield_top_fixed_toolbar", false),
             ],
           },
         ],
       };
-      const PanelAiStudySettingUI = {
-        id: "baidu-panel-config-ai-study",
-        title: "知了爱学",
-        headerTitle: "知了爱学<br />aistudy.baidu.com<br />isite.baidu.com/site/wjz2tdly",
-        isDefault() {
-          return BaiduRouter.isAiStudy() || BaiduRouter.isISite();
-        },
-        scrollToDefaultView: true,
-        views: [
-          {
-            text: "",
-            type: "container",
-            views: [
-              {
-                text: "知了爱学",
-                description: "isite",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [
-                      UISwitch("【屏蔽】底部免费在线咨询", "baidu_isite_wjz2tdly_shieldBottomBarRootContainer", true),
-                      UISwitch(
-                        "【屏蔽】右侧悬浮按钮-查看更多",
-                        "baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
-                        false
-                      ),
-                      UISwitch("【屏蔽】大家还在看", "baidu_isite_wjz2tdly_shieldArticleBottom", true),
-                    ],
-                  },
-                  {
-                    text: "功能",
-                    type: "container",
-                    views: [UISwitch("自动展开全文", "baidu_isite_wjz2tdly_autoExpandFullText", true)],
-                  },
-                ],
-              },
-              {
-                text: "知了爱学",
-                description: "aistudy",
-                type: "deepMenu",
-                views: [
-                  {
-                    text: "屏蔽",
-                    type: "container",
-                    views: [UISwitch("【屏蔽】底部工具栏", "baidu_ai_study_shieldBottomToolBar", true)],
-                  },
-                  {
-                    text: "功能",
-                    type: "container",
-                    views: [UISwitch("自动展开全文", "baidu_ai_study_autoExpandFullText", true)],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-      (() => {
-        if (typeof _unsafeWindow.BaiduOptimizationScriptRunCount === "number") {
-          _unsafeWindow.BaiduOptimizationScriptRunCount++;
-          log.warn("阻止脚本容器反复执行本脚本 " + _unsafeWindow.BaiduOptimizationScriptRunCount + " 次");
-          return;
-        }
+      if (typeof _unsafeWindow.BaiduOptimizationScriptRunCount === "number") {
+        _unsafeWindow.BaiduOptimizationScriptRunCount++;
+        log.warn("阻止脚本容器反复执行本脚本 " + _unsafeWindow.BaiduOptimizationScriptRunCount + " 次");
+      } else {
         _unsafeWindow.BaiduOptimizationScriptRunCount = 0;
         PanelContent.addContentConfig([
           PanelCommonSettingUI,
@@ -31699,8 +31697,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
         ]);
         Panel.init();
         Baidu.init();
-      })();
+      }
     },
   });
   require_entrance_001();
-})(DOMUtils, pops, Utils, Qmsg, Vue, Viewer, Pinia, ElementPlusIconsVue, VueDemi, VueRouter, ElementPlus);
+})(Qmsg, DOMUtils, pops, Utils, Vue, Viewer, Pinia, ElementPlusIconsVue, VueDemi, VueRouter, ElementPlus);
