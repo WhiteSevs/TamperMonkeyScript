@@ -114,13 +114,23 @@ export class UtilsDictionary<K, V> {
    * 获取字典所有的键
    */
   keys(): K[] {
-    return Array.from(this.items.keys());
+    const keys = this.items.keys();
+    if (typeof keys.toArray === "function") {
+      return keys.toArray();
+    } else {
+      return [...keys];
+    }
   }
   /**
    * 返回字典中的所有值
    */
   values(): V[] {
-    return Array.from(this.items.values());
+    const values = this.items.values();
+    if (typeof values.toArray === "function") {
+      return values.toArray();
+    } else {
+      return [...values];
+    }
   }
   /**
    * 清空字典
