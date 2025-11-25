@@ -500,7 +500,7 @@ const GenerateUserConfig = async (option: {
 	Object.freeze(needRepairGMApi);
 	if (Object.keys(needRepairGMApi).length > 0) {
 		console.log("[vite-plugin-monkey] repair GM api info ↓");
-		console.table(needRepairGMApi);
+		console.table(needRepairGMApi, Object.keys(needRepairGMApi));
 		const now = Date.now();
 		Reflect.set(document, "__monkeyApi-repair-" + now, needRepairGMApi);
 		for (const key in needRepairGMApi) {
