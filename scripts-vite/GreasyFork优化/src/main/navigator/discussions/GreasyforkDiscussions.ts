@@ -9,7 +9,7 @@ import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src
 export const GreasyforkForum = {
   init() {
     this.readBgColor();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
         this.filterEnable();
       });

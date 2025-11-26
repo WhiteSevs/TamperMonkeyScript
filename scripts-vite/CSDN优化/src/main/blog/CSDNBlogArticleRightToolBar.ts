@@ -31,7 +31,7 @@ const CSDNBlogArticleRightToolBar = {
       return this.shieldBackToTop();
     });
     this.initRightToolbarOffset();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
         this.addGotoRecommandButton();
       });

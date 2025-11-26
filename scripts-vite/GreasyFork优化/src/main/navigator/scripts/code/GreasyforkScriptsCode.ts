@@ -86,7 +86,7 @@ export const GreasyforkScriptsCode = {
           return;
         }
         let code_text = code_text_response.data.responseText;
-        DOMUtils.ready(async () => {
+        DOMUtils.onReady(async () => {
           let $codeContainer = await DOMUtils.waitNode<HTMLElement>("#script-content .code-container > pre", 10000);
           if (!$codeContainer) {
             return;

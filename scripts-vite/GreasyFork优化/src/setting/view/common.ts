@@ -216,7 +216,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
                         text: i18next.t("无"),
                       },
                     ];
-                    DOMUtils.ready(() => {
+                    DOMUtils.onReady(() => {
                       $$<HTMLOptionElement>("select.language-selector-locale option").forEach(($languageOption) => {
                         let value = $languageOption.getAttribute("value") as string;
                         if (value === "help") {

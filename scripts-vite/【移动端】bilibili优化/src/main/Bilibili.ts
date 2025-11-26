@@ -104,7 +104,7 @@ const Bilibili = {
       log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
     }
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       // Panel.execMenu("common_auto_delete_cookie_buvid3", () => {
       // 	let intervalCount = 0;
       // 	let intervalId = setInterval(() => {

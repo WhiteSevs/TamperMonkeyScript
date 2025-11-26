@@ -189,7 +189,7 @@ export const TiebaReply = {
   },
   init() {
     this.setGlobalContentClick();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       // this.setAvatarClickEvent();
       this.initLogin();
       this.cover_handlerCommentSuccess();
@@ -308,7 +308,7 @@ export const TiebaReply = {
   setGlobalContentClick() {
     let that = this;
     /* 评论区内容 */
-    function checkNotTriggerReply(event: Event) {
+    function checkNotEmitReply(event: Event) {
       let currentComposed = event.composedPath()[0] as Element;
       if ((currentComposed as HTMLAnchorElement).localName === "a") {
         log.info("<a>标签不触发回复功能");
@@ -324,7 +324,7 @@ export const TiebaReply = {
       return true;
     }
     DOMUtils.on(document, "click", ".post-item .content", (event) => {
-      if (!checkNotTriggerReply(event)) {
+      if (!checkNotEmitReply(event)) {
         return;
       }
       let $clickContent = event.target as HTMLDivElement;
@@ -368,7 +368,7 @@ export const TiebaReply = {
         /* 点击的是最顶部的层主 */
         return;
       }
-      if (!checkNotTriggerReply(event)) {
+      if (!checkNotEmitReply(event)) {
         return;
       }
       that.$data.replyLzlCommentData.value = void 0;
@@ -430,7 +430,7 @@ export const TiebaReply = {
       if (commentBoxVueObj.commentRef && commentBoxVueObj.commentRef instanceof HTMLInputElement) {
         // 不存在的话可能是因为显示该帖子回复必须是APP内，所以没有input实例
         commentBoxVueObj.commentRef.value = value;
-        DOMUtils.trigger(commentBoxVueObj.commentRef, "input");
+        DOMUtils.emit(commentBoxVueObj.commentRef, "input");
       }
     } catch (error) {
       Qmsg.error("设置输入框值失败");
@@ -484,7 +484,7 @@ export const TiebaReply = {
    * @returns
    */
   waitCommentBoxWrap(callback: Function) {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitNode<HTMLElement>(".comment-box-wrap", 10000).then(($commentBoxWrap) => {
         if (TiebaUniAppPost.isUniApp()) {
           return;

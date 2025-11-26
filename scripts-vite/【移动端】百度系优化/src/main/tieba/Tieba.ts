@@ -156,7 +156,7 @@ export const BaiduTieBa = {
     Panel.execMenu("baidu_tieba_add_search", () => {
       TiebaSearch.init();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("baidu_tieba_checkSkeleton", () => {
         TiebaCore.checkSkeleton();
       });

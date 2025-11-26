@@ -109,7 +109,7 @@ export const DouYinVideoFilter = {
       return;
     }
     this.execFilter();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
         return this.addParseButton();
       });

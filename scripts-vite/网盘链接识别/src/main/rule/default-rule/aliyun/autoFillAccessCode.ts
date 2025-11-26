@@ -5,7 +5,7 @@ import Qmsg from "qmsg";
 export const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
   if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
     log.success("自动填写链接", netDiskInfo);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitAnyNode<HTMLInputElement>([
         "#root input.ant-input[placeholder*='提取码']",
         "#root input[name=pwd][placeholder*='提取码']",

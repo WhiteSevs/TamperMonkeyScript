@@ -9,7 +9,7 @@ export const TiebaHybridUsergrowBaseCommentFocus = {
     Panel.onceExec("tieba-hybrid-usergrow-base-block-ads", () => {
       return this.blockAds();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.onceExec("tieba-hybrid-usergrow-base-prevent_openTiebaApp", () => {
         this.prevent_openTiebaApp();
       });

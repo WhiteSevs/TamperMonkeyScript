@@ -18,7 +18,7 @@ const BaiduHaoKan = {
     Panel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
       return this.shieldRightVideoAction();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.setPlayEvent();
     });
   },

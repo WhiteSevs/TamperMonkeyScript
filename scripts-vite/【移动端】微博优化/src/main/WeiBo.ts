@@ -44,7 +44,7 @@ const WeiBo = {
         return this.shieldBottomBar();
       });
       this.$data.weiBoUnlockQuality.lockVideoQuality();
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         Panel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
           this.unlockVideoHigherQuality();
         });

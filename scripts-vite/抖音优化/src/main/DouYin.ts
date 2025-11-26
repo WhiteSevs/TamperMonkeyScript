@@ -116,7 +116,7 @@ export const DouYin = {
    */
   async initialScale() {
     log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-    await DOMUtils.ready();
+    await DOMUtils.onReady();
     const $meta = DOMUtils.createElement(
       "meta",
       {},
@@ -155,7 +155,7 @@ export const DouYin = {
       url = currentUrl;
       log.info(`Router Change Before：` + beforeUrl);
       log.info(`Router Change Now：` + currentUrl);
-      Panel.triggerUrlChangeWithExecMenuOnceEvent({
+      Panel.emitUrlChangeWithExecMenuOnceEvent({
         url: currentUrl,
         beforeUrl: beforeUrl,
       });

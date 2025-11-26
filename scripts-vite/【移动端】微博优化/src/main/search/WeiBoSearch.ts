@@ -9,7 +9,7 @@ export const WeiBoSearch = {
     Panel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
       this.addOpenBlankBtn();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("weibo-search-autoFocusSearchInput", () => {
         this.autoFocusSearchInput();
       });

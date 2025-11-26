@@ -15,7 +15,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
       }
       Qmsg.success("自动填充访问码");
       $ele.value = netDiskInfo.accessCode;
-      DOMUtils.trigger($ele, "input");
+      DOMUtils.emit($ele, "input");
       document.querySelector<HTMLElement>("div.verify-form #submitBtn")?.click();
     });
   }
@@ -34,7 +34,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
       }
       Qmsg.success("自动填充访问码");
       $input.value = netDiskInfo.accessCode;
-      DOMUtils.trigger($input, "input");
+      DOMUtils.emit($input, "input");
       document.querySelector<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
     });
   }

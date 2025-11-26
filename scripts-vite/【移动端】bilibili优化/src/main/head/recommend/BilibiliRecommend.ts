@@ -48,7 +48,7 @@ export const BilibiliRecommend = {
   init() {
     this.setCSS();
     // this.reset();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.addRecommendTag();
     });
   },

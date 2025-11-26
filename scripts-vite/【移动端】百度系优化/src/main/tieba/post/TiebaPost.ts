@@ -321,7 +321,7 @@ const TiebaPost = {
       /* 图片右上角的APP专享 */
       "div.img-sudoku .img-desc"
     );
-    DOMUtils.ready(function () {
+    DOMUtils.onReady(function () {
       DOMUtils.waitNode<HTMLDivElement>("div.img-sudoku", 10000).then(($imgSudoKu) => {
         if (!$imgSudoKu) {
           log.error("未找到元素 div.img-sudoku");

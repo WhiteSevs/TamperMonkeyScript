@@ -22,7 +22,7 @@ export const BilibiliSearch = {
     Panel.execMenuOnce("bili-search-cover-card-result-click-event", () => {
       this.coverCardResultClickEvent();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("bili-search-inputAutoFocus", () => {
         this.inputAutoFocus();
       });

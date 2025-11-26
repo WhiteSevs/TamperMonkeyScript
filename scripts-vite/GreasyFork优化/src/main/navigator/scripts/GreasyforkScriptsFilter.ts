@@ -29,7 +29,7 @@ export const GreasyforkScriptsFilter = {
     let lockFunction = new utils.LockFunction(() => {
       this.filter();
     }, 50);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       if (GreasyforkUtils.isCurrentLoginUserHome()) {
         log.warn("当前在已登录的账户主页下，禁用脚本过滤");
         return;

@@ -11,8 +11,8 @@ export const NetDiskAutoFillAccessCode_xunlei = function (netDiskInfo: NetDiskAu
       }
       log.error("输入框不可见，不输入密码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
-      DOMUtils.trigger(element, "change");
+      DOMUtils.emit(element, "input");
+      DOMUtils.emit(element, "change");
       setTimeout(() => {
         document.querySelector<HTMLElement>("#__layout div.pass-input-wrap button.td-button")!.click();
       }, 500);
@@ -28,8 +28,8 @@ export const NetDiskAutoFillAccessCode_xunlei = function (netDiskInfo: NetDiskAu
       }
       log.error("输入框不可见，不输入密码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
-      DOMUtils.trigger(element, "change");
+      DOMUtils.emit(element, "input");
+      DOMUtils.emit(element, "change");
       setTimeout(() => {
         document.querySelector<HTMLElement>("#__layout div.pass-wrapper button.td-button")!.click();
       }, 500);

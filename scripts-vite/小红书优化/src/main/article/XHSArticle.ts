@@ -73,7 +73,7 @@ export const XHSArticle = {
       /* 搜索输入框 */
       $searchInput.placeholder = "搜索小红书";
       Panel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
-        DOMUtils.listenKeyboard($searchInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
+        DOMUtils.onKeyboard($searchInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
           if (keyName === "Enter" && !otherCodeList.length) {
             log.info("按下回车键");
             DOMUtils.preventEvent(event);

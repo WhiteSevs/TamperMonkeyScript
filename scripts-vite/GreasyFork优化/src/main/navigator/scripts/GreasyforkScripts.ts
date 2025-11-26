@@ -342,7 +342,7 @@ export const GreasyforkScripts = {
     Panel.execMenuOnce("addFindReferenceButton", () => {
       this.setFindCodeSearchBtn();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
         this.scriptHomepageAddedTodaySUpdate();
       });
@@ -400,7 +400,7 @@ export const GreasyforkScripts = {
         }
         `);
     let isFullScreen = false;
-    DOMUtils.keydown(
+    DOMUtils.onKeydown(
       unsafeWindow,
       function (event) {
         if (event.key.toLowerCase() === "f") {

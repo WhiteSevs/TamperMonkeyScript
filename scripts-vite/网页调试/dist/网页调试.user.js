@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.19
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -44,7 +44,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops) {
+(function (Qmsg, DOMUtils, pops, Utils) {
   "use strict";
 
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -62,6 +62,20 @@
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
+  const PanelSettingConfig = {
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom",
+    },
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3,
+    },
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false,
+    },
+  };
   const CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -124,7 +138,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.ready(() => {
+        DOMUtils.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -322,20 +336,6 @@
       return dataStr;
     },
   };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom",
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3,
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false,
-    },
-  };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops__ = pops;
@@ -508,138 +508,6 @@
       },
     },
   };
-  class StorageUtils {
-    storageKey;
-    listenerData;
-    constructor(key) {
-      if (typeof key === "string") {
-        const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
-        }
-        this.storageKey = trimKey;
-      } else {
-        throw new Error("key参数类型错误，必须是字符串");
-      }
-      this.listenerData = new Utils.Dictionary();
-      this.getLocalValue = this.getLocalValue.bind(this);
-      this.set = this.set.bind(this);
-      this.get = this.get.bind(this);
-      this.getAll = this.getAll.bind(this);
-      this.delete = this.delete.bind(this);
-      this.has = this.has.bind(this);
-      this.keys = this.keys.bind(this);
-      this.values = this.values.bind(this);
-      this.clear = this.clear.bind(this);
-      this.addValueChangeListener = this.addValueChangeListener.bind(this);
-      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
-    }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
-      }
-      return localValue;
-    }
-    setLocalValue(value) {
-      _GM_setValue(this.storageKey, value);
-    }
-    set(key, value) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.set(localValue, key, value);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
-    }
-    get(key, defaultValue) {
-      const localValue = this.getLocalValue();
-      return Reflect.get(localValue, key) ?? defaultValue;
-    }
-    getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
-    }
-    delete(key) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.deleteProperty(localValue, key);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
-    }
-    has(key) {
-      const localValue = this.getLocalValue();
-      return Reflect.has(localValue, key);
-    }
-    keys() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
-    }
-    values() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
-    }
-    clear() {
-      _GM_deleteValue(this.storageKey);
-    }
-    addValueChangeListener(key, callback) {
-      const listenerId = Math.random();
-      const listenerData = this.listenerData.get(key) || [];
-      listenerData.push({
-        id: listenerId,
-        key,
-        callback,
-      });
-      this.listenerData.set(key, listenerData);
-      return listenerId;
-    }
-    removeValueChangeListener(listenerId) {
-      let flag = false;
-      for (const [key, listenerData] of this.listenerData.entries()) {
-        for (let index = 0; index < listenerData.length; index++) {
-          const value = listenerData[index];
-          if (
-            (typeof listenerId === "string" && value.key === listenerId) ||
-            (typeof listenerId === "number" && value.id === listenerId)
-          ) {
-            listenerData.splice(index, 1);
-            index--;
-            flag = true;
-          }
-        }
-        this.listenerData.set(key, listenerData);
-      }
-      return flag;
-    }
-    async triggerValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
-      let listenerData = this.listenerData.get(key);
-      for (let index = 0; index < listenerData.length; index++) {
-        const data = listenerData[index];
-        if (typeof data.callback === "function") {
-          let value = this.get(key);
-          let __newValue;
-          let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
-            __newValue = newValue;
-          } else {
-            __newValue = value;
-          }
-          await data.callback(key, __oldValue, __newValue);
-        }
-      }
-    }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
       __contentConfig: null,
@@ -857,15 +725,15 @@
                 domUtils.removeAttr($promptOk, "disabled");
               }
             });
-            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+            domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
                 const value = domUtils.val($promptInput);
                 if (value !== "") {
-                  domUtils.trigger($promptOk, "click");
+                  domUtils.emit($promptOk, "click");
                 }
               }
             });
-            domUtils.trigger($promptInput, "input");
+            domUtils.emit($promptInput, "input");
           });
           domUtils.on($clipboard, "click", async (event) => {
             domUtils.preventEvent(event);
@@ -1121,6 +989,138 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class StorageUtils {
+    storageKey;
+    listenerData;
+    constructor(key) {
+      if (typeof key === "string") {
+        const trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
+    }
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    set(key, value) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, value);
+    }
+    get(key, defaultValue) {
+      const localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    getAll() {
+      const localValue = this.getLocalValue();
+      return localValue;
+    }
+    delete(key) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, void 0);
+    }
+    has(key) {
+      const localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    keys() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    values() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
+    }
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    addValueChangeListener(key, callback) {
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback,
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    async emitValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && args.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          await data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
   const Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
@@ -1278,8 +1278,8 @@
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    emitMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -1520,7 +1520,7 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+    async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
       for (const callback of values) {
         await callback(config);
@@ -1616,7 +1616,7 @@
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
-        domUtils.animationend($el, () => {
+        domUtils.onAnimationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
@@ -3242,6 +3242,243 @@
       }
     },
   };
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
+    const result = {
+      text,
+      type: "button",
+      attributes: {},
+      props: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
+    });
+    return result;
+  };
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UIInputNumber = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "number",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      createLIElement,
+      afterAddToUListCallBack,
+    };
+    {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
+    return result;
+  };
+  const UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      min,
+      max,
+      step,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("slider", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISwitch = function (
+    text,
+    key,
+    defaultValue,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "switch",
+      description,
+      disabled,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
+        return value;
+      },
+      callback(event, __value) {
+        const value = Boolean(__value);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        if (typeof clickCallBack === "function") {
+          const result2 = clickCallBack(event, value);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const PanelComponents = {
     $data: {
       __storeApiFn: null,
@@ -3302,54 +3539,6 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UISwitch = function (
-    text,
-    key,
-    defaultValue,
-    clickCallBack,
-    description,
-    afterAddToUListCallBack,
-    disabled,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "switch",
-      description,
-      disabled,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
-      },
-      callback(event, __value) {
-        const value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          const result2 = clickCallBack(event, value);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("switch", result, {
       get(key2, defaultValue2) {
         return Panel.getValue(key2, defaultValue2);
       },
@@ -3423,57 +3612,6 @@
         ],
       },
     ],
-  };
-  const UIButton = function (
-    text,
-    description,
-    buttonText,
-    buttonIcon,
-    buttonIsRightIcon,
-    buttonIconIsLoading,
-    buttonType,
-    clickCallBack,
-    afterAddToUListCallBack,
-    disable
-  ) {
-    const result = {
-      text,
-      type: "button",
-      attributes: {},
-      props: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
-    });
-    return result;
-  };
-  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
-    const result = {
-      type: "own",
-      attributes: {},
-      props: {},
-      createLIElement,
-      afterAddToUListCallBack,
-    };
-    {
-      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
-    }
-    if (typeof searchConfig === "object" && searchConfig !== null) {
-      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
-    }
-    return result;
   };
   const PanelUI_eruda = {
     id: "debug-panel-config-eruda",
@@ -3891,46 +4029,6 @@
       },
     ],
   };
-  const UIInputNumber = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType: "number",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value, valueAsNumber) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const PanelUI_vConsole = {
     id: "debug-panel-config-vconsole",
     title: "vConsole",
@@ -4188,49 +4286,6 @@
       },
     ],
   };
-  const UIInput = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    inputType = "text",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType,
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const PanelUI_pagespy = {
     id: "debug-panel-config-pagespy",
     title: "PageSpy",
@@ -4414,61 +4469,6 @@
       },
     ],
   };
-  const UISlider = function (
-    text,
-    key,
-    defaultValue,
-    min,
-    max,
-    changeCallback,
-    getToolTipContent,
-    description,
-    step,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
-      },
-      callback(event, value) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      min,
-      max,
-      step,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const PanelUI_chii = {
     id: "debug-panel-config-chii",
     title: "Chii",
@@ -4606,4 +4606,4 @@
   Panel.init();
   WebSiteDebug.init();
   PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));
-})(Qmsg, DOMUtils, Utils, pops);
+})(Qmsg, DOMUtils, pops, Utils);

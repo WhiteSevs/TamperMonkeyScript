@@ -5,7 +5,7 @@ import { CookieManagerService } from "./CookieManagerService";
 export const CookieRuleController = {
   init() {
     this.execController();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.execController();
     });
   },

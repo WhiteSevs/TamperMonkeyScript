@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.19
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -35,7 +35,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops, hljs, Viewer) {
+(function (Qmsg, DOMUtils, pops, Utils, hljs, Viewer) {
   "use strict";
 
   const d = new Set();
@@ -71,6 +71,30 @@
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
+  const GM_RESOURCE_MAPPING = {
+    Viewer: {
+      keyName: "ViewerCSS",
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
+    },
+    Hljs: {
+      keyName: "HljsCSS",
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
+    },
+  };
+  const PanelSettingConfig = {
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom",
+    },
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3,
+    },
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false,
+    },
+  };
   const CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -133,7 +157,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.ready(() => {
+        DOMUtils.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -331,30 +355,6 @@
       return dataStr;
     },
   };
-  const GM_RESOURCE_MAPPING = {
-    Viewer: {
-      keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
-    },
-    Hljs: {
-      keyName: "HljsCSS",
-      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
-    },
-  };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom",
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3,
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false,
-    },
-  };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops__ = pops;
@@ -534,138 +534,6 @@
       },
     },
   };
-  class StorageUtils {
-    storageKey;
-    listenerData;
-    constructor(key) {
-      if (typeof key === "string") {
-        const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
-        }
-        this.storageKey = trimKey;
-      } else {
-        throw new Error("key参数类型错误，必须是字符串");
-      }
-      this.listenerData = new Utils.Dictionary();
-      this.getLocalValue = this.getLocalValue.bind(this);
-      this.set = this.set.bind(this);
-      this.get = this.get.bind(this);
-      this.getAll = this.getAll.bind(this);
-      this.delete = this.delete.bind(this);
-      this.has = this.has.bind(this);
-      this.keys = this.keys.bind(this);
-      this.values = this.values.bind(this);
-      this.clear = this.clear.bind(this);
-      this.addValueChangeListener = this.addValueChangeListener.bind(this);
-      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
-    }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
-      }
-      return localValue;
-    }
-    setLocalValue(value) {
-      _GM_setValue(this.storageKey, value);
-    }
-    set(key, value) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.set(localValue, key, value);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
-    }
-    get(key, defaultValue) {
-      const localValue = this.getLocalValue();
-      return Reflect.get(localValue, key) ?? defaultValue;
-    }
-    getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
-    }
-    delete(key) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.deleteProperty(localValue, key);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
-    }
-    has(key) {
-      const localValue = this.getLocalValue();
-      return Reflect.has(localValue, key);
-    }
-    keys() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
-    }
-    values() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
-    }
-    clear() {
-      _GM_deleteValue(this.storageKey);
-    }
-    addValueChangeListener(key, callback) {
-      const listenerId = Math.random();
-      const listenerData = this.listenerData.get(key) || [];
-      listenerData.push({
-        id: listenerId,
-        key,
-        callback,
-      });
-      this.listenerData.set(key, listenerData);
-      return listenerId;
-    }
-    removeValueChangeListener(listenerId) {
-      let flag = false;
-      for (const [key, listenerData] of this.listenerData.entries()) {
-        for (let index = 0; index < listenerData.length; index++) {
-          const value = listenerData[index];
-          if (
-            (typeof listenerId === "string" && value.key === listenerId) ||
-            (typeof listenerId === "number" && value.id === listenerId)
-          ) {
-            listenerData.splice(index, 1);
-            index--;
-            flag = true;
-          }
-        }
-        this.listenerData.set(key, listenerData);
-      }
-      return flag;
-    }
-    async triggerValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
-      let listenerData = this.listenerData.get(key);
-      for (let index = 0; index < listenerData.length; index++) {
-        const data = listenerData[index];
-        if (typeof data.callback === "function") {
-          let value = this.get(key);
-          let __newValue;
-          let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
-            __newValue = newValue;
-          } else {
-            __newValue = value;
-          }
-          await data.callback(key, __oldValue, __newValue);
-        }
-      }
-    }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
       __contentConfig: null,
@@ -883,15 +751,15 @@
                 domUtils.removeAttr($promptOk, "disabled");
               }
             });
-            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+            domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
                 const value = domUtils.val($promptInput);
                 if (value !== "") {
-                  domUtils.trigger($promptOk, "click");
+                  domUtils.emit($promptOk, "click");
                 }
               }
             });
-            domUtils.trigger($promptInput, "input");
+            domUtils.emit($promptInput, "input");
           });
           domUtils.on($clipboard, "click", async (event) => {
             domUtils.preventEvent(event);
@@ -1147,6 +1015,138 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class StorageUtils {
+    storageKey;
+    listenerData;
+    constructor(key) {
+      if (typeof key === "string") {
+        const trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
+    }
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    set(key, value) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, value);
+    }
+    get(key, defaultValue) {
+      const localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    getAll() {
+      const localValue = this.getLocalValue();
+      return localValue;
+    }
+    delete(key) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, void 0);
+    }
+    has(key) {
+      const localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    keys() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    values() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
+    }
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    addValueChangeListener(key, callback) {
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback,
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    async emitValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && args.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          await data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
   const Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
@@ -1304,8 +1304,8 @@
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    emitMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -1546,7 +1546,7 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+    async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
       for (const callback of values) {
         await callback(config);
@@ -1642,7 +1642,7 @@
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
-        domUtils.animationend($el, () => {
+        domUtils.onAnimationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
@@ -2642,7 +2642,7 @@
   };
   const MTForumPostRightToolBar = {
     init() {
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
           this.quickCollentBtn();
         });
@@ -2739,7 +2739,7 @@
       Panel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
         return this.hideBottomInfoBlock();
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenu("mt-forum-post-removeFontStyle", () => {
           this.removeFontStyle();
         });
@@ -3147,7 +3147,7 @@
             domUtils.preventEvent($select, "click");
             domUtils.preventEvent(coypCodeElement, "click");
             coypCodeElement.insertAdjacentElement("afterend", $select);
-            domUtils.trigger($select, "change");
+            domUtils.emit($select, "change");
           });
           let blockcodeElementList = $$(".blockcode");
           blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
@@ -3484,7 +3484,7 @@
   };
   const MTGuide = {
     init() {
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenuOnce("mt-guide-beautifyPage", () => {
           this.beautifyPage();
         });
@@ -3546,6 +3546,223 @@
         domUtils.html($tbody, newHTML);
       });
     },
+  };
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
+    const result = {
+      text,
+      type: "button",
+      attributes: {},
+      props: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(disable);
+    });
+    return result;
+  };
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UIInputNumber = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "number",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: {},
+      props: {},
+      createLIElement,
+      afterAddToUListCallBack,
+    };
+    {
+      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    }
+    if (typeof searchConfig === "object" && searchConfig !== null) {
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    }
+    return result;
+  };
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
+        if (typeof selectCallBack === "function") {
+          const result2 = selectCallBack(isSelectedInfo);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      data,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = storageApiValue.get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
+      },
+      callback(event, value) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
   };
   const PanelComponents = {
     $data: {
@@ -3611,49 +3828,6 @@
         storageApiValue.set(key, value);
       },
       afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UITextArea = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    disabled,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "textarea",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      disabled,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
-        return value;
-      },
-      callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -3776,46 +3950,6 @@
       };
     }
   }
-  const UIInputNumber = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType: "number",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value, valueAsNumber) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const MTCommentFilter = {
     $el: {
       isFilterElementHTML: [],
@@ -4097,49 +4231,6 @@
     setData(data) {
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-  };
-  const UIInput = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    inputType = "text",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType,
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
   };
   class RuleFilterView {
     option;
@@ -5025,7 +5116,7 @@
               } else {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
-              domUtils.trigger($filterInput, "input");
+              domUtils.emit($filterInput, "input");
             },
           },
           cancel: {
@@ -5402,7 +5493,7 @@
       } else {
         log.error(`Router: 未适配的链接 ==> ` + window.location.href);
       }
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.onceExec("mt-MTProductListingReminder", () => {
           MTProductListingReminder.init();
         });
@@ -5483,97 +5574,6 @@
           });
       });
     },
-  };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    const result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
-        const value = isSelectedInfo.value;
-        log.info(`选择：${isSelectedInfo.text}`);
-        if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      data,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UIButton = function (
-    text,
-    description,
-    buttonText,
-    buttonIcon,
-    buttonIsRightIcon,
-    buttonIconIsLoading,
-    buttonType,
-    clickCallBack,
-    afterAddToUListCallBack,
-    disable
-  ) {
-    const result = {
-      text,
-      type: "button",
-      attributes: {},
-      props: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
-    });
-    return result;
-  };
-  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
-    const result = {
-      type: "own",
-      attributes: {},
-      props: {},
-      createLIElement,
-      afterAddToUListCallBack,
-    };
-    {
-      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
-    }
-    if (typeof searchConfig === "object" && searchConfig !== null) {
-      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
-    }
-    return result;
   };
   const MTDyncmicAvatar = {
     $upload: {
@@ -6283,4 +6283,4 @@
   PanelContent.addContentConfig([Component_Common, Component_ForumPost, Component_Guide]);
   Panel.init();
   MT.init();
-})(Qmsg, DOMUtils, Utils, pops, hljs, Viewer);
+})(Qmsg, DOMUtils, pops, Utils, hljs, Viewer);

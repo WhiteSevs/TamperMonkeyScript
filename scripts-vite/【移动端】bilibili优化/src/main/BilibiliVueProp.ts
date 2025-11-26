@@ -18,7 +18,7 @@ export const BilibiliVueProp = {
     });
     // Panel.execMenu("bili-setTinyApp", () => {
     // 	this.setTinyApp();
-    // 	DOMUtils.ready(() => {
+    // 	DOMUtils.onReady(() => {
     // 		BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
     // 			Panel.execMenu("bili-beautifyTopNavBar", () => {
     // 				BilibiliHead.beautifyTopNavBar();

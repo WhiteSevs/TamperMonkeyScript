@@ -78,7 +78,7 @@ export const TiebaUniAppPost = {
     Panel.execMenu("baidu_tieba_add_search", () => {
       this.repairSearch();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("baidu-tieba-uni-app-post-rememberChooseSeeCommentSort", () => {
         this.rememberChooseSeeCommentSort();
       });
@@ -214,10 +214,10 @@ export const TiebaUniAppPost = {
         once: false,
       }
     );
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitNode("uni-app .load-more", 10000).then(($loadMore) => {
         // 主动触发一次滚动事件
-        DOMUtils.trigger(document, "scroll");
+        DOMUtils.emit(document, "scroll");
       });
     });
   },

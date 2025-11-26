@@ -195,7 +195,7 @@ export const BilibiliUtils = {
    */
   initialScale() {
     log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let meta = DOMUtils.createElement(
         "meta",
         {},

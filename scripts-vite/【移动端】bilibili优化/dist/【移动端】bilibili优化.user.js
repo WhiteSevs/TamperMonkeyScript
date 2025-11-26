@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.23
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -200,7 +200,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.ready(() => {
+        DOMUtils.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -665,15 +665,15 @@
                 domUtils.removeAttr($promptOk, "disabled");
               }
             });
-            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+            domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
                 const value = domUtils.val($promptInput);
                 if (value !== "") {
-                  domUtils.trigger($promptOk, "click");
+                  domUtils.emit($promptOk, "click");
                 }
               }
             });
-            domUtils.trigger($promptInput, "input");
+            domUtils.emit($promptInput, "input");
           });
           domUtils.on($clipboard, "click", async (event) => {
             domUtils.preventEvent(event);
@@ -954,7 +954,7 @@
       this.clear = this.clear.bind(this);
       this.addValueChangeListener = this.addValueChangeListener.bind(this);
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
+      this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -972,7 +972,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -987,7 +987,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -1033,7 +1033,7 @@
       }
       return flag;
     }
-    async triggerValueChangeListener(...args) {
+    async emitValueChangeListener(...args) {
       const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
@@ -1218,8 +1218,8 @@
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    emitMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -1460,7 +1460,7 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+    async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
       for (const callback of values) {
         await callback(config);
@@ -1556,7 +1556,7 @@
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
-        domUtils.animationend($el, () => {
+        domUtils.onAnimationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
@@ -2396,7 +2396,7 @@
     },
     initialScale() {
       log$1.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         let meta = domUtils.createElement(
           "meta",
           {},
@@ -6802,7 +6802,7 @@
       Panel.execMenuOnce("bili-video-cover-seasonNew", () => {
         this.coverSeasonNew();
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenu("bili-video-addCommentModule", () => {
           this.addCommentModule();
         });
@@ -8948,7 +8948,7 @@
     },
     init() {
       addStyle(beautifyCSS);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
           this.enableOtherAreaSearchBangumi();
         });
@@ -9332,7 +9332,7 @@
       Panel.execMenuOnce("bili-search-cover-card-result-click-event", () => {
         this.coverCardResultClickEvent();
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenu("bili-search-inputAutoFocus", () => {
           this.inputAutoFocus();
         });
@@ -10020,7 +10020,7 @@
     },
     init() {
       this.setCSS();
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         this.addRecommendTag();
       });
     },
@@ -12331,7 +12331,7 @@
 			}
         `
       );
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         let lockFn = new utils.LockFunction(async () => {
           $$(".reply-item:not([data-is-inject-search-label])").forEach(($replyItem) => {
             $replyItem.setAttribute("data-is-inject-search-label", "");
@@ -13380,7 +13380,7 @@
       } else {
         log$1.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
-      domUtils.ready(() => {});
+      domUtils.onReady(() => {});
     },
     listenRouterChange() {
       VueUtils.waitVuePropToSet("#app", {

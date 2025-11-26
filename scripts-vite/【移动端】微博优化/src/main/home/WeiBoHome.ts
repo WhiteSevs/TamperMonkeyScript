@@ -13,7 +13,7 @@ export const WeiBoHome = {
     Panel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
       this.addOpenBlankBtn();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("weibo-home-addSupertalkTab", () => {
         this.addSupertalkTab();
       });

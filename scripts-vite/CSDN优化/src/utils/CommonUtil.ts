@@ -71,7 +71,7 @@ export const CommonUtil = {
     $link.rel = "stylesheet";
     $link.type = "text/css";
     $link.href = url;
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       document.head.appendChild($link);
     });
   },

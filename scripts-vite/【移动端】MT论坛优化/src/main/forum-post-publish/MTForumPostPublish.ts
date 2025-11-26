@@ -4,7 +4,7 @@ import { MTEditorOptimization } from "./MTEditorOptimization";
 
 export const MTForumPostPublish = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-forum-post-publish-editorOptimization", () => {
         MTEditorOptimization.init();
       });

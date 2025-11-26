@@ -10,7 +10,7 @@ export const MTSpace = {
     Panel.execMenuOnce("mt-space-repairEnterSpace", () => {
       this.repairEnterSpace();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-space-showCommentContent", () => {
         this.showCommentContent();
       });

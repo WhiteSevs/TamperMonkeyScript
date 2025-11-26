@@ -9,7 +9,7 @@ export const DouYinRecommend = {
     Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
       return this.pauseVideo();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
         return this.automaticContinuousPlayback();
       });

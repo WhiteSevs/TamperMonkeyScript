@@ -12,8 +12,8 @@ export const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo: NetDiskAu
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
-      DOMUtils.trigger(element, "change");
+      DOMUtils.emit(element, "input");
+      DOMUtils.emit(element, "change");
       setTimeout(() => {
         document.querySelector<HTMLElement>(".form-item button.btn-main")!.click();
       }, 500);
@@ -29,8 +29,8 @@ export const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo: NetDiskAu
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
-      DOMUtils.trigger(element, "change");
+      DOMUtils.emit(element, "input");
+      DOMUtils.emit(element, "change");
       setTimeout(() => {
         document.querySelector<HTMLElement>(".pw-btn-wrap button.btn")!.click();
       }, 500);

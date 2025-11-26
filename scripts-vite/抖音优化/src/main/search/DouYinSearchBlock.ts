@@ -21,7 +21,7 @@ export const DouYinSearchBlock = {
    * 把搜索结果过滤器宽度自适应
    */
   resizeSearchFilterBar() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       const $searchFilter = $<HTMLElement>("div:has(+#search-result-container)");
       const $searchResultContainer = $<HTMLElement>("#search-result-container");
       if (!$searchFilter) {

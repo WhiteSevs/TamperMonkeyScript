@@ -367,7 +367,7 @@ const YiYanChat = {
       $content.appendChild(askContainer);
       YiYanChat.scrollToContentContainerEnd();
     }
-    DOMUtils.listenKeyboard($textArea, "keydown", function (keyName, keyValue, otherCodeList) {
+    DOMUtils.onKeyboard($textArea, "keydown", function (keyName, keyValue, otherCodeList) {
       if (otherCodeList.includes("ctrl") && keyName === "Enter") {
         $enterBtn.click();
       }

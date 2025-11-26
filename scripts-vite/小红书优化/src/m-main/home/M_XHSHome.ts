@@ -4,7 +4,7 @@ import Qmsg from "qmsg";
 
 export const M_XHSHome = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("little-red-book-repariClick", () => {
         return M_XHSHome.repariClick();
       });

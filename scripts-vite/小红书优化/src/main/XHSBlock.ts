@@ -14,7 +14,7 @@ export const XHSBlock = {
     Panel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
       return this.blockTopToolbar();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
         return this.blockLoginContainer();
       });

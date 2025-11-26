@@ -75,7 +75,7 @@ export const GreasyforkElementUtils = {
     className: string;
     clickEvent: (event: MouseEvent | PointerEvent) => void;
   }) {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let $nav = $<HTMLElement>("#site-nav nav");
       // 更多
       let $subNav = $<HTMLElement>("#site-nav .with-submenu nav");

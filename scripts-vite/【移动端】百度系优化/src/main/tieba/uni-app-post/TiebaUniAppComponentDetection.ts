@@ -125,7 +125,7 @@ export const TiebaUniAppComponentDetection = {
     addStyle(/*css*/ `
 			
 		`);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let lockFn = new utils.LockFunction(async () => {
         // 评论区的
         $$<HTMLElement>(

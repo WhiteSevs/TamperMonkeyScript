@@ -49,7 +49,7 @@ export const M_XHSArticle = {
     Panel.execMenuOnce("little-red-book-shieldHotRecommendNote", () => {
       return M_XHSArticleBlock.blockHotRecommendNote();
     });
-    DOMUtils.ready(function () {
+    DOMUtils.onReady(function () {
       Panel.execMenu("little-red-book-optimizeCommentBrowsing", () => {
         M_XHSArticle.optimizeCommentBrowsing();
       });

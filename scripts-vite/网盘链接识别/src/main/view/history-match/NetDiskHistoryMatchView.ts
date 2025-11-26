@@ -416,7 +416,7 @@ export const NetDiskHistoryMatchView = {
       isSeaching = false;
     }
 
-    DOMUtils.listenKeyboard(
+    DOMUtils.onKeyboard(
       NetDiskView.$el.$historyView.$shadowRoot.querySelector<HTMLInputElement>(
         ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
       )!,

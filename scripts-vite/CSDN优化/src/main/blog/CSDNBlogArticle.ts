@@ -54,7 +54,7 @@ export const CSDNBlogArticle = {
     Panel.execMenuOnce("csdn-blog-allowSelectContent", () => {
       return this.allowSelectContent();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
         this.identityCSDNDownload();
       });

@@ -10,7 +10,7 @@ export const NetDiskAutoFillAccessCode_chengtong = function (netDiskInfo: NetDis
     }
     Qmsg.success("自动填充访问码");
     element.value = netDiskInfo.accessCode;
-    DOMUtils.trigger(element, "input");
+    DOMUtils.emit(element, "input");
     $<HTMLElement>("#main-content .form-group button.btn[type=button]")!.click();
   });
 };

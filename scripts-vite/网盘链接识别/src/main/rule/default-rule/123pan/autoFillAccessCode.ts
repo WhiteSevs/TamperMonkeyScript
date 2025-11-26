@@ -6,7 +6,7 @@ export const NetDiskAutoFillAccessCode_123pan = function (netDiskInfo: NetDiskAu
   if (window.location.hostname === "www.123pan.com") {
     /* 桌面端 */
     log.success("自动填写链接", netDiskInfo);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitAnyNode<HTMLInputElement>([
         "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
         "#app .appinput input.ant-input[type=text][placeholder*='提取码']",

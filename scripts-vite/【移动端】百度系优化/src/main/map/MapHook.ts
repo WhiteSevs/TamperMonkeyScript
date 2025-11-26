@@ -17,7 +17,7 @@ export const BaiduMapHook = {
         /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
       );
     });
-    DOMUtils.ready(function () {
+    DOMUtils.onReady(function () {
       Panel.execMenuOnce("baidu_map_hijack-jQuery-append", () => {
         log.success("hook: $.append");
         BaiduHook.windowJQueryAppend();

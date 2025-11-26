@@ -410,9 +410,9 @@ export const CookieManagerView = {
       })
     );
     // 监听回车事件
-    DOMUtils.listenKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
+    DOMUtils.onKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
       if (keyName === "Enter" && otherCodeList.length === 0) {
-        triggerUpdateCookieListGroupWithSearchFilter();
+        emitUpdateCookieListGroupWithSearchFilter();
       }
     });
     // 设置搜索设置的点击事件
@@ -461,7 +461,7 @@ export const CookieManagerView = {
       let panelHandlerComponents = pops.config.PanelHandlerComponents();
       let $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
         UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
-          triggerUpdateCookieListGroupWithSearchFilter();
+          emitUpdateCookieListGroupWithSearchFilter();
         })
       ).$el;
 
@@ -470,13 +470,13 @@ export const CookieManagerView = {
     // 刷新 - 点击事件
     DOMUtils.on($refresh, "click", (event) => {
       DOMUtils.preventEvent(event);
-      triggerUpdateCookieListGroupWithSearchFilter();
+      emitUpdateCookieListGroupWithSearchFilter();
     });
     // 添加 - 点击事件
     DOMUtils.on($add, "click", (event) => {
       DOMUtils.preventEvent(event);
       CookieManagerEditView.showView(void 0, (__cookieInfo__) => {
-        triggerUpdateCookieListGroupWithSearchFilter();
+        emitUpdateCookieListGroupWithSearchFilter();
       });
     });
     // 导出 - 点击事件
@@ -502,7 +502,7 @@ export const CookieManagerView = {
       } else {
         Qmsg.success("清除成功");
       }
-      triggerUpdateCookieListGroupWithSearchFilter();
+      emitUpdateCookieListGroupWithSearchFilter();
     });
     // 规则管理 - 点击事件
     DOMUtils.on($ruleManager, "click", (event) => {
@@ -567,7 +567,7 @@ export const CookieManagerView = {
           void 0,
           "操作Cookie的Api函数",
           (event) => {
-            triggerUpdateCookieListGroupWithSearchFilter();
+            emitUpdateCookieListGroupWithSearchFilter();
           }
         )
       ).$el;
@@ -577,7 +577,7 @@ export const CookieManagerView = {
           "decode-cookie-value",
           false,
           () => {
-            triggerUpdateCookieListGroupWithSearchFilter();
+            emitUpdateCookieListGroupWithSearchFilter();
           },
           "对Cookie值进行解码"
         )
@@ -588,7 +588,7 @@ export const CookieManagerView = {
           "exclude-session-cookie",
           false,
           () => {
-            triggerUpdateCookieListGroupWithSearchFilter();
+            emitUpdateCookieListGroupWithSearchFilter();
           },
           "过滤掉浏览器会话Cookie"
         )
@@ -599,11 +599,11 @@ export const CookieManagerView = {
     /**
      * 主动触发更新Cookie列表（根据搜索内容）
      */
-    let triggerUpdateCookieListGroupWithSearchFilter = () => {
-      DOMUtils.trigger($search, "input");
+    let emitUpdateCookieListGroupWithSearchFilter = () => {
+      DOMUtils.emit($search, "input");
     };
 
-    triggerUpdateCookieListGroupWithSearchFilter();
+    emitUpdateCookieListGroupWithSearchFilter();
   },
   /**
    * 注册脚本菜单

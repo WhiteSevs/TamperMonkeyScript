@@ -5,7 +5,7 @@ import { unsafeWindow } from "ViteGM";
 
 export const MTForumPostRightToolBar = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
         this.quickCollentBtn();
       });

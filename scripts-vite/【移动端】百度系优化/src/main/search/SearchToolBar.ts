@@ -33,7 +33,7 @@ export const BaiduSearchToolBar = {
     }),
   },
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.addFloatButton();
       this.addToolBar();
     });
@@ -273,13 +273,13 @@ export const BaiduSearchToolBar = {
   /**
    * 设置搜索文本内容
    * @param text 搜索关键字
-   * @param triggerEvent 是否触发事件
+   * @param emitEvent 是否触发事件
    * @default true
    */
-  setInputText(text: string, triggerEvent: boolean = true) {
+  setInputText(text: string, emitEvent: boolean = true) {
     this.$el.$input.value = text;
-    if (triggerEvent) {
-      DOMUtils.trigger(this.$el.$input, "input");
+    if (emitEvent) {
+      DOMUtils.emit(this.$el.$input, "input");
     }
   },
   /**

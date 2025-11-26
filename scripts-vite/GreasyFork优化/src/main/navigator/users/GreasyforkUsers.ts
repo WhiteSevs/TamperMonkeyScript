@@ -25,7 +25,7 @@ export const GreasyforkUsers = {
   changeConsoleToTopNavigator() {
     log.info("迁移【控制台】到顶部导航栏");
     CommonUtil.addBlockCSS("#about-user");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let $aboutUser = $<HTMLElement>("#about-user");
       if (!$aboutUser) {
         log.error("#about-user元素不存在");

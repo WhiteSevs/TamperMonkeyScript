@@ -3,7 +3,7 @@ import { Panel } from "@components/setting/panel";
 
 export const M_CSDNBlogArticleRightToolBar = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let $toolbar = this.createRightToolBar();
       Panel.execMenuOnce("m-csdn-blog-right-toolbar-like", () => {
         this.addLike($toolbar);

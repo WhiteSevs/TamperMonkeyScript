@@ -15,7 +15,7 @@ export const BilibiliExtraSearch = {
   },
   init() {
     addStyle(beautifyCSS);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
         this.enableOtherAreaSearchBangumi();
       });

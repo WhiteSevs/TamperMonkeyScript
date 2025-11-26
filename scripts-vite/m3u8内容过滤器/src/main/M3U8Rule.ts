@@ -667,15 +667,15 @@ export const M3U8Rule = {
           DOMUtils.removeAttr($promptOk, "disabled");
         }
       });
-      DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+      DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
           let value = DOMUtils.val($promptInput);
           if (value !== "") {
-            DOMUtils.trigger($promptOk, "click");
+            DOMUtils.emit($promptOk, "click");
           }
         }
       });
-      DOMUtils.trigger($promptInput, "input");
+      DOMUtils.emit($promptInput, "input");
     });
     // 剪贴板导入
     DOMUtils.on($clipboard, "click", async (event) => {

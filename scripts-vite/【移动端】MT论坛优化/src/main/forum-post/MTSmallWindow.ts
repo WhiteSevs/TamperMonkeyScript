@@ -318,7 +318,7 @@ export const MTSmallWindow = {
           self: iframe.contentWindow!,
           top: top!,
         });
-        iframeDOMUtils.ready(() => {
+        iframeDOMUtils.onReady(() => {
           log.success("小窗内容已加载完毕");
           this.hideRefreshIcon();
         });

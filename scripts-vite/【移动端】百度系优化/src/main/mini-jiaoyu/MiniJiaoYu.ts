@@ -33,7 +33,7 @@ const BaiduMiniJiaoYu = {
     if (!Panel.isTopWindow()) {
       return;
     }
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitNode<HTMLIFrameElement>(iframeSelector, 10000).then(($iframe) => {
         if (!$iframe) {
           return;
@@ -74,7 +74,7 @@ const BaiduMiniJiaoYu = {
             display: none !important;
         }`;
     this.injectIframe(void 0, (iframeGlobal) => {
-      iframeGlobal.DOMUtils.ready(() => {
+      iframeGlobal.DOMUtils.onReady(() => {
         log.info("【屏蔽】底部下拉菜单");
         iframeGlobal.DOMUtils.addStyle(hideCSS);
       });
@@ -89,7 +89,7 @@ const BaiduMiniJiaoYu = {
             display: none !important;
         }`;
     this.injectIframe(void 0, (iframeGlobal) => {
-      iframeGlobal.DOMUtils.ready(() => {
+      iframeGlobal.DOMUtils.onReady(() => {
         log.info("【屏蔽】大家还在搜");
         iframeGlobal.DOMUtils.addStyle(hideCSS);
       });

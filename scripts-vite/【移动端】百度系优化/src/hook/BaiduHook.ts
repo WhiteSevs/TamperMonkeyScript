@@ -270,7 +270,7 @@ export const BaiduHook = {
             let linkProps = this._getLinkProps(eventNode);
             log.success(["点击事件-linkProps信息", linkProps]);
             if (!linkProps.href) {
-              DOMUtils.trigger(document, "click", event, false);
+              DOMUtils.emit(document, "click", event, false);
               return;
             }
             DOMUtils.preventEvent(event);

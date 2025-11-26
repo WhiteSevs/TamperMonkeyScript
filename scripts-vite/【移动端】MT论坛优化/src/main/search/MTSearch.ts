@@ -17,7 +17,7 @@ export const MTSearch = {
             display: block !important;
         }
         `);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-search-showSearchHistory", () => {
         this.showSearchHistory();
       });

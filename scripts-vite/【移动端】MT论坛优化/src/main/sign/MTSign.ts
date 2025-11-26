@@ -7,7 +7,7 @@ import { unsafeWindow } from "ViteGM";
 
 export const MTSign = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-sign-showTodaySignStar", () => {
         this.showTodaySignStar();
       });

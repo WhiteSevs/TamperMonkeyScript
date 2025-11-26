@@ -142,7 +142,7 @@ export const NetDiskNewAccessCodeView = function (
   /**
    * 注册键盘回车事件
    */
-  DOMUtils.listenKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+  DOMUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
     if (keyName === "Enter") {
       const $ok = accessCodeConfirm.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
       $ok.click();

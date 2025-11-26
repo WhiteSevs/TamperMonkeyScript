@@ -42,7 +42,7 @@ const TiebaSearchSuggestion = {
     DOMUtils.on(TiebaSearch.$ele.$searchBtn, "click", () => {
       this.frontPageSeach();
     });
-    DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+    DOMUtils.onKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
       if (keyName !== "Enter") {
         return;
       }
@@ -427,7 +427,7 @@ const TiebaSearch = {
       DOMUtils.on(this.$ele.$searchBtn, "click", () => {
         searchEvent();
       });
-      DOMUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+      DOMUtils.onKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
         if (keyName !== "Enter") {
           return;
         }
@@ -1255,7 +1255,7 @@ const TiebaSearch = {
       let searchType = searchParams.get(KEY_searchType)!;
       if (["0", "1"].includes(searchType)) {
         this.$ele.$select.selectedIndex = parseInt(searchType);
-        DOMUtils.trigger(this.$ele.$select, "change");
+        DOMUtils.emit(this.$ele.$select, "change");
       } else {
         log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
       }

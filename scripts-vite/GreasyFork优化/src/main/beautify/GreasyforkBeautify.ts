@@ -47,7 +47,7 @@ export const GreasyforkBeautify = {
 			}
 			`)
     );
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let $markupChoice = $<HTMLAnchorElement>('a[target="markup_choice"][href*="daringfireball.net"]');
       if ($markupChoice) {
         $markupChoice.parentElement!.replaceChild(
@@ -264,7 +264,7 @@ export const GreasyforkBeautify = {
     log.info("美化上传图片");
     let result = [];
     result.push(addStyle(beautifyUploadImageCSS));
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       /**
        * 清空错误的提示
        * @param element
@@ -334,7 +334,7 @@ export const GreasyforkBeautify = {
           log.info("触发粘贴事件", event);
           setTimeout(() => {
             /* 主动触发input */
-            DOMUtils.trigger($fileInputList, "input");
+            DOMUtils.emit($fileInputList, "input");
           }, 100);
         });
       });
@@ -350,7 +350,7 @@ export const GreasyforkBeautify = {
     result.push(addStyle(beautifyTopNavigationBarCSS));
     if (window.outerWidth > 550) {
       result.push(CommonUtil.addBlockCSS(".with-submenu"));
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         let $siteNav = $<HTMLElement>("#site-nav")!;
         let $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;
         // 把更多的内容添加到顶部导航栏中

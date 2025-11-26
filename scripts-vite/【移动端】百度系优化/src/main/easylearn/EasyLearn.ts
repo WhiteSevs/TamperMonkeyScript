@@ -34,7 +34,7 @@ const BaiduEasyLearn = {
     Panel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
       this.showAnswerContent();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("baidu_easylearn_unlocking_top_search_input", () => {
         this.allowUserSearchInput();
       });

@@ -29,7 +29,7 @@ export const GreasyforkScriptsList = {
 
     const lodingClassName = "lum-lightbox-loader";
     const noInstallBtnText = i18next.t("安装此脚本");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       /** 遍历所有的脚本容器状态 */
       let allScriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
       /** 是否存在脚本容器 */

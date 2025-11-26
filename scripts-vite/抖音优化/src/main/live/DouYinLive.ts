@@ -92,7 +92,7 @@ export const DouYinLive = {
       );
       return [result.off];
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
         return DouYinLiveMessage.filterMessage();
       });

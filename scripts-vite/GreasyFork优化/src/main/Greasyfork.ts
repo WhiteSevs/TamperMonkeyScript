@@ -69,7 +69,7 @@ const Greasyfork = {
     Panel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
       this.addOperationPanelBtnWithNavigator();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       GreasyforkMenu.initEnv();
       GreasyforkAccount.init();
       GreasyforkRememberFormTextArea.init();
@@ -510,7 +510,7 @@ const Greasyfork = {
    */
   checkPage() {
     log.info("检测gf页面是否正确加载，有时候会出现");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       if (
         (document.body.firstElementChild as any) &&
         (document.body.firstElementChild as any).localName === "p" &&
@@ -549,7 +549,7 @@ const Greasyfork = {
 			max-width: 100%;
 		}	
 		`);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let $nav = $<HTMLElement>("#site-nav nav");
       let $subNav = $<HTMLElement>("#site-nav .with-submenu nav");
       // 右侧的过滤菜单

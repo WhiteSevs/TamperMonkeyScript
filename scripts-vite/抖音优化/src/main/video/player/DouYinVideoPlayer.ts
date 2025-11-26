@@ -100,7 +100,7 @@ export const DouYinVideoPlayer = {
     Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
       return this.playbackrate(option.value[1]);
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
       Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
         return this.waitToRemovePauseDialog();
@@ -173,7 +173,7 @@ export const DouYinVideoPlayer = {
     if (userKeyBoard) {
       // 使用键盘事件触发全屏
       // 优点：只要抖音不修改触发全屏的快捷键，则此方案可以一直使用
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         let keydownEvent = new KeyboardEvent("keydown", {
           bubbles: true,
           cancelable: true,
@@ -188,7 +188,7 @@ export const DouYinVideoPlayer = {
       });
     } else {
       // 点击全屏按钮来触发全屏
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         ReactUtils.waitReactPropsToSet(
           () => {
             return (
@@ -928,7 +928,7 @@ export const DouYinVideoPlayer = {
         return window.innerHeight <= 600;
       }
     };
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       // 让拖拽进度条的按钮拖拽时修改进度条高度
       DOMUtils.on(
         document.body,

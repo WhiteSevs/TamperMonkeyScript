@@ -69,7 +69,7 @@ export const M_CSDNBlogArticle = {
       return this.bottomToolBarAlwaysShow();
     });
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("m-csdn-blog-removeAds", () => {
         return this.removeAds();
       });

@@ -113,7 +113,7 @@ const GreasyforkScriptsSearchElement = {
 
 export const GreasyforkScriptsSearch = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       GreasyforkScriptsSearchElement.waitScritList().then(($scriptList) => {
         if (!$scriptList) {
           log.error("未找到脚本列表节点，无法继续执行");

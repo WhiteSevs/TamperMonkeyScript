@@ -111,7 +111,7 @@ export const BilibiliComponentDetection = {
 				margin: 0;
 			}
         `);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       let lockFn = new utils.LockFunction(async () => {
         // 评论区的
         $$(".reply-item:not([data-is-inject-search-label])").forEach(($replyItem) => {

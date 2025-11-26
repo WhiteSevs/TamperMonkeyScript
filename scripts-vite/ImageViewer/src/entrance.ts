@@ -7,6 +7,6 @@ import DOMUtils from "@whitesev/domutils";
 PanelContent.addContentConfig([Component_Common]);
 
 Panel.init();
-DOMUtils.ready(() => {
+DOMUtils.onReady(() => {
   WebSiteRule.execRule();
 });

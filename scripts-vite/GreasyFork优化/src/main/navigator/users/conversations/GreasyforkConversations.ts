@@ -9,7 +9,7 @@ export const GreasyforkConversations = {
     Panel.execMenuOnce("conversations-beautifyDialogBox", () => {
       return this.beautifyDialogBox();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("conversations-beautifyPrivateMessageList", () => {
         this.beautifyPrivateMessageList();
       });

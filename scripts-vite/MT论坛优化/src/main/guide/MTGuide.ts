@@ -5,7 +5,7 @@ import { unsafeWindow } from "ViteGM";
 
 export const MTGuide = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-guide-beautifyPage", () => {
         this.beautifyPage();
       });

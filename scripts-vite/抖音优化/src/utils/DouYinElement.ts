@@ -7,7 +7,7 @@ export const DouYinElement = {
    */
   watchFeedVideoListChange(callback: (osElement: HTMLElement, observer: MutationObserver) => void) {
     let $os: HTMLElement | undefined | null = null;
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitAnyNode<HTMLDivElement>([
         "#slidelist",
         // 搜索页面的↓搜索结果列表

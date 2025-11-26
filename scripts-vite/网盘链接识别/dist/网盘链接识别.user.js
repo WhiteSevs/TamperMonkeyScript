@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.19
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
@@ -82,7 +82,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops, CryptoJS, DataPaging) {
+(function (Qmsg, DOMUtils, pops, Utils, CryptoJS, DataPaging) {
   "use strict";
 
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -101,6 +101,20 @@
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
+  const PanelSettingConfig = {
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom",
+    },
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3,
+    },
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false,
+    },
+  };
   const CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -163,7 +177,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.ready(() => {
+        DOMUtils.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -361,20 +375,6 @@
       return dataStr;
     },
   };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom",
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3,
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false,
-    },
-  };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops__ = pops;
@@ -557,138 +557,6 @@
       },
     },
   };
-  class StorageUtils {
-    storageKey;
-    listenerData;
-    constructor(key) {
-      if (typeof key === "string") {
-        const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
-        }
-        this.storageKey = trimKey;
-      } else {
-        throw new Error("key参数类型错误，必须是字符串");
-      }
-      this.listenerData = new Utils.Dictionary();
-      this.getLocalValue = this.getLocalValue.bind(this);
-      this.set = this.set.bind(this);
-      this.get = this.get.bind(this);
-      this.getAll = this.getAll.bind(this);
-      this.delete = this.delete.bind(this);
-      this.has = this.has.bind(this);
-      this.keys = this.keys.bind(this);
-      this.values = this.values.bind(this);
-      this.clear = this.clear.bind(this);
-      this.addValueChangeListener = this.addValueChangeListener.bind(this);
-      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
-    }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
-      }
-      return localValue;
-    }
-    setLocalValue(value) {
-      _GM_setValue(this.storageKey, value);
-    }
-    set(key, value) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.set(localValue, key, value);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
-    }
-    get(key, defaultValue) {
-      const localValue = this.getLocalValue();
-      return Reflect.get(localValue, key) ?? defaultValue;
-    }
-    getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
-    }
-    delete(key) {
-      const oldValue = this.get(key);
-      const localValue = this.getLocalValue();
-      Reflect.deleteProperty(localValue, key);
-      this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
-    }
-    has(key) {
-      const localValue = this.getLocalValue();
-      return Reflect.has(localValue, key);
-    }
-    keys() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
-    }
-    values() {
-      const localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
-    }
-    clear() {
-      _GM_deleteValue(this.storageKey);
-    }
-    addValueChangeListener(key, callback) {
-      const listenerId = Math.random();
-      const listenerData = this.listenerData.get(key) || [];
-      listenerData.push({
-        id: listenerId,
-        key,
-        callback,
-      });
-      this.listenerData.set(key, listenerData);
-      return listenerId;
-    }
-    removeValueChangeListener(listenerId) {
-      let flag = false;
-      for (const [key, listenerData] of this.listenerData.entries()) {
-        for (let index = 0; index < listenerData.length; index++) {
-          const value = listenerData[index];
-          if (
-            (typeof listenerId === "string" && value.key === listenerId) ||
-            (typeof listenerId === "number" && value.id === listenerId)
-          ) {
-            listenerData.splice(index, 1);
-            index--;
-            flag = true;
-          }
-        }
-        this.listenerData.set(key, listenerData);
-      }
-      return flag;
-    }
-    async triggerValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
-      let listenerData = this.listenerData.get(key);
-      for (let index = 0; index < listenerData.length; index++) {
-        const data = listenerData[index];
-        if (typeof data.callback === "function") {
-          let value = this.get(key);
-          let __newValue;
-          let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
-            __newValue = newValue;
-          } else {
-            __newValue = value;
-          }
-          await data.callback(key, __oldValue, __newValue);
-        }
-      }
-    }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
       __contentConfig: null,
@@ -906,15 +774,15 @@
                 domUtils.removeAttr($promptOk, "disabled");
               }
             });
-            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+            domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
                 const value = domUtils.val($promptInput);
                 if (value !== "") {
-                  domUtils.trigger($promptOk, "click");
+                  domUtils.emit($promptOk, "click");
                 }
               }
             });
-            domUtils.trigger($promptInput, "input");
+            domUtils.emit($promptInput, "input");
           });
           domUtils.on($clipboard, "click", async (event) => {
             domUtils.preventEvent(event);
@@ -1170,6 +1038,138 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class StorageUtils {
+    storageKey;
+    listenerData;
+    constructor(key) {
+      if (typeof key === "string") {
+        const trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+      this.getLocalValue = this.getLocalValue.bind(this);
+      this.set = this.set.bind(this);
+      this.get = this.get.bind(this);
+      this.getAll = this.getAll.bind(this);
+      this.delete = this.delete.bind(this);
+      this.has = this.has.bind(this);
+      this.keys = this.keys.bind(this);
+      this.values = this.values.bind(this);
+      this.clear = this.clear.bind(this);
+      this.addValueChangeListener = this.addValueChangeListener.bind(this);
+      this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
+      this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
+    }
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    set(key, value) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, value);
+    }
+    get(key, defaultValue) {
+      const localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    getAll() {
+      const localValue = this.getLocalValue();
+      return localValue;
+    }
+    delete(key) {
+      const oldValue = this.get(key);
+      const localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.emitValueChangeListener(key, oldValue, void 0);
+    }
+    has(key) {
+      const localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    keys() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    values() {
+      const localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
+    }
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    addValueChangeListener(key, callback) {
+      const listenerId = Math.random();
+      const listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback,
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (
+            (typeof listenerId === "string" && value.key === listenerId) ||
+            (typeof listenerId === "number" && value.id === listenerId)
+          ) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    async emitValueChangeListener(...args) {
+      const [key, oldValue, newValue] = args;
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && args.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && args.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          await data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
   const Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
@@ -1327,8 +1327,8 @@
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    emitMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -1569,7 +1569,7 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+    async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
       for (const callback of values) {
         await callback(config);
@@ -1665,7 +1665,7 @@
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
-        domUtils.animationend($el, () => {
+        domUtils.onAnimationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
@@ -2056,6 +2056,318 @@
   const _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   const __DataPaging = DataPaging;
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
+  const UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
+    const result = {
+      text,
+      type: "button",
+      attributes: {},
+      props: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(disable);
+    });
+    return result;
+  };
+  const UIButtonShortCut = function (
+    text,
+    description,
+    key,
+    defaultValue,
+    defaultButtonText,
+    buttonType = "default",
+    shortCut
+  ) {
+    const __defaultButtonText = defaultButtonText;
+    const getButtonText = () => {
+      return shortCut.getShowText(key, __defaultButtonText);
+    };
+    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      const $click = event.target;
+      const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
+      if (shortCut.isWaitPress) {
+        Qmsg.warning("请先执行当前的录入操作");
+        return;
+      }
+      if (shortCut.hasOptionValue(key)) {
+        shortCut.emptyOption(key);
+        Qmsg.success("清空快捷键");
+      } else {
+        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
+          showClose: true,
+          onClose() {
+            shortCut.cancelEnterShortcutKeys();
+          },
+        });
+        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+        loadingQmsg.close();
+        if (status) {
+          log.success(["成功录入快捷键", option]);
+          Qmsg.success("成功录入");
+        } else {
+          Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
+        }
+      }
+      $btn.innerHTML = getButtonText();
+    });
+    result.attributes = {};
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
+    return result;
+  };
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UIInputNumber = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType: "number",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value, valueAsNumber);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      data,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISelectMultiple = function (
+    text,
+    key,
+    defaultValue,
+    data,
+    selectCallBack,
+    description,
+    placeholder = "请至少选择一个选项",
+    selectConfirmDialogDetails,
+    valueChangeCallBack
+  ) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    const result = {
+      text,
+      type: "select-multiple",
+      description,
+      placeholder,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      selectConfirmDialogConfig: selectConfirmDialogDetails,
+      callback(selectInfo) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = [];
+        selectInfo.forEach((selectedInfo) => {
+          value.push(selectedInfo.value);
+        });
+        log.info(`多选-选择：`, value);
+        storageApiValue.set(key, value);
+      },
+      data: selectData,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select-multiple", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
+  const UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        if (typeof changeCallback === "function") {
+          const result2 = changeCallback(event, value);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      min,
+      max,
+      step,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("slider", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
+    return result;
+  };
   const PanelComponents = {
     $data: {
       __storeApiFn: null,
@@ -2139,84 +2451,6 @@
       set(key2, value) {
         Panel.setValue(key2, value);
       },
-    });
-    return result;
-  };
-  const UIInput = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    inputType = "text",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType,
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UIButton = function (
-    text,
-    description,
-    buttonText,
-    buttonIcon,
-    buttonIsRightIcon,
-    buttonIconIsLoading,
-    buttonType,
-    clickCallBack,
-    afterAddToUListCallBack,
-    disable
-  ) {
-    const result = {
-      text,
-      type: "button",
-      attributes: {},
-      props: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
     });
     return result;
   };
@@ -2410,7 +2644,7 @@
         }
         Qmsg.success("自动填充访问码");
         $ele.value = netDiskInfo.accessCode;
-        domUtils.trigger($ele, "input");
+        domUtils.emit($ele, "input");
         document.querySelector("div.verify-form #submitBtn")?.click();
       });
     }
@@ -2429,7 +2663,7 @@
           }
           Qmsg.success("自动填充访问码");
           $input.value = netDiskInfo.accessCode;
-          domUtils.trigger($input, "input");
+          domUtils.emit($input, "input");
           document.querySelector("div.extractWrap div.extract-content button.m-button")?.click();
         });
     }
@@ -2444,7 +2678,7 @@
         }
         Qmsg.success("自动填充访问码");
         $input.value = netDiskInfo.accessCode;
-        domUtils.trigger($input, "input");
+        domUtils.emit($input, "input");
         (document.querySelector("#passwddiv div.passwddiv-input > div") || $input.nextElementSibling)?.click();
         document.querySelector("#sub")?.click();
       });
@@ -2464,7 +2698,7 @@
             log.success("自动填充访问码并关闭观察者");
             Qmsg.success("自动填充访问码");
             inputElement.value = netDiskInfo.accessCode;
-            domUtils.trigger(inputElement, "input");
+            domUtils.emit(inputElement, "input");
             document.querySelector("#f_pwd #sub")?.click();
           },
         });
@@ -2498,8 +2732,8 @@
           let visitBtn = document.querySelector(".btn.btn-primary.visit");
           codeTxtElement.value = netDiskInfo.accessCode;
           Reflect.set(codeTxtElement, "_value", netDiskInfo.accessCode);
-          domUtils.trigger(codeTxtElement, "input");
-          domUtils.trigger(visitBtn, "click");
+          domUtils.emit(codeTxtElement, "input");
+          domUtils.emit(visitBtn, "click");
         });
       });
     }
@@ -2510,8 +2744,8 @@
           Qmsg.success("自动填充访问码");
           accessInputElement.value = netDiskInfo.accessCode;
           Reflect.set(accessInputElement, "_value", netDiskInfo.accessCode);
-          domUtils.trigger(accessInputElement, "input");
-          domUtils.trigger(document.querySelector("div.button"), "click");
+          domUtils.emit(accessInputElement, "input");
+          domUtils.emit(document.querySelector("div.button"), "click");
         });
       });
     }
@@ -2526,7 +2760,7 @@
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
+        domUtils.emit(element, "input");
         document.querySelector("#homepage div.token div.token-form a").click();
       });
       domUtils.waitNode("#app div.token-form input[type=text]").then((element) => {
@@ -2536,7 +2770,7 @@
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
+        domUtils.emit(element, "input");
         document.querySelector("div.token-form a.btn-token").click();
       });
     }
@@ -2633,7 +2867,7 @@
   const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo) {
     if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
       log.success("自动填写链接", netDiskInfo);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils
           .waitAnyNode(["#root input.ant-input[placeholder*='提取码']", "#root input[name=pwd][placeholder*='提取码']"])
           .then(($el) => {
@@ -2671,7 +2905,7 @@
   const NetDiskAutoFillAccessCode_123pan = function (netDiskInfo) {
     if (window.location.hostname === "www.123pan.com") {
       log.success("自动填写链接", netDiskInfo);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils
           .waitAnyNode([
             "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
@@ -2719,8 +2953,8 @@
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
-        domUtils.trigger(element, "change");
+        domUtils.emit(element, "input");
+        domUtils.emit(element, "change");
         setTimeout(() => {
           document.querySelector(".form-item button.btn-main").click();
         }, 500);
@@ -2732,8 +2966,8 @@
         }
         Qmsg.success("自动填充访问码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
-        domUtils.trigger(element, "change");
+        domUtils.emit(element, "input");
+        domUtils.emit(element, "change");
         setTimeout(() => {
           document.querySelector(".pw-btn-wrap button.btn").click();
         }, 500);
@@ -2750,8 +2984,8 @@
         }
         log.error("输入框不可见，不输入密码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
-        domUtils.trigger(element, "change");
+        domUtils.emit(element, "input");
+        domUtils.emit(element, "change");
         setTimeout(() => {
           document.querySelector("#__layout div.pass-input-wrap button.td-button").click();
         }, 500);
@@ -2763,8 +2997,8 @@
         }
         log.error("输入框不可见，不输入密码");
         element.value = netDiskInfo.accessCode;
-        domUtils.trigger(element, "input");
-        domUtils.trigger(element, "change");
+        domUtils.emit(element, "input");
+        domUtils.emit(element, "change");
         setTimeout(() => {
           document.querySelector("#__layout div.pass-wrapper button.td-button").click();
         }, 500);
@@ -2774,7 +3008,7 @@
   const NetDiskAutoFillAccessCode_kuake = function (netDiskInfo) {
     if (window.location.hostname === "pan.quark.cn") {
       log.success("自动填写链接", netDiskInfo);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils.waitNode("#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']").then(($el) => {
           ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactEventHandlers"], {
             check(reactPropInst) {
@@ -2810,7 +3044,7 @@
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      domUtils.trigger(element, "input");
+      domUtils.emit(element, "input");
       $("#main-content .form-group button.btn[type=button]").click();
     });
   };
@@ -2825,7 +3059,7 @@
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        domUtils.trigger($el, "input");
+        domUtils.emit($el, "input");
         $("#js-share_code div.form-decode div.submit a").click();
       });
     }
@@ -2840,7 +3074,7 @@
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        domUtils.trigger($el, "input");
+        domUtils.emit($el, "input");
         let $submit = $("#extract-bg-container input.submit-btn");
         $submit?.click();
       });
@@ -2851,7 +3085,7 @@
         }
         Qmsg.success("自动填充访问码");
         $el.value = netDiskInfo.accessCode;
-        domUtils.trigger($el, "input");
+        domUtils.emit($el, "input");
         let $submit = $("#extractForm input.submit-btn");
         $submit?.click();
       });
@@ -4992,99 +5226,6 @@
       };
     },
   };
-  class RuleFilterView {
-    option;
-    $data = {
-      isFilteredData: [],
-    };
-    constructor(option) {
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops__.alert({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="filter-container"></div>
-                `,
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default",
-          },
-        },
-        drag: true,
-        mask: {
-          enable: true,
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = domUtils.createElement(
-          "button",
-          {
-            innerText: filterOption.name,
-          },
-          {
-            type: "button",
-          }
-        );
-        let execFilterAndCloseDialog = async () => {
-          this.$data.isFilteredData = [];
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (filterResult) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
-              domUtils.hide(ruleInfo.$el, false);
-              this.$data.isFilteredData.push(ruleInfo.data);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domUtils.on($button, "click", async (event) => {
-          domUtils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(event, execFilterAndCloseDialog);
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-    getFilteredData() {
-      return this.$data.isFilteredData;
-    }
-  }
   class RuleEditView {
     option;
     constructor(option) {
@@ -5192,6 +5333,99 @@
         $dialog.close();
         await this.option.dialogCloseCallBack(true);
       };
+    }
+  }
+  class RuleFilterView {
+    option;
+    $data = {
+      isFilteredData: [],
+    };
+    constructor(option) {
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops__.alert({
+        title: {
+          text: this.option.title,
+          position: "center",
+        },
+        content: {
+          text: `
+                <div class="filter-container"></div>
+                `,
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default",
+          },
+        },
+        drag: true,
+        mask: {
+          enable: true,
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `,
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = domUtils.createElement(
+          "button",
+          {
+            innerText: filterOption.name,
+          },
+          {
+            type: "button",
+          }
+        );
+        let execFilterAndCloseDialog = async () => {
+          this.$data.isFilteredData = [];
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (filterResult) {
+              domUtils.show(ruleInfo.$el, false);
+            } else {
+              domUtils.hide(ruleInfo.$el, false);
+              this.$data.isFilteredData.push(ruleInfo.data);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            await this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domUtils.on($button, "click", async (event) => {
+          domUtils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = await filterOption.callback(event, execFilterAndCloseDialog);
+            if (!result) {
+              return;
+            }
+          }
+          await execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+    getFilteredData() {
+      return this.$data.isFilteredData;
     }
   }
   class RulePanelView {
@@ -5461,13 +5695,13 @@
                       domUtils.removeAttr($promptOk, "disabled");
                     }
                   });
-                  domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event3) => {
+                  domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event3) => {
                     if (keyName === "Enter" && otherCodeList.length === 0) {
                       domUtils.preventEvent(event3);
-                      domUtils.trigger($promptOk, "click");
+                      domUtils.emit($promptOk, "click");
                     }
                   });
-                  domUtils.trigger($promptInput, "input");
+                  domUtils.emit($promptInput, "input");
                 }
               );
               let allSubscribeData = await subscribeOption.data();
@@ -6648,15 +6882,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -6747,58 +6981,6 @@
     STORAGE_API_KEY: "character-mapping-rule",
     STORAGE_KEY: "character-mapping-subscribe-rule",
   });
-  const UISelectMultiple = function (
-    text,
-    key,
-    defaultValue,
-    data,
-    selectCallBack,
-    description,
-    placeholder = "请至少选择一个选项",
-    selectConfirmDialogDetails,
-    valueChangeCallBack
-  ) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
-    const result = {
-      text,
-      type: "select-multiple",
-      description,
-      placeholder,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      selectConfirmDialogConfig: selectConfirmDialogDetails,
-      callback(selectInfo) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = [];
-        selectInfo.forEach((selectedInfo) => {
-          value.push(selectedInfo.value);
-        });
-        log.info(`多选-选择：`, value);
-        storageApiValue.set(key, value);
-      },
-      data: selectData,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select-multiple", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
   const CharacterMapping = {
     $data: {
@@ -7794,15 +7976,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -8227,15 +8409,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -8841,7 +9023,7 @@
         $searchLoading = void 0;
         isSeaching = false;
       }
-      domUtils.listenKeyboard(
+      domUtils.onKeyboard(
         NetDiskView.$el.$historyView.$shadowRoot.querySelector(
           ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
         ),
@@ -16099,15 +16281,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -17098,95 +17280,6 @@
         },
       },
     },
-  };
-  const UISlider = function (
-    text,
-    key,
-    defaultValue,
-    min,
-    max,
-    changeCallback,
-    getToolTipContent,
-    description,
-    step,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
-      },
-      callback(event, value) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      min,
-      max,
-      step,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    const result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
-        const value = isSelectedInfo.value;
-        log.info(`选择：${isSelectedInfo.text}`);
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-      data,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
   };
   const NetDiskRule_115pan = {
     rule: [
@@ -18404,7 +18497,7 @@
       },
       NetDiskView.$config.viewSizeConfig.inputNewAccessCodeView
     );
-    domUtils.listenKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+    domUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
       if (keyName === "Enter") {
         const $ok = accessCodeConfirm.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         $ok.click();
@@ -19533,15 +19626,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             let value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -20268,7 +20361,7 @@
       const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
-        let keyboardListener = domUtils.listenKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+        let keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
             keyValue,
@@ -20340,7 +20433,7 @@
       }
       const that = this;
       function setListenKeyboard($ele, option) {
-        domUtils.listenKeyboard(
+        domUtils.onKeyboard(
           $ele,
           "keydown",
           (keyName, keyValue, ohterCodeList, event) => {
@@ -20389,7 +20482,7 @@
         }
       });
       setListenKeyboard(window, WindowShortCutOption);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Object.keys(ElementShortCutOption).forEach(async (localKey) => {
           let option = ElementShortCutOption[localKey];
           if (typeof option.target === "string") {
@@ -20485,99 +20578,6 @@
         },
       };
     },
-  };
-  const UIButtonShortCut = function (
-    text,
-    description,
-    key,
-    defaultValue,
-    defaultButtonText,
-    buttonType = "default",
-    shortCut
-  ) {
-    const __defaultButtonText = defaultButtonText;
-    const getButtonText = () => {
-      return shortCut.getShowText(key, __defaultButtonText);
-    };
-    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-      const $click = event.target;
-      const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
-      if (shortCut.isWaitPress) {
-        Qmsg.warning("请先执行当前的录入操作");
-        return;
-      }
-      if (shortCut.hasOptionValue(key)) {
-        shortCut.emptyOption(key);
-        Qmsg.success("清空快捷键");
-      } else {
-        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
-          showClose: true,
-          onClose() {
-            shortCut.cancelEnterShortcutKeys();
-          },
-        });
-        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
-        loadingQmsg.close();
-        if (status) {
-          log.success(["成功录入快捷键", option]);
-          Qmsg.success("成功录入");
-        } else {
-          Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
-        }
-      }
-      $btn.innerHTML = getButtonText();
-    });
-    result.attributes = {};
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      return false;
-    });
-    return result;
-  };
-  const UIInputNumber = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType: "number",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value, valueAsNumber) {
-        if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value, valueAsNumber);
-          if (result2) {
-            return;
-          }
-        }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
   };
   const PanelUI_allSetting = () => {
     return {
@@ -21555,10 +21555,10 @@
   Panel.init();
   NetDisk.init();
   NetDiskShortcut.init();
-  domUtils.ready(() => {
+  domUtils.onReady(() => {
     NetDiskAutoFillAccessCode.init();
     NetDiskAuthorization.init();
     NetDiskWorker.init();
     NetDiskRuleManager.init();
   });
-})(Qmsg, DOMUtils, Utils, pops, CryptoJS, DataPaging);
+})(Qmsg, DOMUtils, pops, Utils, CryptoJS, DataPaging);

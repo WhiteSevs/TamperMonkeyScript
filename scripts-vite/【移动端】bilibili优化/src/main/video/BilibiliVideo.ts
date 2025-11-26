@@ -46,7 +46,7 @@ export const BilibiliVideo = {
     // Panel.execMenuOnce("bili-video-repairLinkJump", () => {
     // 	this.repairLinkJump();
     // });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       // Panel.execMenuOnce("bili-video-optimizationScroll", () => {
       // 	this.optimizationScroll();
       // });

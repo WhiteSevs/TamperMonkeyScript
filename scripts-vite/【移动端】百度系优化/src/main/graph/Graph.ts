@@ -21,7 +21,7 @@ const BaiduGraph = {
       this.repairRetakeButton();
     });
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.addNewUploadImageButton();
     });
   },
@@ -154,7 +154,7 @@ const BaiduGraph = {
       DOMUtils.on(retakeDivDOM, "click", function (event) {
         DOMUtils.preventEvent(event);
         ($("input#whitesev-upload-image") as HTMLInputElement).click();
-        DOMUtils.trigger($("input#whitesev-upload-image") as HTMLInputElement, "click");
+        DOMUtils.emit($("input#whitesev-upload-image") as HTMLInputElement, "click");
       });
       setTimeout(() => {
         DOMUtils.append($imageCutBanner, retakeDivDOM);

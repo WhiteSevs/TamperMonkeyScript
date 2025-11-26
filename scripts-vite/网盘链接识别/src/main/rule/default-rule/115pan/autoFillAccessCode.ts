@@ -12,7 +12,7 @@ export const NetDiskAutoFillAccessCode_115pan = function (netDiskInfo: NetDiskAu
       }
       Qmsg.success("自动填充访问码");
       $el.value = netDiskInfo.accessCode;
-      DOMUtils.trigger($el, "input");
+      DOMUtils.emit($el, "input");
       $<HTMLElement>("#js-share_code div.form-decode div.submit a")!.click();
     });
   }

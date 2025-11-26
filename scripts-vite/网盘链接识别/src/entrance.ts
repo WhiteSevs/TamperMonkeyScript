@@ -112,7 +112,7 @@ Panel.init();
 // 初始化配置数据
 NetDisk.init();
 NetDiskShortcut.init();
-DOMUtils.ready(() => {
+DOMUtils.onReady(() => {
   // 初始化自动填充访问码
   NetDiskAutoFillAccessCode.init();
   // 初始化鉴权处理

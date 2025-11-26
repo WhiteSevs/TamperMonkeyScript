@@ -409,7 +409,7 @@ export const MTEditorOptimizationNormal = {
     });
     if (localReplyData) {
       DOMUtils.val(this.$el.$input, localReplyData.text);
-      DOMUtils.trigger(this.$el.$input, "input");
+      DOMUtils.emit(this.$el.$input, "input");
     }
   },
   /**

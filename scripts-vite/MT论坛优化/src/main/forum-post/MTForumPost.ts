@@ -23,7 +23,7 @@ export const MTForumPost = {
     Panel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
       return this.hideBottomInfoBlock();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("mt-forum-post-removeFontStyle", () => {
         this.removeFontStyle();
       });
@@ -469,7 +469,7 @@ export const MTForumPost = {
           DOMUtils.preventEvent($select, "click");
           DOMUtils.preventEvent(coypCodeElement, "click");
           coypCodeElement.insertAdjacentElement("afterend", $select);
-          DOMUtils.trigger($select, "change");
+          DOMUtils.emit($select, "change");
         });
 
         let blockcodeElementList = $$(".blockcode");

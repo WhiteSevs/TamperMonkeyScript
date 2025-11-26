@@ -11,7 +11,7 @@ export const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo: NetDiskAu
       }
       Qmsg.success("自动填充访问码");
       $input.value = netDiskInfo.accessCode;
-      DOMUtils.trigger($input, "input");
+      DOMUtils.emit($input, "input");
       (
         document.querySelector<HTMLElement>("#passwddiv div.passwddiv-input > div") ||
         ($input.nextElementSibling as HTMLElement)
@@ -34,7 +34,7 @@ export const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo: NetDiskAu
           log.success("自动填充访问码并关闭观察者");
           Qmsg.success("自动填充访问码");
           inputElement.value = netDiskInfo.accessCode;
-          DOMUtils.trigger(inputElement, "input");
+          DOMUtils.emit(inputElement, "input");
           document.querySelector<HTMLElement>("#f_pwd #sub")?.click();
         },
       });

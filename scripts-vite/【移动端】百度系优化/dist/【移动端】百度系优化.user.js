@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.25
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,11 +14,11 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.24/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.25/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.6.3/dist/vue-router.global.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-dDljVIBs.js"(exports$1, module) {
+    "entrance-DhHNuvgT.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -184,7 +184,7 @@
           $link.type = "text/css";
           $link.href = url;
           return new Promise((resolve) => {
-            DOMUtils.ready(() => {
+            DOMUtils.onReady(() => {
               document.head.appendChild($link);
               resolve($link);
             });
@@ -505,7 +505,7 @@
       const VUE_ROOT_ID = "vite-app";
       const MountVue = async function (rootComponent, plugins = []) {
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
-        await DOMUtils.ready();
+        await DOMUtils.onReady();
         const app = vue.createApp(rootComponent);
         const $mount = DOMUtils.createElement("div", {
           id: VUE_ROOT_ID,
@@ -792,15 +792,15 @@
                     domUtils.removeAttr($promptOk, "disabled");
                   }
                 });
-                domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+                domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
                   if (keyName === "Enter" && otherCodeList.length === 0) {
                     const value = domUtils.val($promptInput);
                     if (value !== "") {
-                      domUtils.trigger($promptOk, "click");
+                      domUtils.emit($promptOk, "click");
                     }
                   }
                 });
-                domUtils.trigger($promptInput, "input");
+                domUtils.emit($promptInput, "input");
               });
               domUtils.on($clipboard, "click", async (event) => {
                 domUtils.preventEvent(event);
@@ -1083,7 +1083,7 @@
           this.clear = this.clear.bind(this);
           this.addValueChangeListener = this.addValueChangeListener.bind(this);
           this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-          this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
+          this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
         }
         getLocalValue() {
           let localValue = _GM_getValue(this.storageKey);
@@ -1101,7 +1101,7 @@
           const localValue = this.getLocalValue();
           Reflect.set(localValue, key, value);
           this.setLocalValue(localValue);
-          this.triggerValueChangeListener(key, oldValue, value);
+          this.emitValueChangeListener(key, oldValue, value);
         }
         get(key, defaultValue) {
           const localValue = this.getLocalValue();
@@ -1116,7 +1116,7 @@
           const localValue = this.getLocalValue();
           Reflect.deleteProperty(localValue, key);
           this.setLocalValue(localValue);
-          this.triggerValueChangeListener(key, oldValue, void 0);
+          this.emitValueChangeListener(key, oldValue, void 0);
         }
         has(key) {
           const localValue = this.getLocalValue();
@@ -1162,7 +1162,7 @@
           }
           return flag;
         }
-        async triggerValueChangeListener(...args) {
+        async emitValueChangeListener(...args) {
           const [key, oldValue, newValue] = args;
           if (!this.listenerData.has(key)) {
             return;
@@ -1347,8 +1347,8 @@
         removeValueChangeListener(listenerId) {
           PopsPanelStorageApi.removeValueChangeListener(listenerId);
         },
-        triggerMenuValueChange(key, newValue, oldValue) {
-          PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+        emitMenuValueChange(key, newValue, oldValue) {
+          PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
         },
         async exec(queryKey, callback, checkExec, once = true) {
           const that = this;
@@ -1589,7 +1589,7 @@
           key = this.transformKey(key);
           return this.$data.urlChangeReloadMenuExecOnce.has(key);
         },
-        async triggerUrlChangeWithExecMenuOnceEvent(config) {
+        async emitUrlChangeWithExecMenuOnceEvent(config) {
           const values = this.$data.urlChangeReloadMenuExecOnce.values();
           for (const callback of values) {
             await callback(config);
@@ -1685,7 +1685,7 @@
           };
           const addFlashingClass = ($el) => {
             const flashingClassName = "pops-flashing";
-            domUtils.animationend($el, () => {
+            domUtils.onAnimationend($el, () => {
               $el.classList.remove(flashingClassName);
             });
             $el.classList.add(flashingClassName);
@@ -2694,7 +2694,7 @@
                   let linkProps2 = this._getLinkProps(eventNode);
                   log.success(["点击事件-linkProps信息", linkProps2]);
                   if (!linkProps2.href) {
-                    domUtils.trigger(document, "click", event, false);
+                    domUtils.emit(document, "click", event, false);
                     return;
                   }
                   domUtils.preventEvent(event);
@@ -3131,7 +3131,7 @@
         init() {
           addStyle$1(ChatShieldCSS);
           log.info("插入CSS规则");
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             Panel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
               this.removeAiMask();
             });
@@ -3373,7 +3373,7 @@
           Panel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
             this.showAnswerContent();
           });
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             Panel.execMenuOnce("baidu_easylearn_unlocking_top_search_input", () => {
               this.allowUserSearchInput();
             });
@@ -3595,7 +3595,7 @@
           Panel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
             return this.shieldRightVideoAction();
           });
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             this.setPlayEvent();
           });
         },
@@ -3720,7 +3720,7 @@
               /goToDownloadOfAndrod|downloadAndrFromMarket|jumpToDownloadPage|jumpToMiddlePage|downloadIosPkg/
             );
           });
-          domUtils.ready(function () {
+          domUtils.onReady(function () {
             Panel.execMenuOnce("baidu_map_hijack-jQuery-append", () => {
               log.success("hook: $.append");
               BaiduHook.windowJQueryAppend();
@@ -3861,7 +3861,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           if (!Panel.isTopWindow()) {
             return;
           }
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             domUtils.waitNode(iframeSelector, 1e4).then(($iframe) => {
               if (!$iframe) {
                 return;
@@ -3899,7 +3899,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             display: none !important;
         }`;
           this.injectIframe(void 0, (iframeGlobal) => {
-            iframeGlobal.DOMUtils.ready(() => {
+            iframeGlobal.DOMUtils.onReady(() => {
               log.info("【屏蔽】底部下拉菜单");
               iframeGlobal.DOMUtils.addStyle(hideCSS);
             });
@@ -3911,7 +3911,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
             display: none !important;
         }`;
           this.injectIframe(void 0, (iframeGlobal) => {
-            iframeGlobal.DOMUtils.ready(() => {
+            iframeGlobal.DOMUtils.onReady(() => {
               log.info("【屏蔽】大家还在搜");
               iframeGlobal.DOMUtils.addStyle(hideCSS);
             });
@@ -4658,13 +4658,13 @@ match-attr##srcid##yx_entity_pc_san
             );
             const lockFn = new utils.LockFunction(() => {
               BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
-                BaiduSearchBlockRule.addFilterButton($result);
                 const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
                 if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
                   log.info(["触发自定义规则，屏蔽该搜索结果，url：", url]);
                   $result.remove();
                   return;
                 }
+                BaiduSearchBlockRule.addFilterButton($result);
               });
             });
             const observer = utils.mutationObserver(document, {
@@ -5640,7 +5640,7 @@ match-attr##srcid##yx_entity_pc_san
           }),
         },
         init() {
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             this.addFloatButton();
             this.addToolBar();
           });
@@ -5821,10 +5821,10 @@ match-attr##srcid##yx_entity_pc_san
             }, 50)
           );
         },
-        setInputText(text, triggerEvent = true) {
+        setInputText(text, emitEvent = true) {
           this.$el.$input.value = text;
-          if (triggerEvent) {
-            domUtils.trigger(this.$el.$input, "input");
+          if (emitEvent) {
+            domUtils.emit(this.$el.$input, "input");
           }
         },
         setBackEvent() {
@@ -6137,7 +6137,7 @@ div[class^="new-summary-container_"] {\r
       };
       const BaiduSearchVSearchVueProp = {
         init() {
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             if (BaiduRouter.isSearchVSearch_image_content()) {
               Panel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
                 this.isBaiduBox();
@@ -6164,7 +6164,7 @@ div[class^="new-summary-container_"] {\r
         init() {
           this.listenRouterChange();
           BaiduSearchVSearchVueProp.init();
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             this.replaceVSearchLink();
           });
         },
@@ -6230,7 +6230,7 @@ div[class^="new-summary-container_"] {\r
             Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
               this.openResultBlank();
             });
-            domUtils.ready(() => {
+            domUtils.onReady(() => {
               BaiduHandleResultItem.$data.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
               let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
               if (baidu_search_handle_search_result_enable) {
@@ -7256,7 +7256,7 @@ div[class^="new-summary-container_"] {\r
           domUtils.on(TiebaSearch.$ele.$searchBtn, "click", () => {
             this.frontPageSeach();
           });
-          domUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+          domUtils.onKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
             if (keyName !== "Enter") {
               return;
             }
@@ -7534,7 +7534,7 @@ div[class^="new-summary-container_"] {\r
               domUtils.on(this.$ele.$searchBtn, "click", () => {
                 searchEvent();
               });
-              domUtils.listenKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
+              domUtils.onKeyboard(this.$ele.$searchInput, "keypress", (keyName) => {
                 if (keyName !== "Enter") {
                   return;
                 }
@@ -8240,7 +8240,7 @@ div[class^="new-summary-container_"] {\r
             let searchType = searchParams.get(KEY_searchType);
             if (["0", "1"].includes(searchType)) {
               this.$ele.$select.selectedIndex = parseInt(searchType);
-              domUtils.trigger(this.$ele.$select, "change");
+              domUtils.emit(this.$ele.$select, "change");
             } else {
               log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
             }
@@ -9379,15 +9379,15 @@ div[class^="new-summary-container_"] {\r
           } else {
             TiebaComment.page--;
           }
-          TiebaComment.triggerScrollEvent();
+          TiebaComment.emitScrollEvent();
         },
-        triggerScrollEvent() {
+        emitScrollEvent() {
           setTimeout(() => {
             document.dispatchEvent(new Event("scroll"));
           }, 400);
         },
         nextPageScrollEvent: async (event) => {
-          if (event.jsTrigger);
+          if (event.jsEmit);
           else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
             return;
           } else if (TiebaSearch.isShowSearchContainer()) {
@@ -9418,7 +9418,7 @@ div[class^="new-summary-container_"] {\r
           TiebaComment.scrollEvent(true, pageDOM, pageCommentList);
         },
         prevPageScrollEvent: async (event) => {
-          if (event.jsTrigger);
+          if (event.jsEmit);
           else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
             return;
           } else if (TiebaSearch.isShowSearchContainer()) {
@@ -9450,13 +9450,13 @@ div[class^="new-summary-container_"] {\r
         setNextPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(TiebaComment.nextPageScrollEvent, this);
           document.addEventListener("scroll", TiebaComment.funcLock.run);
-          domUtils.trigger(document, "scroll", { jsTrigger: true });
+          domUtils.emit(document, "scroll", { jsEmit: true });
           log.success("scroll监听事件【下一页】");
         },
         setPrevPageScrollListener() {
           TiebaComment.funcLock = new utils.LockFunction(TiebaComment.prevPageScrollEvent, this);
           document.addEventListener("scroll", TiebaComment.funcLock.run);
-          domUtils.trigger(document, "scroll", { jsTrigger: true });
+          domUtils.emit(document, "scroll", { jsEmit: true });
           log.success("scroll监听事件【上一页】");
         },
         removeScrollListener() {
@@ -10559,7 +10559,7 @@ div[class^="new-summary-container_"] {\r
                   $postItem.classList.add("white-only-lz-none");
                 }
               });
-              TiebaComment.triggerScrollEvent();
+              TiebaComment.emitScrollEvent();
             }
           });
         },
@@ -12799,7 +12799,7 @@ div[class^="new-summary-container_"] {\r
 			
 		`
           );
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             let lockFn = new utils.LockFunction(async () => {
               $$(".pb-comment-item .player-info:not([data-is-inject-search-label]):has(.user-info-degrade)").forEach(
                 ($replyItem) => {
@@ -13290,7 +13290,7 @@ div[class^="new-summary-container_"] {\r
           Panel.execMenu("baidu_tieba_add_search", () => {
             this.repairSearch();
           });
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             Panel.execMenuOnce("baidu-tieba-uni-app-post-rememberChooseSeeCommentSort", () => {
               this.rememberChooseSeeCommentSort();
             });
@@ -13409,9 +13409,9 @@ div[class^="new-summary-container_"] {\r
               once: false,
             }
           );
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             domUtils.waitNode("uni-app .load-more", 1e4).then(($loadMore) => {
-              domUtils.trigger(document, "scroll");
+              domUtils.emit(document, "scroll");
             });
           });
         },
@@ -13832,7 +13832,7 @@ div[class^="new-summary-container_"] {\r
         },
         init() {
           this.setGlobalContentClick();
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             this.initLogin();
             this.cover_handlerCommentSuccess();
           });
@@ -13923,7 +13923,7 @@ div[class^="new-summary-container_"] {\r
         },
         setGlobalContentClick() {
           let that = this;
-          function checkNotTriggerReply(event) {
+          function checkNotEmitReply(event) {
             let currentComposed = event.composedPath()[0];
             if (currentComposed.localName === "a") {
               log.info("<a>标签不触发回复功能");
@@ -13936,7 +13936,7 @@ div[class^="new-summary-container_"] {\r
             return true;
           }
           domUtils.on(document, "click", ".post-item .content", (event) => {
-            if (!checkNotTriggerReply(event)) {
+            if (!checkNotEmitReply(event)) {
               return;
             }
             let $clickContent = event.target;
@@ -13977,7 +13977,7 @@ div[class^="new-summary-container_"] {\r
             if ($clickContent.classList.contains("whitesev-reply-dialog-sheet-main-content")) {
               return;
             }
-            if (!checkNotTriggerReply(event)) {
+            if (!checkNotEmitReply(event)) {
               return;
             }
             that.$data.replyLzlCommentData.value = void 0;
@@ -14030,7 +14030,7 @@ div[class^="new-summary-container_"] {\r
             commentBoxVueObj.inputValue = value;
             if (commentBoxVueObj.commentRef && commentBoxVueObj.commentRef instanceof HTMLInputElement) {
               commentBoxVueObj.commentRef.value = value;
-              domUtils.trigger(commentBoxVueObj.commentRef, "input");
+              domUtils.emit(commentBoxVueObj.commentRef, "input");
             }
           } catch (error) {
             Qmsg.error("设置输入框值失败");
@@ -14073,7 +14073,7 @@ div[class^="new-summary-container_"] {\r
           return $(".comment-box-wrap");
         },
         waitCommentBoxWrap(callback) {
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             domUtils.waitNode(".comment-box-wrap", 1e4).then(($commentBoxWrap) => {
               if (TiebaUniAppPost.isUniApp()) {
                 return;
@@ -24286,7 +24286,7 @@ div[class^="new-summary-container_"] {\r
             }
           );
           CommonUtil.addBlockCSS("div.img-sudoku .img-desc");
-          domUtils.ready(function () {
+          domUtils.onReady(function () {
             domUtils.waitNode("div.img-sudoku", 1e4).then(($imgSudoKu) => {
               if (!$imgSudoKu) {
                 log.error("未找到元素 div.img-sudoku");
@@ -29109,7 +29109,7 @@ div[class^="new-summary-container_"] {\r
           Panel.onceExec("tieba-hybrid-usergrow-base-block-ads", () => {
             return this.blockAds();
           });
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             Panel.onceExec("tieba-hybrid-usergrow-base-prevent_openTiebaApp", () => {
               this.prevent_openTiebaApp();
             });
@@ -29238,7 +29238,7 @@ div[class^="new-summary-container_"] {\r
           Panel.execMenu("baidu_tieba_add_search", () => {
             TiebaSearch.init();
           });
-          domUtils.ready(() => {
+          domUtils.onReady(() => {
             Panel.execMenu("baidu_tieba_checkSkeleton", () => {
               TiebaCore.checkSkeleton();
             });

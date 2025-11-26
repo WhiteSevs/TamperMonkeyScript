@@ -556,7 +556,7 @@ export const MTEditorOptimization = {
     unsafeWindow.$.fn.extend({
       comiis_delete: function (this: any, ...args: any[]) {
         let result = comiis_delete.call(this, ...args);
-        DOMUtils.trigger(that.$el.$input, "input");
+        DOMUtils.emit(that.$el.$input, "input");
         return result;
       },
     });
@@ -757,12 +757,12 @@ export const MTEditorOptimization = {
         DOMUtils.val($visibilitypoll, (data as VotingContentOption).visibilitypoll);
         DOMUtils.val($overt, (data as VotingContentOption).overt);
 
-        DOMUtils.trigger($title, "input");
-        DOMUtils.trigger($content, "input");
-        DOMUtils.trigger($maxchoices, "input");
-        DOMUtils.trigger($expiration, "input");
-        DOMUtils.trigger($visibilitypoll, "input");
-        DOMUtils.trigger($overt, "input");
+        DOMUtils.emit($title, "input");
+        DOMUtils.emit($content, "input");
+        DOMUtils.emit($maxchoices, "input");
+        DOMUtils.emit($expiration, "input");
+        DOMUtils.emit($visibilitypoll, "input");
+        DOMUtils.emit($overt, "input");
 
         return true;
       };
@@ -776,7 +776,7 @@ export const MTEditorOptimization = {
 
           DOMUtils.val($content, (data as EditorNormalStorageOption).text);
 
-          DOMUtils.trigger($content, "input");
+          DOMUtils.emit($content, "input");
           return true;
         };
       } else {
@@ -788,8 +788,8 @@ export const MTEditorOptimization = {
           DOMUtils.val($title, (data as PostContentOption).title);
           DOMUtils.val($content, (data as PostContentOption).content);
 
-          DOMUtils.trigger($title, "input");
-          DOMUtils.trigger($content, "input");
+          DOMUtils.emit($title, "input");
+          DOMUtils.emit($content, "input");
           return true;
         };
       }
@@ -1401,7 +1401,7 @@ export const MTEditorOptimization = {
       DOMUtils.attr($select, "disabled", true);
     }
     DOMUtils.val($select, currentSection);
-    DOMUtils.trigger($select, "change");
+    DOMUtils.emit($select, "change");
   },
   /**
    * 字符计数

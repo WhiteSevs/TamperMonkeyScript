@@ -7,7 +7,7 @@ import { unsafeWindow } from "ViteGM";
 /** 对vue属性进行赋值 */
 export const BaiduSearchVSearchVueProp = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       if (BaiduRouter.isSearchVSearch_image_content()) {
         Panel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
           this.isBaiduBox();
@@ -39,7 +39,7 @@ export const BaiduSearchVSearch = {
   init() {
     this.listenRouterChange();
     BaiduSearchVSearchVueProp.init();
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       this.replaceVSearchLink();
     });
   },

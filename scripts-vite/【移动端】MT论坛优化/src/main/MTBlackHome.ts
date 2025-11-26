@@ -87,7 +87,7 @@ export const MTBlackHome = {
             } else {
               Qmsg.success(`成功获取 ${nextBlackListInfo.data.length}条数据`);
             }
-            DOMUtils.trigger($filterInput, "input");
+            DOMUtils.emit($filterInput, "input");
           },
         },
         cancel: {

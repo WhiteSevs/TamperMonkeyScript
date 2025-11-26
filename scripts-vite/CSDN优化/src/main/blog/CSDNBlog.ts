@@ -13,7 +13,7 @@ export const CSDNBlog = {
     Panel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
       return this.shieldTopToolbar();
     });
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-removeClipboardHijacking", () => {
         this.removeClipboardHijacking();
       });

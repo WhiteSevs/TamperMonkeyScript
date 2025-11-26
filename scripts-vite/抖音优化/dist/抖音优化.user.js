@@ -11,8 +11,8 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -111,7 +111,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.ready(() => {
+        DOMUtils.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -576,15 +576,15 @@
                 domUtils.removeAttr($promptOk, "disabled");
               }
             });
-            domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+            domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
                 const value = domUtils.val($promptInput);
                 if (value !== "") {
-                  domUtils.trigger($promptOk, "click");
+                  domUtils.emit($promptOk, "click");
                 }
               }
             });
-            domUtils.trigger($promptInput, "input");
+            domUtils.emit($promptInput, "input");
           });
           domUtils.on($clipboard, "click", async (event) => {
             domUtils.preventEvent(event);
@@ -865,7 +865,7 @@
       this.clear = this.clear.bind(this);
       this.addValueChangeListener = this.addValueChangeListener.bind(this);
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-      this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
+      this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
     getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
@@ -883,7 +883,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, oldValue, value);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -898,7 +898,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.triggerValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, oldValue, void 0);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -944,7 +944,7 @@
       }
       return flag;
     }
-    async triggerValueChangeListener(...args) {
+    async emitValueChangeListener(...args) {
       const [key, oldValue, newValue] = args;
       if (!this.listenerData.has(key)) {
         return;
@@ -1129,8 +1129,8 @@
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    emitMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -1371,7 +1371,7 @@
       key = this.transformKey(key);
       return this.$data.urlChangeReloadMenuExecOnce.has(key);
     },
-    async triggerUrlChangeWithExecMenuOnceEvent(config) {
+    async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
       for (const callback of values) {
         await callback(config);
@@ -1467,7 +1467,7 @@
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
-        domUtils.animationend($el, () => {
+        domUtils.onAnimationend($el, () => {
           $el.classList.remove(flashingClassName);
         });
         $el.classList.add(flashingClassName);
@@ -3090,7 +3090,7 @@
   const DouYinElement = {
     watchFeedVideoListChange(callback) {
       let $os = null;
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
           log.info(`启用观察器观察加载的视频`);
           let lockFn = new utils.LockFunction((observer) => {
@@ -4061,7 +4061,7 @@
       const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
-        let keyboardListener = domUtils.listenKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+        let keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
             keyValue,
@@ -4133,7 +4133,7 @@
       }
       const that = this;
       function setListenKeyboard($ele, option) {
-        domUtils.listenKeyboard(
+        domUtils.onKeyboard(
           $ele,
           "keydown",
           (keyName, keyValue, ohterCodeList, event) => {
@@ -4182,7 +4182,7 @@
         }
       });
       setListenKeyboard(window, WindowShortCutOption);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Object.keys(ElementShortCutOption).forEach(async (localKey) => {
           let option = ElementShortCutOption[localKey];
           if (typeof option.target === "string") {
@@ -5284,7 +5284,7 @@
       Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
         return this.playbackrate(option.value[1]);
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
           return this.waitToRemovePauseDialog();
@@ -5343,7 +5343,7 @@
       }
       this.$flag.isWaitEnterFullScreen = true;
       if (userKeyBoard) {
-        domUtils.ready(() => {
+        domUtils.onReady(() => {
           let keydownEvent = new KeyboardEvent("keydown", {
             bubbles: true,
             cancelable: true,
@@ -5357,7 +5357,7 @@
           log.success("成功自动进入网页全屏-快捷键");
         });
       } else {
-        domUtils.ready(() => {
+        domUtils.onReady(() => {
           ReactUtils.waitReactPropsToSet(
             () => {
               return (
@@ -5931,7 +5931,7 @@
           return window.innerHeight <= 600;
         }
       };
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils.on(
           document.body,
           "touchstart",
@@ -6491,7 +6491,7 @@
       ];
     },
     shieldGiftEffects() {
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         domUtils
           .waitNode(() => {
             return (
@@ -6740,7 +6740,7 @@
         );
         return [result.off];
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
           return DouYinLiveMessage.filterMessage();
         });
@@ -7124,7 +7124,7 @@
       this.resizeSearchFilterBar();
     },
     resizeSearchFilterBar() {
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         const $searchFilter = $("div:has(+#search-result-container)");
         const $searchResultContainer = $("#search-result-container");
         if (!$searchFilter) {
@@ -7493,7 +7493,7 @@
   const DouYinUser = {
     init() {
       addStyle(blockCSS$7);
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenu("dy-user-addShowUserUID", () => {
           this.addShowUserUID();
         });
@@ -8870,15 +8870,15 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
             const value = domUtils.val($promptInput);
             if (value !== "") {
-              domUtils.trigger($promptOk, "click");
+              domUtils.emit($promptOk, "click");
             }
           }
         });
-        domUtils.trigger($promptInput, "input");
+        domUtils.emit($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
@@ -8947,7 +8947,7 @@
         return;
       }
       this.execFilter();
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
           return this.addParseButton();
         });
@@ -9884,7 +9884,7 @@
       Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
         return this.pauseVideo();
       });
-      domUtils.ready(() => {
+      domUtils.onReady(() => {
         Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
           return this.automaticContinuousPlayback();
         });
@@ -10099,7 +10099,7 @@
     },
     async initialScale() {
       log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      await domUtils.ready();
+      await domUtils.onReady();
       const $meta = domUtils.createElement(
         "meta",
         {},
@@ -10129,7 +10129,7 @@
         url = currentUrl;
         log.info(`Router Change Before：` + beforeUrl);
         log.info(`Router Change Now：` + currentUrl);
-        Panel.triggerUrlChangeWithExecMenuOnceEvent({
+        Panel.emitUrlChangeWithExecMenuOnceEvent({
           url: currentUrl,
           beforeUrl,
         });

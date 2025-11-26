@@ -12,7 +12,7 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
+      DOMUtils.emit(element, "input");
       document.querySelector<HTMLElement>("#homepage div.token div.token-form a")!.click();
     });
     /* 移动端 */
@@ -23,7 +23,7 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
       }
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
-      DOMUtils.trigger(element, "input");
+      DOMUtils.emit(element, "input");
       document.querySelector<HTMLElement>("div.token-form a.btn-token")!.click();
     });
   }

@@ -966,12 +966,12 @@ const TiebaComment = {
     } else {
       TiebaComment.page--;
     }
-    TiebaComment.triggerScrollEvent();
+    TiebaComment.emitScrollEvent();
   },
   /**
    * 主动触发滚动事件
    */
-  triggerScrollEvent() {
+  emitScrollEvent() {
     setTimeout(() => {
       document.dispatchEvent(new Event("scroll"));
     }, 400);
@@ -980,7 +980,7 @@ const TiebaComment = {
    * scroll事件触发 自动加载下一页的评论
    */
   nextPageScrollEvent: async (event: Event) => {
-    if ((event as any).jsTrigger) {
+    if ((event as any).jsEmit) {
       /* js主动触发 */
     } else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
       return;
@@ -1015,7 +1015,7 @@ const TiebaComment = {
    * scroll事件触发 自动加载上一页的评论
    */
   prevPageScrollEvent: async (event: Event) => {
-    if ((event as any).jsTrigger) {
+    if ((event as any).jsEmit) {
       /* js主动触发 */
     } else if (!utils.isNearBottom(TiebaComment.isNearBottomValue)) {
       return;
@@ -1051,7 +1051,7 @@ const TiebaComment = {
   setNextPageScrollListener() {
     TiebaComment.funcLock = new utils.LockFunction(TiebaComment.nextPageScrollEvent, this);
     document.addEventListener("scroll", TiebaComment.funcLock.run);
-    DOMUtils.trigger(document, "scroll", { jsTrigger: true });
+    DOMUtils.emit(document, "scroll", { jsEmit: true });
     log.success("scroll监听事件【下一页】");
   },
   /**
@@ -1060,7 +1060,7 @@ const TiebaComment = {
   setPrevPageScrollListener() {
     TiebaComment.funcLock = new utils.LockFunction(TiebaComment.prevPageScrollEvent, this);
     document.addEventListener("scroll", TiebaComment.funcLock.run);
-    DOMUtils.trigger(document, "scroll", { jsTrigger: true });
+    DOMUtils.emit(document, "scroll", { jsEmit: true });
     log.success("scroll监听事件【上一页】");
   },
   /**
@@ -2346,7 +2346,7 @@ const TiebaComment = {
             $postItem.classList.add("white-only-lz-none");
           }
         });
-        TiebaComment.triggerScrollEvent();
+        TiebaComment.emitScrollEvent();
       }
     });
   },

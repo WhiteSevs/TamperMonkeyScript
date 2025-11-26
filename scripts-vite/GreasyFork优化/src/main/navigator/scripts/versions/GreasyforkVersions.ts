@@ -29,7 +29,7 @@ export const GreasyforkVersions = {
     /* 美化version页面 */
     result.push(addStyle(beautifyVersionsPageCSS));
     result.push(CommonUtil.addBlockCSS(".version-number", ".version-date", ".version-changelog"));
-    DOMUtils.ready(function () {
+    DOMUtils.onReady(function () {
       let $historyVersion = $<HTMLUListElement>("ul.history_versions");
       if (!$historyVersion) {
         Qmsg.error(i18next.t("未找到history_versions元素列表"));
@@ -79,7 +79,7 @@ export const GreasyforkVersions = {
    */
   addExtraTagButton() {
     log.info("添加额外的标签按钮");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       $$<HTMLDivElement>(".script-tag-version").forEach(($tagVersion) => {
         let $anchor = $tagVersion.querySelector<HTMLAnchorElement>("a");
         if (!$anchor) {
@@ -110,7 +110,7 @@ export const GreasyforkVersions = {
   sourceDiffMonacoEditor() {
     log.info(`源码对比（monacoEditor）`);
     GreasyforkUtils.monacoEditor().then((monaco) => {
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         $$<HTMLElement>(`#script-content form[action*="/diff"] input[type="submit"]`).forEach(($submit) => {
           let $compareButton = DOMUtils.createElement(
             "input",

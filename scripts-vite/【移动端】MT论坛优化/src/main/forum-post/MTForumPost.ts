@@ -18,7 +18,7 @@ export const MTForumPost = {
       return this.repairImageWidth();
     });
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("mt-forum-post-removeFontStyle", () => {
         this.removeFontStyle();
       });
@@ -513,7 +513,7 @@ export const MTForumPost = {
       DOMUtils.preventEvent(selectElement, "click");
       selectElementParentDiv.appendChild(selectElement);
       $temp.append(selectElementParentDiv);
-      DOMUtils.trigger(selectElement, "change");
+      DOMUtils.emit(selectElement, "change");
       $comiis_bodybg.className = "hljs";
       ($comiis_bodybg.firstChild as HTMLElement)!.removeAttribute("class");
 

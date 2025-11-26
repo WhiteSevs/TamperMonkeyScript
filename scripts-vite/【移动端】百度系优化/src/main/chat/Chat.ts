@@ -7,7 +7,7 @@ const BaiduChat = {
   init() {
     addStyle(ChatShieldCSS);
     log.info("插入CSS规则");
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
         this.removeAiMask();
       });

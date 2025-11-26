@@ -35,8 +35,8 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
         let visitBtn = document.querySelector<HTMLElement>(".btn.btn-primary.visit")!;
         codeTxtElement.value = netDiskInfo.accessCode;
         Reflect.set(codeTxtElement, "_value", netDiskInfo.accessCode);
-        DOMUtils.trigger(codeTxtElement, "input");
-        DOMUtils.trigger(visitBtn, "click");
+        DOMUtils.emit(codeTxtElement, "input");
+        DOMUtils.emit(visitBtn, "click");
       });
     });
   }
@@ -48,8 +48,8 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
         Qmsg.success("自动填充访问码");
         accessInputElement.value = netDiskInfo.accessCode;
         Reflect.set(accessInputElement, "_value", netDiskInfo.accessCode);
-        DOMUtils.trigger(accessInputElement, "input");
-        DOMUtils.trigger(document.querySelector<HTMLElement>("div.button")!, "click");
+        DOMUtils.emit(accessInputElement, "input");
+        DOMUtils.emit(document.querySelector<HTMLElement>("div.button")!, "click");
       });
     });
   }

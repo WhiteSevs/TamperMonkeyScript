@@ -48,7 +48,7 @@ const BaiduSearch = {
       Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
         this.openResultBlank();
       });
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         /* 解析真实地址 from <script> */
         BaiduHandleResultItem.$data.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
         /* 处理搜索结果 */

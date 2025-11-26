@@ -214,7 +214,7 @@ export const DouYinLiveBlock = {
     // 		"#GiftTrayLayout"
     // 	),
     // ];
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       DOMUtils.waitNode(() => {
         return (
           DOMUtils.selector<HTMLElement>("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||

@@ -5,7 +5,7 @@ import Qmsg from "qmsg";
 
 export const MTGuide = {
   init() {
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-guide-showLatestPost", () => {
         this.showLatestPost();
       });

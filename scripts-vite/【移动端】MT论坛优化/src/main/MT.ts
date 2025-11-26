@@ -68,7 +68,7 @@ export const MT = {
       log.error(`Router: 未适配的链接 ==> ` + window.location.href);
     }
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-black-home", () => {
         MTBlackHome.init();
       });

@@ -7,7 +7,7 @@ import Qmsg from "qmsg";
 export const DouYinUser = {
   init() {
     addStyle(blockCSS);
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Panel.execMenu("dy-user-addShowUserUID", () => {
         this.addShowUserUID();
       });
