@@ -105,7 +105,7 @@ const CommonUtil = {
     $link.type = "text/css";
     $link.href = url;
     return new Promise<HTMLLinkElement>((resolve) => {
-      DOMUtils.ready(() => {
+      DOMUtils.onReady(() => {
         document.head.appendChild($link);
         resolve($link);
       });

@@ -399,8 +399,8 @@ const Panel = {
    * @param newValue 想要触发的新值，默认使用当前值
    * @param oldValue 想要触发的旧值，默认使用当前值
    */
-  triggerMenuValueChange(key: string, newValue?: any, oldValue?: any) {
-    PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+  emitMenuValueChange(key: string, newValue?: any, oldValue?: any) {
+    PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
   },
   /**
    * 执行菜单
@@ -801,7 +801,7 @@ const Panel = {
    * 主动触发url改变的监听
    * @param config 配置
    */
-  async triggerUrlChangeWithExecMenuOnceEvent(config?: UrlChangeWithExecMenuOnceEventConfig) {
+  async emitUrlChangeWithExecMenuOnceEvent(config?: UrlChangeWithExecMenuOnceEventConfig) {
     const values = this.$data.urlChangeReloadMenuExecOnce.values();
     for (const callback of values) {
       await callback(config);
@@ -947,7 +947,7 @@ const Panel = {
      */
     const addFlashingClass = ($el: Element) => {
       const flashingClassName = "pops-flashing";
-      DOMUtils.animationend($el as HTMLElement, () => {
+      DOMUtils.onAnimationend($el as HTMLElement, () => {
         $el.classList.remove(flashingClassName);
       });
       $el.classList.add(flashingClassName);

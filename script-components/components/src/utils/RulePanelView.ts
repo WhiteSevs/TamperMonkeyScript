@@ -692,15 +692,15 @@ class RulePanelView<T> {
                     DOMUtils.removeAttr($promptOk, "disabled");
                   }
                 });
-                DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
+                DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
                   if (keyName === "Enter" && otherCodeList.length === 0) {
                     DOMUtils.preventEvent(event);
                     // 添加
-                    DOMUtils.trigger($promptOk, "click");
+                    DOMUtils.emit($promptOk, "click");
                   }
                 });
                 // 触发input事件
-                DOMUtils.trigger($promptInput, "input");
+                DOMUtils.emit($promptInput, "input");
               }
             );
 

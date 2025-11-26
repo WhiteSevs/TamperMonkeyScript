@@ -223,7 +223,7 @@ class ShortCut {
     const that = this;
     return new Promise((resolve) => {
       this.isWaitPress = true;
-      let keyboardListener = DOMUtils.listenKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+      let keyboardListener = DOMUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
         const currentOption: ShortCutKeyboardOption = {
           keyName: keyName,
           keyValue: keyValue,
@@ -320,7 +320,7 @@ class ShortCut {
      * @param option 监听的配置
      */
     function setListenKeyboard($ele: Element | Window, option: ShortCutOption) {
-      DOMUtils.listenKeyboard(
+      DOMUtils.onKeyboard(
         $ele,
         "keydown",
         (keyName, keyValue, ohterCodeList, event) => {
@@ -381,7 +381,7 @@ class ShortCut {
     });
     setListenKeyboard(window, WindowShortCutOption);
 
-    DOMUtils.ready(() => {
+    DOMUtils.onReady(() => {
       Object.keys(ElementShortCutOption).forEach(async (localKey) => {
         let option = ElementShortCutOption[localKey];
         if (typeof option.target === "string") {

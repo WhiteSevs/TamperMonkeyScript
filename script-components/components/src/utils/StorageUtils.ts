@@ -54,7 +54,7 @@ class StorageUtils {
     this.clear = this.clear.bind(this);
     this.addValueChangeListener = this.addValueChangeListener.bind(this);
     this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
-    this.triggerValueChangeListener = this.triggerValueChangeListener.bind(this);
+    this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
   }
   /**
    * 获取本地值
@@ -84,7 +84,7 @@ class StorageUtils {
     const localValue = this.getLocalValue();
     Reflect.set(localValue, key, value);
     this.setLocalValue(localValue);
-    this.triggerValueChangeListener(key, oldValue, value);
+    this.emitValueChangeListener(key, oldValue, value);
   }
   /**
    * 获取值
@@ -111,7 +111,7 @@ class StorageUtils {
     const localValue = this.getLocalValue();
     Reflect.deleteProperty(localValue, key);
     this.setLocalValue(localValue);
-    this.triggerValueChangeListener(key, oldValue, void 0);
+    this.emitValueChangeListener(key, oldValue, void 0);
   }
   /**
    * 判断是否存在该值
@@ -186,8 +186,8 @@ class StorageUtils {
    * @param oldValue （可选）旧值
    * @param newValue （可选）新值
    */
-  triggerValueChangeListener(key: string, oldValue?: any, newValue?: any): Promise<void>;
-  async triggerValueChangeListener(...args: any[]) {
+  emitValueChangeListener(key: string, oldValue?: any, newValue?: any): Promise<void>;
+  async emitValueChangeListener(...args: any[]) {
     const [key, oldValue, newValue] = args;
     if (!this.listenerData.has(key)) {
       return;

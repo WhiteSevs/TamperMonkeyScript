@@ -194,7 +194,7 @@ const VUE_ROOT_ID = "vite-app";
  */
 const MountVue = async function (rootComponent: any, plugins: any[] = []) {
   CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
-  await DOMUtils.ready();
+  await DOMUtils.onReady();
   const app = createApp(rootComponent);
   const $mount = DOMUtils.createElement("div", {
     id: VUE_ROOT_ID,
