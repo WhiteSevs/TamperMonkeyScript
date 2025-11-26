@@ -25,8 +25,8 @@
   "dependencies": {
     "@mgdn/bvid": "^0.3.0",
     "@whitesev/data-paging": "^0.0.4",
-    "@whitesev/domutils": "^1.7.5",
-    "@whitesev/pops": "^3.0.2",
+    "@whitesev/domutils": "^1.8.0",
+    "@whitesev/pops": "^3.1.0",
     "@whitesev/utils": "^2.9.9",
     "artplayer": "^5.3.0",
     "artplayer-plugin-danmuku": "^5.2.0",
@@ -42,7 +42,7 @@
     "qmsg": "^1.6.1",
     "s2t-chinese": "^0.0.5",
     "viewerjs": "^1.11.7",
-    "vue": "^3.5.24",
+    "vue": "^3.5.25",
     "vue-demi": "^0.14.10",
     "vue-router": "^4.6.3"
   },
@@ -61,9 +61,9 @@
     "unplugin-element-plus": "^0.11.1",
     "unplugin-icons": "^22.5.0",
     "unplugin-vue-components": "^30.0.0",
-    "vite": "^7.2.2",
+    "vite": "^7.2.4",
     "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-monkey": "^7.1.5",
-    "vue-tsc": "^3.1.4"
+    "vue-tsc": "^3.1.5"
   }
 }
