@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.25
+// @version      2025.11.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.7.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
@@ -3055,32 +3055,22 @@
                 const $target = event.target;
                 if ($target && $target instanceof HTMLVideoElement) {
                   if ($target.paused) {
-                    const listener2 = domUtils.on(
-                      $target,
-                      "play",
-                      () => {
-                        log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
-                        utils.workerClearTimeout(timeId);
-                        $target.pause();
-                        listener2.off();
-                      },
-                      { capture: true }
-                    );
+                    const listener2 = domUtils.on($target, "play", () => {
+                      log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
+                      utils.workerClearTimeout(timeId);
+                      $target.pause();
+                      listener2.off();
+                    });
                     const timeId = utils.workerSetTimeout(() => {
                       listener2.off();
                     }, 1e3);
                   } else {
-                    const listener2 = domUtils.on(
-                      $target,
-                      "pause",
-                      () => {
-                        log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
-                        utils.workerClearTimeout(timeId);
-                        $target.play();
-                        listener2.off();
-                      },
-                      { capture: true }
-                    );
+                    const listener2 = domUtils.on($target, "pause", () => {
+                      log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
+                      utils.workerClearTimeout(timeId);
+                      $target.play();
+                      listener2.off();
+                    });
                     const timeId = utils.workerSetTimeout(() => {
                       listener2.off();
                     }, 1e3);

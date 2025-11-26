@@ -338,32 +338,22 @@ export const DouYinHook = {
               if ($target && $target instanceof HTMLVideoElement) {
                 // 因为双击会暂停视频，所以这里再播放
                 if ($target.paused) {
-                  const listener = DOMUtils.on(
-                    $target,
-                    "play",
-                    () => {
-                      log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
-                      utils.workerClearTimeout(timeId);
-                      $target.pause();
-                      listener.off();
-                    },
-                    { capture: true }
-                  );
+                  const listener = DOMUtils.on($target, "play", () => {
+                    log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
+                    utils.workerClearTimeout(timeId);
+                    $target.pause();
+                    listener.off();
+                  });
                   const timeId = utils.workerSetTimeout(() => {
                     listener.off();
                   }, 1000);
                 } else {
-                  const listener = DOMUtils.on(
-                    $target,
-                    "pause",
-                    () => {
-                      log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
-                      utils.workerClearTimeout(timeId);
-                      $target.play();
-                      listener.off();
-                    },
-                    { capture: true }
-                  );
+                  const listener = DOMUtils.on($target, "pause", () => {
+                    log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
+                    utils.workerClearTimeout(timeId);
+                    $target.play();
+                    listener.off();
+                  });
                   const timeId = utils.workerSetTimeout(() => {
                     listener.off();
                   }, 1000);
