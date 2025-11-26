@@ -190,8 +190,8 @@ export declare const PopsTooltip: {
             isFixed: boolean;
             alwaysShow: boolean;
             delayCloseTime: number;
-            triggerShowEventName: string;
-            triggerCloseEventName: string;
+            onShowEventName: string;
+            onCloseEventName: string;
             eventOption: {
                 once: boolean;
                 passive: boolean;

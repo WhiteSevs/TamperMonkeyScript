@@ -45,7 +45,7 @@ export interface PopsToolTipConfig
   isFixed?: boolean;
   /**
    * 是否总是显示，默认为false
-   * + true 设置的triggerShowEventName、triggerCloseEventName将无效
+   * + true 设置的onShowEventName、onCloseEventName将无效
    *        返回提供show和close函数，取消on和off
    * + false 事件触发才显示
    */
@@ -59,12 +59,12 @@ export interface PopsToolTipConfig
    * 触发显示事件的名称，默认mouseenter touchstart，如果是多个事件，按空格分割
    * @default  "mouseenter touchstart"
    */
-  triggerShowEventName?: string;
+  onShowEventName?: string;
   /**
    * 触发关闭事件的名称，默认mouseleave touchend，如果是多个事件，按空格分割
    * @default  "mouseleave touchend"
    */
-  triggerCloseEventName?: string;
+  onCloseEventName?: string;
   /**
    * 监听的事件配置
    */

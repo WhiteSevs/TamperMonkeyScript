@@ -513,15 +513,15 @@ export const PopsRightClickMenu = {
           }
           // 鼠标|触摸 移入事件
           // 在移动端会先触发touchstart再然后mouseenter
-          let isTriggerTouchEvent = false;
+          let isEmitTouchEvent = false;
           /**
            * 鼠标|触摸 移入事件
            */
           function liElementHoverEvent(event: MouseEvent | TouchEvent) {
             if (event.type === "touchstart") {
-              isTriggerTouchEvent = true;
+              isEmitTouchEvent = true;
             }
-            if (isTriggerTouchEvent && event.type === "mouseenter") {
+            if (isEmitTouchEvent && event.type === "mouseenter") {
               return;
             }
             Array.from(menuULElement.children as any as HTMLLIElement[]).forEach((liElement) => {

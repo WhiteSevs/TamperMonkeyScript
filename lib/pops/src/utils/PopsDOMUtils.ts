@@ -6,6 +6,7 @@ import type {
   PopsDOMUtilsEventListenerOptionsAttribute,
   PopsDOMUtils_Event,
   PopsDOMUtilsElementEventType,
+  PopsDOMUtilsAddEventListenerResult,
 } from "../types/PopsDOMUtilsEventType";
 import { SymbolEvents } from "./PopsDOMUtilsEventsConfig";
 import { OriginPrototype, PopsCore } from "../PopsCore";
@@ -37,7 +38,7 @@ class PopsDOMUtilsEvent {
     eventType: T | T[],
     callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
-  ): void;
+  ): PopsDOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -61,7 +62,7 @@ class PopsDOMUtilsEvent {
     eventType: string | string[],
     callback: (this: HTMLElement, event: T) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
-  ): void;
+  ): PopsDOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -92,7 +93,7 @@ class PopsDOMUtilsEvent {
     selector: string | string[] | undefined | null,
     callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
-  ): void;
+  ): PopsDOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
@@ -123,7 +124,7 @@ class PopsDOMUtilsEvent {
     selector: string | string[] | undefined | null,
     callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
-  ): void;
+  ): PopsDOMUtilsAddEventListenerResult;
   on<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string | string[],
@@ -138,7 +139,7 @@ class PopsDOMUtilsEvent {
       | PopsDOMUtilsEventListenerOption
       | boolean,
     option?: PopsDOMUtilsEventListenerOption | boolean
-  ) {
+  ): PopsDOMUtilsAddEventListenerResult {
     /**
      * 获取option配置
      * @param args
@@ -170,21 +171,24 @@ class PopsDOMUtilsEvent {
       return option;
     }
 
-    const DOMUtilsContext = this;
+    const that = this;
     // eslint-disable-next-line prefer-rest-params
     const args = arguments;
     if (typeof element === "string") {
-      element = DOMUtilsContext.selectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
-      return;
+      return {
+        off() {},
+        emit() {},
+      };
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: HTMLElement[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
       element = element as HTMLElement[];
-      elementList = [...element];
+      $elList = [...element];
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element as HTMLElement);
     }
     // 事件名
     let eventTypeList: string[] = [];
@@ -227,10 +231,10 @@ class PopsDOMUtilsEvent {
      */
     function checkOptionOnceToRemoveEventListener() {
       if (listenerOption.once) {
-        DOMUtilsContext.off(element, eventType as any, selector as any, callback as any, option);
+        that.off(element, eventType as any, selector as any, callback as any, option);
       }
     }
-    elementList.forEach((elementItem) => {
+    $elList.forEach((elementItem) => {
       /**
        * 事件回调
        * @param event
@@ -250,12 +254,12 @@ class PopsDOMUtilsEvent {
           }
           const findValue = selectorList.find((selectorItem) => {
             // 判断目标元素是否匹配选择器
-            if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
+            if (that.matches(eventTarget, selectorItem)) {
               // 当前目标可以被selector所匹配到
               return true;
             }
             // 在上层与主元素之间寻找可以被selector所匹配到的
-            const $closestMatches = DOMUtilsContext.closest<HTMLElement>(eventTarget, selectorItem);
+            const $closestMatches = that.closest<HTMLElement>(eventTarget, selectorItem);
             if ($closestMatches && totalParent?.contains($closestMatches)) {
               eventTarget = $closestMatches;
               return true;
@@ -302,6 +306,30 @@ class PopsDOMUtilsEvent {
         Reflect.set(elementItem, SymbolEvents, elementEvents);
       });
     });
+
+    return {
+      /**
+       * 取消绑定的监听事件
+       * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
+       */
+      off: (
+        filter?: (
+          value: PopsDOMUtilsEventListenerOptionsAttribute,
+          index: number,
+          array: PopsDOMUtilsEventListenerOptionsAttribute[]
+        ) => boolean
+      ) => {
+        that.off($elList, eventTypeList, selectorList, listenerCallBack, listenerOption, filter);
+      },
+      /**
+       * 主动触发事件
+       * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+       * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+       */
+      emit: (details?: object, useDispatchToEmit?: boolean) => {
+        that.emit($elList, eventTypeList, details, useDispatchToEmit);
+      },
+    };
   }
   /**
    * 取消绑定事件
@@ -624,11 +652,11 @@ class PopsDOMUtilsEvent {
    * 等待文档加载完成后执行指定的函数
    * @param callback 需要执行的函数
    * @example
-   * DOMUtils.ready(function(){
+   * DOMUtils.onReady(function(){
    *   console.log("文档加载完毕")
    * })
    */
-  ready<T extends (...args: any[]) => any>(callback: T) {
+  onReady<T extends (...args: any[]) => any>(callback: T) {
     const that = this;
     if (typeof callback !== "function") {
       return;
@@ -701,60 +729,60 @@ class PopsDOMUtilsEvent {
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-   * DOMUtils.trigger("a.xx","click")
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
    * // 触发元素a.xx的click、tap、hover事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-   * DOMUtils.trigger("a.xx",["click","tap","hover"])
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
-  trigger(
+  emit(
     element: HTMLElement | string | NodeList | any[] | Window | Document,
     eventType: string | string[],
     details?: object,
-    useDispatchToTriggerEvent?: boolean
+    useDispatchToEmitEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-   * DOMUtils.trigger("a.xx","click")
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
    * // 触发元素a.xx的click、tap、hover事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-   * DOMUtils.trigger("a.xx",["click","tap","hover"])
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
-  trigger(
+  emit(
     element: HTMLElement | string | NodeList | any[] | Window | Document,
     eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[],
     details?: object,
-    useDispatchToTriggerEvent?: boolean
+    useDispatchToEmitEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-   * DOMUtils.trigger("a.xx","click")
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
    * // 触发元素a.xx的click、tap、hover事件
-   * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-   * DOMUtils.trigger("a.xx",["click","tap","hover"])
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
-  trigger(
+  emit(
     element: HTMLElement | string | NodeList | any[] | Window | Document,
     eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string,
     details?: object,
-    useDispatchToTriggerEvent: boolean = true
+    useDispatchToEmitEvent: boolean = true
   ) {
     if (typeof element === "string") {
       element = PopsCore.document.querySelector(element) as HTMLElement;
@@ -791,7 +819,7 @@ class PopsDOMUtilsEvent {
             });
           }
         }
-        if (useDispatchToTriggerEvent == false && _eventType_ in events) {
+        if (useDispatchToEmitEvent == false && _eventType_ in events) {
           events[_eventType_].forEach((eventsItem: any) => {
             eventsItem.callback(event);
           });
@@ -807,7 +835,7 @@ class PopsDOMUtilsEvent {
    * @param element 目标元素
    * @param handler （可选）事件处理函数
    * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.click(document.querySelector("a.xx"))
@@ -820,7 +848,7 @@ class PopsDOMUtilsEvent {
     element: HTMLElement | string | Window,
     handler?: (event: PopsDOMUtils_Event["click"]) => void,
     details?: any,
-    useDispatchToTriggerEvent?: boolean
+    useDispatchToEmitEvent?: boolean
   ) {
     const DOMUtilsContext = this;
     if (typeof element === "string") {
@@ -830,7 +858,7 @@ class PopsDOMUtilsEvent {
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
+      DOMUtilsContext.emit(element, "click", details, useDispatchToEmitEvent);
     } else {
       DOMUtilsContext.on(element, "click", null, handler);
     }
@@ -840,7 +868,7 @@ class PopsDOMUtilsEvent {
    * @param element 目标元素
    * @param handler （可选）事件处理函数
    * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的blur事件
    * DOMUtils.blur(document.querySelector("a.xx"))
@@ -853,7 +881,7 @@ class PopsDOMUtilsEvent {
     element: HTMLElement | string | Window,
     handler?: (event: PopsDOMUtils_Event["blur"]) => void,
     details?: object,
-    useDispatchToTriggerEvent?: boolean
+    useDispatchToEmitEvent?: boolean
   ) {
     const DOMUtilsContext = this;
     if (typeof element === "string") {
@@ -863,7 +891,7 @@ class PopsDOMUtilsEvent {
       return;
     }
     if (handler === null) {
-      DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
+      DOMUtilsContext.emit(element, "blur", details, useDispatchToEmitEvent);
     } else {
       DOMUtilsContext.on(element, "blur", null, handler as (event: Event) => void);
     }
@@ -873,7 +901,7 @@ class PopsDOMUtilsEvent {
    * @param element 目标元素
    * @param handler （可选）事件处理函数
    * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
    * @example
    * // 触发元素a.xx的focus事件
    * DOMUtils.focus(document.querySelector("a.xx"))
@@ -886,7 +914,7 @@ class PopsDOMUtilsEvent {
     element: HTMLElement | string | Window,
     handler?: (event: PopsDOMUtils_Event["focus"]) => void,
     details?: object,
-    useDispatchToTriggerEvent?: boolean
+    useDispatchToEmitEvent?: boolean
   ) {
     const DOMUtilsContext = this;
     if (typeof element === "string") {
@@ -896,7 +924,7 @@ class PopsDOMUtilsEvent {
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
+      DOMUtilsContext.emit(element, "focus", details, useDispatchToEmitEvent);
     } else {
       DOMUtilsContext.on(element, "focus", null, handler);
     }
@@ -915,7 +943,7 @@ class PopsDOMUtilsEvent {
    *   console.log("移入/移除");
    * })
    */
-  hover(
+  onHover(
     element: HTMLElement | string,
     handler: (event: PopsDOMUtils_Event["hover"]) => void,
     option?: boolean | AddEventListenerOptions
@@ -945,7 +973,7 @@ class PopsDOMUtilsEvent {
    *   console.log("按键松开");
    * })
    */
-  keyup(
+  onKeyup(
     target: HTMLElement | string | Window | typeof globalThis,
     handler: (event: PopsDOMUtils_Event["keyup"]) => void,
     option?: boolean | AddEventListenerOptions
@@ -974,7 +1002,7 @@ class PopsDOMUtilsEvent {
    *   console.log("按键按下");
    * })
    */
-  keydown(
+  onKeydown(
     target: HTMLElement | Window | typeof globalThis | string,
     handler: (event: PopsDOMUtils_Event["keydown"]) => void,
     option?: boolean | AddEventListenerOptions
@@ -1003,7 +1031,7 @@ class PopsDOMUtilsEvent {
    *   console.log("按键按下");
    * })
    */
-  keypress(
+  onKeypress(
     target: HTMLElement | Window | typeof globalThis | string,
     handler: (event: PopsDOMUtils_Event["keypress"]) => void,
     option?: boolean | AddEventListenerOptions
@@ -2389,6 +2417,9 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     callback: (evt: InputEvent) => void | Promise<void>,
     option?: PopsDOMUtilsEventListenerOption | boolean
   ) {
+    /**
+     * 是否正在输入中
+     */
     let isComposite = false;
     const __callback = async (event: InputEvent) => {
       if (isComposite) return;
@@ -2399,19 +2430,19 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     };
     const __composition_end_callback = () => {
       isComposite = false;
-      this.trigger($el, "input", {
+      this.emit($el, "input", {
         isComposite,
       });
     };
-    this.on($el, "input", __callback, option);
-    this.on($el, "compositionstart", __composition_start_callback, option);
-    this.on($el, "compositionend", __composition_end_callback, option);
+    const inputListener = this.on($el, "input", __callback, option);
+    const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
+    const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
 
     return {
       off: () => {
-        this.off($el, "input", __callback, option);
-        this.off($el, "compositionstart", __composition_start_callback, option);
-        this.off($el, "compositionend", __composition_end_callback, option);
+        inputListener.off();
+        compositionStartListener.off();
+        compositionEndListener.off();
       },
     };
   }

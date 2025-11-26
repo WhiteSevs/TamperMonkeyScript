@@ -349,7 +349,7 @@ export class ToolTip {
   onShowEvent() {
     popsDOMUtils.on(
       this.$data.config.$target,
-      this.$data.config.triggerShowEventName,
+      this.$data.config.onShowEventName,
       this.show,
       this.$data.config.eventOption
     );
@@ -358,7 +358,7 @@ export class ToolTip {
    * 取消绑定 显示事件
    */
   offShowEvent() {
-    popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerShowEventName, this.show, {
+    popsDOMUtils.off(this.$data.config.$target, this.$data.config.onShowEventName, this.show, {
       capture: true,
     });
   }
@@ -419,7 +419,7 @@ export class ToolTip {
   onCloseEvent() {
     popsDOMUtils.on(
       this.$data.config.$target,
-      this.$data.config.triggerCloseEventName,
+      this.$data.config.onCloseEventName,
       this.close,
       this.$data.config.eventOption
     );
@@ -428,7 +428,7 @@ export class ToolTip {
    * 取消绑定 关闭事件
    */
   offCloseEvent() {
-    popsDOMUtils.off(this.$data.config.$target, this.$data.config.triggerCloseEventName, this.close, {
+    popsDOMUtils.off(this.$data.config.$target, this.$data.config.onCloseEventName, this.close, {
       capture: true,
     });
   }

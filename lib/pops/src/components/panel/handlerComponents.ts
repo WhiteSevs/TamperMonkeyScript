@@ -1329,7 +1329,7 @@ export const PanelHandlerComponents = () => {
         /**
          * 主动触发输入框改变事件
          */
-        triggerValueChange() {
+        emitValueChange() {
           this.$el.input.dispatchEvent(new Event("input"));
         },
         /**
@@ -2127,7 +2127,6 @@ export const PanelHandlerComponents = () => {
           /**
            * 添加选中信息
            * @param data 选择项的数据
-           * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
            */
           addSelectedItemInfo(data: PopsPanelSelectDataOption<any>) {
             this.resetCurrentSelectedInfo();
@@ -2532,7 +2531,6 @@ export const PanelHandlerComponents = () => {
           /**
            * 添加选中信息
            * @param data 选择项的数据
-           * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
            */
           addSelectedItemInfo(data: PopsPanelSelectDataOption<any>) {
             this.resetCurrentSelectedInfo();
@@ -3255,11 +3253,11 @@ export const PanelHandlerComponents = () => {
         /**
          * 从保存的已选中的信息列表中移除目标信息
          * @param data 需要移除的信息
-         * @param [triggerValueChangeCallBack=true] 是否触发值改变的回调
+         * @param [emitValueChangeCallBack=true] 是否触发值改变的回调
          * + true （默认）触发值改变的回调
          * + false 不触发值改变的回调
          */
-        removeSelectedInfo(data: PopsPanelSelectMultipleDataOption<any>, triggerValueChangeCallBack: boolean = true) {
+        removeSelectedInfo(data: PopsPanelSelectMultipleDataOption<any>, emitValueChangeCallBack: boolean = true) {
           for (let index = 0; index < this.$data.selectedDataList.length; index++) {
             const selectInfo = this.$data.selectedDataList[index];
             if (selectInfo.value === data.value) {
@@ -3267,7 +3265,7 @@ export const PanelHandlerComponents = () => {
               break;
             }
           }
-          triggerValueChangeCallBack && this.onValueChange();
+          emitValueChangeCallBack && this.onValueChange();
         },
         /** 显示输入框 */
         showInputWrapper() {
@@ -3698,7 +3696,7 @@ export const PanelHandlerComponents = () => {
                 } else {
                   leaveViewTransition();
                 }
-                that.triggerRenderRightContainer($currentSection);
+                that.emitRenderRightContainer($currentSection);
               },
               {
                 once: true,
@@ -3745,7 +3743,7 @@ export const PanelHandlerComponents = () => {
               $sectionBodyContainer: $deepMenuMain,
             });
           }
-          that.triggerRenderRightContainer($deepMenuSection);
+          that.emitRenderRightContainer($deepMenuSection);
         },
         /** 设置项的点击事件 */
         onLiClick() {
@@ -3900,7 +3898,7 @@ export const PanelHandlerComponents = () => {
      * 主动触发触发渲染右侧容器的事件
      * @param $container 容器
      */
-    triggerRenderRightContainer($container: HTMLElement) {
+    emitRenderRightContainer($container: HTMLElement) {
       const dataViewConfig: PopsPanelEventType["pops:renderRightContainer"]["viewConfig"] = Reflect.get(
         $container,
         this.$data.nodeStoreConfigKey
@@ -3988,7 +3986,7 @@ export const PanelHandlerComponents = () => {
             return;
           }
         }
-        this.triggerRenderRightContainer(this.$el.$panelContentSectionContainer);
+        this.emitRenderRightContainer(this.$el.$panelContentSectionContainer);
       });
     },
   };

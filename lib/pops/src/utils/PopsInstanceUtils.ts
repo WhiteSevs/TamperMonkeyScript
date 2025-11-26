@@ -422,7 +422,7 @@ export const PopsInstanceUtils = {
         popsDOMUtils.on($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
         const popsTransForm = getComputedStyle($pops).transform;
         if (popsTransForm !== "none") {
-          popsDOMUtils.trigger($pops, popsDOMUtils.getTransitionEndNameList(), void 0, true);
+          popsDOMUtils.emit($pops, popsDOMUtils.getTransitionEndNameList(), void 0, true);
           return;
         }
         if (["top"].includes(drawerConfig.direction)) {
@@ -461,7 +461,7 @@ export const PopsInstanceUtils = {
     options: {
       dragElement: HTMLElement;
       limit: boolean;
-      triggerClick?: boolean;
+      emitClick?: boolean;
       extraDistance: number;
       container?: Window | typeof globalThis | HTMLElement;
       moveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
@@ -474,7 +474,7 @@ export const PopsInstanceUtils = {
         limit: true,
         extraDistance: 3,
         container: PopsCore.globalThis,
-        triggerClick: true,
+        emitClick: true,
       },
       options
     );
@@ -631,11 +631,11 @@ export const PopsInstanceUtils = {
         }
       }
     });
-    if (options.triggerClick) {
+    if (options.emitClick) {
       // 因为会覆盖上面的点击事件，主动触发一下
       anyTouchElement.on(["tap"], function (event) {
         event.changedPoints.forEach((item) => {
-          popsDOMUtils.trigger(item.target! as HTMLElement, "click", void 0, true);
+          popsDOMUtils.emit(item.target! as HTMLElement, "click", void 0, true);
         });
       });
     }

@@ -1,4 +1,4 @@
-import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType } from "../types/PopsDOMUtilsEventType";
+import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType, PopsDOMUtilsAddEventListenerResult } from "../types/PopsDOMUtilsEventType";
 declare class PopsDOMUtilsEvent {
     /**
      * 绑定事件
@@ -18,7 +18,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
+    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -37,7 +37,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
+    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -62,7 +62,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
+    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -87,7 +87,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
+    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -162,47 +162,47 @@ declare class PopsDOMUtilsEvent {
      * 等待文档加载完成后执行指定的函数
      * @param callback 需要执行的函数
      * @example
-     * DOMUtils.ready(function(){
+     * DOMUtils.onReady(function(){
      *   console.log("文档加载完毕")
      * })
      */
-    ready<T extends (...args: any[]) => any>(callback: T): void;
+    onReady<T extends (...args: any[]) => any>(callback: T): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
+     * DOMUtils.emit(document.querySelector("a.xx"),"click")
+     * DOMUtils.emit("a.xx","click")
      * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
+     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+     * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    trigger(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: string | string[], details?: object, useDispatchToTriggerEvent?: boolean): void;
+    emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: string | string[], details?: object, useDispatchToEmitEvent?: boolean): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
+     * DOMUtils.emit(document.querySelector("a.xx"),"click")
+     * DOMUtils.emit("a.xx","click")
      * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
+     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+     * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    trigger(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[], details?: object, useDispatchToTriggerEvent?: boolean): void;
+    emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[], details?: object, useDispatchToEmitEvent?: boolean): void;
     /**
      * 绑定或触发元素的click事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.click(document.querySelector("a.xx"))
@@ -211,13 +211,13 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
+    click(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): void;
     /**
      * 绑定或触发元素的blur事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的blur事件
      * DOMUtils.blur(document.querySelector("a.xx"))
@@ -226,13 +226,13 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    blur(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
     /**
      * 绑定或触发元素的focus事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的focus事件
      * DOMUtils.focus(document.querySelector("a.xx"))
@@ -241,7 +241,7 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    focus(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -256,7 +256,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("移入/移除");
      * })
      */
-    hover(element: HTMLElement | string, handler: (event: PopsDOMUtils_Event["hover"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onHover(element: HTMLElement | string, handler: (event: PopsDOMUtils_Event["hover"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
@@ -272,7 +272,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键松开");
      * })
      */
-    keyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -288,7 +288,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -304,7 +304,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
     /**
      * 阻止事件传递
      * @param element 要进行处理的元素

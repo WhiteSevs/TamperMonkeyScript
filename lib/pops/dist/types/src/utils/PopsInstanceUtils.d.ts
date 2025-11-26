@@ -89,7 +89,7 @@ export declare const PopsInstanceUtils: {
     drag($move: HTMLElement, options: {
         dragElement: HTMLElement;
         limit: boolean;
-        triggerClick?: boolean;
+        emitClick?: boolean;
         extraDistance: number;
         container?: Window | typeof globalThis | HTMLElement;
         moveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;

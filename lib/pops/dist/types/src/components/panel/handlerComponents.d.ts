@@ -471,7 +471,7 @@ export declare const PanelHandlerComponents: () => {
             /**
              * 主动触发输入框改变事件
              */
-            triggerValueChange(): void;
+            emitValueChange(): void;
             /**
              * 添加校验失败的提示信息
              * @param msg 提示信息
@@ -717,7 +717,6 @@ export declare const PanelHandlerComponents: () => {
             /**
              * 添加选中信息
              * @param data 选择项的数据
-             * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
              */
             addSelectedItemInfo(data: PopsPanelSelectDataOption<any>): void;
             /**
@@ -869,7 +868,6 @@ export declare const PanelHandlerComponents: () => {
             /**
              * 添加选中信息
              * @param data 选择项的数据
-             * @param [triggerValueChangeCallBack=true] 主动触发值改变回调
              */
             addSelectedItemInfo(data: PopsPanelSelectDataOption<any>): void;
             /**
@@ -1129,11 +1127,11 @@ export declare const PanelHandlerComponents: () => {
             /**
              * 从保存的已选中的信息列表中移除目标信息
              * @param data 需要移除的信息
-             * @param [triggerValueChangeCallBack=true] 是否触发值改变的回调
+             * @param [emitValueChangeCallBack=true] 是否触发值改变的回调
              * + true （默认）触发值改变的回调
              * + false 不触发值改变的回调
              */
-            removeSelectedInfo(data: PopsPanelSelectMultipleDataOption<any>, triggerValueChangeCallBack?: boolean): void;
+            removeSelectedInfo(data: PopsPanelSelectMultipleDataOption<any>, emitValueChangeCallBack?: boolean): void;
             /** 显示输入框 */
             showInputWrapper(): void;
             /** 隐藏输入框 */
@@ -1279,7 +1277,7 @@ export declare const PanelHandlerComponents: () => {
      * 主动触发触发渲染右侧容器的事件
      * @param $container 容器
      */
-    triggerRenderRightContainer($container: HTMLElement): void;
+    emitRenderRightContainer($container: HTMLElement): void;
     /**
      *
      * @param viewConfig

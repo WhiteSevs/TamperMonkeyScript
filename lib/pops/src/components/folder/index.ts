@@ -345,15 +345,15 @@ export const PopsFolder = {
         );
         // 设置默认触发的arrow
         if (config.sort.name === "fileName") {
-          popsDOMUtils.trigger(folderListSortFileNameElement, "click", {
+          popsDOMUtils.emit(folderListSortFileNameElement, "click", {
             notChangeSortRule: true,
           });
         } else if (config.sort.name === "latestTime") {
-          popsDOMUtils.trigger(folderListSortLatestTimeElement, "click", {
+          popsDOMUtils.emit(folderListSortLatestTimeElement, "click", {
             notChangeSortRule: true,
           });
         } else if (config.sort.name === "fileSize") {
-          popsDOMUtils.trigger(folderListSortFileSizeElement, "click", {
+          popsDOMUtils.emit(folderListSortFileSizeElement, "click", {
             notChangeSortRule: true,
           });
         }
