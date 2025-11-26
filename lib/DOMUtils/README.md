@@ -28,10 +28,10 @@ nnpm add @whitesev/domutils
 - focus `绑定或触发元素的focus事件`
 - height `获取元素的高度`
 - hide `隐藏元素`
-- hover `当鼠标移入或移出元素时触发事件`
+- onHover `当鼠标移入或移出元素时触发事件`
 - html `获取或设置元素的HTML内容`
-- keydown `当按键按下时触发事件`
-- keyup `当按键松开时触发事件`
+- onKeydown `当按键按下时触发事件`
+- onKeyup `当按键松开时触发事件`
 - next `获取当前元素的后一个兄弟元素`
 - off `取消绑定事件`
 - offset `设置或返回被选元素相对于文档的偏移坐标`
@@ -50,7 +50,7 @@ nnpm add @whitesev/domutils
 - siblings `获取当前元素的所有兄弟元素`
 - text `获取或设置元素的文本内容`
 - toggle `切换元素的显示和隐藏状态`
-- trigger `主动触发事件`
+- emit `主动触发事件`
 - val `获取或设置元素的value属性值`
 - width `获取元素的宽度`
 - wrap `将一个元素包裹在指定的HTML元素中`

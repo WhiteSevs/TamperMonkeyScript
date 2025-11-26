@@ -14,7 +14,7 @@ declare class ElementEvent extends ElementAnimate {
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -28,12 +28,12 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], handler: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -47,13 +47,13 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], handler: (this: HTMLElement, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
      * @param selector 子元素选择器
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -72,13 +72,13 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, handler: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
      * @param selector 子元素选择器
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -97,7 +97,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, handler: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -172,53 +172,53 @@ declare class ElementEvent extends ElementAnimate {
      * 等待文档加载完成后执行指定的函数
      * @param callback 需要执行的函数
      * @example
-     * DOMUtils.ready(function(){
+     * DOMUtils.onReady(function(){
      *   console.log("文档加载完毕")
      * });
      * > "文档加载完毕"
      * @example
-     * await DOMUtils.ready();
+     * await DOMUtils.onReady();
      * console.log("文档加载完毕");
      * > "文档加载完毕"
      */
-    ready(): Promise<void>;
-    ready(callback: (...args: any[]) => any): void;
+    onReady(): Promise<void>;
+    onReady(callback: (...args: any[]) => any): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+     * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
      * @example
      * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
+     * DOMUtils.emit(document.querySelector("a.xx"),"click")
+     * DOMUtils.emit("a.xx","click")
      * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
+     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+     * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    trigger(element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string | string[], details?: object, useDispatchToTriggerEvent?: boolean): void;
+    emit(element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string | string[], details?: object, useDispatchToEmit?: boolean): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
      * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+     * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
      * @example
      * // 触发元素a.xx的click事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click")
-     * DOMUtils.trigger("a.xx","click")
+     * DOMUtils.emit(document.querySelector("a.xx"),"click")
+     * DOMUtils.emit("a.xx","click")
      * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.trigger("a.xx",["click","tap","hover"])
+     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+     * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    trigger(element: Element | string | NodeList | any[] | Window | Document, eventType: DOMUtils_EventType | DOMUtils_EventType[], details?: object, useDispatchToTriggerEvent?: boolean): void;
+    emit(element: Element | string | NodeList | any[] | Window | Document, eventType: DOMUtils_EventType | DOMUtils_EventType[], details?: object, useDispatchToEmit?: boolean): void;
     /**
-     * 绑定或触发元素的click事件
+     * 监听或触发元素的click事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmit （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.click(document.querySelector("a.xx"))
@@ -227,13 +227,13 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
+    click(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: any, useDispatchToEmit?: boolean): void;
     /**
-     * 绑定或触发元素的blur事件
+     * 监听或触发元素的blur事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmit （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的blur事件
      * DOMUtils.blur(document.querySelector("a.xx"))
@@ -242,13 +242,13 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    blur(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmit?: boolean): void;
     /**
-     * 绑定或触发元素的focus事件
+     * 监听或触发元素的focus事件
      * @param element 目标元素
      * @param handler （可选）事件处理函数
      * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToEmit （可选）是否使用dispatchEvent来触发事件,默认true
      * @example
      * // 触发元素a.xx的focus事件
      * DOMUtils.focus(document.querySelector("a.xx"))
@@ -257,7 +257,7 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    focus(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmit?: boolean): void;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -265,30 +265,30 @@ declare class ElementEvent extends ElementAnimate {
      * @param option 配置
      * @example
      * // 监听a.xx元素的移入或移出
-     * DOMUtils.hover(document.querySelector("a.xx"),()=>{
+     * DOMUtils.onHover(document.querySelector("a.xx"),()=>{
      *   console.log("移入/移除");
      * })
-     * DOMUtils.hover("a.xx",()=>{
+     * DOMUtils.onHover("a.xx",()=>{
      *   console.log("移入/移除");
      * })
      */
-    hover(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onHover(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
-     * 当动画结束时触发事件
+     * 监听动画结束
      * @param element 监听的元素
      * @param handler 触发的回调函数
      * @param option 配置项，这里默认配置once为true
      */
-    animationend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+    onAnimationend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
         off(): void;
     } | undefined;
     /**
-     * 当过渡结束时触发事件
+     * 监听过渡结束
      * @param element 监听的元素
      * @param handler 触发的回调函数
      * @param option 配置项，这里默认配置once为true
      */
-    transitionend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+    onTransitionend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
         off(): void;
     } | undefined;
     /**
@@ -306,7 +306,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键松开");
      * })
      */
-    keyup(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeyup(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -322,7 +322,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键按下");
      * })
      */
-    keydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -338,72 +338,90 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键按下");
      * })
      */
-    keypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
-       * 监听某个元素键盘按键事件或window全局按键事件
-       * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
-       * @param element 需要监听的对象，可以是全局Window或者某个元素
-       * @param eventName 事件名，默认keypress
-       * @param callback 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
+     * 监听某个元素键盘按键事件或window全局按键事件
+     * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
+     * @param element 需要监听的对象，可以是全局Window或者某个元素
+     * @param eventName 事件名，默认keypress，keydown - > keypress - > keyup
+     * @param handler 自己定义的回调事件，参数1为当前的key，参数2为组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
        * @param options 监听事件的配置
-       * @example
-          Utils.listenKeyboard(window,(keyName,keyValue,otherKey,event)=>{
-              if(keyName === "Enter"){
-                  console.log("回车按键的值是："+keyValue)
-              }
-              if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
-                  console.log("Ctrl和回车键");
-            }
-          })
-       * @example
-      字母和数字键的键码值(keyCode)
-        按键	键码	按键	键码	按键	键码	按键	键码
-        A	65	J	74	S	83	1	49
-        B	66	K	75	T	84	2	50
-        C	67	L	76	U	85	3	51
-        D	68	M	77	V	86	4	52
-        E	69	N	78	W	87	5	53
-        F	70	O	79	X	88	6	54
-        G	71	P	80	Y	89	7	55
-        H	72	Q	81	Z	90	8	56
-        I	73	R	82	0	48	9	57
-    
-        数字键盘上的键的键码值(keyCode)
-        功能键键码值(keyCode)
-        按键	键码	按键  	键码	按键	键码	按键	键码
-        0	96	8	104	F1	112	F7	118
-        1	97	9	105	F2	113	F8	119
-        2	98	*	106	F3	114	F9	120
-        3	99	+	107	F4	115	F10	121
-        4	100	Enter	108	F5	116	F11	122
-        5	101	-	109	F6	117	F12	123
-        6	102	.	110
-        7	103	/	111
-        
-        控制键键码值(keyCode)
-        按键		键码	按键		键码	按键		键码	按键		键码
-        BackSpace	8	Esc		27	→		39	-_		189
-        Tab		9	Spacebar	32	↓		40	.>		190
-        Clear		12	Page Up		33	Insert		45	/?		191
-        Enter		13	Page Down	34	Delete		46	`~		192
-        Shift		16	End		35	Num Lock	144	[{		219
-        Control		17	Home		36	;:		186	\|		220
-        Alt		18	←		37	=+		187	]}		221
-        Cape Lock	20	↑		38	,<		188	'"		222
-    
-        多媒体键码值(keyCode)
-        按键		键码
-        音量加		175
-        音量减		174
-        停止		179
-        静音		173
-        浏览器		172
-        邮件		180
-        搜索		170
-        收藏		171
-       **/
-    listenKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keyup" | "keypress" | "keydown" | undefined, callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): {
+     * @example
+       Utils.onKeyboard(window,(keyName,keyValue,otherKey,event)=>{
+           if(keyName === "Enter"){
+               console.log("回车按键的值是："+keyValue)
+           }
+           if(otherKey.indexOf("ctrl") && keyName === "Enter" ){
+               console.log("Ctrl和回车键");
+         }
+       })
+     * @example
+       字母和数字键的键码值(keyCode)
+         按键	键码	按键	键码	按键	键码	按键	键码
+         A	65	J	74	S	83	1	49
+         B	66	K	75	T	84	2	50
+         C	67	L	76	U	85	3	51
+         D	68	M	77	V	86	4	52
+         E	69	N	78	W	87	5	53
+         F	70	O	79	X	88	6	54
+         G	71	P	80	Y	89	7	55
+         H	72	Q	81	Z	90	8	56
+         I	73	R	82	0	48	9	57
+     
+         数字键盘上的键的键码值(keyCode)
+         功能键键码值(keyCode)
+         按键	键码	按键  	键码	按键	键码	按键	键码
+         0	96	8	104	F1	112	F7	118
+         1	97	9	105	F2	113	F8	119
+         2	98	*	106	F3	114	F9	120
+         3	99	+	107	F4	115	F10	121
+         4	100	Enter	108	F5	116	F11	122
+         5	101	-	109	F6	117	F12	123
+         6	102	.	110
+         7	103	/	111
+         
+         控制键键码值(keyCode)
+         按键		键码	按键		键码	按键		键码	按键		键码
+         BackSpace	8	Esc		27	→		39	-_		189
+         Tab		9	Spacebar	32	↓		40	.>		190
+         Clear		12	Page Up		33	Insert		45	/?		191
+         Enter		13	Page Down	34	Delete		46	`~		192
+         Shift		16	End		35	Num Lock	144	[{		219
+         Control		17	Home		36	;:		186	\|		220
+         Alt		18	←		37	=+		187	]}		221
+         Cape Lock	20	↑		38	,<		188	'"		222
+     
+         多媒体键码值(keyCode)
+         按键		键码
+         音量加		175
+         音量减		174
+         停止		179
+         静音		173
+         浏览器		172
+         邮件		180
+         搜索		170
+         收藏		171
+      **/
+    onKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keydown" | "keypress" | "keyup" | undefined, handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): {
         removeListen(): void;
+    };
+    /**
+     * 监input、textarea的输入框值改变的事件（当输入法输入时，不会触发该监听）
+     * @param $el 输入框元素
+     * @param handler 回调函数
+     * @param option 配置
+     */
+    onInput($el: HTMLInputElement | HTMLTextAreaElement, handler: (evt: InputEvent) => void | Promise<void>, option?: DOMUtilsEventListenerOption | boolean): {
+        off: () => void;
+    };
+    /**
+     * 双击监听，适配移动端
+     */
+    onDoubleClick($el: DOMUtilsTargetElementType, handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+        off(): void;
+    };
+    onDoubleClick($el: DOMUtilsTargetElementType, selector: string | string[] | undefined | null, handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+        off(): void;
     };
     /**
      * 阻止事件传递

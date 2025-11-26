@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/domutils",
-  "version": "1.7.5",
+  "version": "1.8.0",
   "type": "module",
   "description": "适合在浏览器中操作DOM的常用工具类",
   "main": "dist/index.cjs.js",
@@ -42,23 +42,23 @@
     "worker-timers": "^8.0.25"
   },
   "devDependencies": {
-    "@eslint/js": "^9.38.0",
-    "@rollup/plugin-commonjs": "^28.0.9",
+    "@eslint/js": "^9.39.1",
+    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
-    "browserslist": "^4.27.0",
-    "caniuse-lite": "^1.0.30001751",
-    "eslint": "^9.38.0",
+    "browserslist": "^4.28.0",
+    "caniuse-lite": "^1.0.30001757",
+    "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",
-    "globals": "^16.4.0",
-    "rollup": "^4.52.5",
+    "globals": "^16.5.0",
+    "rollup": "^4.53.3",
     "rollup-plugin-clear": "^2.0.7",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.48.0"
   }
 }

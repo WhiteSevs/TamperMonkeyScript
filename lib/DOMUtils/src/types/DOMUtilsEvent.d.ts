@@ -268,7 +268,7 @@ export declare interface DOMUtilsAddEventListenerResult {
   /**
    * 主动触发事件
    * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+   * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
    */
-  trigger(details?: object, useDispatchToTriggerEvent?: boolean): void;
+  emit(details?: object, useDispatchToEmit?: boolean): void;
 }
