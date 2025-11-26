@@ -94,7 +94,7 @@ const GenerateUserConfig = async (option: {
     isEmptyOutDir = false;
   }
 
-  let VERSION = "0.0.1";
+  let VERSION = "9999.99.99";
   if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
     VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
   }
