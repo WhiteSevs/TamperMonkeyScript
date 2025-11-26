@@ -92,14 +92,14 @@ match-attr##srcid##yx_entity_pc_san
       `);
       const lockFn = new utils.LockFunction(() => {
         BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
-          // 添加过滤按钮
-          BaiduSearchBlockRule.addFilterButton($result);
           const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
           if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
             log.info(["触发自定义规则，屏蔽该搜索结果，url：", url]);
             $result.remove();
             return;
           }
+          // 添加过滤按钮
+          BaiduSearchBlockRule.addFilterButton($result);
         });
       });
       const observer = utils.mutationObserver(document, {
