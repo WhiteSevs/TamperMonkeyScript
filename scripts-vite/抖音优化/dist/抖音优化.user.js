@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.26
+// @version      2025.11.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -5722,6 +5722,10 @@
           const value = data[key].toString();
           fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
         }
+        fileNameTemplate = fileNameTemplate.replaceAll(
+          /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,
+          "_"
+        );
         return fileNameTemplate;
       };
       const callback = ($click) => {
@@ -5775,9 +5779,7 @@
             );
           }
           if (!videoDownloadUrlList.length) {
-            Qmsg.error("未获取到视频的有效链接信息", {
-              consoleLogContent: true,
-            });
+            Qmsg.error("未获取到视频的有效链接信息");
             return;
           }
           let uniqueVideoDownloadUrlList = [];
@@ -5827,7 +5829,7 @@
           });
         } catch (error) {
           log.error(error);
-          Qmsg.error("解析视频失败");
+          Qmsg.error("解析视频失败：" + error.message);
         }
       };
       if ($parseNode) {

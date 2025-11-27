@@ -671,6 +671,10 @@ export const DouYinVideoPlayer = {
         const value = data[key as keyof typeof data].toString();
         fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
       }
+      fileNameTemplate = fileNameTemplate.replaceAll(
+        /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,
+        "_"
+      );
       return fileNameTemplate;
     };
     const callback = ($click: HTMLElement) => {
@@ -755,9 +759,7 @@ export const DouYinVideoPlayer = {
           );
         }
         if (!videoDownloadUrlList.length) {
-          Qmsg.error("未获取到视频的有效链接信息", {
-            consoleLogContent: true,
-          });
+          Qmsg.error("未获取到视频的有效链接信息");
           return;
         }
         // 去重
@@ -811,7 +813,7 @@ export const DouYinVideoPlayer = {
         });
       } catch (error) {
         log.error(error);
-        Qmsg.error("解析视频失败");
+        Qmsg.error("解析视频失败：" + (<Error>error).message);
       }
     };
     if ($parseNode) {
