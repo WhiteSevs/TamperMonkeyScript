@@ -907,6 +907,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   border: 0;
 }
 .pops-panel-select select {
+  width: 100%;
   height: 32px;
   line-height: normal;
   align-content: center;
