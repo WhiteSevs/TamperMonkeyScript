@@ -359,7 +359,7 @@ class PopsUtils {
     try {
       return WorkerSetTimeout(callback, timeout);
     } catch {
-      return PopsCore.setTimeout(callback, timeout);
+      return setTimeout(callback, timeout);
     }
   }
   /**
@@ -373,7 +373,7 @@ class PopsUtils {
     } catch {
       // TODO
     } finally {
-      PopsCore.clearTimeout(timeId);
+      clearTimeout(timeId);
     }
   }
   /**
@@ -383,7 +383,7 @@ class PopsUtils {
     try {
       return WorkerSetInterval(callback, timeout);
     } catch {
-      return PopsCore.setInterval(callback, timeout);
+      return setInterval(callback, timeout);
     }
   }
   /**
@@ -397,7 +397,7 @@ class PopsUtils {
     } catch {
       // 忽略
     } finally {
-      PopsCore.clearInterval(timeId);
+      clearInterval(timeId);
     }
   }
   /**

@@ -1,27 +1,19 @@
-interface PopsCoreOption {
+declare const PopsCoreDefaultEnv: {
     document: Document;
-    window: Window;
+    window: Window & typeof globalThis;
     globalThis: typeof globalThis;
-    self: typeof globalThis;
-    setTimeout: Window["setTimeout"];
-    setInterval: Window["setInterval"];
-    clearTimeout: Window["clearTimeout"];
-    clearInterval: Window["clearInterval"];
-}
+    self: Window & typeof globalThis;
+};
 declare const PopsCore: {
-    init(option?: PopsCoreOption): void;
+    init(option?: typeof PopsCoreDefaultEnv): void;
     readonly document: Document;
-    readonly window: Window;
+    readonly window: Window & typeof globalThis;
     readonly globalThis: typeof globalThis;
-    readonly self: typeof globalThis;
-    readonly setTimeout: (handler: TimerHandler, timeout?: number, ...arguments: any[]) => number;
-    readonly setInterval: (handler: TimerHandler, timeout?: number, ...arguments: any[]) => number;
-    readonly clearTimeout: (id: number | undefined) => void;
-    readonly clearInterval: (id: number | undefined) => void;
+    readonly self: Window & typeof globalThis;
 };
 declare const OriginPrototype: {
     Object: {
         defineProperty: <T>(o: T, p: PropertyKey, attributes: PropertyDescriptor & ThisType<any>) => T;
     };
 };
-export { PopsCoreOption, PopsCore, OriginPrototype };
+export { PopsCore, OriginPrototype };

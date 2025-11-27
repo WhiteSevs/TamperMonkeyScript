@@ -1,29 +1,14 @@
-interface PopsCoreOption {
-  document: Document;
-  window: Window;
-  globalThis: typeof globalThis;
-  self: typeof globalThis;
-  setTimeout: Window["setTimeout"];
-  setInterval: Window["setInterval"];
-  clearTimeout: Window["clearTimeout"];
-  clearInterval: Window["clearInterval"];
-}
-
-const PopsCoreDefaultEnv: PopsCoreOption = {
+const PopsCoreDefaultEnv = {
   document: document,
   window: window,
   globalThis: globalThis,
   self: self,
-  setTimeout: globalThis.setTimeout.bind(globalThis),
-  setInterval: globalThis.setInterval.bind(globalThis),
-  clearTimeout: globalThis.clearTimeout.bind(globalThis),
-  clearInterval: globalThis.clearInterval.bind(globalThis),
 };
 
-const PopsCoreEnv: PopsCoreOption = Object.assign({}, PopsCoreDefaultEnv);
+const PopsCoreEnv = Object.assign({}, PopsCoreDefaultEnv);
 
 const PopsCore = {
-  init(option?: PopsCoreOption) {
+  init(option?: typeof PopsCoreDefaultEnv) {
     if (!option) {
       option = Object.assign({}, PopsCoreDefaultEnv);
     }
@@ -41,18 +26,6 @@ const PopsCore = {
   get self() {
     return PopsCoreEnv.self;
   },
-  get setTimeout() {
-    return PopsCoreEnv.setTimeout;
-  },
-  get setInterval() {
-    return PopsCoreEnv.setInterval;
-  },
-  get clearTimeout() {
-    return PopsCoreEnv.clearTimeout;
-  },
-  get clearInterval() {
-    return PopsCoreEnv.clearInterval;
-  },
 };
 
 const OriginPrototype = {
@@ -61,4 +34,4 @@ const OriginPrototype = {
   },
 };
 
-export { PopsCoreOption, PopsCore, OriginPrototype };
+export { PopsCore, OriginPrototype };
