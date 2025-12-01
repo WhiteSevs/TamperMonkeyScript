@@ -116,6 +116,14 @@ export const GreasyforkRouter = {
     return Boolean(window.location.pathname.match(/\/libraries(\/|)$/));
   },
   /**
+   * 脚本搜索主页面
+   *
+   * + /search
+   */
+  isScriptSearchIndex() {
+    return window.location.pathname.endsWith("/search");
+  },
+  /**
    * 脚本搜索结果页面
    *
    * + /scripts?q=

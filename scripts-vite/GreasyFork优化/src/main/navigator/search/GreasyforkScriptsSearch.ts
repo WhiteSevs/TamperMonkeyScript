@@ -1,4 +1,4 @@
-import { $, DOMUtils, log, pops, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import { GM_getValue, GM_setValue } from "ViteGM";
@@ -16,6 +16,13 @@ const GreasyforkScriptsSearchElement = {
    * 添加控制区域
    */
   addFilterControls($scriptList: HTMLElement) {
+    if (Panel.getValue("beautifyCenterContent")) {
+      addStyle(/*css*/ `
+        .sidebarred .sidebarred-main-content{
+          width: 100%;
+        }
+      `);
+    }
     function getControls() {
       let $el = $<HTMLDivElement>("#gm-script-filter-controls");
       if (!$el) {
@@ -57,31 +64,31 @@ const GreasyforkScriptsSearchElement = {
     shadowRoot.appendChild(
       DOMUtils.createElement("style", {
         innerHTML: /*css*/ `
-                .pops{
-					display: flex;
-					flex-direction: column;
-					gap: 10px;
-					padding: 10px;
-                }
+        .pops{
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 10px;
+        }
 				.pops-filter-controls_inner{
-                    display: flex;
-                    align-items: center;
-                    flex-direction: row;
-                    gap: 10px;
+          display: flex;
+          align-items: center;
+          flex-direction: row;
+          gap: 10px;
 					flex-wrap: wrap;
 				}
-                .pops .gm-script-control-item{
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
+        .pops .gm-script-control-item{
+          display: flex;
+          align-items: center;
+          gap: 10px;
 					width: 150px;
-                }
-                .pops .pops-panel-item-left-main-text{
-                    display: flex;
-                    align-items: center;
-                    margin: 0px;
-                    padding: 0px;
-                }
+        }
+        .pops .pops-panel-item-left-main-text{
+          display: flex;
+          align-items: center;
+          margin: 0px;
+          padding: 0px;
+        }
 				.pops .pops-panel-item-left-desc-text{
 					line-height: normal;
 					margin-top: 6px;
@@ -92,19 +99,18 @@ const GreasyforkScriptsSearchElement = {
 					display: flex;
 					align-items: center;
 					gap: 20px;
-				}
-            `,
+				}`,
       })
     );
-    let $pops = DOMUtils.createElement("div", {
+    const $pops = DOMUtils.createElement("div", {
       className: "pops pops-filter-controls-container",
       innerHTML: /*html*/ `
 				<div class="pops-filter-search-container"></div>
 				<div class="pops-filter-controls_inner"></div>
 			`,
     });
-    let $filterControl = $pops.querySelector<HTMLElement>(".pops-filter-controls_inner")!;
-    let $search = $pops.querySelector<HTMLDivElement>(".pops-filter-search-container")!;
+    const $filterControl = $pops.querySelector<HTMLElement>(".pops-filter-controls_inner")!;
+    const $search = $pops.querySelector<HTMLDivElement>(".pops-filter-search-container")!;
     shadowRoot.appendChild($pops);
     DOMUtils.before($scriptList, $controlsContainer);
     return { $filterControl: $filterControl, $search };

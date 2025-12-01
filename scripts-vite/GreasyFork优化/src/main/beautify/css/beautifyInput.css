@@ -1,6 +1,12 @@
 input[type="search"],
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+/* 高级搜索↓ */
+input#search-total_installs[type="number"],
+input#search-daily_installs[type="number"],
+input#search-ratings[type="number"],
+input#search-created[type="datetime-local"],
+input#search-updated[type="datetime-local"] {
   justify-content: center;
   align-items: center;
   /* line-height: 1; */
@@ -28,19 +34,21 @@ input[type="password"] {
   flex: 1;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
+
+  &:hover {
+    box-shadow: 0 0 0 1px #c0c4cc;
+  }
+  &:focus {
+    outline: 0;
+    border: 1px solid #409eff;
+    border-radius: 4px;
+    box-shadow: none;
+  }
 }
-input[type="search"]:hover,
-input[type="text"]:hover,
-input[type="password"]:hover {
-  box-shadow: 0 0 0 1px #c0c4cc;
-}
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="password"]:focus {
-  outline: 0;
-  border: 1px solid #409eff;
-  border-radius: 4px;
-  box-shadow: none;
+
+/* 首页搜索框右边的搜索按钮 */
+input.search-submit[type="submit"] {
+  height: 100%;
 }
 
 @media (prefers-color-scheme: dark) {

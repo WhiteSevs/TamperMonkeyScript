@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.11.27
+// @version            2025.12.1
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -3102,7 +3102,7 @@
   const beautifyRadioCSS =
     'label.radio-label {\r\n  font-weight: 500;\r\n  position: relative;\r\n  cursor: pointer;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  white-space: normal;\r\n  outline: none;\r\n  font-size: 14px;\r\n  user-select: none;\r\n  margin-right: 32px;\r\n  height: 32px;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  box-sizing: border-box;\r\n}\r\nlabel:has(input[type="radio"]:checked),\r\nlabel:has(input[type="radio"]:checked) a {\r\n  color: #409eff;\r\n}\r\nlabel.radio-label input[type="radio"] {\r\n  margin-right: 4px;\r\n  width: 14px;\r\n  height: 14px;\r\n}\r\nlabel.radio-label input[type="radio"]:checked {\r\n  -webkit-appearance: none;\r\n  -moz-appearance: none;\r\n  appearance: none;\r\n  border-radius: 50%;\r\n  width: 14px;\r\n  height: 14px;\r\n  outline: none;\r\n  border: 4px solid #409eff;\r\n  cursor: pointer;\r\n}\r\nlabel.radio-label input[type="radio"]:checked + span {\r\n  color: #409eff;\r\n}\r\n';
   const beautifyInputCSS =
-    'input[type="search"],\r\ninput[type="text"],\r\ninput[type="password"] {\r\n  justify-content: center;\r\n  align-items: center;\r\n  /* line-height: 1; */\r\n  /* height: 32px; */\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  text-align: center;\r\n  box-sizing: border-box;\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  /* font-weight: 500; */\r\n  user-select: none;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  background-color: transparent;\r\n  border: 0;\r\n  padding: 8px 8px;\r\n  /* font-size: 14px; */\r\n  text-align: start;\r\n  /* width: 100%; */\r\n  flex: 1;\r\n  border: 1px solid #dcdfe6;\r\n  border-radius: 4px;\r\n}\r\ninput[type="search"]:hover,\r\ninput[type="text"]:hover,\r\ninput[type="password"]:hover {\r\n  box-shadow: 0 0 0 1px #c0c4cc;\r\n}\r\ninput[type="search"]:focus,\r\ninput[type="text"]:focus,\r\ninput[type="password"]:focus {\r\n  outline: 0;\r\n  border: 1px solid #409eff;\r\n  border-radius: 4px;\r\n  box-shadow: none;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n}\r\n';
+    'input[type="search"],\r\ninput[type="text"],\r\ninput[type="password"],\r\n/* 高级搜索↓ */\r\ninput#search-total_installs[type="number"],\r\ninput#search-daily_installs[type="number"],\r\ninput#search-ratings[type="number"],\r\ninput#search-created[type="datetime-local"],\r\ninput#search-updated[type="datetime-local"] {\r\n  justify-content: center;\r\n  align-items: center;\r\n  /* line-height: 1; */\r\n  /* height: 32px; */\r\n  white-space: nowrap;\r\n  cursor: text;\r\n  text-align: center;\r\n  box-sizing: border-box;\r\n  outline: 0;\r\n  transition: 0.1s;\r\n  /* font-weight: 500; */\r\n  user-select: none;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  vertical-align: middle;\r\n  -webkit-appearance: none;\r\n  appearance: none;\r\n  background-color: transparent;\r\n  border: 0;\r\n  padding: 8px 8px;\r\n  /* font-size: 14px; */\r\n  text-align: start;\r\n  /* width: 100%; */\r\n  flex: 1;\r\n  border: 1px solid #dcdfe6;\r\n  border-radius: 4px;\r\n\r\n  &:hover {\r\n    box-shadow: 0 0 0 1px #c0c4cc;\r\n  }\r\n  &:focus {\r\n    outline: 0;\r\n    border: 1px solid #409eff;\r\n    border-radius: 4px;\r\n    box-shadow: none;\r\n  }\r\n}\r\n\r\n/* 首页搜索框右边的搜索按钮 */\r\ninput.search-submit[type="submit"] {\r\n  height: 100%;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n}\r\n';
   const beautifyTextAreaCSS =
     "textarea {\r\n  display: block;\r\n  position: relative;\r\n  /*vertical-align: bottom;*/\r\n  position: relative;\r\n  resize: vertical;\r\n  padding: 5px 11px;\r\n  line-height: 1.5;\r\n  box-sizing: border-box;\r\n  width: 100%;\r\n  font-size: inherit;\r\n  font-family: inherit;\r\n  /* color: #606266; */\r\n  background-color: #ffffff;\r\n  background-image: none;\r\n  appearance: none;\r\n  -webkit-appearance: none;\r\n  box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n  border-radius: 4px;\r\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  border: none;\r\n}\r\ntextarea:focus {\r\n  outline: none;\r\n  box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  textarea {\r\n    color: #cfd3dc;\r\n    background-color: transparent;\r\n  }\r\n}\r\n";
   const beautifyUploadImageCSS =
@@ -3153,6 +3153,9 @@
     },
     isScriptLibraryList() {
       return Boolean(window.location.pathname.match(/\/libraries(\/|)$/));
+    },
+    isScriptSearchIndex() {
+      return window.location.pathname.endsWith("/search");
     },
     isScriptSearch() {
       let searchParams = new URLSearchParams(window.location.search);
@@ -6244,6 +6247,15 @@
       return domUtils.waitNode("#browse-script-list", 1e4);
     },
     addFilterControls($scriptList) {
+      if (Panel.getValue("beautifyCenterContent")) {
+        addStyle(
+          `
+        .sidebarred .sidebarred-main-content{
+          width: 100%;
+        }
+      `
+        );
+      }
       function getControls() {
         let $el = $("#gm-script-filter-controls");
         if (!$el) {
@@ -6284,31 +6296,31 @@
       shadowRoot.appendChild(
         domUtils.createElement("style", {
           innerHTML: `
-                .pops{
-					display: flex;
-					flex-direction: column;
-					gap: 10px;
-					padding: 10px;
-                }
+        .pops{
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 10px;
+        }
 				.pops-filter-controls_inner{
-                    display: flex;
-                    align-items: center;
-                    flex-direction: row;
-                    gap: 10px;
+          display: flex;
+          align-items: center;
+          flex-direction: row;
+          gap: 10px;
 					flex-wrap: wrap;
 				}
-                .pops .gm-script-control-item{
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
+        .pops .gm-script-control-item{
+          display: flex;
+          align-items: center;
+          gap: 10px;
 					width: 150px;
-                }
-                .pops .pops-panel-item-left-main-text{
-                    display: flex;
-                    align-items: center;
-                    margin: 0px;
-                    padding: 0px;
-                }
+        }
+        .pops .pops-panel-item-left-main-text{
+          display: flex;
+          align-items: center;
+          margin: 0px;
+          padding: 0px;
+        }
 				.pops .pops-panel-item-left-desc-text{
 					line-height: normal;
 					margin-top: 6px;
@@ -6319,19 +6331,18 @@
 					display: flex;
 					align-items: center;
 					gap: 20px;
-				}
-            `,
+				}`,
         })
       );
-      let $pops = domUtils.createElement("div", {
+      const $pops = domUtils.createElement("div", {
         className: "pops pops-filter-controls-container",
         innerHTML: `
 				<div class="pops-filter-search-container"></div>
 				<div class="pops-filter-controls_inner"></div>
 			`,
       });
-      let $filterControl = $pops.querySelector(".pops-filter-controls_inner");
-      let $search = $pops.querySelector(".pops-filter-search-container");
+      const $filterControl = $pops.querySelector(".pops-filter-controls_inner");
+      const $search = $pops.querySelector(".pops-filter-search-container");
       shadowRoot.appendChild($pops);
       domUtils.before($scriptList, $controlsContainer);
       return { $filterControl, $search };
