@@ -147,6 +147,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "对video的object-fit属性进行覆盖"
                 ),
+                UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false, void 0),
               ],
             },
             {

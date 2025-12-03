@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.27
+// @version      2025.12.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5284,6 +5284,9 @@
       Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
         return this.playbackrate(option.value[1]);
       });
+      Panel.execMenuOnce("dy-video-allowSelectTitleText", () => {
+        return this.allowSelectTitleText();
+      });
       domUtils.onReady(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
@@ -5856,15 +5859,15 @@
         document,
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
-        (event) => {
+        (event, selectorTarget) => {
           domUtils.preventEvent(event);
-          let clickElement = event.target;
-          let rectFiber = utils.getReactInstance(clickElement.parentElement)?.reactFiber;
+          const $click = selectorTarget;
+          const rectFiber = utils.getReactInstance($click.parentElement)?.reactFiber;
           if (!rectFiber) {
             Qmsg.error("获取rectFiber属性失败");
             return;
           }
-          let awemeInfo = rectFiber?.return?.return?.memoizedProps?.awemeInfo;
+          const awemeInfo = rectFiber?.return?.return?.memoizedProps?.awemeInfo;
           if (awemeInfo == null || typeof awemeInfo !== "object") {
             Qmsg.error("获取awemeInfo属性失败");
             return;
@@ -5876,20 +5879,20 @@
             return;
           }
           log.info(`视频链接：` + shareUrl);
+          try {
+            let shareUrlInst = new URL(shareUrl);
+            shareUrlInst.search = "";
+            shareUrl = shareUrlInst.toString();
+            log.info(`去除search参数后的链接：` + shareUrl);
+          } catch {}
           utils.copy(shareUrl).then((copyFlag) => {
             let toast = rectFiber?.return?.return?.memoizedProps?.toast;
             if (copyFlag) {
-              if (typeof toast === "function") {
-                toast("已复制链接");
-              } else {
-                Qmsg.success("已复制链接");
-              }
+              toast = typeof toast === "function" ? toast : Qmsg.success;
+              toast("已复制链接");
             } else {
-              if (typeof toast === "function") {
-                toast("复制链接失败");
-              } else {
-                Qmsg.error("复制链接失败");
-              }
+              toast = typeof toast === "function" ? toast : Qmsg.error;
+              toast("复制链接失败");
             }
           });
         },
@@ -6202,6 +6205,32 @@
           $$("video").forEach(($video) => {
             $video.playbackRate = 1;
           });
+        },
+      ];
+    },
+    allowSelectTitleText() {
+      log.info(`解除视频文案复制限制`);
+      const listener = domUtils.on(
+        document,
+        ["pointerdown", "pointerup"],
+        '.video-info-detail[data-e2e="video-info"] .title[data-e2e="video-desc"]',
+        (evt) => {
+          evt.stopImmediatePropagation();
+          evt.stopPropagation();
+        },
+        { capture: true }
+      );
+      return [
+        addStyle(
+          `
+      .video-info-detail[data-e2e="video-info"] .title[data-e2e="video-desc"]{
+        user-select: all !important;
+        pointer-events: auto !important;
+      }
+      `
+        ),
+        () => {
+          listener.off();
         },
       ];
     },
@@ -11141,6 +11170,7 @@
                     void 0,
                     "对video的object-fit属性进行覆盖"
                   ),
+                  UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
                 ],
               },
               {
