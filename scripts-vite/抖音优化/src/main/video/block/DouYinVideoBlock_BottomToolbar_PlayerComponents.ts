@@ -60,7 +60,7 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   shieldBottomVideoToolBar() {
     log.info("【屏蔽】播放器组件");
     return [
-      CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
+      CommonUtil.addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
       // 修复屏蔽后视频信息区域未沉底
       DouYinVideoPlayer.removeStyleBottom(),
       addStyle(/*css*/ `
@@ -77,7 +77,11 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
    */
   blockPlay() {
     log.info(`【屏蔽】播放`);
-    return CommonUtil.addBlockCSS(".xgplayer-play");
+    return CommonUtil.addBlockCSS(
+      ".xgplayer-play",
+      // 推荐视频中刷出的直播
+      ".douyin-player-controls .douyin-player-play"
+    );
   },
   /**
    * 【屏蔽】播放时长
@@ -122,7 +126,8 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     return CommonUtil.addBlockCSS(
       ".xgplayer-autoplay-setting",
       // 直播视频的
-      '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer'
+      '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer',
+      ".douyin-player-controls .douyin-player-controls-right slot:last-child:not([data-index])"
     );
   },
   /**
@@ -165,7 +170,7 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
    */
   volume() {
     log.info(`【屏蔽】音量`);
-    return CommonUtil.addBlockCSS(".xgplayer-volume");
+    return CommonUtil.addBlockCSS(".xgplayer-volume", ".douyin-player-controls .douyin-player-volume");
   },
   /**
    * 【屏蔽】网页全屏

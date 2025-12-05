@@ -38,7 +38,8 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
       CommonUtil.addBlockCSS(
         "#video-info-wrap",
         // 直播的信息区域
-        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])'
+        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+        '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
       ),
     ];
   },

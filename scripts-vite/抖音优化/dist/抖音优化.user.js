@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.3
+// @version      2025.12.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3465,7 +3465,8 @@
       return [
         CommonUtil.addBlockCSS(
           "#video-info-wrap",
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])'
+          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
         ),
       ];
     },
@@ -3529,7 +3530,10 @@
     },
     blockRefresh() {
       log.info(`【屏蔽】刷新`);
-      return CommonUtil.addBlockCSS('[data-e2e="feed-live"] xg-left-grid .xgplayer-play+.pluginContainer');
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="feed-live"] xg-left-grid .xgplayer-play+.pluginContainer',
+        '.douyin-player-controls div:has(>svg path[d="M24.932 16.444c0-4.687-3.89-8.444-8.634-8.444a8.679 8.679 0 0 0-7.207 3.79v-1.558a.99.99 0 0 0-1.98 0v4.038c0 .547.444.99.99.99h4.038a.99.99 0 0 0 0-1.98h-1.646c1.137-1.963 3.304-3.3 5.804-3.3 3.7 0 6.655 2.918 6.655 6.464 0 3.547-2.956 6.465-6.655 6.465-2.963 0-5.459-1.88-6.326-4.453a.99.99 0 0 0-1.876.633c1.138 3.38 4.39 5.8 8.202 5.8 4.746 0 8.635-3.758 8.635-8.445z"])'
+      );
     },
   };
   const DouYinVideoBlock_Live = {
@@ -3615,7 +3619,7 @@
     shieldBottomVideoToolBar() {
       log.info("【屏蔽】播放器组件");
       return [
-        CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
+        CommonUtil.addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
         DouYinVideoPlayer.removeStyleBottom(),
         addStyle(
           `
@@ -3630,7 +3634,7 @@
     },
     blockPlay() {
       log.info(`【屏蔽】播放`);
-      return CommonUtil.addBlockCSS(".xgplayer-play");
+      return CommonUtil.addBlockCSS(".xgplayer-play", ".douyin-player-controls .douyin-player-play");
     },
     blockTime() {
       log.info(`【屏蔽】播放时长`);
@@ -3656,7 +3660,8 @@
       log.info(`【屏蔽】连播`);
       return CommonUtil.addBlockCSS(
         ".xgplayer-autoplay-setting",
-        '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer'
+        '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer',
+        ".douyin-player-controls .douyin-player-controls-right slot:last-child:not([data-index])"
       );
     },
     clearScreen() {
@@ -3681,7 +3686,7 @@
     },
     volume() {
       log.info(`【屏蔽】音量`);
-      return CommonUtil.addBlockCSS(".xgplayer-volume");
+      return CommonUtil.addBlockCSS(".xgplayer-volume", ".douyin-player-controls .douyin-player-volume");
     },
     pageFullScreen() {
       log.info(`【屏蔽】网页全屏`);
@@ -3833,7 +3838,8 @@
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-play-more"])',
           '.basePlayerContainer div[data-e2e="video-play-more"]',
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])'
+          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
+          '[data-e2e="feed-live"] .douyin-player div:has(>svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])'
         ),
         addStyle(
           `
