@@ -29,4 +29,3 @@ const PanelSettingConfig = {
 };
 
 export { PanelSettingConfig };
-
