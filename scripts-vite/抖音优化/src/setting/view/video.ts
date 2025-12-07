@@ -566,6 +566,29 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
         },
         {
           type: "deepMenu",
+          text: "布局屏蔽-播放器-右键菜单",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          views: [
+            {
+              type: "container",
+              text: AutoOpenOrClose.text,
+              views: [
+                UISwitch("【屏蔽】清屏", "dy-video-player-block-right-menu-clearScreen", false),
+                UISwitch("【屏蔽】评论", "dy-video-player-block-right-menu-comment", false),
+                UISwitch("【屏蔽】赞", "dy-video-player-block-right-menu-like", false),
+                UISwitch("【屏蔽】进入作者主页", "dy-video-player-block-right-menu-enterAuthorHomePage", false),
+                UISwitch("【屏蔽】推荐给朋友", "dy-video-player-block-right-menu-recommendToFriends", false),
+                UISwitch("【屏蔽】分享", "dy-video-player-block-right-menu-share", false),
+                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-notInterested", false),
+                UISwitch("【屏蔽】意见反馈", "dy-video-player-block-right-menu-feedback", false),
+                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-report", false),
+                UISwitch("【屏蔽】进入详情页", "dy-video-player-block-right-menu-enterDetailsPage", false),
+              ],
+            },
+          ],
+        },
+        {
+          type: "deepMenu",
           text: "布局屏蔽-播放器-其它",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
@@ -589,6 +612,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "该元素出现在视频底部的用户名、标题信息的上面"
                 ),
+                UISwitch("【屏蔽】弹幕", "dy-video-blockDanmaku", false),
               ],
             },
           ],

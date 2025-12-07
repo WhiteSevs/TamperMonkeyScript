@@ -1,12 +1,12 @@
-import { Panel } from "@components/setting/panel";
-import { $$, addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import { DouYinVideoPlayer } from "../player/DouYinVideoPlayer";
-import { DouYinVideoBlock_Comment } from "./DouYinVideoBlock_Comment";
-import { DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock_BottomToolbar_videoInfo";
-import { DouYinVideoBlock_Live } from "./DouYinVideoBlock_Live";
 import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "./DouYinVideoBlock_BottomToolbar_PlayerComponents";
+import { DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock_BottomToolbar_videoInfo";
+import { DouYinVideoBlock_Comment } from "./DouYinVideoBlock_Comment";
+import { DouYinVideoBlock_Live } from "./DouYinVideoBlock_Live";
+import { DouYinVideoBlock_RightMenu } from "./DouYinVideoBlock_RightMenu";
 import { DouYinVideoBlock_RightToolbar } from "./DouYinVideoBlock_RightToolbar";
 
 /**
@@ -36,11 +36,15 @@ export const DouYinVideoBlock = {
     Panel.execMenuOnce("dy-video-blockShopInfo", () => {
       return this.blockShopInfo();
     });
+    Panel.execMenuOnce("dy-video-blockDanmaku", () => {
+      return this.blockDanmaku();
+    });
     DouYinVideoBlock_BottomToolbar_videoInfo.init();
     DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
     DouYinVideoBlock_RightToolbar.init();
     DouYinVideoBlock_Comment.init();
     DouYinVideoBlock_Live.init();
+    DouYinVideoBlock_RightMenu.init();
   },
   /**
    * 【屏蔽】右侧的展开评论按钮
@@ -109,7 +113,9 @@ export const DouYinVideoBlock = {
     result.push(
       CommonUtil.addBlockCSS(
         // 2024.7.16
-        '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+        '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])',
+        // 推荐视频 - 直播的左上角关闭按钮
+        'div:has(>svg path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
       )
     );
     if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
@@ -144,5 +150,12 @@ export const DouYinVideoBlock = {
   blockShopInfo() {
     log.info(`【屏蔽】购物信息`);
     return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+  },
+  /**
+   * 【屏蔽】弹幕
+   */
+  blockDanmaku() {
+    log.info(`【屏蔽】弹幕`);
+    return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
   },
 };

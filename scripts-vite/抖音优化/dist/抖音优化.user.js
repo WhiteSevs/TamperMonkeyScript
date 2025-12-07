@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.5
+// @version      2025.12.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3418,156 +3418,6 @@
   };
   const MobileCSS$1 =
     '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100vw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100vh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: 100vh !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
-  const DouYinVideoBlock_Comment = {
-    init() {
-      Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
-        return this.shieldUserCommentToolBar();
-      });
-      Panel.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch", () => {
-        return this.shieldUserCommentEveryOneAllSearch();
-      });
-    },
-    shieldUserCommentToolBar() {
-      log.info("【屏蔽】评论工具栏");
-      return [CommonUtil.addBlockCSS(".comment-input-container")];
-    },
-    shieldUserCommentEveryOneAllSearch() {
-      log.info("【屏蔽】大家都在搜");
-      return [CommonUtil.addBlockCSS(".comment-header-with-search")];
-    },
-  };
-  const DouYinVideoBlock_BottomToolbar_videoInfo = {
-    init() {
-      Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-        return this.shieldVideoInfoWrap();
-      });
-      Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
-        return this.blockClickRecommend();
-      });
-      Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
-        return this.blobkTitleTopTag();
-      });
-      Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
-        return this.shieldVideoUnderTitleTag();
-      });
-      Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
-        return this.blockAIIdentifyTheScreen();
-      });
-      Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
-        return this.blockClickUpdateReminder();
-      });
-      Panel.execMenuOnce("dy-video-blockAuthorDeclaration", () => {
-        return this.blockAuthorDeclaration();
-      });
-    },
-    shieldVideoInfoWrap() {
-      log.info("【屏蔽】视频信息");
-      return [
-        CommonUtil.addBlockCSS(
-          "#video-info-wrap",
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-          '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
-        ),
-      ];
-    },
-    blockClickRecommend() {
-      log.info(`【屏蔽】点击推荐或共xx人推荐`);
-      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
-    },
-    blobkTitleTopTag() {
-      log.info(`【屏蔽】视频标题上的标签`);
-      return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
-    },
-    shieldVideoUnderTitleTag() {
-      log.info(`【屏蔽】视频标题下的标签`);
-      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
-    },
-    blockAIIdentifyTheScreen() {
-      log.info(`【屏蔽】识别画面`);
-      return [
-        CommonUtil.addBlockCSS(
-          '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
-          '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"])'
-        ),
-      ];
-    },
-    blockClickUpdateReminder() {
-      let lockFn = new utils.LockFunction(() => {
-        let $reminder = $$(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
-        if ($reminder.length) {
-          for (const $reminderItem of $reminder) {
-            const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
-            const $videoInfoDetail = $basePlayerContainer?.querySelector(".video-info-detail");
-            if ($videoInfoDetail) {
-              domUtils.css($videoInfoDetail, "paddingBottom", "8px");
-            }
-          }
-          domUtils.remove($reminder);
-          log.success(`【屏蔽】及时接收作品更新提醒`);
-        }
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
-    },
-    blockAuthorDeclaration() {
-      log.info(`【屏蔽】作者声明`);
-      return [CommonUtil.addBlockCSS("div:has(>a.safetyBar)")];
-    },
-  };
-  const DouYinVideoBlock_Live_PlayerCompomemts = {
-    init() {
-      Panel.execMenuOnce("dy-video-live-block-playComponents-refresh", () => {
-        return this.blockRefresh();
-      });
-    },
-    blockRefresh() {
-      log.info(`【屏蔽】刷新`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="feed-live"] xg-left-grid .xgplayer-play+.pluginContainer',
-        '.douyin-player-controls div:has(>svg path[d="M24.932 16.444c0-4.687-3.89-8.444-8.634-8.444a8.679 8.679 0 0 0-7.207 3.79v-1.558a.99.99 0 0 0-1.98 0v4.038c0 .547.444.99.99.99h4.038a.99.99 0 0 0 0-1.98h-1.646c1.137-1.963 3.304-3.3 5.804-3.3 3.7 0 6.655 2.918 6.655 6.464 0 3.547-2.956 6.465-6.655 6.465-2.963 0-5.459-1.88-6.326-4.453a.99.99 0 0 0-1.876.633c1.138 3.38 4.39 5.8 8.202 5.8 4.746 0 8.635-3.758 8.635-8.445z"])'
-      );
-    },
-  };
-  const DouYinVideoBlock_Live = {
-    init() {
-      Panel.execMenuOnce("dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom", () => {
-        return this.tipClickOrKeyboardFEnterLiveRoom();
-      });
-      Panel.execMenuOnce("dy-video-live-block-yellowCar", () => {
-        return this.blockYellowCar();
-      });
-      DouYinVideoBlock_Live_PlayerCompomemts.init();
-    },
-    tipClickOrKeyboardFEnterLiveRoom() {
-      log.info(`【屏蔽】点击或按F进入直播间`);
-      return [
-        CommonUtil.addBlockCSS(
-          '[data-e2e="feed-live"] .douyin-player > a',
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
-          '.search-result-card [data-e2e="basicPlayer"] > a[href]',
-          ".search-result-card .douyin-player > a[href]"
-        ),
-      ];
-    },
-    blockYellowCar() {
-      log.info("【屏蔽】小黄车");
-      return [
-        CommonUtil.addBlockCSS(
-          '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
-          '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
-        ),
-      ];
-    },
-  };
   const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
@@ -3695,6 +3545,250 @@
     fullScreen() {
       log.info(`【屏蔽】进入全屏`);
       return CommonUtil.addBlockCSS(".xgplayer-fullscreen");
+    },
+  };
+  const DouYinVideoBlock_BottomToolbar_videoInfo = {
+    init() {
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+        return this.shieldVideoInfoWrap();
+      });
+      Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
+        return this.blockClickRecommend();
+      });
+      Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
+        return this.blobkTitleTopTag();
+      });
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
+        return this.shieldVideoUnderTitleTag();
+      });
+      Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
+        return this.blockAIIdentifyTheScreen();
+      });
+      Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
+        return this.blockClickUpdateReminder();
+      });
+      Panel.execMenuOnce("dy-video-blockAuthorDeclaration", () => {
+        return this.blockAuthorDeclaration();
+      });
+    },
+    shieldVideoInfoWrap() {
+      log.info("【屏蔽】视频信息");
+      return [
+        CommonUtil.addBlockCSS(
+          "#video-info-wrap",
+          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
+        ),
+      ];
+    },
+    blockClickRecommend() {
+      log.info(`【屏蔽】点击推荐或共xx人推荐`);
+      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+    },
+    blobkTitleTopTag() {
+      log.info(`【屏蔽】视频标题上的标签`);
+      return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
+    },
+    shieldVideoUnderTitleTag() {
+      log.info(`【屏蔽】视频标题下的标签`);
+      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+    },
+    blockAIIdentifyTheScreen() {
+      log.info(`【屏蔽】识别画面`);
+      return [
+        CommonUtil.addBlockCSS(
+          '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
+          '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"])'
+        ),
+      ];
+    },
+    blockClickUpdateReminder() {
+      let lockFn = new utils.LockFunction(() => {
+        let $reminder = $$(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
+        if ($reminder.length) {
+          for (const $reminderItem of $reminder) {
+            const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
+            const $videoInfoDetail = $basePlayerContainer?.querySelector(".video-info-detail");
+            if ($videoInfoDetail) {
+              domUtils.css($videoInfoDetail, "paddingBottom", "8px");
+            }
+          }
+          domUtils.remove($reminder);
+          log.success(`【屏蔽】及时接收作品更新提醒`);
+        }
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+    },
+    blockAuthorDeclaration() {
+      log.info(`【屏蔽】作者声明`);
+      return [CommonUtil.addBlockCSS("div:has(>a.safetyBar)")];
+    },
+  };
+  const DouYinVideoBlock_Comment = {
+    init() {
+      Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
+        return this.shieldUserCommentToolBar();
+      });
+      Panel.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch", () => {
+        return this.shieldUserCommentEveryOneAllSearch();
+      });
+    },
+    shieldUserCommentToolBar() {
+      log.info("【屏蔽】评论工具栏");
+      return [CommonUtil.addBlockCSS(".comment-input-container")];
+    },
+    shieldUserCommentEveryOneAllSearch() {
+      log.info("【屏蔽】大家都在搜");
+      return [CommonUtil.addBlockCSS(".comment-header-with-search")];
+    },
+  };
+  const DouYinVideoBlock_Live_PlayerCompomemts = {
+    init() {
+      Panel.execMenuOnce("dy-video-live-block-playComponents-refresh", () => {
+        return this.blockRefresh();
+      });
+    },
+    blockRefresh() {
+      log.info(`【屏蔽】刷新`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="feed-live"] xg-left-grid .xgplayer-play+.pluginContainer',
+        '.douyin-player-controls div:has(>svg path[d="M24.932 16.444c0-4.687-3.89-8.444-8.634-8.444a8.679 8.679 0 0 0-7.207 3.79v-1.558a.99.99 0 0 0-1.98 0v4.038c0 .547.444.99.99.99h4.038a.99.99 0 0 0 0-1.98h-1.646c1.137-1.963 3.304-3.3 5.804-3.3 3.7 0 6.655 2.918 6.655 6.464 0 3.547-2.956 6.465-6.655 6.465-2.963 0-5.459-1.88-6.326-4.453a.99.99 0 0 0-1.876.633c1.138 3.38 4.39 5.8 8.202 5.8 4.746 0 8.635-3.758 8.635-8.445z"])'
+      );
+    },
+  };
+  const DouYinVideoBlock_Live = {
+    init() {
+      Panel.execMenuOnce("dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom", () => {
+        return this.tipClickOrKeyboardFEnterLiveRoom();
+      });
+      Panel.execMenuOnce("dy-video-live-block-yellowCar", () => {
+        return this.blockYellowCar();
+      });
+      DouYinVideoBlock_Live_PlayerCompomemts.init();
+    },
+    tipClickOrKeyboardFEnterLiveRoom() {
+      log.info(`【屏蔽】点击或按F进入直播间`);
+      return [
+        CommonUtil.addBlockCSS(
+          '[data-e2e="feed-live"] .douyin-player > a',
+          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
+          '.search-result-card [data-e2e="basicPlayer"] > a[href]',
+          ".search-result-card .douyin-player > a[href]"
+        ),
+      ];
+    },
+    blockYellowCar() {
+      log.info("【屏蔽】小黄车");
+      return [
+        CommonUtil.addBlockCSS(
+          '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
+          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
+          '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
+        ),
+      ];
+    },
+  };
+  const DouYinVideoBlock_RightMenu = {
+    init() {
+      Panel.execMenuOnce("dy-video-player-block-right-menu-clearScreen", () => {
+        return this.clearScreen();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-comment", () => {
+        return this.comment();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-like", () => {
+        return this.like();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-enterAuthorHomePage", () => {
+        return this.enterAuthorHomePage();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-recommendToFriends", () => {
+        return this.recommendToFriends();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-share", () => {
+        return this.share();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-notInterested", () => {
+        return this.notInterested();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-feedback", () => {
+        return this.feedback();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-report", () => {
+        return this.report();
+      });
+      Panel.execMenuOnce("dy-video-player-block-right-menu-enterDetailsPage", () => {
+        return this.enterDetailsPage();
+      });
+    },
+    clearScreen() {
+      log.info(`【屏蔽】清屏`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(1):not([data-danmu-id])'
+      );
+    },
+    comment() {
+      log.info(`【屏蔽】评论`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(2):not([data-danmu-id])'
+      );
+    },
+    like() {
+      log.info(`【屏蔽】赞`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(3):not([data-danmu-id])'
+      );
+    },
+    enterAuthorHomePage() {
+      log.info(`【屏蔽】进入作者主页`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(4):not([data-danmu-id])'
+      );
+    },
+    recommendToFriends() {
+      log.info(`【屏蔽】推荐给朋友`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(5):not([data-danmu-id])'
+      );
+    },
+    share() {
+      log.info(`【屏蔽】分享`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(6):not([data-danmu-id])'
+      );
+    },
+    notInterested() {
+      log.info(`【屏蔽】不感兴趣`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(7):not([data-danmu-id])'
+      );
+    },
+    feedback() {
+      log.info(`【屏蔽】意见反馈`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(8):not([data-danmu-id])'
+      );
+    },
+    report() {
+      log.info(`【屏蔽】举报`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(9):not([data-danmu-id])'
+      );
+    },
+    enterDetailsPage() {
+      log.info(`【屏蔽】进入详情页`);
+      return CommonUtil.addBlockCSS(
+        '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"] > *:nth-child(10):not([data-danmu-id])'
+      );
     },
   };
   const DouYinVideoBlock_RightToolbar = {
@@ -3876,11 +3970,15 @@
       Panel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
+      Panel.execMenuOnce("dy-video-blockDanmaku", () => {
+        return this.blockDanmaku();
+      });
       DouYinVideoBlock_BottomToolbar_videoInfo.init();
       DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
       DouYinVideoBlock_Live.init();
+      DouYinVideoBlock_RightMenu.init();
     },
     shieldRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
@@ -3934,7 +4032,8 @@
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+          '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])',
+          'div:has(>svg path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
@@ -3963,6 +4062,10 @@
     blockShopInfo() {
       log.info(`【屏蔽】购物信息`);
       return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+    },
+    blockDanmaku() {
+      log.info(`【屏蔽】弹幕`);
+      return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
     },
   };
   class ShortCut {
@@ -11594,6 +11697,29 @@
           },
           {
             type: "deepMenu",
+            text: "布局屏蔽-播放器-右键菜单",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            views: [
+              {
+                type: "container",
+                text: AutoOpenOrClose.text,
+                views: [
+                  UISwitch("【屏蔽】清屏", "dy-video-player-block-right-menu-clearScreen", false),
+                  UISwitch("【屏蔽】评论", "dy-video-player-block-right-menu-comment", false),
+                  UISwitch("【屏蔽】赞", "dy-video-player-block-right-menu-like", false),
+                  UISwitch("【屏蔽】进入作者主页", "dy-video-player-block-right-menu-enterAuthorHomePage", false),
+                  UISwitch("【屏蔽】推荐给朋友", "dy-video-player-block-right-menu-recommendToFriends", false),
+                  UISwitch("【屏蔽】分享", "dy-video-player-block-right-menu-share", false),
+                  UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-notInterested", false),
+                  UISwitch("【屏蔽】意见反馈", "dy-video-player-block-right-menu-feedback", false),
+                  UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-report", false),
+                  UISwitch("【屏蔽】进入详情页", "dy-video-player-block-right-menu-enterDetailsPage", false),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
             text: "布局屏蔽-播放器-其它",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
@@ -11617,6 +11743,7 @@
                     void 0,
                     "该元素出现在视频底部的用户名、标题信息的上面"
                   ),
+                  UISwitch("【屏蔽】弹幕", "dy-video-blockDanmaku", false),
                 ],
               },
             ],
