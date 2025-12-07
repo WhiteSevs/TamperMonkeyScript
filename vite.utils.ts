@@ -533,17 +533,6 @@ const LIB_MAP = {
       );
     },
   },
-  "Element-Plus": {
-    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.js"),
-    url: async () => {
-      // return await viteUtils.getGreasyForkLibLatestVersionUrl(495227);
-      return await viteUtils.getGitHubLibLatestVersionUrl(
-        "WhiteSevs/TamperMonkeyScript",
-        "master",
-        "/lib/Element-Plus/index.js"
-      );
-    },
-  },
   QRCode: {
     localPath: "file:///" + viteUtils.getAbsolutePath("./lib/QRCode/index.umd.js"),
     url: async () => {
