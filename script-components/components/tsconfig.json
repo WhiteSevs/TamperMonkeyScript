@@ -1,10 +1,10 @@
 {
-  "extends": "./../../script-components/components/base.tsconfig.json",
+  "extends": "./base.tsconfig.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
       "@lib/*": ["./../../lib/*"],
-      "@components/*": ["./../../script-components/components/src/*"]
+      "@components/*": ["./src/*"]
     }
   },
   "references": [
@@ -12,5 +12,5 @@
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": ["src", "types", "./../../script-components/components/types/*.d.ts"]
+  "include": ["src", "types"]
 }
