@@ -29,22 +29,22 @@ type OwnMonkeyOption = {
     /**
      * 本地化的meta文件
      *
-     * 如果设置false，则不创建该文件
+     * 如果设置`false`，则不创建该文件
      * @default true
      */
     metaLocalFileName?: string | boolean | ((fileName: string) => string);
     /**
-     * 前提条件，设置了 metaLocalFileName
+     * 前提条件，设置了 `metaLocalFileName`
      *
-     * 将@require的库使用本地引入，用于在.meta.local.user.js
+     * 将`@require`的库使用本地引入，用于在`.meta.local.user.js`
      * @example
      * ["@whitesev/utils","file:///..."]
      */
     externalGlobalsLocal?: Record<string, string>;
     /**
-     * 前提条件，设置了 metaLocalFileName
+     * 前提条件，设置了 `metaLocalFileName`
      *
-     * 将@resource的库使用本地引入，用于在.meta.local.user.js
+     * 将`@resource`的库使用本地引入，用于在`.meta.local.user.js`
      * @example
      * ["ElementPlusResourceCSS","file:///..."]
      */
@@ -129,9 +129,6 @@ const GenerateUserConfig = async (option: {
     },
     showdown: {
       local: await GetLib("showdown", true),
-    },
-    "Element-Plus": {
-      local: await GetLib("Element-Plus", true),
     },
   };
   /**
@@ -413,9 +410,7 @@ const GenerateUserConfig = async (option: {
             `https://fastly.jsdelivr.net/npm/${pkg.name}@${pkg.version}}/dist/index.css`,
         },
         externalGlobals: {
-          vue: cdn
-            .jsdelivrFastly("Vue", "dist/vue.global.prod.js")
-            .concat(util.dataUrl(";window.Vue||=Vue;")),
+          vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js").concat(util.dataUrl(";window.Vue||=Vue;")),
           "vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
           pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
           "vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
