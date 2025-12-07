@@ -1,8 +1,7 @@
 import { type UserConfig, type Plugin } from "vite";
-import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
+import monkey, { cdn, util, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
 import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
-// @ts-ignore
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
@@ -414,16 +413,13 @@ const GenerateUserConfig = async (option: {
             `https://fastly.jsdelivr.net/npm/${pkg.name}@${pkg.version}}/dist/index.css`,
         },
         externalGlobals: {
-          vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
+          vue: cdn
+            .jsdelivrFastly("Vue", "dist/vue.global.prod.js")
+            .concat(util.dataUrl(";window.Vue||=Vue;")),
           "vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
           pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
           "vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
-          "element-plus": [
-            "ElementPlus",
-            await (async () => {
-              return await GetLib("Element-Plus");
-            })(),
-          ],
+          "element-plus": cdn.jsdelivrFastly("ElementPlus", "dist/index.full.min.js"),
           "@element-plus/icons-vue": cdn.jsdelivrFastly("ElementPlusIconsVue", "dist/index.iife.min.js"),
         },
       },
