@@ -1,14 +1,14 @@
 <script lang="ts" setup>
   // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-  import Posts from "./components/Posts.vue";
-  import FollowForum from "./components/FollowForum.vue";
-  import { ArrowLeft, QuestionFilled, Plus, Message, CopyDocument, ArrowRight, Check } from "@element-plus/icons-vue";
   import { $, DOMUtils, log, utils } from "@/env";
-  import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
-  import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
+  import { ArrowRight, Check, CopyDocument, Message, Plus, QuestionFilled } from "@element-plus/icons-vue";
   import { ElMessage, ElMessageBox } from "element-plus";
-  import { TiebaRouter } from "./router";
   import Qmsg from "qmsg";
+  import { ref, watch } from "vue";
+  import FollowForum from "./components/FollowForum.vue";
+  import Posts from "./components/Posts.vue";
+  import { UserInfo } from "./data/TiebaHomeData";
+  import { TiebaRouter } from "./router";
 
   const props = defineProps<{
     UserData: UserInfo;

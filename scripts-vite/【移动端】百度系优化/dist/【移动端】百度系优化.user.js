@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.27
+// @version      2025.12.7
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -19,12 +19,13 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.25/dist/vue.global.prod.js
+// @require      data:application/javascript,%3Bwindow.Vue%7C%7C%3DVue%3B
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.6.3/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@e8d2467899b48d9f69b3e7f2d185f3ae32c600a5/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/npm/element-plus@2.12.0/dist/index.full.min.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.11.8/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.12.0/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -73,7 +74,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-41f50a7a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-41f50a7a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-41f50a7a]{font-weight:700}.posts-item-title[data-v-41f50a7a],.posts-item-content[data-v-41f50a7a],.posts-item-media-container[data-v-41f50a7a]{margin:10px 0}.posts-item-footer[data-v-41f50a7a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-41f50a7a]{text-align:center}.posts-item-footer-icon-container[data-v-41f50a7a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-41f50a7a]{padding:0 10px}.follow-forum-container[data-v-9f65e55d]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-9f65e55d]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-9f65e55d]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-9f65e55d]{border-radius:12px}.follow-forum-item-right-container[data-v-9f65e55d]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-9f65e55d]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-9f65e55d]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v0ae5f27b);color:var(--v384f0200)}.follow-forum-item-level[data-level="0"][data-v-9f65e55d],.follow-forum-item-level[data-level="1"][data-v-9f65e55d],.follow-forum-item-level[data-level="2"][data-v-9f65e55d],.follow-forum-item-level[data-level="3"][data-v-9f65e55d]{background:var(--b2383e38)}.follow-forum-item-level[data-level="4"][data-v-9f65e55d],.follow-forum-item-level[data-level="5"][data-v-9f65e55d],.follow-forum-item-level[data-level="6"][data-v-9f65e55d],.follow-forum-item-level[data-level="7"][data-v-9f65e55d],.follow-forum-item-level[data-level="8"][data-v-9f65e55d],.follow-forum-item-level[data-level="9"][data-v-9f65e55d]{background:var(--b2382024)}.follow-forum-item-level[data-level="10"][data-v-9f65e55d],.follow-forum-item-level[data-level="11"][data-v-9f65e55d],.follow-forum-item-level[data-level="12"][data-v-9f65e55d],.follow-forum-item-level[data-level="13"][data-v-9f65e55d],.follow-forum-item-level[data-level="14"][data-v-9f65e55d],.follow-forum-item-level[data-level="15"][data-v-9f65e55d]{background:var(--v7d689d44)}.follow-forum-item-level[data-level="16"][data-v-9f65e55d],.follow-forum-item-level[data-level="17"][data-v-9f65e55d],.follow-forum-item-level[data-level="18"][data-v-9f65e55d]{background:var(--v7d6b5781)}.follow-forum-item-info[data-v-9f65e55d]{word-wrap:break-word}#main[data-v-08dab6d1]{z-index:1000;width:100%;height:100%}.big-text[data-v-08dab6d1]{font-weight:700}.top-container[data-v-08dab6d1]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-08dab6d1]{width:100%;height:100px}.user-info-bg-main[data-v-08dab6d1]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-08dab6d1]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-08dab6d1]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-783d336f]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-783d336f]{align-content:center;padding-left:0!important}.top-title-name[data-v-783d336f]{text-align:center;padding:10px}.user-main[data-v-783d336f]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-783d336f]{padding:0 10px}.user-container .el-scrollbar__view[data-v-783d336f]{height:100%}.user-item[data-v-783d336f]{margin:10px 0}.user-item-row[data-v-783d336f]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-783d336f]{padding:0 10px}.user-name[data-v-783d336f],.user-sign-text[data-v-783d336f]{text-align:left}.user-sign-text[data-v-783d336f]{color:#a2a2a2}.user-follow-btn[data-v-783d336f]{float:right}.user-info[data-v-783d336f]{display:grid}.user-item-row-left[data-v-783d336f]{display:flex}.user-item-row-right[data-v-783d336f]{float:right}.user-top[data-v-b315e76a]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b315e76a]{align-content:center;padding-left:0!important}.top-title-name[data-v-b315e76a]{text-align:center;padding:10px}.user-main[data-v-b315e76a]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b315e76a]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b315e76a]{height:100%}.user-item[data-v-b315e76a]{margin:10px 0}.user-item-row[data-v-b315e76a]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b315e76a]{padding:0 10px;align-content:center}.user-name[data-v-b315e76a],.user-sign-text[data-v-b315e76a]{text-align:left}.user-sign-text[data-v-b315e76a]{color:#a2a2a2}.user-follow-btn[data-v-b315e76a]{float:right}.user-info[data-v-b315e76a]{display:grid}.user-item-row-left[data-v-b315e76a]{display:flex}.user-item-row-right[data-v-b315e76a]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-552236f6]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-552236f6]:last-child{border-bottom:0}.user-info[data-v-552236f6]{display:flex;align-items:center;gap:5px}.user-time[data-v-552236f6]{font-size:.8em;color:#999}.user-avatar img[data-v-552236f6]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-552236f6]{font-size:.9em;color:#4a4a4a}.post-info[data-v-552236f6]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-552236f6]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-552236f6]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-552236f6]{width:100px;height:100px}.post-image img[data-v-552236f6]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-552236f6]{color:#999}.bottom-msg[data-v-552236f6]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-2b71b42f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-2b71b42f]:last-child{border-bottom:0}.user-info[data-v-2b71b42f]{display:flex;align-items:center;gap:5px}.user-time[data-v-2b71b42f]{font-size:.8em;color:#999}.user-avatar img[data-v-2b71b42f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-2b71b42f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-2b71b42f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-2b71b42f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-2b71b42f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-2b71b42f]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-2b71b42f]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-2b71b42f]{width:100px;height:100px}.post-image img[data-v-2b71b42f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-2b71b42f]{color:#999}.bottom-msg[data-v-2b71b42f],.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
+    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-661335ab]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.follow-forum-container[data-v-9f65e55d]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-9f65e55d]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-9f65e55d]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-9f65e55d]{border-radius:12px}.follow-forum-item-right-container[data-v-9f65e55d]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-9f65e55d]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-9f65e55d]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v0ae5f27b);color:var(--v384f0200)}.follow-forum-item-level[data-level="0"][data-v-9f65e55d],.follow-forum-item-level[data-level="1"][data-v-9f65e55d],.follow-forum-item-level[data-level="2"][data-v-9f65e55d],.follow-forum-item-level[data-level="3"][data-v-9f65e55d]{background:var(--b2383e38)}.follow-forum-item-level[data-level="4"][data-v-9f65e55d],.follow-forum-item-level[data-level="5"][data-v-9f65e55d],.follow-forum-item-level[data-level="6"][data-v-9f65e55d],.follow-forum-item-level[data-level="7"][data-v-9f65e55d],.follow-forum-item-level[data-level="8"][data-v-9f65e55d],.follow-forum-item-level[data-level="9"][data-v-9f65e55d]{background:var(--b2382024)}.follow-forum-item-level[data-level="10"][data-v-9f65e55d],.follow-forum-item-level[data-level="11"][data-v-9f65e55d],.follow-forum-item-level[data-level="12"][data-v-9f65e55d],.follow-forum-item-level[data-level="13"][data-v-9f65e55d],.follow-forum-item-level[data-level="14"][data-v-9f65e55d],.follow-forum-item-level[data-level="15"][data-v-9f65e55d]{background:var(--v7d689d44)}.follow-forum-item-level[data-level="16"][data-v-9f65e55d],.follow-forum-item-level[data-level="17"][data-v-9f65e55d],.follow-forum-item-level[data-level="18"][data-v-9f65e55d]{background:var(--v7d6b5781)}.follow-forum-item-info[data-v-9f65e55d]{word-wrap:break-word}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-41f50a7a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-41f50a7a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-41f50a7a]{font-weight:700}.posts-item-title[data-v-41f50a7a],.posts-item-content[data-v-41f50a7a],.posts-item-media-container[data-v-41f50a7a]{margin:10px 0}.posts-item-footer[data-v-41f50a7a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-41f50a7a]{text-align:center}.posts-item-footer-icon-container[data-v-41f50a7a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-41f50a7a]{padding:0 10px}#main[data-v-9840ce4d]{z-index:1000;width:100%;height:100%}.big-text[data-v-9840ce4d]{font-weight:700}.top-container[data-v-9840ce4d]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-9840ce4d]{width:100%;height:100px}.user-info-bg-main[data-v-9840ce4d]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-9840ce4d]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-9840ce4d]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-783d336f]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-783d336f]{align-content:center;padding-left:0!important}.top-title-name[data-v-783d336f]{text-align:center;padding:10px}.user-main[data-v-783d336f]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-783d336f]{padding:0 10px}.user-container .el-scrollbar__view[data-v-783d336f]{height:100%}.user-item[data-v-783d336f]{margin:10px 0}.user-item-row[data-v-783d336f]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-783d336f]{padding:0 10px}.user-name[data-v-783d336f],.user-sign-text[data-v-783d336f]{text-align:left}.user-sign-text[data-v-783d336f]{color:#a2a2a2}.user-follow-btn[data-v-783d336f]{float:right}.user-info[data-v-783d336f]{display:grid}.user-item-row-left[data-v-783d336f]{display:flex}.user-item-row-right[data-v-783d336f]{float:right}.user-top[data-v-b315e76a]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b315e76a]{align-content:center;padding-left:0!important}.top-title-name[data-v-b315e76a]{text-align:center;padding:10px}.user-main[data-v-b315e76a]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b315e76a]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b315e76a]{height:100%}.user-item[data-v-b315e76a]{margin:10px 0}.user-item-row[data-v-b315e76a]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b315e76a]{padding:0 10px;align-content:center}.user-name[data-v-b315e76a],.user-sign-text[data-v-b315e76a]{text-align:left}.user-sign-text[data-v-b315e76a]{color:#a2a2a2}.user-follow-btn[data-v-b315e76a]{float:right}.user-info[data-v-b315e76a]{display:grid}.user-item-row-left[data-v-b315e76a]{display:flex}.user-item-row-right[data-v-b315e76a]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-552236f6]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-552236f6]:last-child{border-bottom:0}.user-info[data-v-552236f6]{display:flex;align-items:center;gap:5px}.user-time[data-v-552236f6]{font-size:.8em;color:#999}.user-avatar img[data-v-552236f6]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-552236f6]{font-size:.9em;color:#4a4a4a}.post-info[data-v-552236f6]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-552236f6]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-552236f6]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-552236f6]{width:100px;height:100px}.post-image img[data-v-552236f6]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-552236f6]{color:#999}.bottom-msg[data-v-552236f6]{text-align:center;color:#999;padding:10px 0}.post-list-item[data-v-2b71b42f]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef}.post-list-item[data-v-2b71b42f]:last-child{border-bottom:0}.user-info[data-v-2b71b42f]{display:flex;align-items:center;gap:5px}.user-time[data-v-2b71b42f]{font-size:.8em;color:#999}.user-avatar img[data-v-2b71b42f]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-2b71b42f]{font-size:.9em;color:#4a4a4a}.post-info[data-v-2b71b42f]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-2b71b42f]{display:flex;align-items:center;height:100px;width:100%}.post-content[data-v-2b71b42f]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-info[data-v-2b71b42f]:has(.quote-user){flex-direction:column;align-items:start;padding:10px;gap:10px}.post-info:has(.quote-user) .post-content[data-v-2b71b42f]{flex:1;align-content:center;padding:0 10px;margin-left:0;background:#fff;height:inherit}.post-image[data-v-2b71b42f]{width:100px;height:100px}.post-image img[data-v-2b71b42f]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-2b71b42f]{color:#999}.bottom-msg[data-v-2b71b42f],.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -82,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-DhHNuvgT.js"(exports$1, module) {
+    "entrance-CIhkvlb2.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -3737,38 +3738,28 @@
       };
       const MbdShieldCSS = `div.headDeflectorContainer,\r
 #bdrainrwDragButton,\r
-#page_wrapper .other div[class*='undefined'],\r
+#page_wrapper .other div[class*="undefined"],\r
 #page_wrapper .other > div[class=""],\r
-/* 底部按钮-百度APP内播放 */\r
-div.common-wrap.single-pd,\r
-/* 顶部横幅-APP内播放 */\r
-div#app div.guid-new,\r
-/* 顶部横幅-APP内阅读 */\r
-#headDeflectorContainer,\r
-/* 底部 打开百度APP，阅读体验更佳 */\r
-#page_wrapper div[class^="foldMaskWrapper-"],\r
-/* 打开百度APP，阅读完整内容 */\r
-#content_wrapper .foldMaskWrapper,\r
-/* 影响定位元素的遮罩层 */\r
-#page_wrapper .bdboxshare>div:first-child,\r
-/* 来百度APP畅享高清图片 */\r
-.contentMedia .openImg,\r
-/* 精彩推荐右边的 打开APP看更多精彩推荐 */\r
-div[class*="relateTitle"] span[class*="subTitle"],\r
-/* 会自动在上面弹出的【百度热榜】 */\r
-#page_wrapper div:has(>div[class*="leftbox"]),\r
-/* dtlandingwise 右上角 App内打开 */\r
-.fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\r
+/* 底部按钮-百度APP内播放 */ div.common-wrap.single-pd,\r
+/* 顶部横幅-APP内播放 */ div#app div.guid-new,\r
+/* 顶部横幅-APP内阅读 */ #headDeflectorContainer,\r
+/* 底部 打开百度APP，阅读体验更佳 */ #page_wrapper div[class^="foldMaskWrapper-"],\r
+/* 打开百度APP，阅读完整内容 */ #content_wrapper .foldMaskWrapper,\r
+/* 影响定位元素的遮罩层 */ #page_wrapper .bdboxshare > div:first-child,\r
+/* 来百度APP畅享高清图片 */ .contentMedia .openImg,\r
+/* 精彩推荐右边的 打开APP看更多精彩推荐 */ div[class*="relateTitle"] span[class*="subTitle"],\r
+/* 会自动在上面弹出的【百度热榜】 */ #page_wrapper div:has(> div[class*="leftbox"]),\r
+/* dtlandingwise 右上角 App内打开 */ .fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\r
 /* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\r
-.fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,\r
-/* landingsuper 文章内容的展开的蒙板 */\r
-#mainContentContainer .oPadding,\r
-/* 底部的广告 */\r
-[class^="adsContainer-"],\r
-/* 弹窗 打开百度App弹窗 */\r
-[class^="alertModalContainer-"],\r
-/* 视频下面的广告推荐 */\r
-#hcgContainer > div:has([data-log-view*='"isAds":true']) {\r
+  .fusionWrapper\r
+  [class^="recoConatainer_"]\r
+  > [class^="titleBar_"]\r
+  [class^="right_"]\r
+  > span:first-child,\r
+/* landingsuper 文章内容的展开的蒙板 */ #mainContentContainer .oPadding,\r
+/* 底部的广告 */ [class^="adsContainer-"],\r
+/* 弹窗 打开百度App弹窗 */ [class^="alertModalContainer-"],\r
+/* 视频下面的广告推荐 */ #hcgContainer > div:has([data-log-view*='"isAds":true']) {\r
   display: none !important;\r
 }\r
 /* 展开阅读 */\r
@@ -16507,6 +16498,15 @@ div[class^="new-summary-container_"] {\r
             resetFilter: "Reset",
             clearFilter: "All",
             sumText: "Sum",
+            selectAllLabel: "Select all rows",
+            selectRowLabel: "Select this row",
+            expandRowLabel: "Expand this row",
+            collapseRowLabel: "Collapse this row",
+            sortLabel: "Sort by {column}",
+            filterLabel: "Filter by {column}",
+          },
+          tag: {
+            close: "Close this tag",
           },
           tour: {
             next: "Next",
@@ -16763,7 +16763,7 @@ div[class^="new-summary-container_"] {\r
         }
       };
       function addUnit(value, defaultUnit = "px") {
-        if (!value) return "";
+        if (!value && value !== 0) return "";
         if (isNumber(value) || isStringNumber(value)) {
           return `${value}${defaultUnit}`;
         } else if (isString$1(value)) {
@@ -16849,9 +16849,10 @@ div[class^="new-summary-container_"] {\r
           const ns = useNamespace("icon");
           const style = vue.computed(() => {
             const { size, color } = props;
-            if (!size && !color) return {};
+            const fontSize = addUnit(size);
+            if (!fontSize && !color) return {};
             return {
-              fontSize: isUndefined(size) ? void 0 : addUnit(size),
+              fontSize,
               "--color": color,
             };
           });
@@ -16965,9 +16966,17 @@ div[class^="new-summary-container_"] {\r
       const useFormDisabled = (fallback) => {
         const disabled = useProp("disabled");
         const form = vue.inject(formContextKey, void 0);
-        return vue.computed(
-          () => disabled.value || vue.unref(fallback) || (form == null ? void 0 : form.disabled) || false
-        );
+        return vue.computed(() => {
+          var _a2, _b, _c;
+          return (_c =
+            (_b = (_a2 = disabled.value) != null ? _a2 : vue.unref(fallback)) != null
+              ? _b
+              : form == null
+                ? void 0
+                : form.disabled) != null
+            ? _c
+            : false;
+        });
       };
       const isHTMLElement = (e) => {
         if (typeof Element === "undefined") return false;
@@ -17374,8 +17383,10 @@ div[class^="new-summary-container_"] {\r
           const barRef = vue.ref();
           const wrapStyle = vue.computed(() => {
             const style = {};
-            if (props.height) style.height = addUnit(props.height);
-            if (props.maxHeight) style.maxHeight = addUnit(props.maxHeight);
+            const height = addUnit(props.height);
+            const maxHeight = addUnit(props.maxHeight);
+            if (height) style.height = height;
+            if (maxHeight) style.maxHeight = maxHeight;
             return [props.wrapStyle, style];
           });
           const wrapKls = vue.computed(() => {
@@ -18039,6 +18050,8 @@ div[class^="new-summary-container_"] {\r
               forwardRef.value.removeEventListener("focusout", onFocusOut);
               forwardRef.value = void 0;
             }
+            lastFocusBeforeTrapped = null;
+            lastFocusAfterTrapped = null;
           });
           return {
             onKeydown,
@@ -18134,7 +18147,7 @@ div[class^="new-summary-container_"] {\r
             const { size } = props;
             return isNumber(size)
               ? ns.cssVarBlock({
-                  size: addUnit(size) || "",
+                  size: addUnit(size),
                 })
               : void 0;
           });
@@ -18436,7 +18449,10 @@ div[class^="new-summary-container_"] {\r
       const buttonNativeTypes = ["button", "submit", "reset"];
       const buttonProps = buildProps({
         size: useSizeProp,
-        disabled: Boolean,
+        disabled: {
+          type: Boolean,
+          default: void 0,
+        },
         type: {
           type: String,
           values: buttonTypes,
@@ -19587,6 +19603,11 @@ div[class^="new-summary-container_"] {\r
       const buttonGroupProps = {
         size: buttonProps.size,
         type: buttonProps.type,
+        direction: {
+          type: definePropType(String),
+          values: ["horizontal", "vertical"],
+          default: "horizontal",
+        },
       };
       const __default__$i = vue.defineComponent({
         name: "ElButtonGroup",
@@ -19610,7 +19631,7 @@ div[class^="new-summary-container_"] {\r
               vue.createElementBlock(
                 "div",
                 {
-                  class: vue.normalizeClass(vue.unref(ns).b("group")),
+                  class: vue.normalizeClass([vue.unref(ns).b("group"), vue.unref(ns).bm("group", props.direction)]),
                 },
                 [vue.renderSlot(_ctx.$slots, "default")],
                 2
@@ -20670,8 +20691,29 @@ div[class^="new-summary-container_"] {\r
               };
             });
             const removeMousemove = useEventListener(document, "mousemove", dragHandler);
-            useEventListener(document, "mouseup", () => {
+            const removeMouseup = useEventListener(document, "mouseup", () => {
               removeMousemove();
+              removeMouseup();
+            });
+            e.preventDefault();
+          }
+          function handleTouchStart(e) {
+            if (loading.value || !wrapper.value || e.touches.length !== 1) return;
+            transform.value.enableTransition = false;
+            const { offsetX, offsetY } = transform.value;
+            const { pageX: startX, pageY: startY } = e.touches[0];
+            const dragHandler = throttle((ev) => {
+              const targetTouch = ev.touches[0];
+              transform.value = {
+                ...transform.value,
+                offsetX: offsetX + targetTouch.pageX - startX,
+                offsetY: offsetY + targetTouch.pageY - startY,
+              };
+            });
+            const removeTouchmove = useEventListener(document, "touchmove", dragHandler);
+            const removeTouchend = useEventListener(document, "touchend", () => {
+              removeTouchmove();
+              removeTouchend();
             });
             e.preventDefault();
           }
@@ -21069,6 +21111,7 @@ div[class^="new-summary-container_"] {\r
                                                 onLoad: handleImgLoad,
                                                 onError: handleImgError,
                                                 onMousedown: handleMouseDown,
+                                                onTouchstart: handleTouchStart,
                                               },
                                               null,
                                               46,
@@ -22144,6 +22187,13 @@ div[class^="new-summary-container_"] {\r
           const ns = useNamespace("tabs");
           const barRef = vue.ref();
           const barStyle = vue.ref();
+          const renderActiveBar = vue.computed(() => {
+            var _a2;
+            return (
+              isUndefined(rootTabs.props.defaultValue) ||
+              Boolean((_a2 = barStyle.value) == null ? void 0 : _a2.transform)
+            );
+          });
           const getBarStyle = () => {
             let offset = 0;
             let tabSize = 0;
@@ -22200,23 +22250,24 @@ div[class^="new-summary-container_"] {\r
             update,
           });
           return (_ctx, _cache) => {
-            return (
-              vue.openBlock(),
-              vue.createElementBlock(
-                "div",
-                {
-                  ref_key: "barRef",
-                  ref: barRef,
-                  class: vue.normalizeClass([
-                    vue.unref(ns).e("active-bar"),
-                    vue.unref(ns).is(vue.unref(rootTabs).props.tabPosition),
-                  ]),
-                  style: vue.normalizeStyle(barStyle.value),
-                },
-                null,
-                6
-              )
-            );
+            return vue.unref(renderActiveBar)
+              ? (vue.openBlock(),
+                vue.createElementBlock(
+                  "div",
+                  {
+                    key: 0,
+                    ref_key: "barRef",
+                    ref: barRef,
+                    class: vue.normalizeClass([
+                      vue.unref(ns).e("active-bar"),
+                      vue.unref(ns).is(vue.unref(rootTabs).props.tabPosition),
+                    ]),
+                    style: vue.normalizeStyle(barStyle.value),
+                  },
+                  null,
+                  6
+                ))
+              : vue.createCommentVNode("v-if", true);
           };
         },
       });
@@ -22594,6 +22645,9 @@ div[class^="new-summary-container_"] {\r
         modelValue: {
           type: [String, Number],
         },
+        defaultValue: {
+          type: [String, Number],
+        },
         editable: Boolean,
         tabPosition: {
           type: String,
@@ -22634,7 +22688,9 @@ div[class^="new-summary-container_"] {\r
             ChildrenSorter: PanesSorter,
           } = useOrderedChildren(vue.getCurrentInstance(), "ElTabPane");
           const nav$ = vue.ref();
-          const currentName = vue.ref((_a2 = props.modelValue) != null ? _a2 : "0");
+          const currentName = vue.ref(
+            (_a2 = isUndefined(props.modelValue) ? props.defaultValue : props.modelValue) != null ? _a2 : "0"
+          );
           const setCurrentName = async (value, trigger = false) => {
             var _a22, _b, _c, _d;
             if (currentName.value === value || isUndefined(value)) return;
@@ -24832,7 +24888,7 @@ div[class^="new-summary-container_"] {\r
         ".el-main{--el-main-padding:20px;box-sizing:border-box;display:block;flex:1;flex-basis:auto;overflow:auto;padding:var(--el-main-padding)}";
       importCSS(elMainCss);
       const elTabsCss =
-        '.el-tabs{--el-tabs-header-height:40px;display:flex}.el-tabs__header{align-items:center;display:flex;justify-content:space-between;margin:0 0 15px;padding:0;position:relative}.el-tabs__header-vertical{flex-direction:column}.el-tabs__active-bar{background-color:var(--el-color-primary);bottom:0;height:2px;left:0;list-style:none;position:absolute;transition:width var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),transform var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier);z-index:1}.el-tabs__new-tab{align-items:center;border:1px solid var(--el-border-color);border-radius:3px;color:var(--el-text-color-primary);cursor:pointer;display:flex;flex-shrink:0;font-size:12px;height:20px;justify-content:center;line-height:20px;margin:10px 0 10px 10px;text-align:center;transition:all .15s;width:20px}.el-tabs__new-tab .is-icon-plus{height:inherit;transform:scale(.8);width:inherit}.el-tabs__new-tab .is-icon-plus svg{vertical-align:middle}.el-tabs__new-tab:hover{color:var(--el-color-primary)}.el-tabs__new-tab-vertical{margin-left:0}.el-tabs__nav-wrap{flex:1 auto;margin-bottom:-1px;overflow:hidden;position:relative}.el-tabs__nav-wrap:after{background-color:var(--el-border-color-light);bottom:0;content:"";height:2px;left:0;position:absolute;width:100%;z-index:var(--el-index-normal)}.el-tabs__nav-wrap.is-scrollable{box-sizing:border-box;padding:0 20px}.el-tabs__nav-scroll{overflow:hidden}.el-tabs__nav-next,.el-tabs__nav-prev{color:var(--el-text-color-secondary);cursor:pointer;font-size:12px;line-height:44px;position:absolute;text-align:center;width:20px}.el-tabs__nav-next{right:0}.el-tabs__nav-prev{left:0}.el-tabs__nav{display:flex;float:left;position:relative;transition:transform var(--el-transition-duration);white-space:nowrap;z-index:calc(var(--el-index-normal) + 1)}.el-tabs__nav.is-stretch{display:flex;min-width:100%}.el-tabs__nav.is-stretch>*{flex:1;text-align:center}.el-tabs__item{align-items:center;box-sizing:border-box;color:var(--el-text-color-primary);display:flex;font-size:var(--el-font-size-base);font-weight:500;height:var(--el-tabs-header-height);justify-content:center;list-style:none;padding:0 20px;position:relative}.el-tabs__item:focus,.el-tabs__item:focus:active{outline:none}.el-tabs__item:focus-visible{border-radius:3px;box-shadow:0 0 2px 2px var(--el-color-primary) inset}.el-tabs__item .is-icon-close{border-radius:50%;margin-left:5px;text-align:center;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs__item .is-icon-close:before{display:inline-block;transform:scale(.9)}.el-tabs__item .is-icon-close:hover{background-color:var(--el-text-color-placeholder);color:#fff}.el-tabs__item.is-active{color:var(--el-color-primary)}.el-tabs__item:hover{color:var(--el-color-primary);cursor:pointer}.el-tabs__item.is-disabled{color:var(--el-disabled-text-color);cursor:not-allowed}.el-tabs__content{flex-grow:1;overflow:hidden;position:relative}.el-tabs--bottom>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:0}.el-tabs--bottom>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top>.el-tabs__header .el-tabs__item:last-child{padding-right:0}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:20px}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:last-child{padding-right:20px}.el-tabs--card>.el-tabs__header{border-bottom:1px solid var(--el-border-color-light);box-sizing:border-box;height:var(--el-tabs-header-height)}.el-tabs--card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--card>.el-tabs__header .el-tabs__nav{border:1px solid var(--el-border-color-light);border-bottom:none;border-radius:4px 4px 0 0;box-sizing:border-box}.el-tabs--card>.el-tabs__header .el-tabs__active-bar{display:none}.el-tabs--card>.el-tabs__header .el-tabs__item .is-icon-close{font-size:12px;height:14px;overflow:hidden;position:relative;right:-2px;transform-origin:100% 50%;width:0}.el-tabs--card>.el-tabs__header .el-tabs__item{border-bottom:1px solid transparent;border-left:1px solid var(--el-border-color-light);margin-top:-1px;transition:color var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),padding var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--card>.el-tabs__header .el-tabs__item:first-child{border-left:none}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover{padding-left:13px;padding-right:13px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover .is-icon-close{width:14px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active{border-bottom-color:var(--el-bg-color)}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable{padding-left:20px;padding-right:20px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable .is-icon-close{width:14px}.el-tabs--border-card{background:var(--el-bg-color-overlay);border:1px solid var(--el-border-color)}.el-tabs--border-card>.el-tabs__content{padding:15px}.el-tabs--border-card>.el-tabs__header{background-color:var(--el-fill-color-light);border-bottom:1px solid var(--el-border-color-light);margin:0}.el-tabs--border-card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--border-card>.el-tabs__header .el-tabs__item{border:1px solid transparent;color:var(--el-text-color-secondary);margin-top:-1px;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--border-card>.el-tabs__header .el-tabs__item:first-child{margin-left:-1px}.el-tabs--border-card>.el-tabs__header .el-tabs__item+.el-tabs__item{margin-left:-1px}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{background-color:var(--el-bg-color-overlay);border-left-color:var(--el-border-color);border-right-color:var(--el-border-color);color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item:not(.is-disabled):hover{color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-disabled{color:var(--el-disabled-text-color)}.el-tabs--border-card>.el-tabs__header .is-scrollable .el-tabs__item:first-child{margin-left:0}.el-tabs--bottom{flex-direction:column}.el-tabs--bottom .el-tabs__header.is-bottom{margin-bottom:0;margin-top:10px}.el-tabs--bottom.el-tabs--border-card .el-tabs__header.is-bottom{border-bottom:0;border-top:1px solid var(--el-border-color)}.el-tabs--bottom.el-tabs--border-card .el-tabs__nav-wrap.is-bottom{margin-bottom:0;margin-top:-1px}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom:not(.is-active){border:1px solid transparent}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom{margin:0 -1px -1px}.el-tabs--left,.el-tabs--right{overflow:hidden}.el-tabs--left .el-tabs__header.is-left,.el-tabs--left .el-tabs__header.is-right,.el-tabs--left .el-tabs__nav-scroll,.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__header.is-left,.el-tabs--right .el-tabs__header.is-right,.el-tabs--right .el-tabs__nav-scroll,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{height:100%}.el-tabs--left .el-tabs__active-bar.is-left,.el-tabs--left .el-tabs__active-bar.is-right,.el-tabs--right .el-tabs__active-bar.is-left,.el-tabs--right .el-tabs__active-bar.is-right{bottom:auto;height:auto;top:0;width:2px}.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{margin-bottom:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{cursor:pointer;height:30px;line-height:30px;text-align:center;width:100%}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i{transform:rotate(90deg)}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{left:auto;top:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next{bottom:0;right:auto}.el-tabs--left .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--left .el-tabs__nav-wrap.is-right.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-right.is-scrollable{padding:30px 0}.el-tabs--left .el-tabs__nav-wrap.is-left:after,.el-tabs--left .el-tabs__nav-wrap.is-right:after,.el-tabs--right .el-tabs__nav-wrap.is-left:after,.el-tabs--right .el-tabs__nav-wrap.is-right:after{bottom:auto;height:100%;top:0;width:2px}.el-tabs--left .el-tabs__nav.is-left,.el-tabs--left .el-tabs__nav.is-right,.el-tabs--right .el-tabs__nav.is-left,.el-tabs--right .el-tabs__nav.is-right{flex-direction:column}.el-tabs--left .el-tabs__item.is-left,.el-tabs--right .el-tabs__item.is-left{justify-content:flex-end}.el-tabs--left .el-tabs__item.is-right,.el-tabs--right .el-tabs__item.is-right{justify-content:flex-start}.el-tabs--left{flex-direction:row}.el-tabs--left .el-tabs__header.is-left{margin-bottom:0;margin-right:10px}.el-tabs--left .el-tabs__nav-wrap.is-left{margin-right:-1px}.el-tabs--left .el-tabs__nav-wrap.is-left:after{left:auto;right:0}.el-tabs--left .el-tabs__active-bar.is-left{left:auto;right:0}.el-tabs--left .el-tabs__item.is-left{text-align:right}.el-tabs--left.el-tabs--card .el-tabs__active-bar.is-left{display:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left{border-bottom:none;border-left:none;border-right:1px solid var(--el-border-color-light);border-top:1px solid var(--el-border-color-light);text-align:left}.el-tabs--left.el-tabs--card .el-tabs__item.is-left:first-child{border-right:1px solid var(--el-border-color-light);border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:none;border-right:1px solid #fff}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:first-child{border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:last-child{border-bottom:none}.el-tabs--left.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-radius:4px 0 0 4px;border-right:none}.el-tabs--left.el-tabs--card .el-tabs__new-tab{float:none}.el-tabs--left.el-tabs--border-card .el-tabs__header.is-left{border-right:1px solid var(--el-border-color)}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left{border:1px solid transparent;margin:-1px 0 -1px -1px}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--left>.el-tabs__content+.el-tabs__header{order:-1}.el-tabs--right .el-tabs__header.is-right{margin-bottom:0;margin-left:10px}.el-tabs--right .el-tabs__nav-wrap.is-right{margin-left:-1px}.el-tabs--right .el-tabs__nav-wrap.is-right:after{left:0;right:auto}.el-tabs--right .el-tabs__active-bar.is-right{left:0}.el-tabs--right.el-tabs--card .el-tabs__active-bar.is-right{display:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right{border-bottom:none;border-top:1px solid var(--el-border-color-light)}.el-tabs--right.el-tabs--card .el-tabs__item.is-right:first-child{border-left:1px solid var(--el-border-color-light);border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:1px solid #fff;border-right:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:first-child{border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:last-child{border-bottom:none}.el-tabs--right.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-left:none;border-radius:0 4px 4px 0}.el-tabs--right.el-tabs--border-card .el-tabs__header.is-right{border-left:1px solid var(--el-border-color)}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right{border:1px solid transparent;margin:-1px -1px -1px 0}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--top{flex-direction:column}.el-tabs--top>.el-tabs__content+.el-tabs__header{order:-1}.slideInLeft-transition,.slideInRight-transition{display:inline-block}.slideInRight-enter{animation:slideInRight-enter var(--el-transition-duration)}.slideInRight-leave{animation:slideInRight-leave var(--el-transition-duration);left:0;position:absolute;right:0}.slideInLeft-enter{animation:slideInLeft-enter var(--el-transition-duration)}.slideInLeft-leave{animation:slideInLeft-leave var(--el-transition-duration);left:0;position:absolute;right:0}@keyframes slideInRight-enter{0%{opacity:0;transform:translate(100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInRight-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(100%);transform-origin:0 0}}@keyframes slideInLeft-enter{0%{opacity:0;transform:translate(-100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInLeft-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(-100%);transform-origin:0 0}}';
+        '.el-tabs{--el-tabs-header-height:40px;display:flex}.el-tabs__header{align-items:center;display:flex;justify-content:space-between;margin:0 0 15px;padding:0;position:relative}.el-tabs__header-vertical{flex-direction:column}.el-tabs__active-bar{background-color:var(--el-color-primary);bottom:0;height:2px;left:0;list-style:none;position:absolute;transition:width var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),transform var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier);z-index:1}.el-tabs__active-bar.is-bottom{bottom:auto}.el-tabs__new-tab{align-items:center;border:1px solid var(--el-border-color);border-radius:3px;color:var(--el-text-color-primary);cursor:pointer;display:flex;flex-shrink:0;font-size:12px;height:20px;justify-content:center;line-height:20px;margin:10px 0 10px 10px;text-align:center;transition:all .15s;width:20px}.el-tabs__new-tab .is-icon-plus{height:inherit;transform:scale(.8);width:inherit}.el-tabs__new-tab .is-icon-plus svg{vertical-align:middle}.el-tabs__new-tab:hover{color:var(--el-color-primary)}.el-tabs__new-tab-vertical{margin-left:0}.el-tabs__nav-wrap{flex:1 auto;margin-bottom:-1px;overflow:hidden;position:relative}.el-tabs__nav-wrap:after{background-color:var(--el-border-color-light);bottom:0;content:"";height:2px;left:0;position:absolute;width:100%;z-index:var(--el-index-normal)}.el-tabs__nav-wrap.is-bottom:after{bottom:auto;top:0}.el-tabs__nav-wrap.is-scrollable{box-sizing:border-box;padding:0 20px}.el-tabs__nav-scroll{overflow:hidden}.el-tabs__nav-next,.el-tabs__nav-prev{color:var(--el-text-color-secondary);cursor:pointer;font-size:12px;line-height:44px;position:absolute;text-align:center;width:20px}.el-tabs__nav-next{right:0}.el-tabs__nav-prev{left:0}.el-tabs__nav{display:flex;float:left;position:relative;transition:transform var(--el-transition-duration);white-space:nowrap;z-index:calc(var(--el-index-normal) + 1)}.el-tabs__nav.is-stretch{display:flex;min-width:100%}.el-tabs__nav.is-stretch>*{flex:1;text-align:center}.el-tabs__item{align-items:center;box-sizing:border-box;color:var(--el-text-color-primary);display:flex;font-size:var(--el-font-size-base);font-weight:500;height:var(--el-tabs-header-height);justify-content:center;list-style:none;padding:0 20px;position:relative}.el-tabs__item:focus,.el-tabs__item:focus:active{outline:none}.el-tabs__item:focus-visible{border-radius:3px;box-shadow:0 0 2px 2px var(--el-color-primary) inset}.el-tabs__item .is-icon-close{border-radius:50%;margin-left:5px;text-align:center;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs__item .is-icon-close:before{display:inline-block;transform:scale(.9)}.el-tabs__item .is-icon-close:hover{background-color:var(--el-text-color-placeholder);color:#fff}.el-tabs__item.is-active{color:var(--el-color-primary)}.el-tabs__item:hover{color:var(--el-color-primary);cursor:pointer}.el-tabs__item.is-disabled{color:var(--el-disabled-text-color);cursor:not-allowed}.el-tabs__content{flex-grow:1;overflow:hidden;position:relative}.el-tabs--bottom>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:0}.el-tabs--bottom>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top>.el-tabs__header .el-tabs__item:last-child{padding-right:0}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:nth-child(2),.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:nth-child(2){padding-left:20px}.el-tabs--bottom.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--bottom.el-tabs--card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--border-card>.el-tabs__header .el-tabs__item:last-child,.el-tabs--top.el-tabs--card>.el-tabs__header .el-tabs__item:last-child{padding-right:20px}.el-tabs--card>.el-tabs__header{border-bottom:1px solid var(--el-border-color-light);box-sizing:border-box;height:var(--el-tabs-header-height)}.el-tabs--card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--card>.el-tabs__header .el-tabs__nav{border:1px solid var(--el-border-color-light);border-bottom:none;border-radius:4px 4px 0 0;box-sizing:border-box}.el-tabs--card>.el-tabs__header .el-tabs__active-bar{display:none}.el-tabs--card>.el-tabs__header .el-tabs__item .is-icon-close{font-size:12px;height:14px;overflow:hidden;position:relative;right:-2px;transform-origin:100% 50%;width:0}.el-tabs--card>.el-tabs__header .el-tabs__item{border-bottom:1px solid transparent;border-left:1px solid var(--el-border-color-light);margin-top:-1px;transition:color var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier),padding var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--card>.el-tabs__header .el-tabs__item:first-child{border-left:none}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover{padding-left:13px;padding-right:13px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-closable:hover .is-icon-close{width:14px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active{border-bottom-color:var(--el-bg-color)}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable{padding-left:20px;padding-right:20px}.el-tabs--card>.el-tabs__header .el-tabs__item.is-active.is-closable .is-icon-close{width:14px}.el-tabs--border-card{background:var(--el-bg-color-overlay);border:1px solid var(--el-border-color)}.el-tabs--border-card>.el-tabs__content{padding:15px}.el-tabs--border-card>.el-tabs__header{background-color:var(--el-fill-color-light);border-bottom:1px solid var(--el-border-color-light);margin:0}.el-tabs--border-card>.el-tabs__header .el-tabs__nav-wrap:after{content:none}.el-tabs--border-card>.el-tabs__header .el-tabs__item{border:1px solid transparent;color:var(--el-text-color-secondary);margin-top:-1px;transition:all var(--el-transition-duration) var(--el-transition-function-ease-in-out-bezier)}.el-tabs--border-card>.el-tabs__header .el-tabs__item:first-child{margin-left:-1px}.el-tabs--border-card>.el-tabs__header .el-tabs__item+.el-tabs__item{margin-left:-1px}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-active{background-color:var(--el-bg-color-overlay);border-left-color:var(--el-border-color);border-right-color:var(--el-border-color);color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item:not(.is-disabled):hover{color:var(--el-color-primary)}.el-tabs--border-card>.el-tabs__header .el-tabs__item.is-disabled{color:var(--el-disabled-text-color)}.el-tabs--border-card>.el-tabs__header .is-scrollable .el-tabs__item:first-child{margin-left:0}.el-tabs--bottom{flex-direction:column}.el-tabs--bottom .el-tabs__header.is-bottom{margin-bottom:0;margin-top:10px}.el-tabs--bottom.el-tabs--border-card .el-tabs__header.is-bottom{border-bottom:0;border-top:1px solid var(--el-border-color)}.el-tabs--bottom.el-tabs--border-card .el-tabs__nav-wrap.is-bottom{margin-bottom:0;margin-top:-1px}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom:not(.is-active){border:1px solid transparent}.el-tabs--bottom.el-tabs--border-card .el-tabs__item.is-bottom{margin:0 -1px -1px}.el-tabs--left,.el-tabs--right{overflow:hidden}.el-tabs--left .el-tabs__header.is-left,.el-tabs--left .el-tabs__header.is-right,.el-tabs--left .el-tabs__nav-scroll,.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__header.is-left,.el-tabs--right .el-tabs__header.is-right,.el-tabs--right .el-tabs__nav-scroll,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{height:100%}.el-tabs--left .el-tabs__active-bar.is-left,.el-tabs--left .el-tabs__active-bar.is-right,.el-tabs--right .el-tabs__active-bar.is-left,.el-tabs--right .el-tabs__active-bar.is-right{bottom:auto;height:auto;top:0;width:2px}.el-tabs--left .el-tabs__nav-wrap.is-left,.el-tabs--left .el-tabs__nav-wrap.is-right,.el-tabs--right .el-tabs__nav-wrap.is-left,.el-tabs--right .el-tabs__nav-wrap.is-right{margin-bottom:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{cursor:pointer;height:30px;line-height:30px;text-align:center;width:100%}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next i,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev i{transform:rotate(90deg)}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-prev,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-prev{left:auto;top:0}.el-tabs--left .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--left .el-tabs__nav-wrap.is-right>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-left>.el-tabs__nav-next,.el-tabs--right .el-tabs__nav-wrap.is-right>.el-tabs__nav-next{bottom:0;right:auto}.el-tabs--left .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--left .el-tabs__nav-wrap.is-right.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-left.is-scrollable,.el-tabs--right .el-tabs__nav-wrap.is-right.is-scrollable{padding:30px 0}.el-tabs--left .el-tabs__nav-wrap.is-left:after,.el-tabs--left .el-tabs__nav-wrap.is-right:after,.el-tabs--right .el-tabs__nav-wrap.is-left:after,.el-tabs--right .el-tabs__nav-wrap.is-right:after{bottom:auto;height:100%;top:0;width:2px}.el-tabs--left .el-tabs__nav.is-left,.el-tabs--left .el-tabs__nav.is-right,.el-tabs--right .el-tabs__nav.is-left,.el-tabs--right .el-tabs__nav.is-right{flex-direction:column}.el-tabs--left .el-tabs__item.is-left,.el-tabs--right .el-tabs__item.is-left{justify-content:flex-end}.el-tabs--left .el-tabs__item.is-right,.el-tabs--right .el-tabs__item.is-right{justify-content:flex-start}.el-tabs--left{flex-direction:row}.el-tabs--left .el-tabs__header.is-left{margin-bottom:0;margin-right:10px}.el-tabs--left .el-tabs__nav-wrap.is-left{margin-right:-1px}.el-tabs--left .el-tabs__nav-wrap.is-left:after{left:auto;right:0}.el-tabs--left .el-tabs__active-bar.is-left{left:auto;right:0}.el-tabs--left .el-tabs__item.is-left{text-align:right}.el-tabs--left.el-tabs--card .el-tabs__active-bar.is-left{display:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left{border-bottom:none;border-left:none;border-right:1px solid var(--el-border-color-light);border-top:1px solid var(--el-border-color-light);text-align:left}.el-tabs--left.el-tabs--card .el-tabs__item.is-left:first-child{border-right:1px solid var(--el-border-color-light);border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:none;border-right:1px solid #fff}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:first-child{border-top:none}.el-tabs--left.el-tabs--card .el-tabs__item.is-left.is-active:last-child{border-bottom:none}.el-tabs--left.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-radius:4px 0 0 4px;border-right:none}.el-tabs--left.el-tabs--card .el-tabs__new-tab{float:none}.el-tabs--left.el-tabs--border-card .el-tabs__header.is-left{border-right:1px solid var(--el-border-color)}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left{border:1px solid transparent;margin:-1px 0 -1px -1px}.el-tabs--left.el-tabs--border-card .el-tabs__item.is-left.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--left>.el-tabs__content+.el-tabs__header{order:-1}.el-tabs--right .el-tabs__header.is-right{margin-bottom:0;margin-left:10px}.el-tabs--right .el-tabs__nav-wrap.is-right{margin-left:-1px}.el-tabs--right .el-tabs__nav-wrap.is-right:after{left:0;right:auto}.el-tabs--right .el-tabs__active-bar.is-right{left:0}.el-tabs--right.el-tabs--card .el-tabs__active-bar.is-right{display:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right{border-bottom:none;border-top:1px solid var(--el-border-color-light)}.el-tabs--right.el-tabs--card .el-tabs__item.is-right:first-child{border-left:1px solid var(--el-border-color-light);border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active{border:1px solid var(--el-border-color-light);border-bottom:none;border-left:1px solid #fff;border-right:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:first-child{border-top:none}.el-tabs--right.el-tabs--card .el-tabs__item.is-right.is-active:last-child{border-bottom:none}.el-tabs--right.el-tabs--card .el-tabs__nav{border-bottom:1px solid var(--el-border-color-light);border-left:none;border-radius:0 4px 4px 0}.el-tabs--right.el-tabs--border-card .el-tabs__header.is-right{border-left:1px solid var(--el-border-color)}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right{border:1px solid transparent;margin:-1px -1px -1px 0}.el-tabs--right.el-tabs--border-card .el-tabs__item.is-right.is-active{border-color:rgb(209,219,229) transparent}.el-tabs--top{flex-direction:column}.el-tabs--top>.el-tabs__content+.el-tabs__header{order:-1}.slideInLeft-transition,.slideInRight-transition{display:inline-block}.slideInRight-enter{animation:slideInRight-enter var(--el-transition-duration)}.slideInRight-leave{animation:slideInRight-leave var(--el-transition-duration);left:0;position:absolute;right:0}.slideInLeft-enter{animation:slideInLeft-enter var(--el-transition-duration)}.slideInLeft-leave{animation:slideInLeft-leave var(--el-transition-duration);left:0;position:absolute;right:0}@keyframes slideInRight-enter{0%{opacity:0;transform:translate(100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInRight-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(100%);transform-origin:0 0}}@keyframes slideInLeft-enter{0%{opacity:0;transform:translate(-100%);transform-origin:0 0}to{opacity:1;transform:translate(0);transform-origin:0 0}}@keyframes slideInLeft-leave{0%{opacity:1;transform:translate(0);transform-origin:0 0}to{opacity:0;transform:translate(-100%);transform-origin:0 0}}';
       importCSS(elTabsCss);
       const elSpaceCss =
         ".el-space{display:inline-flex;vertical-align:top}.el-space__item{display:flex;flex-wrap:wrap}.el-space__item>*{flex:1}.el-space--vertical{flex-direction:column}";
@@ -24849,12 +24905,6 @@ div[class^="new-summary-container_"] {\r
       const elBacktopCss =
         ".el-backtop{--el-backtop-bg-color:var(--el-bg-color-overlay);--el-backtop-text-color:var(--el-color-primary);--el-backtop-hover-bg-color:var(--el-border-color-extra-light);align-items:center;background-color:var(--el-backtop-bg-color);border-radius:50%;box-shadow:var(--el-box-shadow-lighter);color:var(--el-backtop-text-color);cursor:pointer;display:flex;font-size:20px;height:40px;justify-content:center;position:fixed;width:40px;z-index:5}.el-backtop:hover{background-color:var(--el-backtop-hover-bg-color)}.el-backtop__icon{font-size:20px}";
       importCSS(elBacktopCss);
-      const elImageCss =
-        ".el-image__error,.el-image__inner,.el-image__placeholder,.el-image__wrapper{height:100%;width:100%}.el-image{display:inline-block;overflow:hidden;position:relative}.el-image__inner{opacity:1;vertical-align:top}.el-image__inner.is-loading{opacity:0}.el-image__wrapper{left:0;position:absolute;top:0}.el-image__error,.el-image__placeholder{background:var(--el-fill-color-light)}.el-image__error{align-items:center;color:var(--el-text-color-placeholder);display:flex;font-size:14px;justify-content:center;vertical-align:middle}.el-image__preview{cursor:pointer}";
-      importCSS(elImageCss);
-      const elImageViewerCss =
-        ".el-image-viewer__wrapper{inset:0;position:fixed}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{align-items:center;border-radius:50%;box-sizing:border-box;cursor:pointer;display:flex;justify-content:center;opacity:.8;position:absolute;-webkit-user-select:none;-moz-user-select:none;user-select:none;z-index:1}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{font-size:40px;height:40px;right:40px;top:40px;width:40px}.el-image-viewer__canvas{align-items:center;display:flex;height:100%;justify-content:center;position:static;-webkit-user-select:none;-moz-user-select:none;user-select:none;width:100%}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;bottom:30px;height:44px;left:50%;padding:0 23px;transform:translate(-50%)}.el-image-viewer__actions__inner{align-items:center;color:#fff;cursor:default;display:flex;font-size:23px;gap:22px;height:100%;justify-content:space-around;padding:0 6px;width:100%}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{bottom:90px;color:#fff;cursor:default;left:50%;transform:translate(-50%)}.el-image-viewer__prev{left:40px}.el-image-viewer__next,.el-image-viewer__prev{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;top:50%;transform:translateY(-50%);width:44px}.el-image-viewer__next{right:40px;text-indent:2px}.el-image-viewer__close{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;width:44px}.el-image-viewer__mask{background:#000;height:100%;left:0;opacity:.5;position:absolute;top:0;width:100%}.el-image-viewer-parent--hidden{overflow:hidden}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translate3d(0,-20px,0)}to{opacity:1;transform:translateZ(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translateZ(0)}to{opacity:0;transform:translate3d(0,-20px,0)}}";
-      importCSS(elImageViewerCss);
       const elEmptyCss =
         ".el-empty{--el-empty-padding:40px 0;--el-empty-image-width:160px;--el-empty-description-margin-top:20px;--el-empty-bottom-margin-top:20px;--el-empty-fill-color-0:var(--el-color-white);--el-empty-fill-color-1:#fcfcfd;--el-empty-fill-color-2:#f8f9fb;--el-empty-fill-color-3:#f7f8fc;--el-empty-fill-color-4:#eeeff3;--el-empty-fill-color-5:#edeef2;--el-empty-fill-color-6:#e9ebef;--el-empty-fill-color-7:#e5e7e9;--el-empty-fill-color-8:#e0e3e9;--el-empty-fill-color-9:#d5d7de;align-items:center;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:var(--el-empty-padding);text-align:center}.el-empty__image{width:var(--el-empty-image-width)}.el-empty__image img{height:100%;-o-object-fit:contain;object-fit:contain;-webkit-user-select:none;-moz-user-select:none;user-select:none;vertical-align:top;width:100%}.el-empty__image svg{color:var(--el-svg-monochrome-grey);fill:currentColor;height:100%;vertical-align:top;width:100%}.el-empty__description{margin-top:var(--el-empty-description-margin-top)}.el-empty__description p{color:var(--el-text-color-secondary);font-size:var(--el-font-size-base);margin:0}.el-empty__bottom{margin-top:var(--el-empty-bottom-margin-top)}";
       importCSS(elEmptyCss);
@@ -24865,16 +24915,301 @@ div[class^="new-summary-container_"] {\r
         ".el-skeleton{--el-skeleton-circle-size:var(--el-avatar-size)}.el-skeleton__item{background:var(--el-skeleton-color);border-radius:var(--el-border-radius-base);display:inline-block;height:16px;width:100%}.el-skeleton__circle{border-radius:50%;height:var(--el-skeleton-circle-size);line-height:var(--el-skeleton-circle-size);width:var(--el-skeleton-circle-size)}.el-skeleton__button{border-radius:4px;height:40px;width:64px}.el-skeleton__p{width:100%}.el-skeleton__p.is-last{width:61%}.el-skeleton__p.is-first{width:33%}.el-skeleton__text{height:var(--el-font-size-small);width:100%}.el-skeleton__caption{height:var(--el-font-size-extra-small)}.el-skeleton__h1{height:var(--el-font-size-extra-large)}.el-skeleton__h3{height:var(--el-font-size-large)}.el-skeleton__h5{height:var(--el-font-size-medium)}.el-skeleton__image{align-items:center;border-radius:0;display:flex;justify-content:center;width:unset}.el-skeleton__image svg{color:var(--el-svg-monochrome-grey);fill:currentColor;height:22%;width:22%}";
       importCSS(elSkeletonItemCss);
       const _sfc_main$d = {};
-      const _hoisted_1$c = { class: "posts-item-avatar-container" };
-      const _hoisted_2$b = { class: "posts-item-avatar" };
-      const _hoisted_3$9 = { class: "posts-item-right-user-info" };
-      const _hoisted_4$8 = { class: "posts-item-user-name" };
-      const _hoisted_5$8 = { class: "posts-item-user-other-info" };
-      const _hoisted_6$8 = { class: "posts-item-title" };
+      const _hoisted_1$c = { style: { padding: "10px" } };
+      const _hoisted_2$b = {
+        style: {
+          display: "flex",
+          "align-items": "center",
+          "justify-items": "space-between",
+          "justify-content": "space-between",
+        },
+      };
+      function _sfc_render$3(_ctx, _cache) {
+        const _component_el_skeleton_item = ElSkeletonItem;
+        const _component_el_skeleton = ElSkeleton;
+        return (
+          vue.openBlock(),
+          vue.createElementBlock(
+            vue.Fragment,
+            null,
+            vue.renderList(3, (i) => {
+              return vue.createVNode(
+                _component_el_skeleton,
+                {
+                  style: { "background-color": "#ffffff" },
+                  animated: "",
+                },
+                {
+                  template: vue.withCtx(() => [
+                    vue.createElementVNode("div", _hoisted_1$c, [
+                      vue.createElementVNode("div", _hoisted_2$b, [
+                        vue.createVNode(_component_el_skeleton_item, {
+                          variant: "text",
+                          style: { width: "calc(50% - 5px)", height: "35px" },
+                        }),
+                        vue.createVNode(_component_el_skeleton_item, {
+                          variant: "text",
+                          style: { width: "calc(50% - 5px)", height: "35px" },
+                        }),
+                      ]),
+                    ]),
+                  ]),
+                  _: 1,
+                }
+              );
+            }),
+            64
+          )
+        );
+      }
+      const TemplateFollowForum = _export_sfc$1(_sfc_main$d, [["render", _sfc_render$3]]);
+      const _hoisted_1$b = { class: "follow-forum-container" };
+      const _hoisted_2$a = ["onClick"];
+      const _hoisted_3$9 = { class: "follow-forum-item-right-container" };
+      const _hoisted_4$8 = { class: "follow-forum-item-name" };
+      const _hoisted_5$8 = ["data-level"];
+      const _hoisted_6$8 = {
+        key: 2,
+        style: { "text-align": "center" },
+      };
+      const _sfc_main$c = vue.defineComponent({
+        __name: "FollowForum",
+        props: {
+          UserData: {},
+        },
+        setup(__props) {
+          vue.useCssVars((_ctx) => ({
+            v0ae5f27b: vue.unref(levelBgColor),
+            v384f0200: vue.unref(levelColor),
+            b2383e38: vue.unref(levelColor0_3),
+            b2382024: vue.unref(levelColor4_9),
+            v7d689d44: vue.unref(levelColor10_15),
+            v7d6b5781: vue.unref(levelColor16_18),
+          }));
+          const props = __props;
+          let showIsLoading = vue.ref(true);
+          let isAsyncLoadEnd = vue.ref(false);
+          let isLoadingEnd = vue.ref(false);
+          let $loading = vue.ref(null);
+          let pageNumber = vue.ref(1);
+          let followForum = vue.ref([]);
+          let isEmpty = vue.ref(false);
+          let colorConversion = new utils.ColorConversion();
+          let colorLightLevel = 0.7;
+          let levelColor = vue.ref("#ffffff");
+          let levelColor0_3 = vue.ref("#5dc7a0");
+          let levelColor4_9 = vue.ref("#6BA7FF");
+          let levelColor10_15 = vue.ref("#F9B341");
+          let levelColor16_18 = vue.ref("#FBA71A");
+          let levelBgColor = vue.ref("#000000");
+          vue.ref(colorConversion.getLightColor(levelColor0_3.value, colorLightLevel));
+          vue.ref(colorConversion.getLightColor(levelColor4_9.value, colorLightLevel));
+          vue.ref(colorConversion.getLightColor(levelColor10_15.value, colorLightLevel));
+          vue.ref(colorConversion.getLightColor(levelColor16_18.value, colorLightLevel));
+          let observe = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  loadMore();
+                }
+              });
+            },
+            {
+              root: null,
+              rootMargin: "0px 0px 0px 0px",
+              threshold: 0.2,
+            }
+          );
+          const stopWatchLoading = vue.watch($loading, () => {
+            if ($loading.value) {
+              if ($loading.value.$el instanceof Element) {
+                observe.observe($loading.value.$el);
+              } else if ($loading.value.$el.nextElementSibling instanceof Element) {
+                observe.observe($loading.value.$el.nextElementSibling);
+              }
+            }
+          });
+          const cancleLoadMoreObserve = () => {
+            stopWatchLoading();
+            observe.disconnect();
+            showIsLoading.value = false;
+            isLoadingEnd.value = true;
+            log.info("移除滚动监听");
+          };
+          const handleForumItemClick = (forumItem) => {
+            window.open(forumItem.url, "_blank");
+          };
+          const loadMore = async () => {
+            showIsLoading.value = false;
+            let isFirstLoad = pageNumber.value === 1;
+            if (isFirstLoad) {
+              isAsyncLoadEnd.value = false;
+              followForum.value.length = 0;
+            }
+            const userName = props.UserData.name;
+            let concernData = await TiebaHomeApi.getConcern(userName, pageNumber.value);
+            log.info(["Api获取到的关注的吧：", concernData]);
+            let userHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
+            showIsLoading.value = true;
+            if (concernData) {
+              if (concernData.data) {
+                followForum.value = followForum.value.concat(concernData.data);
+                pageNumber.value++;
+              }
+              if (!concernData.has_more) {
+                cancleLoadMoreObserve();
+              }
+            } else if (userHomeInfo) {
+              followForum.value = followForum.value.concat(userHomeInfo.forumInfoList);
+              cancleLoadMoreObserve();
+            }
+            if (!followForum.value.length) {
+              log.info("获取关注的吧数据为空");
+              if (isFirstLoad) {
+                isAsyncLoadEnd.value = true;
+                cancleLoadMoreObserve();
+                isEmpty.value = true;
+                isLoadingEnd.value = false;
+              }
+            }
+          };
+          return (_ctx, _cache) => {
+            const _component_el_empty = ElEmpty;
+            const _component_el_avatar = ElAvatar;
+            const _component_el_text = ElText;
+            const _component_el_row = ElRow;
+            const _component_el_backtop = ElBacktop;
+            return (
+              vue.openBlock(),
+              vue.createElementBlock("div", _hoisted_1$b, [
+                vue.unref(isAsyncLoadEnd) && vue.unref(followForum).length === 0
+                  ? (vue.openBlock(),
+                    vue.createBlock(_component_el_empty, {
+                      key: 0,
+                      description: "这位老铁已将关注的吧设为隐藏",
+                    }))
+                  : vue.createCommentVNode("", true),
+                !vue.unref(isEmpty)
+                  ? (vue.openBlock(),
+                    vue.createBlock(
+                      _component_el_row,
+                      {
+                        key: 1,
+                        class: "follow-forum-list-container",
+                      },
+                      {
+                        default: vue.withCtx(() => [
+                          (vue.openBlock(true),
+                          vue.createElementBlock(
+                            vue.Fragment,
+                            null,
+                            vue.renderList(vue.unref(followForum), (item, index) => {
+                              return (
+                                vue.openBlock(),
+                                vue.createElementBlock(
+                                  "div",
+                                  {
+                                    class: "follow-forum-item",
+                                    span: 24,
+                                    key: index,
+                                    onClick: ($event) => handleForumItemClick(item),
+                                  },
+                                  [
+                                    vue.createVNode(_component_el_avatar, {
+                                      class: "follow-forum-avatar",
+                                      size: 35,
+                                      src: "//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png",
+                                    }),
+                                    vue.createElementVNode("div", _hoisted_3$9, [
+                                      vue.createElementVNode(
+                                        "div",
+                                        _hoisted_4$8,
+                                        vue.toDisplayString(item.forumName),
+                                        1
+                                      ),
+                                      vue.createVNode(
+                                        _component_el_text,
+                                        {
+                                          class: "follow-forum-item-info",
+                                          type: "info",
+                                          size: "small",
+                                          truncated: "",
+                                        },
+                                        {
+                                          default: vue.withCtx(() => [
+                                            vue.createTextVNode(vue.toDisplayString(item.intro), 1),
+                                          ]),
+                                          _: 2,
+                                        },
+                                        1024
+                                      ),
+                                    ]),
+                                    vue.createElementVNode(
+                                      "span",
+                                      {
+                                        class: "follow-forum-item-level",
+                                        "data-level": item.level,
+                                      },
+                                      vue.toDisplayString(item.level),
+                                      9,
+                                      _hoisted_5$8
+                                    ),
+                                  ],
+                                  8,
+                                  _hoisted_2$a
+                                )
+                              );
+                            }),
+                            128
+                          )),
+                          vue.unref(showIsLoading)
+                            ? (vue.openBlock(),
+                              vue.createBlock(
+                                TemplateFollowForum,
+                                {
+                                  key: 0,
+                                  ref_key: "$loading",
+                                  ref: $loading,
+                                },
+                                null,
+                                512
+                              ))
+                            : vue.createCommentVNode("", true),
+                        ]),
+                        _: 1,
+                      }
+                    ))
+                  : vue.createCommentVNode("", true),
+                vue.unref(isLoadingEnd)
+                  ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_6$8, "已经到底了~"))
+                  : vue.createCommentVNode("", true),
+                vue.createVNode(_component_el_backtop, {
+                  right: 10,
+                  bottom: 50,
+                }),
+              ])
+            );
+          };
+        },
+      });
+      const FollowForum = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-9f65e55d"]]);
+      const elImageCss =
+        ".el-image__error,.el-image__inner,.el-image__placeholder,.el-image__wrapper{height:100%;width:100%}.el-image{display:inline-block;overflow:hidden;position:relative}.el-image__inner{opacity:1;vertical-align:top}.el-image__inner.is-loading{opacity:0}.el-image__wrapper{left:0;position:absolute;top:0}.el-image__error,.el-image__placeholder{background:var(--el-fill-color-light)}.el-image__error{align-items:center;color:var(--el-text-color-placeholder);display:flex;font-size:14px;justify-content:center;vertical-align:middle}.el-image__preview{cursor:pointer}";
+      importCSS(elImageCss);
+      const elImageViewerCss =
+        ".el-image-viewer__wrapper{inset:0;position:fixed}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{align-items:center;border-radius:50%;box-sizing:border-box;cursor:pointer;display:flex;justify-content:center;opacity:.8;position:absolute;-webkit-user-select:none;-moz-user-select:none;user-select:none;z-index:1}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{font-size:40px;height:40px;right:40px;top:40px;width:40px}.el-image-viewer__canvas{align-items:center;display:flex;height:100%;justify-content:center;position:static;-webkit-user-select:none;-moz-user-select:none;user-select:none;width:100%}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;bottom:30px;height:44px;left:50%;padding:0 23px;transform:translate(-50%)}.el-image-viewer__actions__inner{align-items:center;color:#fff;cursor:default;display:flex;font-size:23px;gap:22px;height:100%;justify-content:space-around;padding:0 6px;width:100%}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{bottom:90px;color:#fff;cursor:default;left:50%;transform:translate(-50%)}.el-image-viewer__prev{left:40px}.el-image-viewer__next,.el-image-viewer__prev{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;top:50%;transform:translateY(-50%);width:44px}.el-image-viewer__next{right:40px;text-indent:2px}.el-image-viewer__close{background-color:var(--el-text-color-regular);border-color:#fff;color:#fff;font-size:24px;height:44px;width:44px}.el-image-viewer__mask{background:#000;height:100%;left:0;opacity:.5;position:absolute;top:0;width:100%}.el-image-viewer-parent--hidden{overflow:hidden}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translate3d(0,-20px,0)}to{opacity:1;transform:translateZ(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translateZ(0)}to{opacity:0;transform:translate3d(0,-20px,0)}}";
+      importCSS(elImageViewerCss);
+      const _sfc_main$b = {};
+      const _hoisted_1$a = { class: "posts-item-avatar-container" };
+      const _hoisted_2$9 = { class: "posts-item-avatar" };
+      const _hoisted_3$8 = { class: "posts-item-right-user-info" };
+      const _hoisted_4$7 = { class: "posts-item-user-name" };
+      const _hoisted_5$7 = { class: "posts-item-user-other-info" };
+      const _hoisted_6$7 = { class: "posts-item-title" };
       const _hoisted_7$7 = { class: "posts-item-content" };
       const _hoisted_8$6 = { class: "posts-item-forum" };
       const _hoisted_9$4 = { class: "posts-item-footer" };
-      function _sfc_render$3(_ctx, _cache) {
+      function _sfc_render$2(_ctx, _cache) {
         const _component_el_skeleton_item = ElSkeletonItem;
         const _component_el_row = ElRow;
         const _component_el_col = ElCol;
@@ -24890,26 +25225,26 @@ div[class^="new-summary-container_"] {\r
             },
             {
               template: vue.withCtx(() => [
-                vue.createElementVNode("div", _hoisted_1$c, [
+                vue.createElementVNode("div", _hoisted_1$a, [
                   vue.createVNode(
                     _component_el_row,
                     { style: { "align-items": "center" } },
                     {
                       default: vue.withCtx(() => [
-                        vue.createElementVNode("div", _hoisted_2$b, [
+                        vue.createElementVNode("div", _hoisted_2$9, [
                           vue.createVNode(_component_el_skeleton_item, {
                             variant: "image",
                             style: { width: "35px", height: "35px", "border-radius": "50%" },
                           }),
                         ]),
-                        vue.createElementVNode("div", _hoisted_3$9, [
-                          vue.createElementVNode("div", _hoisted_4$8, [
+                        vue.createElementVNode("div", _hoisted_3$8, [
+                          vue.createElementVNode("div", _hoisted_4$7, [
                             vue.createVNode(_component_el_skeleton_item, {
                               variant: "text",
                               style: { width: "80px", height: "1rem" },
                             }),
                           ]),
-                          vue.createElementVNode("div", _hoisted_5$8, [
+                          vue.createElementVNode("div", _hoisted_5$7, [
                             vue.createVNode(_component_el_skeleton_item, {
                               variant: "text",
                               style: { width: "120px", height: "0.8rem" },
@@ -24921,7 +25256,7 @@ div[class^="new-summary-container_"] {\r
                     }
                   ),
                 ]),
-                vue.createElementVNode("div", _hoisted_6$8, [
+                vue.createElementVNode("div", _hoisted_6$7, [
                   vue.createVNode(_component_el_skeleton_item, {
                     variant: "text",
                     style: { width: "80%", height: "1rem" },
@@ -25014,16 +25349,16 @@ div[class^="new-summary-container_"] {\r
           )
         );
       }
-      const TemplatePostsItem = _export_sfc$1(_sfc_main$d, [
-        ["render", _sfc_render$3],
+      const TemplatePostsItem = _export_sfc$1(_sfc_main$b, [
+        ["render", _sfc_render$2],
         ["__scopeId", "data-v-3116157a"],
       ]);
-      const _hoisted_1$b = { class: "posts-container" };
-      const _hoisted_2$a = ["onClick"];
-      const _hoisted_3$8 = { class: "posts-item-avatar-container" };
-      const _hoisted_4$7 = { class: "posts-item-avatar" };
-      const _hoisted_5$7 = { class: "posts-item-right-user-info" };
-      const _hoisted_6$7 = { class: "posts-item-user-name" };
+      const _hoisted_1$9 = { class: "posts-container" };
+      const _hoisted_2$8 = ["onClick"];
+      const _hoisted_3$7 = { class: "posts-item-avatar-container" };
+      const _hoisted_4$6 = { class: "posts-item-avatar" };
+      const _hoisted_5$6 = { class: "posts-item-right-user-info" };
+      const _hoisted_6$6 = { class: "posts-item-user-name" };
       const _hoisted_7$6 = { class: "posts-item-user-other-info" };
       const _hoisted_8$5 = ["innerHTML"];
       const _hoisted_9$3 = { class: "posts-item-content" };
@@ -25037,7 +25372,7 @@ div[class^="new-summary-container_"] {\r
         key: 2,
         style: { "text-align": "center" },
       };
-      const _sfc_main$c = vue.defineComponent({
+      const _sfc_main$a = vue.defineComponent({
         __name: "Posts",
         props: {
           UserData: {},
@@ -25135,7 +25470,7 @@ div[class^="new-summary-container_"] {\r
                 vue.Fragment,
                 null,
                 [
-                  vue.createElementVNode("div", _hoisted_1$b, [
+                  vue.createElementVNode("div", _hoisted_1$9, [
                     vue.unref(isAsyncLoadEnd) && vue.unref(postsInfoList).length === 0
                       ? (vue.openBlock(),
                         vue.createBlock(_component_el_empty, {
@@ -25157,13 +25492,13 @@ div[class^="new-summary-container_"] {\r
                               onClick: ($event) => handlePostItemClick(postItem),
                             },
                             [
-                              vue.createElementVNode("div", _hoisted_3$8, [
+                              vue.createElementVNode("div", _hoisted_3$7, [
                                 vue.createVNode(
                                   _component_el_row,
                                   { style: { "align-items": "center" } },
                                   {
                                     default: vue.withCtx(() => [
-                                      vue.createElementVNode("div", _hoisted_4$7, [
+                                      vue.createElementVNode("div", _hoisted_4$6, [
                                         vue.createVNode(
                                           _component_el_avatar,
                                           {
@@ -25175,10 +25510,10 @@ div[class^="new-summary-container_"] {\r
                                           ["src"]
                                         ),
                                       ]),
-                                      vue.createElementVNode("div", _hoisted_5$7, [
+                                      vue.createElementVNode("div", _hoisted_5$6, [
                                         vue.createElementVNode(
                                           "div",
-                                          _hoisted_6$7,
+                                          _hoisted_6$6,
                                           vue.toDisplayString(__props.UserData.showName),
                                           1
                                         ),
@@ -25413,7 +25748,7 @@ div[class^="new-summary-container_"] {\r
                               ]),
                             ],
                             8,
-                            _hoisted_2$a
+                            _hoisted_2$8
                           )
                         );
                       }),
@@ -25447,286 +25782,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Posts = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-41f50a7a"]]);
-      const _sfc_main$b = {};
-      const _hoisted_1$a = { style: { padding: "10px" } };
-      const _hoisted_2$9 = {
-        style: {
-          display: "flex",
-          "align-items": "center",
-          "justify-items": "space-between",
-          "justify-content": "space-between",
-        },
-      };
-      function _sfc_render$2(_ctx, _cache) {
-        const _component_el_skeleton_item = ElSkeletonItem;
-        const _component_el_skeleton = ElSkeleton;
-        return (
-          vue.openBlock(),
-          vue.createElementBlock(
-            vue.Fragment,
-            null,
-            vue.renderList(3, (i) => {
-              return vue.createVNode(
-                _component_el_skeleton,
-                {
-                  style: { "background-color": "#ffffff" },
-                  animated: "",
-                },
-                {
-                  template: vue.withCtx(() => [
-                    vue.createElementVNode("div", _hoisted_1$a, [
-                      vue.createElementVNode("div", _hoisted_2$9, [
-                        vue.createVNode(_component_el_skeleton_item, {
-                          variant: "text",
-                          style: { width: "calc(50% - 5px)", height: "35px" },
-                        }),
-                        vue.createVNode(_component_el_skeleton_item, {
-                          variant: "text",
-                          style: { width: "calc(50% - 5px)", height: "35px" },
-                        }),
-                      ]),
-                    ]),
-                  ]),
-                  _: 1,
-                }
-              );
-            }),
-            64
-          )
-        );
-      }
-      const TemplateFollowForum = _export_sfc$1(_sfc_main$b, [["render", _sfc_render$2]]);
-      const _hoisted_1$9 = { class: "follow-forum-container" };
-      const _hoisted_2$8 = ["onClick"];
-      const _hoisted_3$7 = { class: "follow-forum-item-right-container" };
-      const _hoisted_4$6 = { class: "follow-forum-item-name" };
-      const _hoisted_5$6 = ["data-level"];
-      const _hoisted_6$6 = {
-        key: 2,
-        style: { "text-align": "center" },
-      };
-      const _sfc_main$a = vue.defineComponent({
-        __name: "FollowForum",
-        props: {
-          UserData: {},
-        },
-        setup(__props) {
-          vue.useCssVars((_ctx) => ({
-            v0ae5f27b: vue.unref(levelBgColor),
-            v384f0200: vue.unref(levelColor),
-            b2383e38: vue.unref(levelColor0_3),
-            b2382024: vue.unref(levelColor4_9),
-            v7d689d44: vue.unref(levelColor10_15),
-            v7d6b5781: vue.unref(levelColor16_18),
-          }));
-          const props = __props;
-          let showIsLoading = vue.ref(true);
-          let isAsyncLoadEnd = vue.ref(false);
-          let isLoadingEnd = vue.ref(false);
-          let $loading = vue.ref(null);
-          let pageNumber = vue.ref(1);
-          let followForum = vue.ref([]);
-          let isEmpty = vue.ref(false);
-          let colorConversion = new utils.ColorConversion();
-          let colorLightLevel = 0.7;
-          let levelColor = vue.ref("#ffffff");
-          let levelColor0_3 = vue.ref("#5dc7a0");
-          let levelColor4_9 = vue.ref("#6BA7FF");
-          let levelColor10_15 = vue.ref("#F9B341");
-          let levelColor16_18 = vue.ref("#FBA71A");
-          let levelBgColor = vue.ref("#000000");
-          vue.ref(colorConversion.getLightColor(levelColor0_3.value, colorLightLevel));
-          vue.ref(colorConversion.getLightColor(levelColor4_9.value, colorLightLevel));
-          vue.ref(colorConversion.getLightColor(levelColor10_15.value, colorLightLevel));
-          vue.ref(colorConversion.getLightColor(levelColor16_18.value, colorLightLevel));
-          let observe = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                  loadMore();
-                }
-              });
-            },
-            {
-              root: null,
-              rootMargin: "0px 0px 0px 0px",
-              threshold: 0.2,
-            }
-          );
-          const stopWatchLoading = vue.watch($loading, () => {
-            if ($loading.value) {
-              if ($loading.value.$el instanceof Element) {
-                observe.observe($loading.value.$el);
-              } else if ($loading.value.$el.nextElementSibling instanceof Element) {
-                observe.observe($loading.value.$el.nextElementSibling);
-              }
-            }
-          });
-          const cancleLoadMoreObserve = () => {
-            stopWatchLoading();
-            observe.disconnect();
-            showIsLoading.value = false;
-            isLoadingEnd.value = true;
-            log.info("移除滚动监听");
-          };
-          const handleForumItemClick = (forumItem) => {
-            window.open(forumItem.url, "_blank");
-          };
-          const loadMore = async () => {
-            showIsLoading.value = false;
-            let isFirstLoad = pageNumber.value === 1;
-            if (isFirstLoad) {
-              isAsyncLoadEnd.value = false;
-              followForum.value.length = 0;
-            }
-            const userName = props.UserData.name;
-            let concernData = await TiebaHomeApi.getConcern(userName, pageNumber.value);
-            log.info(["Api获取到的关注的吧：", concernData]);
-            let userHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
-            showIsLoading.value = true;
-            if (concernData) {
-              if (concernData.data) {
-                followForum.value = followForum.value.concat(concernData.data);
-                pageNumber.value++;
-              }
-              if (!concernData.has_more) {
-                cancleLoadMoreObserve();
-              }
-            } else if (userHomeInfo) {
-              followForum.value = followForum.value.concat(userHomeInfo.forumInfoList);
-              cancleLoadMoreObserve();
-            }
-            if (!followForum.value.length) {
-              log.info("获取关注的吧数据为空");
-              if (isFirstLoad) {
-                isAsyncLoadEnd.value = true;
-                cancleLoadMoreObserve();
-                isEmpty.value = true;
-                isLoadingEnd.value = false;
-              }
-            }
-          };
-          return (_ctx, _cache) => {
-            const _component_el_empty = ElEmpty;
-            const _component_el_avatar = ElAvatar;
-            const _component_el_text = ElText;
-            const _component_el_row = ElRow;
-            const _component_el_backtop = ElBacktop;
-            return (
-              vue.openBlock(),
-              vue.createElementBlock("div", _hoisted_1$9, [
-                vue.unref(isAsyncLoadEnd) && vue.unref(followForum).length === 0
-                  ? (vue.openBlock(),
-                    vue.createBlock(_component_el_empty, {
-                      key: 0,
-                      description: "这位老铁已将关注的吧设为隐藏",
-                    }))
-                  : vue.createCommentVNode("", true),
-                !vue.unref(isEmpty)
-                  ? (vue.openBlock(),
-                    vue.createBlock(
-                      _component_el_row,
-                      {
-                        key: 1,
-                        class: "follow-forum-list-container",
-                      },
-                      {
-                        default: vue.withCtx(() => [
-                          (vue.openBlock(true),
-                          vue.createElementBlock(
-                            vue.Fragment,
-                            null,
-                            vue.renderList(vue.unref(followForum), (item, index) => {
-                              return (
-                                vue.openBlock(),
-                                vue.createElementBlock(
-                                  "div",
-                                  {
-                                    class: "follow-forum-item",
-                                    span: 24,
-                                    key: index,
-                                    onClick: ($event) => handleForumItemClick(item),
-                                  },
-                                  [
-                                    vue.createVNode(_component_el_avatar, {
-                                      class: "follow-forum-avatar",
-                                      size: 35,
-                                      src: "//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png",
-                                    }),
-                                    vue.createElementVNode("div", _hoisted_3$7, [
-                                      vue.createElementVNode(
-                                        "div",
-                                        _hoisted_4$6,
-                                        vue.toDisplayString(item.forumName),
-                                        1
-                                      ),
-                                      vue.createVNode(
-                                        _component_el_text,
-                                        {
-                                          class: "follow-forum-item-info",
-                                          type: "info",
-                                          size: "small",
-                                          truncated: "",
-                                        },
-                                        {
-                                          default: vue.withCtx(() => [
-                                            vue.createTextVNode(vue.toDisplayString(item.intro), 1),
-                                          ]),
-                                          _: 2,
-                                        },
-                                        1024
-                                      ),
-                                    ]),
-                                    vue.createElementVNode(
-                                      "span",
-                                      {
-                                        class: "follow-forum-item-level",
-                                        "data-level": item.level,
-                                      },
-                                      vue.toDisplayString(item.level),
-                                      9,
-                                      _hoisted_5$6
-                                    ),
-                                  ],
-                                  8,
-                                  _hoisted_2$8
-                                )
-                              );
-                            }),
-                            128
-                          )),
-                          vue.unref(showIsLoading)
-                            ? (vue.openBlock(),
-                              vue.createBlock(
-                                TemplateFollowForum,
-                                {
-                                  key: 0,
-                                  ref_key: "$loading",
-                                  ref: $loading,
-                                },
-                                null,
-                                512
-                              ))
-                            : vue.createCommentVNode("", true),
-                        ]),
-                        _: 1,
-                      }
-                    ))
-                  : vue.createCommentVNode("", true),
-                vue.unref(isLoadingEnd)
-                  ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_6$6, "已经到底了~"))
-                  : vue.createCommentVNode("", true),
-                vue.createVNode(_component_el_backtop, {
-                  right: 10,
-                  bottom: 50,
-                }),
-              ])
-            );
-          };
-        },
-      });
-      const FollowForum = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-9f65e55d"]]);
+      const Posts = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-41f50a7a"]]);
       const _hoisted_1$8 = ["data-sex"];
       const _hoisted_2$7 = {
         key: 1,
@@ -26486,7 +26542,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-08dab6d1"]]);
+      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-9840ce4d"]]);
       const _hoisted_1$7 = { class: "user-avatar" };
       const _hoisted_2$6 = { class: "user-info" };
       const _hoisted_3$6 = { class: "user-info-item" };
@@ -28030,7 +28086,7 @@ div[class^="new-summary-container_"] {\r
               for (var i = 0; i < m.length; i++) {
                 m[i] = (((m[i] << 8) | (m[i] >>> 24)) & 16711935) | (((m[i] << 24) | (m[i] >>> 8)) & 4278255360);
               }
-              m[l >>> 5] |= 128 << l % 32;
+              m[l >>> 5] |= 128 << (l % 32);
               m[(((l + 64) >>> 9) << 4) + 14] = l;
               var FF = md52._ff,
                 GG = md52._gg,
