@@ -193,7 +193,7 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
                         }
                       });
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },
@@ -246,7 +246,7 @@ export class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
                         Qmsg.success("已执行更新菜单命令，请自行验证");
                       }, 3000);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

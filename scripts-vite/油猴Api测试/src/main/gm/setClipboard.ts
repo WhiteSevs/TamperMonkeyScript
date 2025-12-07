@@ -147,7 +147,7 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
                       TagUtil.setTag(container.$leftText, "success", "支持触发回调函数");
                     });
                   } catch (error: any) {
-                    Qmsg.error(error.toString(), { consoleLogContent: true });
+                    Qmsg.error(error.toString());
                   }
                 });
               },

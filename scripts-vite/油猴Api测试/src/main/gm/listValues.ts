@@ -138,7 +138,7 @@ export class ApiTest_listValues extends ApiAsyncTestBase {
                       Qmsg.error("返回值不是数组");
                     }
                   } catch (error: any) {
-                    Qmsg.error(error.toString(), { consoleLogContent: true });
+                    Qmsg.error(error.toString());
                   }
                 });
               },

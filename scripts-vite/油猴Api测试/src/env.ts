@@ -56,7 +56,7 @@ const setTimeoutLog = (handler: (...args: any[]) => IPromise<void>, timeout: num
     try {
       await handler(...args);
     } catch (error: any) {
-      Qmsg.error(error.toString(), { consoleLogContent: true });
+      Qmsg.error(error.toString());
     }
   }, timeout);
 };

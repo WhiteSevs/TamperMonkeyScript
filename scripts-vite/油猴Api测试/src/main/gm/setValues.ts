@@ -131,7 +131,7 @@ export class ApiTest_setValues extends ApiAsyncTestBase {
                       await data.fn(localStorageDataValue);
                       Qmsg.info("执行写入完毕，请自行查看是否成功写入");
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

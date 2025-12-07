@@ -1,16 +1,16 @@
-import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
-import { StorageApi } from "../StorageApi";
-import { PanelKeyConfig } from "@/setting/panel-key-config";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types";
-import { GM, GM_audio } from "ViteGM";
-import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import { DOMUtils, utils } from "@/env";
 import { UIInfo } from "@/setting/components/ui-info";
+import { PanelKeyConfig } from "@/setting/panel-key-config";
+import { TagUtil } from "@/setting/tag";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types";
 import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 import Qmsg from "qmsg";
-import { DOMUtils, utils } from "@/env";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { Tag, TagUtil } from "@/setting/tag";
 import type { QmsgMsg } from "qmsg/dist/src/QmsgInst";
+import { GM, GM_audio } from "ViteGM";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { StorageApi } from "../StorageApi";
 
 export class ApiTest_audio extends ApiAsyncTestBase {
   public isSupport() {
@@ -313,9 +313,7 @@ export class ApiTest_audio extends ApiAsyncTestBase {
                       DOMUtils.text(container.$leftDesc, this.text);
                       DOMUtils.show(container.$leftDesc, false);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -362,9 +360,7 @@ export class ApiTest_audio extends ApiAsyncTestBase {
                       DOMUtils.text(container.$leftDesc, this.text);
                       DOMUtils.show(container.$leftDesc, false);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -443,9 +439,7 @@ export class ApiTest_audio extends ApiAsyncTestBase {
                       DOMUtils.show(container.$leftDesc, false);
                       alert(JSON.stringify(stateInfo, null, 4));
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -492,9 +486,7 @@ export class ApiTest_audio extends ApiAsyncTestBase {
                       await utils.sleep(500);
                       await data.setMute({ isMuted: false });
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -552,9 +544,7 @@ export class ApiTest_audio extends ApiAsyncTestBase {
                       }
                     } catch (error: any) {
                       $loading?.close();
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);

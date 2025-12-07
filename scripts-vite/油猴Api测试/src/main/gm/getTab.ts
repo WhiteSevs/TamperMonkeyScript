@@ -161,7 +161,7 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
                     }
                     alert(JSON.stringify(tab));
                   } catch (error: any) {
-                    Qmsg.error(error.toString(), { consoleLogContent: true });
+                    Qmsg.error(error.toString());
                   }
                 });
               },

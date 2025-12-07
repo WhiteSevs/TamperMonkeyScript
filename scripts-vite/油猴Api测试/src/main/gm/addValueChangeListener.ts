@@ -207,7 +207,7 @@ export class ApiTest_addValueChangeListener extends ApiAsyncTestBase {
                       }, 3000);
                       GM_setValue(localStorageDataKey, delaySetValue);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

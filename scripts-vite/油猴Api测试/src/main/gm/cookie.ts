@@ -288,9 +288,7 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
                         alert("获取的cookie信息不是数组");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -330,9 +328,7 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
                       await data.set(newCookieInfo);
                       Qmsg.success(data.name + " set cookie success");
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -375,9 +371,7 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
                       await data.delete(deleteCookieInfo);
                       Qmsg.success(data.name + " delete cookie success");
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);

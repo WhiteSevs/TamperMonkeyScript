@@ -105,7 +105,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
           UIInfo(() => {
             try {
               return {
-                text: "后台打开：https://www.example.com/",
+                text: "后台打开 active: false",
                 tag: "info",
                 afterRender(container) {
                   let $target = container.target!;
@@ -126,7 +126,9 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
                       DOMUtils.preventEvent(event);
                       DOMUtils.text(container.$leftDesc, this.text);
                       DOMUtils.show(container.$leftDesc, false);
-                      let result = await data.fn("https://www.example.com/");
+                      let result = await data.fn("https://www.example.com/", {
+                        active: false,
+                      });
                       if (typeof result === "object") {
                         if (result == null) {
                           TagUtil.setTag(container.$leftText, "error", "返回值为null");
@@ -148,7 +150,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
                         TagUtil.setTag(container.$leftText, "error", "返回值不是对象：" + typeof result);
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -212,7 +214,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
                         TagUtil.setTag(container.$leftText, "error", "测试超时，未打开新标签页并获取焦点");
                       }, 3000);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -267,7 +269,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
                         TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -333,7 +335,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
                         TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);

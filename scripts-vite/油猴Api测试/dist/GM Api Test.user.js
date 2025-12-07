@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.27
+// @version      2025.12.7
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -7606,9 +7606,9 @@
         let isAnimElement2 = function (element) {
           return Boolean(
             element?.localName?.toLowerCase() === "div" &&
-              element.className &&
-              element.className === "pops-anim" &&
-              element.hasAttribute("anim")
+            element.className &&
+            element.className === "pops-anim" &&
+            element.hasAttribute("anim")
           );
         };
         popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], void 0, (event) => {
@@ -23852,7 +23852,7 @@ ${err.stack}`);
       try {
         await handler(...args);
       } catch (error) {
-        qmsg.error(error.toString(), { consoleLogContent: true });
+        qmsg.error(error.toString());
       }
     }, timeout);
   };
@@ -24513,7 +24513,7 @@ ${err.stack}`);
                         }, 3e3);
                         _GM_setValue(localStorageDataKey, delaySetValue);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -24787,9 +24787,7 @@ ${err.stack}`);
                           alert("获取的cookie信息不是数组");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -24829,9 +24827,7 @@ ${err.stack}`);
                         await data.set(newCookieInfo);
                         qmsg.success(data.name + " set cookie success");
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -24874,9 +24870,7 @@ ${err.stack}`);
                         await data.delete(deleteCookieInfo);
                         qmsg.success(data.name + " delete cookie success");
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -25019,7 +25013,7 @@ ${err.stack}`);
                           qmsg.success("成功删除该值");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -25165,7 +25159,7 @@ ${err.stack}`);
                           console.log(values2);
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -25239,20 +25233,244 @@ ${err.stack}`);
             text: "功能测试",
             views: [],
           },
+          {
+            type: "container",
+            text: "功能测试（异步）",
+            views: [],
+          },
         ],
       };
       if (this.isSupport()) {
-        result["views"][1].views.push(
-          UIInfo(() => {
-            return {
-              text: CommonUtil2.escapeHtml("TODO"),
-              tag: "info",
-              afterRender(container) {
-                container.target?.querySelector(".support-info");
-              },
-            };
-          })
-        );
+        [
+          {
+            name: apiName,
+            fn: async (...args) => {
+              return new Promise((resolve) => {
+                let options = args[0];
+                if (typeof args[0] === "string") {
+                  const name = args[1];
+                  options = {
+                    url: args[0],
+                  };
+                  if (typeof name === "string") {
+                    options.name = name;
+                  }
+                }
+                if (typeof options.onload === "function") {
+                  const oldOnLoad = options.onload;
+                  options.onload = (...args2) => {
+                    oldOnLoad(...args2);
+                    resolve(ret);
+                  };
+                }
+                if (typeof options.onerror === "function") {
+                  const oldOnError = options.onerror;
+                  options.onerror = (...args2) => {
+                    oldOnError(...args2);
+                    resolve(ret);
+                  };
+                }
+                if (typeof options.onprogress === "function") {
+                  const oldOnProgress = options.onprogress;
+                  options.onprogress = (...args2) => {
+                    oldOnProgress(...args2);
+                  };
+                }
+                if (typeof options.ontimeout === "function") {
+                  const oldOnTimeout = options.ontimeout;
+                  options.ontimeout = (...args2) => {
+                    oldOnTimeout(...args2);
+                    resolve(ret);
+                  };
+                }
+                const ret = _GM_download(options);
+                return ret;
+              });
+            },
+            formList: result["views"][1].views,
+          },
+          {
+            name: apiAsyncInfo.name,
+            fn: _GM.download,
+            formList: result["views"][2].views,
+          },
+        ].forEach((data) => {
+          data.name;
+          data.formList.push(
+            (() => {
+              const downloadUrl = "https://httpbin.org/image/png";
+              const fileName = "test.png";
+              return UIInfo(() => {
+                return {
+                  text: "下载图片：" + downloadUrl,
+                  description: ``,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.toElement(
+                      `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let abortDownloadFn = null;
+                    let isSuccessDownload = false;
+                    let isDownloadEnd = false;
+                    domUtils.on($button, "click", async (event) => {
+                      domUtils.preventEvent(event);
+                      try {
+                        let $loading = qmsg.loading("下载中...", {
+                          showClose: true,
+                          onClose() {
+                            if (!isSuccessDownload && typeof abortDownloadFn === "function") {
+                              abortDownloadFn();
+                            }
+                          },
+                        });
+                        const result2 = await data.fn({
+                          url: downloadUrl,
+                          name: fileName,
+                          onload() {
+                            isSuccessDownload = true;
+                            $loading.close();
+                            qmsg.success(`下载 ${fileName} 已完成`);
+                          },
+                          onprogress(details) {
+                            if (
+                              typeof details === "object" &&
+                              "loaded" in details &&
+                              "total" in details &&
+                              !isDownloadEnd
+                            ) {
+                              let progressNum = details.loaded / details.total;
+                              let formatProgressNum = (progressNum * 100).toFixed(2);
+                              $loading.setText(`下载中...${formatProgressNum}%`);
+                              if (details.loaded === details.total) {
+                                isDownloadEnd = true;
+                              }
+                            }
+                          },
+                          onerror(error) {
+                            $loading.close();
+                            console.error("下载失败error👉", error);
+                            if (typeof error === "object" && error["error"]) {
+                              qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
+                                timeout: 6e3,
+                              });
+                            } else {
+                              qmsg.error(`下载 ${fileName} 失败或已取消`);
+                            }
+                          },
+                          ontimeout() {
+                            $loading.close();
+                            qmsg.error(`下载 ${fileName} 请求超时`);
+                          },
+                        });
+                        if (typeof result2 === "object" && result2 != null && "abort" in result2) {
+                          abortDownloadFn = result2.abort;
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString());
+                      }
+                    });
+                  },
+                };
+              });
+            })(),
+            (() => {
+              const downloadUrl = "https://media.w3.org/2010/05/sintel/trailer.mp4";
+              const fileName = "test.mp4";
+              return UIInfo(() => {
+                return {
+                  text: "下载视频：" + downloadUrl,
+                  description: ``,
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.toElement(
+                      `
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">点击测试</span>
+											</button>
+										</div>
+									`,
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    let abortDownloadFn = null;
+                    let isSuccessDownload = false;
+                    let isDownloadEnd = false;
+                    domUtils.on($button, "click", async (event) => {
+                      domUtils.preventEvent(event);
+                      try {
+                        let $loading = qmsg.loading("下载中...", {
+                          showClose: true,
+                          onClose() {
+                            if (!isSuccessDownload && typeof abortDownloadFn === "function") {
+                              abortDownloadFn();
+                            }
+                          },
+                        });
+                        const result2 = await data.fn({
+                          url: downloadUrl,
+                          name: fileName,
+                          onload() {
+                            isSuccessDownload = true;
+                            $loading.close();
+                            qmsg.success(`下载 ${fileName} 已完成`);
+                          },
+                          onprogress(details) {
+                            if (
+                              typeof details === "object" &&
+                              "loaded" in details &&
+                              "total" in details &&
+                              !isDownloadEnd
+                            ) {
+                              let progressNum = details.loaded / details.total;
+                              let formatProgressNum = (progressNum * 100).toFixed(2);
+                              $loading.setText(`下载中...${formatProgressNum}%`);
+                              if (details.loaded === details.total) {
+                                isDownloadEnd = true;
+                              }
+                            }
+                          },
+                          onerror(error) {
+                            $loading.close();
+                            console.error("下载失败error👉", error);
+                            if (typeof error === "object" && error["error"]) {
+                              qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
+                                timeout: 6e3,
+                              });
+                            } else {
+                              qmsg.error(`下载 ${fileName} 失败或已取消`);
+                            }
+                          },
+                          ontimeout() {
+                            $loading.close();
+                            qmsg.error(`下载 ${fileName} 请求超时`);
+                          },
+                        });
+                        if (typeof result2 === "object" && result2 != null && "abort" in result2) {
+                          abortDownloadFn = result2.abort;
+                        }
+                      } catch (error) {
+                        qmsg.error(error.toString());
+                      }
+                    });
+                  },
+                };
+              });
+            })()
+          );
+        });
       }
       return result;
     }
@@ -25656,7 +25874,7 @@ ${err.stack}`);
                       }
                       alert(JSON.stringify(tab));
                     } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
+                      qmsg.error(error.toString());
                     }
                   });
                 },
@@ -25813,7 +26031,7 @@ ${err.stack}`);
                       }
                       alert(JSON.stringify(tabs));
                     } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
+                      qmsg.error(error.toString());
                     }
                   });
                 },
@@ -26012,7 +26230,7 @@ ${err.stack}`);
                             qmsg.error("读取成功，但存储类型和读取类型不同");
                           }
                         } catch (error) {
-                          qmsg.error(error.toString(), { consoleLogContent: true });
+                          qmsg.error(error.toString());
                         }
                       });
                     },
@@ -26053,7 +26271,7 @@ ${err.stack}`);
                           qmsg.error("读取的值不是存储的值：" + value);
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -26092,7 +26310,7 @@ ${err.stack}`);
                           qmsg.error("读取的值不是默认值：" + value);
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -26220,7 +26438,7 @@ ${err.stack}`);
                         qmsg.info("请在控制台查看读取的数据");
                         console.log(value);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -26264,7 +26482,7 @@ ${err.stack}`);
                           qmsg.error("读取成功，但读取的数据和默认值不同");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -26310,7 +26528,7 @@ ${err.stack}`);
                           qmsg.error("读取成功，但写入的数据和读取的数据不同");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -26605,7 +26823,7 @@ ${err.stack}`);
                         qmsg.error("返回值不是数组");
                       }
                     } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
+                      qmsg.error(error.toString());
                     }
                   });
                 },
@@ -26730,7 +26948,7 @@ ${err.stack}`);
                       try {
                         await data.fn(logText);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -26876,7 +27094,7 @@ ${err.stack}`);
                           url: "https://example.com/",
                         });
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -26925,7 +27143,7 @@ ${err.stack}`);
                         isClick = false;
                         isDone = false;
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     }, 800);
                     domUtils.on($button, "click", async (event) => {
@@ -26953,7 +27171,7 @@ ${err.stack}`);
                           },
                         });
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after($info, $button);
@@ -27035,7 +27253,7 @@ ${err.stack}`);
                         isDone = false;
                         isPrevent = false;
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     }, 800);
                     domUtils.on($button, "click", async (event) => {
@@ -27079,7 +27297,7 @@ ${err.stack}`);
                           },
                         });
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after($info, $button);
@@ -27158,7 +27376,7 @@ ${err.stack}`);
                         }, 1e3);
                         await data.fn(notificationOption);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after($info, $button);
@@ -27269,7 +27487,7 @@ ${err.stack}`);
             UIInfo(() => {
               try {
                 return {
-                  text: "后台打开：https://www.example.com/",
+                  text: "后台打开 active: false",
                   tag: "info",
                   afterRender(container) {
                     let $target = container.target;
@@ -27290,7 +27508,9 @@ ${err.stack}`);
                         domUtils.preventEvent(event);
                         domUtils.text(container.$leftDesc, this.text);
                         domUtils.show(container.$leftDesc, false);
-                        let result2 = await data.fn("https://www.example.com/");
+                        let result2 = await data.fn("https://www.example.com/", {
+                          active: false,
+                        });
                         if (typeof result2 === "object") {
                           if (result2 == null) {
                             TagUtil.setTag(container.$leftText, "error", "返回值为null");
@@ -27311,7 +27531,7 @@ ${err.stack}`);
                           TagUtil.setTag(container.$leftText, "error", "返回值不是对象：" + typeof result2);
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -27374,7 +27594,7 @@ ${err.stack}`);
                           TagUtil.setTag(container.$leftText, "error", "测试超时，未打开新标签页并获取焦点");
                         }, 3e3);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -27429,7 +27649,7 @@ ${err.stack}`);
                           TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -27495,7 +27715,7 @@ ${err.stack}`);
                           TagUtil.setTag(container.$leftText, "error", "返回对象中不支持 .close() 方法");
                         }
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -27687,7 +27907,7 @@ ${err.stack}`);
                           }
                         });
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -27738,7 +27958,7 @@ ${err.stack}`);
                           qmsg.success("已执行更新菜单命令，请自行验证");
                         }, 3e3);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -27895,7 +28115,7 @@ ${err.stack}`);
                         TagUtil.setTagList(container.$leftText, tagTextList);
                         _GM_setValue(localStorageDataKey, delaySetValue);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -28124,7 +28344,7 @@ ${err.stack}`);
                         TagUtil.setTag(container.$leftText, "success", "支持触发回调函数");
                       });
                     } catch (error) {
-                      qmsg.error(error.toString(), { consoleLogContent: true });
+                      qmsg.error(error.toString());
                     }
                   });
                 },
@@ -28314,7 +28534,7 @@ ${err.stack}`);
                           await data.fn(localStorageDataKey, localStorageDataValue);
                           qmsg.info("执行写入完毕，请自行查看是否成功写入");
                         } catch (error) {
-                          qmsg.error(error.toString(), { consoleLogContent: true });
+                          qmsg.error(error.toString());
                         }
                       });
                     },
@@ -28443,7 +28663,7 @@ ${err.stack}`);
                         await data.fn(localStorageDataValue);
                         qmsg.info("执行写入完毕，请自行查看是否成功写入");
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -28578,7 +28798,7 @@ ${err.stack}`);
                           qmsg.success("已执行卸载菜单命令，请自行验证");
                         }, 10 * 1e3);
                       } catch (error) {
-                        qmsg.error(error.toString(), { consoleLogContent: true });
+                        qmsg.error(error.toString());
                       }
                     });
                   },
@@ -29153,9 +29373,7 @@ ${err.stack}`);
                         domUtils.text(container.$leftDesc, this.text);
                         domUtils.show(container.$leftDesc, false);
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -29202,9 +29420,7 @@ ${err.stack}`);
                         domUtils.text(container.$leftDesc, this.text);
                         domUtils.show(container.$leftDesc, false);
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -29295,9 +29511,7 @@ ${err.stack}`);
                         domUtils.show(container.$leftDesc, false);
                         alert(JSON.stringify(stateInfo, null, 4));
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -29344,9 +29558,7 @@ ${err.stack}`);
                         await utils.sleep(500);
                         await data.setMute({ isMuted: false });
                       } catch (error) {
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);
@@ -29404,9 +29616,7 @@ ${err.stack}`);
                         }
                       } catch (error) {
                         $loading?.close();
-                        qmsg.error(error.toString(), {
-                          consoleLogContent: true,
-                        });
+                        qmsg.error(error.toString());
                       }
                     });
                     domUtils.after(container.$leftContainer, $button);

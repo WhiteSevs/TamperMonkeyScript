@@ -139,7 +139,7 @@ export class ApiTest_unregisterMenuCommand extends ApiAsyncTestBase {
                         Qmsg.success("已执行卸载菜单命令，请自行验证");
                       }, 10 * 1000);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

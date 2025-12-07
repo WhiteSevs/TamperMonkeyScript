@@ -139,7 +139,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                         url: "https://example.com/",
                       });
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);
@@ -191,7 +191,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                       isClick = false;
                       isDone = false;
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   }, 800);
                   DOMUtils.on($button, "click", async (event) => {
@@ -219,7 +219,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                         },
                       });
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after($info!, $button);
@@ -303,7 +303,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                       isDone = false;
                       isPrevent = false;
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   }, 800);
                   DOMUtils.on($button, "click", async (event) => {
@@ -349,7 +349,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                         },
                       });
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after($info!, $button);
@@ -429,7 +429,7 @@ export class ApiTest_notification extends ApiAsyncTestBase {
                       }, 1000);
                       await data.fn(notificationOption);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after($info!, $button);

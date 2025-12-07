@@ -148,7 +148,7 @@ export class ApiTest_deleteValues extends ApiAsyncTestBase {
                         console.log(values2);
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

@@ -202,7 +202,7 @@ export class ApiTest_getValue extends ApiAsyncTestBase {
                           Qmsg.error("读取成功，但存储类型和读取类型不同");
                         }
                       } catch (error: any) {
-                        Qmsg.error(error.toString(), { consoleLogContent: true });
+                        Qmsg.error(error.toString());
                       }
                     });
                   },
@@ -244,7 +244,7 @@ export class ApiTest_getValue extends ApiAsyncTestBase {
                         Qmsg.error("读取的值不是存储的值：" + value);
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },
@@ -284,7 +284,7 @@ export class ApiTest_getValue extends ApiAsyncTestBase {
                         Qmsg.error("读取的值不是默认值：" + value);
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

@@ -1,14 +1,13 @@
-import { GM, GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { StorageApi } from "../StorageApi";
-import { PanelKeyConfig } from "@/setting/panel-key-config";
+import { DOMUtils } from "@/env";
 import { UIInfo } from "@/setting/components/ui-info";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
-import { DOMUtils, utils } from "@/env";
-import Qmsg from "qmsg";
+import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import Qmsg from "qmsg";
+import { GM, GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { StorageApi } from "../StorageApi";
 
 export class ApiTest_deleteValue extends ApiAsyncTestBase {
   public isSupport() {
@@ -137,7 +136,7 @@ export class ApiTest_deleteValue extends ApiAsyncTestBase {
                         Qmsg.success("成功删除该值");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

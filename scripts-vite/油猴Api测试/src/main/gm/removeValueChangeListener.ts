@@ -158,7 +158,7 @@ export class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
                       TagUtil.setTagList(container.$leftText, tagTextList);
                       GM_setValue(localStorageDataKey, delaySetValue);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },

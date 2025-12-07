@@ -128,7 +128,7 @@ export class ApiTest_log extends ApiAsyncTestBase {
                     try {
                       await data.fn(logText);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                   DOMUtils.after(container.$leftContainer, $button);

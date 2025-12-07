@@ -130,7 +130,7 @@ export class ApiTest_getValues extends ApiAsyncTestBase {
                       Qmsg.info("请在控制台查看读取的数据");
                       console.log(value);
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },
@@ -175,7 +175,7 @@ export class ApiTest_getValues extends ApiAsyncTestBase {
                         Qmsg.error("读取成功，但读取的数据和默认值不同");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },
@@ -222,7 +222,7 @@ export class ApiTest_getValues extends ApiAsyncTestBase {
                         Qmsg.error("读取成功，但写入的数据和读取的数据不同");
                       }
                     } catch (error: any) {
-                      Qmsg.error(error.toString(), { consoleLogContent: true });
+                      Qmsg.error(error.toString());
                     }
                   });
                 },
