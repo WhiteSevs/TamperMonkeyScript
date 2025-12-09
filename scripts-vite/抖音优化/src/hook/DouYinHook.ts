@@ -1,8 +1,9 @@
-import { unsafeWindow } from "ViteGM";
-import { DOMUtils, log, utils } from "@/env";
-import { Panel } from "@components/setting/panel";
+import { DOMUtils, log, utils, cookieManager } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { DouYinElement } from "@/utils/DouYinElement";
 import { Hook } from "@components/hook/Hook";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const DouYinHook = {
   $data: {
@@ -53,10 +54,9 @@ export const DouYinHook = {
    * 移除Cookie
    */
   removeCookie() {
-    const cookieHandler = new utils.GM_Cookie();
     const cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
     cookieNameList.forEach((cookieName) => {
-      cookieHandler.delete(
+      cookieManager.delete(
         {
           name: cookieName,
           firstPartyDomain: "",
@@ -85,6 +85,7 @@ export const DouYinHook = {
       const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
       return isInputNode && isInPops;
     };
+    let timeId: number;
     Hook.document_addEventListener((target, eventName, listener, option) => {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
@@ -93,8 +94,6 @@ export const DouYinHook = {
           const key = event.key;
           /** 键值字符串 */
           const code = event.code;
-          /** 键值 */
-          const keyCodeValue = event.charCode || event.keyCode || event.which;
           /** 组合键列表 */
           const otherCodeList: KeyboardOtherCodeName[] = [];
           if (event.ctrlKey) {
@@ -121,6 +120,7 @@ export const DouYinHook = {
             enableKey: string;
             code: string[];
             otherCodeList?: KeyboardOtherCodeName[];
+            callback?: () => void;
           }[] = [
             {
               enableKey: "dy-keyboard-hook-likeOrDislike",
@@ -232,11 +232,7 @@ export const DouYinHook = {
             },
           ];
 
-          let otherKeyboardConfigList: {
-            enableKey: string;
-            code: string[];
-            otherCodeList?: KeyboardOtherCodeName[];
-          }[] = [];
+          let otherKeyboardConfigList: typeof keyboardConfigList = [];
 
           if (DouYinRouter.isIndex()) {
             // 主站
@@ -256,6 +252,29 @@ export const DouYinHook = {
               {
                 enableKey: "dy-keyboard-hook-videoFastForward",
                 code: ["KeyD"],
+              },
+              // 禁用双击点赞，包括长按空格的
+              {
+                enableKey: "dy-video-disableDoubleClickLike",
+                code: ["Space"],
+                callback() {
+                  utils.workerClearTimeout(timeId);
+                  timeId = utils.workerSetTimeout(() => {
+                    const videosInViewVideoList = DouYinElement.getInViewVideo();
+                    if (!videosInViewVideoList.length) {
+                      Qmsg.error("未找到在可视区域内的视频");
+                      return;
+                    }
+                    const $video = videosInViewVideoList[0].$el;
+                    if ($video.paused) {
+                      log.info(`当前视频处于暂停状态，开始播放`);
+                      $video.play();
+                    } else {
+                      log.info(`当前视频处于播放状态，暂停播放`);
+                      $video.pause();
+                    }
+                  }, 288);
+                },
               },
             ];
           } else if (DouYinRouter.isLive()) {
@@ -305,6 +324,9 @@ export const DouYinHook = {
                 continue;
               }
               // 阻止触发
+              if (typeof keyboardConfig.callback === "function") {
+                keyboardConfig.callback();
+              }
               return;
             }
           }

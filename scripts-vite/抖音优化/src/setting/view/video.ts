@@ -76,7 +76,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                 ),
-                UISwitch("禁用双击点赞", "dy-video-disableDoubleClickLike", false, void 0, "禁止视频区域双击点赞"),
+                UISwitch(
+                  "禁用双击点赞",
+                  "dy-video-disableDoubleClickLike",
+                  false,
+                  void 0,
+                  "包括鼠标双击、键盘长按空格键"
+                ),
                 UISwitch(
                   "手势返回关闭评论区",
                   "dy-video-gestureBackCloseComment",

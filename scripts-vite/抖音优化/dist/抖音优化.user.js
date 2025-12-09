@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.7
+// @version      2025.12.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2431,6 +2431,82 @@
       );
     },
   };
+  const DouYinElement = {
+    watchFeedVideoListChange(callback) {
+      let $os = null;
+      domUtils.onReady(() => {
+        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
+          log.info(`启用观察器观察加载的视频`);
+          let lockFn = new utils.LockFunction((observer) => {
+            $os = $os || this.selectorRootOSNode();
+            if (!$os) {
+              log.error("watchVideDataListChange：获取osElement失败");
+              return;
+            }
+            callback($os, observer);
+          }, 50);
+          utils.mutationObserver(document, {
+            config: {
+              childList: true,
+              subtree: true,
+            },
+            immediate: true,
+            callback: (mutations, observer) => {
+              lockFn.run(observer);
+            },
+          });
+        });
+      });
+    },
+    selectorRootOSNode() {
+      return $("#root div[class*='-os']") || $("#douyin-right-container");
+    },
+    getInViewVideo() {
+      function getElementVisiblePercentage($el) {
+        const rect = $el.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const visibleLeft = Math.max(0, rect.left);
+        const visibleTop = Math.max(0, rect.top);
+        const visibleRight = Math.min(viewportWidth, rect.right);
+        const visibleBottom = Math.min(viewportHeight, rect.bottom);
+        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+        const elementArea = rect.width * rect.height;
+        const visibleArea = visibleWidth * visibleHeight;
+        if (elementArea === 0) {
+          return {
+            percentage: 0,
+            horizontal: 0,
+            vertical: 0,
+          };
+        }
+        const percentage = (visibleArea / elementArea) * 100;
+        const horizontalPercentage = (visibleWidth / rect.width) * 100;
+        const verticalPercentage = (visibleHeight / rect.height) * 100;
+        return {
+          percentage: Math.round(percentage * 100) / 100,
+
+          horizontal: Math.round(horizontalPercentage * 100) / 100,
+          vertical: Math.round(verticalPercentage * 100) / 100,
+        };
+      }
+      const $videos = $$("video");
+      const videosInViewData = $videos
+        .map(($video) => {
+          if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
+          const visiblePercent = getElementVisiblePercentage($video);
+          if (visiblePercent.percentage <= 0) return;
+          return {
+            $el: $video,
+            percentage: visiblePercent.percentage,
+          };
+        })
+        .filter((it) => it != null);
+      utils.sortListByProperty(videosInViewData, (it) => it.percentage);
+      return videosInViewData;
+    },
+  };
   const Hook = {
     $data: {
       document_addEventListener: [],
@@ -2805,10 +2881,9 @@
       });
     },
     removeCookie() {
-      const cookieHandler = new utils.GM_Cookie();
       const cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
       cookieNameList.forEach((cookieName) => {
-        cookieHandler.delete(
+        cookieManager.delete(
           {
             name: cookieName,
             firstPartyDomain: "",
@@ -2830,13 +2905,13 @@
         const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
         return isInputNode && isInPops;
       };
+      let timeId;
       Hook.document_addEventListener((target, eventName, listener, option) => {
         if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function (...eventArgs) {
             const event = eventArgs[0];
             event.key;
             const code = event.code;
-            event.charCode || event.keyCode || event.which;
             const otherCodeList = [];
             if (event.ctrlKey) {
               otherCodeList.push("ctrl");
@@ -2984,6 +3059,28 @@
                   enableKey: "dy-keyboard-hook-videoFastForward",
                   code: ["KeyD"],
                 },
+                {
+                  enableKey: "dy-video-disableDoubleClickLike",
+                  code: ["Space"],
+                  callback() {
+                    utils.workerClearTimeout(timeId);
+                    timeId = utils.workerSetTimeout(() => {
+                      const videosInViewVideoList = DouYinElement.getInViewVideo();
+                      if (!videosInViewVideoList.length) {
+                        Qmsg.error("未找到在可视区域内的视频");
+                        return;
+                      }
+                      const $video = videosInViewVideoList[0].$el;
+                      if ($video.paused) {
+                        log.info(`当前视频处于暂停状态，开始播放`);
+                        $video.play();
+                      } else {
+                        log.info(`当前视频处于播放状态，暂停播放`);
+                        $video.pause();
+                      }
+                    }, 288);
+                  },
+                },
               ];
             } else if (DouYinRouter.isLive()) {
               otherKeyboardConfigList = [
@@ -3026,6 +3123,9 @@
                 }
                 if (!Panel.getValue(keyboardConfig.enableKey)) {
                   continue;
+                }
+                if (typeof keyboardConfig.callback === "function") {
+                  keyboardConfig.callback();
                 }
                 return;
               }
@@ -3085,37 +3185,6 @@
           };
         }
       });
-    },
-  };
-  const DouYinElement = {
-    watchFeedVideoListChange(callback) {
-      let $os = null;
-      domUtils.onReady(() => {
-        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
-          log.info(`启用观察器观察加载的视频`);
-          let lockFn = new utils.LockFunction((observer) => {
-            $os = $os || this.selectorRootOSNode();
-            if (!$os) {
-              log.error("watchVideDataListChange：获取osElement失败");
-              return;
-            }
-            callback($os, observer);
-          }, 50);
-          utils.mutationObserver(document, {
-            config: {
-              childList: true,
-              subtree: true,
-            },
-            immediate: true,
-            callback: (mutations, observer) => {
-              lockFn.run(observer);
-            },
-          });
-        });
-      });
-    },
-    selectorRootOSNode() {
-      return $("#root div[class*='-os']") || $("#douyin-right-container");
     },
   };
   const DouYinAccount = {
@@ -4389,54 +4458,12 @@
         "dy-video-shortcut-parseVideo": {
           callback() {
             log.info(`触发快捷键 ==> 视频解析`);
-            function getElementVisiblePercentage($el) {
-              const rect = $el.getBoundingClientRect();
-              const viewportWidth = window.innerWidth;
-              const viewportHeight = window.innerHeight;
-              const visibleLeft = Math.max(0, rect.left);
-              const visibleTop = Math.max(0, rect.top);
-              const visibleRight = Math.min(viewportWidth, rect.right);
-              const visibleBottom = Math.min(viewportHeight, rect.bottom);
-              const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-              const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-              const elementArea = rect.width * rect.height;
-              const visibleArea = visibleWidth * visibleHeight;
-              if (elementArea === 0) {
-                return {
-                  percentage: 0,
-                  horizontal: 0,
-                  vertical: 0,
-                };
-              }
-              const percentage = (visibleArea / elementArea) * 100;
-              const horizontalPercentage = (visibleWidth / rect.width) * 100;
-              const verticalPercentage = (visibleHeight / rect.height) * 100;
-              return {
-                percentage: Math.round(percentage * 100) / 100,
-
-                horizontal: Math.round(horizontalPercentage * 100) / 100,
-                vertical: Math.round(verticalPercentage * 100) / 100,
-              };
-            }
-            const $videos = $$("video");
-            const videosInViewData = $videos
-              .map(($video2) => {
-                if (utils.isNull($video2.src) && utils.isNull($video2.currentSrc) && utils.isNull($video2.srcObject))
-                  return;
-                const visiblePercent = getElementVisiblePercentage($video2);
-                if (visiblePercent.percentage <= 0) return;
-                return {
-                  $el: $video2,
-                  percentage: visiblePercent.percentage,
-                };
-              })
-              .filter((it) => it != null);
-            utils.sortListByProperty(videosInViewData, (it) => it.percentage);
-            if (!videosInViewData.length) {
+            const videosInViewVideoList = DouYinElement.getInViewVideo();
+            if (!videosInViewVideoList.length) {
               Qmsg.error("未找到在可视区域内的视频");
               return;
             }
-            const $video = videosInViewData[0].$el;
+            const $video = videosInViewVideoList[0].$el;
             log.info(`当前在可视区域内占据面积最大的视频是：`, $video);
             DouYinVideoPlayer.hookDownloadButtonToParseVideo($video);
           },
@@ -11208,7 +11235,13 @@
                     void 0,
                     "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
-                  UISwitch("禁用双击点赞", "dy-video-disableDoubleClickLike", false, void 0, "禁止视频区域双击点赞"),
+                  UISwitch(
+                    "禁用双击点赞",
+                    "dy-video-disableDoubleClickLike",
+                    false,
+                    void 0,
+                    "包括鼠标双击、键盘长按空格键"
+                  ),
                   UISwitch(
                     "手势返回关闭评论区",
                     "dy-video-gestureBackCloseComment",
