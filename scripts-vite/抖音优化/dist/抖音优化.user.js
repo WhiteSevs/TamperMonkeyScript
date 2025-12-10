@@ -11224,7 +11224,7 @@
                     "dy-video-disableDoubleClickLike",
                     false,
                     void 0,
-                    "包括鼠标双击、键盘长按空格键"
+                    "包括：鼠标双击、键盘长按<code>空格</code>键"
                   ),
                   UISwitch(
                     "手势返回关闭评论区",
