@@ -81,16 +81,46 @@ export interface DouYinVideoHandlerInfo {
    */
   videoBitRateList: {
     bitRate?: number;
+    /**
+     * 视频大小
+     */
     dataSize?: number;
     /** mp4 */
     format?: string;
     isH265?: number;
+    /** 帧率 */
     fps?: number;
     /** adapt_lowest_4_1 */
     gearName?: string;
+    /**
+     * 画质
+     */
     qualityType?: number;
+    /**
+     * 视频宽度
+     */
     width?: number;
+    /**
+     * 视频高度
+     */
     height?: number;
+  }[];
+  /**
+   * 图文的信息
+   */
+  pictureList: {
+    /**
+     * 图片宽度
+     */
+    width: number;
+    /**
+     * 图片高度
+     */
+    height: number;
+    /**
+     * 无水印链接
+     */
+    url?: string;
   }[];
 }
 

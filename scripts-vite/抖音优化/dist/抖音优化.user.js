@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.10.19
+// @version      2025.12.13
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2163,8 +2163,8 @@
 				#slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
 					margin: var(--recommend-video-container-margin-height) 0px !important;
-					height: calc(100vh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
-					height: calc(100dvh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
+					height: ${window.innerHeight}px !important;
+					height: round(nearest, 100dvh, 1px) !important;
 				}
 			`
         )
@@ -2461,50 +2461,69 @@
     selectorRootOSNode() {
       return $("#root div[class*='-os']") || $("#douyin-right-container");
     },
-    getInViewVideo() {
-      function getElementVisiblePercentage($el) {
-        const rect = $el.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const visibleLeft = Math.max(0, rect.left);
-        const visibleTop = Math.max(0, rect.top);
-        const visibleRight = Math.min(viewportWidth, rect.right);
-        const visibleBottom = Math.min(viewportHeight, rect.bottom);
-        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-        const elementArea = rect.width * rect.height;
-        const visibleArea = visibleWidth * visibleHeight;
-        if (elementArea === 0) {
-          return {
-            percentage: 0,
-            horizontal: 0,
-            vertical: 0,
-          };
-        }
-        const percentage = (visibleArea / elementArea) * 100;
-        const horizontalPercentage = (visibleWidth / rect.width) * 100;
-        const verticalPercentage = (visibleHeight / rect.height) * 100;
+    getPercentInWindowView($el) {
+      const rect = $el.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const visibleLeft = Math.max(0, rect.left);
+      const visibleTop = Math.max(0, rect.top);
+      const visibleRight = Math.min(viewportWidth, rect.right);
+      const visibleBottom = Math.min(viewportHeight, rect.bottom);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const elementArea = rect.width * rect.height;
+      const visibleArea = visibleWidth * visibleHeight;
+      if (elementArea === 0) {
         return {
-          percentage: Math.round(percentage * 100) / 100,
-
-          horizontal: Math.round(horizontalPercentage * 100) / 100,
-          vertical: Math.round(verticalPercentage * 100) / 100,
+          percentage: 0,
+          horizontal: 0,
+          vertical: 0,
+          toCenter: 0,
         };
       }
-      const $videos = $$("video");
-      const videosInViewData = $videos
+      const visibleCenterX = visibleLeft + Math.max(0, (visibleRight - visibleLeft) / 2);
+      const visibleCenterY = visibleTop + Math.max(0, (visibleBottom - visibleTop) / 2);
+      const viewportCenterX = Math.max(0, viewportWidth / 2);
+      const viewportCenterY = Math.max(0, viewportHeight / 2);
+      const percentage = (visibleArea / elementArea) * 100;
+      const toCenter = Math.sqrt(
+        Math.pow(visibleCenterX - viewportCenterX, 2) + Math.pow(visibleCenterY - viewportCenterY, 2)
+      );
+      const horizontalPercentage = (visibleWidth / rect.width) * 100;
+      const verticalPercentage = (visibleHeight / rect.height) * 100;
+      return {
+        percentage: Math.round(percentage * 100) / 100,
+
+        horizontal: Math.round(horizontalPercentage * 100) / 100,
+        vertical: Math.round(verticalPercentage * 100) / 100,
+        toCenter,
+      };
+    },
+    getInViewVideo() {
+      const $videos = Array.from($$("video"))
         .map(($video) => {
           if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
-          const visiblePercent = getElementVisiblePercentage($video);
+        })
+        .filter((it) => it != null);
+      const videosInViewData = this.getInViewNode($videos);
+      return videosInViewData;
+    },
+    getInViewNode($el) {
+      if (!Array.isArray($el)) {
+        $el = [$el];
+      }
+      const nodeInViewData = $el
+        .map(($it) => {
+          const visiblePercent = this.getPercentInWindowView($it);
           if (visiblePercent.percentage <= 0) return;
           return {
-            $el: $video,
-            percentage: visiblePercent.percentage,
+            $el: $it,
+            toCenter: visiblePercent.toCenter,
           };
         })
         .filter((it) => it != null);
-      utils.sortListByProperty(videosInViewData, (it) => it.percentage);
-      return videosInViewData;
+      utils.sortListByProperty(nodeInViewData, (it) => it.toCenter, false);
+      return nodeInViewData;
     },
   };
   const Hook = {
@@ -4443,13 +4462,14 @@
           callback() {
             log.info(`触发快捷键 ==> 视频解析`);
             const videosInViewVideoList = DouYinElement.getInViewVideo();
-            if (!videosInViewVideoList.length) {
-              Qmsg.error("未找到在可视区域内的视频");
+            const $shareList = $$('[data-e2e="video-player-share"]');
+            const playerShareInViewList = DouYinElement.getInViewNode($shareList);
+            if (!videosInViewVideoList.length && !playerShareInViewList.length) {
+              Qmsg.error("未找到在可视区域内的视频/图文");
               return;
             }
-            const $video = videosInViewVideoList[0].$el;
-            log.info(`当前在可视区域内占据面积最大的视频是：`, $video);
-            DouYinVideoPlayer.hookDownloadButtonToParseVideo($video);
+            const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
+            DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
           },
         },
         "dy-video-shortcut-playbackRate": {
@@ -4664,6 +4684,7 @@
     let isInjectAttrName = "data-is-inject-mouse-hide";
     let opacityShowAttrName = "data-opacity-show";
     let opacityHideAttrName = "data-opacity-hide";
+    const result = [];
     let delayTime = () => Panel.getValue(delayTimeKey);
     const styleCSS = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
@@ -4697,33 +4718,60 @@
     });
     const lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
-        let $el = $(`${selector}:not([${isInjectAttrName}])`);
+        const $el = $(`${selector}:not([${isInjectAttrName}])`);
         if (!$el) {
           return;
         }
         $el.setAttribute(isInjectAttrName, "");
         let timeId = 0;
-        domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-          clearTimeout(timeId);
+        const show = () => {
+          utils.workerClearTimeout(timeId);
           if (delayTime() === 0) {
             $el.setAttribute(opacityShowAttrName, "");
           } else {
             $el.removeAttribute(opacityHideAttrName);
           }
-        });
-        domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+        };
+        const hide = (enableDelayTime = false) => {
+          utils.workerClearTimeout(timeId);
+          if (enableDelayTime) {
+            timeId = utils.workerSetTimeout(() => {
+              hide(false);
+            }, delayTime());
+            return;
+          }
           if (delayTime() === 0) {
             $el.removeAttribute(opacityShowAttrName);
           } else {
             $el.setAttribute(opacityHideAttrName, "");
           }
+        };
+        const showListener = domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+          show();
         });
-        if (delayTime() === 0);
-        else {
-          timeId = setTimeout(() => {
-            $el.setAttribute(opacityHideAttrName, "");
-          }, delayTime());
-        }
+        const hideListener = domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+          hide();
+        });
+        const interObserver = new IntersectionObserver(
+          (entries) => {
+            const intersection = entries[0];
+            if (intersection.isIntersecting) {
+              show();
+              hide(true);
+            }
+          },
+          {
+            rootMargin: "0px",
+            threshold: 0.02,
+          }
+        );
+        interObserver.observe($el);
+        result.push(() => {
+          showListener.off();
+          hideListener.off();
+          interObserver.unobserve($el);
+          interObserver.disconnect();
+        });
       });
     });
     const observer = utils.mutationObserver(document, {
@@ -4736,13 +4784,11 @@
         lockFn.run();
       },
     });
-    return [
-      () => {
-        Panel.removeValueChangeListener(listenerId);
-        observer?.disconnect();
-      },
-      $style,
-    ];
+    result.push(() => {
+      Panel.removeValueChangeListener(listenerId);
+      observer?.disconnect();
+    }, $style);
+    return result;
   };
   const ReactUtils = {
     async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
@@ -4859,7 +4905,8 @@
       let riskInfoContent = awemeInfo?.["riskInfos"]?.content || awemeInfo?.["risk_infos"]?.content;
       let seriesInfoName = void 0;
       let seriesInfoContentTypes = [];
-      let isPicture = awemeInfo?.["aweme_type"] === 68;
+      let isPicture = awemeInfo?.awemeType === 68 || awemeInfo?.["aweme_type"] === 68;
+      let pictureList = [];
       if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
         textExtraInstance?.forEach((item) => {
           let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
@@ -4980,7 +5027,6 @@
       }
       let series_info = awemeInfo?.["seriesInfo"] || awemeInfo?.["series_info"];
       if (typeof series_info === "object" && series_info != null) {
-        isSeriesInfo = true;
         seriesInfoName = series_info?.["seriesName"] || series_info?.["series_name"];
         let series_content_types = series_info?.["seriesContentTypes"] || series_info?.["series_content_types"];
         if (Array.isArray(series_content_types)) {
@@ -4988,6 +5034,9 @@
             let seriesInfoName2 = it["name"];
             seriesInfoContentTypes.push(seriesInfoName2);
           });
+        }
+        if (seriesInfoName != null && series_content_types != null) {
+          isSeriesInfo = true;
         }
       }
       let mixInfo = awemeInfo?.["mixInfo"] || awemeInfo?.["mix_info"];
@@ -4997,6 +5046,22 @@
       }
       if (isPicture) {
         duration = void 0;
+        const images = awemeInfo?.["images"];
+        if (Array.isArray(images)) {
+          pictureList = images.map((it) => {
+            let url;
+            if (Array.isArray(it.urlList && it.urlList.length)) {
+              url = it.urlList[0];
+            } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
+              url = it.downloadUrlList[0];
+            }
+            return {
+              width: it.width,
+              height: it.height,
+              url,
+            };
+          });
+        }
       }
       let suggestWord = [];
       let suggestWords =
@@ -5132,6 +5197,7 @@
         isPicture,
         isProduct,
         videoBitRateList,
+        pictureList,
       };
     }
     async checkFilterWithRule(config, ruleDynamicOption) {
@@ -5639,31 +5705,31 @@
       log.info("修改页面的分享-下载按钮变成解析视频");
       function showParseInfoDialog(info) {
         let contentHTML = "";
-        info.downloadUrlInfoList.forEach((downloadInfo) => {
+        info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
           let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
-          let downloadFileName = info.downloadFileName;
-          [["{quality}", videoQualityInfo]].forEach(([key, value]) => {
-            downloadFileName = downloadFileName.replace(key, value);
+          let downloadFileName = info.downloadInfo.video.fileName;
+          downloadFileName = transformDownloadFileName({
+            quality: videoQualityInfo,
           });
           downloadFileName = downloadFileName + "." + downloadInfo.format;
           contentHTML += `
-        <div class="douyin-video-link-item">
-					<div class="dy-video-name">
+        <div class="dy-link-item">
+					<div class="dy-link-item-name">
 						<span>清晰度信息：</span>
 						<span>${videoQualityInfo}</span>
 					</div>
-					<div class="dy-video-size">
+					<div class="dy-link-item-size">
 						<span>视频大小：</span>
 						<span>${utils.formatByteToSize(downloadInfo.dataSize)}</span>
 					</div>
-					<div class="dy-video-download-uri">
+					<div class="dy-link-item-download-uri">
 						<span>下载地址：</span>
 						<a href="${downloadInfo.url}" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
 					</div>
 					${
             downloadInfo.backUrl.length
               ? `
-						<div class="dy-video-back-uri">
+						<div class="dy-link-item-back-uri">
 							<span>备用地址：</span>
 							${downloadInfo.backUrl
                 .map((url, index) => {
@@ -5678,18 +5744,37 @@
           }
 				</div>`;
         });
+        info.downloadInfo.picture.urlInfoList.forEach((downloadInfo) => {
+          let pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
+          let downloadFileName = info.downloadInfo.picture.fileName;
+          downloadFileName = transformDownloadFileName({
+            quality: pictureSizeInfo,
+          });
+          downloadFileName = downloadFileName + ".png";
+          contentHTML += `
+        <div class="dy-link-item">
+					<div class="dy-link-item-name">
+						<span>图片信息：</span>
+						<span>${pictureSizeInfo}</span>
+					</div>
+					<div class="dy-link-item-download-uri">
+						<span>下载地址：</span>
+						<a href="${downloadInfo.url}" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+					</div>
+        </div>`;
+        });
         contentHTML = `
-      <div class="douyin-video-link-info">
-        <div class="douyin-video-name">
+      <div class="dy-link-info-wrapper dy-link-item">
+        <div class="dy-info-name">
           <span>作者：</span>
           <span>${info.author}</span>
         </div>
-        <div class="douyin-video-desc">
+        <div class="dy-info-desc">
           <span>文案：</span>
           <span>${info.desc}</span>
         </div>
       </div>
-      <div class="douyin-video-link-container">${contentHTML}</div>
+      <div class="dy-link-download-wrapper">${contentHTML}</div>
       `;
         const $dialog = __pops__.alert({
           title: {
@@ -5716,33 +5801,35 @@
           drag: true,
           dragLimit: true,
           style: `
-          .douyin-video-link-item,
-          .douyin-video-link-container a{
+          .dy-info-desc span{
+            white-space: normal;
+          }
+          .dy-link-info-wrapper,
+          .dy-link-download-wrapper{
+            border: 1px solid #000000;
+            border-radius: 5px;
+            margin: 10px;
+          }
+          .dy-info-name span:first-child,
+          .dy-info-desc span:first-child{
+            white-space: nowrap;
+          }
+          .dy-link-item,
+          .dy-link-download-wrapper a{
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
           }
-          .douyin-video-link-item,
-          .douyin-video-name,
-          .douyin-video-desc{
+          .dy-info-name,
+          .dy-info-desc,
+          .dy-link-item{
             margin: 10px;
           }
-          .douyin-video-name,
-          .douyin-video-desc,
-          .dy-video-download-uri,
-          .dy-video-back-uri{
+          .dy-link-item-name,
+          .dy-link-item-desc,
+          .dy-link-item-download-uri,
+          .dy-link-item-back-uri{
             display: flex;
-          }
-          
-          .douyin-video-name span:first-child,
-          .douyin-video-desc span:first-child{
-            white-space: nowrap;
-          }
-          .douyin-video-link-info,
-          .douyin-video-link-container{
-            border: 1px solid #000000;
-            border-radius: 5px;
-            margin: 10px;
           }
           `,
         });
@@ -5842,7 +5929,7 @@
         let fileNameTemplate = Panel.getValue("dy-video-parseVideo-downloadFileName");
         for (const key in data) {
           if (!Object.hasOwn(data, key)) continue;
-          const value = data[key].toString();
+          const value = Reflect.get(data, key).toString();
           fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
         }
         fileNameTemplate = fileNameTemplate.replaceAll(
@@ -5864,72 +5951,17 @@
           Qmsg.error("获取rectFiber属性失败");
           return;
         }
-        const reactFiber = parentReactFilber || basePlayerContainerReactFiber;
         try {
           const awemeInfo =
-            reactFiber?.return?.memoizedProps?.awemeInfo ||
-            reactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
+            parentReactFilber?.return?.memoizedProps?.awemeInfo ||
+            parentReactFilber?.return?.return?.return?.memoizedProps?.awemeInfo ||
+            basePlayerContainerReactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
           if (!awemeInfo) {
-            log.error([$click, reactFiber]);
+            log.error([$click, parentReactFilber, basePlayerContainerReactFiber]);
             Qmsg.error("获取awemeInfo属性失败");
             return;
           }
           log.info([`解析的awemeInfo: `, awemeInfo]);
-          let videoDownloadUrlList = [];
-          const bitRateList = awemeInfo?.video?.bitRateList;
-          if (bitRateList != null && Array.isArray(bitRateList)) {
-            videoDownloadUrlList = videoDownloadUrlList.concat(
-              bitRateList
-                .map((item) => {
-                  let result = {
-                    url: item.playApi,
-                    width: item.width,
-                    height: item.height,
-                    format: item.format,
-                    fps: 0,
-                    dataSize: item.dataSize,
-                    backUrl: [],
-                  };
-                  if (typeof item.fps === "number") {
-                    result.fps = item.fps;
-                  }
-                  if (Array.isArray(item.playAddr)) {
-                    result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
-                  }
-                  return result;
-                })
-                .filter((it) => it != null)
-            );
-          }
-          if (!videoDownloadUrlList.length) {
-            Qmsg.error("未获取到视频的有效链接信息");
-            return;
-          }
-          let uniqueVideoDownloadUrlList = [];
-          for (let index = 0; index < videoDownloadUrlList.length; index++) {
-            const videoDownloadInfo = videoDownloadUrlList[index];
-            let findIndex = uniqueVideoDownloadUrlList.findIndex(
-              (it) =>
-                it.width === videoDownloadInfo.width &&
-                it.height === videoDownloadInfo.height &&
-                it.fps === videoDownloadInfo.fps
-            );
-            if (findIndex != -1) {
-              let findValue = uniqueVideoDownloadUrlList[findIndex];
-              if (findValue.dataSize < videoDownloadInfo.dataSize) {
-                uniqueVideoDownloadUrlList.splice(findIndex, 1, videoDownloadInfo);
-              }
-            } else {
-              uniqueVideoDownloadUrlList.push(videoDownloadInfo);
-            }
-          }
-          uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map((item) => {
-            if (item.url.startsWith("http:")) {
-              item.url = item.url.replace("http:", "");
-            }
-            return item;
-          });
-          utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
           const filterBase = new DouYinVideoFilterBase();
           const transformAwemeInfo = filterBase.parseAwemeInfoDictData(awemeInfo);
           if (transformAwemeInfo.nickname == null) {
@@ -5938,7 +5970,76 @@
           if (transformAwemeInfo.desc == null) {
             transformAwemeInfo.desc = "未知视频文案";
           }
-          const downloadFileName = transformDownloadFileName({
+          let videoDownloadUrlList = [];
+          let pictureDownloadUrlList = [];
+          const bitRateList = awemeInfo?.video?.bitRateList;
+          if (bitRateList != null && Array.isArray(bitRateList)) {
+            videoDownloadUrlList = bitRateList
+              .map((item) => {
+                let result = {
+                  url: item.playApi,
+                  width: item.width,
+                  height: item.height,
+                  format: item.format,
+                  fps: 0,
+                  dataSize: item.dataSize,
+                  backUrl: [],
+                };
+                if (typeof item.fps === "number") {
+                  result.fps = item.fps;
+                }
+                if (Array.isArray(item.playAddr)) {
+                  result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
+                }
+                return result;
+              })
+              .filter((it) => it != null);
+            for (let index = 0; index < videoDownloadUrlList.length; index++) {
+              const item = videoDownloadUrlList[index];
+              for (let index2 = 0; index2 < videoDownloadUrlList.length; index2++) {
+                const item2 = videoDownloadUrlList[index2];
+                if (item === item2) {
+                  continue;
+                }
+                if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
+                  if (item.dataSize > item2.dataSize) {
+                    videoDownloadUrlList.splice(index2, 1);
+                    index2--;
+                    if (index > index2) {
+                      index--;
+                    }
+                  }
+                }
+              }
+            }
+            videoDownloadUrlList = videoDownloadUrlList.map((item) => {
+              if (item.url.startsWith("http:")) {
+                item.url = item.url.replace("http:", "");
+              }
+              return item;
+            });
+            utils.sortListByProperty(videoDownloadUrlList, (it) => it.width);
+          }
+          if (transformAwemeInfo.pictureList.length) {
+            pictureDownloadUrlList = transformAwemeInfo.pictureList.map((item) => {
+              return {
+                url: item.url,
+                width: item.width,
+                height: item.height,
+              };
+            });
+          }
+          if (!videoDownloadUrlList.length && !pictureDownloadUrlList.length) {
+            Qmsg.error("未解析出有效的资源信息");
+            return;
+          }
+          const videoDownloadFileName = transformDownloadFileName({
+            uid: transformAwemeInfo.uid,
+            nickname: transformAwemeInfo.nickname,
+            desc: transformAwemeInfo.desc,
+            downloadTime: utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss"),
+          });
+          const pictureDownloadFileName = transformDownloadFileName({
             uid: transformAwemeInfo.uid,
             nickname: transformAwemeInfo.nickname,
             desc: transformAwemeInfo.desc,
@@ -5947,8 +6048,16 @@
           showParseInfoDialog({
             author: transformAwemeInfo.nickname,
             desc: transformAwemeInfo.desc,
-            downloadFileName,
-            downloadUrlInfoList: uniqueVideoDownloadUrlList,
+            downloadInfo: {
+              video: {
+                fileName: videoDownloadFileName,
+                urlInfoList: videoDownloadUrlList,
+              },
+              picture: {
+                fileName: pictureDownloadFileName,
+                urlInfoList: pictureDownloadUrlList,
+              },
+            },
           });
         } catch (error) {
           log.error(error);
@@ -9696,6 +9805,7 @@
                 "productId",
                 "productTitle",
                 "videoBitRateList",
+                "pictureList",
               ];
               const createDynamicItemNode = (storageData) => {
                 const ruleNameDefaultValue = Array.isArray(storageData["ruleName"])

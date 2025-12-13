@@ -42,78 +42,115 @@ export const DouYinElement = {
     return $<HTMLElement>("#root div[class*='-os']") || $<HTMLElement>("#douyin-right-container");
   },
   /**
-   * 获取当前在视图内的video元素
+   * 计算元素在浏览器可视区域内占据的百分比
+   * @param $el - 要计算的元素
+   * @returns 包含水平和垂直占比的对象
    */
-  getInViewVideo() {
-    /**
-     * 计算元素在浏览器可视区域内占据的百分比
-     * @param $el - 要计算的元素
-     * @returns 包含水平和垂直占比的对象
-     */
-    function getElementVisiblePercentage($el: Element) {
-      const rect = $el.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+  getPercentInWindowView($el: Element) {
+    const rect = $el.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-      // 计算元素在视口内的可见部分
-      const visibleLeft = Math.max(0, rect.left);
-      const visibleTop = Math.max(0, rect.top);
-      const visibleRight = Math.min(viewportWidth, rect.right);
-      const visibleBottom = Math.min(viewportHeight, rect.bottom);
+    // 计算元素在视口内的可见部分
+    const visibleLeft = Math.max(0, rect.left);
+    const visibleTop = Math.max(0, rect.top);
+    const visibleRight = Math.min(viewportWidth, rect.right);
+    const visibleBottom = Math.min(viewportHeight, rect.bottom);
 
-      // 计算可见区域的宽度和高度
-      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+    // 计算可见区域的宽度和高度
+    const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
 
-      // 计算可见面积占元素总面积的百分比
-      const elementArea = rect.width * rect.height;
-      const visibleArea = visibleWidth * visibleHeight;
+    // 计算可见面积占元素总面积的百分比
+    const elementArea = rect.width * rect.height;
+    const visibleArea = visibleWidth * visibleHeight;
 
-      // 避免除零错误
-      if (elementArea === 0) {
-        return {
-          percentage: 0,
-          horizontal: 0,
-          vertical: 0,
-        };
-      }
-
-      const percentage = (visibleArea / elementArea) * 100;
-
-      // 分别计算水平和垂直方向的占比
-      const horizontalPercentage = (visibleWidth / rect.width) * 100;
-      const verticalPercentage = (visibleHeight / rect.height) * 100;
-
+    // 避免除零错误
+    if (elementArea === 0) {
       return {
         /**
-         * 区域百分比
+         * 显示的区域百分比
          */
-        percentage: Math.round(percentage * 100) / 100, // 保留两位小数
+        percentage: 0,
         /**
          * 水平百分比
          */
-        horizontal: Math.round(horizontalPercentage * 100) / 100,
+        horizontal: 0,
         /**
          * 垂直百分比
          */
-        vertical: Math.round(verticalPercentage * 100) / 100,
+        vertical: 0,
+        /**
+         * 与水平中心的距离
+         */
+        toCenter: 0,
       };
     }
-    const $videos = $$<HTMLVideoElement>("video");
-    const videosInViewData = $videos
+
+    const visibleCenterX = visibleLeft + Math.max(0, (visibleRight - visibleLeft) / 2);
+    const visibleCenterY = visibleTop + Math.max(0, (visibleBottom - visibleTop) / 2);
+    const viewportCenterX = Math.max(0, viewportWidth / 2);
+    const viewportCenterY = Math.max(0, viewportHeight / 2);
+    const percentage = (visibleArea / elementArea) * 100;
+    const toCenter = Math.sqrt(
+      Math.pow(visibleCenterX - viewportCenterX, 2) + Math.pow(visibleCenterY - viewportCenterY, 2)
+    );
+
+    // 分别计算水平和垂直方向的占比
+    const horizontalPercentage = (visibleWidth / rect.width) * 100;
+    const verticalPercentage = (visibleHeight / rect.height) * 100;
+
+    return {
+      /**
+       * 显示的区域百分比
+       */
+      percentage: Math.round(percentage * 100) / 100, // 保留两位小数
+      /**
+       * 水平百分比
+       */
+      horizontal: Math.round(horizontalPercentage * 100) / 100,
+      /**
+       * 垂直百分比
+       */
+      vertical: Math.round(verticalPercentage * 100) / 100,
+      /**
+       * 与水平中心的距离
+       */
+      toCenter: toCenter,
+    };
+  },
+  /**
+   * 获取当前在视图内的video元素
+   */
+  getInViewVideo() {
+    const $videos = Array.from($$<HTMLVideoElement>("video"))
       .map(($video) => {
         // 忽略没有媒体资源的video标签
         if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
+      })
+      .filter((it) => it != null);
+    const videosInViewData = this.getInViewNode<HTMLVideoElement>($videos);
+    return videosInViewData;
+  },
+  /**
+   * 获取在视图内的元素
+   */
+  getInViewNode<T extends HTMLElement>($el: T | T[]) {
+    if (!Array.isArray($el)) {
+      $el = [$el];
+    }
+    const nodeInViewData = $el
+      .map(($it) => {
         // 计算在可视区域内占据的百分比
-        const visiblePercent = getElementVisiblePercentage($video);
+        const visiblePercent = this.getPercentInWindowView($it);
         if (visiblePercent.percentage <= 0) return;
         return {
-          $el: $video,
-          percentage: visiblePercent.percentage,
+          $el: $it,
+          toCenter: visiblePercent.toCenter,
         };
       })
       .filter((it) => it != null);
-    utils.sortListByProperty(videosInViewData, (it) => it.percentage);
-    return videosInViewData;
+    utils.sortListByProperty(nodeInViewData, (it) => it.toCenter, false);
+    return nodeInViewData;
   },
 };

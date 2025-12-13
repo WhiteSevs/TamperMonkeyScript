@@ -1,4 +1,5 @@
 import { $, addStyle, DOMUtils, utils } from "@/env";
+import { DouYinElement } from "@/utils/DouYinElement";
 import { Panel } from "@components/setting/panel";
 
 /**
@@ -10,6 +11,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
   let isInjectAttrName = "data-is-inject-mouse-hide";
   let opacityShowAttrName = "data-opacity-show";
   let opacityHideAttrName = "data-opacity-hide";
+  const result: any[] = [];
   let delayTime = () => Panel.getValue<number>(delayTimeKey);
 
   const styleCSS = (__delayTime__ = delayTime()) => {
@@ -48,15 +50,15 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
   const lockFn = new utils.LockFunction(() => {
     /** 视频信息列表 */
     selectors.forEach((selector) => {
-      let $el = $<HTMLElement>(`${selector}:not([${isInjectAttrName}])`);
+      const $el = $<HTMLElement>(`${selector}:not([${isInjectAttrName}])`);
       if (!$el) {
         return;
       }
 
       $el.setAttribute(isInjectAttrName, "");
       let timeId: number | undefined = 0;
-      DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-        clearTimeout(timeId);
+      const show = () => {
+        utils.workerClearTimeout(timeId);
         if (delayTime() === 0) {
           // 默认隐藏的，强制显示
           $el.setAttribute(opacityShowAttrName, "");
@@ -64,8 +66,15 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
           // 移除隐藏的
           $el.removeAttribute(opacityHideAttrName);
         }
-      });
-      DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+      };
+      const hide = (enableDelayTime: boolean = false) => {
+        utils.workerClearTimeout(timeId);
+        if (enableDelayTime) {
+          timeId = utils.workerSetTimeout(() => {
+            hide(false);
+          }, delayTime());
+          return;
+        }
         if (delayTime() === 0) {
           // 这个是默认隐藏，移除显示的
           $el.removeAttribute(opacityShowAttrName);
@@ -73,16 +82,38 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
           // 隐藏
           $el.setAttribute(opacityHideAttrName, "");
         }
+      };
+      const showListener = DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+        show();
       });
-      if (delayTime() === 0) {
-        // 直接默认隐藏
-      } else {
-        // 默认显示
-        // 延迟隐藏
-        timeId = setTimeout(() => {
-          $el.setAttribute(opacityHideAttrName, "");
-        }, delayTime());
-      }
+      const hideListener = DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+        hide();
+      });
+      const interObserver = new IntersectionObserver(
+        (entries) => {
+          const intersection = entries[0];
+          if (intersection.isIntersecting) {
+            // 进入视图 强制显示，然后延迟隐藏
+            show();
+            hide(true);
+          } else {
+            // 离开视图 直接显示吧，下次显示就不用强制过渡显示了
+            // show();
+          }
+        },
+        {
+          rootMargin: "0px",
+          threshold: 0.02,
+        }
+      );
+      interObserver.observe($el);
+
+      result.push(() => {
+        showListener.off();
+        hideListener.off();
+        interObserver.unobserve($el);
+        interObserver.disconnect();
+      });
     });
   });
   const observer = utils.mutationObserver(document, {
@@ -96,11 +127,9 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
     },
   });
 
-  return [
-    () => {
-      Panel.removeValueChangeListener(listenerId);
-      observer?.disconnect();
-    },
-    $style,
-  ];
+  result.push(() => {
+    Panel.removeValueChangeListener(listenerId);
+    observer?.disconnect();
+  }, $style);
+  return result;
 };

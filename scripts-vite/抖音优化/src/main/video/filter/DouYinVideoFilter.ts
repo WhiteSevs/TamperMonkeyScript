@@ -867,6 +867,7 @@ export const DouYinVideoFilter = {
               "productId",
               "productTitle",
               "videoBitRateList",
+              "pictureList",
             ];
 
             /**

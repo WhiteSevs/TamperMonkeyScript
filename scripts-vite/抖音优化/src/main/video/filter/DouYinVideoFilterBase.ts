@@ -93,8 +93,11 @@ export class DouYinVideoFilterBase {
     let seriesInfoContentTypes: string[] = [];
     /** 是否是图文 */
     let isPicture: boolean =
+      awemeInfo?.awemeType === 68 ||
       // @ts-ignore
       awemeInfo?.["aweme_type"] === 68;
+    /** 图文列表信息 */
+    let pictureList: DouYinVideoHandlerInfo["pictureList"] = [];
     if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
       textExtraInstance?.forEach((item) => {
         let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
@@ -253,7 +256,6 @@ export class DouYinVideoFilterBase {
       // @ts-ignore
       awemeInfo?.["series_info"];
     if (typeof series_info === "object" && series_info != null) {
-      isSeriesInfo = true;
       seriesInfoName =
         series_info?.["seriesName"] ||
         // @ts-ignore
@@ -267,6 +269,9 @@ export class DouYinVideoFilterBase {
           let seriesInfoName = it["name"];
           seriesInfoContentTypes.push(seriesInfoName);
         });
+      }
+      if (seriesInfoName != null && series_content_types != null) {
+        isSeriesInfo = true;
       }
     }
     /** 混合信息 */
@@ -282,6 +287,25 @@ export class DouYinVideoFilterBase {
     // 如果是图文，那视频时长则需设置为空
     if (isPicture) {
       duration = void 0;
+      // @ts-ignore
+      const images: any[] = awemeInfo?.["images"];
+      if (Array.isArray(images)) {
+        pictureList = images.map((it) => {
+          let url;
+          if (Array.isArray(it.urlList && it.urlList.length)) {
+            // 无水印图片（默认）
+            url = it.urlList[0];
+          } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
+            // 有水印图片
+            url = it.downloadUrlList[0];
+          }
+          return {
+            width: it.width,
+            height: it.height,
+            url: url,
+          };
+        });
+      }
     }
 
     /** 建议关键词 */
@@ -475,6 +499,7 @@ export class DouYinVideoFilterBase {
       isPicture,
       isProduct,
       videoBitRateList,
+      pictureList,
     };
   }
   /**

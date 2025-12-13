@@ -132,8 +132,8 @@ export const BlockTopNavigator = {
 				#slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
 					margin: var(--recommend-video-container-margin-height) 0px !important;
-					height: calc(100vh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
-					height: calc(100dvh - calc(var(--recommend-video-container-margin-height) * 2)) !important;
+					height: ${window.innerHeight}px !important;
+					height: round(nearest, 100dvh, 1px) !important;
 				}
 			`)
     );

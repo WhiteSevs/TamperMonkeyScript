@@ -79,13 +79,14 @@ export const DouYinVideoPlayerShortCut = {
         callback() {
           log.info(`触发快捷键 ==> 视频解析`);
           const videosInViewVideoList = DouYinElement.getInViewVideo();
-          if (!videosInViewVideoList.length) {
-            Qmsg.error("未找到在可视区域内的视频");
+          const $shareList = $$('[data-e2e="video-player-share"]');
+          const playerShareInViewList = DouYinElement.getInViewNode($shareList);
+          if (!videosInViewVideoList.length && !playerShareInViewList.length) {
+            Qmsg.error("未找到在可视区域内的视频/图文");
             return;
           }
-          const $video = videosInViewVideoList[0].$el;
-          log.info(`当前在可视区域内占据面积最大的视频是：`, $video);
-          DouYinVideoPlayer.hookDownloadButtonToParseVideo($video);
+          const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
+          DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
         },
       },
       "dy-video-shortcut-playbackRate": {

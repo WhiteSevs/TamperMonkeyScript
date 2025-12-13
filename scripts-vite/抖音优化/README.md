@@ -71,6 +71,7 @@
 | liveStreamRoomUserCount          | number   | 直播间人数                                     | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
 | liveStreamRoomDynamicSpliceLabel | string   | 直播间标签？                                   |                                      |
 | videoBitRateList                 | object[] | 视频码率列表                                   | 建议使用`自定义函数`进行比较处理     |
+| pictureList                      | object[] | 图片列表                                       | 建议使用`自定义函数`进行比较处理     |
 | productId                        | string   | 产品id（付费视频存在id，专属会员视频不存在id） |                                      |
 | productTitle                     | string   | 产品标题                                       |                                      |
 | isLive                           | boolean  | 是否是直播                                     | 填入的值为`true`或`false`            |
