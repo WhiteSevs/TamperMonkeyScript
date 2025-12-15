@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.13
+// @version      2025.12.15
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2479,6 +2479,8 @@
           horizontal: 0,
           vertical: 0,
           toCenter: 0,
+          nodeCenterX: 0,
+          nodeCenterY: 0,
         };
       }
       const visibleCenterX = visibleLeft + Math.max(0, (visibleRight - visibleLeft) / 2);
@@ -2493,20 +2495,39 @@
       const verticalPercentage = (visibleHeight / rect.height) * 100;
       return {
         percentage: Math.round(percentage * 100) / 100,
-
         horizontal: Math.round(horizontalPercentage * 100) / 100,
         vertical: Math.round(verticalPercentage * 100) / 100,
         toCenter,
+        nodeCenterX: visibleCenterX,
+        nodeCenterY: visibleCenterY,
       };
     },
     getInViewVideo() {
       const $videos = Array.from($$("video"))
         .map(($video) => {
           if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
+          return $video;
         })
         .filter((it) => it != null);
       const videosInViewData = this.getInViewNode($videos);
       return videosInViewData;
+    },
+    getInViewPlayButton() {
+      const $btn = Array.from($$(".xgplayer-play"));
+      $btn.push(...Array.from($$("#slidelist .douyin-player-play")));
+      const buttonNodeInViewData = this.getInViewNode($btn);
+      const result = buttonNodeInViewData
+        .map((it) => {
+          const $el = it.$el;
+          const $point = document.elementFromPoint(it.nodeCenterX, it.nodeCenterY);
+          if ($point !== $el && !$el.contains($point)) return;
+          return {
+            ...it,
+            state: $el.getAttribute("data-state"),
+          };
+        })
+        .filter((it) => it != null);
+      return result;
     },
     getInViewNode($el) {
       if (!Array.isArray($el)) {
@@ -2514,11 +2535,11 @@
       }
       const nodeInViewData = $el
         .map(($it) => {
-          const visiblePercent = this.getPercentInWindowView($it);
-          if (visiblePercent.percentage <= 0) return;
+          const positionInfo = this.getPercentInWindowView($it);
+          if (positionInfo.percentage <= 0) return;
           return {
+            ...positionInfo,
             $el: $it,
-            toCenter: visiblePercent.toCenter,
           };
         })
         .filter((it) => it != null);
@@ -3085,17 +3106,26 @@
                     utils.workerClearTimeout(timeId);
                     timeId = utils.workerSetTimeout(() => {
                       const videosInViewVideoList = DouYinElement.getInViewVideo();
-                      if (!videosInViewVideoList.length) {
-                        Qmsg.error("未找到在可视区域内的视频");
+                      const playInViewList = DouYinElement.getInViewPlayButton();
+                      if (!videosInViewVideoList.length && !playInViewList.length) {
+                        Qmsg.error("未找到在可视区域内的视频或播放按钮");
                         return;
                       }
-                      const $video = videosInViewVideoList[0].$el;
-                      if ($video.paused) {
-                        log.info(`当前视频处于暂停状态，开始播放`);
-                        $video.play();
+                      const video = videosInViewVideoList[0];
+                      const player = playInViewList[0];
+                      if (video) {
+                        const $video = videosInViewVideoList[0].$el;
+                        if ($video.paused) {
+                          log.info(`当前视频处于暂停状态，开始播放`);
+                          $video.play();
+                        } else {
+                          log.info(`当前视频处于播放状态，暂停播放`);
+                          $video.pause();
+                        }
                       } else {
-                        log.info(`当前视频处于播放状态，暂停播放`);
-                        $video.pause();
+                        const $play = player.$el;
+                        log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
+                        $play.click();
                       }
                     }, 288);
                   },

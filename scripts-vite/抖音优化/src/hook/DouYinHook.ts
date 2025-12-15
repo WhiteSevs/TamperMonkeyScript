@@ -261,17 +261,26 @@ export const DouYinHook = {
                   utils.workerClearTimeout(timeId);
                   timeId = utils.workerSetTimeout(() => {
                     const videosInViewVideoList = DouYinElement.getInViewVideo();
-                    if (!videosInViewVideoList.length) {
-                      Qmsg.error("未找到在可视区域内的视频");
+                    const playInViewList = DouYinElement.getInViewPlayButton();
+                    if (!videosInViewVideoList.length && !playInViewList.length) {
+                      Qmsg.error("未找到在可视区域内的视频或播放按钮");
                       return;
                     }
-                    const $video = videosInViewVideoList[0].$el;
-                    if ($video.paused) {
-                      log.info(`当前视频处于暂停状态，开始播放`);
-                      $video.play();
+                    const video = videosInViewVideoList[0];
+                    const player = playInViewList[0];
+                    if (video) {
+                      const $video = videosInViewVideoList[0].$el;
+                      if ($video.paused) {
+                        log.info(`当前视频处于暂停状态，开始播放`);
+                        $video.play();
+                      } else {
+                        log.info(`当前视频处于播放状态，暂停播放`);
+                        $video.pause();
+                      }
                     } else {
-                      log.info(`当前视频处于播放状态，暂停播放`);
-                      $video.pause();
+                      const $play = player.$el;
+                      log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
+                      $play.click();
                     }
                   }, 288);
                 },
