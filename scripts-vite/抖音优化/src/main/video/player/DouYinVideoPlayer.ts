@@ -480,9 +480,12 @@ export const DouYinVideoPlayer = {
         let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
         let downloadFileName = info.downloadInfo.video.fileName;
         // 占位符替换
-        downloadFileName = transformDownloadFileName({
-          quality: videoQualityInfo,
-        });
+        downloadFileName = transformDownloadFileName(
+          {
+            quality: videoQualityInfo,
+          },
+          downloadFileName
+        );
         // 文件名加上格式
         downloadFileName = downloadFileName + "." + downloadInfo.format;
         contentHTML += /*html*/ `
@@ -521,9 +524,12 @@ export const DouYinVideoPlayer = {
         let pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
         let downloadFileName = info.downloadInfo.picture.fileName;
         // 占位符替换
-        downloadFileName = transformDownloadFileName({
-          quality: pictureSizeInfo,
-        });
+        downloadFileName = transformDownloadFileName(
+          {
+            quality: pictureSizeInfo,
+          },
+          downloadFileName
+        );
         // 文件名加上格式
         downloadFileName = downloadFileName + ".png";
         contentHTML += /*html*/ `
@@ -709,14 +715,16 @@ export const DouYinVideoPlayer = {
     /**
      * 转换下载的文件名
      */
-    const transformDownloadFileName = (data: {
-      uid?: string;
-      nickname?: string;
-      desc?: string;
-      downloadTime?: string;
-      quality?: string;
-    }): string => {
-      let fileNameTemplate = Panel.getValue<string>("dy-video-parseVideo-downloadFileName");
+    const transformDownloadFileName = (
+      data: {
+        uid?: string;
+        nickname?: string;
+        desc?: string;
+        downloadTime?: string;
+        quality?: string;
+      },
+      fileNameTemplate: string = Panel.getValue<string>("dy-video-parseVideo-downloadFileName")
+    ): string => {
       for (const key in data) {
         if (!Object.hasOwn(data, key)) continue;
         const value = Reflect.get(data, key).toString();

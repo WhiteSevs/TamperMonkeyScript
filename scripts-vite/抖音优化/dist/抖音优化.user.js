@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.15
+// @version      2025.12.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5738,9 +5738,12 @@
         info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
           let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
           let downloadFileName = info.downloadInfo.video.fileName;
-          downloadFileName = transformDownloadFileName({
-            quality: videoQualityInfo,
-          });
+          downloadFileName = transformDownloadFileName(
+            {
+              quality: videoQualityInfo,
+            },
+            downloadFileName
+          );
           downloadFileName = downloadFileName + "." + downloadInfo.format;
           contentHTML += `
         <div class="dy-link-item">
@@ -5777,9 +5780,12 @@
         info.downloadInfo.picture.urlInfoList.forEach((downloadInfo) => {
           let pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
           let downloadFileName = info.downloadInfo.picture.fileName;
-          downloadFileName = transformDownloadFileName({
-            quality: pictureSizeInfo,
-          });
+          downloadFileName = transformDownloadFileName(
+            {
+              quality: pictureSizeInfo,
+            },
+            downloadFileName
+          );
           downloadFileName = downloadFileName + ".png";
           contentHTML += `
         <div class="dy-link-item">
@@ -5955,8 +5961,10 @@
           }
         );
       }
-      const transformDownloadFileName = (data) => {
-        let fileNameTemplate = Panel.getValue("dy-video-parseVideo-downloadFileName");
+      const transformDownloadFileName = (
+        data,
+        fileNameTemplate = Panel.getValue("dy-video-parseVideo-downloadFileName")
+      ) => {
         for (const key in data) {
           if (!Object.hasOwn(data, key)) continue;
           const value = Reflect.get(data, key).toString();
