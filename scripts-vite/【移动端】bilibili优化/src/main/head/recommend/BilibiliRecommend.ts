@@ -1,5 +1,5 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import { DOMUtils, addStyle, httpx, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, httpx, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
@@ -74,10 +74,10 @@ export const BilibiliRecommend = {
    * 添加推荐标签
    */
   addRecommendTag() {
-    if (document.querySelector(".channel-menu a.recommend-tag")) {
+    if ($(".channel-menu a.recommend-tag")) {
       return;
     }
-    let $vSwitcher = document.querySelector<HTMLUListElement>(".channel-menu .v-switcher");
+    let $vSwitcher = $<HTMLUListElement>(".channel-menu .v-switcher");
     if (!$vSwitcher) {
       log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
       Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");

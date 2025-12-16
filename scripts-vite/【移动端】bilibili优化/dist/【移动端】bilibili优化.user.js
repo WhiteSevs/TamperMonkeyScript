@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.11.27
+// @version      2025.12.16
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -4844,7 +4844,7 @@
     },
     $el: {
       get $originPlayer() {
-        return document.querySelector(".art-video-player .art-layers");
+        return $(".art-video-player .art-layers");
       },
     },
     toast(config) {
@@ -5022,8 +5022,8 @@
       });
     },
     updatePageToastBottom() {
-      let pageToastList = Array.from(document.querySelectorAll(`.${this.$config.prefix}`)).concat(
-        Array.from(document.querySelectorAll(".".concat(this.$config.originToast)))
+      let pageToastList = Array.from($$(`.${this.$config.prefix}`)).concat(
+        Array.from($$(".".concat(this.$config.originToast)))
       );
       if (pageToastList.length) {
         pageToastList.length - 1;
@@ -5842,50 +5842,70 @@
       this.updateArtPlayerVideoInfo();
     },
     updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
-      let that = this;
-      let queryMVideoPlayer = () => {
+      const that = this;
+      const queryMVideoPlayer = () => {
         return (
           $(BilibiliData.className.video + " .m-video-player") || $(BilibiliData.className.mVideo + " .m-video-player")
         );
       };
+      const queryPlayerOption = (vueInst) => {
+        const aid = vueInst?.playerOptions?.aid || vueInst?.info?.aid;
+        const bvid = vueInst?.playerOptions?.bvid || vueInst?.info?.bvid;
+        let cid = vueInst?.playerOptions?.cid || vueInst?.cid || vueInst?.info?.cid;
+        const pic = vueInst?.pic || vueInst?.info?.pic;
+        let title = vueInst?.title || vueInst?.info?.title;
+        const p = vueInst?.info?.p;
+        const pages = vueInst?.info?.pages;
+        if (typeof p === "number" && Array.isArray(pages)) {
+          const p_findIndex = pages.findIndex((it) => it.page === p);
+          if (p_findIndex !== 0) {
+            const findPage = pages[p_findIndex];
+            if (typeof findPage?.cid === "number") {
+              cid = findPage.cid;
+            }
+            if (typeof findPage?.part === "string") {
+              title = findPage.part;
+            }
+          }
+        }
+        return {
+          aid,
+          bvid,
+          cid,
+          pic,
+          title,
+        };
+      };
       VueUtils.waitVuePropToSet(queryMVideoPlayer, {
         msg: "等待m-video-player加载完成",
-        check(vueInstance) {
+        check(vueInst) {
+          const { aid, bvid, cid } = queryPlayerOption(vueInst);
           if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
             BilibiliVideoArtPlayer.$data.art.pause();
             return (
-              typeof vueInstance?.info?.aid === "number" &&
-              BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid &&
-              typeof vueInstance?.info?.bvid === "string" &&
-              typeof vueInstance?.info?.cid === "number"
+              typeof aid === "number" &&
+              typeof bvid === "string" &&
+              typeof cid === "number" &&
+              BilibiliVideoArtPlayer.$data.currentOption.cid !== cid
             );
           } else {
-            return (
-              typeof vueInstance?.info?.aid === "number" &&
-              typeof vueInstance?.info?.bvid === "string" &&
-              typeof vueInstance?.info?.cid === "number"
-            );
+            return typeof aid === "number" && typeof bvid === "string" && typeof cid === "number";
           }
         },
-        async set(vueInstance) {
+        async set(vueInst) {
           const $mVideoPlayer = queryMVideoPlayer();
-          let { aid, bvid, cid, pic, title } = vueInstance;
-          aid = aid || vueInstance.info.aid;
-          bvid = bvid || vueInstance.info.bvid;
-          cid = cid || vueInstance.info.cid;
-          pic = pic || vueInstance.info.pic;
-          title = title || vueInstance.info.title;
+          let { aid, bvid, cid, pic, title } = queryPlayerOption(vueInst);
           let epInfoList = [];
           const $seasonNew = $(".m-video-season-new");
-          const $partNew = $(".m-video-part-new");
-          if ($seasonNew && VueUtils.getVue($seasonNew)) {
-            let seasonVueIns = VueUtils.getVue($seasonNew);
+          const seasonVueIns = VueUtils.getVue($seasonNew);
+          const $partNew = $(".m-video-part-new") || $(".m-video-part");
+          const partVueIns = VueUtils.getVue($partNew);
+          if (seasonVueIns) {
             let videoList = seasonVueIns?.videoList;
             if (Array.isArray(videoList)) {
               epInfoList = videoList;
             }
-          } else if ($partNew && VueUtils.getVue($partNew)) {
-            let partVueIns = VueUtils.getVue($partNew);
+          } else if (partVueIns) {
             let info = partVueIns?.info;
             let currentPage = partVueIns?.p;
             let pages = partVueIns?.pages || partVueIns?.info?.pages;
@@ -7035,12 +7055,8 @@
           }
         }
         let lockFunc = new utils.LockFunction(() => {
-          let $vCardList = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
-          );
-          let $vCardList_isLogon = document.querySelectorAll(
-            BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
-          );
+          let $vCardList = $$(BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp");
+          let $vCardList_isLogon = $$(BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card");
           $vCardList.forEach((_$vCard_) => {
             handleVCardToApp(_$vCard_);
           });
@@ -7048,7 +7064,7 @@
             handleVCard(_$vCard_);
           });
         }, 25);
-        let $videoRoot = document.querySelector(BilibiliData.className.video);
+        let $videoRoot = $(BilibiliData.className.video);
         if ($videoRoot) {
           utils.mutationObserver($videoRoot, {
             config: {
@@ -7260,7 +7276,7 @@
           });
       });
       domUtils.on(document, "click", ".sub-reply-preview", function (event) {
-        let $app = document.querySelector("#app");
+        let $app = $("#app");
         let appVue = VueUtils.getVue($app);
         if (!appVue) {
           log$1.error("获取#app元素失败");
@@ -7273,7 +7289,7 @@
             if (!isFromPopState) {
               return false;
             }
-            let $dialogCloseIcon = document.querySelector(".dialog-close-icon");
+            let $dialogCloseIcon = $(".dialog-close-icon");
             if ($dialogCloseIcon) {
               $dialogCloseIcon.click();
             } else {
@@ -7321,6 +7337,7 @@
       let videoPlayerMaxHeight = 0;
       let videoPlayerMaxPaddingTop = 0;
       function checkNodeIsNull(checkNode) {
+        if (checkNode == null) return false;
         return !document.contains(checkNode);
       }
       domUtils.on(
@@ -7328,7 +7345,7 @@
         "scroll",
         (event) => {
           if (checkNodeIsNull($mVideoPlayer)) {
-            $mVideoPlayer = document.querySelector(".m-video-player");
+            $mVideoPlayer = $(".m-video-player");
             if (checkNodeIsNull($mVideoPlayer)) {
               return;
             }
@@ -7341,25 +7358,25 @@
             }
           }
           if (checkNodeIsNull($mVideoInfoNew)) {
-            $mVideoInfoNew = document.querySelector(".m-video-info-new");
+            $mVideoInfoNew = $(".m-video-info-new");
             if (checkNodeIsNull($mVideoInfoNew)) {
               return;
             }
           }
           if (checkNodeIsNull($mNavBar)) {
-            $mNavBar = document.querySelector(".m-navbar");
+            $mNavBar = $(".m-navbar");
             if (checkNodeIsNull($mNavBar)) {
               return;
             }
           }
           if (checkNodeIsNull($bottomTab)) {
-            $bottomTab = document.querySelector(".bottom-tab");
+            $bottomTab = $(".bottom-tab");
             if (checkNodeIsNull($bottomTab)) {
               return;
             }
           }
           if (checkNodeIsNull($bottomTabVAffix)) {
-            $bottomTabVAffix = document.querySelector(".bottom-tab .v-affix");
+            $bottomTabVAffix = $(".bottom-tab .v-affix");
             if (checkNodeIsNull($bottomTabVAffix)) {
               return;
             }
@@ -8833,7 +8850,7 @@
       );
     },
     coverVideoPlayer() {
-      if (document.querySelector("#artplayer")) {
+      if ($("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
@@ -9008,8 +9025,8 @@
         domUtils.on($tabs, "click", ".tab-item", async (event) => {
           let $tab = event.target;
           refreshTabActive($tab);
-          let $resultPanel = document.querySelector(".result-panel");
-          let $oldGmResultPanel = document.querySelector(".gm-result-panel");
+          let $resultPanel = $(".result-panel");
+          let $oldGmResultPanel = $(".gm-result-panel");
           if ($oldGmResultPanel) {
             $oldGmResultPanel.remove();
             domUtils.show($resultPanel);
@@ -9019,7 +9036,7 @@
           }
           let area = $tab.dataset.area;
           let host = $tab.dataset.host;
-          let $searchResult = document.querySelector(".m-search-result");
+          let $searchResult = $(".m-search-result");
           let searchResultVueIns = VueUtils.getVue($searchResult);
           searchResultVueIns.switchTab(233);
           domUtils.hide($resultPanel);
@@ -9879,7 +9896,7 @@
         },
         immediate: true,
         callback() {
-          document.querySelectorAll(".launch-app-btn").forEach(($launchAppBtn) => {
+          $$(".launch-app-btn").forEach(($launchAppBtn) => {
             let vueObj = VueUtils.getVue($launchAppBtn);
             if (!vueObj) {
               return;
@@ -10040,10 +10057,10 @@
       });
     },
     addRecommendTag() {
-      if (document.querySelector(".channel-menu a.recommend-tag")) {
+      if ($(".channel-menu a.recommend-tag")) {
         return;
       }
-      let $vSwitcher = document.querySelector(".channel-menu .v-switcher");
+      let $vSwitcher = $(".channel-menu .v-switcher");
       if (!$vSwitcher) {
         log$1.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
@@ -10355,42 +10372,40 @@
       );
       domUtils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
         let lockFunc = new utils.LockFunction(() => {
-          document
-            .querySelectorAll(BilibiliData.className.head + " .video-list .card-box .v-card")
-            .forEach(($vcard) => {
-              let vueObj = VueUtils.getVue($vcard);
-              let upName = vueObj?.info?.author?.name || vueObj?.info?.owner?.name;
-              let duration = vueObj?.info?.duration;
-              if (upName && !$vcard.querySelector(".gm-up-info")) {
-                let $upInfo = document.createElement("div");
-                $upInfo.innerHTML = `
-                                    <div class="gm-up-name">
-                                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                            <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
-                                            </path>
-                                        </svg>
-                                        ${upName}
-                                    </div>
-                                    <div class="gm-video-handle">
-                                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                            <path fill="#2E2F30" d="M512 256a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z m0 341.333333a85.333333 85.333333 0 1 1 0-170.666666 85.333333 85.333333 0 0 1 0 170.666666z m0 341.333334a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z">
-                                            </path>
-                                        </svg>
-                                    </div>`;
-                $upInfo.className = "gm-up-info";
-                $vcard.appendChild($upInfo);
+          $$(BilibiliData.className.head + " .video-list .card-box .v-card").forEach(($vcard) => {
+            let vueObj = VueUtils.getVue($vcard);
+            let upName = vueObj?.info?.author?.name || vueObj?.info?.owner?.name;
+            let duration = vueObj?.info?.duration;
+            if (upName && !$vcard.querySelector(".gm-up-info")) {
+              let $upInfo = document.createElement("div");
+              $upInfo.innerHTML = `
+            <div class="gm-up-name">
+                <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                    <path fill="#999A9E" d="M896 736v-448c0-54.4-41.6-96-96-96h-576C169.6 192 128 233.6 128 288v448c0 54.4 41.6 96 96 96h576c54.4 0 96-41.6 96-96zM800 128C889.6 128 960 198.4 960 288v448c0 89.6-70.4 160-160 160h-576C134.4 896 64 825.6 64 736v-448C64 198.4 134.4 128 224 128h576zM419.2 544V326.4h60.8v240c0 96-57.6 144-147.2 144S192 665.6 192 569.6V326.4h60.8v217.6c0 51.2 3.2 108.8 83.2 108.8s83.2-57.6 83.2-108.8z m288-38.4c28.8 0 60.8-16 60.8-60.8 0-48-28.8-60.8-60.8-60.8H614.4v121.6h92.8z m3.2-179.2c102.4 0 121.6 70.4 121.6 115.2 0 48-19.2 115.2-121.6 115.2H614.4V704h-60.8V326.4h156.8z">
+                    </path>
+                </svg>
+                ${upName}
+            </div>
+            <div class="gm-video-handle">
+                <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                    <path fill="#2E2F30" d="M512 256a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z m0 341.333333a85.333333 85.333333 0 1 1 0-170.666666 85.333333 85.333333 0 0 1 0 170.666666z m0 341.333334a85.333333 85.333333 0 1 1 0-170.666667 85.333333 85.333333 0 0 1 0 170.666667z">
+                    </path>
+                </svg>
+            </div>`;
+              $upInfo.className = "gm-up-info";
+              $vcard.appendChild($upInfo);
+            }
+            if (duration) {
+              let $count = $vcard.querySelector(".count");
+              if ($count && !$count.querySelector(".gm-video-duration")) {
+                let showDuration = typeof duration === "string" ? duration : BilibiliUtils.parseDuration(duration);
+                let $duration = document.createElement("span");
+                $duration.className = "gm-video-duration";
+                $duration.innerHTML = showDuration;
+                $count.appendChild($duration);
               }
-              if (duration) {
-                let $count = $vcard.querySelector(".count");
-                if ($count && !$count.querySelector(".gm-video-duration")) {
-                  let showDuration = typeof duration === "string" ? duration : BilibiliUtils.parseDuration(duration);
-                  let $duration = document.createElement("span");
-                  $duration.className = "gm-video-duration";
-                  $duration.innerHTML = showDuration;
-                  $count.appendChild($duration);
-                }
-              }
-            });
+            }
+          });
         }, 25);
         utils.mutationObserver(document.body, {
           config: {
@@ -10463,7 +10478,7 @@
 		`;
       let isLogin = false;
       let uid = null;
-      let $gmFace = document.querySelector(".gm-face");
+      let $gmFace = $(".gm-face");
       let $img = $gmFace.querySelector("img");
       VueUtils.waitVuePropToSet("#app", [
         {
@@ -12901,7 +12916,7 @@
       this.coverVideoPlayer();
     },
     coverVideoPlayer() {
-      if (document.querySelector("#artplayer")) {
+      if ($("#artplayer")) {
         log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
@@ -12931,7 +12946,7 @@
     },
     $el: {
       get $mplayer() {
-        return document.querySelector(".mplayer");
+        return $(".mplayer");
       },
     },
     toast(config) {
@@ -12996,7 +13011,7 @@
       }
       this.setTransitionendEvent($toast);
       let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
-      Array.from(document.querySelectorAll(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
+      Array.from($$(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
         if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) {
           return;
         }
@@ -13102,10 +13117,8 @@
       });
     },
     updatePageToastBottom() {
-      let pageToastList = Array.from(document.querySelectorAll(`.${this.$data.prefix}`)).concat(
-        Array.from(
-          document.querySelectorAll(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName))
-        )
+      let pageToastList = Array.from($$(`.${this.$data.prefix}`)).concat(
+        Array.from($$(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)))
       );
       if (pageToastList.length) {
         let count = pageToastList.length - 1;

@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
 import artPlayerCSS from "./artplayer/index.css?raw";
@@ -220,7 +220,7 @@ export const BilibiliBangumi = {
    * 覆盖视频播放器
    */
   coverVideoPlayer() {
-    if (document.querySelector("#artplayer")) {
+    if ($("#artplayer")) {
       log.warn("已存在播放器，更新播放信息");
     } else {
       addStyle(/*css*/ `

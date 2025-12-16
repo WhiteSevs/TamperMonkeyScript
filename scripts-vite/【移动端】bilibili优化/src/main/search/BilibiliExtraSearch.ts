@@ -1,6 +1,6 @@
 import { BilibiliApiProxy } from "@/api/BilibiliCDNProxy";
 import { BilibiliSearchApi, type BilibiliSearchBangumiResultEntity } from "@/api/BilibiliSearchApi";
-import { addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { $, addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
 import beautifyCSS from "./css/beautify.css?raw";
 import { Panel } from "@components/setting/panel";
@@ -83,8 +83,8 @@ export const BilibiliExtraSearch = {
         let $tab = event.target as HTMLElement;
         // 先取消其它的item的选中状态
         refreshTabActive($tab);
-        let $resultPanel = document.querySelector<HTMLElement>(".result-panel")!;
-        let $oldGmResultPanel = document.querySelector<HTMLElement>(".gm-result-panel");
+        let $resultPanel = $<HTMLElement>(".result-panel")!;
+        let $oldGmResultPanel = $<HTMLElement>(".gm-result-panel");
         if ($oldGmResultPanel) {
           // 移除旧的结果
           $oldGmResultPanel.remove();
@@ -98,7 +98,7 @@ export const BilibiliExtraSearch = {
         let area = $tab.dataset.area!;
         let host = $tab.dataset.host!;
         /** 搜索结果 */
-        let $searchResult = document.querySelector<HTMLDivElement>(".m-search-result")!;
+        let $searchResult = $<HTMLDivElement>(".m-search-result")!;
         let searchResultVueIns = VueUtils.getVue($searchResult)!;
         // 切换tab为2（番剧）页面
         searchResultVueIns.switchTab(233);

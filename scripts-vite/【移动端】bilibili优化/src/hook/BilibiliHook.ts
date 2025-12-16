@@ -109,7 +109,7 @@ export const BilibiliHook = {
       },
       immediate: true,
       callback() {
-        document.querySelectorAll<HTMLDivElement>(".launch-app-btn").forEach(($launchAppBtn) => {
+        $$<HTMLDivElement>(".launch-app-btn").forEach(($launchAppBtn) => {
           let vueObj = VueUtils.getVue($launchAppBtn);
           if (!vueObj) {
             /* 不存在__vue__属性 */

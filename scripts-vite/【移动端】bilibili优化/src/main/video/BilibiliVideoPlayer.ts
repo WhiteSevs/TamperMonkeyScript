@@ -12,6 +12,7 @@ import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import { BilibiliData } from "@/data/BlibiliData";
 import { Panel } from "@components/setting/panel";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 
 export type VideoInfo = {
   /** 视频的bvid */
@@ -339,59 +340,85 @@ export const BilibiliVideoPlayer = {
    * @param isEpChoose 是否是从选集内调用的
    */
   updateArtPlayerVideoInfo(videoInfo?: VideoInfo, isEpChoose?: boolean) {
-    let that = this;
-    let queryMVideoPlayer = () => {
+    const that = this;
+    const queryMVideoPlayer = () => {
       return (
         $<HTMLElement>(BilibiliData.className.video + " .m-video-player") ||
         $<HTMLElement>(BilibiliData.className.mVideo + " .m-video-player")
       );
     };
+    const queryPlayerOption = (vueInst: Vue2Instance) => {
+      const aid: number = vueInst?.playerOptions?.aid || vueInst?.info?.aid;
+      const bvid: string = vueInst?.playerOptions?.bvid || vueInst?.info?.bvid;
+      let cid: number = vueInst?.playerOptions?.cid || vueInst?.cid || vueInst?.info?.cid;
+      const pic: string = vueInst?.pic || vueInst?.info?.pic;
+      let title: string = vueInst?.title || vueInst?.info?.title;
+      /** 当前p */
+      const p = vueInst?.info?.p;
+      /** 分p */
+      const pages = vueInst?.info?.pages;
+      if (typeof p === "number" && Array.isArray(pages)) {
+        // 更新分p信息
+        const p_findIndex = pages.findIndex((it) => it.page === p);
+        if (p_findIndex !== 0) {
+          const findPage = pages[p_findIndex];
+          if (typeof findPage?.cid === "number") {
+            // 更新cid
+            cid = findPage.cid;
+          }
+          if (typeof findPage?.part === "string") {
+            // 更新标题
+            title = findPage.part;
+          }
+        }
+      }
+      return {
+        aid,
+        bvid,
+        cid,
+        pic,
+        title,
+      };
+    };
     VueUtils.waitVuePropToSet(queryMVideoPlayer, {
       msg: "等待m-video-player加载完成",
-      check(vueInstance) {
+      check(vueInst) {
+        const { aid, bvid, cid } = queryPlayerOption(vueInst);
         if (!isEpChoose && BilibiliVideoArtPlayer.$data.currentOption != null) {
           // 暂停视频 等待页面参数更新完毕
           BilibiliVideoArtPlayer.$data.art.pause();
           return (
-            typeof vueInstance?.info?.aid === "number" &&
-            BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid &&
-            typeof vueInstance?.info?.bvid === "string" &&
-            typeof vueInstance?.info?.cid === "number"
+            typeof aid === "number" &&
+            typeof bvid === "string" &&
+            typeof cid === "number" &&
+            // cid必定不同
+            BilibiliVideoArtPlayer.$data.currentOption.cid !== cid
           );
         } else {
-          return (
-            typeof vueInstance?.info?.aid === "number" &&
-            typeof vueInstance?.info?.bvid === "string" &&
-            typeof vueInstance?.info?.cid === "number"
-          );
+          return typeof aid === "number" && typeof bvid === "string" && typeof cid === "number";
         }
       },
-      async set(vueInstance) {
+      async set(vueInst) {
         const $mVideoPlayer = queryMVideoPlayer()!;
         // info中获取似乎有滞后性，对分p的视频不起作用
-        let { aid, bvid, cid, pic, title } = vueInstance;
-        aid = aid || vueInstance.info.aid;
-        bvid = bvid || vueInstance.info.bvid;
-        cid = cid || vueInstance.info.cid;
-        pic = pic || vueInstance.info.pic;
-        title = title || vueInstance.info.title;
+        let { aid, bvid, cid, pic, title } = queryPlayerOption(vueInst);
 
         /** 分集信息 */
         let epInfoList: VIDEO_EP_LIST[] = [];
         // 获取页面中的分集信息
         const $seasonNew = $<HTMLElement>(".m-video-season-new");
+        const seasonVueIns = VueUtils.getVue($seasonNew!);
         // 获取页面中的分p信息
-        const $partNew = $<HTMLElement>(".m-video-part-new");
-        if ($seasonNew && VueUtils.getVue($seasonNew)) {
+        const $partNew = $<HTMLElement>(".m-video-part-new") || $<HTMLElement>(".m-video-part");
+        const partVueIns = VueUtils.getVue($partNew!);
+        if (seasonVueIns) {
           // 分集 > 分p信息
-          let seasonVueIns = VueUtils.getVue($seasonNew)!;
           let videoList = seasonVueIns?.videoList;
           if (Array.isArray(videoList)) {
             epInfoList = videoList;
           }
-        } else if ($partNew && VueUtils.getVue($partNew)) {
+        } else if (partVueIns) {
           // 分p信息
-          let partVueIns = VueUtils.getVue($partNew)!;
           let info = partVueIns?.info;
           let currentPage = partVueIns?.p;
           let pages = partVueIns?.pages || partVueIns?.info?.pages;

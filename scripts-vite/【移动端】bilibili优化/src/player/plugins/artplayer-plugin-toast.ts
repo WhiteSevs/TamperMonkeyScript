@@ -1,5 +1,5 @@
 import type Artplayer from "artplayer";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 
 export type BilibiliPlayerToastConfig = {
   /** 显示的文字 */
@@ -52,7 +52,7 @@ export const Toast = {
   },
   $el: {
     get $originPlayer() {
-      return document.querySelector<HTMLElement>(".art-video-player .art-layers");
+      return $<HTMLElement>(".art-video-player .art-layers");
     },
   },
   /**
@@ -252,8 +252,8 @@ export const Toast = {
    */
   updatePageToastBottom() {
     // 获取页面的所有的toast
-    let pageToastList = Array.from(document.querySelectorAll<HTMLDivElement>(`.${this.$config.prefix}`)).concat(
-      Array.from(document.querySelectorAll<HTMLDivElement>(".".concat(this.$config.originToast)))
+    let pageToastList = Array.from($$<HTMLDivElement>(`.${this.$config.prefix}`)).concat(
+      Array.from($$<HTMLDivElement>(".".concat(this.$config.originToast)))
     );
     if (pageToastList.length) {
       // 所有toast重新设置位置

@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 
 type BilibiliPlayerToastConfig = {
@@ -32,7 +32,7 @@ export const BilibiliPlayerToast = {
   },
   $el: {
     get $mplayer() {
-      return document.querySelector<HTMLElement>(".mplayer");
+      return $<HTMLElement>(".mplayer");
     },
   },
   /**
@@ -109,7 +109,7 @@ export const BilibiliPlayerToast = {
     let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
 
     // 主动给页面中的原来的toast添加动画监听结束事件
-    Array.from(document.querySelectorAll<HTMLDivElement>(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
+    Array.from($$<HTMLDivElement>(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
       // if (!$mplayerOriginToast.classList.contains(this.$data.showClassName)) {
       // 	$mplayerOriginToast.remove();
       // 	return;
@@ -232,12 +232,8 @@ export const BilibiliPlayerToast = {
    */
   updatePageToastBottom() {
     // 获取页面的所有的toast
-    let pageToastList = Array.from(document.querySelectorAll<HTMLDivElement>(`.${this.$data.prefix}`)).concat(
-      Array.from(
-        document.querySelectorAll<HTMLDivElement>(
-          ".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)
-        )
-      )
+    let pageToastList = Array.from($$<HTMLDivElement>(`.${this.$data.prefix}`)).concat(
+      Array.from($$<HTMLDivElement>(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)))
     );
     if (pageToastList.length) {
       // 所有toast重新设置位置

@@ -320,10 +320,10 @@ export const BilibiliVideo = {
           }
         }
         let lockFunc = new utils.LockFunction(() => {
-          let $vCardList = document.querySelectorAll<HTMLDivElement>(
+          let $vCardList = $$<HTMLDivElement>(
             BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp"
           );
-          let $vCardList_isLogon = document.querySelectorAll<HTMLDivElement>(
+          let $vCardList_isLogon = $$<HTMLDivElement>(
             BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card"
           );
           /* isLogin不生效的情况下 */
@@ -335,7 +335,7 @@ export const BilibiliVideo = {
             handleVCard(_$vCard_);
           });
         }, 25);
-        let $videoRoot = document.querySelector<HTMLElement>(BilibiliData.className.video);
+        let $videoRoot = $<HTMLElement>(BilibiliData.className.video);
         if ($videoRoot) {
           utils.mutationObserver($videoRoot, {
             config: {
@@ -574,7 +574,7 @@ export const BilibiliVideo = {
         });
     });
     DOMUtils.on(document, "click", ".sub-reply-preview", function (event) {
-      let $app = document.querySelector<HTMLDivElement>("#app");
+      let $app = $<HTMLDivElement>("#app");
       let appVue = VueUtils.getVue($app as HTMLDivElement);
       if (!appVue) {
         log.error("获取#app元素失败");
@@ -587,7 +587,7 @@ export const BilibiliVideo = {
           if (!isFromPopState) {
             return false;
           }
-          let $dialogCloseIcon = document.querySelector<HTMLDivElement>(".dialog-close-icon");
+          let $dialogCloseIcon = $<HTMLDivElement>(".dialog-close-icon");
           if ($dialogCloseIcon) {
             $dialogCloseIcon.click();
           } else {
@@ -636,18 +636,18 @@ export const BilibiliVideo = {
     /**
      * 顶部导航栏
      */
-    let $mNavBar: HTMLElement | null = null;
+    let $mNavBar: HTMLElement | null | undefined = null;
     /** 视频主内容 */
-    let $mVideoPlayer: HTMLElement | null = null;
-    let $mVideoInfoNew: HTMLElement | null = null;
+    let $mVideoPlayer: HTMLElement | null | undefined = null;
+    let $mVideoInfoNew: HTMLElement | null | undefined = null;
     /**
      * 底部tab
      */
-    let $bottomTab: HTMLElement | null = null;
+    let $bottomTab: HTMLElement | null | undefined = null;
     /**
      * 底部tab的affix
      */
-    let $bottomTabVAffix: HTMLElement | null = null;
+    let $bottomTabVAffix: HTMLElement | null | undefined = null;
 
     /** 最大高度 */
     let videoPlayerMaxHeight = 0;
@@ -657,7 +657,8 @@ export const BilibiliVideo = {
     /**
      * 判断元是否为空或者在不在页面中
      */
-    function checkNodeIsNull<T extends Node>(checkNode: T | null): checkNode is null {
+    function checkNodeIsNull<T extends Node>(checkNode: T | null | undefined): checkNode is null | undefined {
+      if (checkNode == null) return false;
       return !document.contains(checkNode);
     }
     DOMUtils.on(
@@ -665,7 +666,7 @@ export const BilibiliVideo = {
       "scroll",
       (event) => {
         if (checkNodeIsNull($mVideoPlayer)) {
-          $mVideoPlayer = document.querySelector(".m-video-player");
+          $mVideoPlayer = $<HTMLElement>(".m-video-player");
           if (checkNodeIsNull($mVideoPlayer)) {
             return;
           }
@@ -678,25 +679,25 @@ export const BilibiliVideo = {
           }
         }
         if (checkNodeIsNull($mVideoInfoNew)) {
-          $mVideoInfoNew = document.querySelector(".m-video-info-new");
+          $mVideoInfoNew = $<HTMLElement>(".m-video-info-new");
           if (checkNodeIsNull($mVideoInfoNew)) {
             return;
           }
         }
         if (checkNodeIsNull($mNavBar)) {
-          $mNavBar = document.querySelector(".m-navbar");
+          $mNavBar = $<HTMLElement>(".m-navbar");
           if (checkNodeIsNull($mNavBar)) {
             return;
           }
         }
         if (checkNodeIsNull($bottomTab)) {
-          $bottomTab = document.querySelector(".bottom-tab");
+          $bottomTab = $<HTMLElement>(".bottom-tab");
           if (checkNodeIsNull($bottomTab)) {
             return;
           }
         }
         if (checkNodeIsNull($bottomTabVAffix)) {
-          $bottomTabVAffix = document.querySelector(".bottom-tab .v-affix");
+          $bottomTabVAffix = $<HTMLElement>(".bottom-tab .v-affix");
           if (checkNodeIsNull($bottomTabVAffix)) {
             return;
           }

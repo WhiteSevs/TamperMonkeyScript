@@ -1,4 +1,4 @@
-import { addStyle, log } from "@/env";
+import { $, addStyle, log } from "@/env";
 import artPlayerCSS from "../video/artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
 import { BilibiliPlayListPlayer } from "./BilibiliPlayListPlayer";
@@ -11,7 +11,7 @@ export const BilibiliPlayList = {
    * 覆盖视频播放器
    */
   coverVideoPlayer() {
-    if (document.querySelector("#artplayer")) {
+    if ($("#artplayer")) {
       log.warn("已存在播放器，更新播放信息");
     } else {
       addStyle(/*css*/ `
