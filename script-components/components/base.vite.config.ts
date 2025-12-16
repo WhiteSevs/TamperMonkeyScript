@@ -444,8 +444,12 @@ const GenerateUserConfig = async (option: {
         res.end = (...args: any[]) => {
           let text: string = args[0];
           if (typeof text === "string" && text.trim().match(/^\/\/[\s]+==UserScript==/)) {
-            // vite-plugin-monkey 的版本>=7.2.2时不需要替换document.head了
+            // version <7.2.2
+            // when script inject too fast, document.head is null
+            // this replace can fix this bug
             text = text.replaceAll("document.head", "(document.head || document.documentElement)");
+            // ↓ collect GM API to fix cannot find GM API in global
+            // for example dev in via or x browser
             const textSplit = text.split("\n");
             const userScriptMetaEndIndex = textSplit.findIndex((item) =>
               item.trim().match(/^\/\/[\s]+==\/UserScript==/)
@@ -457,8 +461,8 @@ const GenerateUserConfig = async (option: {
               if (grantApiMatcher) {
                 const grantApi = item.replace(grantApiMatcher[grantApiMatcher.length - 1], "").trim();
                 if (grantApi.startsWith("window.") || grantApi.startsWith("GM.")) {
-                  // 不处理Window的Api
-                  // 忽略GM.*
+                  // ignore window.* API
+                  // ignore GM.* API
                   return;
                 }
                 collectGrant.push(grantApi);
@@ -523,10 +527,10 @@ const GenerateUserConfig = async (option: {
         return;
       }
       /**
-       * 格式化文件大小
+       * format file size
        * @param bytes 字节数
        */
-      function formatFileSize(bytes: number): string {
+      const formatFileSize = (bytes: number): string => {
         if (bytes < 1024) return bytes + " B";
         const kb = bytes / 1024;
         if (kb < 1024) return `${kb.toFixed(1)} KB`;
@@ -534,12 +538,11 @@ const GenerateUserConfig = async (option: {
         if (mb < 1024) return `${mb.toFixed(1)} MB`;
         const gb = mb / 1024;
         return `${gb.toFixed(1)} GB`;
-      }
+      };
       for (const fileName in bundle) {
         if (!fileName.endsWith(".meta.js")) {
           continue;
         }
-        // 读取.meta.js的信息
         let localMetaFileName = fileName.replace(/\.meta\.js$/gi, "");
         const chunk = bundle[fileName];
         const filePath = path.join(options.dir, fileName);
@@ -549,7 +552,7 @@ const GenerateUserConfig = async (option: {
         let inserRequireSpace = " ";
         let metaEndIndex = -1;
         for (let index = splitContent.length - 1; index >= 0; index--) {
-          // 逆序
+          // reverse loop because @require info in meta.js is end
           const metaItem = splitContent[index].trim();
           if (metaEndIndex === -1 && metaItem.startsWith("// ==/UserScript==")) {
             metaEndIndex = index;
@@ -566,7 +569,7 @@ const GenerateUserConfig = async (option: {
         }
         for (let index = 0; index < splitContent.length; index++) {
           let metaItem = splitContent[index];
-          // 把部分库映射为本地文件
+          // replace require lib link to local link
           const requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
           const resourceMatch = metaItem.match(/^\/\/[\s]+@resource([\s]+)/i);
           if (requireMatch) {
