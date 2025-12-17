@@ -458,10 +458,9 @@ export const DouYinVideoPlayer = {
     };
     /**
      * 显示弹窗
-     * @param downloadFileName 视频下载名
-     * @param downloadUrlInfoList 资源列表
+     * @param info
      */
-    function showParseInfoDialog(info: {
+    const showParseInfoDialog = (info: {
       author: string;
       desc: string;
       downloadInfo: {
@@ -474,8 +473,8 @@ export const DouYinVideoPlayer = {
           urlInfoList: ParsePictureDownloadInfo[];
         };
       };
-    }) {
-      let contentHTML = "";
+    }) => {
+      let showParseInfoHTML = "";
       info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
         let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
         let downloadFileName = info.downloadInfo.video.fileName;
@@ -488,7 +487,7 @@ export const DouYinVideoPlayer = {
         );
         // 文件名加上格式
         downloadFileName = downloadFileName + "." + downloadInfo.format;
-        contentHTML += /*html*/ `
+        showParseInfoHTML += /*html*/ `
         <div class="dy-link-item">
 					<div class="dy-link-item-name">
 						<span>清晰度信息：</span>
@@ -532,7 +531,7 @@ export const DouYinVideoPlayer = {
         );
         // 文件名加上格式
         downloadFileName = downloadFileName + ".png";
-        contentHTML += /*html*/ `
+        showParseInfoHTML += /*html*/ `
         <div class="dy-link-item">
 					<div class="dy-link-item-name">
 						<span>图片信息：</span>
@@ -544,7 +543,7 @@ export const DouYinVideoPlayer = {
 					</div>
         </div>`;
       });
-      contentHTML = /*html*/ `
+      showParseInfoHTML = /*html*/ `
       <div class="dy-link-info-wrapper dy-link-item">
         <div class="dy-info-name">
           <span>作者：</span>
@@ -555,7 +554,7 @@ export const DouYinVideoPlayer = {
           <span>${info.desc}</span>
         </div>
       </div>
-      <div class="dy-link-download-wrapper">${contentHTML}</div>
+      <div class="dy-link-download-wrapper">${showParseInfoHTML}</div>
       `;
       const $dialog = pops.alert({
         title: {
@@ -563,7 +562,7 @@ export const DouYinVideoPlayer = {
           position: "center",
         },
         content: {
-          text: contentHTML,
+          text: showParseInfoHTML,
           html: true,
         },
         mask: {
@@ -582,17 +581,19 @@ export const DouYinVideoPlayer = {
         drag: true,
         dragLimit: true,
         style: /*css*/ `
-          .dy-info-desc span{
-            white-space: normal;
-          }
           .dy-link-info-wrapper,
           .dy-link-download-wrapper{
             border: 1px solid #000000;
             border-radius: 5px;
             margin: 10px;
           }
-          .dy-info-name span:first-child,
-          .dy-info-desc span:first-child{
+          .dy-link-item > div{
+            display: flex;
+          }
+          .dy-link-info-wrapper > div > span{
+            white-space: normal;
+          }
+          .dy-link-info-wrapper > div > span:first-child{
             white-space: nowrap;
           }
           .dy-link-item,
@@ -601,16 +602,9 @@ export const DouYinVideoPlayer = {
             overflow: hidden;
             text-overflow: ellipsis;
           }
-          .dy-info-name,
-          .dy-info-desc,
-          .dy-link-item{
+          .dy-link-info-wrapper > div,
+          .dy-link-download-wrapper > div{
             margin: 10px;
-          }
-          .dy-link-item-name,
-          .dy-link-item-desc,
-          .dy-link-item-download-uri,
-          .dy-link-item-back-uri{
-            display: flex;
           }
           `,
       });
@@ -649,7 +643,6 @@ export const DouYinVideoPlayer = {
             window.open(url, "_blank");
             return;
           }
-          Qmsg.info(`调用【GM_download】下载视频`);
           /** 取消下载函数 */
           let abortDownload: null | Function = null;
           /** 是否成功下载 */
@@ -711,7 +704,7 @@ export const DouYinVideoPlayer = {
           capture: true,
         }
       );
-    }
+    };
     /**
      * 转换下载的文件名
      */

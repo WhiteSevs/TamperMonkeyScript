@@ -292,7 +292,7 @@ export class DouYinVideoFilterBase {
       if (Array.isArray(images)) {
         pictureList = images.map((it) => {
           let url;
-          if (Array.isArray(it.urlList && it.urlList.length)) {
+          if (Array.isArray(it.urlList) && it.urlList.length) {
             // 无水印图片（默认）
             url = it.urlList[0];
           } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {

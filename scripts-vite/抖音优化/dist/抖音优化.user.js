@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.16
+// @version      2025.12.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3108,7 +3108,7 @@
                       const videosInViewVideoList = DouYinElement.getInViewVideo();
                       const playInViewList = DouYinElement.getInViewPlayButton();
                       if (!videosInViewVideoList.length && !playInViewList.length) {
-                        Qmsg.error("未找到在可视区域内的视频或播放按钮");
+                        log.error("未找到在可视区域内的视频或播放按钮");
                         return;
                       }
                       const video = videosInViewVideoList[0];
@@ -4495,7 +4495,7 @@
             const $shareList = $$('[data-e2e="video-player-share"]');
             const playerShareInViewList = DouYinElement.getInViewNode($shareList);
             if (!videosInViewVideoList.length && !playerShareInViewList.length) {
-              Qmsg.error("未找到在可视区域内的视频/图文");
+              log.error("未找到在可视区域内的视频/图文");
               return;
             }
             const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
@@ -5080,7 +5080,7 @@
         if (Array.isArray(images)) {
           pictureList = images.map((it) => {
             let url;
-            if (Array.isArray(it.urlList && it.urlList.length)) {
+            if (Array.isArray(it.urlList) && it.urlList.length) {
               url = it.urlList[0];
             } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
               url = it.downloadUrlList[0];
@@ -5733,8 +5733,8 @@
     },
     hookDownloadButtonToParseVideo($parseNode) {
       log.info("修改页面的分享-下载按钮变成解析视频");
-      function showParseInfoDialog(info) {
-        let contentHTML = "";
+      const showParseInfoDialog = (info) => {
+        let showParseInfoHTML = "";
         info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
           let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
           let downloadFileName = info.downloadInfo.video.fileName;
@@ -5745,7 +5745,7 @@
             downloadFileName
           );
           downloadFileName = downloadFileName + "." + downloadInfo.format;
-          contentHTML += `
+          showParseInfoHTML += `
         <div class="dy-link-item">
 					<div class="dy-link-item-name">
 						<span>清晰度信息：</span>
@@ -5787,7 +5787,7 @@
             downloadFileName
           );
           downloadFileName = downloadFileName + ".png";
-          contentHTML += `
+          showParseInfoHTML += `
         <div class="dy-link-item">
 					<div class="dy-link-item-name">
 						<span>图片信息：</span>
@@ -5799,7 +5799,7 @@
 					</div>
         </div>`;
         });
-        contentHTML = `
+        showParseInfoHTML = `
       <div class="dy-link-info-wrapper dy-link-item">
         <div class="dy-info-name">
           <span>作者：</span>
@@ -5810,7 +5810,7 @@
           <span>${info.desc}</span>
         </div>
       </div>
-      <div class="dy-link-download-wrapper">${contentHTML}</div>
+      <div class="dy-link-download-wrapper">${showParseInfoHTML}</div>
       `;
         const $dialog = __pops__.alert({
           title: {
@@ -5818,7 +5818,7 @@
             position: "center",
           },
           content: {
-            text: contentHTML,
+            text: showParseInfoHTML,
             html: true,
           },
           mask: {
@@ -5837,17 +5837,19 @@
           drag: true,
           dragLimit: true,
           style: `
-          .dy-info-desc span{
-            white-space: normal;
-          }
           .dy-link-info-wrapper,
           .dy-link-download-wrapper{
             border: 1px solid #000000;
             border-radius: 5px;
             margin: 10px;
           }
-          .dy-info-name span:first-child,
-          .dy-info-desc span:first-child{
+          .dy-link-item > div{
+            display: flex;
+          }
+          .dy-link-info-wrapper > div > span{
+            white-space: normal;
+          }
+          .dy-link-info-wrapper > div > span:first-child{
             white-space: nowrap;
           }
           .dy-link-item,
@@ -5856,16 +5858,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
           }
-          .dy-info-name,
-          .dy-info-desc,
-          .dy-link-item{
+          .dy-link-info-wrapper > div,
+          .dy-link-download-wrapper > div{
             margin: 10px;
-          }
-          .dy-link-item-name,
-          .dy-link-item-desc,
-          .dy-link-item-download-uri,
-          .dy-link-item-back-uri{
-            display: flex;
           }
           `,
         });
@@ -5901,7 +5896,6 @@
               window.open(url, "_blank");
               return;
             }
-            Qmsg.info(`调用【GM_download】下载视频`);
             let abortDownload = null;
             let isSuccessDownload = false;
             let isDownloadEnd = false;
@@ -5960,7 +5954,7 @@
             capture: true,
           }
         );
-      }
+      };
       const transformDownloadFileName = (
         data,
         fileNameTemplate = Panel.getValue("dy-video-parseVideo-downloadFileName")

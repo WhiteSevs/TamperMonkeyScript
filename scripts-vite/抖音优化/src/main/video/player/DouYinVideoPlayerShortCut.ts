@@ -82,7 +82,7 @@ export const DouYinVideoPlayerShortCut = {
           const $shareList = $$('[data-e2e="video-player-share"]');
           const playerShareInViewList = DouYinElement.getInViewNode($shareList);
           if (!videosInViewVideoList.length && !playerShareInViewList.length) {
-            Qmsg.error("未找到在可视区域内的视频/图文");
+            log.error("未找到在可视区域内的视频/图文");
             return;
           }
           const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;

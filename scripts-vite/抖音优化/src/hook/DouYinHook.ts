@@ -263,7 +263,7 @@ export const DouYinHook = {
                     const videosInViewVideoList = DouYinElement.getInViewVideo();
                     const playInViewList = DouYinElement.getInViewPlayButton();
                     if (!videosInViewVideoList.length && !playInViewList.length) {
-                      Qmsg.error("未找到在可视区域内的视频或播放按钮");
+                      log.error("未找到在可视区域内的视频或播放按钮");
                       return;
                     }
                     const video = videosInViewVideoList[0];
