@@ -15,13 +15,10 @@ export const BilibiliUserApi = {
       allowInterceptConfig: false,
     });
     if (!response.status) {
-      log.error(response);
-      Qmsg.error("获取导航栏用户信息失败，请求异常", {
-        consoleLogContent: true,
-      });
+      log.error(["获取导航栏用户信息失败，请求异常", response]);
       return;
     }
-    let data = utils.toJSON<{
+    const data = utils.toJSON<{
       code: number;
       data: BilibiliUserNavInfoType;
       message: string;
@@ -29,10 +26,8 @@ export const BilibiliUserApi = {
     }>(response.data.responseText);
     if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data)) {
       // 未登录也会
-      log.error(["获取导航栏用户信息失败：", data]);
-      Qmsg.error("获取导航栏用户信息失败", {
-        consoleLogContent: true,
-      });
+      log.error(data);
+      Qmsg.error("获取导航栏用户信息失败");
       return;
     }
     return data.data;

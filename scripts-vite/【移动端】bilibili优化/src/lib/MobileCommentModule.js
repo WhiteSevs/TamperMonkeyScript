@@ -5,6 +5,9 @@ import { b2a } from "./b2a";
 import { unsafeWindow } from "ViteGM";
 import { httpx, utils, DOMUtils } from "@components/base.env";
 import Qmsg from "qmsg";
+import { BilibiliUserApi } from "@/api/BilibiliUserApi";
+import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
+
 /*
  * Comment module for https://greasyfork.org/scripts/497732
  * @version v0.0.1.20250510141049
@@ -226,21 +229,29 @@ export const MobileCommentModule = (function () {
       oid,
       type: commentType,
       wts: parseInt(Date.now() / 1000),
-      plat: 1,
-      web_location: 1315875,
+      // plat: 1,
+      // web_location: 1315875,
     };
 
     if (currentSortType === sortTypeConstant.HOT) {
       params.mode = 3;
       if (!nextOffset) {
-        params.seek_rpid = "";
+        // params.seek_rpid = "";
       }
     } else if (currentSortType === sortTypeConstant.LATEST) {
       params.mode = 2;
     }
 
+    const isLogin = await BilibiliGlobalData.$data.isLogin;
+    // 已登录就用跨域请求且不带Cookie
+    // 未登录就用fetch请求
+
     const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-      fetch: true,
+      fetch: !isLogin,
+      fetchInit:{
+        credentials:"same-origin"
+      },
+      anonymous: !isLogin,
     });
     const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
     nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
@@ -336,7 +347,7 @@ export const MobileCommentModule = (function () {
           <div class="sub-reply-list">
             ${getSubReplyItems(replyData.replies)}
             ${
-             Array.isArray(replyData?.replies) &&  replyData.rcount > replyData.replies.length
+             replyData.rcount > (replyData.replies || []).length
                 ? `
               <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
                 <div class="view-more-default">
@@ -561,11 +572,18 @@ export const MobileCommentModule = (function () {
       web_location: 333.788,
     };
 
+    const isLogin = await BilibiliGlobalData.$data.isLogin;
+    // 已登录就用跨域请求且不带Cookie
+    // 未登录就用fetch请求
     const subReplyResponse = await httpx.get(
       `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
       {
         allowInterceptConfig: false,
-        fetch: true,
+        fetch: !isLogin,
+        fetchInit:{
+          credentials:"same-origin"
+        },
+        anonymous: !isLogin,
       }
     );
     if (!subReplyResponse.status) {
@@ -716,16 +734,7 @@ export const MobileCommentModule = (function () {
   }
 
   async function addStyle() {
-    // wait until document is ready
-    await new Promise((resolve) => {
-      const timer = setInterval(() => {
-        if (document && document.createElement && document.head && document.head.appendChild) {
-          clearInterval(timer);
-          resolve();
-        }
-      }, 100);
-    });
-
+    await DOMUtils.onReady();
     // reply header CSS
     const replyHeaderCSS = document.createElement("style");
     replyHeaderCSS.textContent = `
@@ -742,7 +751,7 @@ export const MobileCommentModule = (function () {
           font-size: 1rem !important;
         }
       `;
-    document.head.appendChild(replyHeaderCSS);
+    (document.head || document.documentElement).appendChild(replyHeaderCSS);
 
     // reply list CSS
     const replyListCSS = document.createElement("style");
@@ -809,7 +818,7 @@ export const MobileCommentModule = (function () {
           margin-right: 12px !important;
         }
       `;
-    document.head.appendChild(replyListCSS);
+    (document.head || document.documentElement).appendChild(replyListCSS);
 
     // avatar CSS
     const avatarCSS = document.createElement("style");
@@ -824,7 +833,7 @@ export const MobileCommentModule = (function () {
           height: 24px;
         }
       `;
-    document.head.appendChild(avatarCSS);
+    (document.head || document.documentElement).appendChild(avatarCSS);
 
     // view-more CSS
     const viewMoreCSS = document.createElement("style");

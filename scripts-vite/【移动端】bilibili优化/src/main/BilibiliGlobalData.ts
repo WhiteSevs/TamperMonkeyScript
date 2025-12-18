@@ -9,9 +9,12 @@ export const BilibiliGlobalData = {
     isQueryLoginStatus: false,
   },
   init() {
-    this.setLoginStatus();
+    this.resetLoginStatus();
   },
-  setLoginStatus() {
+  /**
+   * 重置/初始化登录状态
+   */
+  resetLoginStatus() {
     if (this.$flag.isSetQueryLoginStatus) {
       return;
     }

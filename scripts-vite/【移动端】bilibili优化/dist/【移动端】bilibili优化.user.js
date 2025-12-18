@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.16
+// @version      2025.12.18
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -2510,18 +2510,13 @@
         allowInterceptConfig: false,
       });
       if (!response.status) {
-        log$1.error(response);
-        Qmsg.error("获取导航栏用户信息失败，请求异常", {
-          consoleLogContent: true,
-        });
+        log$1.error(["获取导航栏用户信息失败，请求异常", response]);
         return;
       }
-      let data2 = utils.toJSON(response.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log$1.error(["获取导航栏用户信息失败：", data2]);
-        Qmsg.error("获取导航栏用户信息失败", {
-          consoleLogContent: true,
-        });
+        log$1.error(data2);
+        Qmsg.error("获取导航栏用户信息失败");
         return;
       }
       return data2.data;
@@ -2571,9 +2566,9 @@
       isQueryLoginStatus: false,
     },
     init() {
-      this.setLoginStatus();
+      this.resetLoginStatus();
     },
-    setLoginStatus() {
+    resetLoginStatus() {
       if (this.$flag.isSetQueryLoginStatus) {
         return;
       }
@@ -6196,19 +6191,19 @@
         oid,
         type: commentType,
         wts: parseInt(Date.now() / 1e3),
-        plat: 1,
-        web_location: 1315875,
       };
       if (currentSortType === sortTypeConstant.HOT) {
         params.mode = 3;
-        if (!nextOffset) {
-          params.seek_rpid = "";
-        }
       } else if (currentSortType === sortTypeConstant.LATEST) {
         params.mode = 2;
       }
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
       const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-        fetch: true,
+        fetch: !isLogin,
+        fetchInit: {
+          credentials: "same-origin",
+        },
+        anonymous: !isLogin,
       });
       const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
       nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
@@ -6279,7 +6274,7 @@
           <div class="sub-reply-list">
             ${getSubReplyItems(replyData.replies)}
             ${
-              Array.isArray(replyData?.replies) && replyData.rcount > replyData.replies.length
+              replyData.rcount > (replyData.replies || []).length
                 ? `
               <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
                 <div class="view-more-default">
