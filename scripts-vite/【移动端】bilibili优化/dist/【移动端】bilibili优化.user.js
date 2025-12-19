@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.18
+// @version      2025.12.19
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
@@ -6445,11 +6445,16 @@
         pn: paginationNumber,
         web_location: 333.788,
       };
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
       const subReplyResponse = await httpx.get(
         `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
         {
           allowInterceptConfig: false,
-          fetch: true,
+          fetch: !isLogin,
+          fetchInit: {
+            credentials: "same-origin",
+          },
+          anonymous: !isLogin,
         }
       );
       if (!subReplyResponse.status) {
@@ -6571,14 +6576,7 @@
       };
     }
     async function addStyle2() {
-      await new Promise((resolve) => {
-        const timer = setInterval(() => {
-          if (document && document.createElement && document.head && document.head.appendChild) {
-            clearInterval(timer);
-            resolve();
-          }
-        }, 100);
-      });
+      await domUtils.onReady();
       const replyHeaderCSS = document.createElement("style");
       replyHeaderCSS.textContent = `
         .reply-header {
@@ -6594,7 +6592,7 @@
           font-size: 1rem !important;
         }
       `;
-      document.head.appendChild(replyHeaderCSS);
+      (document.head || document.documentElement).appendChild(replyHeaderCSS);
       const replyListCSS = document.createElement("style");
       replyListCSS.textContent = `
         .reply-list {
@@ -6659,7 +6657,7 @@
           margin-right: 12px !important;
         }
       `;
-      document.head.appendChild(replyListCSS);
+      (document.head || document.documentElement).appendChild(replyListCSS);
       const avatarCSS = document.createElement("style");
       avatarCSS.textContent = `
         .reply-item .root-reply-avatar .avatar .bili-avatar {
@@ -6672,7 +6670,7 @@
           height: 24px;
         }
       `;
-      document.head.appendChild(avatarCSS);
+      (document.head || document.documentElement).appendChild(avatarCSS);
       const viewMoreCSS = document.createElement("style");
       viewMoreCSS.textContent = `
         .sub-reply-container .view-more-btn:hover {

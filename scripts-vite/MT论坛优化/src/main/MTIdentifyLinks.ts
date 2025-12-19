@@ -142,7 +142,6 @@ export const MTIdentifyLinks = () => {
         },
       });
       treeWalker.nextNode();
-
     ) {
       setLink(treeWalker.currentNode);
     }
