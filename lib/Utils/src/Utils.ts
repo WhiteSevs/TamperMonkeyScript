@@ -1,34 +1,34 @@
-import { ColorConversion } from "./ColorConversion";
-import { GBKEncoder } from "./GBKEncoder";
-import { UtilsGMCookie } from "./UtilsGMCookie";
-import { ajaxHooker } from "./ajaxHooker/ajaxHooker.js";
-import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
-import { GMMenu } from "./UtilsGMMenu";
-import { Hooks } from "./Hooks";
-import { Httpx } from "./Httpx";
-import { indexedDB } from "./indexedDB";
-import { LockFunction } from "./LockFunction";
-import { Log } from "./Log";
-import { Progress } from "./Progress";
-import { TryCatch } from "./TryCatch";
-import { UtilsDictionary } from "./Dictionary";
-import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
-import { GenerateUUID } from "./UtilsCommon";
-import { WindowApi } from "./WindowApi";
-import { Vue } from "./Vue";
-import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
-import type { WindowApiOption } from "./types/WindowApi";
 import {
   clearInterval as WorkerClearInterval,
   clearTimeout as WorkerClearTimeout,
   setInterval as WorkerSetInterval,
   setTimeout as WorkerSetTimeout,
 } from "worker-timers";
-import { ModuleRaid } from "./ModuleRaid";
-import { domUtils } from "./DOMUtils";
-import { CommonUtil } from "./CommonUtil";
-import type { ReactInstance } from "./types/React";
 import { version } from "./../package.json";
+import { ajaxHooker } from "./ajaxHooker/ajaxHooker.js";
+import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
+import { ColorConversion } from "./ColorConversion";
+import { CommonUtil } from "./CommonUtil";
+import { UtilsDictionary } from "./Dictionary";
+import { domUtils } from "./DOMUtils";
+import { GBKEncoder } from "./GBKEncoder";
+import { Hooks } from "./Hooks";
+import { Httpx } from "./Httpx";
+import { indexedDB } from "./indexedDB";
+import { LockFunction } from "./LockFunction";
+import { Log } from "./Log";
+import { ModuleRaid } from "./ModuleRaid";
+import { Progress } from "./Progress";
+import { TryCatch } from "./TryCatch";
+import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
+import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
+import type { ReactInstance } from "./types/React";
+import type { WindowApiOption } from "./types/WindowApi";
+import { GenerateUUID } from "./UtilsCommon";
+import { UtilsGMCookie } from "./UtilsGMCookie";
+import { GMMenu } from "./UtilsGMMenu";
+import { Vue } from "./Vue";
+import { WindowApi } from "./WindowApi";
 
 class Utils {
   private windowApi: typeof WindowApi.prototype;
@@ -1293,43 +1293,43 @@ class Utils {
   Hooks = Hooks;
 
   /**
-     * 为减少代码量和回调，把GM_xmlhttpRequest封装
-     * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
-     * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
-     * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
-     * @example
-      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-      let postResp = await httpx.post({
-        url:url,
-        data:JSON.stringify({
-          test:1
-        }),
-        timeout: 5000
-      });
-      console.log(postResp);
-      > {
-        status: true,
-        data: {responseText: "...", response: xxx,...},
-        msg: "请求完毕",
-        type: "onload",
-      }
-  
-      if(postResp === "onload" && postResp.status){
-      // onload
-      }else if(postResp === "ontimeout"){
-      // ontimeout
-      }
-     * @example
-      // 也可以先配置全局参数
-      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-      httpx.config({
-        timeout: 5000,
-        async: false,
-        responseType: "html",
-        redirect: "follow",
-      })
-      // 优先级为 默认details < 全局details < 单独的details
-     */
+   * 为减少代码量和回调，把GM_xmlhttpRequest封装
+   * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
+   * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
+   * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
+   * @example
+    let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+    let postResp = await httpx.post({
+      url:url,
+      data:JSON.stringify({
+        test:1
+      }),
+      timeout: 5000
+    });
+    console.log(postResp);
+    > {
+      status: true,
+      data: {responseText: "...", response: xxx,...},
+      msg: "请求完毕",
+      type: "onload",
+    }
+
+    if(postResp === "onload" && postResp.status){
+    // onload
+    }else if(postResp === "ontimeout"){
+    // ontimeout
+    }
+    * @example
+    // 也可以先配置全局参数
+    let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+    httpx.config({
+      timeout: 5000,
+      async: false,
+      responseType: "html",
+      redirect: "follow",
+    })
+    // 优先级为 默认details < 全局details < 单独的details
+    */
   Httpx = Httpx;
   /**
      * 浏览器端的indexedDB操作封装
@@ -3209,7 +3209,7 @@ class Utils {
    */
   tryCatch = TryCatch;
   /**
-   * 数组去重，去除重复的值
+   * 数组去重，去除重复的值，返回新的数组（不修改原数组）
    * @param uniqueArrayData 需要去重的数组
    * @param compareArrayData 用来比较的数组
    * @param compareFun 数组比较方法，如果值相同，去除该数据

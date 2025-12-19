@@ -3,12 +3,12 @@ import { TryCatch } from "./TryCatch";
 import type {
   HttpxAllowInterceptConfig,
   HttpxHookErrorData,
+  HttpxInitOption,
   HttpxMethod,
+  HttpxPromise,
   HttpxRequestOption,
   HttpxResponse,
   HttpxResponseData,
-  HttpxPromise,
-  HttpxInitOption,
 } from "./types/Httpx";
 import { GenerateUUID } from "./UtilsCommon";
 

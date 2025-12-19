@@ -12,23 +12,22 @@ export class Log {
   /* 配置 */
   #details: UtilsLogOptions = {
     tag: true,
-    successColor: "#0000FF",
-    errorColor: "#FF0000",
-    infoColor: "0",
-    warnColor: "0",
+    successColor: "background: #0eac0eff;",
+    errorColor: "background: #FF0000;",
+    infoColor: "background: #6495ed;",
+    warnColor: "background: #ff8c00;",
     debug: false,
     autoClearConsole: false,
     logMaxCount: 999,
   };
   /**
-   * 颜色配置
+   * 通用样式配置
    */
-  #msgColorDetails = [
-    "font-weight: bold; color: cornflowerblue",
-    "font-weight: bold; color: cornflowerblue",
-    "font-weight: bold; color: darkorange",
-    "font-weight: bold; color: cornflowerblue",
-  ];
+  #commonStyleConfig = {
+    commonStyle: "color: #ffffff; padding: 3px; border-radius: 3px;line-height: 1;margin-right: 6px;",
+    tagStyle: "background: #6495ed;",
+    callerNameStyle: "background: #78909C;",
+  };
   /**
    * @param __GM_info 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串，用作tag名
    * @param console 可指定console对象为unsafeWindow下的console或者是油猴window下的console
@@ -112,61 +111,36 @@ export class Log {
   /**
    * 输出内容
    * @param msg 需要输出的内容
-   * @param color 颜色
-   * @param otherStyle 其它CSS
+   * @param tagColor tag颜色
    */
-  private printContent(msg: any[], color: string, otherStyle?: string) {
+  private printContent(msg: any[], tagColor?: string) {
     this.checkClearConsole();
-    otherStyle = otherStyle || "";
     const stackSplit = new Error()!.stack!.split("\n");
     stackSplit.splice(0, 2);
     const { name: callerName, position: callerPosition } = this.parseErrorStack(stackSplit);
     const tagName = this.tag;
     const that = this;
 
+    const msgColorDetails: string[] = [];
+    // 控制台输出的tag的html格式
+    let consoleHTML = `%c${tagName}`;
     /** tag的html输出格式 */
-    const tagNameHTML = `%c[${tagName}%c`;
-    /** 调用的函数名的html输出格式 */
-    let callerNameHTML = `%c${callerName}%c]%c`;
-    if (callerName.trim() === "") {
-      callerNameHTML = `-${callerNameHTML}`;
+    if (typeof tagColor === "string" && tagColor.trim() !== "") {
+      msgColorDetails.push(that.#commonStyleConfig.commonStyle + tagColor);
+    } else {
+      msgColorDetails.push(that.#commonStyleConfig.commonStyle + that.#commonStyleConfig.tagStyle);
     }
-    /**
-     * 输出消息到控制台
-     * @param message
-     */
-    function consoleMsg(message: any) {
-      if (typeof message === "string") {
-        that.#console.log(
-          `${tagNameHTML}${callerNameHTML} %s`,
-          ...that.#msgColorDetails,
-          `color: ${color};${otherStyle}`,
-          message
-        );
-      } else if (typeof message === "number") {
-        that.#console.log(
-          `${tagNameHTML}${callerNameHTML} %d`,
-          ...that.#msgColorDetails,
-          `color: ${color};${otherStyle}`,
-          message
-        );
-      } else if (typeof message === "object") {
-        that.#console.log(
-          `${tagNameHTML}${callerNameHTML} %o`,
-          ...that.#msgColorDetails,
-          `color: ${color};${otherStyle}`,
-          message
-        );
-      } else {
-        that.#console.log(message);
-      }
+    // 调用的函数名的html输出格式
+    if (callerName.trim() == "") {
+      // 无调用函数名
+    } else {
+      consoleHTML = `${consoleHTML}%c${callerName}`;
+      msgColorDetails.push(that.#commonStyleConfig.commonStyle + that.#commonStyleConfig.callerNameStyle);
     }
     if (Array.isArray(msg)) {
-      for (let index = 0; index < msg.length; index++) {
-        consoleMsg(msg[index]);
-      }
+      that.#console.log(`${consoleHTML}`, ...msgColorDetails, ...msg);
     } else {
-      consoleMsg(msg);
+      that.#console.log(`${consoleHTML}`, ...msgColorDetails, msg);
     }
     if (this.#details.debug) {
       /* 如果开启调试模式，输出堆栈位置 */
@@ -191,7 +165,8 @@ export class Log {
    */
   warn(...args: any[]) {
     if (this.#disable) return;
-    this.printContent(args, this.#details.warnColor, "background: #FEF6D5;padding: 4px 6px 4px 0px;");
+    // , "background: #FEF6D5;padding: 4px 6px 4px 0px;"
+    this.printContent(args, this.#details.warnColor);
   }
   /**
    * 控制台-错误输出
@@ -230,11 +205,11 @@ export class Log {
     /** 堆栈位置 */
     const stackFunctionNamePosition = errorStackParse.position;
     const callerName = stackFunctionName;
-    this.#console.log(
-      `%c[${this.tag}%c-%c${callerName}%c]%c`,
-      ...this.#msgColorDetails,
-      `color: ${this.#details.infoColor};`
-    );
+    const msgColorDetails: string[] = [
+      `${this.#commonStyleConfig.commonStyle + this.#details.infoColor}`,
+      `${this.#commonStyleConfig.commonStyle + this.#commonStyleConfig.callerNameStyle}`,
+    ];
+    this.#console.log(`%c${this.tag}%c${callerName}%c`, msgColorDetails);
     this.#console.table(msg);
     if (this.#details.debug) {
       this.#console.log(stackFunctionNamePosition);

@@ -89,7 +89,9 @@ export declare interface UtilsAjaxHookFilterOptions {
 /** Utils.ajaxHooker */
 export declare interface UtilsAjaxHookResult {
   /**
-     * 劫持
+     * 劫持xhr和fetch
+     * 
+     * 提示：如果多次调用.hook方法，将会多次处理同一个请求
      * @example
         ajaxHooker.hook(request => {
             if (request.url === 'https://www.example.com/') {

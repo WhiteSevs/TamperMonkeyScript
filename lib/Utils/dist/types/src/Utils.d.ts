@@ -1,20 +1,20 @@
 import { ColorConversion } from "./ColorConversion";
+import { UtilsDictionary } from "./Dictionary";
 import { GBKEncoder } from "./GBKEncoder";
-import { UtilsGMCookie } from "./UtilsGMCookie";
-import { GMMenu } from "./UtilsGMMenu";
 import { Hooks } from "./Hooks";
 import { Httpx } from "./Httpx";
 import { indexedDB } from "./indexedDB";
 import { LockFunction } from "./LockFunction";
 import { Log } from "./Log";
-import { Progress } from "./Progress";
-import { UtilsDictionary } from "./Dictionary";
-import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
-import { Vue } from "./Vue";
-import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
-import type { WindowApiOption } from "./types/WindowApi";
 import { ModuleRaid } from "./ModuleRaid";
+import { Progress } from "./Progress";
+import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
+import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { ReactInstance } from "./types/React";
+import type { WindowApiOption } from "./types/WindowApi";
+import { UtilsGMCookie } from "./UtilsGMCookie";
+import { GMMenu } from "./UtilsGMMenu";
+import { Vue } from "./Vue";
 declare class Utils {
     private windowApi;
     constructor(option?: WindowApiOption);
@@ -616,43 +616,43 @@ declare class Utils {
        **/
     Hooks: typeof Hooks;
     /**
-       * 为减少代码量和回调，把GM_xmlhttpRequest封装
-       * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
-       * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
-       * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
-       * @example
-        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-        let postResp = await httpx.post({
-          url:url,
-          data:JSON.stringify({
-            test:1
-          }),
-          timeout: 5000
-        });
-        console.log(postResp);
-        > {
-          status: true,
-          data: {responseText: "...", response: xxx,...},
-          msg: "请求完毕",
-          type: "onload",
-        }
-    
-        if(postResp === "onload" && postResp.status){
-        // onload
-        }else if(postResp === "ontimeout"){
-        // ontimeout
-        }
-       * @example
-        // 也可以先配置全局参数
-        let httpx = new Utils.Httpx(GM_xmlhttpRequest);
-        httpx.config({
-          timeout: 5000,
-          async: false,
-          responseType: "html",
-          redirect: "follow",
-        })
-        // 优先级为 默认details < 全局details < 单独的details
-       */
+     * 为减少代码量和回调，把GM_xmlhttpRequest封装
+     * 文档地址: https://www.tampermonkey.net/documentation.php?ext=iikm
+     * 其中onloadstart、onprogress、onreadystatechange是回调形式，onabort、ontimeout、onerror可以设置全局回调函数
+     * @param _GM_xmlHttpRequest_ 油猴中的GM_xmlhttpRequest
+     * @example
+      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+      let postResp = await httpx.post({
+        url:url,
+        data:JSON.stringify({
+          test:1
+        }),
+        timeout: 5000
+      });
+      console.log(postResp);
+      > {
+        status: true,
+        data: {responseText: "...", response: xxx,...},
+        msg: "请求完毕",
+        type: "onload",
+      }
+  
+      if(postResp === "onload" && postResp.status){
+      // onload
+      }else if(postResp === "ontimeout"){
+      // ontimeout
+      }
+      * @example
+      // 也可以先配置全局参数
+      let httpx = new Utils.Httpx(GM_xmlhttpRequest);
+      httpx.config({
+        timeout: 5000,
+        async: false,
+        responseType: "html",
+        redirect: "follow",
+      })
+      // 优先级为 默认details < 全局details < 单独的details
+      */
     Httpx: typeof Httpx;
     /**
        * 浏览器端的indexedDB操作封装
@@ -1295,7 +1295,7 @@ declare class Utils {
         run<A extends any[], R>(callback: ((...args: A) => R) | string | ((...args: any[]) => any), __context__?: any): import("./types/TryCatch").UtilsTryCatchType;
     };
     /**
-     * 数组去重，去除重复的值
+     * 数组去重，去除重复的值，返回新的数组（不修改原数组）
      * @param uniqueArrayData 需要去重的数组
      * @param compareArrayData 用来比较的数组
      * @param compareFun 数组比较方法，如果值相同，去除该数据

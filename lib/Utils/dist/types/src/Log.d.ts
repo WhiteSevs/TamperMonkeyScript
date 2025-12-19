@@ -24,8 +24,7 @@ export declare class Log {
     /**
      * 输出内容
      * @param msg 需要输出的内容
-     * @param color 颜色
-     * @param otherStyle 其它CSS
+     * @param tagColor tag颜色
      */
     private printContent;
     /**

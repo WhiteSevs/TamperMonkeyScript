@@ -1,4 +1,4 @@
-import type { HttpxHookErrorData, HttpxRequestOption, HttpxResponse, HttpxResponseData, HttpxPromise, HttpxInitOption } from "./types/Httpx";
+import type { HttpxHookErrorData, HttpxInitOption, HttpxPromise, HttpxRequestOption, HttpxResponse, HttpxResponseData } from "./types/Httpx";
 export declare class Httpx {
     #private;
     private GM_Api;
