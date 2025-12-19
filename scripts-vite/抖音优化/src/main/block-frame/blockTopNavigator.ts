@@ -129,12 +129,15 @@ export const BlockTopNavigator = {
     );
     result.push(
       addStyle(/*css*/ `
+       /* pc端 */
+       @media screen and (min-width: 800px) {
 				#slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
 					margin: var(--recommend-video-container-margin-height) 0px !important;
 					height: ${window.innerHeight}px !important;
 					height: round(nearest, 100dvh, 1px) !important;
 				}
+       }
 			`)
     );
     if (DouYinRouter.isSearch()) {

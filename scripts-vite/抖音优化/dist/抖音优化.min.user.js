@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.17
+// @version      2025.12.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.9/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.min.js
@@ -184,12 +184,15 @@
 				}
 			}
 		`)),t.push(T(`
+       /* pc端 */
+       @media screen and (min-width: 800px) {
 				#slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
 					margin: var(--recommend-video-container-margin-height) 0px !important;
 					height: ${window.innerHeight}px !important;
 					height: round(nearest, 100dvh, 1px) !important;
 				}
+       }
 			`)),I.isSearch()&&t.push(T(`
 				/* 把搜索顶部的工具栏置顶 */
 				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
@@ -300,21 +303,30 @@
   /* 评论区全屏 */\r
   div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r
   div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r
-    width: 100vw !important;\r
+    width: 100dvw !important;\r
   }\r
 \r
   /* 设置视频区域的高度 */\r
   #slidelist {\r
     width: 100%;\r
-    height: calc(100vh - var(--header-height)) !important;\r
+    height: calc(100dvh - var(--header-height)) !important;\r
   }\r
   /* 修正网页全屏下的视频高度 */\r
   #slidelist[class*="isCssFullScreen"] {\r
-    height: 100vh !important;\r
+    height: round(nearest, 100dvh, 1px) !important;\r
   }\r
   /* 去除视频区域右侧偏移 */\r
   .is-mobile-pc div[data-e2e="slideList"] {\r
     padding-right: 0px !important;\r
+  }\r
+  /* 推荐视频的高度适配 */\r
+  #slidelist .page-recommend-container {\r
+    margin-top: 8px !important;\r
+    margin-bottom: 4px !important;\r
+  }\r
+  /* 底部工具栏右侧的按钮不换行显示 */\r
+  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r
+    flex-wrap: nowrap;\r
   }\r
 }\r
 \r
@@ -492,7 +504,7 @@
           .dy-link-download-wrapper > div{
             margin: 10px;
           }
-          `});p.on(s.$pops,"click","a",(u,l)=>{p.preventEvent(u);const d=l.getAttribute("href");let c=l.getAttribute("data-file-name");const m=function(){try{return typeof ct=="function"}catch(S){return r.error(S),false}};if(h.getValue("dy-video-popupDownloadRenameFileName")){const S=globalThis.prompt("请确认下载的文件名",c);if(typeof S=="string")r.info(`重命名下载的文件名：${c} -> ${S}`),c=S;else {x.info("取消下载");return}}if(!m()){r.error("当前脚本环境不支持API 【GM_download】"),window.open(d,"_blank");return}let y=null,w=false,C=false,k=x.loading("下载中...",{showClose:true,onClose(){!w&&typeof y=="function"&&y();}}),M=ct({url:d,name:c,headers:{Referer:window.location.href},onload(){w=true,k.close(),x.success(`下载 ${c} 已完成`,{consoleLogContent:true});},onprogress(S){if(typeof S=="object"&&"loaded"in S&&"total"in S&&!C){let R=(S.loaded/S.total*100).toFixed(2);k.setText(`下载中...${R}%`),S.loaded===S.total&&(C=true);}},onerror(S){k.close(),r.error("下载失败error👉",S),typeof S=="object"&&S.error?x.error(`下载 ${c} 失败或已取消 原因：${S.error}`,{timeout:6e3}):x.error(`下载 ${c} 失败或已取消`);},ontimeout(){k.close(),x.error(`下载 ${c} 请求超时`);}});typeof M=="object"&&M!=null&&"abort"in M&&(y=M.abort);},{capture:true});},n=(o,a=h.getValue("dy-video-parseVideo-downloadFileName"))=>{for(const s in o){if(!Object.hasOwn(o,s))continue;const u=Reflect.get(o,s).toString();a=a.replace(`{${s}}`,u);}return a=a.replaceAll(/[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,"_"),a},i=o=>{if(o.closest('[data-e2e="feed-live"]')){x.error("无法解析直播video的下载信息");return}const a=b.getReactInstance(o?.parentElement)?.reactFiber,s=o.closest(".basePlayerContainer"),u=b.getReactInstance(s)?.reactFiber;if(!a&&!u){r.error([o,a,s,u]),x.error("获取rectFiber属性失败");return}try{const l=a?.return?.memoizedProps?.awemeInfo||a?.return?.return?.return?.memoizedProps?.awemeInfo||u?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;if(!l){r.error([o,a,u]),x.error("获取awemeInfo属性失败");return}r.info(["解析的awemeInfo: ",l]);const c=new Qe().parseAwemeInfoDictData(l);c.nickname==null&&(c.nickname="未知作者"),c.desc==null&&(c.desc="未知视频文案");let m=[],v=[];const y=l?.video?.bitRateList;if(y!=null&&Array.isArray(y)){m=y.map(k=>{let M={url:k.playApi,width:k.width,height:k.height,format:k.format,fps:0,dataSize:k.dataSize,backUrl:[]};return typeof k.fps=="number"&&(M.fps=k.fps),Array.isArray(k.playAddr)&&(M.backUrl=M.backUrl.concat(k.playAddr.map(S=>S.src))),M}).filter(k=>k!=null);for(let k=0;k<m.length;k++){const M=m[k];for(let S=0;S<m.length;S++){const _=m[S];M!==_&&M.width===_.width&&M.height===_.height&&M.fps===_.fps&&M.dataSize>_.dataSize&&(m.splice(S,1),S--,k>S&&k--);}}m=m.map(k=>(k.url.startsWith("http:")&&(k.url=k.url.replace("http:","")),k)),b.sortListByProperty(m,k=>k.width);}if(c.pictureList.length&&(v=c.pictureList.map(k=>({url:k.url,width:k.width,height:k.height}))),!m.length&&!v.length){x.error("未解析出有效的资源信息");return}const w=n({uid:c.uid,nickname:c.nickname,desc:c.desc,downloadTime:b.formatTime(void 0,"yyyy-MM-dd_HH:mm:ss")}),C=n({uid:c.uid,nickname:c.nickname,desc:c.desc,downloadTime:b.formatTime(void 0,"yyyy-MM-dd_HH:mm:ss")});e({author:c.nickname,desc:c.desc,downloadInfo:{video:{fileName:w,urlInfoList:m},picture:{fileName:C,urlInfoList:v}}});}catch(l){r.error(l),x.error("解析视频失败："+l.message);}};if(t)i(t);else return [p.on(document,"click",'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',(a,s)=>{p.preventEvent(a),i(s);},{capture:true}).off]},hookCopyLinkButton(){return r.info("修改页面的分享-复制链接"),[p.on(document,"click",'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',(e,n)=>{p.preventEvent(e);const i=n,o=b.getReactInstance(i.parentElement)?.reactFiber;if(!o){x.error("获取rectFiber属性失败");return}const a=o?.return?.return?.memoizedProps?.awemeInfo;if(a==null||typeof a!="object"){x.error("获取awemeInfo属性失败");return}r.info("视频awemeInfo：",a);let s=a?.shareInfo?.shareUrl;if(typeof s!="string"){x.error("获取shareUrl属性失败");return}r.info("视频链接："+s);try{let u=new URL(s);u.search="",s=u.toString(),r.info("去除search参数后的链接："+s);}catch{}b.copy(s).then(u=>{let l=o?.return?.return?.memoizedProps?.toast;u?(l=typeof l=="function"?l:x.success,l("已复制链接")):(l=typeof l=="function"?l:x.error,l("复制链接失败"));});},{capture:true}).off]},mobileMode(){r.info("启用手机模式");let t=[];return Ct.initialScale(),t.push(g.addBlockCSS("img#douyin-temp-sidebar"),T(Ft)),h.onceExec("repairProgressBar",()=>{t.push(...this.repairVideoProgressBar());}),t},repairVideoProgressBar(){r.info("修复进度条按钮");let t=[T(`
+          `});p.on(s.$pops,"click","a",(u,l)=>{p.preventEvent(u);const d=l.getAttribute("href");let c=l.getAttribute("data-file-name");const m=function(){try{return typeof ct=="function"}catch(S){return r.error(S),false}};if(h.getValue("dy-video-popupDownloadRenameFileName")){const S=globalThis.prompt("请确认下载的文件名",c);if(typeof S=="string")r.info(`重命名下载的文件名：${c} -> ${S}`),c=S;else {r.info("取消下载");return}}if(!m()){r.error("当前脚本环境不支持API 【GM_download】"),window.open(d,"_blank");return}let y=null,w=false,C=false,k=x.loading("下载中...",{showClose:true,onClose(){!w&&typeof y=="function"&&y();}}),M=ct({url:d,name:c,headers:{Referer:window.location.href},onload(){w=true,k.close(),x.success(`下载 ${c} 已完成`,{consoleLogContent:true});},onprogress(S){if(typeof S=="object"&&"loaded"in S&&"total"in S&&!C){let R=(S.loaded/S.total*100).toFixed(2);k.setText(`下载中...${R}%`),S.loaded===S.total&&(C=true);}},onerror(S){k.close(),r.error("下载失败error👉",S),typeof S=="object"&&S.error?x.error(`下载 ${c} 失败或已取消 原因：${S.error}`,{timeout:6e3}):x.error(`下载 ${c} 失败或已取消`);},ontimeout(){k.close(),x.error(`下载 ${c} 请求超时`);}});typeof M=="object"&&M!=null&&"abort"in M&&(y=M.abort);},{capture:true});},n=(o,a=h.getValue("dy-video-parseVideo-downloadFileName"))=>{for(const s in o){if(!Object.hasOwn(o,s))continue;const u=Reflect.get(o,s).toString();a=a.replace(`{${s}}`,u);}return a=a.replaceAll(/[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,"_"),a},i=o=>{if(o.closest('[data-e2e="feed-live"]')){x.error("无法解析直播video的下载信息");return}const a=b.getReactInstance(o?.parentElement)?.reactFiber,s=o.closest(".basePlayerContainer"),u=b.getReactInstance(s)?.reactFiber;if(!a&&!u){r.error([o,a,s,u]),x.error("获取rectFiber属性失败");return}try{const l=a?.return?.memoizedProps?.awemeInfo||a?.return?.return?.return?.memoizedProps?.awemeInfo||u?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;if(!l){r.error([o,a,u]),x.error("获取awemeInfo属性失败");return}r.info(["解析的awemeInfo: ",l]);const c=new Qe().parseAwemeInfoDictData(l);c.nickname==null&&(c.nickname="未知作者"),c.desc==null&&(c.desc="未知视频文案");let m=[],v=[];const y=l?.video?.bitRateList;if(y!=null&&Array.isArray(y)){m=y.map(k=>{let M={url:k.playApi,width:k.width,height:k.height,format:k.format,fps:0,dataSize:k.dataSize,backUrl:[]};return typeof k.fps=="number"&&(M.fps=k.fps),Array.isArray(k.playAddr)&&(M.backUrl=M.backUrl.concat(k.playAddr.map(S=>S.src))),M}).filter(k=>k!=null);for(let k=0;k<m.length;k++){const M=m[k];for(let S=0;S<m.length;S++){const _=m[S];M!==_&&M.width===_.width&&M.height===_.height&&M.fps===_.fps&&M.dataSize>_.dataSize&&(m.splice(S,1),S--,k>S&&k--);}}m=m.map(k=>(k.url.startsWith("http:")&&(k.url=k.url.replace("http:","")),k)),b.sortListByProperty(m,k=>k.width);}if(c.pictureList.length&&(v=c.pictureList.map(k=>({url:k.url,width:k.width,height:k.height}))),!m.length&&!v.length){x.error("未解析出有效的资源信息");return}const w=n({uid:c.uid,nickname:c.nickname,desc:c.desc,downloadTime:b.formatTime(void 0,"yyyy-MM-dd_HH:mm:ss")}),C=n({uid:c.uid,nickname:c.nickname,desc:c.desc,downloadTime:b.formatTime(void 0,"yyyy-MM-dd_HH:mm:ss")});e({author:c.nickname,desc:c.desc,downloadInfo:{video:{fileName:w,urlInfoList:m},picture:{fileName:C,urlInfoList:v}}});}catch(l){r.error(l),x.error("解析视频失败："+l.message);}};if(t)i(t);else return [p.on(document,"click",'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',(a,s)=>{p.preventEvent(a),i(s);},{capture:true}).off]},hookCopyLinkButton(){return r.info("修改页面的分享-复制链接"),[p.on(document,"click",'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',(e,n)=>{p.preventEvent(e);const i=n,o=b.getReactInstance(i.parentElement)?.reactFiber;if(!o){x.error("获取rectFiber属性失败");return}const a=o?.return?.return?.memoizedProps?.awemeInfo;if(a==null||typeof a!="object"){x.error("获取awemeInfo属性失败");return}r.info("视频awemeInfo：",a);let s=a?.shareInfo?.shareUrl;if(typeof s!="string"){x.error("获取shareUrl属性失败");return}r.info("视频链接："+s);try{let u=new URL(s);u.search="",s=u.toString(),r.info("去除search参数后的链接："+s);}catch{}b.copy(s).then(u=>{let l=o?.return?.return?.memoizedProps?.toast;u?(l=typeof l=="function"?l:x.success,l("已复制链接")):(l=typeof l=="function"?l:x.error,l("复制链接失败"));});},{capture:true}).off]},mobileMode(){r.info("启用手机模式");let t=[];return Ct.initialScale(),t.push(g.addBlockCSS("img#douyin-temp-sidebar"),T(Ft)),h.onceExec("repairProgressBar",()=>{t.push(...this.repairVideoProgressBar());}),t},repairVideoProgressBar(){r.info("修复进度条按钮");let t=[T(`
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
       @media screen and (max-width: 600px) and (orientation: portrait),
         screen and (max-height: 600px) and (orientation: landscape) {

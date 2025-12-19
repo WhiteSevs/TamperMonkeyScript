@@ -634,7 +634,7 @@ export const DouYinVideoPlayer = {
               log.info(`重命名下载的文件名：${fileName} -> ${renameFileName}`);
               fileName = renameFileName;
             } else {
-              Qmsg.info("取消下载");
+              log.info("取消下载");
               return;
             }
           }

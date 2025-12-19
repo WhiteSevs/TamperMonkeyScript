@@ -96,21 +96,30 @@
   /* 评论区全屏 */
   div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),
   div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {
-    width: 100vw !important;
+    width: 100dvw !important;
   }
 
   /* 设置视频区域的高度 */
   #slidelist {
     width: 100%;
-    height: calc(100vh - var(--header-height)) !important;
+    height: calc(100dvh - var(--header-height)) !important;
   }
   /* 修正网页全屏下的视频高度 */
   #slidelist[class*="isCssFullScreen"] {
-    height: 100vh !important;
+    height: round(nearest, 100dvh, 1px) !important;
   }
   /* 去除视频区域右侧偏移 */
   .is-mobile-pc div[data-e2e="slideList"] {
     padding-right: 0px !important;
+  }
+  /* 推荐视频的高度适配 */
+  #slidelist .page-recommend-container {
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+  }
+  /* 底部工具栏右侧的按钮不换行显示 */
+  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {
+    flex-wrap: nowrap;
   }
 }
 
