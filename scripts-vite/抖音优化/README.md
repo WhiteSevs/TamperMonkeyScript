@@ -74,6 +74,7 @@
 | pictureList                      | object[] | 图片列表                                       | 建议使用`自定义函数`进行比较处理     |
 | productId                        | string   | 产品id（付费视频存在id，专属会员视频不存在id） |                                      |
 | productTitle                     | string   | 产品标题                                       |                                      |
+| isFollow                         | boolean  | 是否已关注该用户                               | 填入的值为`true`或`false`            |
 | isLive                           | boolean  | 是否是直播                                     | 填入的值为`true`或`false`            |
 | isAds                            | boolean  | 是否是广告                                     | 填入的值为`true`或`false`            |
 | isSeriesInfo                     | boolean  | 是否是系列信息，例如：`短剧`                   | 填入的值为`true`或`false`            |

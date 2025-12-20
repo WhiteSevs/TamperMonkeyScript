@@ -1072,11 +1072,11 @@ export const DouYinVideoPlayer = {
     log.info(`自动隐藏视频信息`);
     return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
-      '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+      "#sliderVideo #video-info-wrap",
       // 直播
       '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
       // 进入作者主页后的当前观看的视频
-      '#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
+      "#slideMode #video-info-wrap",
       // 单个视频
       'div[data-e2e="video-detail"] #video-info-wrap',
     ]);
@@ -1088,11 +1088,11 @@ export const DouYinVideoPlayer = {
     log.info(`自动隐藏视频控件`);
     return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
-      `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+      `#sliderVideo xg-controls.xgplayer-controls`,
       // 直播
       `[data-e2e="feed-item"] [data-e2e="feed-live"] xg-controls.xgplayer-controls`,
       // 进入作者主页后的当前观看的视频
-      '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
+      "#slideMode xg-controls.xgplayer-controls",
       // 单个视频
       'div[data-e2e="video-detail"] xg-controls.xgplayer-controls',
     ]);
@@ -1104,11 +1104,11 @@ export const DouYinVideoPlayer = {
     log.info(`自动隐藏右侧工具栏`);
     const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
       // 一般的推荐视频|单个视频的当前观看的视频
-      '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+      "#sliderVideo .positionBox",
       // 直播
       '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
       // 进入作者主页后的当前观看的视频
-      '#slideMode[data-e2e="feed-active-video"] .positionBox',
+      "#slideMode .positionBox",
       // 单个视频
       'div[data-e2e="video-detail"] .positionBox',
     ]);

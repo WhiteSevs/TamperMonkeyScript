@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3534,7 +3534,7 @@
   };
   const DouYinUtils = {
     isVerticalScreen() {
-      return !window.screen.orientation.type.includes("landscape");
+      return !globalThis.screen.orientation.type.includes("landscape");
     },
   };
   const MobileCSS$1 =
@@ -4719,7 +4719,7 @@
     let opacityHideAttrName = "data-opacity-hide";
     const result = [];
     let delayTime = () => Panel.getValue(delayTimeKey);
-    const styleCSS = (__delayTime__ = delayTime()) => {
+    const hideStyle = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
         return `
             ${selectors.join(",")}{
@@ -4745,13 +4745,13 @@
             `;
       }
     };
-    const $style = addStyle(styleCSS());
+    const $style = addStyle(hideStyle());
     const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
-      domUtils.html($style, styleCSS(newValue));
+      domUtils.html($style, hideStyle(newValue));
     });
     const lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
-        const $el = $(`${selector}:not([${isInjectAttrName}])`);
+        const $el = $(`${selector.trim()}:not([${isInjectAttrName}])`);
         if (!$el) {
           return;
         }
@@ -4782,20 +4782,34 @@
         const showListener = domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
           show();
         });
-        const hideListener = domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+        const hideListener = domUtils.on($el, ["mouseleave", "touchend", "touchcancel"], (event) => {
           hide();
         });
         const interObserver = new IntersectionObserver(
           (entries) => {
             const intersection = entries[0];
+            const intersectionObserverInfo = Reflect.get($el, "data-intersection-observer") || [];
             if (intersection.isIntersecting) {
               show();
               hide(true);
+              intersectionObserverInfo.push({
+                time: utils.formatTime(),
+                message: "进入视图",
+                isIntersecting: intersection.isIntersecting,
+              });
+            } else {
+              intersectionObserverInfo.push({
+                time: utils.formatTime(),
+                message: "离开视图",
+                isIntersecting: intersection.isIntersecting,
+              });
             }
+            Reflect.set($el, "data-intersection-observer", intersectionObserverInfo);
           },
           {
+            root: null,
             rootMargin: "0px",
-            threshold: 0.02,
+            threshold: 0.03,
           }
         );
         interObserver.observe($el);
@@ -4807,7 +4821,7 @@
         });
       });
     });
-    const observer = utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document.body || document.documentElement, {
       config: {
         subtree: true,
         childList: true,
@@ -4963,6 +4977,7 @@
       let isProduct = false;
       let productId = void 0;
       let productTitle = void 0;
+      let isFollow = false;
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
           let tagName = item?.["tagName"] || item?.["tag_name"];
@@ -5191,6 +5206,8 @@
         });
         videoBitRateList = [...new Set(videoBitRateList)];
       }
+      const followStatus = awemeInfo?.["authorInfo"]?.["followStatus"] || awemeInfo?.["author"]?.["follow_status"];
+      isFollow = Boolean(followStatus);
       return {
         awemeId,
         nickname,
@@ -5223,6 +5240,7 @@
         liveStreamRoomDynamicSpliceLabel,
         productId,
         productTitle,
+        isFollow,
         isLive,
         isAds,
         isSeriesInfo,
@@ -6255,27 +6273,27 @@
     titleInfoAutoHide() {
       log.info(`自动隐藏视频信息`);
       return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+        "#sliderVideo #video-info-wrap",
         '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-        '#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
+        "#slideMode #video-info-wrap",
         'div[data-e2e="video-detail"] #video-info-wrap',
       ]);
     },
     videoControlsAutoHide() {
       log.info(`自动隐藏视频控件`);
       return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
-        `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+        `#sliderVideo xg-controls.xgplayer-controls`,
         `[data-e2e="feed-item"] [data-e2e="feed-live"] xg-controls.xgplayer-controls`,
-        '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
+        "#slideMode xg-controls.xgplayer-controls",
         'div[data-e2e="video-detail"] xg-controls.xgplayer-controls',
       ]);
     },
     rightToolBarAutoHide() {
       log.info(`自动隐藏右侧工具栏`);
       const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+        "#sliderVideo .positionBox",
         '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-        '#slideMode[data-e2e="feed-active-video"] .positionBox',
+        "#slideMode .positionBox",
         'div[data-e2e="video-detail"] .positionBox',
       ]);
       result.push(
@@ -9802,6 +9820,7 @@
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
               const douYinVideoHandlerInfoKey = [
+                "isFollow",
                 "isLive",
                 "isAds",
                 "isSeriesInfo",

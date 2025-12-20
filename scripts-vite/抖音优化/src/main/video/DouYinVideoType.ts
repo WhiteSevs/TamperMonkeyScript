@@ -64,6 +64,8 @@ export interface DouYinVideoHandlerInfo {
   productId?: string;
   /** 产品标题 */
   productTitle?: string;
+  /** 是否已关注该用户 */
+  isFollow: boolean;
   /** 是否是直播 */
   isLive: boolean;
   /** 是否是广告 */

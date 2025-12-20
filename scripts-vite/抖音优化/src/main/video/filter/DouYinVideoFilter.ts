@@ -829,6 +829,7 @@ export const DouYinVideoFilter = {
 
             // 属性名列表
             const douYinVideoHandlerInfoKey = <(keyof DouYinVideoHandlerInfo)[]>[
+              "isFollow",
               "isLive",
               "isAds",
               "isSeriesInfo",

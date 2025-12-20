@@ -14,9 +14,9 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
   const result: any[] = [];
   let delayTime = () => Panel.getValue<number>(delayTimeKey);
 
-  const styleCSS = (__delayTime__ = delayTime()) => {
+  const hideStyle = (__delayTime__ = delayTime()) => {
     if (__delayTime__ === 0) {
-      // 默认隐藏
+      // 直接隐藏
       return /*css*/ `
             ${selectors.join(",")}{
                 opacity: 0 !important;
@@ -29,8 +29,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
             }
             `;
     } else {
-      // 默认无效果
-      // 延迟后自动隐藏
+      // 主动添加隐藏属性才会隐藏
       return /*css*/ `
             ${selectors.join(",")}{
                 &[${opacityHideAttrName}]{
@@ -43,20 +42,23 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
             `;
     }
   };
-  const $style = addStyle(styleCSS());
+  const $style = addStyle(hideStyle());
   const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
-    DOMUtils.html($style, styleCSS(newValue));
+    DOMUtils.html($style, hideStyle(newValue));
   });
   const lockFn = new utils.LockFunction(() => {
     /** 视频信息列表 */
     selectors.forEach((selector) => {
-      const $el = $<HTMLElement>(`${selector}:not([${isInjectAttrName}])`);
+      const $el = $<HTMLElement>(`${selector.trim()}:not([${isInjectAttrName}])`);
       if (!$el) {
         return;
       }
 
       $el.setAttribute(isInjectAttrName, "");
       let timeId: number | undefined = 0;
+      /**
+       * 显示
+       */
       const show = () => {
         utils.workerClearTimeout(timeId);
         if (delayTime() === 0) {
@@ -67,6 +69,9 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
           $el.removeAttribute(opacityHideAttrName);
         }
       };
+      /**
+       * 隐藏
+       */
       const hide = (enableDelayTime: boolean = false) => {
         utils.workerClearTimeout(timeId);
         if (enableDelayTime) {
@@ -86,24 +91,37 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
       const showListener = DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
         show();
       });
-      const hideListener = DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
+      const hideListener = DOMUtils.on($el, ["mouseleave", "touchend", "touchcancel"], (event) => {
         hide();
       });
       const interObserver = new IntersectionObserver(
         (entries) => {
           const intersection = entries[0];
+          const intersectionObserverInfo = Reflect.get($el, "data-intersection-observer") || [];
           if (intersection.isIntersecting) {
             // 进入视图 强制显示，然后延迟隐藏
             show();
             hide(true);
+            intersectionObserverInfo.push({
+              time: utils.formatTime(),
+              message: "进入视图",
+              isIntersecting: intersection.isIntersecting,
+            });
           } else {
             // 离开视图 直接显示吧，下次显示就不用强制过渡显示了
             // show();
+            intersectionObserverInfo.push({
+              time: utils.formatTime(),
+              message: "离开视图",
+              isIntersecting: intersection.isIntersecting,
+            });
           }
+          Reflect.set($el, "data-intersection-observer", intersectionObserverInfo);
         },
         {
+          root: null,
           rootMargin: "0px",
-          threshold: 0.02,
+          threshold: 0.03,
         }
       );
       interObserver.observe($el);
@@ -116,7 +134,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
       });
     });
   });
-  const observer = utils.mutationObserver(document, {
+  const observer = utils.mutationObserver(document.body || document.documentElement, {
     config: {
       subtree: true,
       childList: true,

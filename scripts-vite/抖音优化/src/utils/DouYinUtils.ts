@@ -1,5 +1,3 @@
-import { utils } from "@/env";
-
 export const DouYinUtils = {
   /**
    * 判断是否是竖屏
@@ -9,6 +7,6 @@ export const DouYinUtils = {
    * + portrait-primary 竖屏
    */
   isVerticalScreen() {
-    return !window.screen.orientation.type.includes("landscape");
+    return !globalThis.screen.orientation.type.includes("landscape");
   },
 };

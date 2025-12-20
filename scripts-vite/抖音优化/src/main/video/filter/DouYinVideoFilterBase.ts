@@ -140,6 +140,8 @@ export class DouYinVideoFilterBase {
     let productId: string | undefined = void 0;
     /** 产品标题（例如：付费短视频） */
     let productTitle: string | undefined = void 0;
+    /** 是否已关注该用户 */
+    let isFollow: boolean = false;
 
     if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
       videoTagInstance.forEach((item) => {
@@ -460,6 +462,12 @@ export class DouYinVideoFilterBase {
       videoBitRateList = [...new Set(videoBitRateList)];
     }
 
+    // 判断是否已关注该用户
+    const followStatus =
+      // @ts-ignore
+      awemeInfo?.["authorInfo"]?.["followStatus"] || awemeInfo?.["author"]?.["follow_status"];
+    isFollow = Boolean(followStatus);
+
     return {
       awemeId,
       nickname,
@@ -492,6 +500,7 @@ export class DouYinVideoFilterBase {
       liveStreamRoomDynamicSpliceLabel,
       productId,
       productTitle,
+      isFollow,
       isLive,
       isAds,
       isSeriesInfo,
