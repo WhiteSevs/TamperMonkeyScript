@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.20
+// @version      2025.12.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3155,6 +3155,10 @@
                 {
                   enableKey: "dy-live-switchLiveRoom",
                   code: ["ArrowUp", "ArrowDown"],
+                },
+                {
+                  enableKey: "dy-live-quickGift",
+                  code: ["KeyE"],
                 },
               ];
             }
@@ -6586,8 +6590,10 @@
                 flag = true;
               }
             } else;
-          } else if (method === "WebcastRoomMessage");
-          else if (method === "WebcastFansclubMessage");
+          } else if (method === "WebcastRoomMessage") {
+            messageIns?.payload?.system_top_msg;
+            messageIns?.payload?.biz_scene;
+          } else if (method === "WebcastFansclubMessage");
           else if (method === "WebcastEmojiChatMessage") {
             if (Panel.getValue("live-message-shield-emoji-chat")) {
               flag = true;
@@ -6721,7 +6727,8 @@
       return [
         CommonUtil.addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
-          `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`
+          `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
+          '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
         ),
       ];
     },
@@ -6804,30 +6811,8 @@
       ];
     },
     shieldGiftEffects() {
-      domUtils.onReady(() => {
-        domUtils
-          .waitNode(() => {
-            return (
-              domUtils.selector("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||
-              domUtils.selector(`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`) ||
-              domUtils.selector('.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])')
-            );
-          }, 1e4)
-          .then(($el) => {
-            if (!$el) {
-              log.error("【屏蔽】礼物特效失败，原因：获取按钮超时");
-              return;
-            }
-            let { reactFiber } = utils.getReactInstance($el);
-            let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
-            if (typeof onClick === "function") {
-              log.info(`调用【屏蔽】礼物特效按钮的onClick函数`);
-              onClick();
-            } else {
-              log.error(`【屏蔽】礼物特效失败，原因：未获取到onClick函数`);
-            }
-          });
-      });
+      log.info("【屏蔽】礼物特效");
+      [CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]')];
     },
     shieldLucky() {
       log.info("【屏蔽】福袋");
@@ -7053,6 +7038,9 @@
         );
         return [result.off];
       });
+      Panel.execMenu("dy-live-quickGift", () => {
+        return this.disableQuickGift();
+      });
       domUtils.onReady(() => {
         Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
           return DouYinLiveMessage.filterMessage();
@@ -7071,6 +7059,9 @@
         });
         Panel.execMenu("dy-live-autoCloseChatRoom", () => {
           this.autoCloseChatRoom();
+        });
+        Panel.execMenu("dy-live-quickGift", () => {
+          return this.disableQuickGift();
         });
       });
     },
@@ -7406,6 +7397,10 @@
           $el.click();
         },
       });
+    },
+    disableQuickGift() {
+      log.info(`禁用快捷键送礼 - localStorage处理`);
+      window.localStorage.setItem("disable_shortcut_key_v2", "false");
     },
   };
   const DouYinRedirect = {
@@ -11617,7 +11612,7 @@
                 type: "container",
                 text: "倍速播放",
                 views: [
-                  UISwitch("启用", "dy-video-playbackrate", false),
+                  UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
                   UISelect(
                     "倍速",
                     "dy-video-playbackrate-select-value",
@@ -12358,10 +12353,11 @@
                 text: AutoOpenOrClose.text,
                 views: [
                   UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
-                  UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
+                  UISwitch("刷新", "dy-live-refresh", false, void 0, "R"),
                   UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
                   UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
                   UISwitch("切换直播间", "dy-live-switchLiveRoom", false, void 0, "↑↓"),
+                  UISwitch("快捷键送礼", "dy-live-quickGift", false, void 0, "E"),
                 ],
               },
             ],
@@ -12436,7 +12432,7 @@
                     "dy-live-shieldMessage",
                     false,
                     void 0,
-                    "顶部左右滚动播报（xxx进入/加入直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
+                    "顶部左右滚动播报（xxx进入/加入了直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
                   ),
                 ],
               },

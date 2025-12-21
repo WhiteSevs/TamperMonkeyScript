@@ -309,6 +309,10 @@ export const DouYinHook = {
                 enableKey: "dy-live-switchLiveRoom",
                 code: ["ArrowUp", "ArrowDown"],
               },
+              {
+                enableKey: "dy-live-quickGift",
+                code: ["KeyE"],
+              },
             ];
           }
           // 去重

@@ -311,7 +311,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: "倍速播放",
               views: [
-                UISwitch("启用", "dy-video-playbackrate", false),
+                UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
                 UISelect(
                   "倍速",
                   "dy-video-playbackrate-select-value",

@@ -92,6 +92,9 @@ export const DouYinLive = {
       );
       return [result.off];
     });
+    Panel.execMenu("dy-live-quickGift", () => {
+      return this.disableQuickGift();
+    });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
         return DouYinLiveMessage.filterMessage();
@@ -110,6 +113,9 @@ export const DouYinLive = {
       });
       Panel.execMenu("dy-live-autoCloseChatRoom", () => {
         this.autoCloseChatRoom();
+      });
+      Panel.execMenu("dy-live-quickGift", () => {
+        return this.disableQuickGift();
       });
     });
   },
@@ -494,5 +500,12 @@ export const DouYinLive = {
         $el.click();
       },
     });
+  },
+  /**
+   * 禁用快捷键送礼
+   */
+  disableQuickGift() {
+    log.info(`禁用快捷键送礼 - localStorage处理`);
+    window.localStorage.setItem("disable_shortcut_key_v2", "false");
   },
 };

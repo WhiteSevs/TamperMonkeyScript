@@ -91,7 +91,8 @@ export const DouYinLiveBlock_ChatRoom = {
       CommonUtil.addBlockCSS(
         "#chatroom .webcast-chatroom___bottom-message",
         // 上面的滚动播报，xxx进入/加入了直播间
-        `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`
+        `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
+        '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
       ),
     ];
   },
@@ -203,39 +204,10 @@ export const DouYinLiveBlock = {
    * 【屏蔽】礼物特效
    */
   shieldGiftEffects() {
-    // log.info("【屏蔽】礼物特效");
-    // let result: (HTMLStyleElement | undefined)[] = [
-    // 	CommonUtil.addBlockCSS(
-    // 		// ↓该屏蔽会把连麦的用户也屏蔽了
-    // 		// '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-    // 		// 排除掉福袋
-    // 		'.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)',
-    // 		// 2025.6.29 新版
-    // 		"#GiftTrayLayout"
-    // 	),
-    // ];
-    DOMUtils.onReady(() => {
-      DOMUtils.waitNode(() => {
-        return (
-          DOMUtils.selector<HTMLElement>("xg-icon.pluginContainer > div:contains('屏蔽礼物特效')") ||
-          DOMUtils.selector<HTMLElement>(`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`) ||
-          DOMUtils.selector<HTMLElement>('.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])')
-        );
-      }, 10000).then(($el) => {
-        if (!$el) {
-          log.error("【屏蔽】礼物特效失败，原因：获取按钮超时");
-          return;
-        }
-        let { reactFiber } = utils.getReactInstance($el);
-        let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
-        if (typeof onClick === "function") {
-          log.info(`调用【屏蔽】礼物特效按钮的onClick函数`);
-          onClick();
-        } else {
-          log.error(`【屏蔽】礼物特效失败，原因：未获取到onClick函数`);
-        }
-      });
-    });
+    log.info("【屏蔽】礼物特效");
+    let result: (HTMLStyleElement | undefined)[] = [
+      CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
+    ];
     // return result;
   },
   /**

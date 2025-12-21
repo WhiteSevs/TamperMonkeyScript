@@ -221,10 +221,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               views: [
                 UISwitch("三屏画面", "dy-live-threeScreen", false, void 0, "S"),
-                UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
+                UISwitch("刷新", "dy-live-refresh", false, void 0, "R"),
                 UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
                 UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
                 UISwitch("切换直播间", "dy-live-switchLiveRoom", false, void 0, "↑↓"),
+                UISwitch("快捷键送礼", "dy-live-quickGift", false, void 0, "E"),
               ],
             },
           ],
@@ -299,7 +300,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   "dy-live-shieldMessage",
                   false,
                   void 0,
-                  "顶部左右滚动播报（xxx进入/加入直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
+                  "顶部左右滚动播报（xxx进入/加入了直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
                 ),
               ],
             },
