@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.21
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -46,7 +46,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, Utils, Qmsg, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
+(function (DOMUtils, pops, Utils, Qmsg, Viewer, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
   "use strict";
 
   const d = new Set();
@@ -116,6 +116,27 @@
     },
     isReadMobile() {
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
+    },
+  };
+  const BilibiliData = {
+    className: {
+      bangumi: "#app.main-container",
+      bangumi_new: "body > #__next",
+      dynamic: "#app .m-dynamic",
+      opus: "#app .m-opus",
+      video: "#app .video",
+      mVideo: "#app .m-video",
+      head: "#app .m-head",
+      playlist: "#app .playlist",
+      space: "#app .m-space",
+    },
+    theme: "#FB7299",
+  };
+  const BilibiliPCData = {
+    className: {
+      read: {
+        mobile: "#app .read-app-main",
+      },
     },
   };
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -2080,6 +2101,846 @@
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
+  const BilibiliApiResponseCheck = {
+    isWebApiSuccess(json) {
+      return json?.code === 0 && (json?.message === "0" || json?.message === "success");
+    },
+    isAreaLimit(data2) {
+      let areaLimitCode = {
+        6002003: "抱歉您所在地区不可观看！",
+      };
+      let flag = false;
+      Object.keys(areaLimitCode).forEach((code) => {
+        let codeMsg = areaLimitCode[code];
+        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
+          flag = true;
+        }
+      });
+      return flag;
+    },
+  };
+  const BilibiliUserApi = {
+    async nav(checkCode = true) {
+      let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
+        fetch: true,
+        responseType: "json",
+        allowInterceptConfig: false,
+      });
+      if (!response.status) {
+        log$1.error(["获取导航栏用户信息失败，请求异常", response]);
+        return;
+      }
+      const data2 = utils.toJSON(response.data.responseText);
+      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        log$1.error(data2);
+        Qmsg.error("获取导航栏用户信息失败");
+        return;
+      }
+      return data2.data;
+    },
+    async space(mid, offset = "") {
+      let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
+        data: {
+          host_mid: mid,
+          offset,
+        },
+        fetch: true,
+      });
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return;
+      }
+      return data2["data"];
+    },
+    async following(mid, pn = 1, ps = 50) {
+      let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
+        data: {
+          vmid: mid,
+          ps,
+          pn,
+        },
+        fetch: true,
+      });
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return data2["message"];
+      }
+      return data2["data"];
+    },
+  };
+  const wbi = async (params) => {
+    async function getWbiQueryString(params2) {
+      const response = await BilibiliUserApi.nav(false);
+      if (!response) {
+        return;
+      }
+      const { img_url, sub_url } = response.wbi_img;
+      const imgKey = img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf("."));
+      const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
+      const originKey = imgKey + subKey;
+      const mixinKeyEncryptTable = [
+        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
+        38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
+        11, 36, 20, 34, 44, 52,
+      ];
+      const mixinKey = mixinKeyEncryptTable
+        .map((n) => originKey[n])
+        .join("")
+        .slice(0, 32);
+      const query = Object.keys(params2)
+        .sort()
+        .map((key) => {
+          const value = params2[key].toString().replace(/[!'()*]/g, "");
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+        })
+        .join("&");
+      const wbiSign = md5(query + mixinKey);
+      return query + "&w_rid=" + wbiSign;
+    }
+    return await getWbiQueryString(params);
+  };
+  function b2a(bvid) {
+    const XOR_CODE2 = 23442827791579n;
+    const MASK_CODE = 2251799813685247n;
+    const BASE2 = 58n;
+    const BYTES = ["B", "V", 1, "", "", "", "", "", "", "", "", ""];
+    const BV_LEN = BYTES.length;
+    const ALPHABET = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf".split("");
+    const DIGIT_MAP = [0, 1, 2, 9, 7, 5, 6, 4, 8, 3, 10, 11];
+    let r = 0n;
+    for (let i = 3; i < BV_LEN; i++) {
+      r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
+    }
+    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
+  }
+  const BilibiliGlobalData = {
+    $data: {
+      isLogin: new Promise(() => false),
+    },
+    $flag: {
+      isSetQueryLoginStatus: false,
+      isQueryLoginStatus: false,
+    },
+    init() {
+      this.resetLoginStatus();
+    },
+    resetLoginStatus() {
+      if (this.$flag.isSetQueryLoginStatus) {
+        return;
+      }
+      this.$flag.isSetQueryLoginStatus = true;
+      let isLogin = false;
+      this.$data.isLogin = new Promise(async (resolve) => {
+        if (!this.$flag.isQueryLoginStatus) {
+          this.$flag.isQueryLoginStatus = true;
+          let userNavInfo = await BilibiliUserApi.nav(false);
+          if (userNavInfo && userNavInfo.isLogin) {
+            isLogin = true;
+          }
+        }
+        resolve(isLogin);
+      });
+    },
+  };
+  const MobileCommentModule = (function () {
+    const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
+    const videoRE = /https:\/\/m\.bilibili\.com\/video\/.*/;
+    const dynamicRE = /https:\/\/m.bilibili.com\/dynamic\/\d+/;
+    const opusRE = /https:\/\/m.bilibili.com\/opus\/\d+/;
+    let oid, createrID, commentType, replyList;
+    const sortTypeConstant = { LATEST: 0, HOT: 2 };
+    let currentSortType;
+    let nextOffset = "";
+    let replyPool;
+    if (dynamicRE.test(global.location.href)) setupXHRInterceptor();
+    addStyle2();
+    return { init };
+    async function init(commentModuleWrapper) {
+      oid = createrID = commentType = replyList = void 0;
+      replyPool = null;
+      replyPool = {};
+      nextOffset = "";
+      currentSortType = sortTypeConstant.HOT;
+      setupStandardCommentContainer(commentModuleWrapper);
+      replyList = commentModuleWrapper.querySelector(".reply-list");
+      await new Promise((resolve) => {
+        domUtils.wait(() => {
+          if (videoRE.test(global.location.href)) {
+            const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
+            if (videoID.startsWith("av")) oid = videoID.slice(2);
+            if (videoID.startsWith("BV")) oid = b2a(videoID);
+            commentType = 1;
+          } else if (dynamicRE.test(global.location.href)) {
+            oid = global.dynamicDetail?.oid;
+            commentType = global.dynamicDetail?.commentType;
+          } else if (opusRE.test(global.location.href)) {
+            oid = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_id_str;
+            commentType = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_type;
+          }
+          if (oid && commentType) {
+            resolve();
+            return {
+              success: true,
+              data: {},
+            };
+          }
+          return {
+            success: false,
+            data: null,
+          };
+        }, 0);
+      });
+      await enableSwitchingSortType(commentModuleWrapper);
+      await loadFirstPagination(commentModuleWrapper);
+    }
+    function setupStandardCommentContainer(commentModuleWrapper) {
+      commentModuleWrapper.innerHTML = `
+        <div class="comment-container">
+          <div class="reply-header">
+            <div class="reply-navigation">
+              <ul class="nav-bar">
+                <li class="nav-title">
+                  <span class="nav-title-text">评论</span>
+                  <span class="total-reply">-</span>
+                </li>
+                <li class="nav-sort hot">
+                  <div class="hot-sort">最热</div>
+                  <div class="part-symbol"></div>
+                  <div class="time-sort">最新</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="reply-warp">
+            <div class="reply-list"></div>
+          </div>  
+        </div>
+      `;
+    }
+    async function enableSwitchingSortType(commentModuleWrapper) {
+      const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
+      const hotSortElement = navSortElement.querySelector(".hot-sort");
+      const timeSortElement = navSortElement.querySelector(".time-sort");
+      navSortElement.classList.add("hot");
+      navSortElement.classList.remove("time");
+      hotSortElement.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (currentSortType === sortTypeConstant.HOT) return;
+        currentSortType = sortTypeConstant.HOT;
+        navSortElement.classList.add("hot");
+        navSortElement.classList.remove("time");
+        commentModuleWrapper.scrollTo(0, 0);
+        loadFirstPagination(commentModuleWrapper);
+      });
+      timeSortElement.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (currentSortType === sortTypeConstant.LATEST) return;
+        currentSortType = sortTypeConstant.LATEST;
+        navSortElement.classList.add("time");
+        navSortElement.classList.remove("hot");
+        commentModuleWrapper.scrollTo(0, 0);
+        loadFirstPagination(commentModuleWrapper);
+      });
+    }
+    async function loadFirstPagination(commentModuleWrapper) {
+      const { data: firstPaginationData, code: resultCode } = await getPaginationData();
+      createrID = firstPaginationData.upper.mid;
+      replyList.innerHTML = "";
+      replyPool = {};
+      document.querySelector(".comment-container .reply-warp .no-more-replies-info")?.remove();
+      document.querySelector(".comment-container .reply-warp .anchor-for-loading")?.remove();
+      if (resultCode !== 0) {
+        const info = resultCode === 12061 ? "UP主已关闭评论区" : "无法从API获取评论数据";
+        replyList.innerHTML = `<p style="padding: 100px 0; text-align: center; color: #999;">${info}</p>`;
+        return;
+      }
+      const totalReplyElement = commentModuleWrapper.querySelector(".comment-container .reply-header .total-reply");
+      const totalReplyCount = parseInt(firstPaginationData?.cursor?.all_count) || 0;
+      totalReplyElement.textContent = totalReplyCount;
+      if (firstPaginationData?.cursor?.name?.includes("精选")) {
+        const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
+        navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
+      }
+      if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
+        const topReplyData = firstPaginationData.top_replies[0];
+        appendReplyItem(topReplyData, true);
+      }
+      for (const replyData of firstPaginationData.replies) {
+        appendReplyItem(replyData);
+      }
+      if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
+        const infoElement = document.createElement("p");
+        infoElement.classList.add("no-more-replies-info");
+        infoElement.style = "padding-bottom: 100px; text-align: center; color: #999;";
+        infoElement.textContent = "没有更多评论";
+        document.querySelector(".comment-container .reply-warp").appendChild(infoElement);
+        return;
+      }
+      addAnchor();
+    }
+    async function getPaginationData() {
+      const params = {
+        pagination_str: JSON.stringify({
+          offset: nextOffset || "",
+        }),
+        oid,
+        type: commentType,
+        wts: parseInt(Date.now() / 1e3),
+      };
+      if (currentSortType === sortTypeConstant.HOT) {
+        params.mode = 3;
+      } else if (currentSortType === sortTypeConstant.LATEST) {
+        params.mode = 2;
+      }
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
+        fetch: !isLogin,
+        fetchInit: {
+          credentials: "same-origin",
+        },
+        anonymous: !isLogin,
+      });
+      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
+      nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
+      return fetchResultJSON;
+    }
+    function appendReplyItem(replyData, isTopReply) {
+      if (replyPool[replyData.rpid_str]) {
+        return;
+      }
+      const replyItemElement = document.createElement("div");
+      replyItemElement.classList.add("reply-item");
+      replyItemElement.innerHTML = `
+        <div class="root-reply-container">
+          <a class="root-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
+            <div class="avatar">
+              <div class="bili-avatar">
+                <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
+                <span class="bili-avatar-icon bili-avatar-right-icon bili-avatar-size-40"></span>
+              </div>
+            </div>
+          </a>
+          <div class="content-warp">
+            <div class="user-info">
+              <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
+              ${createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
+            </div>
+            <div class="root-reply">
+              <span class="reply-content-container root-reply" style="padding-bottom: 8px;">
+                <span class="reply-content">${isTopReply ? '<span class="top-icon" style="top: -1px;">置顶</span>' : ""}${replyData.content.pictures ? `<div class="note-prefix" style="transform: translateY(-1px);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="#BBBBBB"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg><div style="margin-left: 3px;">笔记</div></div>` : ""}${getConvertedMessage(replyData.content)}</span>
+              </span>
+              ${
+                replyData.content.pictures
+                  ? `
+                <div class="image-exhibition" style="margin-top: 0; margin-bottom: 8px;">
+                  <div class="preview-image-container" style="display: flex; width: 300px;">
+                    ${getImageItems(replyData.content.pictures)}
+                  </div>
+                </div>
+                `
+                  : ""
+              }
+              <div class="reply-info">
+                <span class="reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
+                <span class="reply-like">
+                  <i class="svg-icon like use-color like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                  <span>${replyData.like}</span>
+                </span>
+              </div>
+              <div class="reply-tag-list">
+                ${
+                  replyData.card_label
+                    ? replyData.card_label.reduce(
+                        (acc, cur) =>
+                          acc +
+                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
+                        ""
+                      )
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-reply-container">
+          <div class="sub-reply-list">
+            ${getSubReplyItems(replyData.replies)}
+            ${
+              replyData.rcount > (replyData.replies || []).length
+                ? `
+              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
+                <div class="view-more-default">
+                  <span>共${replyData.rcount}条回复, </span>
+                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
+                </div>
+              </div>
+              `
+                : ""
+            }
+          </div>
+        </div>
+      `;
+      replyList.appendChild(replyItemElement);
+      replyPool[replyData.rpid_str] = true;
+      const previewImageContainer = replyItemElement.querySelector(".preview-image-container");
+      if (previewImageContainer)
+        new Viewer(previewImageContainer, {
+          title: false,
+          toolbar: false,
+          tooltip: false,
+          keyboard: false,
+        });
+      const subReplyList = replyItemElement.querySelector(".sub-reply-list");
+      const viewMoreBtn = replyItemElement.querySelector(".view-more-btn");
+      viewMoreBtn &&
+        viewMoreBtn.addEventListener("click", () =>
+          loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1)
+        );
+    }
+    function getFormattedTime(ms) {
+      const time = new Date(ms * 1e3);
+      const year = time.getFullYear();
+      const month = (time.getMonth() + 1).toString().padStart(2, "0");
+      const day = time.getDate().toString().padStart(2, "0");
+      const hour = time.getHours().toString().padStart(2, "0");
+      const minute = time.getMinutes().toString().padStart(2, "0");
+      return `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+    function getMemberLevelColor(level) {
+      return {
+        0: "#C0C0C0",
+        1: "#BBBBBB",
+        2: "#8BD29B",
+        3: "#7BCDEF",
+        4: "#FEBB8B",
+        5: "#EE672A",
+        6: "#F04C49",
+      }[level];
+    }
+    function getConvertedMessage(content) {
+      let result = content.message;
+      const keywordBlacklist = ["https://www.bilibili.com/video/av", "https://b23.tv/mall-"];
+      if (content.vote && content.vote.deleted === false) {
+        const linkElementHTML = `<a class="jump-link normal" href="${content.vote.url}" target="_blank" noopener noreferrer>${content.vote.title}</a>`;
+        keywordBlacklist.push(linkElementHTML);
+        result = result.replace(`{vote:${content.vote.id}}`, linkElementHTML);
+      }
+      if (content.emote) {
+        for (const [key, value] of Object.entries(content.emote)) {
+          const imageElementHTML = `<img class="emoji-${["", "small", "large"][value.meta.size]}" src="${value.url}" alt="${key}">`;
+          keywordBlacklist.push(imageElementHTML);
+          result = result.replaceAll(key, imageElementHTML);
+        }
+      }
+      result = result.replaceAll(/(\d{1,2}[:：]){1,2}\d{1,2}/g, (timestamp) => {
+        timestamp = timestamp.replaceAll("：", ":");
+        if (!videoRE.test(global.location.href)) return timestamp;
+        const parts = timestamp.split(":");
+        if (parts.some((part) => parseInt(part) >= 60)) return timestamp;
+        let totalSecond;
+        if (parts.length === 2) totalSecond = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        else if (parts.length === 3)
+          totalSecond = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        if (Number.isNaN(totalSecond)) return timestamp;
+        const linkElementHTML = `<a class="jump-link video-time" onclick="(async () => {
+          // jump to exact time
+          const videoElement = document.querySelector('video.gsl-video');
+          videoElement.currentTime = ${totalSecond};
+  
+          // close comment module
+          document.querySelector('.close-comment-module-btn').click();
+  
+          // scroll to top
+          window.scrollTo(0, 0);
+  
+          // play video if it is paused
+          if (videoElement.paused) videoElement.play();
+        })()">${timestamp}</a>`;
+        keywordBlacklist.push(linkElementHTML);
+        return linkElementHTML;
+      });
+      if (content.at_name_to_mid) {
+        for (const [key, value] of Object.entries(content.at_name_to_mid)) {
+          const linkElementHTML = `<a class="jump-link user" data-user-id="${value}" href="https://space.bilibili.com/${value}" target="_blank" noopener noreferrer>@${key}</a>`;
+          keywordBlacklist.push(linkElementHTML);
+          result = result.replaceAll(`@${key}`, linkElementHTML);
+        }
+      }
+      if (Object.keys(content.jump_url).length) {
+        const entries = [].concat(
+          Object.entries(content.jump_url).filter((entry) => entry[0].startsWith("https://")),
+          Object.entries(content.jump_url).filter((entry) => !entry[0].startsWith("https://"))
+        );
+        for (const [key, value] of entries) {
+          const href =
+            key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
+          if (href.includes("search.bilibili.com") && keywordBlacklist.join("").includes(key)) continue;
+          const linkElementHTML = `<img class="icon normal" src="${value.prefix_icon}" style="${value.extra && value.extra.is_word_search && "width: 12px;"}"><a class="jump-link normal" href="${href}" target="_blank" noopener noreferrer>${value.title}</a>`;
+          keywordBlacklist.push(linkElementHTML);
+          result = result.replaceAll(key, linkElementHTML);
+        }
+      }
+      return result;
+    }
+    function getImageItems(images) {
+      let imageSizeConfig = "width: 84px; height: 84px;";
+      if (images.length === 1) imageSizeConfig = "max-width: 260px; max-height: 180px;";
+      if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
+      let result = "";
+      for (const image of images) {
+        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
+      }
+      return result;
+    }
+    function getSubReplyItems(subReplies) {
+      if (!(subReplies instanceof Array)) return "";
+      let result = "";
+      for (const replyData of subReplies) {
+        result += `
+          <div class="sub-reply-item">
+            <div class="sub-user-info">
+              <a class="sub-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
+                <div class="avatar">
+                  <div class="bili-avatar">
+                    <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
+                    <span class="bili-avatar-icon bili-avatar-right-icon  bili-avatar-size-24"></span>
+                  </div>
+                </div>
+              </a>
+              <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
+              ${createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
+            </div>
+            <span class="reply-content-container sub-reply-content">
+              <span class="reply-content">${getConvertedMessage(replyData.content)}</span>
+            </span>
+            <div class="sub-reply-info" style="margin: 4px 0;">
+              <span class="sub-reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
+              <span class="sub-reply-like">
+                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                <span>${replyData.like}</span>
+              </span>
+            </div>
+          </div>
+        `;
+      }
+      return result;
+    }
+    async function loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
+      const params = {
+        oid,
+        type: commentType,
+        root: rootReplyID,
+        ps: 10,
+        pn: paginationNumber,
+        web_location: 333.788,
+      };
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const subReplyResponse = await httpx.get(
+        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
+        {
+          allowInterceptConfig: false,
+          fetch: !isLogin,
+          fetchInit: {
+            credentials: "same-origin",
+          },
+          anonymous: !isLogin,
+        }
+      );
+      if (!subReplyResponse.status) {
+        log.error(subReplyResponse);
+        Qmsg.error("请求异常，获取评论的回复失败");
+        return;
+      }
+      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
+      if (subReplyJSON === -352) {
+        Qmsg.error("请登录后再进行操作");
+        console.error("you should login first", subReplyResponse);
+        return;
+      }
+      const subReplyData = subReplyJSON.data;
+      subReplyList.innerHTML = getSubReplyItems(subReplyData.replies);
+      addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
+      const replyItem = subReplyList.parentElement.parentElement;
+      replyItem.scrollIntoView({ behavior: "instant" });
+      global.scrollTo(0, document.documentElement.scrollTop - 60);
+    }
+    function addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
+      if (subReplyAmount <= 10) return;
+      const pageAmount = Math.ceil(subReplyAmount / 10);
+      const pageSwitcher = document.createElement("div");
+      pageSwitcher.classList.add("view-more");
+      pageSwitcher.innerHTML = `
+        <div class="view-more-pagination">
+          <span class="pagination-page-count">共${pageAmount}页</span>
+          ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
+          ${(() => {
+            const left = [
+              currentPageNumber - 4,
+              currentPageNumber - 3,
+              currentPageNumber - 2,
+              currentPageNumber - 1,
+            ].filter((num) => num >= 1);
+            const right = [
+              currentPageNumber + 1,
+              currentPageNumber + 2,
+              currentPageNumber + 3,
+              currentPageNumber + 4,
+            ].filter((num) => num <= pageAmount);
+            const merge = [].concat(left, currentPageNumber, right);
+            let chosen;
+            if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
+            else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
+            else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
+            let final = JSON.parse(JSON.stringify(chosen));
+            if (!final.includes(1)) {
+              let front = [1];
+              if (final.at(0) !== 2) front = [1, "..."];
+              final = [].concat(front, final);
+            }
+            if (!final.includes(pageAmount)) {
+              let back = [pageAmount];
+              if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
+              final = [].concat(final, back);
+            }
+            return final.reduce((acc, cur) => {
+              if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
+              if (cur === currentPageNumber)
+                return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
+              return acc + `<span class="pagination-page-number">${cur}</span>`;
+            }, "");
+          })()}
+          ${currentPageNumber !== pageAmount ? '<span class="pagination-btn pagination-to-next-btn">下一页</span>' : ""}
+        </div>
+      `;
+      pageSwitcher
+        .querySelector(".pagination-to-prev-btn")
+        ?.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1)
+        );
+      pageSwitcher
+        .querySelector(".pagination-to-next-btn")
+        ?.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1)
+        );
+      pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach((pageNumberElement) => {
+        const number = parseInt(pageNumberElement.textContent);
+        pageNumberElement.addEventListener("click", () =>
+          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
+        );
+      });
+      subReplyList.appendChild(pageSwitcher);
+    }
+    function addAnchor() {
+      const anchorElement = document.createElement("div");
+      anchorElement.classList.add("anchor-for-loading");
+      anchorElement.textContent = "正在加载...";
+      anchorElement.style = `text-align: center; color: #61666d; transform: translateY(-50px);`;
+      document.querySelector(".comment-container .reply-warp").appendChild(anchorElement);
+      const ob = new IntersectionObserver(async (entries) => {
+        if (!entries[0].isIntersecting) return;
+        const { data: newPaginationData } = await getPaginationData();
+        if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
+          anchorElement.textContent = "所有评论已加载完毕";
+          ob.disconnect();
+          return;
+        }
+        for (const replyData of newPaginationData.replies) {
+          appendReplyItem(replyData);
+        }
+      });
+      ob.observe(anchorElement);
+    }
+    function setupXHRInterceptor() {
+      const originXHROpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function () {
+        const url = arguments[1];
+        if (typeof url === "string" && url.includes("reply/wbi/main")) {
+          const { searchParams } = new URL(`${url.startsWith("//") ? "https:" : ""}${url}`);
+          global.dynamicDetail = {
+            oid: searchParams.get("oid"),
+            commentType: searchParams.get("type"),
+          };
+        }
+        return originXHROpen.apply(this, arguments);
+      };
+    }
+    async function addStyle2() {
+      await domUtils.onReady();
+      const replyHeaderCSS = document.createElement("style");
+      replyHeaderCSS.textContent = `
+        .reply-header {
+          padding: 12px;
+          border-bottom: 1px solid #f1f2f3;
+        }
+  
+        .reply-navigation {
+          margin-bottom: 0 !important;
+        }
+  
+        .reply-navigation .nav-bar .nav-title {
+          font-size: 1rem !important;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(replyHeaderCSS);
+      const replyListCSS = document.createElement("style");
+      replyListCSS.textContent = `
+        .reply-list {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }
+  
+        .reply-item {
+          padding: 12px !important;
+          font-size: 1rem !important;
+          border-bottom: 1px solid #f4f5f7;
+        }
+  
+        .reply-item .root-reply-container {
+          padding: 0 !important;
+          display: flex;
+        }
+  
+        .reply-item .root-reply-container .root-reply-avatar {
+          position: relative !important;
+          width: initial !important;
+        }
+  
+        .reply-item .root-reply-container .content-warp {
+          margin-left: 12px;
+        }
+  
+        .reply-item .root-reply-container .content-warp .user-info,
+        .reply-item .root-reply-container .content-warp .root-reply .reply-content {
+          font-size: 14px !important;
+        }
+  
+        .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
+          width: calc(100vw - 88px) !important;
+        }
+  
+        .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
+          margin-right: 4px !important;
+        }
+  
+        .reply-item .sub-reply-container {
+          padding-left: 44px !important;
+        }
+  
+        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
+          width: calc(100% - 24px);
+        }
+  
+        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info {
+          margin-right: 0 !important;
+        }
+  
+        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info .sub-user-name,
+        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .reply-content {
+          font-size: 14px !important;
+        }
+  
+        .reply-info .reply-time,
+        .reply-info .reply-like,
+        .sub-reply-info .sub-reply-time,
+        .sub-reply-info .sub-reply-like {
+          margin-right: 12px !important;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(replyListCSS);
+      const avatarCSS = document.createElement("style");
+      avatarCSS.textContent = `
+        .reply-item .root-reply-avatar .avatar .bili-avatar {
+          width: 40px;
+          height: 40px;
+        }
+  
+        .sub-reply-item .sub-reply-avatar .avatar .bili-avatar {
+          width: 24px;
+          height: 24px;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(avatarCSS);
+      const viewMoreCSS = document.createElement("style");
+      viewMoreCSS.textContent = `
+        .sub-reply-container .view-more-btn:hover {
+          color: #00AEEC;
+        }
+  
+        .view-more {
+          padding-left: 8px;
+          color: #222;
+          font-size: 13px;
+          user-select: none;
+        }
+  
+        .pagination-page-count {
+          margin-right: 4px !important;
+        }
+  
+        .pagination-page-dot,
+        .pagination-page-number {
+          margin: 0 4px;
+        }
+  
+        .pagination-btn,
+        .pagination-page-number {
+          cursor: pointer;
+        }
+  
+        .current-page,
+        .pagination-btn:hover,
+        .pagination-page-number:hover {
+          color: #00AEEC;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(viewMoreCSS);
+      const otherCSS = document.createElement("style");
+      otherCSS.textContent = `
+        :root {
+          --text1: #18191C;
+          --text3: #9499A0;
+          --brand_blue: #00AEEC;
+          --brand_pink: #FF6699;
+          --bg2: #F6F7F8;
+        }
+  
+        .jump-link {
+          color: #008DDA;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(otherCSS);
+    }
+  })();
+  const MobileCommentModuleStyle =
+    ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,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);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
+  const BilibiliUrl = {
+    getUserSpaceUrl(userId) {
+      return `https://m.bilibili.com/space/${userId}`;
+    },
+    getUserSpaceDynamicUrl(id) {
+      return `https://m.bilibili.com/dynamic/${id}`;
+    },
+    getUserSpaceOpusUrl(id) {
+      return `https://m.bilibili.com/opus/${id}`;
+    },
+    getVideoUrl(id) {
+      return `https://m.bilibili.com/video/${id}`;
+    },
+  };
   const VueUtils = {
     getVue($el) {
       if ($el == null) {
@@ -2370,7 +3231,7 @@
       }
       function banBack() {
         log$1.success("监听地址改变");
-        option.vueObj.$router.history.push(option.hash);
+        option.vueInst.$router.history.push(option.hash);
         domUtils.on(window, "popstate", popstateEvent);
       }
       async function resumeBack(isFromPopState = false) {
@@ -2380,9 +3241,9 @@
           return;
         }
         while (1) {
-          if (option.vueObj.$router.history.current.hash === option.hash) {
+          if (option.vueInst.$router.history.current.hash === option.hash) {
             log$1.info("后退！");
-            option.vueObj.$router.back();
+            option.vueInst.$router.back();
             await utils.sleep(250);
           } else {
             return;
@@ -2412,41 +3273,80 @@
       });
     },
   };
-  const BilibiliUrl = {
-    getUserSpaceUrl(userId) {
-      return `https://m.bilibili.com/space/${userId}`;
-    },
-    getUserSpaceDynamicUrl(id) {
-      return `https://m.bilibili.com/dynamic/${id}`;
-    },
-    getUserSpaceOpusUrl(id) {
-      return `https://m.bilibili.com/opus/${id}`;
-    },
-    getVideoUrl(id) {
-      return `https://m.bilibili.com/video/${id}`;
-    },
-  };
-  const BilibiliData = {
-    className: {
-      bangumi: "#app.main-container",
-      bangumi_new: "body > #__next",
-      dynamic: "#app .m-dynamic",
-      opus: "#app .m-opus",
-      video: "#app .video",
-      mVideo: "#app .m-video",
-      head: "#app .m-head",
-      playlist: "#app .playlist",
-      space: "#app .m-space",
-    },
-    theme: "#FB7299",
-  };
-  const BilibiliPCData = {
-    className: {
-      read: {
-        mobile: "#app .read-app-main",
-      },
-    },
-  };
+  class GestureBack {
+    isBacking = false;
+    config;
+    constructor(config) {
+      this.config = config;
+      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+      this.popStateEvent = this.popStateEvent.bind(this);
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+        this.config.backDelayTime = 150;
+      }
+      if (this.config.win == null) {
+        this.config.win = self;
+      }
+    }
+    popStateEvent(event) {
+      domUtils.preventEvent(event);
+      if (this.isBacking) {
+        return;
+      }
+      this.quitGestureBackMode(true);
+    }
+    enterGestureBackMode() {
+      log$1.success("进入手势模式");
+      let pushUrl = this.config.hash;
+      if (!pushUrl.startsWith("#")) {
+        if (!pushUrl.startsWith("/")) {
+          pushUrl = "/" + pushUrl;
+        }
+        pushUrl = "#" + pushUrl;
+      }
+      if (this.config.useUrl) {
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
+      log$1.success("监听popstate事件");
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+    }
+    async quitGestureBackMode(isUrlChange = false) {
+      this.isBacking = true;
+      log$1.success("退出手势模式");
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        this.config.beforeHistoryBackCallBack(isUrlChange);
+      }
+      let maxDate = Date.now() + 1e3 * 5;
+      while (true) {
+        if (Date.now() > maxDate) {
+          log$1.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        if (this.config.win.location.hash.endsWith(this.config.hash)) {
+          log$1.info("history.back()");
+          this.config.win.history.back();
+          await Utils.sleep(this.config.backDelayTime || 150);
+        } else {
+          break;
+        }
+      }
+      log$1.success("移除popstate事件");
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+      this.isBacking = false;
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        this.config.afterHistoryBackCallBack(isUrlChange);
+      }
+    }
+  }
   const artPlayerCSS$1 =
     ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
   const artPlayerCommonCSS =
@@ -2464,24 +3364,6 @@
   };
   const BilibiliApiConfig = {
     web_host: "api.bilibili.com",
-  };
-  const BilibiliApiResponseCheck = {
-    isWebApiSuccess(json) {
-      return json?.code === 0 && (json?.message === "0" || json?.message === "success");
-    },
-    isAreaLimit(data2) {
-      let areaLimitCode = {
-        6002003: "抱歉您所在地区不可观看！",
-      };
-      let flag = false;
-      Object.keys(areaLimitCode).forEach((code) => {
-        let codeMsg = areaLimitCode[code];
-        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
-          flag = true;
-        }
-      });
-      return flag;
-    },
   };
   const VideoQualityNameMap = {
     "240P 极速": 6,
@@ -2502,90 +3384,6 @@
     let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
     Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
-  const BilibiliUserApi = {
-    async nav(checkCode = true) {
-      let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
-        fetch: true,
-        responseType: "json",
-        allowInterceptConfig: false,
-      });
-      if (!response.status) {
-        log$1.error(["获取导航栏用户信息失败，请求异常", response]);
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log$1.error(data2);
-        Qmsg.error("获取导航栏用户信息失败");
-        return;
-      }
-      return data2.data;
-    },
-    async space(mid, offset = "") {
-      let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
-        data: {
-          host_mid: mid,
-          offset,
-        },
-        fetch: true,
-      });
-      if (!response.status) {
-        return;
-      }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return;
-      }
-      return data2["data"];
-    },
-    async following(mid, pn = 1, ps = 50) {
-      let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
-        data: {
-          vmid: mid,
-          ps,
-          pn,
-        },
-        fetch: true,
-      });
-      if (!response.status) {
-        return;
-      }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return data2["message"];
-      }
-      return data2["data"];
-    },
-  };
-  const BilibiliGlobalData = {
-    $data: {
-      isLogin: new Promise(() => false),
-    },
-    $flag: {
-      isSetQueryLoginStatus: false,
-      isQueryLoginStatus: false,
-    },
-    init() {
-      this.resetLoginStatus();
-    },
-    resetLoginStatus() {
-      if (this.$flag.isSetQueryLoginStatus) {
-        return;
-      }
-      this.$flag.isSetQueryLoginStatus = true;
-      let isLogin = false;
-      this.$data.isLogin = new Promise(async (resolve) => {
-        if (!this.$flag.isQueryLoginStatus) {
-          this.$flag.isQueryLoginStatus = true;
-          let userNavInfo = await BilibiliUserApi.nav(false);
-          if (userNavInfo && userNavInfo.isLogin) {
-            isLogin = true;
-          }
-        }
-        resolve(isLogin);
-      });
-    },
-  };
   const BilibiliVideoApi = {
     async playUrl(config, extraParams) {
       let searchParamsData = {
@@ -6002,802 +6800,6 @@
       });
     },
   };
-  const wbi = async (params) => {
-    async function getWbiQueryString(params2) {
-      const response = await BilibiliUserApi.nav(false);
-      if (!response) {
-        return;
-      }
-      const { img_url, sub_url } = response.wbi_img;
-      const imgKey = img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf("."));
-      const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
-      const originKey = imgKey + subKey;
-      const mixinKeyEncryptTable = [
-        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
-        38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
-        11, 36, 20, 34, 44, 52,
-      ];
-      const mixinKey = mixinKeyEncryptTable
-        .map((n) => originKey[n])
-        .join("")
-        .slice(0, 32);
-      const query = Object.keys(params2)
-        .sort()
-        .map((key) => {
-          const value = params2[key].toString().replace(/[!'()*]/g, "");
-          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-        })
-        .join("&");
-      const wbiSign = md5(query + mixinKey);
-      return query + "&w_rid=" + wbiSign;
-    }
-    return await getWbiQueryString(params);
-  };
-  function b2a(bvid) {
-    const XOR_CODE2 = 23442827791579n;
-    const MASK_CODE = 2251799813685247n;
-    const BASE2 = 58n;
-    const BYTES = ["B", "V", 1, "", "", "", "", "", "", "", "", ""];
-    const BV_LEN = BYTES.length;
-    const ALPHABET = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf".split("");
-    const DIGIT_MAP = [0, 1, 2, 9, 7, 5, 6, 4, 8, 3, 10, 11];
-    let r = 0n;
-    for (let i = 3; i < BV_LEN; i++) {
-      r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
-    }
-    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
-  }
-  const MobileCommentModule = (function () {
-    const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
-    const videoRE = /https:\/\/m\.bilibili\.com\/video\/.*/;
-    const dynamicRE = /https:\/\/m.bilibili.com\/dynamic\/\d+/;
-    const opusRE = /https:\/\/m.bilibili.com\/opus\/\d+/;
-    let oid, createrID, commentType, replyList;
-    const sortTypeConstant = { LATEST: 0, HOT: 2 };
-    let currentSortType;
-    let nextOffset = "";
-    let replyPool;
-    if (dynamicRE.test(global.location.href)) setupXHRInterceptor();
-    addStyle2();
-    return { init };
-    async function init(commentModuleWrapper) {
-      oid = createrID = commentType = void 0;
-      replyPool = {};
-      currentSortType = sortTypeConstant.HOT;
-      setupStandardCommentContainer(commentModuleWrapper);
-      replyList = commentModuleWrapper.querySelector(".reply-list");
-      await new Promise((resolve) => {
-        domUtils.wait(() => {
-          if (videoRE.test(global.location.href)) {
-            const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
-            if (videoID.startsWith("av")) oid = videoID.slice(2);
-            if (videoID.startsWith("BV")) oid = b2a(videoID);
-            commentType = 1;
-          } else if (dynamicRE.test(global.location.href)) {
-            oid = global.dynamicDetail?.oid;
-            commentType = global.dynamicDetail?.commentType;
-          } else if (opusRE.test(global.location.href)) {
-            oid = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_id_str;
-            commentType = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_type;
-          }
-          if (oid && commentType) {
-            resolve();
-            return {
-              success: true,
-              data: {},
-            };
-          }
-          return {
-            success: false,
-            data: null,
-          };
-        }, 0);
-      });
-      await enableSwitchingSortType(commentModuleWrapper);
-      await loadFirstPagination(commentModuleWrapper);
-    }
-    function setupStandardCommentContainer(commentModuleWrapper) {
-      commentModuleWrapper.innerHTML = `
-        <div class="comment-container">
-          <div class="reply-header">
-            <div class="reply-navigation">
-              <ul class="nav-bar">
-                <li class="nav-title">
-                  <span class="nav-title-text">评论</span>
-                  <span class="total-reply">-</span>
-                </li>
-                <li class="nav-sort hot">
-                  <div class="hot-sort">最热</div>
-                  <div class="part-symbol"></div>
-                  <div class="time-sort">最新</div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="reply-warp">
-            <div class="reply-list"></div>
-          </div>  
-        </div>
-      `;
-    }
-    async function enableSwitchingSortType(commentModuleWrapper) {
-      const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
-      const hotSortElement = navSortElement.querySelector(".hot-sort");
-      const timeSortElement = navSortElement.querySelector(".time-sort");
-      navSortElement.classList.add("hot");
-      navSortElement.classList.remove("time");
-      hotSortElement.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (currentSortType === sortTypeConstant.HOT) return;
-        currentSortType = sortTypeConstant.HOT;
-        navSortElement.classList.add("hot");
-        navSortElement.classList.remove("time");
-        commentModuleWrapper.scrollTo(0, 0);
-        loadFirstPagination(commentModuleWrapper);
-      });
-      timeSortElement.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (currentSortType === sortTypeConstant.LATEST) return;
-        currentSortType = sortTypeConstant.LATEST;
-        navSortElement.classList.add("time");
-        navSortElement.classList.remove("hot");
-        commentModuleWrapper.scrollTo(0, 0);
-        loadFirstPagination(commentModuleWrapper);
-      });
-    }
-    async function loadFirstPagination(commentModuleWrapper) {
-      const { data: firstPaginationData, code: resultCode } = await getPaginationData();
-      createrID = firstPaginationData.upper.mid;
-      replyList.innerHTML = "";
-      replyPool = {};
-      document.querySelector(".comment-container .reply-warp .no-more-replies-info")?.remove();
-      document.querySelector(".comment-container .reply-warp .anchor-for-loading")?.remove();
-      if (resultCode !== 0) {
-        const info = resultCode === 12061 ? "UP主已关闭评论区" : "无法从API获取评论数据";
-        replyList.innerHTML = `<p style="padding: 100px 0; text-align: center; color: #999;">${info}</p>`;
-        return;
-      }
-      const totalReplyElement = commentModuleWrapper.querySelector(".comment-container .reply-header .total-reply");
-      const totalReplyCount = parseInt(firstPaginationData?.cursor?.all_count) || 0;
-      totalReplyElement.textContent = totalReplyCount;
-      if (firstPaginationData?.cursor?.name?.includes("精选")) {
-        const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
-        navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
-      }
-      if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
-        const topReplyData = firstPaginationData.top_replies[0];
-        appendReplyItem(topReplyData, true);
-      }
-      for (const replyData of firstPaginationData.replies) {
-        appendReplyItem(replyData);
-      }
-      if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
-        const infoElement = document.createElement("p");
-        infoElement.classList.add("no-more-replies-info");
-        infoElement.style = "padding-bottom: 100px; text-align: center; color: #999;";
-        infoElement.textContent = "没有更多评论";
-        document.querySelector(".comment-container .reply-warp").appendChild(infoElement);
-        return;
-      }
-      addAnchor();
-    }
-    async function getPaginationData() {
-      const params = {
-        pagination_str: JSON.stringify({
-          offset: nextOffset || "",
-        }),
-        oid,
-        type: commentType,
-        wts: parseInt(Date.now() / 1e3),
-      };
-      if (currentSortType === sortTypeConstant.HOT) {
-        params.mode = 3;
-      } else if (currentSortType === sortTypeConstant.LATEST) {
-        params.mode = 2;
-      }
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
-      const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-        fetch: !isLogin,
-        fetchInit: {
-          credentials: "same-origin",
-        },
-        anonymous: !isLogin,
-      });
-      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
-      nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
-      return fetchResultJSON;
-    }
-    function appendReplyItem(replyData, isTopReply) {
-      if (replyPool[replyData.rpid_str]) {
-        return;
-      }
-      const replyItemElement = document.createElement("div");
-      replyItemElement.classList.add("reply-item");
-      replyItemElement.innerHTML = `
-        <div class="root-reply-container">
-          <a class="root-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
-            <div class="avatar">
-              <div class="bili-avatar">
-                <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
-                <span class="bili-avatar-icon bili-avatar-right-icon bili-avatar-size-40"></span>
-              </div>
-            </div>
-          </a>
-          <div class="content-warp">
-            <div class="user-info">
-              <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
-              ${createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
-            </div>
-            <div class="root-reply">
-              <span class="reply-content-container root-reply" style="padding-bottom: 8px;">
-                <span class="reply-content">${isTopReply ? '<span class="top-icon" style="top: -1px;">置顶</span>' : ""}${replyData.content.pictures ? `<div class="note-prefix" style="transform: translateY(-1px);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="#BBBBBB"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg><div style="margin-left: 3px;">笔记</div></div>` : ""}${getConvertedMessage(replyData.content)}</span>
-              </span>
-              ${
-                replyData.content.pictures
-                  ? `
-                <div class="image-exhibition" style="margin-top: 0; margin-bottom: 8px;">
-                  <div class="preview-image-container" style="display: flex; width: 300px;">
-                    ${getImageItems(replyData.content.pictures)}
-                  </div>
-                </div>
-                `
-                  : ""
-              }
-              <div class="reply-info">
-                <span class="reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
-                <span class="reply-like">
-                  <i class="svg-icon like use-color like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
-                  <span>${replyData.like}</span>
-                </span>
-              </div>
-              <div class="reply-tag-list">
-                ${
-                  replyData.card_label
-                    ? replyData.card_label.reduce(
-                        (acc, cur) =>
-                          acc +
-                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
-                        ""
-                      )
-                    : ""
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="sub-reply-container">
-          <div class="sub-reply-list">
-            ${getSubReplyItems(replyData.replies)}
-            ${
-              replyData.rcount > (replyData.replies || []).length
-                ? `
-              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
-                <div class="view-more-default">
-                  <span>共${replyData.rcount}条回复, </span>
-                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
-                </div>
-              </div>
-              `
-                : ""
-            }
-          </div>
-        </div>
-      `;
-      replyList.appendChild(replyItemElement);
-      replyPool[replyData.rpid_str] = true;
-      const previewImageContainer = replyItemElement.querySelector(".preview-image-container");
-      if (previewImageContainer)
-        new Viewer(previewImageContainer, {
-          title: false,
-          toolbar: false,
-          tooltip: false,
-          keyboard: false,
-        });
-      const subReplyList = replyItemElement.querySelector(".sub-reply-list");
-      const viewMoreBtn = replyItemElement.querySelector(".view-more-btn");
-      viewMoreBtn &&
-        viewMoreBtn.addEventListener("click", () =>
-          loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1)
-        );
-    }
-    function getFormattedTime(ms) {
-      const time = new Date(ms * 1e3);
-      const year = time.getFullYear();
-      const month = (time.getMonth() + 1).toString().padStart(2, "0");
-      const day = time.getDate().toString().padStart(2, "0");
-      const hour = time.getHours().toString().padStart(2, "0");
-      const minute = time.getMinutes().toString().padStart(2, "0");
-      return `${year}-${month}-${day} ${hour}:${minute}`;
-    }
-    function getMemberLevelColor(level) {
-      return {
-        0: "#C0C0C0",
-        1: "#BBBBBB",
-        2: "#8BD29B",
-        3: "#7BCDEF",
-        4: "#FEBB8B",
-        5: "#EE672A",
-        6: "#F04C49",
-      }[level];
-    }
-    function getConvertedMessage(content) {
-      let result = content.message;
-      const keywordBlacklist = ["https://www.bilibili.com/video/av", "https://b23.tv/mall-"];
-      if (content.vote && content.vote.deleted === false) {
-        const linkElementHTML = `<a class="jump-link normal" href="${content.vote.url}" target="_blank" noopener noreferrer>${content.vote.title}</a>`;
-        keywordBlacklist.push(linkElementHTML);
-        result = result.replace(`{vote:${content.vote.id}}`, linkElementHTML);
-      }
-      if (content.emote) {
-        for (const [key, value] of Object.entries(content.emote)) {
-          const imageElementHTML = `<img class="emoji-${["", "small", "large"][value.meta.size]}" src="${value.url}" alt="${key}">`;
-          keywordBlacklist.push(imageElementHTML);
-          result = result.replaceAll(key, imageElementHTML);
-        }
-      }
-      result = result.replaceAll(/(\d{1,2}[:：]){1,2}\d{1,2}/g, (timestamp) => {
-        timestamp = timestamp.replaceAll("：", ":");
-        if (!videoRE.test(global.location.href)) return timestamp;
-        const parts = timestamp.split(":");
-        if (parts.some((part) => parseInt(part) >= 60)) return timestamp;
-        let totalSecond;
-        if (parts.length === 2) totalSecond = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-        else if (parts.length === 3)
-          totalSecond = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-        if (Number.isNaN(totalSecond)) return timestamp;
-        const linkElementHTML = `<a class="jump-link video-time" onclick="(async () => {
-          // jump to exact time
-          const videoElement = document.querySelector('video.gsl-video');
-          videoElement.currentTime = ${totalSecond};
-  
-          // close comment module
-          document.querySelector('.close-comment-module-btn').click();
-  
-          // scroll to top
-          window.scrollTo(0, 0);
-  
-          // play video if it is paused
-          if (videoElement.paused) videoElement.play();
-        })()">${timestamp}</a>`;
-        keywordBlacklist.push(linkElementHTML);
-        return linkElementHTML;
-      });
-      if (content.at_name_to_mid) {
-        for (const [key, value] of Object.entries(content.at_name_to_mid)) {
-          const linkElementHTML = `<a class="jump-link user" data-user-id="${value}" href="https://space.bilibili.com/${value}" target="_blank" noopener noreferrer>@${key}</a>`;
-          keywordBlacklist.push(linkElementHTML);
-          result = result.replaceAll(`@${key}`, linkElementHTML);
-        }
-      }
-      if (Object.keys(content.jump_url).length) {
-        const entries = [].concat(
-          Object.entries(content.jump_url).filter((entry) => entry[0].startsWith("https://")),
-          Object.entries(content.jump_url).filter((entry) => !entry[0].startsWith("https://"))
-        );
-        for (const [key, value] of entries) {
-          const href =
-            key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
-          if (href.includes("search.bilibili.com") && keywordBlacklist.join("").includes(key)) continue;
-          const linkElementHTML = `<img class="icon normal" src="${value.prefix_icon}" style="${value.extra && value.extra.is_word_search && "width: 12px;"}"><a class="jump-link normal" href="${href}" target="_blank" noopener noreferrer>${value.title}</a>`;
-          keywordBlacklist.push(linkElementHTML);
-          result = result.replaceAll(key, linkElementHTML);
-        }
-      }
-      return result;
-    }
-    function getImageItems(images) {
-      let imageSizeConfig = "width: 84px; height: 84px;";
-      if (images.length === 1) imageSizeConfig = "max-width: 260px; max-height: 180px;";
-      if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
-      let result = "";
-      for (const image of images) {
-        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
-      }
-      return result;
-    }
-    function getSubReplyItems(subReplies) {
-      if (!(subReplies instanceof Array)) return "";
-      let result = "";
-      for (const replyData of subReplies) {
-        result += `
-          <div class="sub-reply-item">
-            <div class="sub-user-info">
-              <a class="sub-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
-                <div class="avatar">
-                  <div class="bili-avatar">
-                    <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
-                    <span class="bili-avatar-icon bili-avatar-right-icon  bili-avatar-size-24"></span>
-                  </div>
-                </div>
-              </a>
-              <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
-              ${createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
-            </div>
-            <span class="reply-content-container sub-reply-content">
-              <span class="reply-content">${getConvertedMessage(replyData.content)}</span>
-            </span>
-            <div class="sub-reply-info" style="margin: 4px 0;">
-              <span class="sub-reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
-              <span class="sub-reply-like">
-                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
-                <span>${replyData.like}</span>
-              </span>
-            </div>
-          </div>
-        `;
-      }
-      return result;
-    }
-    async function loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
-      const params = {
-        oid,
-        type: commentType,
-        root: rootReplyID,
-        ps: 10,
-        pn: paginationNumber,
-        web_location: 333.788,
-      };
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
-      const subReplyResponse = await httpx.get(
-        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
-        {
-          allowInterceptConfig: false,
-          fetch: !isLogin,
-          fetchInit: {
-            credentials: "same-origin",
-          },
-          anonymous: !isLogin,
-        }
-      );
-      if (!subReplyResponse.status) {
-        log.error(subReplyResponse);
-        Qmsg.error("请求异常，获取评论的回复失败");
-        return;
-      }
-      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
-      if (subReplyJSON === -352) {
-        Qmsg.error("请登录后再进行操作");
-        console.error("you should login first", subReplyResponse);
-        return;
-      }
-      const subReplyData = subReplyJSON.data;
-      subReplyList.innerHTML = getSubReplyItems(subReplyData.replies);
-      addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
-      const replyItem = subReplyList.parentElement.parentElement;
-      replyItem.scrollIntoView({ behavior: "instant" });
-      global.scrollTo(0, document.documentElement.scrollTop - 60);
-    }
-    function addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
-      if (subReplyAmount <= 10) return;
-      const pageAmount = Math.ceil(subReplyAmount / 10);
-      const pageSwitcher = document.createElement("div");
-      pageSwitcher.classList.add("view-more");
-      pageSwitcher.innerHTML = `
-        <div class="view-more-pagination">
-          <span class="pagination-page-count">共${pageAmount}页</span>
-          ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
-          ${(() => {
-            const left = [
-              currentPageNumber - 4,
-              currentPageNumber - 3,
-              currentPageNumber - 2,
-              currentPageNumber - 1,
-            ].filter((num) => num >= 1);
-            const right = [
-              currentPageNumber + 1,
-              currentPageNumber + 2,
-              currentPageNumber + 3,
-              currentPageNumber + 4,
-            ].filter((num) => num <= pageAmount);
-            const merge = [].concat(left, currentPageNumber, right);
-            let chosen;
-            if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
-            else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
-            else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
-            let final = JSON.parse(JSON.stringify(chosen));
-            if (!final.includes(1)) {
-              let front = [1];
-              if (final.at(0) !== 2) front = [1, "..."];
-              final = [].concat(front, final);
-            }
-            if (!final.includes(pageAmount)) {
-              let back = [pageAmount];
-              if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
-              final = [].concat(final, back);
-            }
-            return final.reduce((acc, cur) => {
-              if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
-              if (cur === currentPageNumber)
-                return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
-              return acc + `<span class="pagination-page-number">${cur}</span>`;
-            }, "");
-          })()}
-          ${currentPageNumber !== pageAmount ? '<span class="pagination-btn pagination-to-next-btn">下一页</span>' : ""}
-        </div>
-      `;
-      pageSwitcher
-        .querySelector(".pagination-to-prev-btn")
-        ?.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1)
-        );
-      pageSwitcher
-        .querySelector(".pagination-to-next-btn")
-        ?.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1)
-        );
-      pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach((pageNumberElement) => {
-        const number = parseInt(pageNumberElement.textContent);
-        pageNumberElement.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
-        );
-      });
-      subReplyList.appendChild(pageSwitcher);
-    }
-    function addAnchor() {
-      const anchorElement = document.createElement("div");
-      anchorElement.classList.add("anchor-for-loading");
-      anchorElement.textContent = "正在加载...";
-      anchorElement.style = `text-align: center; color: #61666d; transform: translateY(-50px);`;
-      document.querySelector(".comment-container .reply-warp").appendChild(anchorElement);
-      const ob = new IntersectionObserver(async (entries) => {
-        if (!entries[0].isIntersecting) return;
-        const { data: newPaginationData } = await getPaginationData();
-        if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
-          anchorElement.textContent = "所有评论已加载完毕";
-          ob.disconnect();
-          return;
-        }
-        for (const replyData of newPaginationData.replies) {
-          appendReplyItem(replyData);
-        }
-      });
-      ob.observe(anchorElement);
-    }
-    function setupXHRInterceptor() {
-      const originXHROpen = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function () {
-        const url = arguments[1];
-        if (typeof url === "string" && url.includes("reply/wbi/main")) {
-          const { searchParams } = new URL(`${url.startsWith("//") ? "https:" : ""}${url}`);
-          global.dynamicDetail = {
-            oid: searchParams.get("oid"),
-            commentType: searchParams.get("type"),
-          };
-        }
-        return originXHROpen.apply(this, arguments);
-      };
-    }
-    async function addStyle2() {
-      await domUtils.onReady();
-      const replyHeaderCSS = document.createElement("style");
-      replyHeaderCSS.textContent = `
-        .reply-header {
-          padding: 12px;
-          border-bottom: 1px solid #f1f2f3;
-        }
-  
-        .reply-navigation {
-          margin-bottom: 0 !important;
-        }
-  
-        .reply-navigation .nav-bar .nav-title {
-          font-size: 1rem !important;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(replyHeaderCSS);
-      const replyListCSS = document.createElement("style");
-      replyListCSS.textContent = `
-        .reply-list {
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-        }
-  
-        .reply-item {
-          padding: 12px !important;
-          font-size: 1rem !important;
-          border-bottom: 1px solid #f4f5f7;
-        }
-  
-        .reply-item .root-reply-container {
-          padding: 0 !important;
-          display: flex;
-        }
-  
-        .reply-item .root-reply-container .root-reply-avatar {
-          position: relative !important;
-          width: initial !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp {
-          margin-left: 12px;
-        }
-  
-        .reply-item .root-reply-container .content-warp .user-info,
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content {
-          font-size: 14px !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
-          width: calc(100vw - 88px) !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
-          margin-right: 4px !important;
-        }
-  
-        .reply-item .sub-reply-container {
-          padding-left: 44px !important;
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
-          width: calc(100% - 24px);
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info {
-          margin-right: 0 !important;
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info .sub-user-name,
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .reply-content {
-          font-size: 14px !important;
-        }
-  
-        .reply-info .reply-time,
-        .reply-info .reply-like,
-        .sub-reply-info .sub-reply-time,
-        .sub-reply-info .sub-reply-like {
-          margin-right: 12px !important;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(replyListCSS);
-      const avatarCSS = document.createElement("style");
-      avatarCSS.textContent = `
-        .reply-item .root-reply-avatar .avatar .bili-avatar {
-          width: 40px;
-          height: 40px;
-        }
-  
-        .sub-reply-item .sub-reply-avatar .avatar .bili-avatar {
-          width: 24px;
-          height: 24px;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(avatarCSS);
-      const viewMoreCSS = document.createElement("style");
-      viewMoreCSS.textContent = `
-        .sub-reply-container .view-more-btn:hover {
-          color: #00AEEC;
-        }
-  
-        .view-more {
-          padding-left: 8px;
-          color: #222;
-          font-size: 13px;
-          user-select: none;
-        }
-  
-        .pagination-page-count {
-          margin-right: 4px !important;
-        }
-  
-        .pagination-page-dot,
-        .pagination-page-number {
-          margin: 0 4px;
-        }
-  
-        .pagination-btn,
-        .pagination-page-number {
-          cursor: pointer;
-        }
-  
-        .current-page,
-        .pagination-btn:hover,
-        .pagination-page-number:hover {
-          color: #00AEEC;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(viewMoreCSS);
-      const otherCSS = document.createElement("style");
-      otherCSS.textContent = `
-        :root {
-          --text1: #18191C;
-          --text3: #9499A0;
-          --brand_blue: #00AEEC;
-          --brand_pink: #FF6699;
-          --bg2: #F6F7F8;
-        }
-  
-        .jump-link {
-          color: #008DDA;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(otherCSS);
-    }
-  })();
-  const MobileCommentModuleStyle =
-    ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,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);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
-  class GestureBack {
-    isBacking = false;
-    config;
-    constructor(config) {
-      this.config = config;
-      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
-      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
-      this.popStateEvent = this.popStateEvent.bind(this);
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
-        this.config.backDelayTime = 150;
-      }
-      if (this.config.win == null) {
-        this.config.win = self;
-      }
-    }
-    popStateEvent(event) {
-      domUtils.preventEvent(event);
-      if (this.isBacking) {
-        return;
-      }
-      this.quitGestureBackMode(true);
-    }
-    enterGestureBackMode() {
-      log$1.success("进入手势模式");
-      let pushUrl = this.config.hash;
-      if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) {
-          pushUrl = "/" + pushUrl;
-        }
-        pushUrl = "#" + pushUrl;
-      }
-      if (this.config.useUrl) {
-        pushUrl =
-          this.config.win.location.origin +
-          this.config.win.location.pathname +
-          this.config.win.location.search +
-          pushUrl;
-      }
-      this.config.win.history.pushState({}, "", pushUrl);
-      log$1.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-    }
-    async quitGestureBackMode(isUrlChange = false) {
-      this.isBacking = true;
-      log$1.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function") {
-        this.config.beforeHistoryBackCallBack(isUrlChange);
-      }
-      let maxDate = Date.now() + 1e3 * 5;
-      while (true) {
-        if (Date.now() > maxDate) {
-          log$1.error("未知情况，history.back()失败，无法退出手势模式");
-          break;
-        }
-        if (this.config.win.location.hash.endsWith(this.config.hash)) {
-          log$1.info("history.back()");
-          this.config.win.history.back();
-          await Utils.sleep(this.config.backDelayTime || 150);
-        } else {
-          break;
-        }
-      }
-      log$1.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-      this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack(isUrlChange);
-      }
-    }
-  }
   const BilibiliVideo = {
     $data: {
       isAddBeautifyCSS: false,
@@ -7276,7 +7278,7 @@
           return;
         }
         let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
-          vueObj: appVue,
+          vueInst: appVue,
           hash: "#/seeCommentReply",
           callback(isFromPopState) {
             if (!isFromPopState) {
@@ -14726,4 +14728,4 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
     --button-bg-color: var(--bili-color);
 }
 `;
-})(DOMUtils, pops, Utils, Qmsg, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);
+})(DOMUtils, pops, Utils, Qmsg, Viewer, MD5, Artplayer, artplayerPluginDanmuku, MD5);

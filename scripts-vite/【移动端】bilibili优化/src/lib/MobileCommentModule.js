@@ -51,8 +51,10 @@ export const MobileCommentModule = (function () {
 
   async function init(commentModuleWrapper) {
     // initialize
-    oid = createrID = commentType = undefined;
+    oid = createrID = commentType  = replyList = undefined;
+    replyPool = null;
     replyPool = {};
+    nextOffset = "";
     currentSortType = sortTypeConstant.HOT;
 
     // setup standard comment container & get reply list

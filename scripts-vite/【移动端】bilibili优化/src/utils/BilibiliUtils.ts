@@ -1,8 +1,8 @@
 import { $, DOMUtils, log, utils } from "@/env";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import Qmsg from "qmsg";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import Qmsg from "qmsg";
 
 export const BilibiliUtils = {
   /**
@@ -62,6 +62,7 @@ export const BilibiliUtils = {
   },
   /**
    * 前往登录
+   * @param fromUrl 来源Url，用于登录完毕后跳转
    */
   goToLogin(fromUrl: string = "") {
     window.open(`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(fromUrl)}`);
@@ -138,7 +139,7 @@ export const BilibiliUtils = {
    * 手势返回
    */
   hookGestureReturnByVueRouter(option: {
-    vueObj: Vue2Instance;
+    vueInst: Vue2Instance;
     hash: string;
     /**
      *
@@ -161,7 +162,7 @@ export const BilibiliUtils = {
     function banBack() {
       /* 监听地址改变 */
       log.success("监听地址改变");
-      option.vueObj.$router.history.push(option.hash);
+      option.vueInst.$router.history.push(option.hash);
       DOMUtils.on(window, "popstate", popstateEvent);
     }
 
@@ -176,9 +177,9 @@ export const BilibiliUtils = {
         return;
       }
       while (1) {
-        if (option.vueObj.$router.history.current.hash === option.hash) {
+        if (option.vueInst.$router.history.current.hash === option.hash) {
           log.info("后退！");
-          option.vueObj.$router.back();
+          option.vueInst.$router.back();
           await utils.sleep(250);
         } else {
           return;

@@ -1,17 +1,17 @@
-import { $, $$, DOMUtils, addStyle, log, utils } from "@/env";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { VueUtils } from "@components/utils/VueUtils";
-import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
+import { $, $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { MobileCommentModule } from "@/lib/MobileCommentModule";
 import MobileCommentModuleStyle from "@/lib/MobileCommentModule.css?raw";
+import { BilibiliUrl } from "@/utils/BilibiliUrl";
+import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
+import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GestureBack } from "@components/utils/GestureBack";
-import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import Qmsg from "qmsg";
-import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
+import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
 
 export const BilibiliVideo = {
   $data: {
@@ -581,7 +581,7 @@ export const BilibiliVideo = {
         return;
       }
       let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
-        vueObj: appVue,
+        vueInst: appVue,
         hash: "#/seeCommentReply",
         callback(isFromPopState) {
           if (!isFromPopState) {
