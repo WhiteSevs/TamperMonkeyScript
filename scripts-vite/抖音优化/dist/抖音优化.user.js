@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.21
+// @version      2025.12.21.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -6772,23 +6772,28 @@
     },
     shieldGiftColumn() {
       log.info("【屏蔽】底部的礼物栏");
-      return [
+      const result = [
         CommonUtil.addBlockCSS(
           'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
           'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
           'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
-          "#BottomLayout",
+          "#BottomLayout:not([data-multi-camera])",
           ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
           `div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
         ),
         addStyle(
           `
-            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-                bottom: 0 !important;
-            }`
+      /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+      div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+          bottom: 0 !important;
+      }`
         ),
       ];
+      domUtils.waitNode("#BottomLayout:contains('多机位')").then(($el) => {
+        domUtils.attr($el, "data-multi-camera", "true");
+        result.push(CommonUtil.addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
+      });
+      return result;
     },
     shieldTopToolBarInfo() {
       log.info("【屏蔽】顶栏信息");
@@ -6812,7 +6817,10 @@
     },
     shieldGiftEffects() {
       log.info("【屏蔽】礼物特效");
-      [CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]')];
+      let result = [
+        CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
+      ];
+      return result;
     },
     shieldLucky() {
       log.info("【屏蔽】福袋");

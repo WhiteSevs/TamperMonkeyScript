@@ -152,7 +152,7 @@ export const DouYinLiveBlock = {
    */
   shieldGiftColumn() {
     log.info("【屏蔽】底部的礼物栏");
-    return [
+    const result = [
       CommonUtil.addBlockCSS(
         // 2025.5.9
         'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
@@ -161,18 +161,26 @@ export const DouYinLiveBlock = {
         // 全屏状态下的
         'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
         // 2025.6.29 新版
-        "#BottomLayout",
+        "#BottomLayout:not([data-multi-camera])",
         // 2025.7.23 新版 全屏下的礼物栏
         ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
         // 2025.9.6 新版
         `div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
       ),
       addStyle(/*css*/ `
-            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-                bottom: 0 !important;
-            }`),
+      /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+      div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+          bottom: 0 !important;
+      }`),
     ];
+
+    // 兼容 多机位
+    DOMUtils.waitNode("#BottomLayout:contains('多机位')").then(($el) => {
+      DOMUtils.attr($el, "data-multi-camera", "true");
+      result.push(CommonUtil.addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
+    });
+
+    return result;
   },
   /**
    * 【屏蔽】顶栏信息
@@ -208,7 +216,7 @@ export const DouYinLiveBlock = {
     let result: (HTMLStyleElement | undefined)[] = [
       CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
     ];
-    // return result;
+    return result;
   },
   /**
    * 【屏蔽】福袋
