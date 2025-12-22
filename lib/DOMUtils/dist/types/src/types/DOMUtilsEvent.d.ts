@@ -272,3 +272,16 @@ export declare interface DOMUtilsAddEventListenerResult {
    */
   emit(details?: object, useDispatchToEmit?: boolean): void;
 }
+
+/**
+ * 传递的双击配置信息
+ */
+export declare type DOMUtilsDoubleClickOption = {
+  /**
+   * 是否是双击
+   *
+   * + `true`：双击
+   * + `false`：单击
+   */
+  isDoubleClick: boolean;
+};

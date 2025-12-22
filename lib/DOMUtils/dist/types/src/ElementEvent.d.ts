@@ -1,5 +1,5 @@
 import { ElementAnimate } from "./ElementAnimate";
-import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsAddEventListenerResult, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
+import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsAddEventListenerResult, DOMUtilsDoubleClickOption, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { WindowApi } from "./WindowApi";
@@ -416,11 +416,21 @@ declare class ElementEvent extends ElementAnimate {
     };
     /**
      * 双击监听，适配移动端
+     * @param $el 监听的元素
+     * @param handler 处理的回调函数
+     * @param options 监听器的配置
      */
-    onDoubleClick($el: DOMUtilsTargetElementType, handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    onDoubleClick($el: DOMUtilsTargetElementType, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
         off(): void;
     };
-    onDoubleClick($el: DOMUtilsTargetElementType, selector: string | string[] | undefined | null, handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    /**
+     * 双击监听，适配移动端
+     * @param $el 监听的元素
+     * @param selector 子元素选择器
+     * @param handler 处理的回调函数
+     * @param options 监听器的配置
+     */
+    onDoubleClick($el: DOMUtilsTargetElementType, selector: string | string[] | undefined | null, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
         off(): void;
     };
     /**

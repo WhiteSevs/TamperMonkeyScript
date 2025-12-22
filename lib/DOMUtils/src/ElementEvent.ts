@@ -6,6 +6,7 @@ import type {
   DOMUtils_Event,
   DOMUtils_EventType,
   DOMUtilsAddEventListenerResult,
+  DOMUtilsDoubleClickOption,
   DOMUtilsElementEventType,
   DOMUtilsEventListenerOption,
   DOMUtilsEventListenerOptionsAttribute,
@@ -1345,18 +1346,28 @@ class ElementEvent extends ElementAnimate {
   }
   /**
    * 双击监听，适配移动端
+   * @param $el 监听的元素
+   * @param handler 处理的回调函数
+   * @param options 监听器的配置
    */
   onDoubleClick(
     $el: DOMUtilsTargetElementType,
-    handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>,
+    handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>,
     options?: DOMUtilsEventListenerOption | boolean
   ): {
     off(): void;
   };
+  /**
+   * 双击监听，适配移动端
+   * @param $el 监听的元素
+   * @param selector 子元素选择器
+   * @param handler 处理的回调函数
+   * @param options 监听器的配置
+   */
   onDoubleClick(
     $el: DOMUtilsTargetElementType,
     selector: string | string[] | undefined | null,
-    handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>,
+    handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>,
     options?: DOMUtilsEventListenerOption | boolean
   ): {
     off(): void;
@@ -1366,7 +1377,10 @@ class ElementEvent extends ElementAnimate {
   } {
     const $el: DOMUtilsTargetElementType = args[0];
     let selector: string | string[] | undefined | null = void 0;
-    let handler: (event: MouseEvent | PointerEvent | TouchEvent) => void | Promise<void>;
+    let handler: (
+      event: MouseEvent | PointerEvent | TouchEvent,
+      option: DOMUtilsDoubleClickOption
+    ) => void | Promise<void>;
     let options: DOMUtilsEventListenerOption | boolean | undefined;
     if (args.length === 2) {
       if (typeof args[1] === "function") {
@@ -1396,15 +1410,24 @@ class ElementEvent extends ElementAnimate {
     /** 是否是移动端点击 */
     let isMobileTouch = false;
 
-    const dblclick_handler = async (evt: MouseEvent | PointerEvent | TouchEvent) => {
+    const dblclick_handler = async (evt: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => {
       if (evt.type === "dblclick" && isMobileTouch) {
         // 禁止在移动端触发dblclick事件
         return;
       }
-      await handler(evt);
+      await handler(evt, option);
     };
 
-    const dblClickListener = this.on($el, "dblclick", dblclick_handler, options);
+    const dblClickListener = this.on(
+      $el,
+      "dblclick",
+      (evt) => {
+        dblclick_handler(evt, {
+          isDoubleClick: true,
+        });
+      },
+      options
+    );
     const touchEndListener = this.on(
       $el,
       "touchend",
@@ -1417,11 +1440,16 @@ class ElementEvent extends ElementAnimate {
           isDoubleClick = false;
           $click = null;
           /* 判定为双击 */
-          dblclick_handler(evt);
+          dblclick_handler(evt, {
+            isDoubleClick: true,
+          });
         } else {
           timer = CommonUtils.setTimeout(() => {
             isDoubleClick = false;
             // 判断为单击
+            dblclick_handler(evt, {
+              isDoubleClick: false,
+            });
           }, 200);
           isDoubleClick = true;
           $click = selectorTarget;
