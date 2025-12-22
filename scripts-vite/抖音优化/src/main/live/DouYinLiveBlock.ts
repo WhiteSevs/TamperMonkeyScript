@@ -175,7 +175,8 @@ export const DouYinLiveBlock = {
     ];
 
     // 兼容 多机位
-    DOMUtils.waitNode("#BottomLayout:contains('多机位')").then(($el) => {
+    DOMUtils.waitNode("#BottomLayout:contains('多机位')", 10000).then(($el) => {
+      if (!$el) return;
       DOMUtils.attr($el, "data-multi-camera", "true");
       result.push(CommonUtil.addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
     });
