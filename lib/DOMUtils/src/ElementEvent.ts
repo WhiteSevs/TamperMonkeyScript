@@ -1409,6 +1409,8 @@ class ElementEvent extends ElementAnimate {
     let timer: number | undefined = void 0;
     /** 是否是移动端点击 */
     let isMobileTouch = false;
+    /** 检测是否是单击的延迟时间 */
+    const checkClickTime = 200;
 
     const dblclick_handler = async (evt: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => {
       if (evt.type === "dblclick" && isMobileTouch) {
@@ -1422,6 +1424,7 @@ class ElementEvent extends ElementAnimate {
       $el,
       "dblclick",
       (evt) => {
+        this.preventEvent(evt);
         dblclick_handler(evt, {
           isDoubleClick: true,
         });
@@ -1430,10 +1433,13 @@ class ElementEvent extends ElementAnimate {
     );
     const touchEndListener = this.on(
       $el,
-      "touchend",
+      "pointerup",
       selector,
       (evt, selectorTarget) => {
-        isMobileTouch = true;
+        this.preventEvent(evt);
+        if (evt.pointerType === "touch") {
+          isMobileTouch = true;
+        }
         CommonUtils.clearTimeout(timer);
         timer = void 0;
         if (isDoubleClick && $click === selectorTarget) {
@@ -1450,7 +1456,7 @@ class ElementEvent extends ElementAnimate {
             dblclick_handler(evt, {
               isDoubleClick: false,
             });
-          }, 200);
+          }, checkClickTime);
           isDoubleClick = true;
           $click = selectorTarget;
         }
