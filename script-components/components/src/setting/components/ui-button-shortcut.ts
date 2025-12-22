@@ -46,7 +46,7 @@ export const UIButtonShortCut = function (
   const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
     const $click = event.target as HTMLDivElement;
     const $btn = $click.closest(".pops-panel-button")?.querySelector<HTMLSpanElement>("span")!;
-    if (shortCut.isWaitPress) {
+    if (shortCut.isWaitKeyboardPress()) {
       Qmsg.warning("请先执行当前的录入操作");
       return;
     }
