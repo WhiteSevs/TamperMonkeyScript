@@ -9,11 +9,17 @@ class ElementSelector {
   /**
    * 选择器，可使用以下的额外语法
    *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+   *
+   * **前置语法**
+   *
+   * + `xpath:` 作用：执行xpath语法，会对当前js环境下的`Document`进行节点获取
+   *
+   * **末尾语法**
+   * + `:contains([text])` 作用: 找到包含指定文本内容的指定元素
+   * + `:empty` 作用:找到既没有文本内容也没有子元素的指定元素
+   * + `:regexp([text])` 作用: 找到符合正则表达式的内容的指定元素
    * @param selector 选择器
-   * @param parent 指定父元素
+   * @param parent 指定父元素，默认为`document`
    * @example
    * DOMUtils.selector("div:contains('测试')")
    * > div.xxx
@@ -41,11 +47,16 @@ class ElementSelector {
   /**
    * 选择器，可使用以下的额外语法
    *
-   * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
-   * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
-   * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+   * **前置语法**
+   *
+   * + `xpath:` 作用：执行xpath语法，会对当前js环境下的`Document`进行节点获取
+   *
+   * **末尾语法**
+   * + `:contains([text])` 作用: 找到包含指定文本内容的指定元素
+   * + `:empty` 作用:找到既没有文本内容也没有子元素的指定元素
+   * + `:regexp([text])` 作用: 找到符合正则表达式的内容的指定元素
    * @param selector 选择器
-   * @param parent 指定父元素
+   * @param parent 指定父元素，默认为`document`
    * @example
    * DOMUtils.selectorAll("div:contains('测试')")
    * > [div.xxx]
@@ -74,7 +85,23 @@ class ElementSelector {
     const context = this;
     parent = parent || context.windowApi.document;
     selector = selector.trim();
-    if (selector.match(/[^\s]{1}:empty$/gi)) {
+    if (selector.startsWith("xpath:")) {
+      selector = selector.replace(/^xpath:/i, "");
+      const xpathResult = context.windowApi.document.evaluate(
+        selector,
+        parent,
+        null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        null
+      );
+      const result: E[] = [];
+      let iterateNext = xpathResult.iterateNext();
+      while (iterateNext) {
+        result.push(iterateNext as E);
+        iterateNext = xpathResult.iterateNext();
+      }
+      return result;
+    } else if (selector.match(/[^\s]{1}:empty$/gi)) {
       // empty 语法
       selector = selector.replace(/:empty$/gi, "");
       return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
