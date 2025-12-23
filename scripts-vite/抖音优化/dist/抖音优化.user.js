@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.22
+// @version      2025.12.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
@@ -2953,7 +2953,6 @@
         if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function (...eventArgs) {
             const event = eventArgs[0];
-            event.key;
             const code = event.code;
             const otherCodeList = [];
             if (event.ctrlKey) {
@@ -2976,7 +2975,37 @@
             let keyboardConfigList = [
               {
                 enableKey: "dy-keyboard-hook-likeOrDislike",
-                code: ["KeyZ"],
+                code: ["KeyZ", "Space"],
+                callback(evt) {
+                  if (evt.code !== "Space") {
+                    return;
+                  }
+                  utils.workerClearTimeout(timeId);
+                  timeId = utils.workerSetTimeout(() => {
+                    const videosInViewVideoList = DouYinElement.getInViewVideo();
+                    const playInViewList = DouYinElement.getInViewPlayButton();
+                    if (!videosInViewVideoList.length && !playInViewList.length) {
+                      log.error("未找到在可视区域内的视频或播放按钮");
+                      return;
+                    }
+                    const video = videosInViewVideoList[0];
+                    const player = playInViewList[0];
+                    if (video) {
+                      const $video = videosInViewVideoList[0].$el;
+                      if ($video.paused) {
+                        log.info(`当前视频处于暂停状态，开始播放`);
+                        $video.play();
+                      } else {
+                        log.info(`当前视频处于播放状态，暂停播放`);
+                        $video.pause();
+                      }
+                    } else {
+                      const $play = player.$el;
+                      log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
+                      $play.click();
+                    }
+                  }, 288);
+                },
               },
               {
                 enableKey: "dy-keyboard-hook-comment",
@@ -3083,9 +3112,9 @@
                 code: ["KeyP"],
               },
             ];
-            let otherKeyboardConfigList = [];
+            const otherKeyboardConfigList = [];
             if (DouYinRouter.isIndex()) {
-              otherKeyboardConfigList = [
+              otherKeyboardConfigList.push(
                 {
                   enableKey: "dy-keyboard-hook-arrowUp-w",
                   code: ["KeyW"],
@@ -3101,41 +3130,10 @@
                 {
                   enableKey: "dy-keyboard-hook-videoFastForward",
                   code: ["KeyD"],
-                },
-                {
-                  enableKey: "dy-video-disableDoubleClickLike",
-                  code: ["Space"],
-                  callback() {
-                    utils.workerClearTimeout(timeId);
-                    timeId = utils.workerSetTimeout(() => {
-                      const videosInViewVideoList = DouYinElement.getInViewVideo();
-                      const playInViewList = DouYinElement.getInViewPlayButton();
-                      if (!videosInViewVideoList.length && !playInViewList.length) {
-                        log.error("未找到在可视区域内的视频或播放按钮");
-                        return;
-                      }
-                      const video = videosInViewVideoList[0];
-                      const player = playInViewList[0];
-                      if (video) {
-                        const $video = videosInViewVideoList[0].$el;
-                        if ($video.paused) {
-                          log.info(`当前视频处于暂停状态，开始播放`);
-                          $video.play();
-                        } else {
-                          log.info(`当前视频处于播放状态，暂停播放`);
-                          $video.pause();
-                        }
-                      } else {
-                        const $play = player.$el;
-                        log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
-                        $play.click();
-                      }
-                    }, 288);
-                  },
-                },
-              ];
+                }
+              );
             } else if (DouYinRouter.isLive()) {
-              otherKeyboardConfigList = [
+              otherKeyboardConfigList.push(
                 {
                   enableKey: "dy-live-threeScreen",
                   code: ["KeyS"],
@@ -3159,8 +3157,8 @@
                 {
                   enableKey: "dy-live-quickGift",
                   code: ["KeyE"],
-                },
-              ];
+                }
+              );
             }
             keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
               const compare1 = JSON.stringify(it1.code.toSorted());
@@ -3181,7 +3179,10 @@
                   continue;
                 }
                 if (typeof keyboardConfig.callback === "function") {
-                  keyboardConfig.callback();
+                  keyboardConfig.callback({
+                    code,
+                    otherCodeList,
+                  });
                 }
                 return;
               }
@@ -3723,7 +3724,7 @@
       return [
         CommonUtil.addBlockCSS(
           '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
-          '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"])'
+          '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"]):not(:has(.under-title-tag))'
         ),
       ];
     },
@@ -4178,17 +4179,20 @@
     },
   };
   class ShortCut {
-    key = "short-cut";
-    $data;
-    isWaitPress = false;
-    currentWaitEnterPressInstanceHandler = null;
-    constructor(key) {
-      if (typeof key === "string") {
-        this.key = key;
+    KEY = "short-cut";
+    #data = {
+      otherShortCutOptions: [],
+      localOptions: [],
+      currentWaitEnterPressInstanceHandler: null,
+    };
+    #flag = {
+      isWaitPress: false,
+    };
+    constructor(KEY2) {
+      if (typeof KEY2 === "string") {
+        this.KEY = KEY2;
       }
-      this.$data = {
-        otherShortCutOptions: [],
-      };
+      this.initData();
     }
     initConfig(key, option) {
       if (this.hasOption(key));
@@ -4196,33 +4200,116 @@
         this.setOption(key, option);
       }
     }
+    initData(localOptions) {
+      this.#data.localOptions.length = 0;
+      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
+    }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const that = this;
+      const setListenKeyboard = function ($target, option) {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          (keyName, keyValue, ohterCodeList, event) => {
+            if (that.#flag.isWaitPress) {
+              return;
+            }
+            if (config?.isPrevent) {
+              domUtils.preventEvent(event);
+            }
+            const tempOption = {
+              keyName,
+              keyValue,
+              ohterCodeList,
+            };
+            const tempOptionStr = JSON.stringify(tempOption);
+            const findShortcut = that.#data.localOptions.find((item) => {
+              const __option = item.value;
+              const __optionStr = JSON.stringify(__option);
+              if (__optionStr === tempOptionStr) {
+                return true;
+              }
+            });
+            if (findShortcut) {
+              if (findShortcut.key in option) {
+                log.info("调用快捷键", findShortcut);
+                option[findShortcut.key].callback();
+              }
+            }
+          },
+          {
+            capture: Boolean(config?.capture),
+          }
+        );
+      };
+      const WindowShortCutOption = {};
+      const ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        const option = shortCutOption[localKey];
+        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.onReady(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          const option = ElementShortCutOption[localKey];
+          const shortCutOptionMap = {};
+          let target = null;
+          if (typeof option.target === "string") {
+            target = await domUtils.waitNode(option.target, 1e4);
+          } else if (typeof option.target === "function") {
+            target = await option.target();
+          } else {
+            target = option.target;
+          }
+          if (target) {
+            Reflect.set(shortCutOptionMap, localKey, option);
+            setListenKeyboard(target, shortCutOptionMap);
+          }
+        });
+      });
+    }
+    isWaitKeyboardPress() {
+      return this.#flag.isWaitPress;
+    }
     getStorageKey() {
-      return this.key;
+      return this.KEY;
     }
     getLocalAllOptions() {
-      return _GM_getValue(this.key, []);
+      const allOptions = _GM_getValue(this.KEY, []);
+      return allOptions;
     }
     hasOption(key) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
       return !!findOption;
     }
     hasOptionValue(key) {
       if (this.hasOption(key)) {
-        let option = this.getOption(key);
+        const option = this.getOption(key);
         return !(option?.value == null);
       } else {
         return false;
       }
     }
     getOption(key, defaultValue) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
       return findOption ?? defaultValue;
     }
     setOption(key, value) {
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex == -1) {
         localOptions.push({
           key,
@@ -4231,29 +4318,32 @@
       } else {
         Reflect.set(localOptions[findIndex], "value", value);
       }
-      _GM_setValue(this.key, localOptions);
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
     }
     emptyOption(key) {
-      let result = false;
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex !== -1) {
         localOptions[findIndex].value = null;
-        result = true;
+        flag = true;
       }
-      _GM_setValue(this.key, localOptions);
-      return result;
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
     }
     deleteOption(key) {
-      let result = false;
-      let localValue = this.getLocalAllOptions();
-      let findValueIndex = localValue.findIndex((item) => item.key === key);
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findValueIndex = localOptions.findIndex((item) => item.key === key);
       if (findValueIndex !== -1) {
-        localValue.splice(findValueIndex, 1);
-        result = true;
+        localOptions.splice(findValueIndex, 1);
+        flag = true;
       }
-      _GM_setValue(this.key, localValue);
-      return result;
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
     }
     translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
@@ -4265,7 +4355,7 @@
     }
     getShowText(key, defaultShowText) {
       if (this.hasOption(key)) {
-        let localOption = this.getOption(key);
+        const localOption = this.getOption(key);
         if (localOption.value == null) {
           return defaultShowText;
         } else {
@@ -4276,10 +4366,9 @@
       }
     }
     async enterShortcutKeys(key) {
-      const that = this;
       return new Promise((resolve) => {
-        this.isWaitPress = true;
-        let keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+        this.#flag.isWaitPress = true;
+        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
             keyValue,
@@ -4288,9 +4377,9 @@
           let result = {};
           try {
             const shortcutJSONString = JSON.stringify(currentOption);
-            const allOptions = this.getLocalAllOptions();
-            if (Array.isArray(this.$data.otherShortCutOptions)) {
-              allOptions.push(...this.$data.otherShortCutOptions);
+            let allOptions = this.getLocalAllOptions();
+            if (Array.isArray(this.#data.otherShortCutOptions)) {
+              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
             }
             for (let index = 0; index < allOptions.length; index++) {
               let localValue = allOptions[index];
@@ -4318,115 +4407,30 @@
               option: currentOption,
             };
           } catch (error) {
-            console.log(error);
+            log.error(error);
             result = {
               status: false,
               key,
               option: currentOption,
             };
           } finally {
-            that.isWaitPress = false;
+            this.#flag.isWaitPress = false;
             keyboardListener.removeListen();
-            that.currentWaitEnterPressInstanceHandler = null;
+            this.#data.currentWaitEnterPressInstanceHandler = null;
             resolve(result);
           }
         });
-        that.currentWaitEnterPressInstanceHandler = null;
-        that.currentWaitEnterPressInstanceHandler = () => {
-          that.isWaitPress = false;
+        this.#data.currentWaitEnterPressInstanceHandler = null;
+        this.#data.currentWaitEnterPressInstanceHandler = () => {
+          this.#flag.isWaitPress = false;
           keyboardListener.removeListen();
         };
       });
     }
     cancelEnterShortcutKeys() {
-      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
-        this.currentWaitEnterPressInstanceHandler();
+      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+        this.#data.currentWaitEnterPressInstanceHandler();
       }
-    }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      let localOptions = this.getLocalAllOptions();
-      if (!localOptions.length) {
-        log.warn("没有设置快捷键");
-        return;
-      }
-      const that = this;
-      function setListenKeyboard($ele, option) {
-        domUtils.onKeyboard(
-          $ele,
-          "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
-            if (that.isWaitPress) {
-              return;
-            }
-            if (config?.isPrevent) {
-              domUtils.preventEvent(event);
-            }
-            localOptions = that.getLocalAllOptions();
-            let findShortcutIndex = localOptions.findIndex((item) => {
-              let option2 = item.value;
-              let tempOption = {
-                keyName,
-                keyValue,
-                ohterCodeList,
-              };
-              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
-                return item;
-              }
-            });
-            if (findShortcutIndex != -1) {
-              let findShortcut = localOptions[findShortcutIndex];
-              if (findShortcut.key in option) {
-                log.info(["调用快捷键", findShortcut]);
-                option[findShortcut.key].callback();
-              }
-            }
-          },
-          {
-            capture: Boolean(config?.capture),
-          }
-        );
-      }
-      let WindowShortCutOption = {};
-      let ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        let option = shortCutOption[localKey];
-        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.onReady(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          let option = ElementShortCutOption[localKey];
-          if (typeof option.target === "string") {
-            domUtils.waitNode(option.target, 1e4).then(($ele) => {
-              if (!$ele) {
-                return;
-              }
-              let __option = {};
-              Reflect.set(__option, localKey, option);
-              setListenKeyboard($ele, __option);
-            });
-          } else if (typeof option.target === "function") {
-            let target = await option.target();
-            if (target == null) {
-              return;
-            }
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(target, __option);
-          } else {
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(option.target, __option);
-          }
-        });
-      });
     }
   }
   const DouYinVideoPlayerShortCut = {
@@ -6669,6 +6673,9 @@
       Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
         return this.shielChatRoomVipSeats();
       });
+      Panel.execMenuOnce("live-shieldDoubleScreen", () => {
+        return this.shieldDoubleScreen();
+      });
       Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
         return this.shieldUserLevelIcon();
       });
@@ -6694,6 +6701,10 @@
             }`
         ),
       ];
+    },
+    shieldDoubleScreen() {
+      log.info("【屏蔽】副屏");
+      return [CommonUtil.addBlockCSS("#double_screen")];
     },
     shielChatRoomVipSeats() {
       log.info("【屏蔽】评论区的贵宾席");
@@ -6965,24 +6976,34 @@
         "dy-live-block-chatroom": {
           callback() {
             log.info("快捷键 ==> 【屏蔽】聊天室");
-            let flag = Panel.getValue("live-shieldChatRoom");
-            Panel.setValue("live-shieldChatRoom", !flag);
+            const KEY2 = "live-shieldChatRoom";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
           },
         },
         "dy-live-shieldGiftEffects": {
           callback: () => {
             log.info("快捷键 ==> 【屏蔽】礼物特效");
-            let flag = Panel.getValue("live-shieldGiftEffects");
-            Panel.setValue("live-shieldGiftEffects", !flag);
+            const KEY2 = "live-shieldGiftEffects";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
+          },
+        },
+        "dy-live-shortcut-shieldGiftColumn": {
+          callback() {
+            log.info(`触发快捷键  ==> 【屏蔽】底部的礼物栏`);
+            const KEY2 = "live-shieldGiftColumn";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
           },
         },
         "dy-live-shortcut-changeVideoMuted": {
           callback() {
             log.info(`触发快捷键 ==> 切换静音状态`);
             $$("video").forEach(($video) => {
-              let muted = !$video.muted;
-              log.success(`切换video标签的静音状态为 ${muted}`);
+              const muted = !$video.muted;
               $video.muted = muted;
+              log.success(`成功切换video标签的静音状态为 ${muted}`);
             });
           },
         },
@@ -7906,7 +7927,7 @@
     const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
       const $click = event.target;
       const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
-      if (shortCut.isWaitPress) {
+      if (shortCut.isWaitKeyboardPress()) {
         Qmsg.warning("请先执行当前的录入操作");
         return;
       }
@@ -11160,7 +11181,7 @@
                 type: "container",
                 text: AutoOpenOrClose.text,
                 views: [
-                  UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z"),
+                  UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z/双击空格"),
                   UISwitch("评论", "dy-keyboard-hook-comment", false, void 0, "X"),
                   UISwitch("开启/关闭弹幕", "dy-keyboard-hook-danmaku-enable", false, void 0, "B"),
                   UISwitch("收藏/取消收藏", "dy-keyboard-hook-collect-enable", false, void 0, "C"),
@@ -11387,13 +11408,7 @@
                     void 0,
                     "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
-                  UISwitch(
-                    "禁用双击点赞",
-                    "dy-video-disableDoubleClickLike",
-                    false,
-                    void 0,
-                    "包括：鼠标双击、键盘长按<code>空格</code>键"
-                  ),
+                  UISwitch("禁用鼠标双击点赞", "dy-video-disableDoubleClickLike", false),
                   UISwitch(
                     "手势返回关闭评论区",
                     "dy-video-gestureBackCloseComment",
@@ -12340,6 +12355,15 @@
                     DouYinLiveShortCut.shortCut
                   ),
                   UIButtonShortCut(
+                    "【屏蔽】底部的礼物栏",
+                    "",
+                    "dy-live-shortcut-shieldGiftColumn",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
                     "切换静音状态",
                     "切换video标签的muted属性",
                     "dy-live-shortcut-changeVideoMuted",
@@ -12432,6 +12456,7 @@
                 type: "container",
                 views: [
                   UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false),
+                  UISwitch("【屏蔽】副屏", "live-shieldDoubleScreen", false, void 0, "直播副屏，显示在贵宾席的上面"),
                   UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false),
                   UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false),
                   UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false),

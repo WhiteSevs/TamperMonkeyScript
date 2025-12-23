@@ -90,8 +90,6 @@ export const DouYinHook = {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
           const event = eventArgs[0] as KeyboardEvent;
-          /** 键名 */
-          const key = event.key;
           /** 键值字符串 */
           const code = event.code;
           /** 组合键列表 */
@@ -120,11 +118,41 @@ export const DouYinHook = {
             enableKey: string;
             code: string[];
             otherCodeList?: KeyboardOtherCodeName[];
-            callback?: () => void;
+            callback?: (event: { code: string; otherCodeList: KeyboardOtherCodeName[] }) => void;
           }[] = [
             {
               enableKey: "dy-keyboard-hook-likeOrDislike",
-              code: ["KeyZ"],
+              code: ["KeyZ", "Space"],
+              callback(evt) {
+                if (evt.code !== "Space") {
+                  return;
+                }
+                utils.workerClearTimeout(timeId);
+                timeId = utils.workerSetTimeout(() => {
+                  const videosInViewVideoList = DouYinElement.getInViewVideo();
+                  const playInViewList = DouYinElement.getInViewPlayButton();
+                  if (!videosInViewVideoList.length && !playInViewList.length) {
+                    log.error("未找到在可视区域内的视频或播放按钮");
+                    return;
+                  }
+                  const video = videosInViewVideoList[0];
+                  const player = playInViewList[0];
+                  if (video) {
+                    const $video = videosInViewVideoList[0].$el;
+                    if ($video.paused) {
+                      log.info(`当前视频处于暂停状态，开始播放`);
+                      $video.play();
+                    } else {
+                      log.info(`当前视频处于播放状态，暂停播放`);
+                      $video.pause();
+                    }
+                  } else {
+                    const $play = player.$el;
+                    log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
+                    $play.click();
+                  }
+                }, 288);
+              },
             },
             {
               enableKey: "dy-keyboard-hook-comment",
@@ -232,11 +260,10 @@ export const DouYinHook = {
             },
           ];
 
-          let otherKeyboardConfigList: typeof keyboardConfigList = [];
-
+          const otherKeyboardConfigList: typeof keyboardConfigList = [];
           if (DouYinRouter.isIndex()) {
             // 主站
-            otherKeyboardConfigList = [
+            otherKeyboardConfigList.push(
               {
                 enableKey: "dy-keyboard-hook-arrowUp-w",
                 code: ["KeyW"],
@@ -252,43 +279,11 @@ export const DouYinHook = {
               {
                 enableKey: "dy-keyboard-hook-videoFastForward",
                 code: ["KeyD"],
-              },
-              // 禁用双击点赞，包括长按空格的
-              {
-                enableKey: "dy-video-disableDoubleClickLike",
-                code: ["Space"],
-                callback() {
-                  utils.workerClearTimeout(timeId);
-                  timeId = utils.workerSetTimeout(() => {
-                    const videosInViewVideoList = DouYinElement.getInViewVideo();
-                    const playInViewList = DouYinElement.getInViewPlayButton();
-                    if (!videosInViewVideoList.length && !playInViewList.length) {
-                      log.error("未找到在可视区域内的视频或播放按钮");
-                      return;
-                    }
-                    const video = videosInViewVideoList[0];
-                    const player = playInViewList[0];
-                    if (video) {
-                      const $video = videosInViewVideoList[0].$el;
-                      if ($video.paused) {
-                        log.info(`当前视频处于暂停状态，开始播放`);
-                        $video.play();
-                      } else {
-                        log.info(`当前视频处于播放状态，暂停播放`);
-                        $video.pause();
-                      }
-                    } else {
-                      const $play = player.$el;
-                      log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
-                      $play.click();
-                    }
-                  }, 288);
-                },
-              },
-            ];
+              }
+            );
           } else if (DouYinRouter.isLive()) {
             // 直播
-            otherKeyboardConfigList = [
+            otherKeyboardConfigList.push(
               {
                 enableKey: "dy-live-threeScreen",
                 code: ["KeyS"],
@@ -312,10 +307,10 @@ export const DouYinHook = {
               {
                 enableKey: "dy-live-quickGift",
                 code: ["KeyE"],
-              },
-            ];
+              }
+            );
           }
-          // 去重
+          // 去重，code排序后完全相同的配置只保留一个
           // 比如直播的KeyR和推荐视频的不感兴趣快捷键重复了
           keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
             const compare1 = JSON.stringify(it1.code.toSorted());
@@ -338,7 +333,10 @@ export const DouYinHook = {
               }
               // 阻止触发
               if (typeof keyboardConfig.callback === "function") {
-                keyboardConfig.callback();
+                keyboardConfig.callback({
+                  code: code,
+                  otherCodeList: otherCodeList,
+                });
               }
               return;
             }

@@ -195,7 +195,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               type: "container",
               text: AutoOpenOrClose.text,
               views: [
-                UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z"),
+                UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z/双击空格"),
                 UISwitch("评论", "dy-keyboard-hook-comment", false, void 0, "X"),
                 UISwitch("开启/关闭弹幕", "dy-keyboard-hook-danmaku-enable", false, void 0, "B"),
                 UISwitch("收藏/取消收藏", "dy-keyboard-hook-collect-enable", false, void 0, "C"),
