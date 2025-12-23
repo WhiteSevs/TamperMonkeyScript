@@ -10,6 +10,9 @@ export const DouYinLiveBlock_ChatRoom = {
     Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
       return this.shielChatRoomVipSeats();
     });
+    Panel.execMenuOnce("live-shieldDoubleScreen", () => {
+      return this.shieldDoubleScreen();
+    });
     Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
       return this.shieldUserLevelIcon();
     });
@@ -40,6 +43,13 @@ export const DouYinLiveBlock_ChatRoom = {
                 margin-bottom: 0px !important;
             }`),
     ];
+  },
+  /**
+   * 【屏蔽】副屏
+   */
+  shieldDoubleScreen() {
+    log.info("【屏蔽】副屏");
+    return [CommonUtil.addBlockCSS("#double_screen")];
   },
   /**
    * 【屏蔽】评论区的贵宾席

@@ -199,6 +199,15 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   DouYinLiveShortCut.shortCut
                 ),
                 UIButtonShortCut(
+                  "【屏蔽】底部的礼物栏",
+                  "",
+                  "dy-live-shortcut-shieldGiftColumn",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinLiveShortCut.shortCut
+                ),
+                UIButtonShortCut(
                   "切换静音状态",
                   "切换video标签的muted属性",
                   "dy-live-shortcut-changeVideoMuted",
@@ -291,6 +300,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false),
+                UISwitch("【屏蔽】副屏", "live-shieldDoubleScreen", false, void 0, "直播副屏，显示在贵宾席的上面"),
                 UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false),
                 UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false),
                 UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false),

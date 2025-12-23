@@ -74,8 +74,10 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
     log.info(`【屏蔽】识别画面`);
     return [
       CommonUtil.addBlockCSS(
+        // 如果有视频标题下面的标签，如：合集、相关搜索等，那么会有.under-title-tag
+        // 如果没有，那么仅【识别画面】一个
         '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
-        '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"])'
+        '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"]):not(:has(.under-title-tag))'
       ),
     ];
   },
