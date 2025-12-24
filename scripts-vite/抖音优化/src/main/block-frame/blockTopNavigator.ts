@@ -1,6 +1,6 @@
-import { Panel } from "@components/setting/panel";
+import { addStyle, DOMUtils, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 顶部导航栏屏蔽 */
@@ -127,17 +127,18 @@ export const BlockTopNavigator = {
 			}
 		`)
     );
+    // 推荐视频的高度适配
     result.push(
       addStyle(/*css*/ `
-       /* pc端 */
-       @media screen and (min-width: 800px) {
-				#slidelist .page-recommend-container{
+       /* pc端 or mobile端*/
+      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
+        #slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
-					margin: var(--recommend-video-container-margin-height) 0px !important;
-					height: ${window.innerHeight}px !important;
-					height: round(nearest, 100dvh, 1px) !important;
-				}
-       }
+          margin: var(--recommend-video-container-margin-height) 0px !important;
+          height: ${window.innerHeight}px !important;
+          height: round(nearest, 100dvh, 1px) !important;
+        }
+      }
 			`)
     );
     if (DouYinRouter.isSearch()) {

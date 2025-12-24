@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.23
+// @version      2025.12.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
@@ -2160,15 +2160,15 @@
       result.push(
         addStyle(
           `
-       /* pc端 */
-       @media screen and (min-width: 800px) {
-				#slidelist .page-recommend-container{
+       /* pc端 or mobile端*/
+      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
+        #slidelist .page-recommend-container{
           --recommend-video-container-margin-height: 0px;
-					margin: var(--recommend-video-container-margin-height) 0px !important;
-					height: ${window.innerHeight}px !important;
-					height: round(nearest, 100dvh, 1px) !important;
-				}
-       }
+          margin: var(--recommend-video-container-margin-height) 0px !important;
+          height: ${window.innerHeight}px !important;
+          height: round(nearest, 100dvh, 1px) !important;
+        }
+      }
 			`
         )
       );
@@ -3542,8 +3542,181 @@
       return !globalThis.screen.orientation.type.includes("landscape");
     },
   };
-  const MobileCSS$1 =
-    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100dvw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
+  class GestureBack {
+    isBacking = false;
+    config;
+    constructor(config) {
+      this.config = config;
+      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+      this.popStateEvent = this.popStateEvent.bind(this);
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+        this.config.backDelayTime = 150;
+      }
+      if (this.config.win == null) {
+        this.config.win = self;
+      }
+    }
+    popStateEvent(event) {
+      domUtils.preventEvent(event);
+      if (this.isBacking) {
+        return;
+      }
+      this.quitGestureBackMode(true);
+    }
+    enterGestureBackMode() {
+      log.success("进入手势模式");
+      let pushUrl = this.config.hash;
+      if (!pushUrl.startsWith("#")) {
+        if (!pushUrl.startsWith("/")) {
+          pushUrl = "/" + pushUrl;
+        }
+        pushUrl = "#" + pushUrl;
+      }
+      if (this.config.useUrl) {
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
+      log.success("监听popstate事件");
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+    }
+    async quitGestureBackMode(isUrlChange = false) {
+      this.isBacking = true;
+      log.success("退出手势模式");
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        this.config.beforeHistoryBackCallBack(isUrlChange);
+      }
+      let maxDate = Date.now() + 1e3 * 5;
+      while (true) {
+        if (Date.now() > maxDate) {
+          log.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        if (this.config.win.location.hash.endsWith(this.config.hash)) {
+          log.info("history.back()");
+          this.config.win.history.back();
+          await Utils.sleep(this.config.backDelayTime || 150);
+        } else {
+          break;
+        }
+      }
+      log.success("移除popstate事件");
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+      this.isBacking = false;
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        this.config.afterHistoryBackCallBack(isUrlChange);
+      }
+    }
+  }
+  const ReactUtils = {
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
+        }
+        return __target__;
+      }
+      if (typeof $el === "string") {
+        let $ele = await domUtils.waitNode($el, 1e4);
+        if (!$ele) {
+          return;
+        }
+      }
+      checkOption.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl,
+            };
+          }
+          let reactInst = utils.getReactInstance($targetEl);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl,
+            };
+          }
+          let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+            let reactPropInst2 = reactInst[__propName__];
+            if (!reactPropInst2) {
+              return false;
+            }
+            let checkResult = needSetOption.check(reactPropInst2, $targetEl);
+            checkResult = Boolean(checkResult);
+            return checkResult;
+          });
+          let reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          let reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $targetEl,
+          };
+        }
+        utils
+          .waitPropertyByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then(() => {
+            let checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              let reactInst = checkTargetResult.inst;
+              needSetOption.set(reactInst, checkTargetResult.$el);
+            } else {
+              if (typeof needSetOption.failWait === "function") {
+                needSetOption.failWait(checkTargetResult.isTimeout);
+              }
+            }
+          });
+      });
+    },
+  };
+  const DouYinGestureBackHashConfig = {
+    videoCommentDrawer: "videoCommentDrawer",
+  };
+  const DouYinGestureBackClearHash = () => {
+    let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
+      return globalThis.location.hash.endsWith(hash);
+    });
+    if (findValue) {
+      globalThis.location.hash = "";
+      log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
+    }
+  };
   const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
@@ -4178,549 +4351,8 @@
       return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
     },
   };
-  class ShortCut {
-    KEY = "short-cut";
-    #data = {
-      otherShortCutOptions: [],
-      localOptions: [],
-      currentWaitEnterPressInstanceHandler: null,
-    };
-    #flag = {
-      isWaitPress: false,
-    };
-    constructor(KEY2) {
-      if (typeof KEY2 === "string") {
-        this.KEY = KEY2;
-      }
-      this.initData();
-    }
-    initConfig(key, option) {
-      if (this.hasOption(key));
-      else {
-        this.setOption(key, option);
-      }
-    }
-    initData(localOptions) {
-      this.#data.localOptions.length = 0;
-      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
-    }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      if (!this.#data.localOptions.length) {
-        log.warn("快捷键配置为空");
-        return;
-      }
-      const that = this;
-      const setListenKeyboard = function ($target, option) {
-        domUtils.onKeyboard(
-          $target,
-          "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
-            if (that.#flag.isWaitPress) {
-              return;
-            }
-            if (config?.isPrevent) {
-              domUtils.preventEvent(event);
-            }
-            const tempOption = {
-              keyName,
-              keyValue,
-              ohterCodeList,
-            };
-            const tempOptionStr = JSON.stringify(tempOption);
-            const findShortcut = that.#data.localOptions.find((item) => {
-              const __option = item.value;
-              const __optionStr = JSON.stringify(__option);
-              if (__optionStr === tempOptionStr) {
-                return true;
-              }
-            });
-            if (findShortcut) {
-              if (findShortcut.key in option) {
-                log.info("调用快捷键", findShortcut);
-                option[findShortcut.key].callback();
-              }
-            }
-          },
-          {
-            capture: Boolean(config?.capture),
-          }
-        );
-      };
-      const WindowShortCutOption = {};
-      const ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        const option = shortCutOption[localKey];
-        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.onReady(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          const option = ElementShortCutOption[localKey];
-          const shortCutOptionMap = {};
-          let target = null;
-          if (typeof option.target === "string") {
-            target = await domUtils.waitNode(option.target, 1e4);
-          } else if (typeof option.target === "function") {
-            target = await option.target();
-          } else {
-            target = option.target;
-          }
-          if (target) {
-            Reflect.set(shortCutOptionMap, localKey, option);
-            setListenKeyboard(target, shortCutOptionMap);
-          }
-        });
-      });
-    }
-    isWaitKeyboardPress() {
-      return this.#flag.isWaitPress;
-    }
-    getStorageKey() {
-      return this.KEY;
-    }
-    getLocalAllOptions() {
-      const allOptions = _GM_getValue(this.KEY, []);
-      return allOptions;
-    }
-    hasOption(key) {
-      const localOptions = this.getLocalAllOptions();
-      const findOption = localOptions.find((item) => item.key === key);
-      return !!findOption;
-    }
-    hasOptionValue(key) {
-      if (this.hasOption(key)) {
-        const option = this.getOption(key);
-        return !(option?.value == null);
-      } else {
-        return false;
-      }
-    }
-    getOption(key, defaultValue) {
-      const localOptions = this.getLocalAllOptions();
-      const findOption = localOptions.find((item) => item.key === key);
-      return findOption ?? defaultValue;
-    }
-    setOption(key, value) {
-      const localOptions = this.getLocalAllOptions();
-      const findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex == -1) {
-        localOptions.push({
-          key,
-          value,
-        });
-      } else {
-        Reflect.set(localOptions[findIndex], "value", value);
-      }
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-    }
-    emptyOption(key) {
-      let flag = false;
-      const localOptions = this.getLocalAllOptions();
-      const findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex !== -1) {
-        localOptions[findIndex].value = null;
-        flag = true;
-      }
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-      return flag;
-    }
-    deleteOption(key) {
-      let flag = false;
-      const localOptions = this.getLocalAllOptions();
-      const findValueIndex = localOptions.findIndex((item) => item.key === key);
-      if (findValueIndex !== -1) {
-        localOptions.splice(findValueIndex, 1);
-        flag = true;
-      }
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-      return flag;
-    }
-    translateKeyboardValueToButtonText(keyboardValue) {
-      let result = "";
-      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
-        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
-      });
-      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
-      return result;
-    }
-    getShowText(key, defaultShowText) {
-      if (this.hasOption(key)) {
-        const localOption = this.getOption(key);
-        if (localOption.value == null) {
-          return defaultShowText;
-        } else {
-          return this.translateKeyboardValueToButtonText(localOption.value);
-        }
-      } else {
-        return defaultShowText;
-      }
-    }
-    async enterShortcutKeys(key) {
-      return new Promise((resolve) => {
-        this.#flag.isWaitPress = true;
-        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
-          const currentOption = {
-            keyName,
-            keyValue,
-            ohterCodeList,
-          };
-          let result = {};
-          try {
-            const shortcutJSONString = JSON.stringify(currentOption);
-            let allOptions = this.getLocalAllOptions();
-            if (Array.isArray(this.#data.otherShortCutOptions)) {
-              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
-            }
-            for (let index = 0; index < allOptions.length; index++) {
-              let localValue = allOptions[index];
-              if (localValue.key === key) {
-                continue;
-              }
-              const localShortCutJSONString = JSON.stringify(localValue.value);
-              let isUsedByOtherOption = false;
-              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                isUsedByOtherOption = true;
-              }
-              if (isUsedByOtherOption) {
-                result = {
-                  status: false,
-                  key: localValue.key,
-                  option: currentOption,
-                };
-                return;
-              }
-            }
-            this.setOption(key, currentOption);
-            result = {
-              status: true,
-              key,
-              option: currentOption,
-            };
-          } catch (error) {
-            log.error(error);
-            result = {
-              status: false,
-              key,
-              option: currentOption,
-            };
-          } finally {
-            this.#flag.isWaitPress = false;
-            keyboardListener.removeListen();
-            this.#data.currentWaitEnterPressInstanceHandler = null;
-            resolve(result);
-          }
-        });
-        this.#data.currentWaitEnterPressInstanceHandler = null;
-        this.#data.currentWaitEnterPressInstanceHandler = () => {
-          this.#flag.isWaitPress = false;
-          keyboardListener.removeListen();
-        };
-      });
-    }
-    cancelEnterShortcutKeys() {
-      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
-        this.#data.currentWaitEnterPressInstanceHandler();
-      }
-    }
-  }
-  const DouYinVideoPlayerShortCut = {
-    shortCut: new ShortCut("video-short-cut"),
-    $data: {
-      rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"],
-    },
-    init() {
-      this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
-        capture: true,
-      });
-    },
-    shorCutMapOption() {
-      return {
-        "dy-video-rate-low": {
-          callback() {
-            log.info("触发快捷键 ==> 调用倍速：小");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
-              return rate === currentRate;
-            });
-            if (findIndex === 0) {
-              log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
-              return;
-            }
-            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
-            log.info("触发快捷键 ==> 设置倍速: " + prevRate);
-            DouYinVideoPlayer.chooseVideoRate(prevRate);
-          },
-        },
-        "dy-video-rate-up": {
-          callback() {
-            log.info("触发快捷键 ==> 调用倍速：大");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
-              return rate === currentRate;
-            });
-            if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
-              log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
-              return;
-            }
-            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
-            log.info("触发快捷键 ==> 设置倍速: " + nextRate);
-            DouYinVideoPlayer.chooseVideoRate(nextRate);
-          },
-        },
-        "dy-video-shortcut-immersionMode": {
-          callback() {
-            log.info("触发快捷键 ==> 沉浸模式");
-            let value = Panel.getValue("fullScreen");
-            Panel.setValue("fullScreen", !value);
-            Panel.execMenuOnce("fullScreen", () => {
-              return DouYinVideoPlayer.fullScreen();
-            });
-          },
-        },
-        "dy-video-shortcut-changeVideoMuted": {
-          callback() {
-            log.info(`触发快捷键 ==> 切换静音状态`);
-            const $videos = $$("video[src]");
-            $videos.forEach(($video) => {
-              if (utils.isNull($video.src)) return;
-              let muted = !$video.muted;
-              log.success(`切换video标签的静音状态为 ${muted}`);
-              $video.muted = muted;
-            });
-          },
-        },
-        "dy-video-shortcut-parseVideo": {
-          callback() {
-            log.info(`触发快捷键 ==> 视频解析`);
-            const videosInViewVideoList = DouYinElement.getInViewVideo();
-            const $shareList = $$('[data-e2e="video-player-share"]');
-            const playerShareInViewList = DouYinElement.getInViewNode($shareList);
-            if (!videosInViewVideoList.length && !playerShareInViewList.length) {
-              log.error("未找到在可视区域内的视频/图文");
-              return;
-            }
-            const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
-            DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
-          },
-        },
-        "dy-video-shortcut-playbackRate": {
-          callback() {
-            log.info("触发快捷键 ==> 倍速播放");
-            let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
-            enable = !enable;
-            if (enable) {
-              const rate = Panel.getValue("dy-video-playbackrate-select-value");
-              Qmsg.success("开启倍速：" + rate);
-            } else {
-              Qmsg.info("关闭倍速");
-            }
-            Panel.setValue("dy-video-playbackrate", enable);
-          },
-        },
-      };
-    },
-  };
-  class GestureBack {
-    isBacking = false;
-    config;
-    constructor(config) {
-      this.config = config;
-      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
-      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
-      this.popStateEvent = this.popStateEvent.bind(this);
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
-        this.config.backDelayTime = 150;
-      }
-      if (this.config.win == null) {
-        this.config.win = self;
-      }
-    }
-    popStateEvent(event) {
-      domUtils.preventEvent(event);
-      if (this.isBacking) {
-        return;
-      }
-      this.quitGestureBackMode(true);
-    }
-    enterGestureBackMode() {
-      log.success("进入手势模式");
-      let pushUrl = this.config.hash;
-      if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) {
-          pushUrl = "/" + pushUrl;
-        }
-        pushUrl = "#" + pushUrl;
-      }
-      if (this.config.useUrl) {
-        pushUrl =
-          this.config.win.location.origin +
-          this.config.win.location.pathname +
-          this.config.win.location.search +
-          pushUrl;
-      }
-      this.config.win.history.pushState({}, "", pushUrl);
-      log.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-    }
-    async quitGestureBackMode(isUrlChange = false) {
-      this.isBacking = true;
-      log.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function") {
-        this.config.beforeHistoryBackCallBack(isUrlChange);
-      }
-      let maxDate = Date.now() + 1e3 * 5;
-      while (true) {
-        if (Date.now() > maxDate) {
-          log.error("未知情况，history.back()失败，无法退出手势模式");
-          break;
-        }
-        if (this.config.win.location.hash.endsWith(this.config.hash)) {
-          log.info("history.back()");
-          this.config.win.history.back();
-          await Utils.sleep(this.config.backDelayTime || 150);
-        } else {
-          break;
-        }
-      }
-      log.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-      this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack(isUrlChange);
-      }
-    }
-  }
-  const DouYinGestureBackHashConfig = {
-    videoCommentDrawer: "videoCommentDrawer",
-  };
-  const DouYinGestureBackClearHash = () => {
-    let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
-      return globalThis.location.hash.endsWith(hash);
-    });
-    if (findValue) {
-      globalThis.location.hash = "";
-      log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
-    }
-  };
-  const DouYinVideoPlayerBlockMouseHoverTip = {
-    init() {
-      DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
-      DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar.init();
-    },
-  };
-  const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
-    init() {
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-enterUserHome", () => {
-        return this.blockEnterUserHomeMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
-        return this.blockFollowMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-addLike", () => {
-        return this.blockAddLikeMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-comment", () => {
-        return this.blockCommentMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-collect", () => {
-        return this.blockCollectMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
-        return this.blockShareMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-seeCorrelation", () => {
-        return this.blockSeeCorrelationMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-more", () => {
-        return this.blockMoreMouseHoverTip();
-      });
-    },
-    blockEnterUserHomeMouseHoverTip() {
-      log.info(`禁用进入作者主页按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`);
-    },
-    blockFollowMouseHoverTip() {
-      log.info(`禁用关注按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="feed-follow-icon"]  .semi-portal`);
-    },
-    blockAddLikeMouseHoverTip() {
-      log.info(`禁用点赞按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-digg"] + .semi-portal`);
-    },
-    blockCommentMouseHoverTip() {
-      log.info(`禁用评论按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="feed-comment-icon"] + .semi-portal`);
-    },
-    blockCollectMouseHoverTip() {
-      log.info(`禁用收藏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-collect"] + .semi-always-dark`);
-    },
-    blockShareMouseHoverTip() {
-      log.info(`禁用分享按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-share-container"]`);
-    },
-    blockSeeCorrelationMouseHoverTip() {
-      log.info(`禁用看相关推荐按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div:has(+[data-e2e="video-play-more"]) .semi-portal`);
-    },
-    blockMoreMouseHoverTip() {
-      log.info(`禁用更多按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`[data-e2e="video-play-more"] > div:has([data-e2e="more-music-detail"])`);
-    },
-  };
-  const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
-    init() {
-      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", () => {
-        return this.blockAutomaticBroadcast();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-clearScreen", () => {
-        return this.blockClearScreenMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-watchLater", () => {
-        return this.blockWatchLaterMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-pageFullScreen", () => {
-        return this.blockPageFullScreenMouseHoverTip();
-      });
-      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-fullScreen", () => {
-        return this.blockFullScreenMouseHoverTip();
-      });
-    },
-    blockAutomaticBroadcast() {
-      log.info(`禁用自动连播按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-auto-play"] + .xgTips`);
-    },
-    blockClearScreenMouseHoverTip() {
-      log.info(`禁用清屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
-    },
-    blockWatchLaterMouseHoverTip() {
-      log.info(`禁用稍后再看按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-watch-later .xgTips`, `.xgplayer-watch-later-item + .xgTips`);
-    },
-    blockPageFullScreenMouseHoverTip() {
-      log.info(`禁用网页全屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
-    },
-    blockFullScreenMouseHoverTip() {
-      log.info(`禁用全屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
-    },
-  };
+  const MobileCSS$1 =
+    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100dvw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 网页全屏下的推荐视频的高度适配 */\r\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r\n    margin: 0px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n    white-space: nowrap;\r\n    overflow: auto;\r\n    align-items: start;\r\n    justify-content: start;\r\n    margin: 0px;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   const DouYinVideoElementAutoHide = (delayTimeKey, selectors) => {
     let isInjectAttrName = "data-is-inject-mouse-hide";
     let opacityShowAttrName = "data-opacity-show";
@@ -4844,95 +4476,6 @@
       observer?.disconnect();
     }, $style);
     return result;
-  };
-  const ReactUtils = {
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
-      if (!Array.isArray(reactPropNameOrNameList)) {
-        reactPropNameOrNameList = [reactPropNameOrNameList];
-      }
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
-        return __target__;
-      }
-      if (typeof $el === "string") {
-        let $ele = await domUtils.waitNode($el, 1e4);
-        if (!$ele) {
-          return;
-        }
-      }
-      checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
-        function checkTarget() {
-          let $targetEl = getTarget();
-          if ($targetEl == null) {
-            return {
-              status: false,
-              isTimeout: true,
-              inst: null,
-              $el: $targetEl,
-            };
-          }
-          let reactInst = utils.getReactInstance($targetEl);
-          if (reactInst == null) {
-            return {
-              status: false,
-              isTimeout: false,
-              inst: null,
-              $el: $targetEl,
-            };
-          }
-          let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            let reactPropInst2 = reactInst[__propName__];
-            if (!reactPropInst2) {
-              return false;
-            }
-            let checkResult = needSetOption.check(reactPropInst2, $targetEl);
-            checkResult = Boolean(checkResult);
-            return checkResult;
-          });
-          let reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          let reactPropInst = reactInst[reactPropName];
-          return {
-            status: findPropNameIndex !== -1,
-            isTimeout: false,
-            inst: reactPropInst,
-            $el: $targetEl,
-          };
-        }
-        utils
-          .waitPropertyByInterval(
-            () => {
-              return getTarget();
-            },
-            () => checkTarget().status,
-            250,
-            1e4
-          )
-          .then(() => {
-            let checkTargetResult = checkTarget();
-            if (checkTargetResult.status) {
-              let reactInst = checkTargetResult.inst;
-              needSetOption.set(reactInst, checkTargetResult.$el);
-            } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
-              }
-            }
-          });
-      });
-    },
   };
   class DouYinVideoFilterBase {
     $data = {
@@ -5456,6 +4999,463 @@
       }
     }
   }
+  const DouYinVideoPlayerBlockMouseHoverTip = {
+    init() {
+      DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
+      DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar.init();
+    },
+  };
+  const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
+    init() {
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-enterUserHome", () => {
+        return this.blockEnterUserHomeMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
+        return this.blockFollowMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-addLike", () => {
+        return this.blockAddLikeMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-comment", () => {
+        return this.blockCommentMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-collect", () => {
+        return this.blockCollectMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
+        return this.blockShareMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-seeCorrelation", () => {
+        return this.blockSeeCorrelationMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-more", () => {
+        return this.blockMoreMouseHoverTip();
+      });
+    },
+    blockEnterUserHomeMouseHoverTip() {
+      log.info(`禁用进入作者主页按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`);
+    },
+    blockFollowMouseHoverTip() {
+      log.info(`禁用关注按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="feed-follow-icon"]  .semi-portal`);
+    },
+    blockAddLikeMouseHoverTip() {
+      log.info(`禁用点赞按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-digg"] + .semi-portal`);
+    },
+    blockCommentMouseHoverTip() {
+      log.info(`禁用评论按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="feed-comment-icon"] + .semi-portal`);
+    },
+    blockCollectMouseHoverTip() {
+      log.info(`禁用收藏按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-collect"] + .semi-always-dark`);
+    },
+    blockShareMouseHoverTip() {
+      log.info(`禁用分享按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-share-container"]`);
+    },
+    blockSeeCorrelationMouseHoverTip() {
+      log.info(`禁用看相关推荐按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div:has(+[data-e2e="video-play-more"]) .semi-portal`);
+    },
+    blockMoreMouseHoverTip() {
+      log.info(`禁用更多按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`[data-e2e="video-play-more"] > div:has([data-e2e="more-music-detail"])`);
+    },
+  };
+  const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
+    init() {
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", () => {
+        return this.blockAutomaticBroadcast();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-clearScreen", () => {
+        return this.blockClearScreenMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-watchLater", () => {
+        return this.blockWatchLaterMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-pageFullScreen", () => {
+        return this.blockPageFullScreenMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-fullScreen", () => {
+        return this.blockFullScreenMouseHoverTip();
+      });
+    },
+    blockAutomaticBroadcast() {
+      log.info(`禁用自动连播按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-auto-play"] + .xgTips`);
+    },
+    blockClearScreenMouseHoverTip() {
+      log.info(`禁用清屏按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
+    },
+    blockWatchLaterMouseHoverTip() {
+      log.info(`禁用稍后再看按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`.xgplayer-watch-later .xgTips`, `.xgplayer-watch-later-item + .xgTips`);
+    },
+    blockPageFullScreenMouseHoverTip() {
+      log.info(`禁用网页全屏按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
+    },
+    blockFullScreenMouseHoverTip() {
+      log.info(`禁用全屏按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
+    },
+  };
+  class ShortCut {
+    KEY = "short-cut";
+    #data = {
+      otherShortCutOptions: [],
+      localOptions: [],
+      currentWaitEnterPressInstanceHandler: null,
+    };
+    #flag = {
+      isWaitPress: false,
+    };
+    constructor(KEY2) {
+      if (typeof KEY2 === "string") {
+        this.KEY = KEY2;
+      }
+      this.initData();
+    }
+    initConfig(key, option) {
+      if (this.hasOption(key));
+      else {
+        this.setOption(key, option);
+      }
+    }
+    initData(localOptions) {
+      this.#data.localOptions.length = 0;
+      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
+    }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const that = this;
+      const setListenKeyboard = function ($target, option) {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          (keyName, keyValue, ohterCodeList, event) => {
+            if (that.#flag.isWaitPress) {
+              return;
+            }
+            if (config?.isPrevent) {
+              domUtils.preventEvent(event);
+            }
+            const tempOption = {
+              keyName,
+              keyValue,
+              ohterCodeList,
+            };
+            const tempOptionStr = JSON.stringify(tempOption);
+            const findShortcut = that.#data.localOptions.find((item) => {
+              const __option = item.value;
+              const __optionStr = JSON.stringify(__option);
+              if (__optionStr === tempOptionStr) {
+                return true;
+              }
+            });
+            if (findShortcut) {
+              if (findShortcut.key in option) {
+                log.info("调用快捷键", findShortcut);
+                option[findShortcut.key].callback();
+              }
+            }
+          },
+          {
+            capture: Boolean(config?.capture),
+          }
+        );
+      };
+      const WindowShortCutOption = {};
+      const ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        const option = shortCutOption[localKey];
+        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.onReady(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          const option = ElementShortCutOption[localKey];
+          const shortCutOptionMap = {};
+          let target = null;
+          if (typeof option.target === "string") {
+            target = await domUtils.waitNode(option.target, 1e4);
+          } else if (typeof option.target === "function") {
+            target = await option.target();
+          } else {
+            target = option.target;
+          }
+          if (target) {
+            Reflect.set(shortCutOptionMap, localKey, option);
+            setListenKeyboard(target, shortCutOptionMap);
+          }
+        });
+      });
+    }
+    isWaitKeyboardPress() {
+      return this.#flag.isWaitPress;
+    }
+    getStorageKey() {
+      return this.KEY;
+    }
+    getLocalAllOptions() {
+      const allOptions = _GM_getValue(this.KEY, []);
+      return allOptions;
+    }
+    hasOption(key) {
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
+      return !!findOption;
+    }
+    hasOptionValue(key) {
+      if (this.hasOption(key)) {
+        const option = this.getOption(key);
+        return !(option?.value == null);
+      } else {
+        return false;
+      }
+    }
+    getOption(key, defaultValue) {
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
+      return findOption ?? defaultValue;
+    }
+    setOption(key, value) {
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex == -1) {
+        localOptions.push({
+          key,
+          value,
+        });
+      } else {
+        Reflect.set(localOptions[findIndex], "value", value);
+      }
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+    }
+    emptyOption(key) {
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex !== -1) {
+        localOptions[findIndex].value = null;
+        flag = true;
+      }
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
+    }
+    deleteOption(key) {
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findValueIndex = localOptions.findIndex((item) => item.key === key);
+      if (findValueIndex !== -1) {
+        localOptions.splice(findValueIndex, 1);
+        flag = true;
+      }
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
+    }
+    translateKeyboardValueToButtonText(keyboardValue) {
+      let result = "";
+      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
+        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+      });
+      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      return result;
+    }
+    getShowText(key, defaultShowText) {
+      if (this.hasOption(key)) {
+        const localOption = this.getOption(key);
+        if (localOption.value == null) {
+          return defaultShowText;
+        } else {
+          return this.translateKeyboardValueToButtonText(localOption.value);
+        }
+      } else {
+        return defaultShowText;
+      }
+    }
+    async enterShortcutKeys(key) {
+      return new Promise((resolve) => {
+        this.#flag.isWaitPress = true;
+        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+          const currentOption = {
+            keyName,
+            keyValue,
+            ohterCodeList,
+          };
+          let result = {};
+          try {
+            const shortcutJSONString = JSON.stringify(currentOption);
+            let allOptions = this.getLocalAllOptions();
+            if (Array.isArray(this.#data.otherShortCutOptions)) {
+              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
+            }
+            for (let index = 0; index < allOptions.length; index++) {
+              let localValue = allOptions[index];
+              if (localValue.key === key) {
+                continue;
+              }
+              const localShortCutJSONString = JSON.stringify(localValue.value);
+              let isUsedByOtherOption = false;
+              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
+                isUsedByOtherOption = true;
+              }
+              if (isUsedByOtherOption) {
+                result = {
+                  status: false,
+                  key: localValue.key,
+                  option: currentOption,
+                };
+                return;
+              }
+            }
+            this.setOption(key, currentOption);
+            result = {
+              status: true,
+              key,
+              option: currentOption,
+            };
+          } catch (error) {
+            log.error(error);
+            result = {
+              status: false,
+              key,
+              option: currentOption,
+            };
+          } finally {
+            this.#flag.isWaitPress = false;
+            keyboardListener.removeListen();
+            this.#data.currentWaitEnterPressInstanceHandler = null;
+            resolve(result);
+          }
+        });
+        this.#data.currentWaitEnterPressInstanceHandler = null;
+        this.#data.currentWaitEnterPressInstanceHandler = () => {
+          this.#flag.isWaitPress = false;
+          keyboardListener.removeListen();
+        };
+      });
+    }
+    cancelEnterShortcutKeys() {
+      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+        this.#data.currentWaitEnterPressInstanceHandler();
+      }
+    }
+  }
+  const DouYinVideoPlayerShortCut = {
+    shortCut: new ShortCut("video-short-cut"),
+    $data: {
+      rateMap: ["0.75", "1", "1.25", "1.5", "1.75", "2", "3"],
+    },
+    init() {
+      this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
+        capture: true,
+      });
+    },
+    shorCutMapOption() {
+      return {
+        "dy-video-rate-low": {
+          callback() {
+            log.info("触发快捷键 ==> 调用倍速：小");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+              return rate === currentRate;
+            });
+            if (findIndex === 0) {
+              log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
+              return;
+            }
+            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
+            log.info("触发快捷键 ==> 设置倍速: " + prevRate);
+            DouYinVideoPlayer.chooseVideoRate(prevRate);
+          },
+        },
+        "dy-video-rate-up": {
+          callback() {
+            log.info("触发快捷键 ==> 调用倍速：大");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+              return rate === currentRate;
+            });
+            if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
+              log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
+              return;
+            }
+            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
+            log.info("触发快捷键 ==> 设置倍速: " + nextRate);
+            DouYinVideoPlayer.chooseVideoRate(nextRate);
+          },
+        },
+        "dy-video-shortcut-immersionMode": {
+          callback() {
+            log.info("触发快捷键 ==> 沉浸模式");
+            let value = Panel.getValue("fullScreen");
+            Panel.setValue("fullScreen", !value);
+            Panel.execMenuOnce("fullScreen", () => {
+              return DouYinVideoPlayer.fullScreen();
+            });
+          },
+        },
+        "dy-video-shortcut-changeVideoMuted": {
+          callback() {
+            log.info(`触发快捷键 ==> 切换静音状态`);
+            const $videos = $$("video[src]");
+            $videos.forEach(($video) => {
+              if (utils.isNull($video.src)) return;
+              let muted = !$video.muted;
+              log.success(`切换video标签的静音状态为 ${muted}`);
+              $video.muted = muted;
+            });
+          },
+        },
+        "dy-video-shortcut-parseVideo": {
+          callback() {
+            log.info(`触发快捷键 ==> 视频解析`);
+            const videosInViewVideoList = DouYinElement.getInViewVideo();
+            const $shareList = $$('[data-e2e="video-player-share"]');
+            const playerShareInViewList = DouYinElement.getInViewNode($shareList);
+            if (!videosInViewVideoList.length && !playerShareInViewList.length) {
+              log.error("未找到在可视区域内的视频/图文");
+              return;
+            }
+            const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
+            DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
+          },
+        },
+        "dy-video-shortcut-playbackRate": {
+          callback() {
+            log.info("触发快捷键 ==> 倍速播放");
+            let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
+            enable = !enable;
+            if (enable) {
+              const rate = Panel.getValue("dy-video-playbackrate-select-value");
+              Qmsg.success("开启倍速：" + rate);
+            } else {
+              Qmsg.info("关闭倍速");
+            }
+            Panel.setValue("dy-video-playbackrate", enable);
+          },
+        },
+      };
+    },
+  };
   const DouYinVideoPlayer = {
     $flag: {
       isWaitEnterFullScreen: false,
@@ -7876,6 +7876,15 @@
       addStyle(blockCSS$6);
     },
   };
+  const DouYinNetWorkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
+    },
+  };
   const UIButton = function (
     text,
     description,
@@ -8283,6 +8292,326 @@
     });
     return result;
   };
+  class RuleStorage {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    getAllRule() {
+      const allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
+      return allRules;
+    }
+    setAllRule(rules) {
+      _GM_setValue(this.option.STORAGE_API_KEY, rules);
+    }
+    clearAllRule() {
+      this.setAllRule([]);
+    }
+    getRule(uuid) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      if (findIndex !== -1) {
+        const rule = allRules[findIndex];
+        return rule;
+      }
+    }
+    setRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let updateFlag = false;
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+        this.setAllRule(allRules);
+        updateFlag = true;
+      }
+      return updateFlag;
+    }
+    addRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let addFlag = false;
+      if (findIndex !== -1);
+      else {
+        allRules.push(rule);
+        this.setAllRule(allRules);
+        addFlag = true;
+      }
+      return addFlag;
+    }
+    updateRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+      } else {
+        allRules.push(rule);
+      }
+      this.setAllRule(allRules);
+    }
+    deleteRule(rule) {
+      const allRules = this.getAllRule();
+      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      if (findIndex !== -1) {
+        allRules.splice(findIndex, 1);
+        this.setAllRule(allRules);
+        return true;
+      } else {
+        return false;
+      }
+    }
+    importRules(importEndCallBack) {
+      const $alert = __pops__.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center",
+        },
+        content: {
+          text: `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `,
+          html: true,
+        },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details, event) {
+              details.close();
+            },
+          },
+        },
+        mask: { enable: true },
+        drag: true,
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `,
+      });
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = async (data) => {
+        let allData = this.getAllRule();
+        const addNewData = [];
+        const repeatData = [];
+        let isRepeat = false;
+        for (let index = 0; index < data.length; index++) {
+          const dataItem = data[index];
+          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          if (findIndex !== -1) {
+            repeatData.push({
+              index: findIndex,
+              data: dataItem,
+            });
+          } else {
+            addNewData.push(dataItem);
+          }
+        }
+        if (repeatData.length) {
+          const confirmRepeat = await new Promise((resolve) => {
+            __pops__.alert({
+              title: {
+                text: "覆盖规则",
+                position: "center",
+              },
+              content: {
+                text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
+                html: true,
+              },
+              btn: {
+                close: {
+                  callback(details, event) {
+                    details.close();
+                    resolve(false);
+                  },
+                },
+                ok: {
+                  text: "覆盖",
+                  callback(details, event) {
+                    details.close();
+                    resolve(true);
+                  },
+                },
+              },
+              width: PanelUISize.info.width,
+              height: PanelUISize.info.height,
+              mask: { enable: true },
+              drag: true,
+            });
+          });
+          if (confirmRepeat) {
+            for (const repeatDataItem of repeatData) {
+              allData[repeatDataItem.index] = repeatDataItem.data;
+            }
+            isRepeat = true;
+          }
+        }
+        if (addNewData.length) {
+          allData = allData.concat(addNewData);
+        }
+        this.setAllRule(allData);
+        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        Qmsg.success(message);
+        importEndCallBack?.();
+      };
+      const importFile = (subscribeText) => {
+        return new Promise(async (resolve) => {
+          const data = utils.toJSON(subscribeText);
+          if (!Array.isArray(data)) {
+            log.error(data);
+            Qmsg.error("导入失败，格式不符合（不是数组）", {
+              consoleLogContent: true,
+            });
+            resolve(false);
+            return;
+          }
+          if (!data.length) {
+            Qmsg.error("导入失败，解析出的数据为空", {
+              consoleLogContent: true,
+            });
+            resolve(false);
+            return;
+          }
+          await updateRuleToStorage(data);
+          resolve(true);
+        });
+      };
+      domUtils.on($local, "click", (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json",
+        });
+        domUtils.on($input, ["propertychange", "input"], (event2) => {
+          if (!$input.files?.length) {
+            return;
+          }
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
+          fileReader.onload = () => {
+            importFile(fileReader.result);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const $prompt = __pops__.prompt({
+          title: {
+            text: "网络导入",
+            position: "center",
+          },
+          content: {
+            text: "",
+            placeholder: "请填写URL",
+            focus: true,
+          },
+          btn: {
+            close: {
+              enable: true,
+              callback(details, event2) {
+                details.close();
+              },
+            },
+            ok: {
+              text: "导入",
+              callback: async (details, event2) => {
+                const url = details.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                const $loading = Qmsg.loading("正在获取配置...");
+                const response = await httpx.get(url, {
+                  allowInterceptConfig: false,
+                });
+                $loading.close();
+                if (!response.status) {
+                  log.error(response);
+                  Qmsg.error("获取配置失败", { consoleLogContent: true });
+                  return;
+                }
+                const flag = await importFile(response.data.responseText);
+                if (!flag) {
+                  return;
+                }
+                details.close();
+              },
+            },
+            cancel: {
+              enable: false,
+            },
+          },
+          mask: { enable: true },
+          drag: true,
+          width: PanelUISize.info.width,
+          height: "auto",
+        });
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+          const value = domUtils.val($promptInput);
+          if (value === "") {
+            domUtils.attr($promptOk, "disabled", "true");
+          } else {
+            domUtils.removeAttr($promptOk, "disabled");
+          }
+        });
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            const value = domUtils.val($promptInput);
+            if (value !== "") {
+              domUtils.emit($promptOk, "click");
+            }
+          }
+        });
+        domUtils.emit($promptInput, "input");
+      });
+      domUtils.on($clipboard, "click", async (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const clipboardInfo = await utils.getClipboardInfo();
+        if (clipboardInfo.error != null) {
+          Qmsg.error(clipboardInfo.error.toString());
+          return;
+        }
+        if (clipboardInfo.content.trim() === "") {
+          Qmsg.warning("获取到的剪贴板内容为空");
+          return;
+        }
+        const flag = await importFile(clipboardInfo.content);
+        if (!flag) {
+          return;
+        }
+      });
+    }
+    exportRules(fileName = "rule.json") {
+      const allRules = this.getAllRule();
+      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      const blobUrl = globalThis.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        globalThis.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    }
+  }
   class RuleEditView {
     option;
     constructor(option) {
@@ -8929,335 +9258,6 @@
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
-  class RuleStorage {
-    option;
-    constructor(option) {
-      this.option = option;
-    }
-    getAllRule() {
-      const allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
-      return allRules;
-    }
-    setAllRule(rules) {
-      _GM_setValue(this.option.STORAGE_API_KEY, rules);
-    }
-    clearAllRule() {
-      this.setAllRule([]);
-    }
-    getRule(uuid) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
-      if (findIndex !== -1) {
-        const rule = allRules[findIndex];
-        return rule;
-      }
-    }
-    setRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      let updateFlag = false;
-      if (findIndex !== -1) {
-        allRules[findIndex] = rule;
-        this.setAllRule(allRules);
-        updateFlag = true;
-      }
-      return updateFlag;
-    }
-    addRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      let addFlag = false;
-      if (findIndex !== -1);
-      else {
-        allRules.push(rule);
-        this.setAllRule(allRules);
-        addFlag = true;
-      }
-      return addFlag;
-    }
-    updateRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      if (findIndex !== -1) {
-        allRules[findIndex] = rule;
-      } else {
-        allRules.push(rule);
-      }
-      this.setAllRule(allRules);
-    }
-    deleteRule(rule) {
-      const allRules = this.getAllRule();
-      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
-      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
-      if (findIndex !== -1) {
-        allRules.splice(findIndex, 1);
-        this.setAllRule(allRules);
-        return true;
-      } else {
-        return false;
-      }
-    }
-    importRules(importEndCallBack) {
-      const $alert = __pops__.alert({
-        title: {
-          text: "请选择导入方式",
-          position: "center",
-        },
-        content: {
-          text: `
-                    <div class="btn-control" data-mode="local">本地导入</div>
-                    <div class="btn-control" data-mode="network">网络导入</div>
-                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
-                `,
-          html: true,
-        },
-        btn: {
-          ok: { enable: false },
-          close: {
-            enable: true,
-            callback(details, event) {
-              details.close();
-            },
-          },
-        },
-        mask: { enable: true },
-        drag: true,
-        width: PanelUISize.info.width,
-        height: PanelUISize.info.height,
-        style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
-      });
-      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      const updateRuleToStorage = async (data) => {
-        let allData = this.getAllRule();
-        const addNewData = [];
-        const repeatData = [];
-        let isRepeat = false;
-        for (let index = 0; index < data.length; index++) {
-          const dataItem = data[index];
-          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-          if (findIndex !== -1) {
-            repeatData.push({
-              index: findIndex,
-              data: dataItem,
-            });
-          } else {
-            addNewData.push(dataItem);
-          }
-        }
-        if (repeatData.length) {
-          const confirmRepeat = await new Promise((resolve) => {
-            __pops__.alert({
-              title: {
-                text: "覆盖规则",
-                position: "center",
-              },
-              content: {
-                text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
-                html: true,
-              },
-              btn: {
-                close: {
-                  callback(details, event) {
-                    details.close();
-                    resolve(false);
-                  },
-                },
-                ok: {
-                  text: "覆盖",
-                  callback(details, event) {
-                    details.close();
-                    resolve(true);
-                  },
-                },
-              },
-              width: PanelUISize.info.width,
-              height: PanelUISize.info.height,
-              mask: { enable: true },
-              drag: true,
-            });
-          });
-          if (confirmRepeat) {
-            for (const repeatDataItem of repeatData) {
-              allData[repeatDataItem.index] = repeatDataItem.data;
-            }
-            isRepeat = true;
-          }
-        }
-        if (addNewData.length) {
-          allData = allData.concat(addNewData);
-        }
-        this.setAllRule(allData);
-        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
-        Qmsg.success(message);
-        importEndCallBack?.();
-      };
-      const importFile = (subscribeText) => {
-        return new Promise(async (resolve) => {
-          const data = utils.toJSON(subscribeText);
-          if (!Array.isArray(data)) {
-            log.error(data);
-            Qmsg.error("导入失败，格式不符合（不是数组）", {
-              consoleLogContent: true,
-            });
-            resolve(false);
-            return;
-          }
-          if (!data.length) {
-            Qmsg.error("导入失败，解析出的数据为空", {
-              consoleLogContent: true,
-            });
-            resolve(false);
-            return;
-          }
-          await updateRuleToStorage(data);
-          resolve(true);
-        });
-      };
-      domUtils.on($local, "click", (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const $input = domUtils.createElement("input", {
-          type: "file",
-          accept: ".json",
-        });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
-          if (!$input.files?.length) {
-            return;
-          }
-          const uploadFile = $input.files[0];
-          const fileReader = new FileReader();
-          fileReader.onload = () => {
-            importFile(fileReader.result);
-          };
-          fileReader.readAsText(uploadFile, "UTF-8");
-        });
-        $input.click();
-      });
-      domUtils.on($network, "click", (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const $prompt = __pops__.prompt({
-          title: {
-            text: "网络导入",
-            position: "center",
-          },
-          content: {
-            text: "",
-            placeholder: "请填写URL",
-            focus: true,
-          },
-          btn: {
-            close: {
-              enable: true,
-              callback(details, event2) {
-                details.close();
-              },
-            },
-            ok: {
-              text: "导入",
-              callback: async (details, event2) => {
-                const url = details.text;
-                if (utils.isNull(url)) {
-                  Qmsg.error("请填入完整的url");
-                  return;
-                }
-                const $loading = Qmsg.loading("正在获取配置...");
-                const response = await httpx.get(url, {
-                  allowInterceptConfig: false,
-                });
-                $loading.close();
-                if (!response.status) {
-                  log.error(response);
-                  Qmsg.error("获取配置失败", { consoleLogContent: true });
-                  return;
-                }
-                const flag = await importFile(response.data.responseText);
-                if (!flag) {
-                  return;
-                }
-                details.close();
-              },
-            },
-            cancel: {
-              enable: false,
-            },
-          },
-          mask: { enable: true },
-          drag: true,
-          width: PanelUISize.info.width,
-          height: "auto",
-        });
-        const $promptInput = $prompt.$shadowRoot.querySelector("input");
-        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
-          const value = domUtils.val($promptInput);
-          if (value === "") {
-            domUtils.attr($promptOk, "disabled", "true");
-          } else {
-            domUtils.removeAttr($promptOk, "disabled");
-          }
-        });
-        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
-          if (keyName === "Enter" && otherCodeList.length === 0) {
-            const value = domUtils.val($promptInput);
-            if (value !== "") {
-              domUtils.emit($promptOk, "click");
-            }
-          }
-        });
-        domUtils.emit($promptInput, "input");
-      });
-      domUtils.on($clipboard, "click", async (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const clipboardInfo = await utils.getClipboardInfo();
-        if (clipboardInfo.error != null) {
-          Qmsg.error(clipboardInfo.error.toString());
-          return;
-        }
-        if (clipboardInfo.content.trim() === "") {
-          Qmsg.warning("获取到的剪贴板内容为空");
-          return;
-        }
-        const flag = await importFile(clipboardInfo.content);
-        if (!flag) {
-          return;
-        }
-      });
-    }
-    exportRules(fileName = "rule.json") {
-      const allRules = this.getAllRule();
-      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
-      const blobUrl = globalThis.URL.createObjectURL(blob);
-      const $a = document.createElement("a");
-      $a.href = blobUrl;
-      $a.download = fileName;
-      $a.click();
-      setTimeout(() => {
-        globalThis.URL.revokeObjectURL(blobUrl);
-      }, 1500);
-    }
-  }
-  const DouYinNetWorkHook = {
-    __ajaxHooker: null,
-    get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
-      return this.__ajaxHooker;
-    },
-  };
   const DouYinVideoFilter = {
     $key: {
       ENABLE_KEY: "shieldVideo-exec-network-enable",

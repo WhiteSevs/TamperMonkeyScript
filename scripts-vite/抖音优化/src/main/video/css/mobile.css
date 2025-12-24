@@ -117,9 +117,18 @@
     margin-top: 8px !important;
     margin-bottom: 4px !important;
   }
+  /* 网页全屏下的推荐视频的高度适配 */
+  #slidelist[class*="isCssFullScreen"] .page-recommend-container {
+    margin: 0px !important;
+  }
   /* 底部工具栏右侧的按钮不换行显示 */
   #slidelist .page-recommend-container xg-right-grid.xg-right-grid {
     flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: auto;
+    align-items: start;
+    justify-content: start;
+    margin: 0px;
   }
 }
 

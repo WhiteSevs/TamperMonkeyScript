@@ -1,22 +1,22 @@
 import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
-import { RuleView, type RuleViewOption } from "@components/utils/RuleView";
-import { RuleStorage } from "@components/utils/RuleStorage";
-import Qmsg from "qmsg";
-import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
-import { Panel } from "@components/setting/panel";
-import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { PanelUISize } from "@components/setting/panel-ui-size";
 import { UITextArea } from "@components/setting/components/ui-textarea";
-import Utils from "@whitesev/utils";
-import { DouYinRouter } from "@/router/DouYinRouter";
-import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import { Panel } from "@components/setting/panel";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { RuleStorage } from "@components/utils/RuleStorage";
+import { RuleView, type RuleViewOption } from "@components/utils/RuleView";
 import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
+import Utils from "@whitesev/utils";
+import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import Qmsg from "qmsg";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
 
 type DouYinVideoFilterRuleOptionScope =
   | "all"

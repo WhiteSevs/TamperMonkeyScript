@@ -1,9 +1,9 @@
 import { httpx, log, pops, utils } from "@/env";
-import type { DouYinVideoFilterRuleDynamicOption, DouYinVideoFilterRule } from "./DouYinVideoFilter";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import type { DouYinVideoFilterRule, DouYinVideoFilterRuleDynamicOption } from "./DouYinVideoFilter";
 
 type FilterRuleCheckConfig = {
   /** 视频信息的键（awemeInfo） */

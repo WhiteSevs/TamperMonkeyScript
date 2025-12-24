@@ -1,22 +1,22 @@
-import { GM_download, unsafeWindow } from "ViteGM";
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
-import { Panel } from "@components/setting/panel";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import MobileCSS from "../css/mobile.css?raw";
-import Qmsg from "qmsg";
-import { DouYin } from "../../DouYin";
-import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
-import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import { GestureBack } from "@components/utils/GestureBack";
-import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
-import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
+import { DouYinUtils } from "@/utils/DouYinUtils";
+import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
+import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../DouYinVideoType";
-import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
+import Qmsg from "qmsg";
+import { GM_download, unsafeWindow } from "ViteGM";
+import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import { DouYin } from "../../DouYin";
+import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
+import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
 import { DouYinVideoBlock_BottomToolbar_videoInfo } from "../block/DouYinVideoBlock_BottomToolbar_videoInfo";
+import MobileCSS from "../css/mobile.css?raw";
+import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
+import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
+import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
+import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 
 /**
  * 视频播放器的播放速度
