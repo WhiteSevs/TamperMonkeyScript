@@ -7,9 +7,9 @@ import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 
-let _ajaxHooker_ = null as any as UtilsAjaxHookResult;
+let _ajaxHooker_ = null as null | UtilsAjaxHookResult;
 
-const XhrHook = {
+export const XhrHook = {
   get ajaxHooker() {
     if (_ajaxHooker_ == null) {
       log.info("启用ajaxHooker拦截网络");

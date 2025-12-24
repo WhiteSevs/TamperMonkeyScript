@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.21
+// @version      2025.12.24
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -46,7 +46,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, Utils, Qmsg, Viewer, md5, Artplayer, artplayerPluginDanmuku, flvjs) {
+(function (DOMUtils, pops, Utils, Qmsg, md5, Viewer, Artplayer, artplayerPluginDanmuku, flvjs) {
   "use strict";
 
   const d = new Set();
@@ -302,7 +302,7 @@
             resolve(clipboardText);
           })
           .catch((error) => {
-            log$1.error("读取剪贴板内容失败👉", error);
+            log.error("读取剪贴板内容失败👉", error);
             resolve("");
           });
       }
@@ -315,7 +315,7 @@
             readClipboardText(resolve);
           })
           .catch((error) => {
-            log$1.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
+            log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
             readClipboardText(resolve);
           });
       }
@@ -654,7 +654,7 @@
                     });
                     $loading.close();
                     if (!response.status) {
-                      log$1.error(response);
+                      log.error(response);
                       Qmsg.error("获取配置失败", { consoleLogContent: true });
                       return;
                     }
@@ -1166,7 +1166,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log$1.warn(["请先配置键", config]);
+          log.warn(["请先配置键", config]);
           return;
         }
         if (config.type === "switch") {
@@ -1204,7 +1204,7 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log$1.warn("请检查该key(已存在): " + key);
+        log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1261,7 +1261,7 @@
       }
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
-        log$1.warn(`${findNotInDataKey} 键不存在`);
+        log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
       const storageKey = JSON.stringify(keyList);
@@ -1424,7 +1424,7 @@
             const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
-              log$1.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
             isReverse && (flag = !flag);
             return flag;
@@ -1982,11 +1982,11 @@
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops__ = pops;
-  const log$1 = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
-  log$1.config({
+  log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
@@ -2003,11 +2003,11 @@
       }
       const content = qmsgInst.setting.content;
       if (qmsgType === "warning") {
-        log$1.warn(content);
+        log.warn(content);
       } else if (qmsgType === "error") {
-        log$1.error(content);
+        log.error(content);
       } else {
-        log$1.info(content);
+        log.info(content);
       }
       return true;
     },
@@ -2071,7 +2071,7 @@
     return data2;
   });
   httpx.interceptors.response.use(void 0, (data2) => {
-    log$1.error("拦截器-请求错误", data2);
+    log.error("拦截器-请求错误", data2);
     if (data2.type === "onabort") {
       Qmsg.warning("请求取消", { consoleLogContent: true });
     } else if (data2.type === "onerror") {
@@ -2101,6 +2101,22 @@
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
+  const BilibiliApiConfig = {
+    web_host: "api.bilibili.com",
+  };
+  const AppKeyInfo = {
+    ios: {
+      appkey: "27eb53fc9058f8c3",
+      appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
+      mobi_app: "ipnone",
+    },
+  };
+  function appSign(params, appkey, appsec) {
+    params.appkey = appkey;
+    const searchParams = new URLSearchParams(params);
+    searchParams.sort();
+    return md5(searchParams.toString() + appsec);
+  }
   const BilibiliApiResponseCheck = {
     isWebApiSuccess(json) {
       return json?.code === 0 && (json?.message === "0" || json?.message === "success");
@@ -2119,1377 +2135,6 @@
       return flag;
     },
   };
-  const BilibiliUserApi = {
-    async nav(checkCode = true) {
-      let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
-        fetch: true,
-        responseType: "json",
-        allowInterceptConfig: false,
-      });
-      if (!response.status) {
-        log$1.error(["获取导航栏用户信息失败，请求异常", response]);
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log$1.error(data2);
-        Qmsg.error("获取导航栏用户信息失败");
-        return;
-      }
-      return data2.data;
-    },
-    async space(mid, offset = "") {
-      let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
-        data: {
-          host_mid: mid,
-          offset,
-        },
-        fetch: true,
-      });
-      if (!response.status) {
-        return;
-      }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return;
-      }
-      return data2["data"];
-    },
-    async following(mid, pn = 1, ps = 50) {
-      let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
-        data: {
-          vmid: mid,
-          ps,
-          pn,
-        },
-        fetch: true,
-      });
-      if (!response.status) {
-        return;
-      }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return data2["message"];
-      }
-      return data2["data"];
-    },
-  };
-  const wbi = async (params) => {
-    async function getWbiQueryString(params2) {
-      const response = await BilibiliUserApi.nav(false);
-      if (!response) {
-        return;
-      }
-      const { img_url, sub_url } = response.wbi_img;
-      const imgKey = img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf("."));
-      const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
-      const originKey = imgKey + subKey;
-      const mixinKeyEncryptTable = [
-        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
-        38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
-        11, 36, 20, 34, 44, 52,
-      ];
-      const mixinKey = mixinKeyEncryptTable
-        .map((n) => originKey[n])
-        .join("")
-        .slice(0, 32);
-      const query = Object.keys(params2)
-        .sort()
-        .map((key) => {
-          const value = params2[key].toString().replace(/[!'()*]/g, "");
-          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-        })
-        .join("&");
-      const wbiSign = md5(query + mixinKey);
-      return query + "&w_rid=" + wbiSign;
-    }
-    return await getWbiQueryString(params);
-  };
-  function b2a(bvid) {
-    const XOR_CODE2 = 23442827791579n;
-    const MASK_CODE = 2251799813685247n;
-    const BASE2 = 58n;
-    const BYTES = ["B", "V", 1, "", "", "", "", "", "", "", "", ""];
-    const BV_LEN = BYTES.length;
-    const ALPHABET = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf".split("");
-    const DIGIT_MAP = [0, 1, 2, 9, 7, 5, 6, 4, 8, 3, 10, 11];
-    let r = 0n;
-    for (let i = 3; i < BV_LEN; i++) {
-      r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
-    }
-    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
-  }
-  const BilibiliGlobalData = {
-    $data: {
-      isLogin: new Promise(() => false),
-    },
-    $flag: {
-      isSetQueryLoginStatus: false,
-      isQueryLoginStatus: false,
-    },
-    init() {
-      this.resetLoginStatus();
-    },
-    resetLoginStatus() {
-      if (this.$flag.isSetQueryLoginStatus) {
-        return;
-      }
-      this.$flag.isSetQueryLoginStatus = true;
-      let isLogin = false;
-      this.$data.isLogin = new Promise(async (resolve) => {
-        if (!this.$flag.isQueryLoginStatus) {
-          this.$flag.isQueryLoginStatus = true;
-          let userNavInfo = await BilibiliUserApi.nav(false);
-          if (userNavInfo && userNavInfo.isLogin) {
-            isLogin = true;
-          }
-        }
-        resolve(isLogin);
-      });
-    },
-  };
-  const MobileCommentModule = (function () {
-    const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
-    const videoRE = /https:\/\/m\.bilibili\.com\/video\/.*/;
-    const dynamicRE = /https:\/\/m.bilibili.com\/dynamic\/\d+/;
-    const opusRE = /https:\/\/m.bilibili.com\/opus\/\d+/;
-    let oid, createrID, commentType, replyList;
-    const sortTypeConstant = { LATEST: 0, HOT: 2 };
-    let currentSortType;
-    let nextOffset = "";
-    let replyPool;
-    if (dynamicRE.test(global.location.href)) setupXHRInterceptor();
-    addStyle2();
-    return { init };
-    async function init(commentModuleWrapper) {
-      oid = createrID = commentType = replyList = void 0;
-      replyPool = null;
-      replyPool = {};
-      nextOffset = "";
-      currentSortType = sortTypeConstant.HOT;
-      setupStandardCommentContainer(commentModuleWrapper);
-      replyList = commentModuleWrapper.querySelector(".reply-list");
-      await new Promise((resolve) => {
-        domUtils.wait(() => {
-          if (videoRE.test(global.location.href)) {
-            const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
-            if (videoID.startsWith("av")) oid = videoID.slice(2);
-            if (videoID.startsWith("BV")) oid = b2a(videoID);
-            commentType = 1;
-          } else if (dynamicRE.test(global.location.href)) {
-            oid = global.dynamicDetail?.oid;
-            commentType = global.dynamicDetail?.commentType;
-          } else if (opusRE.test(global.location.href)) {
-            oid = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_id_str;
-            commentType = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_type;
-          }
-          if (oid && commentType) {
-            resolve();
-            return {
-              success: true,
-              data: {},
-            };
-          }
-          return {
-            success: false,
-            data: null,
-          };
-        }, 0);
-      });
-      await enableSwitchingSortType(commentModuleWrapper);
-      await loadFirstPagination(commentModuleWrapper);
-    }
-    function setupStandardCommentContainer(commentModuleWrapper) {
-      commentModuleWrapper.innerHTML = `
-        <div class="comment-container">
-          <div class="reply-header">
-            <div class="reply-navigation">
-              <ul class="nav-bar">
-                <li class="nav-title">
-                  <span class="nav-title-text">评论</span>
-                  <span class="total-reply">-</span>
-                </li>
-                <li class="nav-sort hot">
-                  <div class="hot-sort">最热</div>
-                  <div class="part-symbol"></div>
-                  <div class="time-sort">最新</div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="reply-warp">
-            <div class="reply-list"></div>
-          </div>  
-        </div>
-      `;
-    }
-    async function enableSwitchingSortType(commentModuleWrapper) {
-      const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
-      const hotSortElement = navSortElement.querySelector(".hot-sort");
-      const timeSortElement = navSortElement.querySelector(".time-sort");
-      navSortElement.classList.add("hot");
-      navSortElement.classList.remove("time");
-      hotSortElement.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (currentSortType === sortTypeConstant.HOT) return;
-        currentSortType = sortTypeConstant.HOT;
-        navSortElement.classList.add("hot");
-        navSortElement.classList.remove("time");
-        commentModuleWrapper.scrollTo(0, 0);
-        loadFirstPagination(commentModuleWrapper);
-      });
-      timeSortElement.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (currentSortType === sortTypeConstant.LATEST) return;
-        currentSortType = sortTypeConstant.LATEST;
-        navSortElement.classList.add("time");
-        navSortElement.classList.remove("hot");
-        commentModuleWrapper.scrollTo(0, 0);
-        loadFirstPagination(commentModuleWrapper);
-      });
-    }
-    async function loadFirstPagination(commentModuleWrapper) {
-      const { data: firstPaginationData, code: resultCode } = await getPaginationData();
-      createrID = firstPaginationData.upper.mid;
-      replyList.innerHTML = "";
-      replyPool = {};
-      document.querySelector(".comment-container .reply-warp .no-more-replies-info")?.remove();
-      document.querySelector(".comment-container .reply-warp .anchor-for-loading")?.remove();
-      if (resultCode !== 0) {
-        const info = resultCode === 12061 ? "UP主已关闭评论区" : "无法从API获取评论数据";
-        replyList.innerHTML = `<p style="padding: 100px 0; text-align: center; color: #999;">${info}</p>`;
-        return;
-      }
-      const totalReplyElement = commentModuleWrapper.querySelector(".comment-container .reply-header .total-reply");
-      const totalReplyCount = parseInt(firstPaginationData?.cursor?.all_count) || 0;
-      totalReplyElement.textContent = totalReplyCount;
-      if (firstPaginationData?.cursor?.name?.includes("精选")) {
-        const navSortElement = commentModuleWrapper.querySelector(".comment-container .reply-header .nav-sort");
-        navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
-      }
-      if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
-        const topReplyData = firstPaginationData.top_replies[0];
-        appendReplyItem(topReplyData, true);
-      }
-      for (const replyData of firstPaginationData.replies) {
-        appendReplyItem(replyData);
-      }
-      if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
-        const infoElement = document.createElement("p");
-        infoElement.classList.add("no-more-replies-info");
-        infoElement.style = "padding-bottom: 100px; text-align: center; color: #999;";
-        infoElement.textContent = "没有更多评论";
-        document.querySelector(".comment-container .reply-warp").appendChild(infoElement);
-        return;
-      }
-      addAnchor();
-    }
-    async function getPaginationData() {
-      const params = {
-        pagination_str: JSON.stringify({
-          offset: nextOffset || "",
-        }),
-        oid,
-        type: commentType,
-        wts: parseInt(Date.now() / 1e3),
-      };
-      if (currentSortType === sortTypeConstant.HOT) {
-        params.mode = 3;
-      } else if (currentSortType === sortTypeConstant.LATEST) {
-        params.mode = 2;
-      }
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
-      const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-        fetch: !isLogin,
-        fetchInit: {
-          credentials: "same-origin",
-        },
-        anonymous: !isLogin,
-      });
-      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
-      nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
-      return fetchResultJSON;
-    }
-    function appendReplyItem(replyData, isTopReply) {
-      if (replyPool[replyData.rpid_str]) {
-        return;
-      }
-      const replyItemElement = document.createElement("div");
-      replyItemElement.classList.add("reply-item");
-      replyItemElement.innerHTML = `
-        <div class="root-reply-container">
-          <a class="root-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
-            <div class="avatar">
-              <div class="bili-avatar">
-                <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
-                <span class="bili-avatar-icon bili-avatar-right-icon bili-avatar-size-40"></span>
-              </div>
-            </div>
-          </a>
-          <div class="content-warp">
-            <div class="user-info">
-              <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
-              ${createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
-            </div>
-            <div class="root-reply">
-              <span class="reply-content-container root-reply" style="padding-bottom: 8px;">
-                <span class="reply-content">${isTopReply ? '<span class="top-icon" style="top: -1px;">置顶</span>' : ""}${replyData.content.pictures ? `<div class="note-prefix" style="transform: translateY(-1px);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="#BBBBBB"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg><div style="margin-left: 3px;">笔记</div></div>` : ""}${getConvertedMessage(replyData.content)}</span>
-              </span>
-              ${
-                replyData.content.pictures
-                  ? `
-                <div class="image-exhibition" style="margin-top: 0; margin-bottom: 8px;">
-                  <div class="preview-image-container" style="display: flex; width: 300px;">
-                    ${getImageItems(replyData.content.pictures)}
-                  </div>
-                </div>
-                `
-                  : ""
-              }
-              <div class="reply-info">
-                <span class="reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
-                <span class="reply-like">
-                  <i class="svg-icon like use-color like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
-                  <span>${replyData.like}</span>
-                </span>
-              </div>
-              <div class="reply-tag-list">
-                ${
-                  replyData.card_label
-                    ? replyData.card_label.reduce(
-                        (acc, cur) =>
-                          acc +
-                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
-                        ""
-                      )
-                    : ""
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="sub-reply-container">
-          <div class="sub-reply-list">
-            ${getSubReplyItems(replyData.replies)}
-            ${
-              replyData.rcount > (replyData.replies || []).length
-                ? `
-              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
-                <div class="view-more-default">
-                  <span>共${replyData.rcount}条回复, </span>
-                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
-                </div>
-              </div>
-              `
-                : ""
-            }
-          </div>
-        </div>
-      `;
-      replyList.appendChild(replyItemElement);
-      replyPool[replyData.rpid_str] = true;
-      const previewImageContainer = replyItemElement.querySelector(".preview-image-container");
-      if (previewImageContainer)
-        new Viewer(previewImageContainer, {
-          title: false,
-          toolbar: false,
-          tooltip: false,
-          keyboard: false,
-        });
-      const subReplyList = replyItemElement.querySelector(".sub-reply-list");
-      const viewMoreBtn = replyItemElement.querySelector(".view-more-btn");
-      viewMoreBtn &&
-        viewMoreBtn.addEventListener("click", () =>
-          loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1)
-        );
-    }
-    function getFormattedTime(ms) {
-      const time = new Date(ms * 1e3);
-      const year = time.getFullYear();
-      const month = (time.getMonth() + 1).toString().padStart(2, "0");
-      const day = time.getDate().toString().padStart(2, "0");
-      const hour = time.getHours().toString().padStart(2, "0");
-      const minute = time.getMinutes().toString().padStart(2, "0");
-      return `${year}-${month}-${day} ${hour}:${minute}`;
-    }
-    function getMemberLevelColor(level) {
-      return {
-        0: "#C0C0C0",
-        1: "#BBBBBB",
-        2: "#8BD29B",
-        3: "#7BCDEF",
-        4: "#FEBB8B",
-        5: "#EE672A",
-        6: "#F04C49",
-      }[level];
-    }
-    function getConvertedMessage(content) {
-      let result = content.message;
-      const keywordBlacklist = ["https://www.bilibili.com/video/av", "https://b23.tv/mall-"];
-      if (content.vote && content.vote.deleted === false) {
-        const linkElementHTML = `<a class="jump-link normal" href="${content.vote.url}" target="_blank" noopener noreferrer>${content.vote.title}</a>`;
-        keywordBlacklist.push(linkElementHTML);
-        result = result.replace(`{vote:${content.vote.id}}`, linkElementHTML);
-      }
-      if (content.emote) {
-        for (const [key, value] of Object.entries(content.emote)) {
-          const imageElementHTML = `<img class="emoji-${["", "small", "large"][value.meta.size]}" src="${value.url}" alt="${key}">`;
-          keywordBlacklist.push(imageElementHTML);
-          result = result.replaceAll(key, imageElementHTML);
-        }
-      }
-      result = result.replaceAll(/(\d{1,2}[:：]){1,2}\d{1,2}/g, (timestamp) => {
-        timestamp = timestamp.replaceAll("：", ":");
-        if (!videoRE.test(global.location.href)) return timestamp;
-        const parts = timestamp.split(":");
-        if (parts.some((part) => parseInt(part) >= 60)) return timestamp;
-        let totalSecond;
-        if (parts.length === 2) totalSecond = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-        else if (parts.length === 3)
-          totalSecond = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-        if (Number.isNaN(totalSecond)) return timestamp;
-        const linkElementHTML = `<a class="jump-link video-time" onclick="(async () => {
-          // jump to exact time
-          const videoElement = document.querySelector('video.gsl-video');
-          videoElement.currentTime = ${totalSecond};
-  
-          // close comment module
-          document.querySelector('.close-comment-module-btn').click();
-  
-          // scroll to top
-          window.scrollTo(0, 0);
-  
-          // play video if it is paused
-          if (videoElement.paused) videoElement.play();
-        })()">${timestamp}</a>`;
-        keywordBlacklist.push(linkElementHTML);
-        return linkElementHTML;
-      });
-      if (content.at_name_to_mid) {
-        for (const [key, value] of Object.entries(content.at_name_to_mid)) {
-          const linkElementHTML = `<a class="jump-link user" data-user-id="${value}" href="https://space.bilibili.com/${value}" target="_blank" noopener noreferrer>@${key}</a>`;
-          keywordBlacklist.push(linkElementHTML);
-          result = result.replaceAll(`@${key}`, linkElementHTML);
-        }
-      }
-      if (Object.keys(content.jump_url).length) {
-        const entries = [].concat(
-          Object.entries(content.jump_url).filter((entry) => entry[0].startsWith("https://")),
-          Object.entries(content.jump_url).filter((entry) => !entry[0].startsWith("https://"))
-        );
-        for (const [key, value] of entries) {
-          const href =
-            key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
-          if (href.includes("search.bilibili.com") && keywordBlacklist.join("").includes(key)) continue;
-          const linkElementHTML = `<img class="icon normal" src="${value.prefix_icon}" style="${value.extra && value.extra.is_word_search && "width: 12px;"}"><a class="jump-link normal" href="${href}" target="_blank" noopener noreferrer>${value.title}</a>`;
-          keywordBlacklist.push(linkElementHTML);
-          result = result.replaceAll(key, linkElementHTML);
-        }
-      }
-      return result;
-    }
-    function getImageItems(images) {
-      let imageSizeConfig = "width: 84px; height: 84px;";
-      if (images.length === 1) imageSizeConfig = "max-width: 260px; max-height: 180px;";
-      if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
-      let result = "";
-      for (const image of images) {
-        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
-      }
-      return result;
-    }
-    function getSubReplyItems(subReplies) {
-      if (!(subReplies instanceof Array)) return "";
-      let result = "";
-      for (const replyData of subReplies) {
-        result += `
-          <div class="sub-reply-item">
-            <div class="sub-user-info">
-              <a class="sub-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
-                <div class="avatar">
-                  <div class="bili-avatar">
-                    <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
-                    <span class="bili-avatar-icon bili-avatar-right-icon  bili-avatar-size-24"></span>
-                  </div>
-                </div>
-              </a>
-              <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
-              ${createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
-            </div>
-            <span class="reply-content-container sub-reply-content">
-              <span class="reply-content">${getConvertedMessage(replyData.content)}</span>
-            </span>
-            <div class="sub-reply-info" style="margin: 4px 0;">
-              <span class="sub-reply-time" style="margin-right: 20px;">${getFormattedTime(replyData.ctime)}</span>
-              <span class="sub-reply-like">
-                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
-                <span>${replyData.like}</span>
-              </span>
-            </div>
-          </div>
-        `;
-      }
-      return result;
-    }
-    async function loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
-      const params = {
-        oid,
-        type: commentType,
-        root: rootReplyID,
-        ps: 10,
-        pn: paginationNumber,
-        web_location: 333.788,
-      };
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
-      const subReplyResponse = await httpx.get(
-        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
-        {
-          allowInterceptConfig: false,
-          fetch: !isLogin,
-          fetchInit: {
-            credentials: "same-origin",
-          },
-          anonymous: !isLogin,
-        }
-      );
-      if (!subReplyResponse.status) {
-        log.error(subReplyResponse);
-        Qmsg.error("请求异常，获取评论的回复失败");
-        return;
-      }
-      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
-      if (subReplyJSON === -352) {
-        Qmsg.error("请登录后再进行操作");
-        console.error("you should login first", subReplyResponse);
-        return;
-      }
-      const subReplyData = subReplyJSON.data;
-      subReplyList.innerHTML = getSubReplyItems(subReplyData.replies);
-      addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
-      const replyItem = subReplyList.parentElement.parentElement;
-      replyItem.scrollIntoView({ behavior: "instant" });
-      global.scrollTo(0, document.documentElement.scrollTop - 60);
-    }
-    function addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
-      if (subReplyAmount <= 10) return;
-      const pageAmount = Math.ceil(subReplyAmount / 10);
-      const pageSwitcher = document.createElement("div");
-      pageSwitcher.classList.add("view-more");
-      pageSwitcher.innerHTML = `
-        <div class="view-more-pagination">
-          <span class="pagination-page-count">共${pageAmount}页</span>
-          ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
-          ${(() => {
-            const left = [
-              currentPageNumber - 4,
-              currentPageNumber - 3,
-              currentPageNumber - 2,
-              currentPageNumber - 1,
-            ].filter((num) => num >= 1);
-            const right = [
-              currentPageNumber + 1,
-              currentPageNumber + 2,
-              currentPageNumber + 3,
-              currentPageNumber + 4,
-            ].filter((num) => num <= pageAmount);
-            const merge = [].concat(left, currentPageNumber, right);
-            let chosen;
-            if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
-            else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
-            else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
-            let final = JSON.parse(JSON.stringify(chosen));
-            if (!final.includes(1)) {
-              let front = [1];
-              if (final.at(0) !== 2) front = [1, "..."];
-              final = [].concat(front, final);
-            }
-            if (!final.includes(pageAmount)) {
-              let back = [pageAmount];
-              if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
-              final = [].concat(final, back);
-            }
-            return final.reduce((acc, cur) => {
-              if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
-              if (cur === currentPageNumber)
-                return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
-              return acc + `<span class="pagination-page-number">${cur}</span>`;
-            }, "");
-          })()}
-          ${currentPageNumber !== pageAmount ? '<span class="pagination-btn pagination-to-next-btn">下一页</span>' : ""}
-        </div>
-      `;
-      pageSwitcher
-        .querySelector(".pagination-to-prev-btn")
-        ?.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1)
-        );
-      pageSwitcher
-        .querySelector(".pagination-to-next-btn")
-        ?.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1)
-        );
-      pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach((pageNumberElement) => {
-        const number = parseInt(pageNumberElement.textContent);
-        pageNumberElement.addEventListener("click", () =>
-          loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
-        );
-      });
-      subReplyList.appendChild(pageSwitcher);
-    }
-    function addAnchor() {
-      const anchorElement = document.createElement("div");
-      anchorElement.classList.add("anchor-for-loading");
-      anchorElement.textContent = "正在加载...";
-      anchorElement.style = `text-align: center; color: #61666d; transform: translateY(-50px);`;
-      document.querySelector(".comment-container .reply-warp").appendChild(anchorElement);
-      const ob = new IntersectionObserver(async (entries) => {
-        if (!entries[0].isIntersecting) return;
-        const { data: newPaginationData } = await getPaginationData();
-        if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
-          anchorElement.textContent = "所有评论已加载完毕";
-          ob.disconnect();
-          return;
-        }
-        for (const replyData of newPaginationData.replies) {
-          appendReplyItem(replyData);
-        }
-      });
-      ob.observe(anchorElement);
-    }
-    function setupXHRInterceptor() {
-      const originXHROpen = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function () {
-        const url = arguments[1];
-        if (typeof url === "string" && url.includes("reply/wbi/main")) {
-          const { searchParams } = new URL(`${url.startsWith("//") ? "https:" : ""}${url}`);
-          global.dynamicDetail = {
-            oid: searchParams.get("oid"),
-            commentType: searchParams.get("type"),
-          };
-        }
-        return originXHROpen.apply(this, arguments);
-      };
-    }
-    async function addStyle2() {
-      await domUtils.onReady();
-      const replyHeaderCSS = document.createElement("style");
-      replyHeaderCSS.textContent = `
-        .reply-header {
-          padding: 12px;
-          border-bottom: 1px solid #f1f2f3;
-        }
-  
-        .reply-navigation {
-          margin-bottom: 0 !important;
-        }
-  
-        .reply-navigation .nav-bar .nav-title {
-          font-size: 1rem !important;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(replyHeaderCSS);
-      const replyListCSS = document.createElement("style");
-      replyListCSS.textContent = `
-        .reply-list {
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-        }
-  
-        .reply-item {
-          padding: 12px !important;
-          font-size: 1rem !important;
-          border-bottom: 1px solid #f4f5f7;
-        }
-  
-        .reply-item .root-reply-container {
-          padding: 0 !important;
-          display: flex;
-        }
-  
-        .reply-item .root-reply-container .root-reply-avatar {
-          position: relative !important;
-          width: initial !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp {
-          margin-left: 12px;
-        }
-  
-        .reply-item .root-reply-container .content-warp .user-info,
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content {
-          font-size: 14px !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
-          width: calc(100vw - 88px) !important;
-        }
-  
-        .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
-          margin-right: 4px !important;
-        }
-  
-        .reply-item .sub-reply-container {
-          padding-left: 44px !important;
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
-          width: calc(100% - 24px);
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info {
-          margin-right: 0 !important;
-        }
-  
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info .sub-user-name,
-        .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .reply-content {
-          font-size: 14px !important;
-        }
-  
-        .reply-info .reply-time,
-        .reply-info .reply-like,
-        .sub-reply-info .sub-reply-time,
-        .sub-reply-info .sub-reply-like {
-          margin-right: 12px !important;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(replyListCSS);
-      const avatarCSS = document.createElement("style");
-      avatarCSS.textContent = `
-        .reply-item .root-reply-avatar .avatar .bili-avatar {
-          width: 40px;
-          height: 40px;
-        }
-  
-        .sub-reply-item .sub-reply-avatar .avatar .bili-avatar {
-          width: 24px;
-          height: 24px;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(avatarCSS);
-      const viewMoreCSS = document.createElement("style");
-      viewMoreCSS.textContent = `
-        .sub-reply-container .view-more-btn:hover {
-          color: #00AEEC;
-        }
-  
-        .view-more {
-          padding-left: 8px;
-          color: #222;
-          font-size: 13px;
-          user-select: none;
-        }
-  
-        .pagination-page-count {
-          margin-right: 4px !important;
-        }
-  
-        .pagination-page-dot,
-        .pagination-page-number {
-          margin: 0 4px;
-        }
-  
-        .pagination-btn,
-        .pagination-page-number {
-          cursor: pointer;
-        }
-  
-        .current-page,
-        .pagination-btn:hover,
-        .pagination-page-number:hover {
-          color: #00AEEC;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(viewMoreCSS);
-      const otherCSS = document.createElement("style");
-      otherCSS.textContent = `
-        :root {
-          --text1: #18191C;
-          --text3: #9499A0;
-          --brand_blue: #00AEEC;
-          --brand_pink: #FF6699;
-          --bg2: #F6F7F8;
-        }
-  
-        .jump-link {
-          color: #008DDA;
-        }
-      `;
-      (document.head || document.documentElement).appendChild(otherCSS);
-    }
-  })();
-  const MobileCommentModuleStyle =
-    ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
-  const BilibiliUrl = {
-    getUserSpaceUrl(userId) {
-      return `https://m.bilibili.com/space/${userId}`;
-    },
-    getUserSpaceDynamicUrl(id) {
-      return `https://m.bilibili.com/dynamic/${id}`;
-    },
-    getUserSpaceOpusUrl(id) {
-      return `https://m.bilibili.com/opus/${id}`;
-    },
-    getVideoUrl(id) {
-      return `https://m.bilibili.com/video/${id}`;
-    },
-  };
-  const VueUtils = {
-    getVue($el) {
-      if ($el == null) {
-        return;
-      }
-      return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
-    },
-    getVue3($el) {
-      if ($el == null) {
-        return;
-      }
-      return $el["__vueParentComponent"];
-    },
-    waitVuePropToSet($el, checkOption) {
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
-        return __target__;
-      }
-      checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log$1.info(needSetOption.msg);
-        }
-        function checkTarget() {
-          let $targetEl = getTarget();
-          if ($targetEl == null) {
-            return {
-              status: false,
-              isTimeout: true,
-              inst: null,
-              $el: $targetEl,
-            };
-          }
-          let vueInst = VueUtils.getVue($targetEl);
-          if (vueInst == null) {
-            return {
-              status: false,
-              isTimeout: false,
-              inst: null,
-              $el: $targetEl,
-            };
-          }
-          let checkResult = needSetOption.check(vueInst, $targetEl);
-          checkResult = Boolean(checkResult);
-          return {
-            status: checkResult,
-            isTimeout: false,
-            inst: vueInst,
-            $el: $targetEl,
-          };
-        }
-        utils
-          .waitVueByInterval(
-            () => {
-              return getTarget();
-            },
-            () => checkTarget().status,
-            250,
-            1e4
-          )
-          .then((result) => {
-            let checkTargetResult = checkTarget();
-            if (checkTargetResult.status) {
-              let vueInst = checkTargetResult.inst;
-              needSetOption.set(vueInst, checkTargetResult.$el);
-            } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
-              }
-            }
-          });
-      });
-    },
-    watchVuePropChange($el, key, callback, watchConfig, failWait) {
-      let config = utils.assign(
-        {
-          immediate: true,
-          deep: false,
-        },
-        watchConfig || {}
-      );
-      return new Promise((resolve) => {
-        VueUtils.waitVuePropToSet($el, {
-          check(vueInstance) {
-            return typeof vueInstance?.$watch === "function";
-          },
-          set(vueInstance) {
-            let removeWatch = null;
-            if (typeof key === "function") {
-              removeWatch = vueInstance.$watch(
-                () => {
-                  return key(vueInstance);
-                },
-                (newValue, oldValue) => {
-                  callback(vueInstance, newValue, oldValue);
-                },
-                config
-              );
-            } else {
-              removeWatch = vueInstance.$watch(
-                key,
-                (newValue, oldValue) => {
-                  callback(vueInstance, newValue, oldValue);
-                },
-                config
-              );
-            }
-            resolve(removeWatch);
-          },
-          failWait,
-        });
-      });
-    },
-    goToUrl($el, path, useRouter = false) {
-      if ($el == null) {
-        Qmsg.error("跳转Url: $vueNode为空");
-        log$1.error("跳转Url: $vueNode为空：" + path);
-        return;
-      }
-      let vueInstance = VueUtils.getVue($el);
-      if (vueInstance == null) {
-        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
-        return;
-      }
-      let $router = vueInstance.$router;
-      let isBlank = true;
-      log$1.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isBlank = false;
-      }
-      if (isBlank) {
-        window.open(path, "_blank");
-      } else {
-        if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
-          let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
-            log$1.info("不同域名，直接本页打开，不用Router：" + path);
-            window.location.href = path;
-            return;
-          }
-        }
-        log$1.info("$router push跳转Url：" + path);
-        $router.push(path);
-      }
-    },
-    hookGestureReturnByVueRouter(option) {
-      function popstateEvent() {
-        log$1.success("触发popstate事件");
-        resumeBack(true);
-      }
-      function banBack() {
-        log$1.success("监听地址改变");
-        option.vueInst.$router.history.push(option.hash);
-        domUtils.on(_unsafeWindow, "popstate", popstateEvent);
-      }
-      async function resumeBack(isFromPopState = false) {
-        domUtils.off(_unsafeWindow, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
-          if (option.vueInst.$router.history.current.hash === option.hash) {
-            log$1.info("后退！");
-            option.vueInst.$router.back();
-            await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
-      }
-      banBack();
-      return {
-        resumeBack,
-      };
-    },
-  };
-  const BilibiliUtils = {
-    goToUrl(path, useRouter = false) {
-      let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
-      log$1.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isGoToUrlBlank = false;
-      }
-      if (isGoToUrlBlank) {
-        window.open(path, "_blank");
-      } else {
-        if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
-          let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
-            log$1.info("不同域名，直接本页打开，不用Router：" + path);
-            window.location.href = path;
-            return;
-          }
-        }
-        log$1.info("$router push跳转Url：" + path);
-        let $app = $("#app");
-        if ($app == null) {
-          if (!useRouter) {
-            window.location.href = path;
-            return;
-          }
-          Qmsg.error("跳转Url: 获取根元素#app失败");
-          log$1.error("跳转Url: 获取根元素#app失败：" + path);
-          return;
-        }
-        let vueInstance = VueUtils.getVue($app);
-        if (vueInstance == null) {
-          if (!useRouter) {
-            window.location.href = path;
-            return;
-          }
-          log$1.error("获取#app的vue属性失败");
-          Qmsg.error("获取#app的vue属性失败");
-          return;
-        }
-        let $router = vueInstance.$router;
-        $router.push(path);
-      }
-    },
-    goToLogin(fromUrl = "") {
-      window.open(`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(fromUrl)}`);
-    },
-    parseDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
-      function zeroPadding(num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
-      }
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
-      } else {
-        return `${Math.floor(duration / 3600)}:${zeroPadding(
-          Math.floor(duration / 60) % 60
-        )}:${zeroPadding(duration % 60)}`;
-      }
-    },
-    parseCount(count) {
-      let countText = count.toString();
-      if (count > 1e4) {
-        let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
-        countText = `${roundNum}万`;
-      } else if (count > 1e4 * 1e4) {
-        let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
-        countText = `${roundNum}亿`;
-      }
-      return countText;
-    },
-    hookGestureReturnByVueRouter(option) {
-      function popstateEvent() {
-        log$1.success("触发popstate事件");
-        resumeBack(true);
-      }
-      function banBack() {
-        log$1.success("监听地址改变");
-        option.vueInst.$router.history.push(option.hash);
-        domUtils.on(window, "popstate", popstateEvent);
-      }
-      async function resumeBack(isFromPopState = false) {
-        domUtils.off(window, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
-          if (option.vueInst.$router.history.current.hash === option.hash) {
-            log$1.info("后退！");
-            option.vueInst.$router.back();
-            await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
-      }
-      banBack();
-      return {
-        resumeBack,
-      };
-    },
-    initialScale() {
-      log$1.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domUtils.onReady(() => {
-        let meta = domUtils.createElement(
-          "meta",
-          {},
-          {
-            name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
-          }
-        );
-        domUtils.remove("meta[name='viewport']");
-        domUtils.waitNode("head").then(() => {
-          document.head.appendChild(meta);
-        });
-      });
-    },
-  };
-  class GestureBack {
-    isBacking = false;
-    config;
-    constructor(config) {
-      this.config = config;
-      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
-      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
-      this.popStateEvent = this.popStateEvent.bind(this);
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
-        this.config.backDelayTime = 150;
-      }
-      if (this.config.win == null) {
-        this.config.win = self;
-      }
-    }
-    popStateEvent(event) {
-      domUtils.preventEvent(event);
-      if (this.isBacking) {
-        return;
-      }
-      this.quitGestureBackMode(true);
-    }
-    enterGestureBackMode() {
-      log$1.success("进入手势模式");
-      let pushUrl = this.config.hash;
-      if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) {
-          pushUrl = "/" + pushUrl;
-        }
-        pushUrl = "#" + pushUrl;
-      }
-      if (this.config.useUrl) {
-        pushUrl =
-          this.config.win.location.origin +
-          this.config.win.location.pathname +
-          this.config.win.location.search +
-          pushUrl;
-      }
-      this.config.win.history.pushState({}, "", pushUrl);
-      log$1.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-    }
-    async quitGestureBackMode(isUrlChange = false) {
-      this.isBacking = true;
-      log$1.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function") {
-        this.config.beforeHistoryBackCallBack(isUrlChange);
-      }
-      let maxDate = Date.now() + 1e3 * 5;
-      while (true) {
-        if (Date.now() > maxDate) {
-          log$1.error("未知情况，history.back()失败，无法退出手势模式");
-          break;
-        }
-        if (this.config.win.location.hash.endsWith(this.config.hash)) {
-          log$1.info("history.back()");
-          this.config.win.history.back();
-          await Utils.sleep(this.config.backDelayTime || 150);
-        } else {
-          break;
-        }
-      }
-      log$1.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
-      this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack(isUrlChange);
-      }
-    }
-  }
-  const artPlayerCSS$1 =
-    ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
-  const artPlayerCommonCSS =
-    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
-  const BilibiliApiRequestCheck = {
-    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
-      if ("aid" in config && config["aid"] != null) {
-        Reflect.set(searchParamsData, "aid", config.aid);
-      } else if ("bvid" in config && config["bvid"] != null) {
-        Reflect.set(searchParamsData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
-    },
-  };
-  const BilibiliApiConfig = {
-    web_host: "api.bilibili.com",
-  };
-  const VideoQualityNameMap = {
-    "240P 极速": 6,
-    "360P 流畅": 16,
-    "480P 清晰": 32,
-    "720P 高清": 64,
-    "720P60 高帧率": 74,
-    "1080P 高清": 80,
-    "1080P+ 高码率": 112,
-    "1080P60 高帧率": 116,
-    "4K 超清": 120,
-    "HDR 真彩色": 125,
-    杜比视界: 126,
-    "8K 超高清": 127,
-  };
-  const VideoQualityMap = {};
-  Object.keys(VideoQualityNameMap).forEach((qualityName) => {
-    let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
-    Reflect.set(VideoQualityMap, qualityValue, qualityName);
-  });
-  const BilibiliVideoApi = {
-    async playUrl(config, extraParams) {
-      let searchParamsData = {
-        cid: config.cid,
-        qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
-        high_quality: config.high_quality ?? 1,
-        fnval: config.fnval ?? 1,
-        fnver: config.fnver ?? 0,
-        fourk: config.fourk ?? 1,
-        try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
-        platform: config.setPlatformHTML5 ? "html5" : "pc",
-      };
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      if (typeof extraParams === "object" && extraParams !== null) {
-        Object.assign(searchParamsData, extraParams);
-      }
-      let response = await httpx.get(
-        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
-        {
-          responseType: "json",
-          fetch: true,
-        }
-      );
-      if (!response.status) {
-        return;
-      }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (data2["code"] !== 0) {
-        return;
-      }
-      return data2["data"];
-    },
-    async onlineTotal(config) {
-      let searchParamsData = {
-        cid: config.cid,
-      };
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      let httpxResponse = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          responseType: "json",
-          fetch: true,
-        }
-      );
-      if (!httpxResponse.status) {
-        return;
-      }
-      let data2 = utils.toJSON(httpxResponse.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log$1.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
-      }
-      return data2["data"];
-    },
-    async like(config) {
-      let searchParamsData = {
-        like: config.like,
-        csrf: cookieManager.get("bili_jct")?.value || "",
-      };
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      let getResp = await httpx.get(
-        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
-        {
-          fetch: true,
-        }
-      );
-      if (!getResp.status) {
-        return false;
-      }
-      let data2 = utils.toJSON(getResp.data.responseText);
-      const code = data2["code"];
-      if (code === 0) {
-        return true;
-      }
-      if (code === -101) {
-        Qmsg.error("账号未登录");
-      } else if (code === -111) {
-        Qmsg.error("csrf校验失败");
-      } else if (code === -400) {
-        Qmsg.error("请求错误");
-      } else if (code === -403) {
-        Qmsg.error("账号异常");
-      } else if (code === 10003) {
-        Qmsg.error("不存在该稿件");
-      } else if (code === 65004) {
-        Qmsg.error("取消点赞失败");
-      } else if (code === 65006) {
-        Qmsg.warning("重复点赞");
-      } else {
-        Qmsg.error("未知错误：" + data2["message"]);
-      }
-      return false;
-    },
-  };
-  const AppKeyInfo = {
-    ios: {
-      appkey: "27eb53fc9058f8c3",
-      appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
-      mobi_app: "ipnone",
-    },
-  };
-  function appSign(params, appkey, appsec) {
-    params.appkey = appkey;
-    const searchParams = new URLSearchParams(params);
-    searchParams.sort();
-    return md5(searchParams.toString() + appsec);
-  }
   const BilibiliLoginApi = {
     async getQrCodeInfo() {
       let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
@@ -3513,7 +2158,7 @@
         responseType: "json",
         fetch: true,
       });
-      log$1.info(postResp);
+      log.info(postResp);
       if (!postResp.status) {
         return;
       }
@@ -3549,7 +2194,7 @@
         return { success: false, message: "网络错误", action: void 0 };
       }
       const json = utils.toJSON(postResp.data.responseText);
-      log$1.info(json);
+      log.info(json);
       const msgMap = {
         0: "成功",
         "-3": "API校验密匙错误",
@@ -3590,9 +2235,9 @@
       this.confirmScanQrcode(qrcodeInfo);
     },
     getQRCodeInfo: async function () {
-      log$1.info("正在申请二维码...");
+      log.info("正在申请二维码...");
       let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
-      log$1.info("获取到二维码信息", qrcodeInfo);
+      log.info("获取到二维码信息", qrcodeInfo);
       return qrcodeInfo;
     },
     async confirmScanQrcode(qrcodeInfo) {
@@ -3653,22 +2298,22 @@
       let isUserCloseScanDialog = false;
       while (true) {
         if (isUserCloseScanDialog) {
-          log$1.error("用户关闭扫码登录弹窗、取消扫码登录");
+          log.error("用户关闭扫码登录弹窗、取消扫码登录");
           break;
         }
-        log$1.info("正在等待扫码登录...");
+        log.info("正在等待扫码登录...");
         let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
         if (pollInfo?.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
             expireAt: pollInfo.accessKeyExpireAt,
           });
-          log$1.info("扫码登录成功", pollInfo);
+          log.info("扫码登录成功", pollInfo);
           Qmsg.success("扫码登录成功");
           break;
         } else {
           if (pollInfo?.action === "refresh") {
-            log$1.info("刷新二维码");
+            log.info("刷新二维码");
             Qmsg.info("刷新二维码");
             let qrcodeInfo2 = await this.getQRCodeInfo();
             if (qrcodeInfo2) {
@@ -3677,7 +2322,7 @@
             }
           } else if (pollInfo.action === "wait") {
             if (pollInfo.message === "二维码已扫码未确认") {
-              log$1.info("已扫码，等待确认...");
+              log.info("已扫码，等待确认...");
               __pops__.loading({
                 $parent: $biliQrcodeCanvas,
                 content: {
@@ -3689,7 +2334,7 @@
               });
             }
           } else {
-            log$1.error(pollInfo.message);
+            log.error(pollInfo.message);
             Qmsg.error(pollInfo.message);
             break;
           }
@@ -4131,7 +2776,7 @@
             return url;
           }
           urlInst.host = ownCDNHost;
-          log$1.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
+          log.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
           return urlInst.toString();
         }
         const chooseUposCDNInfo = BilibiliCDNServerList.find((item) => {
@@ -4145,12 +2790,1823 @@
           return url;
         }
         urlInst.host = chooseUposCDNHost;
-        log$1.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDNInfo)}`);
+        log.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDNInfo)}`);
         return urlInst.toString();
       } catch (error) {
-        log$1.error("视频upos替换失败", error);
+        log.error("视频upos替换失败", error);
         return url;
       }
+    },
+  };
+  const BilibiliPlayerToast = {
+    $flag: {
+      isInitCSS: false,
+    },
+    $data: {
+      originToast: "mplayer-toast",
+      showClassName: "mplayer-show",
+      prefix: "mplayer-toast-gm",
+    },
+    $el: {
+      get $mplayer() {
+        return $(".mplayer");
+      },
+    },
+    toast(config) {
+      if (typeof config === "string") {
+        config = {
+          text: config,
+        };
+      }
+      this.initCSS();
+      let $parent = config.parent ?? this.$el.$mplayer;
+      if (!$parent) {
+        throw new TypeError("toast parent is null");
+      }
+      this.mutationMPlayerOriginToast($parent);
+      let $toast = domUtils.createElement("div", {
+        "data-from": "gm",
+      });
+      domUtils.addClass($toast, this.$data.prefix);
+      domUtils.addClass($toast, this.$data.showClassName);
+      if (config.showCloseBtn) {
+        let $closeBtn = domUtils.createElement("div", {
+          className: this.$data.prefix + "-close",
+          innerHTML: `
+                    <span class="bp-svgicon">
+                        <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.47 4.47a.75.75 0 011.06 0l5.541 5.54 5.54-5.54a.75.75 0 011.061 1.06l-5.54 5.541 5.54 5.54a.75.75 0 01.073.977l-.073.084a.75.75 0 01-1.06 0l-5.541-5.54-5.54 5.54a.75.75 0 01-1.061-1.06l5.54-5.541-5.54-5.54a.75.75 0 01-.073-.977z" fill="#FEFEFE" fill-rule="evenodd">
+                            </path>
+                        </svg>
+                    </span>
+                `,
+        });
+        $toast.appendChild($closeBtn);
+        domUtils.on($closeBtn, "click", (event) => {
+          domUtils.preventEvent(event);
+          this.closeToast($toast);
+        });
+      }
+      let $text = domUtils.createElement("span", {
+        className: this.$data.prefix + "-text",
+        innerText: config.text,
+      });
+      $toast.appendChild($text);
+      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
+        let $time = domUtils.createElement("span", {
+          className: this.$data.prefix + "-time",
+          innerText: config.timeText,
+        });
+        $toast.appendChild($time);
+      }
+      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
+        let $jump = domUtils.createElement("span", {
+          className: this.$data.prefix + "-jump",
+          innerText: config.jumpText,
+        });
+        $toast.appendChild($jump);
+        domUtils.on($jump, "click", (event) => {
+          if (typeof config.jumpClickCallback === "function") {
+            domUtils.preventEvent(event);
+            config.jumpClickCallback(event);
+          }
+        });
+      }
+      this.setTransitionendEvent($toast);
+      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
+      Array.from($$(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
+        if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) {
+          return;
+        }
+        $mplayerOriginToast.setAttribute("data-is-set-transitionend", "true");
+        if ($mplayerOriginToast.textContent?.includes("记忆你上次看到")) {
+          setTimeout(() => {
+            let $close = $mplayerOriginToast.querySelector(".mplayer-toast-close");
+            if ($close) {
+              $close.click();
+            } else {
+              $mplayerOriginToast.remove();
+            }
+          }, 3e3);
+        }
+        this.setTransitionendEvent($mplayerOriginToast);
+      });
+      $parent.appendChild($toast);
+      setTimeout(() => {
+        this.closeToast($toast);
+      }, timeout);
+      return {
+        $toast,
+        close: () => {
+          this.closeToast($toast);
+        },
+      };
+    },
+    initCSS() {
+      if (this.$flag.isInitCSS) {
+        return;
+      }
+      this.$flag.isInitCSS = true;
+      addStyle(
+        `
+		.${this.$data.prefix}.mplayer-show {
+			opacity: 1;
+			visibility: visible;
+			z-index: 40;
+		}
+
+		.mplayer-toast, .${this.$data.prefix} {
+			-webkit-transition-property: opacity, bottom;
+			transition-property: opacity, bottom;
+		}
+
+		.${this.$data.prefix} {
+			background-color: rgba(0, 0, 0, .8);
+			border-radius: 4px;
+			bottom: 48px;
+			color: #fafafa;
+			font-size: 12px;
+			left: 8px;
+			line-height: 24px;
+			opacity: 0;
+			overflow: hidden;
+			padding: 6px 8px;
+			position: absolute;
+			text-align: center;
+			-webkit-transition: opacity .3s;
+			transition: opacity .3s;
+			visibility: hidden;
+			z-index: 4;
+		}
+
+		.${this.$data.prefix}-close {
+			fill: #fff;
+			float: left;
+			height: 14px;
+			margin-right: 4px;
+			position: relative;
+			top: 1px;
+			width: 26px;
+		}
+
+		.${this.$data.prefix}-jump {
+			color: #f25d8e;
+			margin: 0 8px 0 16px;
+			text-decoration: none;
+		}
+
+		`
+      );
+    },
+    mutationMPlayerOriginToast($parent) {
+      let $mplayer = this.$el.$mplayer;
+      if (!$mplayer) {
+        return;
+      }
+      if ($mplayer.hasAttribute("data-mutation")) {
+        return;
+      }
+      log.success(`添加观察器，动态更新toast的位置`);
+      $mplayer.setAttribute("data-mutation", "gm");
+      utils.mutationObserver($mplayer, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          this.updatePageToastBottom();
+        },
+      });
+    },
+    updatePageToastBottom() {
+      let pageToastList = Array.from($$(`.${this.$data.prefix}`)).concat(
+        Array.from($$(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)))
+      );
+      if (pageToastList.length) {
+        let count = pageToastList.length - 1;
+        const toastHeight = 46;
+        pageToastList.forEach(($pageToast, index) => {
+          let bottom = toastHeight + toastHeight * (count - index);
+          $pageToast.setAttribute("data-transition", "move");
+          $pageToast.style.bottom = bottom + "px";
+        });
+      }
+    },
+    closeToast($ele) {
+      $ele.classList.remove(this.$data.showClassName);
+    },
+    getTransitionendEventNameList() {
+      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
+    },
+    setTransitionendEvent($toast) {
+      let that = this;
+      let animationEndNameList = this.getTransitionendEventNameList();
+      domUtils.on(
+        $toast,
+        animationEndNameList,
+        function (event) {
+          let dataTransition = $toast.getAttribute("data-transition");
+          if (!$toast.classList.contains(that.$data.showClassName)) {
+            $toast.remove();
+            return;
+          }
+          if (dataTransition === "move") {
+            $toast.removeAttribute("data-transition");
+            return;
+          }
+        },
+        {
+          capture: true,
+        }
+      );
+    },
+  };
+  const VideoQualityNameMap = {
+    "240P 极速": 6,
+    "360P 流畅": 16,
+    "480P 清晰": 32,
+    "720P 高清": 64,
+    "720P60 高帧率": 74,
+    "1080P 高清": 80,
+    "1080P+ 高码率": 112,
+    "1080P60 高帧率": 116,
+    "4K 超清": 120,
+    "HDR 真彩色": 125,
+    杜比视界: 126,
+    "8K 超高清": 127,
+  };
+  const VideoQualityMap = {};
+  Object.keys(VideoQualityNameMap).forEach((qualityName) => {
+    let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
+    Reflect.set(VideoQualityMap, qualityValue, qualityName);
+  });
+  let _ajaxHooker_ = null;
+  const XhrHook = {
+    get ajaxHooker() {
+      if (_ajaxHooker_ == null) {
+        log.info("启用ajaxHooker拦截网络");
+        _ajaxHooker_ = utils.ajaxHooker();
+      }
+      return _ajaxHooker_;
+    },
+  };
+  const BilibiliNetworkHook = {
+    $flag: {
+      is_hook_video_playurl: false,
+      is_hook_bangumi_html5: false,
+      is_hook_live_playurl: false,
+    },
+    init() {
+      if (BilibiliRouter.isLive()) {
+        Panel.execMenuOnce("bili-live-cdn-hook", () => {
+          this.hook_live_playurl();
+        });
+      }
+    },
+    hook_video_playurl() {
+      if (this.$flag.is_hook_video_playurl) {
+        return;
+      }
+      this.$flag.is_hook_video_playurl = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrl = new URL(request.url);
+          playUrl.searchParams.set("platform", "html5");
+          playUrl.searchParams.set("qn", VideoQualityNameMap["1080P60 高帧率"].toString());
+          playUrl.searchParams.set("high_quality", "1");
+          playUrl.searchParams.set("fnver", "0");
+          playUrl.searchParams.set("fourk", "1");
+          if (playUrl.searchParams.has("__t")) {
+            playUrl.searchParams.delete("__t");
+            return;
+          }
+          request.url = playUrl.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            let unlockQuality = data2?.["data"]?.["quality"];
+            let support_formats = data2?.["data"]?.["support_formats"];
+            log.info("当前解锁的quality值：" + unlockQuality);
+            if (unlockQuality && support_formats) {
+              let findValue = support_formats.find((item) => {
+                return item["quality"] == unlockQuality;
+              });
+              if (findValue) {
+                let qualityText = findValue["new_description"] || findValue["display_desc"];
+                log.info("成功解锁画质 " + qualityText);
+                BilibiliPlayerToast.toast(`成功解锁画质 ${qualityText}`);
+              }
+            }
+          };
+        }
+      });
+    },
+    hook_bangumi_html5() {
+      if (this.$flag.is_hook_bangumi_html5) {
+        return;
+      }
+      this.$flag.is_hook_bangumi_html5 = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
+          if (request.url.startsWith("//")) {
+            request.url = window.location.protocol + request.url;
+          }
+          let playUrlInst = new URL(request.url);
+          playUrlInst.pathname = "/pgc/player/web/playurl";
+          playUrlInst.searchParams.delete("bsource");
+          playUrlInst.searchParams.set("qn", VideoQualityNameMap["1080P60 高帧率"].toString());
+          playUrlInst.searchParams.set("fnval", "1");
+          playUrlInst.searchParams.set("fnver", "0");
+          playUrlInst.searchParams.set("fourk", "1");
+          playUrlInst.searchParams.set("from_client", "BROWSER");
+          playUrlInst.searchParams.set("drm_tech_type", "2");
+          request.url = playUrlInst.toString();
+          request.response = (res) => {
+            let data2 = utils.toJSON(res.responseText);
+            let result = data2["result"];
+            log.info("当前解锁的quality值：" + result["quality"]);
+            if (result["quality"] && result["support_formats"]) {
+              let findValue = result["support_formats"].find((item) => {
+                return item["quality"] == result["quality"];
+              });
+              if (findValue) {
+                log.info("当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]);
+              }
+            }
+          };
+        }
+      });
+    },
+    hook_live_playurl() {
+      if (this.$flag.is_hook_live_playurl) {
+        return;
+      }
+      this.$flag.is_hook_live_playurl = true;
+      XhrHook.ajaxHooker.hook((request) => {
+        if (!Panel.getValue("bili-live-cdn-hook")) return;
+        if (request.url.startsWith("data:")) {
+          return;
+        }
+        const url = CommonUtil.fixUrl(request.url);
+        let playUrlInst = new URL(url);
+        const pathname = playUrlInst.pathname;
+        if (pathname.startsWith("/xlive/web-room/v2/index/getRoomPlayInfo")) {
+          playUrlInst.searchParams.set("qn", "30000");
+          request.url = playUrlInst.toString();
+          request.response = (res) => {
+            const data2 = typeof res.responseText === "string" ? utils.toJSON(res.responseText) : res.json;
+            const stream = data2?.data?.playurl_info?.playurl?.stream;
+            if (Array.isArray(stream)) {
+              stream.forEach((streamItem) => {
+                const format = streamItem?.format;
+                if (!Array.isArray(format)) {
+                  return;
+                }
+                format.forEach((formatItem) => {
+                  const codec = formatItem?.codec;
+                  if (!Array.isArray(codec)) {
+                    return;
+                  }
+                  formatItem?.format_name;
+                  codec.forEach((codecItem) => {
+                    codecItem?.codec_name;
+                    const url_info = codecItem?.url_info;
+                    if (!Array.isArray(url_info)) {
+                      return;
+                    }
+                    url_info.forEach((urlInfoItem) => {
+                      const host = urlInfoItem?.host;
+                      if (typeof host === "string") {
+                        urlInfoItem.host = BilibiliCDNProxy.replaceLiveVideoCDN(host);
+                      }
+                    });
+                  });
+                });
+              });
+            } else {
+              log.error("直播请求信息中返回的steam不是数组", data2);
+            }
+          };
+        } else if (playUrlInst.hostname.endsWith(".bilivideo.com")) {
+          request.url = BilibiliCDNProxy.replaceLiveVideoCDN(url);
+        }
+      });
+    },
+  };
+  const BilibiliUserApi = {
+    async nav(checkCode = true) {
+      let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
+        fetch: true,
+        responseType: "json",
+        allowInterceptConfig: false,
+      });
+      if (!response.status) {
+        log.error(["获取导航栏用户信息失败，请求异常", response]);
+        return;
+      }
+      const data2 = utils.toJSON(response.data.responseText);
+      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        log.error(data2);
+        Qmsg.error("获取导航栏用户信息失败");
+        return;
+      }
+      return data2.data;
+    },
+    async space(mid, offset = "") {
+      let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
+        data: {
+          host_mid: mid,
+          offset,
+        },
+        fetch: true,
+      });
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return;
+      }
+      return data2["data"];
+    },
+    async following(mid, pn = 1, ps = 50) {
+      let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
+        data: {
+          vmid: mid,
+          ps,
+          pn,
+        },
+        fetch: true,
+      });
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return data2["message"];
+      }
+      return data2["data"];
+    },
+  };
+  const BilibiliGlobalData = {
+    $data: {
+      isLogin: new Promise(() => false),
+    },
+    $flag: {
+      isSetQueryLoginStatus: false,
+      isQueryLoginStatus: false,
+    },
+    init() {
+      this.resetLoginStatus();
+    },
+    resetLoginStatus() {
+      if (this.$flag.isSetQueryLoginStatus) {
+        return;
+      }
+      this.$flag.isSetQueryLoginStatus = true;
+      let isLogin = false;
+      this.$data.isLogin = new Promise(async (resolve) => {
+        if (!this.$flag.isQueryLoginStatus) {
+          this.$flag.isQueryLoginStatus = true;
+          let userNavInfo = await BilibiliUserApi.nav(false);
+          if (userNavInfo && userNavInfo.isLogin) {
+            isLogin = true;
+          }
+        }
+        resolve(isLogin);
+      });
+    },
+  };
+  function b2a(bvid) {
+    const XOR_CODE2 = 23442827791579n;
+    const MASK_CODE = 2251799813685247n;
+    const BASE2 = 58n;
+    const BYTES = ["B", "V", 1, "", "", "", "", "", "", "", "", ""];
+    const BV_LEN = BYTES.length;
+    const ALPHABET = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf".split("");
+    const DIGIT_MAP = [0, 1, 2, 9, 7, 5, 6, 4, 8, 3, 10, 11];
+    let r = 0n;
+    for (let i = 3; i < BV_LEN; i++) {
+      r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
+    }
+    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
+  }
+  const wbi = async (params) => {
+    async function getWbiQueryString(params2) {
+      const response = await BilibiliUserApi.nav(false);
+      if (!response) {
+        return;
+      }
+      const { img_url, sub_url } = response.wbi_img;
+      const imgKey = img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf("."));
+      const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
+      const originKey = imgKey + subKey;
+      const mixinKeyEncryptTable = [
+        46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
+        38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
+        11, 36, 20, 34, 44, 52,
+      ];
+      const mixinKey = mixinKeyEncryptTable
+        .map((n) => originKey[n])
+        .join("")
+        .slice(0, 32);
+      const query = Object.keys(params2)
+        .sort()
+        .map((key) => {
+          const value = params2[key].toString().replace(/[!'()*]/g, "");
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+        })
+        .join("&");
+      const wbiSign = md5(query + mixinKey);
+      return query + "&w_rid=" + wbiSign;
+    }
+    return await getWbiQueryString(params);
+  };
+  const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
+  const sortTypeConstant = { LATEST: 0, HOT: 2 };
+  const MobileCommentModule = {
+    $data: {
+      oid: null,
+      createrID: void 0,
+      commentType: null,
+      currentSortType: sortTypeConstant.HOT,
+      replyPool: {},
+      nextOffset: "",
+      dynamicDetail: {
+        oid: null,
+        commentType: null,
+      },
+    },
+    $el: {
+      replyList: null,
+      navSort: null,
+      hotSort: null,
+      timeSort: null,
+      totalReply: null,
+      replyWrapper: null,
+    },
+    $flag: {
+      isInitCSS: false,
+      isHookNetwork: false,
+    },
+    async init($el) {
+      this.initData();
+      this.networkHook();
+      this.addStyle();
+      this.setupStandardCommentContainer($el);
+      await new Promise((resolve) => {
+        domUtils.wait(() => {
+          if (BilibiliRouter.isVideo()) {
+            const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
+            if (videoID.startsWith("av")) this.$data.oid = videoID.slice(2);
+            if (videoID.startsWith("BV")) this.$data.oid = b2a(videoID);
+            this.$data.commentType = 1;
+          } else if (BilibiliRouter.isDynamic()) {
+            this.$data.oid = this.$data.dynamicDetail?.oid;
+            this.$data.commentType = this.$data.dynamicDetail?.commentType;
+          } else if (BilibiliRouter.isOpus()) {
+            this.$data.oid = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_id_str;
+            this.$data.commentType = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_type;
+          }
+          if (this.$data.oid && this.$data.commentType) {
+            resolve(null);
+            return {
+              success: true,
+              data: {},
+            };
+          }
+          return {
+            success: false,
+            data: null,
+          };
+        }, 0);
+      });
+      await this.enableSwitchingSortType($el);
+      await this.loadFirstPagination($el);
+    },
+    initData() {
+      this.$data.oid = null;
+      this.$data.createrID = void 0;
+      this.$data.commentType = null;
+      this.$data.replyPool = null;
+      this.$data.replyPool = {};
+      this.$data.nextOffset = "";
+      this.$data.currentSortType = sortTypeConstant.HOT;
+      this.$data.dynamicDetail = {
+        oid: null,
+        commentType: null,
+      };
+      Object.keys(this.$el).forEach((key) => {
+        const value = Reflect.get(this.$el, key);
+        if (!document.contains(value)) return;
+        Reflect.set(this.$el, key, null);
+      });
+    },
+    networkHook() {
+      if (this.$flag.isHookNetwork) return;
+      if (!BilibiliRouter.isDynamic()) return;
+      XhrHook.ajaxHooker.hook((request) => {
+        const url = request.url;
+        if (typeof url === "string" && url.includes("reply/wbi/main")) {
+          const { searchParams } = new URL(`${url.startsWith("//") ? "https:" : ""}${url}`);
+          this.$data.dynamicDetail = {
+            oid: searchParams.get("oid"),
+            commentType: searchParams.get("type"),
+          };
+        }
+      });
+    },
+    async addStyle() {
+      if (this.$flag.isInitCSS) return;
+      this.$flag.isInitCSS = true;
+      await domUtils.onReady();
+      addStyle(
+        `
+    .reply-header {
+        padding: 12px;
+        border-bottom: 1px solid #f1f2f3;
+    }
+
+    .reply-navigation {
+        margin-bottom: 0 !important;
+    }
+
+    .reply-navigation .nav-bar .nav-title {
+        font-size: 1rem !important;
+    }
+    `
+      );
+      addStyle(
+        `
+    .reply-list {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .reply-item {
+        padding: 12px !important;
+        font-size: 1rem !important;
+        border-bottom: 1px solid #f4f5f7;
+    }
+
+    .reply-item .root-reply-container {
+        padding: 0 !important;
+        display: flex;
+    }
+
+    .reply-item .root-reply-container .root-reply-avatar {
+        position: relative !important;
+        width: initial !important;
+    }
+
+    .reply-item .root-reply-container .content-warp {
+        margin-left: 12px;
+    }
+
+    .reply-item .root-reply-container .content-warp .user-info,
+    .reply-item .root-reply-container .content-warp .root-reply .reply-content {
+        font-size: 14px !important;
+    }
+
+    .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
+        width: calc(100vw - 88px) !important;
+    }
+
+    .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
+        margin-right: 4px !important;
+    }
+
+    .reply-item .sub-reply-container {
+        padding-left: 44px !important;
+    }
+
+    .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
+        width: calc(100% - 24px);
+    }
+
+    .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info {
+        margin-right: 0 !important;
+    }
+
+    .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .sub-user-info .sub-user-name,
+    .reply-item .sub-reply-container .sub-reply-list .sub-reply-item .reply-content {
+        font-size: 14px !important;
+    }
+
+    .reply-info .reply-time,
+    .reply-info .reply-like,
+    .sub-reply-info .sub-reply-time,
+    .sub-reply-info .sub-reply-like {
+        margin-right: 12px !important;
+    }
+    `
+      );
+      const avatarCSS = document.createElement("style");
+      avatarCSS.textContent = `
+            
+          `;
+      addStyle(
+        `
+    .reply-item .root-reply-avatar .avatar .bili-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sub-reply-item .sub-reply-avatar .avatar .bili-avatar {
+        width: 24px;
+        height: 24px;
+    }
+    `
+      );
+      addStyle(
+        `
+    .sub-reply-container .view-more-btn:hover {
+        color: #00AEEC;
+    }
+
+    .view-more {
+        padding-left: 8px;
+        color: #222;
+        font-size: 13px;
+        user-select: none;
+    }
+
+    .pagination-page-count {
+        margin-right: 4px !important;
+    }
+
+    .pagination-page-dot,
+    .pagination-page-number {
+        margin: 0 4px;
+    }
+
+    .pagination-btn,
+    .pagination-page-number {
+        cursor: pointer;
+    }
+
+    .current-page,
+    .pagination-btn:hover,
+    .pagination-page-number:hover {
+        color: #00AEEC;
+    }
+    `
+      );
+      const otherCSS = document.createElement("style");
+      otherCSS.textContent = `
+            
+          `;
+      addStyle(
+        `
+    :root {
+        --text1: #18191C;
+        --text3: #9499A0;
+        --brand_blue: #00AEEC;
+        --brand_pink: #FF6699;
+        --bg2: #F6F7F8;
+    }
+
+    .jump-link {
+        color: #008DDA;
+    }
+    `
+      );
+    },
+    setupStandardCommentContainer($root) {
+      domUtils.html(
+        $root,
+        `
+        <div class="comment-container">
+          <div class="reply-header">
+            <div class="reply-navigation">
+              <ul class="nav-bar">
+                <li class="nav-title">
+                  <span class="nav-title-text">评论</span>
+                  <span class="total-reply">-</span>
+                </li>
+                <li class="nav-sort hot">
+                  <div class="hot-sort">最热</div>
+                  <div class="part-symbol"></div>
+                  <div class="time-sort">最新</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="reply-warp">
+            <div class="reply-list"></div>
+          </div>  
+        </div>
+    `
+      );
+      this.$el.replyList = $root.querySelector(".reply-list");
+      this.$el.navSort = $root.querySelector(".comment-container .reply-header .nav-sort");
+      this.$el.hotSort = this.$el.navSort.querySelector(".hot-sort");
+      this.$el.timeSort = this.$el.navSort.querySelector(".time-sort");
+      this.$el.totalReply = $root.querySelector(".comment-container .reply-header .total-reply");
+      this.$el.replyWrapper = $root.querySelector(".comment-container .reply-warp");
+    },
+    enableSwitchingSortType($root) {
+      domUtils.addClass(this.$el.navSort, "hot");
+      domUtils.removeClass(this.$el.navSort, "time");
+      domUtils.on(this.$el.hotSort, "click", (evt) => {
+        domUtils.preventEvent(evt);
+        if (this.$data.currentSortType === sortTypeConstant.HOT) return;
+        this.$data.currentSortType = sortTypeConstant.HOT;
+        domUtils.addClass(this.$el.navSort, "hot");
+        domUtils.removeClass(this.$el.navSort, "time");
+        $root.scrollTo(0, 0);
+        this.loadFirstPagination($root);
+      });
+      domUtils.on(this.$el.timeSort, "click", (evt) => {
+        domUtils.preventEvent(evt);
+        if (this.$data.currentSortType === sortTypeConstant.LATEST) return;
+        this.$data.currentSortType = sortTypeConstant.LATEST;
+        domUtils.addClass(this.$el.navSort, "time");
+        domUtils.removeClass(this.$el.navSort, "hot");
+        $root.scrollTo(0, 0);
+        this.loadFirstPagination($root);
+      });
+    },
+    async loadFirstPagination($root) {
+      this.$data.nextOffset = "";
+      const { data: firstPaginationData, code: resultCode } = await this.getPaginationData(1);
+      this.$data.createrID = firstPaginationData.upper.mid;
+      domUtils.empty(this.$el.replyList);
+      this.$data.replyPool = {};
+      domUtils.remove(".comment-container .reply-warp .no-more-replies-info");
+      domUtils.remove(".comment-container .reply-warp .anchor-for-loading");
+      if (resultCode !== 0) {
+        const info = resultCode === 12061 ? "UP主已关闭评论区" : "无法从API获取评论数据";
+        domUtils.html(
+          this.$el.replyList,
+          `
+        <p style="padding: 100px 0; text-align: center; color: #999;">${info}</p>
+      `
+        );
+        return;
+      }
+      const totalReplyCount = parseInt(firstPaginationData?.cursor?.all_count) || 0;
+      domUtils.text(this.$el.totalReply, totalReplyCount);
+      if (firstPaginationData?.cursor?.name?.includes("精选")) {
+        domUtils.html(
+          this.$el.navSort,
+          `
+            <div class="selected-sort">精选评论</div>
+        `
+        );
+      }
+      if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
+        const topReplyData = firstPaginationData.top_replies[0];
+        this.appendReplyItem(topReplyData, true);
+      }
+      for (const replyData of firstPaginationData.replies) {
+        this.appendReplyItem(replyData);
+      }
+      if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
+        const infoElement = domUtils.createElement(
+          "p",
+          {
+            className: "no-more-replies-info",
+            textContent: "没有更多评论",
+          },
+          {
+            style: "padding-bottom: 100px; text-align: center; color: #999;",
+          }
+        );
+        domUtils.append(this.$el.replyWrapper, infoElement);
+        return;
+      }
+      this.addAnchor();
+    },
+    async getPaginationData(plat) {
+      const params = {
+        pagination_str: JSON.stringify({
+          offset: this.$data.nextOffset || "",
+        }),
+        oid: this.$data.oid,
+        type: this.$data.commentType,
+        wts: parseInt((Date.now() / 1e3).toString()),
+      };
+      if (this.$data.currentSortType === sortTypeConstant.HOT) {
+        Reflect.set(params, "mode", 3);
+        if (!this.$data.nextOffset);
+      } else if (this.$data.currentSortType === sortTypeConstant.LATEST) {
+        Reflect.set(params, "mode", 2);
+      }
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
+        fetch: !isLogin,
+        fetchInit: {
+          credentials: "same-origin",
+        },
+        anonymous: !isLogin,
+      });
+      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
+      this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
+      return fetchResultJSON;
+    },
+    appendReplyItem(replyData, isTopReply) {
+      if (
+        typeof this.$data.replyPool === "object" &&
+        this.$data.replyPool != null &&
+        this.$data.replyPool[replyData.rpid]
+      ) {
+        return;
+      }
+      const $replyItem = domUtils.createElement("div", {
+        className: "reply-item",
+        innerHTML: `
+            <div class="root-reply-container">
+          <a class="root-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
+            <div class="avatar">
+              <div class="bili-avatar">
+                <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
+                <span class="bili-avatar-icon bili-avatar-right-icon bili-avatar-size-40"></span>
+              </div>
+            </div>
+          </a>
+          <div class="content-warp">
+            <div class="user-info">
+              <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
+              ${this.$data.createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
+            </div>
+            <div class="root-reply">
+              <span class="reply-content-container root-reply" style="padding-bottom: 8px;">
+                <span class="reply-content">${isTopReply ? '<span class="top-icon" style="top: -1px;">置顶</span>' : ""}${replyData.content.pictures ? `<div class="note-prefix" style="transform: translateY(-1px);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="#BBBBBB"><path d="M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z"></path></svg><div style="margin-left: 3px;">笔记</div></div>` : ""}${this.getConvertedMessage(replyData.content)}</span>
+              </span>
+              ${
+                replyData.content.pictures
+                  ? `
+                <div class="image-exhibition" style="margin-top: 0; margin-bottom: 8px;">
+                  <div class="preview-image-container" style="display: flex; width: 300px;">
+                    ${this.getImageItems(replyData.content.pictures)}
+                  </div>
+                </div>
+                `
+                  : ""
+              }
+              <div class="reply-info">
+                <span class="reply-time" style="margin-right: 20px;">${this.getFormattedTime(replyData.ctime)}</span>
+                <span class="reply-like">
+                  <i class="svg-icon like use-color like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                  <span>${replyData.like}</span>
+                </span>
+              </div>
+              <div class="reply-tag-list">
+                ${
+                  replyData.card_label
+                    ? replyData.card_label.reduce(
+                        (acc, cur) =>
+                          acc +
+                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
+                        ""
+                      )
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sub-reply-container">
+          <div class="sub-reply-list">
+            ${this.getSubReplyItems(replyData.replies)}
+            ${
+              replyData.rcount > (replyData.replies || []).length
+                ? `
+              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
+                <div class="view-more-default">
+                  <span>共${replyData.rcount}条回复, </span>
+                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
+                </div>
+              </div>
+              `
+                : ""
+            }
+          </div>
+        </div>
+        `,
+      });
+      domUtils.append(this.$el.replyList, $replyItem);
+      this.$data.replyPool[replyData.rpid_str] = true;
+      const $previewImageContainer = $replyItem.querySelector(".preview-image-container");
+      if ($previewImageContainer)
+        new Viewer($previewImageContainer, {
+          title: false,
+          toolbar: false,
+          tooltip: false,
+          keyboard: false,
+        });
+      const subReplyList = $replyItem.querySelector(".sub-reply-list");
+      const viewMoreBtn = $replyItem.querySelector(".view-more-btn");
+      if (viewMoreBtn) {
+        domUtils.on(viewMoreBtn, "click", () => {
+          this.loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1);
+        });
+      }
+    },
+    getFormattedTime(ms) {
+      const time = new Date(ms * 1e3);
+      const year = time.getFullYear();
+      const month = (time.getMonth() + 1).toString().padStart(2, "0");
+      const day = time.getDate().toString().padStart(2, "0");
+      const hour = time.getHours().toString().padStart(2, "0");
+      const minute = time.getMinutes().toString().padStart(2, "0");
+      return `${year}-${month}-${day} ${hour}:${minute}`;
+    },
+    getMemberLevelColor(level) {
+      return {
+        0: "#C0C0C0",
+        1: "#BBBBBB",
+        2: "#8BD29B",
+        3: "#7BCDEF",
+        4: "#FEBB8B",
+        5: "#EE672A",
+        6: "#F04C49",
+      }[level];
+    },
+    getConvertedMessage(content) {
+      let result = content.message;
+      const keywordBlacklist = ["https://www.bilibili.com/video/av", "https://b23.tv/mall-"];
+      if (content.vote && content.vote.deleted === false) {
+        const linkElementHTML = `<a class="jump-link normal" href="${content.vote.url}" target="_blank" noopener noreferrer>${content.vote.title}</a>`;
+        keywordBlacklist.push(linkElementHTML);
+        result = result.replace(`{vote:${content.vote.id}}`, linkElementHTML);
+      }
+      if (content.emote) {
+        for (const [key, value] of Object.entries(content.emote)) {
+          const imageElementHTML = `<img class="emoji-${["", "small", "large"][value.meta.size]}" src="${
+            value.url
+          }" alt="${key}">`;
+          keywordBlacklist.push(imageElementHTML);
+          result = result.replaceAll(key, imageElementHTML);
+        }
+      }
+      result = result.replaceAll(/(\d{1,2}[:：]){1,2}\d{1,2}/g, (timestamp) => {
+        timestamp = timestamp.replaceAll("：", ":");
+        if (!BilibiliRouter.isVideo()) return timestamp;
+        const parts = timestamp.split(":");
+        if (parts.some((part) => parseInt(part) >= 60)) return timestamp;
+        let totalSecond;
+        if (parts.length === 2) totalSecond = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        else if (parts.length === 3)
+          totalSecond = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        if (Number.isNaN(totalSecond)) return timestamp;
+        const linkElementHTML = `<a class="jump-link video-time" onclick="(async () => {
+          // jump to exact time
+          const videoElement = document.querySelector('video.gsl-video');
+          videoElement.currentTime = ${totalSecond};
+  
+          // close comment module
+          document.querySelector('.close-comment-module-btn').click();
+  
+          // scroll to top
+          window.scrollTo(0, 0);
+  
+          // play video if it is paused
+          if (videoElement.paused) videoElement.play();
+        })()">${timestamp}</a>`;
+        keywordBlacklist.push(linkElementHTML);
+        return linkElementHTML;
+      });
+      if (content.at_name_to_mid) {
+        for (const [key, value] of Object.entries(content.at_name_to_mid)) {
+          const linkElementHTML = `<a class="jump-link user" data-user-id="${value}" href="https://space.bilibili.com/${value}" target="_blank" noopener noreferrer>@${key}</a>`;
+          keywordBlacklist.push(linkElementHTML);
+          result = result.replaceAll(`@${key}`, linkElementHTML);
+        }
+      }
+      if (Object.keys(content.jump_url).length) {
+        const entries = [].concat(
+          Object.entries(content.jump_url).filter((entry) => entry[0].startsWith("https://")),
+          Object.entries(content.jump_url).filter((entry) => !entry[0].startsWith("https://"))
+        );
+        for (const [key, value] of entries) {
+          const href =
+            key.startsWith("BV") || /^av\d+$/.test(key) ? `https://www.bilibili.com/video/${key}` : value.pc_url || key;
+          if (href.includes("search.bilibili.com") && keywordBlacklist.join("").includes(key)) continue;
+          const linkElementHTML = `<img class="icon normal" src="${value.prefix_icon}" style="${value.extra && value.extra.is_word_search && "width: 12px;"}"><a class="jump-link normal" href="${href}" target="_blank" noopener noreferrer>${value.title}</a>`;
+          keywordBlacklist.push(linkElementHTML);
+          result = result.replaceAll(key, linkElementHTML);
+        }
+      }
+      return result;
+    },
+    getImageItems(images) {
+      let imageSizeConfig = "width: 84px; height: 84px;";
+      if (images.length === 1) imageSizeConfig = "max-width: 260px; max-height: 180px;";
+      if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
+      let result = "";
+      for (const image of images) {
+        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
+      }
+      return result;
+    },
+    getSubReplyItems(subReplies) {
+      if (!(subReplies instanceof Array)) return "";
+      let result = "";
+      for (const replyData of subReplies) {
+        result += `
+          <div class="sub-reply-item">
+            <div class="sub-user-info">
+              <a class="sub-reply-avatar" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}">
+                <div class="avatar">
+                  <div class="bili-avatar">
+                    <img class="bili-avatar-img bili-avatar-face bili-avatar-img-radius" data-src="${replyData.member.avatar}" alt="" src="${replyData.member.avatar}">
+                    <span class="bili-avatar-icon bili-avatar-right-icon  bili-avatar-size-24"></span>
+                  </div>
+                </div>
+              </a>
+              <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(
+                replyData.member.level_info.current_level
+              )};">LV${replyData.member.level_info.current_level}</span>
+              ${this.$data.createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
+            </div>
+            <span class="reply-content-container sub-reply-content">
+              <span class="reply-content">${this.getConvertedMessage(replyData.content)}</span>
+            </span>
+            <div class="sub-reply-info" style="margin: 4px 0;">
+              <span class="sub-reply-time" style="margin-right: 20px;">${this.getFormattedTime(replyData.ctime)}</span>
+              <span class="sub-reply-like">
+                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                <span>${replyData.like}</span>
+              </span>
+            </div>
+          </div>
+        `;
+      }
+      return result;
+    },
+    async loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
+      const params = {
+        oid: this.$data.oid,
+        type: this.$data.commentType,
+        root: rootReplyID,
+        ps: 10,
+        pn: paginationNumber,
+        web_location: 333.788,
+      };
+      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const subReplyResponse = await httpx.get(
+        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
+        {
+          allowInterceptConfig: false,
+          fetch: !isLogin,
+          fetchInit: {
+            credentials: "same-origin",
+          },
+          anonymous: !isLogin,
+        }
+      );
+      if (!subReplyResponse.status) {
+        log.error(subReplyResponse);
+        Qmsg.error("请求异常，获取评论的回复失败");
+        return;
+      }
+      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
+      if (subReplyJSON === -352) {
+        Qmsg.error("请登录后再进行操作");
+        console.error("you should login first", subReplyResponse);
+        return;
+      }
+      const subReplyData = subReplyJSON.data;
+      subReplyList.innerHTML = this.getSubReplyItems(subReplyData.replies);
+      this.addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
+      const replyItem = subReplyList.parentElement.parentElement;
+      replyItem.scrollIntoView({ behavior: "instant" });
+      global.scrollTo(0, document.documentElement.scrollTop - 60);
+    },
+    addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
+      if (subReplyAmount <= 10) return;
+      const pageAmount = Math.ceil(subReplyAmount / 10);
+      const pageSwitcher = domUtils.createElement("div", {
+        className: "sub-reply-pagination",
+        innerHTML: `
+          <div class="view-more-pagination">
+            <span class="pagination-page-count">共${pageAmount}页</span>
+            ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
+            ${(() => {
+              const left = [
+                currentPageNumber - 4,
+                currentPageNumber - 3,
+                currentPageNumber - 2,
+                currentPageNumber - 1,
+              ].filter((num) => num >= 1);
+              const right = [
+                currentPageNumber + 1,
+                currentPageNumber + 2,
+                currentPageNumber + 3,
+                currentPageNumber + 4,
+              ].filter((num) => num <= pageAmount);
+              const merge = [].concat(left, currentPageNumber, right);
+              let chosen;
+              if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
+              else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
+              else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
+              let final = JSON.parse(JSON.stringify(chosen));
+              if (!final.includes(1)) {
+                let front = [1];
+                if (final.at(0) !== 2) front = [1, "..."];
+                final = [].concat(front, final);
+              }
+              if (!final.includes(pageAmount)) {
+                let back = [pageAmount];
+                if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
+                final = [].concat(final, back);
+              }
+              return final.reduce((acc, cur) => {
+                if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
+                if (cur === currentPageNumber)
+                  return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
+                return acc + `<span class="pagination-page-number">${cur}</span>`;
+              }, "");
+            })()}
+            ${
+              currentPageNumber !== pageAmount
+                ? `<span class="pagination-btn pagination-to-next-btn">下一页</span>`
+                : ""
+            }
+          </div>
+        `,
+      });
+      const pageSwitcherPrevBtn = pageSwitcher.querySelector(".pagination-to-prev-btn");
+      domUtils.on(pageSwitcherPrevBtn, "click", () => {
+        this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1);
+      });
+      const pageSwitcherNextBtn = pageSwitcher.querySelector(".pagination-to-next-btn");
+      domUtils.on(pageSwitcherNextBtn, "click", () => {
+        this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1);
+      });
+      pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach(($pageNumber) => {
+        const number = parseInt($pageNumber.textContent);
+        domUtils.on($pageNumber, "click", () =>
+          this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
+        );
+      });
+      subReplyList.appendChild(pageSwitcher);
+    },
+    addAnchor() {
+      const anchorElement = domUtils.createElement(
+        "div",
+        {
+          className: "anchor-for-loading",
+          textContent: "正在加载...",
+        },
+        {
+          style: `text-align: center; color: #61666d; transform: translateY(-50px)`,
+        }
+      );
+      domUtils.append(this.$el.replyWrapper, anchorElement);
+      let paginationCounter = 1;
+      const ob = new IntersectionObserver(async (entries) => {
+        if (!entries[0].isIntersecting) return;
+        const { data: newPaginationData } = await this.getPaginationData(++paginationCounter);
+        if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
+          anchorElement.textContent = "所有评论已加载完毕";
+          ob.disconnect();
+          return;
+        }
+        for (const replyData of newPaginationData.replies) {
+          this.appendReplyItem(replyData);
+        }
+      });
+      ob.observe(anchorElement);
+    },
+  };
+  const MobileCommentModuleStyle =
+    ':root {\r\n  --v_xs: 5px;\r\n  --v_xsx: 4px;\r\n  --v_xxs: 6px;\r\n  --v_sm: 10px;\r\n  --v_smx: 8px;\r\n  --v_xsm: 12px;\r\n  --v_md: 15px;\r\n  --v_mdx: 14px;\r\n  --v_xmd: 16px;\r\n  --v_lg: 20px;\r\n  --v_lgx: 18px;\r\n  --v_xlg: 22px;\r\n  --v_xl: 25px;\r\n  --v_xlx: 24px;\r\n  --v_xxl: 26px;\r\n  --v_fs_1: 24px;\r\n  --v_fs_2: 18px;\r\n  --v_fs_3: 16px;\r\n  --v_fs_4: 14px;\r\n  --v_fs_5: 13px;\r\n  --v_fs_6: 12px;\r\n  --v_lh_xs: 1;\r\n  --v_lh_sm: 1.25;\r\n  --v_lh_md: 1.5;\r\n  --v_lh_lg: 1.75;\r\n  --v_lh_xl: 2;\r\n  --v_height_xs: 16px;\r\n  --v_height_sm: 24px;\r\n  --v_height_md: 32px;\r\n  --v_height_lg: 40px;\r\n  --v_height_xl: 48px;\r\n  --v_radius: 6px;\r\n  --v_radius_sm: 4px;\r\n  --v_radius_md: 8px;\r\n  --v_radius_lg: 10px;\r\n  --v_brand_pink: var(--brand_pink, #ff6699);\r\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n  --v_brand_blue: var(--brand_blue, #00aeec);\r\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n  --v_stress_red: var(--stress_red, #f85a54);\r\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n  --v_success_green: var(--success_green, #2ac864);\r\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n  --v_operate_orange: var(--operate_orange, #ff7f24);\r\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\r\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n  --v_bg1: var(--bg1, #ffffff);\r\n  --v_bg2: var(--bg2, #f6f7f8);\r\n  --v_bg3: var(--bg3, #f1f2f3);\r\n  --v_bg1_float: var(--bg1_float, #ffffff);\r\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\r\n  --v_text_white: var(--text_white, #ffffff);\r\n  --v_text1: var(--text1, #18191c);\r\n  --v_text2: var(--text2, #61666d);\r\n  --v_text3: var(--text3, #9499a0);\r\n  --v_text4: var(--text4, #c9ccd0);\r\n  --v_text_link: var(--text_link, #008ac5);\r\n  --v_text_notice: var(--text_notice, #e58900);\r\n  --v_line_light: var(--line_light, #f1f2f3);\r\n  --v_line_regular: var(--line_regular, #e3e5e7);\r\n  --v_line_bold: var(--line_bold, #c9ccd0);\r\n  --v_graph_white: var(--graph_white, #ffffff);\r\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\r\n  --v_graph_medium: var(--graph_medium, #9499a0);\r\n  --v_graph_icon: var(--graph_icon, #61666d);\r\n  --v_shadow: var(--shadow, #000000);\r\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n  --v_text_hover: var(--text_hover, #797f87);\r\n  --v_text_active: var(--text_active, #61666d);\r\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\r\n  --v_line_border: var(--line_border, #c9ccd0);\r\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n  font-family: fanscard;\r\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n  fill: currentColor;\r\n  color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n  background-color: var(--graph_bg_thin);\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  height: 80px;\r\n  width: 100%;\r\n  margin-bottom: 24px;\r\n  padding: 12px 16px 12px 10px;\r\n  border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n  cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n  color: var(--brand_blue);\r\n  transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n  width: 40%;\r\n  max-width: calc(40% - 30px);\r\n  margin-right: 20px;\r\n  word-wrap: break-word;\r\n  font-size: 13px;\r\n  line-height: 18px;\r\n  color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n  margin-right: 2px;\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n  display: -webkit-box;\r\n  float: none;\r\n  height: 18px;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  word-break: break-word;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n  height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 4px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n  height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n  width: 60%;\r\n  font-size: var(--2fde2a28);\r\n  line-height: 17px;\r\n  display: flex;\r\n  --option-height: 40px;\r\n  --option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n  opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n  font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n  font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n  flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: rgba(255, 102, 153, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--38c5ebb3);\r\n  padding-left: 10px;\r\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n  cursor: pointer;\r\n  margin-right: 30px;\r\n  color: var(--332a347e);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  right: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n  left: -8px;\r\n  background-color: #f69;\r\n  transform: skew(21deg);\r\n  border-top-right-radius: calc(var(--option-radius) - 2px);\r\n  border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n  height: 40px;\r\n  width: 20px;\r\n  overflow: hidden;\r\n  opacity: var(--212267a6);\r\n  pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n  pointer-events: all;\r\n  position: absolute;\r\n  top: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n  position: relative;\r\n  display: flex;\r\n  min-width: 120px;\r\n  align-items: center;\r\n  flex-direction: row-reverse;\r\n  justify-content: space-between;\r\n  background-color: rgba(0, 174, 236, var(--212267a6));\r\n  height: var(--option-height);\r\n  width: var(--4b2970aa);\r\n  padding-right: 10px;\r\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n  cursor: pointer;\r\n  color: var(--1e587827);\r\n  transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n  position: absolute;\r\n  left: -20px;\r\n  top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n  left: 8px;\r\n  background-color: #00aeec;\r\n  transform: skew(21deg);\r\n  border-top-left-radius: var(--option-radius);\r\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n  text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n  cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  min-height: 40px;\r\n  padding: 4px 10px;\r\n  margin-bottom: 16px;\r\n  font-size: 13px;\r\n  border-radius: 2px;\r\n  color: var(--Ye5_u);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n  content: "";\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  background-color: var(--Ye5_u);\r\n  opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n  flex: 1;\r\n  padding: 0 5px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n  position: relative;\r\n  z-index: 1;\r\n  width: 10px;\r\n  height: 10px;\r\n  margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n  margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title {\r\n    font-size: 24px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n  color: var(--text1);\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n  margin: 0 36px 0 6px;\r\n  font-weight: 400;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-header .reply-navigation .nav-bar .nav-sort {\r\n    font-size: 16px;\r\n  }\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 11px;\r\n  margin: 0 12px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n  display: block;\r\n  position: relative;\r\n  background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  border-radius: 50%;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  -webkit-transform: translate(-50%, -50%);\r\n  -moz-transform: translate(-50%, -50%);\r\n  -ms-transform: translate(-50%, -50%);\r\n  -o-transform: translate(-50%, -50%);\r\n  transform: translate(-50%, -50%);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n  height: 176.48%;\r\n  width: 176.48%;\r\n  position: absolute;\r\n  top: -38.33%;\r\n  left: -38.33%;\r\n  overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n  height: 100%;\r\n  min-width: 100%;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n  border: none;\r\n  display: block;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n  border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n  display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  position: absolute;\r\n  right: 0;\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n  position: absolute;\r\n  width: 27.5%;\r\n  height: 27.5%;\r\n  right: -webkit-calc(27.5% - 1px);\r\n  right: -moz-calc(27.5% - 1px);\r\n  right: calc(27.5% - 1px);\r\n  bottom: -1px;\r\n  -webkit-background-size: cover;\r\n  background-size: cover;\r\n  image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n  0% {\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n@keyframes bili-avatar {\r\n  0% {\r\n    -webkit-transform: translate3d(0, 0, 0);\r\n    -moz-transform: translate3d(0, 0, 0);\r\n    transform: translateZ(0);\r\n  }\r\n\r\n  to {\r\n    -webkit-transform: translate3d(-97.5%, 0, 0);\r\n    -moz-transform: translate3d(-97.5%, 0, 0);\r\n    transform: translate3d(-97.5%, 0, 0);\r\n  }\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n  width: 22px;\r\n  height: 22px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(22px - 1px);\r\n  right: -moz-calc(22px - 1px);\r\n  right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n  width: 18px;\r\n  height: 18px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(18px - 1px);\r\n  right: -moz-calc(18px - 1px);\r\n  right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n  width: 14px;\r\n  height: 14px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(14px - 1px);\r\n  right: -moz-calc(14px - 1px);\r\n  right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n  width: 12px;\r\n  height: 12px;\r\n  bottom: -1px;\r\n  right: -webkit-calc(12px - 1px);\r\n  right: -moz-calc(12px - 1px);\r\n  right: 11px;\r\n}\r\n\r\n.reply-image {\r\n  width: var(--3414c33c);\r\n  height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n  background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n  display: flex;\r\n  z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 80px;\r\n  height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n  transition: 0.2s;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n  border-color: var(--line_regular);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n  padding: 8px 0;\r\n  display: flex;\r\n  flex-direction: column;\r\n  width: 100%;\r\n  border-radius: 6px;\r\n  cursor: text;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n  margin-left: 10px;\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n  flex: none;\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n  max-width: calc(100% - 68px);\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n  flex: none;\r\n  margin-left: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--Ga1);\r\n  border-radius: 6px;\r\n  background-color: var(--bg3);\r\n  font-family: inherit;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n  overflow-y: scroll;\r\n  overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n  background-color: var(--bg1);\r\n  border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n  padding: 0 8px;\r\n  width: 100%;\r\n  height: 32px;\r\n  border: none;\r\n  border-radius: 6px;\r\n  background-color: transparent;\r\n  font-family: inherit;\r\n  font-size: 14px;\r\n  line-height: 32px;\r\n  color: var(--text1);\r\n  resize: none;\r\n  outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n  background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-left: 80px;\r\n  margin-top: 10px;\r\n  z-index: 1;\r\n  height: 32px;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n  margin-top: 0;\r\n  height: 0;\r\n  overflow: hidden;\r\n  transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  margin-right: 6px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 32px;\r\n  height: 26px;\r\n  border: 1px solid var(--line_regular);\r\n  border-radius: 4px;\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n  opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n  appearance: none;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  opacity: 0;\r\n  font-size: 0;\r\n  user-select: auto;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 16px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n  float: right;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 32px;\r\n  border-radius: 6px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  font-size: 16px;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\r\n  line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 100%;\r\n  height: 100%;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\r\n  padding: 4px 9px;\r\n  margin: 0 3px;\r\n  border-radius: 4px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\r\n  background-color: var(--Lb4);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n  position: relative;\r\n  z-index: 2;\r\n  padding: 15px 0;\r\n  border-top: 0.5px solid var(--graph_bg_thick);\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 1px 4px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  line-height: 20px;\r\n  vertical-align: bottom;\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n  top: -2px;\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 20px;\r\n    height: 20px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .emoji-small {\r\n    width: 22px;\r\n    height: 22px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n  width: 50px;\r\n  height: 50px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .icon {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-content-container .reply-content .jump-link {\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n  margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n  position: relative;\r\n  padding: 8px 0 8px 42px;\r\n  border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n  background-color: #dff6fb;\r\n  animation-name: enterAnimation-jumpReply-1f8a4018;\r\n  animation-duration: 2s;\r\n  animation-delay: 3s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  margin-right: 9px;\r\n  line-height: 24px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n  position: absolute;\r\n  left: 8px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--3bab3096);\r\n  cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 13px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-size: 14px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .sub-reply-item .sub-user-info .sub-user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n  margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n  position: absolute;\r\n  right: 40px;\r\n  opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n  opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n  padding-left: 8px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n  color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n  margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n  margin: 0 4 0 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n  margin: 0 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n  margin: 0 4px;\r\n  cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n  margin-top: 8px;\r\n  user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n  max-width: var(--dacbf126);\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  row-gap: var(--77b1c8ee);\r\n  column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: relative;\r\n  border-radius: var(--7fefecd2);\r\n  overflow: hidden;\r\n  cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  right: 4px;\r\n  bottom: 4px;\r\n  height: 20px;\r\n  padding: 0 6px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  color: var(--text_white);\r\n  font-weight: 500;\r\n  line-height: 18px;\r\n  background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\r\n  border-bottom-right-radius: 0;\r\n  border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\r\n  border-bottom-left-radius: 0;\r\n  border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\r\n  border-bottom-right-radius: var(--7fefecd2);\r\n  border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\r\n  border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\r\n  border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\r\n  border-radius: 0;\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n  border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n  border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n  height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n  display: flex;\r\n  width: 100%;\r\n  height: 80px;\r\n  border: 0.5px solid var(--graph_bg_thick);\r\n  border-radius: 4px;\r\n  margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 80px;\r\n  flex-shrink: 0;\r\n  border-top-left-radius: 4px;\r\n  border-bottom-left-radius: 4px;\r\n  background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n  width: 40px;\r\n  height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n  display: flex;\r\n  align-items: center;\r\n  flex: 1;\r\n  border-top-right-radius: 4px;\r\n  border-bottom-right-radius: 4px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n  flex: 1;\r\n  padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n  font-size: 14px;\r\n  color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n  margin-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  flex-basis: 90px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n  width: 54px;\r\n  height: 28px;\r\n  border-radius: 4px;\r\n  font-size: 13px;\r\n  text-align: center;\r\n  line-height: 28px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n  max-height: 100vh;\r\n  overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n  height: 600px;\r\n  padding-top: 10px;\r\n  border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item {\r\n  position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n  display: none;\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  z-index: 10;\r\n  pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n  height: 80%;\r\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n  height: 20%;\r\n  background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n  display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n  padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n  animation-name: enterAnimation-jumpReply-7041f671;\r\n  animation-duration: 5s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  width: 80px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n  position: absolute;\r\n  top: 0;\r\n  right: 0;\r\n  user-select: none;\r\n  transform: translateY(-15px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\r\n  width: 82px;\r\n  height: 36px;\r\n  transform: translateY(6px);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\r\n  width: var(--213e47ca);\r\n  height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\r\n  height: 48px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\r\n  position: absolute;\r\n  right: 0;\r\n  font-size: 13px;\r\n  color: var(--2bd55d12);\r\n  line-height: 16px;\r\n  word-break: keep-all;\r\n  transform: scale(0.7);\r\n  transform-origin: center center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\r\n  font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 13px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .user-info {\r\n    font-size: 14px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Medium,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 500;\r\n  margin-right: 5px;\r\n  color: var(--dc735352);\r\n  cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--697d5c46);\r\n  height: 12px;\r\n  padding: 2px;\r\n  border-radius: 2px;\r\n  background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\r\n  border: 0.5px solid var(--brand_pink);\r\n  background-color: transparent;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 16px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  color: var(--brand_pink);\r\n  white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 14px;\r\n  padding-left: 5px;\r\n  border: 0.5px solid var(--3d3b5a1e);\r\n  border-radius: 10px;\r\n  margin-left: 5px;\r\n  background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\r\n  position: absolute;\r\n  left: -8px;\r\n  width: 20px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\r\n  position: absolute;\r\n  right: 0;\r\n  width: 8px;\r\n  height: 11px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: var(--4f9eed68);\r\n  height: 100%;\r\n  margin-right: 4px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 18px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  color: var(--57e6be72);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  transform: scale(0.5) translate(-50%, -50%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: relative;\r\n  width: 11.5px;\r\n  height: 11.5px;\r\n  border-radius: 50%;\r\n  margin-right: 0.5px;\r\n  background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 14px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  position: absolute;\r\n  top: 52%;\r\n  left: 50%;\r\n  font-family: Reeji-CloudHuPo-GBK;\r\n  color: var(--103312b6);\r\n  font-weight: 500;\r\n  white-space: nowrap;\r\n  line-height: 1;\r\n  transform: scale(0.5) translate(-50%, -43%);\r\n  transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n  margin-bottom: 4px;\r\n  height: 20px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n  background-color: var(--Pi1);\r\n  color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n  background-color: var(--brand_blue_thin);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n  background-color: var(--graph_bg_regular);\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n  color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n  position: relative;\r\n  padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 15px;\r\n    line-height: 24px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n  .reply-item .root-reply-container .content-warp .root-reply {\r\n    font-size: 16px;\r\n    line-height: 26px;\r\n  }\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\r\n  display: block;\r\n  overflow: hidden;\r\n  width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 2px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\r\n  margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: #9499a0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\r\n  color: #9499a0;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\r\n  color: #00aeec;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  position: absolute;\r\n  right: 20px;\r\n  display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 6px;\r\n  font-size: 12px;\r\n  line-height: 17px;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\r\n  padding: 2px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n}\r\n\r\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\r\n  display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n  padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n  padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n  margin-left: 80px;\r\n  border-bottom: 1px solid var(--graph_bg_thick);\r\n  margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: 30px;\r\n  left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n  0% {\r\n    background-color: #dff6fb;\r\n  }\r\n\r\n  to {\r\n    background-color: #dff6fb00;\r\n  }\r\n}\r\n\r\n.reply-list {\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n  color: var(--brand_blue);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: calc(100% - 80px);\r\n  height: 50px;\r\n  margin: 16px 0 0 auto;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--brand_blue);\r\n  background-color: var(--brand_blue_thin);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n  background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n  position: absolute;\r\n  top: var(--555c4a14);\r\n  left: var(--8468e010);\r\n  z-index: 10;\r\n  width: 366px;\r\n  border: 0.5px solid var(--graph_weak);\r\n  border-radius: 8px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n  width: 100%;\r\n  height: 85px;\r\n  border-radius: 8px 8px 0 0;\r\n  overflow: hidden;\r\n  background-image: var(--71924242);\r\n  background-size: cover;\r\n  background-repeat: no-repeat;\r\n  background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 70px;\r\n  margin-top: 10px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n  padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  color: var(--text1);\r\n  margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n  max-width: 160px;\r\n  margin-right: 5px;\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  color: var(--text1);\r\n  color: var(--7ba58c95);\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: var(--7a718880);\r\n  height: 16px;\r\n  padding: 1px 4px;\r\n  border-radius: 2px;\r\n  color: var(--612d8511);\r\n  background-color: var(--29ab308e);\r\n  cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  font-size: 20px;\r\n  transform-origin: center center;\r\n  transform: scale(0.5);\r\n  white-space: nowrap;\r\n  font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n  margin-right: 18px;\r\n  color: inherit;\r\n  text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n  margin-left: 3px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n  padding-top: 10px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n  vertical-align: text-bottom;\r\n  margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n  padding-top: 8px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n  display: flex;\r\n  margin-top: 16px;\r\n  font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border-radius: 4px;\r\n  margin-right: 8px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n  transition: 0.4s;\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\r\n  display: none;\r\n  position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n  color: var(--text2);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\r\n  display: none;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\r\n  display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 100px;\r\n  height: 30px;\r\n  border: 1px solid var(--graph_weak);\r\n  border-radius: 4px;\r\n  color: var(--text2);\r\n  cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n  border-color: var(--brand_blue);\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  z-index: 10;\r\n  top: var(--7b058890);\r\n  left: 400px;\r\n  width: 710px;\r\n  height: 550px;\r\n  border-radius: 6px;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n  display: flex;\r\n  align-items: center;\r\n  flex-basis: 50px;\r\n  padding: 0 10px;\r\n  border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n  flex: 1;\r\n  text-align: center;\r\n  font-size: 16px;\r\n  color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 30px;\r\n  height: 30px;\r\n  border-radius: 6px;\r\n  color: var(--text2);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n  flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n  width: 4px;\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n  border-radius: 4px;\r\n  background-color: var(--graph_bg_thick);\r\n  transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n  border-radius: 4px;\r\n  background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n  position: fixed;\r\n  z-index: 999999;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background: rgba(24, 25, 28, 0.85);\r\n  transform: scale(1);\r\n  user-select: none;\r\n  cursor: default;\r\n  -webkit-user-select: none;\r\n  -moz-user-select: none;\r\n  -ms-user-select: none;\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n  box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  z-index: 2;\r\n  width: 42px;\r\n  height: 42px;\r\n  border-radius: 50%;\r\n  color: var(--text_white);\r\n  background: rgba(0, 0, 0, 0.58);\r\n  transition: 0.2s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n  top: 16px;\r\n  right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n  top: 50%;\r\n  left: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n  top: 50%;\r\n  right: 16px;\r\n  transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  max-height: 100%;\r\n  padding: 0 100px;\r\n  overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n  position: absolute;\r\n  top: 50%;\r\n  left: 50%;\r\n  transform: translate(-50%, -50%);\r\n  width: 42px;\r\n  height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n  flex-direction: column;\r\n  justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n  width: calc(100vw - 200px);\r\n  max-width: var(--34114ac9);\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n  left: 50%;\r\n  bottom: 30px;\r\n  z-index: 2;\r\n  padding: 6px 10px;\r\n  border-radius: 8px;\r\n  background: rgba(24, 25, 28, 0.8);\r\n  backdrop-filter: blur(20px);\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n  padding: 1px;\r\n  border: 2px solid transparent;\r\n  border-radius: 8px;\r\n  transition: 0.3s;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  overflow: hidden;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\r\n  justify-content: start;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\r\n  -webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n  transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n  transform: scale(0.4);\r\n  opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n  position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n  position: fixed;\r\n  bottom: 0;\r\n  left: var(--3e88ddc5);\r\n  z-index: 10;\r\n  width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n  transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n  opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  font-weight: 400;\r\n  box-sizing: border-box;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n  .bili-comment.browser-pc * {\r\n    font-family:\r\n      -apple-system,\r\n      BlinkMacSystemFont,\r\n      Helvetica Neue,\r\n      Helvetica,\r\n      Arial,\r\n      PingFang SC,\r\n      Hiragino Sans GB,\r\n      Microsoft YaHei,\r\n      sans-serif;\r\n  }\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n  padding: 0;\r\n  margin: 0;\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n  font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n  animation-name: enterAnimation-commentContainer;\r\n  animation-duration: 1s;\r\n  animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n  display: inline-flex;\r\n  position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n  display: flex;\r\n  flex-direction: column;\r\n  position: absolute;\r\n  top: 10px;\r\n  right: 0;\r\n  z-index: 10;\r\n  width: 180px;\r\n  padding: 12px 0;\r\n  border-radius: 6px;\r\n  font-size: 14px;\r\n  color: var(--text2);\r\n  background-color: var(--bg1_float);\r\n  box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n  display: flex;\r\n  align-items: center;\r\n  height: 40px;\r\n  padding: 0 15px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 50%;\r\n  width: auto;\r\n  padding: 10px 20px;\r\n  border: 1px solid var(--graph_bg_thick);\r\n  border-radius: 8px;\r\n  margin-bottom: 100px;\r\n  font-size: 12px;\r\n  line-height: 12px;\r\n  text-align: center;\r\n  white-space: nowrap;\r\n  background-color: var(--bg1);\r\n  box-shadow: 0 0 5px #0003;\r\n  transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n  display: flex;\r\n  justify-content: center;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n  border-radius: 4px;\r\n  margin-right: 20px;\r\n  color: var(--text_white);\r\n  background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\r\n  background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 40px;\r\n  height: 20px;\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n  width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n  text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n  width: 130px;\r\n  margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n  width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n  text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n  margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  height: 40px;\r\n  padding: 11px 14px;\r\n  margin-bottom: 10px;\r\n  font-size: 12px;\r\n  border-radius: 2px;\r\n  color: var(--text_notice);\r\n  background-color: var(--Or0);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n  flex: 1;\r\n  position: relative;\r\n  padding: 0 5px;\r\n  line-height: 18px;\r\n  vertical-align: top;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n  margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  list-style: none;\r\n  margin: 0;\r\n  padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n  font-size: 12px;\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n  height: 10px;\r\n  margin: 0 8px;\r\n  border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n  color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n  position: absolute;\r\n  right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n  position: relative;\r\n  flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n  width: 100%;\r\n  height: 32px;\r\n  padding: 5px 12px;\r\n  border: 1px solid transparent;\r\n  border-radius: 6px;\r\n  line-height: 20px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2);\r\n  resize: none;\r\n  outline: none;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n  color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n  border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 10px;\r\n  height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n  position: relative;\r\n  margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 70px;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n  position: absolute;\r\n  z-index: 1;\r\n  color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n  content: "";\r\n  position: absolute;\r\n  opacity: 0.5;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 4px;\r\n  background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n  height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n  opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  z-index: 1;\r\n  width: 100%;\r\n  height: 100%;\r\n  border-radius: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n  cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n  opacity: 1;\r\n  background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n  vertical-align: -3px;\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 0 3px;\r\n  line-height: 19px;\r\n  border-radius: 4px;\r\n  margin-right: 6px;\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n  background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n  width: 16px;\r\n  height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n  color: var(--text1);\r\n  overflow: hidden;\r\n  word-wrap: break-word;\r\n  word-break: break-word;\r\n  white-space: pre-wrap;\r\n  vertical-align: baseline;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n  line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n  line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n  display: inline-flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  position: relative;\r\n  width: 30px;\r\n  height: 18px;\r\n  border: 1px solid var(--brand_pink);\r\n  border-radius: 3px;\r\n  margin-right: 5px;\r\n  font-size: 12px;\r\n  color: var(--brand_pink);\r\n  vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n  width: 36px;\r\n  height: 36px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n  vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n  width: 16px;\r\n  height: 16px;\r\n  margin-right: 3px;\r\n  vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n  width: 12px;\r\n  display: inline-block;\r\n  background-size: contain;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n  line-height: 17px;\r\n  cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n  position: relative;\r\n  max-height: 42px;\r\n  padding: 3px 0;\r\n  font-size: 14px;\r\n  overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  color: var(--text2);\r\n  line-height: 20px;\r\n  vertical-align: baseline;\r\n  white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n  margin-right: 5px;\r\n  font-size: 14px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n  margin-right: 4px;\r\n  cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n  border-radius: 4px;\r\n  padding: 7px 10px;\r\n  margin-top: 12px;\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n  margin-top: 4px;\r\n  cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n  font-size: 12px;\r\n  color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  padding: 4px;\r\n  border-radius: 4px;\r\n  color: var(--text1);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n  margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: 0;\r\n  cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n  width: 30px;\r\n  height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n  color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n  position: relative;\r\n  padding: 10px 0 14px 42px;\r\n  border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n  flex: 1;\r\n  position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n  display: flex;\r\n  justify-content: center;\r\n  position: absolute;\r\n  left: -42px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n  display: flex;\r\n  align-items: center;\r\n  font-size: 13px;\r\n  color: var(--text2);\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\r\n  margin-right: 5px;\r\n  color: var(--be794234);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\r\n  margin-right: 5px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n  cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n  font-size: 12px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n  position: relative;\r\n  font-size: 15px;\r\n  line-height: 25px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n  display: flex;\r\n  align-items: center;\r\n  position: relative;\r\n  margin-top: 12px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\r\n  margin-right: 5px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 19px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n  color: var(--text3);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\r\n  color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: none;\r\n  position: absolute;\r\n  right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n  margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-top: 12px;\r\n  font-size: 12px;\r\n  line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n  padding: 5px 6px;\r\n  border-radius: 2px;\r\n  margin-right: 10px;\r\n  color: var(--text2);\r\n  background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\r\n  display: block;\r\n}\r\n\r\n.reply-list {\r\n  position: relative;\r\n  margin-top: 14px;\r\n  padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n  margin-top: 100px;\r\n  text-align: center;\r\n  font-size: 14px;\r\n  color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n  height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n  margin-top: 20px;\r\n  font-size: 13px;\r\n  color: var(--text3);\r\n  text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n  bottom: 0;\r\n  z-index: 20;\r\n  width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n  background-color: var(--bg1);\r\n  padding: 14px 0;\r\n  border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n  position: absolute;\r\n  top: -10px;\r\n  z-index: -1;\r\n  height: 36px;\r\n  border-radius: 50%;\r\n  background-color: #00000014;\r\n  filter: blur(10px);\r\n  width: calc(100% - 72px);\r\n  left: 50%;\r\n  transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n  flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n  flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n  display: flex;\r\n  align-items: center;\r\n  position: sticky;\r\n  z-index: 9;\r\n  top: 0;\r\n  left: 0;\r\n  height: 46px;\r\n  border-bottom: 1px solid var(--line_light);\r\n  margin-bottom: 14px;\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  width: 32px;\r\n  height: 32px;\r\n  border-radius: 4px;\r\n  margin-right: 4px;\r\n  color: var(--text1);\r\n  cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n  background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n  font-size: 16px;\r\n  font-weight: 600;\r\n  color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n  background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n  box-sizing: border-box;\r\n  font-family:\r\n    PingFang SC,\r\n    HarmonyOS_Regular,\r\n    Helvetica Neue,\r\n    Microsoft YaHei,\r\n    sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n  list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n  text-decoration: none;\r\n  background-color: transparent;\r\n  color: var(--text_link);\r\n  cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n  color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n  font-style: normal;\r\n}\r\n';
+  const BilibiliUrl = {
+    getUserSpaceUrl(userId) {
+      return `https://m.bilibili.com/space/${userId}`;
+    },
+    getUserSpaceDynamicUrl(id) {
+      return `https://m.bilibili.com/dynamic/${id}`;
+    },
+    getUserSpaceOpusUrl(id) {
+      return `https://m.bilibili.com/opus/${id}`;
+    },
+    getVideoUrl(id) {
+      return `https://m.bilibili.com/video/${id}`;
+    },
+  };
+  const VueUtils = {
+    getVue($el) {
+      if ($el == null) {
+        return;
+      }
+      return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
+    },
+    getVue3($el) {
+      if ($el == null) {
+        return;
+      }
+      return $el["__vueParentComponent"];
+    },
+    waitVuePropToSet($el, checkOption) {
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
+        }
+        return __target__;
+      }
+      checkOption.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl,
+            };
+          }
+          let vueInst = VueUtils.getVue($targetEl);
+          if (vueInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl,
+            };
+          }
+          let checkResult = needSetOption.check(vueInst, $targetEl);
+          checkResult = Boolean(checkResult);
+          return {
+            status: checkResult,
+            isTimeout: false,
+            inst: vueInst,
+            $el: $targetEl,
+          };
+        }
+        utils
+          .waitVueByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then((result) => {
+            let checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              let vueInst = checkTargetResult.inst;
+              needSetOption.set(vueInst, checkTargetResult.$el);
+            } else {
+              if (typeof needSetOption.failWait === "function") {
+                needSetOption.failWait(checkTargetResult.isTimeout);
+              }
+            }
+          });
+      });
+    },
+    watchVuePropChange($el, key, callback, watchConfig, failWait) {
+      let config = utils.assign(
+        {
+          immediate: true,
+          deep: false,
+        },
+        watchConfig || {}
+      );
+      return new Promise((resolve) => {
+        VueUtils.waitVuePropToSet($el, {
+          check(vueInstance) {
+            return typeof vueInstance?.$watch === "function";
+          },
+          set(vueInstance) {
+            let removeWatch = null;
+            if (typeof key === "function") {
+              removeWatch = vueInstance.$watch(
+                () => {
+                  return key(vueInstance);
+                },
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            } else {
+              removeWatch = vueInstance.$watch(
+                key,
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            }
+            resolve(removeWatch);
+          },
+          failWait,
+        });
+      });
+    },
+    goToUrl($el, path, useRouter = false) {
+      if ($el == null) {
+        Qmsg.error("跳转Url: $vueNode为空");
+        log.error("跳转Url: $vueNode为空：" + path);
+        return;
+      }
+      let vueInstance = VueUtils.getVue($el);
+      if (vueInstance == null) {
+        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        return;
+      }
+      let $router = vueInstance.$router;
+      let isBlank = true;
+      log.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isBlank = false;
+      }
+      if (isBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log.info("$router push跳转Url：" + path);
+        $router.push(path);
+      }
+    },
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueInst.$router.history.push(option.hash);
+        domUtils.on(_unsafeWindow, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domUtils.off(_unsafeWindow, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueInst.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueInst.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack,
+      };
+    },
+  };
+  const BilibiliUtils = {
+    goToUrl(path, useRouter = false) {
+      let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
+      log.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isGoToUrlBlank = false;
+      }
+      if (isGoToUrlBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log.info("$router push跳转Url：" + path);
+        let $app = $("#app");
+        if ($app == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          Qmsg.error("跳转Url: 获取根元素#app失败");
+          log.error("跳转Url: 获取根元素#app失败：" + path);
+          return;
+        }
+        let vueInstance = VueUtils.getVue($app);
+        if (vueInstance == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          log.error("获取#app的vue属性失败");
+          Qmsg.error("获取#app的vue属性失败");
+          return;
+        }
+        let $router = vueInstance.$router;
+        $router.push(path);
+      }
+    },
+    goToLogin(fromUrl = "") {
+      window.open(`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(fromUrl)}`);
+    },
+    parseDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      function zeroPadding(num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      }
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      } else {
+        return `${Math.floor(duration / 3600)}:${zeroPadding(
+          Math.floor(duration / 60) % 60
+        )}:${zeroPadding(duration % 60)}`;
+      }
+    },
+    parseCount(count) {
+      let countText = count.toString();
+      if (count > 1e4) {
+        let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
+        if (roundNum.endsWith(".0")) {
+          roundNum = roundNum.slice(0, -2);
+        }
+        countText = `${roundNum}万`;
+      } else if (count > 1e4 * 1e4) {
+        let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
+        if (roundNum.endsWith(".0")) {
+          roundNum = roundNum.slice(0, -2);
+        }
+        countText = `${roundNum}亿`;
+      }
+      return countText;
+    },
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log.success("监听地址改变");
+        option.vueInst.$router.history.push(option.hash);
+        domUtils.on(window, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domUtils.off(window, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueInst.$router.history.current.hash === option.hash) {
+            log.info("后退！");
+            option.vueInst.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack,
+      };
+    },
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      domUtils.onReady(() => {
+        let meta = domUtils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+          }
+        );
+        domUtils.remove("meta[name='viewport']");
+        domUtils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
+      });
+    },
+  };
+  class GestureBack {
+    isBacking = false;
+    config;
+    constructor(config) {
+      this.config = config;
+      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+      this.popStateEvent = this.popStateEvent.bind(this);
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+        this.config.backDelayTime = 150;
+      }
+      if (this.config.win == null) {
+        this.config.win = self;
+      }
+    }
+    popStateEvent(event) {
+      domUtils.preventEvent(event);
+      if (this.isBacking) {
+        return;
+      }
+      this.quitGestureBackMode(true);
+    }
+    enterGestureBackMode() {
+      log.success("进入手势模式");
+      let pushUrl = this.config.hash;
+      if (!pushUrl.startsWith("#")) {
+        if (!pushUrl.startsWith("/")) {
+          pushUrl = "/" + pushUrl;
+        }
+        pushUrl = "#" + pushUrl;
+      }
+      if (this.config.useUrl) {
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
+      log.success("监听popstate事件");
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+    }
+    async quitGestureBackMode(isUrlChange = false) {
+      this.isBacking = true;
+      log.success("退出手势模式");
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        this.config.beforeHistoryBackCallBack(isUrlChange);
+      }
+      let maxDate = Date.now() + 1e3 * 5;
+      while (true) {
+        if (Date.now() > maxDate) {
+          log.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        if (this.config.win.location.hash.endsWith(this.config.hash)) {
+          log.info("history.back()");
+          this.config.win.history.back();
+          await Utils.sleep(this.config.backDelayTime || 150);
+        } else {
+          break;
+        }
+      }
+      log.success("移除popstate事件");
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+      this.isBacking = false;
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        this.config.afterHistoryBackCallBack(isUrlChange);
+      }
+    }
+  }
+  const artPlayerCSS$1 =
+    ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
+  const artPlayerCommonCSS =
+    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+  const BilibiliApiRequestCheck = {
+    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
+      if ("aid" in config && config["aid"] != null) {
+        Reflect.set(searchParamsData, "aid", config.aid);
+      } else if ("bvid" in config && config["bvid"] != null) {
+        Reflect.set(searchParamsData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+    },
+  };
+  const BilibiliVideoApi = {
+    async playUrl(config, extraParams) {
+      let searchParamsData = {
+        cid: config.cid,
+        qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
+        high_quality: config.high_quality ?? 1,
+        fnval: config.fnval ?? 1,
+        fnver: config.fnver ?? 0,
+        fourk: config.fourk ?? 1,
+        try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
+        platform: config.setPlatformHTML5 ? "html5" : "pc",
+      };
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      if (typeof extraParams === "object" && extraParams !== null) {
+        Object.assign(searchParamsData, extraParams);
+      }
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          responseType: "json",
+          fetch: true,
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (data2["code"] !== 0) {
+        return;
+      }
+      return data2["data"];
+    },
+    async onlineTotal(config) {
+      let searchParamsData = {
+        cid: config.cid,
+      };
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      let httpxResponse = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
+        {
+          responseType: "json",
+          fetch: true,
+        }
+      );
+      if (!httpxResponse.status) {
+        return;
+      }
+      let data2 = utils.toJSON(httpxResponse.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        log.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
+      }
+      return data2["data"];
+    },
+    async like(config) {
+      let searchParamsData = {
+        like: config.like,
+        csrf: cookieManager.get("bili_jct")?.value || "",
+      };
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+      let getResp = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          fetch: true,
+        }
+      );
+      if (!getResp.status) {
+        return false;
+      }
+      let data2 = utils.toJSON(getResp.data.responseText);
+      const code = data2["code"];
+      if (code === 0) {
+        return true;
+      }
+      if (code === -101) {
+        Qmsg.error("账号未登录");
+      } else if (code === -111) {
+        Qmsg.error("csrf校验失败");
+      } else if (code === -400) {
+        Qmsg.error("请求错误");
+      } else if (code === -403) {
+        Qmsg.error("账号异常");
+      } else if (code === 10003) {
+        Qmsg.error("不存在该稿件");
+      } else if (code === 65004) {
+        Qmsg.error("取消点赞失败");
+      } else if (code === 65006) {
+        Qmsg.warning("重复点赞");
+      } else {
+        Qmsg.error("未知错误：" + data2["message"]);
+      }
+      return false;
     },
   };
   const VideoSoundQualityCode = {
@@ -4520,7 +4976,7 @@
         } else {
           M4SAudio.$data.art.setting.add(settingOption);
         }
-        log$1.info("加载m4s的音频：", currentSelectAudioInfo);
+        log.info("加载m4s的音频：", currentSelectAudioInfo);
         M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
         this.bind();
         this.bindAudio();
@@ -5801,7 +6257,7 @@
       if ($mplayer.hasAttribute("data-mutation")) {
         return;
       }
-      log$1.success(`添加观察器，动态更新toast的位置`);
+      log.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
       utils.mutationObserver($mplayer, {
         config: {
@@ -6364,14 +6820,14 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      log$1.info(`更新新的播放信息`, option);
+      log.info(`更新新的播放信息`, option);
       art.pause();
-      log$1.info(`暂停视频`);
+      log.info(`暂停视频`);
       art.currentTime = 0;
-      log$1.info(`重置播放进度`);
+      log.info(`重置播放进度`);
       this.updatePluginInfo(art, option);
       art.play();
-      log$1.info("播放");
+      log.info("播放");
     },
     updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
@@ -6379,13 +6835,13 @@
         from: "video",
         qualityList: option.quality,
       });
-      log$1.info(`更新画质`, option.quality);
+      log.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
           danmuku: option.danmukuUrl,
         });
         art.plugins.artplayerPluginDanmuku.load();
-        log$1.info(`更新弹幕姬`, option.danmukuUrl);
+        log.info(`更新弹幕姬`, option.danmukuUrl);
       }
       if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
@@ -6393,7 +6849,7 @@
           from: "video",
           audioList: option.audioList || [],
         });
-        log$1.info(`更新音频`, option.audioList);
+        log.info(`更新音频`, option.audioList);
       }
       if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
@@ -6401,7 +6857,7 @@
           EP_LIST: generateVideoSelectSetting(option),
           automaticBroadcast: true,
         });
-        log$1.info(`更新选集信息`, option.epList);
+        log.info(`更新选集信息`, option.epList);
       }
       if (Panel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
         let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
@@ -6412,7 +6868,7 @@
           cid: option.cid,
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
-        log$1.info(`更新字幕`, subTitleOption);
+        log.info(`更新字幕`, subTitleOption);
       }
       if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
         let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
@@ -6430,7 +6886,7 @@
           },
         };
         plugin_topToolBar.update(topToolBarOption);
-        log$1.info(`更新顶部标题`, topToolBarOption);
+        log.info(`更新顶部标题`, topToolBarOption);
       }
     },
   };
@@ -6478,7 +6934,7 @@
         qn: 127,
         setPlatformHTML5: true,
       });
-      log$1.info(["视频播放地址信息：", videoPlayInfo]);
+      log.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
         return;
       }
@@ -6511,7 +6967,7 @@
         qn: 127,
         setPlatformHTML5: false,
       });
-      log$1.info(["视频播放地址信息：", videoPlayInfo]);
+      log.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
         return;
       }
@@ -6531,7 +6987,7 @@
       audioInfo.sort((leftItem, rightItem) => {
         return rightItem.id - leftItem.id;
       });
-      log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
+      log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
       qualityInfo = [
         ...handleDashVideoQualityInfo$1({
           accept_quality: videoPlayInfo.accept_quality,
@@ -6539,7 +6995,7 @@
           video: videoPlayInfo.dash.video,
         }),
       ];
-      log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
+      log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
       return {
@@ -6594,9 +7050,9 @@
     },
     coverVideoPlayer() {
       if ($("#artplayer")) {
-        log$1.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
+        log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
-        log$1.info(`覆盖播放器`);
+        log.info(`覆盖播放器`);
         addStyle(
           `
             /* 隐藏原本的播放器 */
@@ -6751,7 +7207,7 @@
               epList: epInfoList,
             };
           }
-          log$1.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+          log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
           const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
           if (artPlayerOption == null) {
             return;
@@ -6778,10 +7234,10 @@
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
-                log$1.info(`自动进入全屏`);
+                log.info(`自动进入全屏`);
                 that.$data.art.fullscreen = true;
                 that.$data.art.once("fullscreenError", () => {
-                  log$1.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+                  log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
                   that.$data.art.fullscreenWeb = true;
                 });
               });
@@ -6789,7 +7245,7 @@
           } else {
             const $artContainer = $(".artplayer-container");
             if ($artContainer && !$artContainer.contains(that.$data.art.template.$container)) {
-              log$1.warn("artplayer-container的artplayer被移除了，重新添加元素");
+              log.warn("artplayer-container的artplayer被移除了，重新添加元素");
               domUtils.empty($artContainer);
               domUtils.append($artContainer, that.$data.art.template.$container);
             }
@@ -6827,7 +7283,7 @@
       });
     },
     beautify() {
-      log$1.info("美化显示");
+      log.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
         addStyle(
@@ -6963,7 +7419,7 @@
       }
       domUtils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(($cardBox) => {
         if (!$cardBox) {
-          log$1.error("$cardBox is null");
+          log.error("$cardBox is null");
           return;
         }
         function handleVCardToApp($vCard) {
@@ -6974,7 +7430,7 @@
           if ($originTitle && $originLeft && vueObj && !isHandled) {
             let upName = vueObj?.info?.owner?.name;
             if (upName == null) {
-              log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
+              log.error("美化显示-handleVCardToApp：获取up主名字失败");
               return;
             }
             $vCard.querySelector(".count");
@@ -7013,12 +7469,12 @@
           if ($originTitle && $originCount && vueObj && !isHandled) {
             let duration = vueObj?.info?.duration;
             if (duration == null) {
-              log$1.error("美化显示-handleVCard：获取视频时长失败");
+              log.error("美化显示-handleVCard：获取视频时长失败");
               return;
             }
             let upName = vueObj?.info?.owner?.name;
             if (upName == null) {
-              log$1.error("美化显示-handleVCard：获取up主名字失败");
+              log.error("美化显示-handleVCard：获取up主名字失败");
               return;
             }
             let $cloneTitle = $originTitle.cloneNode(true);
@@ -7072,12 +7528,12 @@
             },
           });
         } else {
-          log$1.error("未找到视频根节点");
+          log.error("未找到视频根节点");
         }
       });
     },
     repairVideoBottomAreaHeight() {
-      log$1.info("修复视频底部区域高度");
+      log.info("修复视频底部区域高度");
       return addStyle(
         `
 		${BilibiliData.className.video},
@@ -7107,7 +7563,7 @@
       );
     },
     coverUpWrapper() {
-      log$1.info(`修复up主信息区域的点击事件`);
+      log.info(`修复up主信息区域的点击事件`);
       domUtils.on(
         document,
         "click",
@@ -7119,12 +7575,12 @@
           let $click = event.target;
           let $bottomWrapper = $click.closest(".bottom-wrapper");
           if (!$bottomWrapper) {
-            log$1.error("获取元素.bottom-wrapper失败");
+            log.error("获取元素.bottom-wrapper失败");
             return;
           }
           let vueInstance = VueUtils.getVue($bottomWrapper);
           if (!vueInstance) {
-            log$1.error("获取元素.bottom-wrapper的vue实例失败");
+            log.error("获取元素.bottom-wrapper的vue实例失败");
             return;
           }
           let mid = vueInstance?.upInfo?.card?.mid;
@@ -7140,7 +7596,7 @@
       );
     },
     coverBottomRecommendVideo() {
-      log$1.info("覆盖 相关视频 点击事件");
+      log.info("覆盖 相关视频 点击事件");
       domUtils.on(
         document,
         "click",
@@ -7164,7 +7620,7 @@
               return;
             }
           }
-          log$1.info("相关视频的bvid: " + bvid);
+          log.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
           domUtils.preventEvent(event);
         },
@@ -7174,7 +7630,7 @@
       );
     },
     coverSeasonNew() {
-      log$1.info("覆盖 选集视频列表 点击事件");
+      log.info("覆盖 选集视频列表 点击事件");
       function ClickCallBack(event) {
         let $click = event.target;
         let vueObj = VueUtils.getVue($click);
@@ -7187,7 +7643,7 @@
           Qmsg.error("获取相关视频的bvid失败");
           return;
         }
-        log$1.info("相关视频的bvid: " + bvid);
+        log.info("相关视频的bvid: " + bvid);
         BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
         domUtils.preventEvent(event);
       }
@@ -7217,7 +7673,7 @@
       );
     },
     repairLinkJump() {
-      log$1.info(`修复链接跳转`);
+      log.info(`修复链接跳转`);
       let lockFn = new utils.LockFunction(() => {
         ["a.member-link:not([href])[data-url]", "a.jump-link:not([href])[data-url]"].forEach((selector) => {
           $$(selector).forEach(($el) => {
@@ -7236,7 +7692,7 @@
       });
     },
     gestureReturnToCloseCommentArea() {
-      log$1.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
+      log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       domUtils.waitNode("#app").then(($app) => {
         utils
           .waitVueByInterval(
@@ -7254,16 +7710,16 @@
           .then((result) => {
             let appVue = VueUtils.getVue($app);
             if (!appVue) {
-              log$1.error("获取#app的vue属性失败");
+              log.error("获取#app的vue属性失败");
               return;
             }
             let oldScrollBehavior = appVue.$router.options.scrollBehavior;
             appVue.$router.options.scrollBehavior = function (to, from, scrollInfo) {
               if (to["hash"] === "#/seeCommentReply") {
-                log$1.info("当前操作为打开评论区，scrollBehavior返回null");
+                log.info("当前操作为打开评论区，scrollBehavior返回null");
                 return null;
               } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-                log$1.info("当前操作为关闭评论区，scrollBehavior返回null");
+                log.info("当前操作为关闭评论区，scrollBehavior返回null");
                 return null;
               }
               return oldScrollBehavior.call(this, ...arguments);
@@ -7274,7 +7730,7 @@
         let $app = $("#app");
         let appVue = VueUtils.getVue($app);
         if (!appVue) {
-          log$1.error("获取#app元素失败");
+          log.error("获取#app元素失败");
           return;
         }
         let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
@@ -7288,7 +7744,7 @@
             if ($dialogCloseIcon) {
               $dialogCloseIcon.click();
             } else {
-              log$1.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
+              log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
             }
             return true;
           },
@@ -7311,15 +7767,15 @@
     enterVideoFullScreen() {
       domUtils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
-          log$1.error("获取全屏按钮失败");
+          log.error("获取全屏按钮失败");
           Qmsg.error("获取全屏按钮失败");
           return;
         }
         if ($btnWideScreen.closest(".mplayer-wide")) {
-          log$1.warn("当前的全屏按钮是【退出全屏】，不点击");
+          log.warn("当前的全屏按钮是【退出全屏】，不点击");
           return;
         }
-        log$1.info(`进入全屏`);
+        log.info(`进入全屏`);
         $btnWideScreen.click();
       });
     },
@@ -7348,8 +7804,8 @@
               const videoPlayerRect = $mVideoPlayer.getBoundingClientRect();
               videoPlayerMaxHeight = videoPlayerRect.height;
               videoPlayerMaxPaddingTop = videoPlayerRect.top;
-              log$1.info(`视频区域的最大高度为 ${videoPlayerMaxHeight}px`);
-              log$1.info(`视频区域的最大top为 ${videoPlayerMaxPaddingTop}px`);
+              log.info(`视频区域的最大高度为 ${videoPlayerMaxHeight}px`);
+              log.info(`视频区域的最大top为 ${videoPlayerMaxPaddingTop}px`);
             }
           }
           if (checkNodeIsNull($mVideoInfoNew)) {
@@ -7405,7 +7861,7 @@
       );
     },
     disableSwipeTab() {
-      log$1.info(`禁止滑动切换tab`);
+      log.info(`禁止滑动切换tab`);
       VueUtils.waitVuePropToSet(".m-video-bottom-tab", {
         msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
         check(vueInstance) {
@@ -7423,12 +7879,12 @@
           $bindTarget.removeEventListener("touchmove", vueInstance.slider.events.touchmove);
           $bindTarget.removeEventListener("touchend", vueInstance.slider.events.touchend);
           vueInstance.slider._bindEvents = () => {};
-          log$1.success(`成功禁用滑动，清除touchstart、touchmove、touchend事件，覆盖_bindEvents函数`);
+          log.success(`成功禁用滑动，清除touchstart、touchmove、touchend事件，覆盖_bindEvents函数`);
         },
       });
     },
     addCommentModule() {
-      log$1.info(`新增评论模块`);
+      log.info(`新增评论模块`);
       if (!this.$data.isInitCommentModule) {
         this.$data.isInitCommentModule = true;
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
@@ -7490,7 +7946,7 @@
       }
       domUtils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
         if (!$videoInfo) {
-          log$1.error(`获取视频信息元素失败`);
+          log.error(`获取视频信息元素失败`);
           return;
         }
         domUtils.remove(".comment-module-show-btn");
@@ -7540,7 +7996,7 @@
       });
     },
     addDescModule() {
-      log$1.info(`新增简介模块`);
+      log.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
         addStyle(
@@ -7756,11 +8212,11 @@
           BilibiliUtils.goToUrl(url);
         } else {
           Qmsg.error("获取bili-open-app的Url失败");
-          log$1.error("获取bili-open-app的Url失败");
+          log.error("获取bili-open-app的Url失败");
         }
       } else {
         Qmsg.error("未获取到<bili-open-app>元素");
-        log$1.error("未获取到<bili-open-app>元素");
+        log.error("未获取到<bili-open-app>元素");
       }
     },
   };
@@ -7772,7 +8228,7 @@
       return sensitiveData;
     },
     failToast(data2) {
-      log$1.error(data2);
+      log.error(data2);
       alert(JSON.stringify(data2, null, 4));
     },
   };
@@ -7790,11 +8246,11 @@
       };
       searchParamsData = utils.assign(searchParamsData, option);
       let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
-      log$1.info(`番剧播放地址请求数据`);
+      log.info(`番剧播放地址请求数据`);
       let failReponseJSON = [];
       let result = void 0;
       const urlPath = "/pgc/player/web/playurl";
-      log$1.info(`请求路径：${urlPath}`);
+      log.info(`请求路径：${urlPath}`);
       for (let index = 0; index < serverHostList.length; index++) {
         const serverHostInfo = serverHostList[index];
         const serverHost = serverHostInfo.host;
@@ -7807,8 +8263,8 @@
             }),
             true
           );
-          log$1.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
-          log$1.info(
+          log.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
+          log.info(
             `代理服务器请求参数：${JSON.stringify(
               BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData)
             )}`
@@ -7826,7 +8282,7 @@
           },
         });
         if (!getResponse.status) {
-          log$1.error(`代理服务器：${serverHost} 请求失败`);
+          log.error(`代理服务器：${serverHost} 请求失败`);
           continue;
         }
         let responseData = utils.toJSON(getResponse.data.responseText);
@@ -7835,7 +8291,7 @@
           !BilibiliApiResponseCheck.isWebApiSuccess(responseData) ||
           BilibiliApiResponseCheck.isAreaLimit(responseData)
         ) {
-          log$1.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(responseData)}`);
+          log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(responseData)}`);
           failReponseJSON.push(responseData);
           continue;
         }
@@ -7855,7 +8311,7 @@
         bsource: "",
       };
       searchParamsData = utils.assign(searchParamsData, option);
-      log$1.info(`（原版api）番剧播放地址请求数据`);
+      log.info(`（原版api）番剧播放地址请求数据`);
       const urlPath = "/pgc/player/web/playurl/html5";
       let url = `https://${BilibiliApiConfig.web_host}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}`;
       let getResponse = await httpx.get(url, {
@@ -8211,14 +8667,14 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      log$1.info(`更新新的播放信息`, option);
+      log.info(`更新新的播放信息`, option);
       art.pause();
-      log$1.info(`暂停视频`);
+      log.info(`暂停视频`);
       art.currentTime = 0;
-      log$1.info(`重置播放进度`);
+      log.info(`重置播放进度`);
       this.updatePluginInfo(art, option);
       art.play();
-      log$1.info("播放");
+      log.info("播放");
     },
     updatePluginInfo(art, option) {
       let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
@@ -8226,13 +8682,13 @@
         from: BilibiliBangumiArtPlayer.$data.from,
         qualityList: option.quality,
       });
-      log$1.info(`更新画质`, option.quality);
+      log.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
           danmuku: option.danmukuUrl,
         });
         art.plugins.artplayerPluginDanmuku.load();
-        log$1.info(`更新弹幕姬`, option.danmukuUrl);
+        log.info(`更新弹幕姬`, option.danmukuUrl);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
@@ -8240,7 +8696,7 @@
           from: BilibiliBangumiArtPlayer.$data.from,
           audioList: option.audioList || [],
         });
-        log$1.info(`更新音频`, option.audioList);
+        log.info(`更新音频`, option.audioList);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
@@ -8248,7 +8704,7 @@
           EP_LIST: generateBangumiVideoSelectSetting(option),
           automaticBroadcast: true,
         });
-        log$1.info(`更新选集信息`, option.epList);
+        log.info(`更新选集信息`, option.epList);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
         let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
@@ -8259,7 +8715,7 @@
           ep_id: option.ep_id,
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
-        log$1.info(`更新字幕`, subTitleOption);
+        log.info(`更新字幕`, subTitleOption);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
         let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
@@ -8277,14 +8733,14 @@
           },
         };
         plugin_topToolBar.update(topToolBarOption);
-        log$1.info(`更新顶部标题`, topToolBarOption);
+        log.info(`更新顶部标题`, topToolBarOption);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
         let plugin_airborneHelper = art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY];
         plugin_airborneHelper.update({
           clip_info_list: option.clip_info_list,
         });
-        log$1.info(`更新空降助手信息`, option.clip_info_list);
+        log.info(`更新空降助手信息`, option.clip_info_list);
       }
     },
   };
@@ -8315,7 +8771,7 @@
       }
       checkOption.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
-          log$1.info(needSetOption.msg);
+          log.info(needSetOption.msg);
         }
         function checkTarget() {
           let $targetEl = getTarget();
@@ -8424,7 +8880,7 @@
       ];
       if (qualityInfoList.length === 0) {
         if (dashBangumiInfo.dash.video.length !== 0) {
-          log$1.warn(
+          log.warn(
             `当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
           );
           qualityInfoList = [
@@ -8478,7 +8934,7 @@
   };
   const GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
     const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
-    log$1.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
+    log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
     const videoTitle = GenerateVideoTitle(title, long_title);
     const audioInfo = [];
     let qualityInfo = [];
@@ -8530,9 +8986,9 @@
             mimeType: item.mimeType || item.mime_type,
           });
         });
-        log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
+        log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
         qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
-        log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
+        log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
       } else {
         BilibiliLogUtils.failToast("暂未适配的视频格式：" + bangumiInfo["format"]);
         return;
@@ -8689,7 +9145,7 @@
       _unsafeWindow.setTimeout = function (...args) {
         let callString = args[0].toString();
         if (callString.includes("autoOpenApp")) {
-          log$1.success("阻止唤醒App", args);
+          log.success("阻止唤醒App", args);
           return;
         }
         return Reflect.apply(oldSetTimeout, this, args);
@@ -8699,7 +9155,7 @@
       domUtils
         .waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container")
         .then(($preContainer) => {
-          log$1.info("覆盖【选集】的点击事件");
+          log.info("覆盖【选集】的点击事件");
           domUtils.on(
             $preContainer,
             "click",
@@ -8716,7 +9172,7 @@
       domUtils
         .waitNode(BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper")
         .then(($listWapper) => {
-          log$1.info("覆盖【xx季】的点击事件");
+          log.info("覆盖【xx季】的点击事件");
           domUtils.on(
             $listWapper,
             "click",
@@ -8731,7 +9187,7 @@
           );
         });
       domUtils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
-        log$1.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
+        log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
         domUtils.on(
           $preHeader,
           "click",
@@ -8767,7 +9223,7 @@
       domUtils
         .waitNode(BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container")
         .then(($preContainer) => {
-          log$1.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
+          log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
           domUtils.on(
             $preContainer,
             "click",
@@ -8782,7 +9238,7 @@
           );
         });
       domUtils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(($previewHeader) => {
-        log$1.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
+        log.info("覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件");
         domUtils.on(
           $previewHeader,
           "click",
@@ -8813,7 +9269,7 @@
     },
     setRecommendClickEvent() {
       domUtils.waitNode(BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list").then(($recomList) => {
-        log$1.info("覆盖【更多推荐】番剧的点击事件");
+        log.info("覆盖【更多推荐】番剧的点击事件");
         domUtils.on(
           $recomList,
           "click",
@@ -8846,7 +9302,7 @@
     },
     coverVideoPlayer() {
       if ($("#artplayer")) {
-        log$1.warn("已存在播放器，更新播放信息");
+        log.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
           `
@@ -8939,8 +9395,8 @@
       }
       let data2 = utils.toJSON(getResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log$1.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
-        log$1.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
+        log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
+        log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
         return {
           isSuccess: false,
           data: data2,
@@ -9051,7 +9507,7 @@
             return;
           }
           let searchBangumiResultData = searchBangumiResultInfo.data;
-          log$1.info("搜索结果：", searchBangumiResultData);
+          log.info("搜索结果：", searchBangumiResultData);
           let $gmResultPanel = domUtils.createElement("div", {
             className: "gm-result-panel",
             innerHTML: `
@@ -9351,13 +9807,13 @@
       });
     },
     coverCancel() {
-      log$1.info("覆盖【取消】按钮的点击事件");
+      log.info("覆盖【取消】按钮的点击事件");
       domUtils.on(
         document,
         "click",
         "a.cancel",
         (event) => {
-          log$1.info(`点击取消按钮`);
+          log.info(`点击取消按钮`);
           domUtils.preventEvent(event);
           window.history.back();
         },
@@ -9367,20 +9823,20 @@
     inputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("keyword")) {
-        log$1.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
+        log.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
         return;
       }
-      log$1.info(`输入框自动获取焦点`);
+      log.info(`输入框自动获取焦点`);
       domUtils.waitNode(`.m-search .m-search-search-bar input[type="search"]`, 1e4).then(($input) => {
         if (!$input) {
-          log$1.error("获取输入框失败");
+          log.error("获取输入框失败");
           return;
         }
         $input.focus();
       });
     },
     coverCardResultClickEvent() {
-      log$1.info(`覆盖搜索结果点击事件`);
+      log.info(`覆盖搜索结果点击事件`);
       domUtils.on(
         document,
         "click",
@@ -9417,15 +9873,15 @@
       });
     },
     blockChatRoom() {
-      log$1.info("屏蔽聊天室");
+      log.info("屏蔽聊天室");
       return CommonUtil.addBlockCSS("#chat-items");
     },
     blockBrushPrompt() {
-      log$1.info("屏蔽xxx进入直播间");
+      log.info("屏蔽xxx进入直播间");
       return CommonUtil.addBlockCSS("#brush-prompt");
     },
     blockControlPanel() {
-      log$1.info("屏蔽底部工具栏");
+      log.info("屏蔽底部工具栏");
       return CommonUtil.addBlockCSS(".control-panel");
     },
   };
@@ -9438,7 +9894,7 @@
     },
     preventOpenAppBtn() {
       domUtils.waitNode("body").then(($body) => {
-        log$1.info("阻止.open-app-btn元素触发点击事件");
+        log.info("阻止.open-app-btn元素触发点击事件");
         domUtils.on(
           $body,
           "click",
@@ -9447,7 +9903,7 @@
             const vueInst = VueUtils.getVue(selectorTarget);
             if (typeof vueInst?.open === "function") {
               vueInst.open = function () {
-                log$1.info(`成功阻止.open-app-btn元素触发点击事件`);
+                log.info(`成功阻止.open-app-btn元素触发点击事件`);
               };
             }
           },
@@ -9476,7 +9932,7 @@
             fnName === "opus/handleFallback" &&
             ![1, 2].includes(vueInstance.fallback.type)
           ) {
-            log$1.success(`禁止调用handleFallback函数前往404`);
+            log.success(`禁止调用handleFallback函数前往404`);
             if (
               typeof vueInstance?.showComment === "boolean" &&
               vueInstance.showComment &&
@@ -9490,13 +9946,13 @@
       });
     },
     isLimit() {
-      log$1.info(`等待 观察并覆盖变量isLimit`);
+      log.info(`等待 观察并覆盖变量isLimit`);
       VueUtils.watchVuePropChange(
         BilibiliData.className.opus,
         (vueInstance) => vueInstance.isLimit,
         (vueInstance) => {
           vueInstance.isLimit = false;
-          log$1.success(`观察者：覆盖变量isLimit=false`);
+          log.success(`观察者：覆盖变量isLimit=false`);
         }
       );
     },
@@ -9507,9 +9963,9 @@
           return typeof vueInstance?.autoOpenApp === "function";
         },
         set(vueInstance) {
-          log$1.success(`成功 覆盖函数autoOpenApp`);
+          log.success(`成功 覆盖函数autoOpenApp`);
           vueInstance.autoOpenApp = function () {
-            log$1.success(`禁止调用autoOpenApp函数`);
+            log.success(`禁止调用autoOpenApp函数`);
           };
         },
       });
@@ -9521,9 +9977,9 @@
           return typeof vueInstance?.go404 === "function";
         },
         set(vueInstance) {
-          log$1.success(`成功 覆盖函数go404`);
+          log.success(`成功 覆盖函数go404`);
           vueInstance.go404 = function () {
-            log$1.success(`禁止调用go404函数`);
+            log.success(`禁止调用go404函数`);
           };
         },
       });
@@ -9535,12 +9991,12 @@
           return typeof vueInstance?.fallback?.type === "number";
         },
         set(vueInstance) {
-          log$1.success(`成功 覆盖对象fallback`);
+          log.success(`成功 覆盖对象fallback`);
           vueInstance.$watch(
             () => vueInstance?.fallback,
             () => {
               vueInstance.fallback = null;
-              log$1.success(`覆盖对象fallback`);
+              log.success(`覆盖对象fallback`);
             },
             {
               deep: true,
@@ -9558,7 +10014,7 @@
           return;
         }
       }
-      log$1.info(`添加dispatch回调判断`);
+      log.info(`添加dispatch回调判断`);
       this.$data.dispatchCallBackList.push(callback);
       if (this.$data.dispatchCallBackList.length > 1) {
         return;
@@ -9570,7 +10026,7 @@
           return typeof vueInstance?.$store?.dispatch === "function";
         },
         set(vueInstance) {
-          log$1.success(`成功 覆盖函数dispatch`);
+          log.success(`成功 覆盖函数dispatch`);
           let originDispatch = vueInstance.$store.dispatch;
           vueInstance.$store.dispatch = function (...args) {
             let fnName = args[0];
@@ -9604,7 +10060,7 @@
       });
     },
     coverTopicJump() {
-      log$1.info("覆盖话题跳转点击事件");
+      log.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
         "click",
@@ -9622,7 +10078,7 @@
             Qmsg.error("获取话题的jump_url失败");
             return;
           }
-          log$1.info("话题的跳转信息: ", data2);
+          log.info("话题的跳转信息: ", data2);
           BilibiliUtils.goToUrl(jump_url);
         },
         {
@@ -9631,7 +10087,7 @@
       );
     },
     automaticallyExpandToReadFullText() {
-      log$1.info("自动展开阅读全文");
+      log.info("自动展开阅读全文");
       let result = [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
@@ -9646,7 +10102,7 @@
       return result;
     },
     coverHeaderJump() {
-      log$1.info("覆盖header点击事件");
+      log.info("覆盖header点击事件");
       domUtils.on(
         document,
         "click",
@@ -9688,7 +10144,7 @@
       });
     },
     coverHeaderJump() {
-      log$1.info("覆盖header点击事件");
+      log.info("覆盖header点击事件");
       domUtils.on(
         document,
         "click",
@@ -9714,7 +10170,7 @@
       );
     },
     coverTopicJump() {
-      log$1.info("覆盖话题跳转点击事件");
+      log.info("覆盖话题跳转点击事件");
       domUtils.on(
         document,
         "click",
@@ -9733,7 +10189,7 @@
             Qmsg.error("获取jump_url失败");
             return;
           }
-          log$1.info("话题的跳转信息: ", data2);
+          log.info("话题的跳转信息: ", data2);
           BilibiliUtils.goToUrl(jump_url);
         },
         {
@@ -9742,7 +10198,7 @@
       );
     },
     coverAtJump() {
-      log$1.info("覆盖@ 跳转");
+      log.info("覆盖@ 跳转");
       domUtils.on(
         document,
         "click",
@@ -9755,7 +10211,7 @@
             Qmsg.error("获取data-oid或rid失败");
             return;
           }
-          log$1.info("用户的oid: " + oid);
+          log.info("用户的oid: " + oid);
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceDynamicUrl(oid));
         },
         {
@@ -9764,7 +10220,7 @@
       );
     },
     coverReferenceJump() {
-      log$1.info("覆盖引用的点击事件");
+      log.info("覆盖引用的点击事件");
       domUtils.on(
         document,
         "click",
@@ -9826,7 +10282,7 @@
           return originObject;
         },
         set(newValue) {
-          log$1.success("成功劫持webpack，当前webpack名：" + webpackName);
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
           originObject = newValue;
           const originPush = originObject.push;
           originObject.push = function (...args) {
@@ -9854,13 +10310,13 @@
     setTimeout(matchStr) {
       this.$data.setTimeout.push(matchStr);
       if (this.$data.setTimeout.length > 1) {
-        log$1.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
+        log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
         return;
       }
       _unsafeWindow.setTimeout = function (...args) {
         let callBackString = args[0].toString();
         if (callBackString.match(matchStr)) {
-          log$1.success("劫持setTimeout的函数", callBackString);
+          log.success("劫持setTimeout的函数", callBackString);
           return;
         }
         return OriginPrototype.setTimeout.apply(this, args);
@@ -9880,7 +10336,7 @@
           return;
         }
         vueObj.openApp = function (...args) {
-          log$1.success("openApp：阻止唤醒App", args);
+          log.success("openApp：阻止唤醒App", args);
         };
       }
       utils.mutationObserver(document, {
@@ -9930,7 +10386,7 @@
             let originOpen = opener?.open;
             if (typeof originOpen === "function") {
               Reflect.set(opener, "open", (config) => {
-                log$1.success(`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`);
+                log.success(`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`);
                 if (typeof config?.universalLink === "string") {
                   BilibiliUtils.goToUrl(config.universalLink);
                 }
@@ -10044,7 +10500,7 @@
       addStyle(BilibiliRecommendCSS);
     },
     reset() {
-      log$1.info("重置状态");
+      log.info("重置状态");
       this.$flag.isLoadingNextPage = false;
       this.removeScrollEvent();
       Object.keys(this.$ele).forEach((key) => {
@@ -10057,7 +10513,7 @@
       }
       let $vSwitcher = $(".channel-menu .v-switcher");
       if (!$vSwitcher) {
-        log$1.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+        log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         return;
       }
@@ -10121,7 +10577,7 @@
       domUtils.before($vSwitcher, $recommendTag);
       this.setScrollEvent();
       if (window.location.hash === "#/recommend/") {
-        log$1.info("当前hash为推荐视频，出动触发");
+        log.info("当前hash为推荐视频，出动触发");
         $recommendTag.click();
       }
     },
@@ -10129,7 +10585,7 @@
       BilibiliUtils.goToUrl("#/recommend/", true);
     },
     setScrollEvent() {
-      log$1.success("推荐视频监听滚动: IntersectionObserver");
+      log.success("推荐视频监听滚动: IntersectionObserver");
       this.$data.intersectionObserver = new IntersectionObserver(
         async (entries) => {
           if (!this.$flag.isLoadingNextPage && entries[0].isIntersecting) {
@@ -10158,7 +10614,7 @@
       if (!videoInfo) {
         return false;
       }
-      log$1.success("获取推荐视频信息", videoInfo);
+      log.success("获取推荐视频信息", videoInfo);
       let $fragment = document.createDocumentFragment();
       let allowLoadPictureCard = Panel.getValue("bili-head-recommend-push-graphic");
       videoInfo.forEach((videoInfoItem) => {
@@ -10172,7 +10628,7 @@
             return;
           }
         } else {
-          log$1.error("该goto暂未适配", videoInfoItem);
+          log.error("该goto暂未适配", videoInfoItem);
           return;
         }
         $fragment.appendChild($ele);
@@ -10340,7 +10796,7 @@
       });
     },
     addVideoListUPInfo() {
-      log$1.info("添加视频列表UP主信息");
+      log.info("添加视频列表UP主信息");
       addStyle(
         `
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
@@ -10415,7 +10871,7 @@
       });
     },
     async reconfigurationTinyAppSettingButton() {
-      log$1.info(`重构tinyApp右上角的设置按钮图标`);
+      log.info(`重构tinyApp右上角的设置按钮图标`);
       if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
         this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
         addStyle(
@@ -10461,7 +10917,7 @@
       }
       let $iconConfig = await domUtils.waitNode(".nav-bar .icon-config", 1e4);
       if (!$iconConfig) {
-        log$1.error("未找到设置按钮图标，无法重构");
+        log.error("未找到设置按钮图标，无法重构");
         return;
       }
       $iconConfig.outerHTML = `
@@ -10486,14 +10942,14 @@
             if (isLogin) {
               uid = userInfo?.mid;
               if (uid == null) {
-                log$1.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+                log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
                 isLogin = false;
                 return;
               }
               userInfo?.uname;
               $img.src = userInfo?.face || $img.src;
             } else {
-              log$1.warn(`经检测，Bilibili尚未登录账号`);
+              log.warn(`经检测，Bilibili尚未登录账号`);
             }
           },
         },
@@ -10513,7 +10969,7 @@
       });
     },
     beautifyTopNavBar() {
-      log$1.info(`美化顶部navbar`);
+      log.info(`美化顶部navbar`);
       if (!this.$flag.isInit_beautifyTopNavBar_css) {
         this.$flag.isInit_beautifyTopNavBar_css = true;
         addStyle(
@@ -10599,7 +11055,7 @@
         domUtils.after($iconSearch, $inputAreaContainer);
         let hotWordInfo = await BilibiliSearchApi.getSearchInputPlaceholder();
         if (hotWordInfo != null) {
-          log$1.info(`热点信息：`, hotWordInfo);
+          log.info(`热点信息：`, hotWordInfo);
           $input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
         }
       });
@@ -10616,7 +11072,7 @@
       CommonUtil.addBlockCSS("body>.h5-download-bar");
     },
     autoExpand() {
-      log$1.info("自动展开");
+      log.info("自动展开");
       return [
         addStyle(
           `
@@ -10660,7 +11116,7 @@
       return;
     },
     coverDynamicStateCardVideo() {
-      log$1.info(`覆盖动态视频的点击事件`);
+      log.info(`覆盖动态视频的点击事件`);
       domUtils.on(
         document,
         "click",
@@ -10710,7 +11166,7 @@
             return typeof vueIns?.$store?.state?.common?.noCallApp === "boolean";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.common.noCallApp=true");
+            log.success("成功设置参数 $store.state.common.noCallApp=true");
             vueIns.$store.state.common.noCallApp = true;
           },
         },
@@ -10720,7 +11176,7 @@
       let GM_Cookie = new utils.GM_Cookie();
       let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
       if (cookie_DedeUserID != null) {
-        log$1.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
+        log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
       } else {
         GM_Cookie.set(
           {
@@ -10729,9 +11185,9 @@
           },
           (error) => {
             if (error) {
-              log$1.error(error);
+              log.error(error);
             } else {
-              log$1.success("Cookie成功设置DedeUserID=>2333");
+              log.success("Cookie成功设置DedeUserID=>2333");
             }
           }
         );
@@ -10743,7 +11199,7 @@
             return typeof vueObj?.$store?.state?.common?.userInfo?.isLogin === "boolean";
           },
           set(vueObj) {
-            log$1.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
+            log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
             vueObj.$store.state.common.userInfo.isLogin = true;
           },
         },
@@ -10753,7 +11209,7 @@
             return typeof vueObj?.$store?.state?.loginInfo?.isLogin === "boolean";
           },
           set(vueObj) {
-            log$1.success("成功设置参数 $store.state.loginInfo.isLogin=true");
+            log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
             vueObj.$store.state.loginInfo.isLogin = true;
           },
         },
@@ -10767,7 +11223,7 @@
             return typeof typeof vueIns?.$store?.state?.video?.isClient === "boolean";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.video.isClient=true");
+            log.success("成功设置参数 $store.state.video.isClient=true");
             vueIns.$store.state.video.isClient = true;
           },
         },
@@ -10777,7 +11233,7 @@
             return typeof vueIns?.$store?.state?.opus?.isClient === "boolean";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.opus.isClient");
+            log.success("成功设置参数 $store.state.opus.isClient");
             vueIns.$store.state.opus.isClient = true;
           },
         },
@@ -10787,7 +11243,7 @@
             return typeof vueIns?.$store?.state?.playlist?.isClient === "boolean";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.playlist.isClient=true");
+            log.success("成功设置参数 $store.state.playlist.isClient=true");
             vueIns.$store.state.playlist.isClient = true;
           },
         },
@@ -10797,7 +11253,7 @@
             return typeof vueIns?.$store?.state?.ver?.bili === "boolean";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.ver.bili=true");
+            log.success("成功设置参数 $store.state.ver.bili=true");
             vueIns.$store.state.ver.bili = true;
           },
         },
@@ -10807,7 +11263,7 @@
             return typeof vueIns?.$store?.state?.ver?.biliVer === "number";
           },
           set(vueIns) {
-            log$1.success("成功设置参数 $store.state.ver.biliVer=2333333");
+            log.success("成功设置参数 $store.state.ver.biliVer=2333333");
             vueIns.$store.state.ver.biliVer = 2333333;
           },
         },
@@ -10822,7 +11278,7 @@
           },
           set(vueIns) {
             vueIns.$store.state.common.tinyApp = true;
-            log$1.success("成功设置参数 $store.state.common.tinyApp=true");
+            log.success("成功设置参数 $store.state.common.tinyApp=true");
             Panel.onceExec("bili-tinyApp-init-css", () => {
               addStyle(
                 `
@@ -10934,7 +11390,7 @@
           return;
         }
         const value = isSelectedInfo.value;
-        log$1.info(`选择：${isSelectedInfo.text}`);
+        log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
           const result2 = selectCallBack(isSelectedInfo);
           if (result2) {
@@ -11031,7 +11487,7 @@
       },
       callback(event, __value) {
         const value = Boolean(__value);
-        log$1.success(`${value ? "开启" : "关闭"} ${text}`);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
@@ -11478,7 +11934,7 @@
                   ok: {
                     enable: true,
                     callback: async (popsEvent) => {
-                      log$1.success("清空所有");
+                      log.success("清空所有");
                       if (typeof this.option?.bottomControls?.clear?.callback === "function") {
                         this.option.bottomControls.clear.callback();
                       }
@@ -11634,7 +12090,7 @@
             }
           } else {
             if (isEdit) {
-              log$1.error("修改失败");
+              log.error("修改失败");
             }
           }
           return result;
@@ -11745,7 +12201,7 @@
               ok: {
                 enable: true,
                 callback: async (popsEvent) => {
-                  log$1.success("删除数据");
+                  log.success("删除数据");
                   let flag = await this.option.itemControls.delete.deleteCallBack(data2);
                   if (flag) {
                     Qmsg.success("成功删除该数据");
@@ -12028,7 +12484,7 @@
                   } else if (Reflect.has(data2.data, key)) {
                     Reflect.set(data2.data, key, value);
                   } else {
-                    log$1.error(`${key}不在数据中`);
+                    log.error(`${key}不在数据中`);
                   }
                 });
                 if (data2.name.trim() === "") {
@@ -12050,7 +12506,7 @@
                   };
                 }
               } catch (error) {
-                log$1.error(error);
+                log.error(error);
                 return {
                   success: false,
                   data: data2,
@@ -12196,7 +12652,7 @@
           fileReader.onload = () => {
             let data2 = utils.toJSON(fileReader.result);
             if (!Array.isArray(data2)) {
-              log$1.error("不是正确的规则文件", data2);
+              log.error("不是正确的规则文件", data2);
               Qmsg.error("不是正确的规则文件");
               return;
             }
@@ -12234,7 +12690,7 @@
                 }
                 let data2 = utils.toJSON(response.data.responseText);
                 if (!Array.isArray(data2)) {
-                  log$1.error("不是正确的规则文件", response, data2);
+                  log.error("不是正确的规则文件", response, data2);
                   Qmsg.error("不是正确的规则文件");
                   return;
                 }
@@ -12410,14 +12866,14 @@
       let followingPN = 1;
       let allFollowingData = [];
       while (true) {
-        log$1.info(`正在获取用户的关注：${mid} ==> 第${followingPN}页`);
+        log.info(`正在获取用户的关注：${mid} ==> 第${followingPN}页`);
         let followingData = await BilibiliUserApi.following(mid, followingPN);
         if (!followingData) {
-          log$1.error("获取关注列表失败");
+          log.error("获取关注列表失败");
           break;
         }
         if (typeof followingData === "string") {
-          log$1.error("获取关注列表失败，原因：" + followingData);
+          log.error("获取关注列表失败，原因：" + followingData);
           break;
         }
         if (!followingData.list.length) {
@@ -12434,14 +12890,14 @@
       let spacePNCount = 1;
       let allSpaceContentData = [];
       while (true) {
-        log$1.info(`正在获取用户的空间动态：${mid} ==> 偏移：${spaceOffset}`);
+        log.info(`正在获取用户的空间动态：${mid} ==> 偏移：${spaceOffset}`);
         let spaceData = await BilibiliUserApi.space(mid, spaceOffset);
         if (!spaceData) {
-          log$1.error("获取用户空间动态数据失败");
+          log.error("获取用户空间动态数据失败");
           break;
         }
         if (typeof spaceData === "string") {
-          log$1.error("获取用户空间动态数据失败，原因：" + spaceData);
+          log.error("获取用户空间动态数据失败，原因：" + spaceData);
           break;
         }
         if (spaceOffset === spaceData.offset && spaceOffset != "") {
@@ -12454,7 +12910,7 @@
         }
         spacePNCount++;
         if (spacePNCount > 5) {
-          log$1.info(`最多请求5页空间动态的数据`);
+          log.info(`最多请求5页空间动态的数据`);
           break;
         }
         utils.sleep(250);
@@ -12531,7 +12987,7 @@
       domUtils.on($compositionCheckable, "click", async (event) => {
         domUtils.preventEvent(event);
         if ($compositionCheckable.hasAttribute("data-is-searching")) {
-          log$1.error("正在搜索中，请稍后再试");
+          log.error("正在搜索中，请稍后再试");
           return;
         }
         $compositionCheckable.setAttribute("data-is-searching", "");
@@ -12548,7 +13004,7 @@
           this.handleShowLabel(mid, userInfo, $compositionCheckable);
           domUtils.html($compositionNameControl, this.$data.searchIcon);
         } catch (error) {
-          log$1.error(error);
+          log.error(error);
           Qmsg.error(error.message, {
             timeout: 3500,
           });
@@ -12809,7 +13265,7 @@
           let playerContainerVueInstance = VueUtils.getVue($playerContainer);
           let { aid, cid, bvid } = vueInstance;
           let { title, cover: pic } = playerContainerVueInstance.video;
-          log$1.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+          log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
           if (videoInfo == null) {
             videoInfo = {
               aid,
@@ -12845,29 +13301,29 @@
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
-                log$1.info(`自动进入全屏`);
+                log.info(`自动进入全屏`);
                 that.$data.art.fullscreen = true;
                 that.$data.art.once("fullscreenError", () => {
-                  log$1.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+                  log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
                   that.$data.art.fullscreenWeb = true;
                 });
               });
             });
             that.$data.art.on("video:ended", () => {
-              log$1.info("视频播放结束，自动下一集");
+              log.info("视频播放结束，自动下一集");
               let $controlPanel = $(BilibiliData.className.playlist + " .control-panel");
               if (!$controlPanel) {
-                log$1.error("未找到播放列表，无法自动播放下一集");
+                log.error("未找到播放列表，无法自动播放下一集");
                 return;
               }
               let controlVueInstance = VueUtils.getVue($controlPanel);
               if (controlVueInstance == null) {
-                log$1.error("未找到播放列表的Vue实例，无法自动播放下一集");
+                log.error("未找到播放列表的Vue实例，无法自动播放下一集");
                 return;
               }
               let { playMode, mediaList, videoIndex } = vueInstance.$store.state.playlist;
               if (videoIndex >= mediaList.length - 1) {
-                log$1.info(`播放列表已播放完毕`);
+                log.info(`播放列表已播放完毕`);
               } else {
                 let $currentVideoCard = $(`.video-card[index="${videoIndex}"]`);
                 let currentVideoCardVueInstance = VueUtils.getVue($currentVideoCard);
@@ -12876,11 +13332,11 @@
                   let $nextVideoCard = $(`.video-card[index="${videoIndex + 1}"]`);
                   let nextVideoCardVueInstance = VueUtils.getVue($nextVideoCard);
                   nextVideoCardVueInstance.changeVideo();
-                  log$1.info(`当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`);
+                  log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`);
                 } else {
                   p++;
                   currentVideoCardVueInstance.changeVideo(p);
-                  log$1.info(`当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${p}`);
+                  log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${p}`);
                 }
               }
             });
@@ -12898,7 +13354,7 @@
           if (!that.$flag.isWatchVideoChange) {
             that.$flag.isWatchVideoChange = true;
             vueInstance.$watch("cid", (newVal, oldVal) => {
-              log$1.info(`切换播放视频`);
+              log.info(`切换播放视频`);
               that.updateArtPlayerVideoInfo();
             });
           }
@@ -12912,7 +13368,7 @@
     },
     coverVideoPlayer() {
       if ($("#artplayer")) {
-        log$1.warn("已存在播放器，更新播放信息");
+        log.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
           `
@@ -12928,385 +13384,6 @@
         );
       }
       BilibiliPlayListPlayer.updateArtPlayerVideoInfo();
-    },
-  };
-  const BilibiliPlayerToast = {
-    $flag: {
-      isInitCSS: false,
-    },
-    $data: {
-      originToast: "mplayer-toast",
-      showClassName: "mplayer-show",
-      prefix: "mplayer-toast-gm",
-    },
-    $el: {
-      get $mplayer() {
-        return $(".mplayer");
-      },
-    },
-    toast(config) {
-      if (typeof config === "string") {
-        config = {
-          text: config,
-        };
-      }
-      this.initCSS();
-      let $parent = config.parent ?? this.$el.$mplayer;
-      if (!$parent) {
-        throw new TypeError("toast parent is null");
-      }
-      this.mutationMPlayerOriginToast($parent);
-      let $toast = domUtils.createElement("div", {
-        "data-from": "gm",
-      });
-      domUtils.addClass($toast, this.$data.prefix);
-      domUtils.addClass($toast, this.$data.showClassName);
-      if (config.showCloseBtn) {
-        let $closeBtn = domUtils.createElement("div", {
-          className: this.$data.prefix + "-close",
-          innerHTML: `
-                    <span class="bp-svgicon">
-                        <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4.47 4.47a.75.75 0 011.06 0l5.541 5.54 5.54-5.54a.75.75 0 011.061 1.06l-5.54 5.541 5.54 5.54a.75.75 0 01.073.977l-.073.084a.75.75 0 01-1.06 0l-5.541-5.54-5.54 5.54a.75.75 0 01-1.061-1.06l5.54-5.541-5.54-5.54a.75.75 0 01-.073-.977z" fill="#FEFEFE" fill-rule="evenodd">
-                            </path>
-                        </svg>
-                    </span>
-                `,
-        });
-        $toast.appendChild($closeBtn);
-        domUtils.on($closeBtn, "click", (event) => {
-          domUtils.preventEvent(event);
-          this.closeToast($toast);
-        });
-      }
-      let $text = domUtils.createElement("span", {
-        className: this.$data.prefix + "-text",
-        innerText: config.text,
-      });
-      $toast.appendChild($text);
-      if (typeof config.timeText === "string" && config.timeText.trim() != "") {
-        let $time = domUtils.createElement("span", {
-          className: this.$data.prefix + "-time",
-          innerText: config.timeText,
-        });
-        $toast.appendChild($time);
-      }
-      if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
-        let $jump = domUtils.createElement("span", {
-          className: this.$data.prefix + "-jump",
-          innerText: config.jumpText,
-        });
-        $toast.appendChild($jump);
-        domUtils.on($jump, "click", (event) => {
-          if (typeof config.jumpClickCallback === "function") {
-            domUtils.preventEvent(event);
-            config.jumpClickCallback(event);
-          }
-        });
-      }
-      this.setTransitionendEvent($toast);
-      let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
-      Array.from($$(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
-        if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) {
-          return;
-        }
-        $mplayerOriginToast.setAttribute("data-is-set-transitionend", "true");
-        if ($mplayerOriginToast.textContent?.includes("记忆你上次看到")) {
-          setTimeout(() => {
-            let $close = $mplayerOriginToast.querySelector(".mplayer-toast-close");
-            if ($close) {
-              $close.click();
-            } else {
-              $mplayerOriginToast.remove();
-            }
-          }, 3e3);
-        }
-        this.setTransitionendEvent($mplayerOriginToast);
-      });
-      $parent.appendChild($toast);
-      setTimeout(() => {
-        this.closeToast($toast);
-      }, timeout);
-      return {
-        $toast,
-        close: () => {
-          this.closeToast($toast);
-        },
-      };
-    },
-    initCSS() {
-      if (this.$flag.isInitCSS) {
-        return;
-      }
-      this.$flag.isInitCSS = true;
-      addStyle(
-        `
-		.${this.$data.prefix}.mplayer-show {
-			opacity: 1;
-			visibility: visible;
-			z-index: 40;
-		}
-
-		.mplayer-toast, .${this.$data.prefix} {
-			-webkit-transition-property: opacity, bottom;
-			transition-property: opacity, bottom;
-		}
-
-		.${this.$data.prefix} {
-			background-color: rgba(0, 0, 0, .8);
-			border-radius: 4px;
-			bottom: 48px;
-			color: #fafafa;
-			font-size: 12px;
-			left: 8px;
-			line-height: 24px;
-			opacity: 0;
-			overflow: hidden;
-			padding: 6px 8px;
-			position: absolute;
-			text-align: center;
-			-webkit-transition: opacity .3s;
-			transition: opacity .3s;
-			visibility: hidden;
-			z-index: 4;
-		}
-
-		.${this.$data.prefix}-close {
-			fill: #fff;
-			float: left;
-			height: 14px;
-			margin-right: 4px;
-			position: relative;
-			top: 1px;
-			width: 26px;
-		}
-
-		.${this.$data.prefix}-jump {
-			color: #f25d8e;
-			margin: 0 8px 0 16px;
-			text-decoration: none;
-		}
-
-		`
-      );
-    },
-    mutationMPlayerOriginToast($parent) {
-      let $mplayer = this.$el.$mplayer;
-      if (!$mplayer) {
-        return;
-      }
-      if ($mplayer.hasAttribute("data-mutation")) {
-        return;
-      }
-      log$1.success(`添加观察器，动态更新toast的位置`);
-      $mplayer.setAttribute("data-mutation", "gm");
-      utils.mutationObserver($mplayer, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          this.updatePageToastBottom();
-        },
-      });
-    },
-    updatePageToastBottom() {
-      let pageToastList = Array.from($$(`.${this.$data.prefix}`)).concat(
-        Array.from($$(".".concat(this.$data.originToast).concat(".").concat(this.$data.showClassName)))
-      );
-      if (pageToastList.length) {
-        let count = pageToastList.length - 1;
-        const toastHeight = 46;
-        pageToastList.forEach(($pageToast, index) => {
-          let bottom = toastHeight + toastHeight * (count - index);
-          $pageToast.setAttribute("data-transition", "move");
-          $pageToast.style.bottom = bottom + "px";
-        });
-      }
-    },
-    closeToast($ele) {
-      $ele.classList.remove(this.$data.showClassName);
-    },
-    getTransitionendEventNameList() {
-      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
-    },
-    setTransitionendEvent($toast) {
-      let that = this;
-      let animationEndNameList = this.getTransitionendEventNameList();
-      domUtils.on(
-        $toast,
-        animationEndNameList,
-        function (event) {
-          let dataTransition = $toast.getAttribute("data-transition");
-          if (!$toast.classList.contains(that.$data.showClassName)) {
-            $toast.remove();
-            return;
-          }
-          if (dataTransition === "move") {
-            $toast.removeAttribute("data-transition");
-            return;
-          }
-        },
-        {
-          capture: true,
-        }
-      );
-    },
-  };
-  let _ajaxHooker_ = null;
-  const XhrHook = {
-    get ajaxHooker() {
-      if (_ajaxHooker_ == null) {
-        log$1.info("启用ajaxHooker拦截网络");
-        _ajaxHooker_ = utils.ajaxHooker();
-      }
-      return _ajaxHooker_;
-    },
-  };
-  const BilibiliNetworkHook = {
-    $flag: {
-      is_hook_video_playurl: false,
-      is_hook_bangumi_html5: false,
-      is_hook_live_playurl: false,
-    },
-    init() {
-      if (BilibiliRouter.isLive()) {
-        Panel.execMenuOnce("bili-live-cdn-hook", () => {
-          this.hook_live_playurl();
-        });
-      }
-    },
-    hook_video_playurl() {
-      if (this.$flag.is_hook_video_playurl) {
-        return;
-      }
-      this.$flag.is_hook_video_playurl = true;
-      XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl")) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
-          }
-          let playUrl = new URL(request.url);
-          playUrl.searchParams.set("platform", "html5");
-          playUrl.searchParams.set("qn", VideoQualityNameMap["1080P60 高帧率"].toString());
-          playUrl.searchParams.set("high_quality", "1");
-          playUrl.searchParams.set("fnver", "0");
-          playUrl.searchParams.set("fourk", "1");
-          if (playUrl.searchParams.has("__t")) {
-            playUrl.searchParams.delete("__t");
-            return;
-          }
-          request.url = playUrl.toString();
-          request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            let unlockQuality = data2?.["data"]?.["quality"];
-            let support_formats = data2?.["data"]?.["support_formats"];
-            log$1.info("当前解锁的quality值：" + unlockQuality);
-            if (unlockQuality && support_formats) {
-              let findValue = support_formats.find((item) => {
-                return item["quality"] == unlockQuality;
-              });
-              if (findValue) {
-                let qualityText = findValue["new_description"] || findValue["display_desc"];
-                log$1.info("成功解锁画质 " + qualityText);
-                BilibiliPlayerToast.toast(`成功解锁画质 ${qualityText}`);
-              }
-            }
-          };
-        }
-      });
-    },
-    hook_bangumi_html5() {
-      if (this.$flag.is_hook_bangumi_html5) {
-        return;
-      }
-      this.$flag.is_hook_bangumi_html5 = true;
-      XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
-          }
-          let playUrlInst = new URL(request.url);
-          playUrlInst.pathname = "/pgc/player/web/playurl";
-          playUrlInst.searchParams.delete("bsource");
-          playUrlInst.searchParams.set("qn", VideoQualityNameMap["1080P60 高帧率"].toString());
-          playUrlInst.searchParams.set("fnval", "1");
-          playUrlInst.searchParams.set("fnver", "0");
-          playUrlInst.searchParams.set("fourk", "1");
-          playUrlInst.searchParams.set("from_client", "BROWSER");
-          playUrlInst.searchParams.set("drm_tech_type", "2");
-          request.url = playUrlInst.toString();
-          request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            let result = data2["result"];
-            log$1.info("当前解锁的quality值：" + result["quality"]);
-            if (result["quality"] && result["support_formats"]) {
-              let findValue = result["support_formats"].find((item) => {
-                return item["quality"] == result["quality"];
-              });
-              if (findValue) {
-                log$1.info("当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]);
-              }
-            }
-          };
-        }
-      });
-    },
-    hook_live_playurl() {
-      if (this.$flag.is_hook_live_playurl) {
-        return;
-      }
-      this.$flag.is_hook_live_playurl = true;
-      XhrHook.ajaxHooker.hook((request) => {
-        if (!Panel.getValue("bili-live-cdn-hook")) return;
-        if (request.url.startsWith("data:")) {
-          return;
-        }
-        const url = CommonUtil.fixUrl(request.url);
-        let playUrlInst = new URL(url);
-        const pathname = playUrlInst.pathname;
-        if (pathname.startsWith("/xlive/web-room/v2/index/getRoomPlayInfo")) {
-          playUrlInst.searchParams.set("qn", "30000");
-          request.url = playUrlInst.toString();
-          request.response = (res) => {
-            const data2 = typeof res.responseText === "string" ? utils.toJSON(res.responseText) : res.json;
-            const stream = data2?.data?.playurl_info?.playurl?.stream;
-            if (Array.isArray(stream)) {
-              stream.forEach((streamItem) => {
-                const format = streamItem?.format;
-                if (!Array.isArray(format)) {
-                  return;
-                }
-                format.forEach((formatItem) => {
-                  const codec = formatItem?.codec;
-                  if (!Array.isArray(codec)) {
-                    return;
-                  }
-                  formatItem?.format_name;
-                  codec.forEach((codecItem) => {
-                    codecItem?.codec_name;
-                    const url_info = codecItem?.url_info;
-                    if (!Array.isArray(url_info)) {
-                      return;
-                    }
-                    url_info.forEach((urlInfoItem) => {
-                      const host = urlInfoItem?.host;
-                      if (typeof host === "string") {
-                        urlInfoItem.host = BilibiliCDNProxy.replaceLiveVideoCDN(host);
-                      }
-                    });
-                  });
-                });
-              });
-            } else {
-              log$1.error("直播请求信息中返回的steam不是数组", data2);
-            }
-          };
-        } else if (playUrlInst.hostname.endsWith(".bilivideo.com")) {
-          request.url = BilibiliCDNProxy.replaceLiveVideoCDN(url);
-        }
-      });
     },
   };
   const Bilibili = {
@@ -13329,64 +13406,64 @@
         this.listenRouterChange();
       });
       Panel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
-        log$1.info("hook  window.setTimeout autoOpenApp");
+        log.info("hook  window.setTimeout autoOpenApp");
         BilibiliHook.setTimeout("autoOpenApp");
         BilibiliHook.setTimeout("bilibili://");
         BilibiliHook.setTimeout("void 0 !== y && document[y]");
       });
       Panel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
-        log$1.info("覆盖元素.launch-app-btn上的openApp");
+        log.info("覆盖元素.launch-app-btn上的openApp");
         BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
       });
       Panel.execMenuOnce("bili-cover-bili-open-app-open", () => {
-        log$1.info(`覆盖元素bili-open-app上的opener.open`);
+        log.info(`覆盖元素bili-open-app上的opener.open`);
         BilibiliHook.overRideBiliOpenApp();
       });
       Panel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
-        log$1.info(`覆盖元素.wx-tag的handleClick函数`);
+        log.info(`覆盖元素.wx-tag的handleClick函数`);
         BilibiliHook.overRideWxTaghandleClick();
       });
       Panel.execMenuOnce("bili-head-beautify", () => {
-        log$1.info("添加美化CSS");
+        log.info("添加美化CSS");
         return addStyle(BilibiliBeautifyCSS);
       });
       Panel.execMenuOnce("bili-componentDetection", () => {
         BilibiliComponentDetection.init();
       });
       if (BilibiliRouter.isVideo()) {
-        log$1.info("Router: 视频稿件");
+        log.info("Router: 视频稿件");
         BilibiliVideo.init();
       } else if (BilibiliRouter.isOpus()) {
-        log$1.info("Router: 专栏稿件");
+        log.info("Router: 专栏稿件");
         BilibiliOpus.init();
       } else if (BilibiliPCRouter.isReadMobile()) {
-        log$1.info("PC-Router: 专栏稿件");
+        log.info("PC-Router: 专栏稿件");
         BilibiliReadMobile.init();
       } else if (BilibiliRouter.isDynamic()) {
-        log$1.info("Router: 动态");
+        log.info("Router: 动态");
         BilibiliDynamic.init();
       } else if (BilibiliRouter.isBangumi()) {
-        log$1.info("Router: 番剧");
+        log.info("Router: 番剧");
         BilibiliBangumi.init();
       } else if (BilibiliRouter.isSearch()) {
-        log$1.info("Router: 搜索");
+        log.info("Router: 搜索");
         BilibiliSearch.init();
       } else if (BilibiliRouter.isLive()) {
-        log$1.info("Router: 直播");
+        log.info("Router: 直播");
         BilibiliLive.init();
       } else if (BilibiliRouter.isTopicDetail()) {
-        log$1.info("Router: 话题");
+        log.info("Router: 话题");
       } else if (BilibiliRouter.isHead()) {
-        log$1.info("Router: 首页之类的");
+        log.info("Router: 首页之类的");
         BilibiliHead.init();
       } else if (BilibiliRouter.isSpace()) {
-        log$1.info("Router: 个人空间");
+        log.info("Router: 个人空间");
         BilibiliSpace.init();
       } else if (BilibiliRouter.isPlayList()) {
-        log$1.info(`Router: 播放列表`);
+        log.info(`Router: 播放列表`);
         BilibiliPlayList.init();
       } else {
-        log$1.error("该Router暂未适配，可能是首页之类：" + window.location.href);
+        log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
       domUtils.onReady(() => {});
     },
@@ -13397,20 +13474,20 @@
           return typeof vueInstance?.$router?.afterEach === "function";
         },
         set: (vueInstance) => {
-          log$1.success("成功设置监听路由变化");
+          log.success("成功设置监听路由变化");
           vueInstance.$router.beforeHooks.splice(0, 0, (to, from, next) => {
-            log$1.info("路由变化 => 更新前", {
+            log.info("路由变化 => 更新前", {
               to,
               from,
             });
             if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-              log$1.info("该路由变化判定为#/seeCommentReply");
+              log.info("该路由变化判定为#/seeCommentReply");
               next();
               return;
             }
             if (Panel.getValue("bili-repairVueRouter404")) {
               if (to.name === "space") {
-                log$1.info(`修复空间跳转404`);
+                log.info(`修复空间跳转404`);
                 window.location.href = to.fullPath;
                 return;
               }
@@ -13420,21 +13497,21 @@
                 from.fullPath.startsWith("/video") &&
                 Panel.getValue("bili-video-forceThisPageToRefreshAndRedirect")
               ) {
-                log$1.info(`强制本页刷新`);
+                log.info(`强制本页刷新`);
                 window.location.href = to.fullPath;
                 return;
               } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
-                log$1.info(`当前是首页，新标签页打开`);
+                log.info(`当前是首页，新标签页打开`);
                 window.open(to.fullPath, "_blank");
                 return;
               }
             } else if (to.fullPath.startsWith("/bangumi")) {
               if (from.fullPath.startsWith("/bangumi")) {
-                log$1.info(`番剧 => 番剧`);
+                log.info(`番剧 => 番剧`);
                 window.location.href = to.fullPath;
                 return;
               } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
-                log$1.info(`首页 => 番剧`);
+                log.info(`首页 => 番剧`);
                 window.open(to.fullPath, "_blank");
                 return;
               }
@@ -13442,12 +13519,12 @@
             next();
           });
           vueInstance.$router.afterHooks.splice(0, 0, (to, from) => {
-            log$1.info("路由变化 => 更新后", {
+            log.info("路由变化 => 更新后", {
               to,
               from,
             });
             if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-              log$1.info("该路由变化判定为#/seeCommentReply，不重载");
+              log.info("该路由变化判定为#/seeCommentReply，不重载");
               return;
             }
             Panel.execMenu("bili-listenRouterChange", () => {
@@ -13682,7 +13759,7 @@
                       },
                     ],
                     (isSelectedInfo) => {
-                      log$1.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
                     },
                     "Toast显示在页面九宫格的位置"
                   ),
@@ -14728,4 +14805,4 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
     --button-bg-color: var(--bili-color);
 }
 `;
-})(DOMUtils, pops, Utils, Qmsg, Viewer, MD5, Artplayer, artplayerPluginDanmuku, MD5);
+})(DOMUtils, pops, Utils, Qmsg, MD5, Viewer, Artplayer, artplayerPluginDanmuku, MD5);
