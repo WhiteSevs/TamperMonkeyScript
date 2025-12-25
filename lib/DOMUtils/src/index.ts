@@ -1750,7 +1750,7 @@ class DOMUtils extends ElementHandler {
   checkUserClickInNode($el: Element | Node | HTMLElement) {
     const that = this;
     if (!CommonUtils.isDOM($el)) {
-      throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
+      throw new Error("DOMUtils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
     }
     const clickEvent = that.windowApi.window.event as PointerEvent;
     const touchEvent = that.windowApi.window.event as TouchEvent;

@@ -18,7 +18,7 @@ class ElementWait extends ElementSelector {
    * @param timeout 超时时间，默认0
    * @param parent （可选）父元素，默认document
    * @example
-   * Utils.wait(()=> {
+   * DOMUtils.wait(()=> {
    *   let $test = document.querySelector("#test");
    *   return {
    *     success: $test !== null,
@@ -103,23 +103,49 @@ class ElementWait extends ElementSelector {
   /**
    * 等待元素出现
    * @param selectorFn 获取元素的函数
-   * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNode(()=>document.querySelector("div"), 1000).then( $div =>{
-   *  console.log($div); // $div => HTMLDivELement | null
+   * DOMUtils.waitNode(()=>document.querySelector("div")).then( $div =>{
+   *  console.log($div); // $div => HTMLDivELement
    * })
    */
   waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
+  /**
+   * 等待元素出现
+   * @param selectorFn 获取元素的函数
+   * @param timeout 超时时间，默认0
+   * @example
+   * DOMUtils.waitNode(()=>document.querySelector("div"), 1000).then( $div =>{
+   *  console.log($div); // $div => HTMLDivELement | null
+   * })
+   */
   waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
+  /**
+   * 等待元素出现
+   * @param selectorFn 获取元素的函数
+   * @param parent 父元素
+   * @param timeout 超时时间，默认0
+   * @example
+   * DOMUtils.waitNode(()=>document.querySelector("div"), document).then( $div =>{
+   *  console.log($div); // $div => HTMLDivELement
+   * })
+   * DOMUtils.waitNode(()=>document.querySelector("div"), document, 1000).then( $div =>{
+   *  console.log($div); // $div => HTMLDivELement | null
+   * })
+   */
+  waitNode<K>(
+    selectorFn: () => K | null | undefined,
+    parent: Node | Element | Document | HTMLElement,
+    timeout?: number
+  ): Promise<K | null | undefined>;
   /**
    * 等待元素出现
    * @param selector CSS选择器
    * @param parent （可选）父元素，默认document
    * @example
-   * Utils.waitNode("div").then( $div =>{
+   * DOMUtils.waitNode("div").then( $div =>{
    *  console.log($div); // div => HTMLDivELement
    * })
-   * Utils.waitNode("div", document).then( $div =>{
+   * DOMUtils.waitNode("div", document).then( $div =>{
    *  console.log($div); // div => HTMLDivELement
    * })
    */
@@ -133,10 +159,10 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param parent （可选）父元素，默认document
    * @example
-   * Utils.waitNode(["div"]).then( ([$div]) =>{
+   * DOMUtils.waitNode(["div"]).then( ([$div]) =>{
    *  console.log($div); // div => HTMLDivELement[]
    * })
-   * Utils.waitNode(["div"], document).then( ([$div]) =>{
+   * DOMUtils.waitNode(["div"], document).then( ([$div]) =>{
    *  console.log($div); // div => HTMLDivELement[]
    * })
    */
@@ -151,7 +177,7 @@ class ElementWait extends ElementSelector {
    * @param parent 父元素，默认document
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNode("div", document, 1000).then( $div =>{
+   * DOMUtils.waitNode("div", document, 1000).then( $div =>{
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
@@ -171,7 +197,7 @@ class ElementWait extends ElementSelector {
    * @param parent 父元素，默认document
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNode(["div"], document, 1000).then( ([$div]) =>{
+   * DOMUtils.waitNode(["div"], document, 1000).then( ([$div]) =>{
    *  console.log($div); // $div => HTMLDivELement[] | null
    * })
    */
@@ -190,7 +216,7 @@ class ElementWait extends ElementSelector {
    * @param selector CSS选择器
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNode("div", 1000).then( $div =>{
+   * DOMUtils.waitNode("div", 1000).then( $div =>{
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
@@ -204,7 +230,7 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNode(["div"], 1000).then( [$div] =>{
+   * DOMUtils.waitNode(["div"], 1000).then( [$div] =>{
    *  console.log($div); // $div => HTMLDivELement[] | null
    * })
    */
@@ -224,7 +250,7 @@ class ElementWait extends ElementSelector {
     // 超时时间
     let timeout = 0;
     if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
-      throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
+      throw new TypeError("DOMUtils.waitNode 第一个参数必须是string|string[]|Function");
     }
     if (args.length === 1) {
       // 上面已做处理
@@ -237,7 +263,7 @@ class ElementWait extends ElementSelector {
         // "div",document
         parent = secondParam as any as Element;
       } else {
-        throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
+        throw new TypeError("DOMUtils.waitNode 第二个参数必须是number|Node");
       }
     } else if (args.length === 3) {
       // "div",document,10000
@@ -250,13 +276,13 @@ class ElementWait extends ElementSelector {
         if (typeof thirdParam === "number") {
           timeout = thirdParam;
         } else {
-          throw new TypeError("Utils.waitNode 第三个参数必须是number");
+          throw new TypeError("DOMUtils.waitNode 第三个参数必须是number");
         }
       } else {
-        throw new TypeError("Utils.waitNode 第二个参数必须是Node");
+        throw new TypeError("DOMUtils.waitNode 第二个参数必须是Node");
       }
     } else {
-      throw new TypeError("Utils.waitNode 参数个数错误");
+      throw new TypeError("DOMUtils.waitNode 参数个数错误");
     }
     function getNode() {
       if (Array.isArray(selector)) {
@@ -300,10 +326,10 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param parent （可选）监听的父元素
    * @example
-   * Utils.waitAnyNode(["div","div"]).then( $div =>{
+   * DOMUtils.waitAnyNode(["div","div"]).then( $div =>{
    *  console.log($div); // $div => HTMLDivELement 这里是第一个
    * })
-   * Utils.waitAnyNode(["a","div"], document).then( $a =>{
+   * DOMUtils.waitAnyNode(["a","div"], document).then( $a =>{
    *  console.log($a); // $a => HTMLAnchorElement 这里是第一个
    * })
    */
@@ -318,7 +344,7 @@ class ElementWait extends ElementSelector {
    * @param parent 父元素，默认document
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitAnyNode(["div","div"], document, 10000).then( $div =>{
+   * DOMUtils.waitAnyNode(["div","div"], document, 10000).then( $div =>{
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
@@ -337,7 +363,7 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitAnyNode(["div","div"], 10000).then( $div =>{
+   * DOMUtils.waitAnyNode(["div","div"], 10000).then( $div =>{
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
@@ -357,7 +383,7 @@ class ElementWait extends ElementSelector {
     // 超时时间
     let timeout = 0;
     if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
+      throw new TypeError("DOMUtils.waitAnyNode 第一个参数必须是string[]");
     }
     if (args.length === 1) {
       // 上面已做处理
@@ -370,7 +396,7 @@ class ElementWait extends ElementSelector {
         // "div",document
         parent = secondParam as any as Element;
       } else {
-        throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
+        throw new TypeError("DOMUtils.waitAnyNode 第二个参数必须是number|Node");
       }
     } else if (args.length === 3) {
       // "div",document,10000
@@ -383,13 +409,13 @@ class ElementWait extends ElementSelector {
         if (typeof thirdParam === "number") {
           timeout = thirdParam;
         } else {
-          throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
+          throw new TypeError("DOMUtils.waitAnyNode 第三个参数必须是number");
         }
       } else {
-        throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
+        throw new TypeError("DOMUtils.waitAnyNode 第二个参数必须是Node");
       }
     } else {
-      throw new TypeError("Utils.waitAnyNode 参数个数错误");
+      throw new TypeError("DOMUtils.waitAnyNode 参数个数错误");
     }
     const promiseList = selectorList.map((selector) => {
       return UtilsContext.waitNode<T>(selector, parent, timeout);
@@ -401,10 +427,10 @@ class ElementWait extends ElementSelector {
    * @param selector CSS选择器
    * @param parent （可选）监听的父元素
    * @example
-   * Utils.waitNodeList("div").then( $result =>{
+   * DOMUtils.waitNodeList("div").then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>
    * })
-   * Utils.waitNodeList("div", document).then( $result =>{
+   * DOMUtils.waitNodeList("div", document).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>
    * })
    */
@@ -421,10 +447,10 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param parent （可选）监听的父元素
    * @example
-   * Utils.waitNodeList(["div"]).then( $result =>{
+   * DOMUtils.waitNodeList(["div"]).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
    * })
-   * Utils.waitNodeList(["div"], document).then( $result =>{
+   * DOMUtils.waitNodeList(["div"], document).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
    * })
    */
@@ -442,7 +468,7 @@ class ElementWait extends ElementSelector {
    * @param parent 监听的父元素
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNodeList("div", document, 10000).then( $result =>{
+   * DOMUtils.waitNodeList("div", document, 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
    * })
    */
@@ -462,7 +488,7 @@ class ElementWait extends ElementSelector {
    * @param parent 监听的父元素
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNodeList(["div"], document, 10000).then( $result =>{
+   * DOMUtils.waitNodeList(["div"], document, 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
    * })
    */
@@ -481,7 +507,7 @@ class ElementWait extends ElementSelector {
    * @param selector CSS选择器数组
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNodeList("div", 10000).then( $result =>{
+   * DOMUtils.waitNodeList("div", 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
    * })
    */
@@ -495,7 +521,7 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitNodeList(["div"], 10000).then( $result =>{
+   * DOMUtils.waitNodeList(["div"], 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
    * })
    */
@@ -515,7 +541,7 @@ class ElementWait extends ElementSelector {
     // 超时时间
     let timeout = 0;
     if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
+      throw new TypeError("DOMUtils.waitNodeList 第一个参数必须是string|string[]");
     }
     if (args.length === 1) {
       // 上面已做处理
@@ -528,7 +554,7 @@ class ElementWait extends ElementSelector {
         // "div",document
         parent = secondParam as any as Element;
       } else {
-        throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
+        throw new TypeError("DOMUtils.waitNodeList 第二个参数必须是number|Node");
       }
     } else if (args.length === 3) {
       // "div",document,10000
@@ -541,13 +567,13 @@ class ElementWait extends ElementSelector {
         if (typeof thirdParam === "number") {
           timeout = thirdParam;
         } else {
-          throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
+          throw new TypeError("DOMUtils.waitNodeList 第三个参数必须是number");
         }
       } else {
-        throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
+        throw new TypeError("DOMUtils.waitNodeList 第二个参数必须是Node");
       }
     } else {
-      throw new TypeError("Utils.waitNodeList 参数个数错误");
+      throw new TypeError("DOMUtils.waitNodeList 参数个数错误");
     }
     function getNodeList() {
       if (Array.isArray(selector)) {
@@ -592,10 +618,10 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param parent （可选）监听的父元素
    * @example
-   * Utils.waitAnyNodeList(["div","a"]).then( $result =>{
+   * DOMUtils.waitAnyNodeList(["div","a"]).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>
    * })
-   * Utils.waitAnyNodeList(["div","a"], document).then( $result =>{
+   * DOMUtils.waitAnyNodeList(["div","a"], document).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement>
    * })
    */
@@ -613,7 +639,7 @@ class ElementWait extends ElementSelector {
    * @param parent 父元素，默认document
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitAnyNodeList(["div","a"], document, 10000).then( $result =>{
+   * DOMUtils.waitAnyNodeList(["div","a"], document, 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
    * })
    */
@@ -632,7 +658,7 @@ class ElementWait extends ElementSelector {
    * @param selectorList CSS选择器数组
    * @param timeout 超时时间，默认0
    * @example
-   * Utils.waitAnyNodeList(["div","div"], 10000).then( $result =>{
+   * DOMUtils.waitAnyNodeList(["div","div"], 10000).then( $result =>{
    *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
    * })
    */
@@ -652,7 +678,7 @@ class ElementWait extends ElementSelector {
     // 超时时间
     let timeout = 0;
     if (!Array.isArray(args[0])) {
-      throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
+      throw new TypeError("DOMUtils.waitAnyNodeList 第一个参数必须是string[]");
     }
     if (args.length === 1) {
       // 上面已做处理
@@ -665,7 +691,7 @@ class ElementWait extends ElementSelector {
         // "div",document
         parent = secondParam as any as Element;
       } else {
-        throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
+        throw new TypeError("DOMUtils.waitAnyNodeList 第二个参数必须是number|Node");
       }
     } else if (args.length === 3) {
       // "div",document,10000
@@ -678,13 +704,13 @@ class ElementWait extends ElementSelector {
         if (typeof thirdParam === "number") {
           timeout = thirdParam;
         } else {
-          throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
+          throw new TypeError("DOMUtils.waitAnyNodeList 第三个参数必须是number");
         }
       } else {
-        throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
+        throw new TypeError("DOMUtils.waitAnyNodeList 第二个参数必须是Node");
       }
     } else {
-      throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
+      throw new TypeError("DOMUtils.waitAnyNodeList 参数个数错误");
     }
 
     const promiseList = selectorList.map((selector) => {
