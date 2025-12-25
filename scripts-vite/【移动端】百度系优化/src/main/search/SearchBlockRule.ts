@@ -172,7 +172,7 @@ match-attr##srcid##yx_entity_pc_san
     function parseOneRule(ruleItem: string) {
       let cRuleItemSplit = ruleItem.split("##");
       if (!cRuleItemSplit.length) {
-        log.error(["无效规则", ruleItem]);
+        log.error("无效规则", ruleItem);
         return;
       }
       let ruleName = cRuleItemSplit[0];
@@ -187,7 +187,7 @@ match-attr##srcid##yx_entity_pc_san
       } else if (ruleNameLowerCase === "match-attr") {
         let otherRuleSplit = endRule.split("##");
         if (otherRuleSplit.length === 1) {
-          log.error(["无效规则", ruleItem]);
+          log.error("无效规则", ruleItem);
           return;
         }
         let attrName = otherRuleSplit[0];
@@ -205,7 +205,7 @@ match-attr##srcid##yx_entity_pc_san
           matchText: endRule,
         };
       } else {
-        log.error(["无效规则", ruleItem]);
+        log.error("无效规则", ruleItem);
       }
     }
 
@@ -512,7 +512,7 @@ match-attr##srcid##yx_entity_pc_san
       }
     }
     if (import.meta.env.DEV && attrValue === "") {
-      log.error(["未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult]);
+      log.error("未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult);
     }
     $filterBtn.setAttribute("data-filter-type", attrValue);
     $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);

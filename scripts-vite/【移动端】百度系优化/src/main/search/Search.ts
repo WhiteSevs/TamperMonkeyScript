@@ -58,7 +58,7 @@ const BaiduSearch = {
             try {
               await BaiduHandleResultItem.replaceLink();
             } catch (error) {
-              log.error(["替换为真实链接失败", error]);
+              log.error("替换为真实链接失败", error);
             }
           }, 600);
           let removeAdsLockFunction = new utils.LockFunction(() => {
@@ -194,9 +194,17 @@ const BaiduSearch = {
         if ($foldSwitch) {
           // 展开内容，原始事件可能会失效
           const $more = $foldSwitch.closest<HTMLElement>(`[data-module="more"]`);
-          $more && DOMUtils.hide($more);
+          if ($more) {
+            DOMUtils.hide($more);
+          } else {
+            log.error("未找到展开按钮元素");
+          }
           const $content = $result.querySelector<HTMLElement>(`[class*="content-folded"]`);
-          $content && DOMUtils.css($content, "maxHeight", "unset !important");
+          if ($content) {
+            DOMUtils.css($content, "max-height", "unset !important");
+          } else {
+            log.error("未找到展开内容元素");
+          }
           log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
           return;
         }

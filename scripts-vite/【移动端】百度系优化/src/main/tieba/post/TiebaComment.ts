@@ -237,7 +237,7 @@ const TiebaComment = {
         log.success(`设置额外参数：${key}=${value}`);
         /* tiebaCommentConfig.extraSearchSignParams += `&${key}=${value}`; */
       });
-      log.error(["百度验证后的参数👇", TiebaComment.extraSearchSignParams]);
+      log.error("百度验证后的参数👇", TiebaComment.extraSearchSignParams);
     }
     DOMUtils.waitNode<HTMLDivElement>(".main-page-wrap").then(() => {
       TiebaComment.insertLoadingHTML();

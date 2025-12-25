@@ -210,7 +210,7 @@ export const TiebaCore = {
         let vueInfo = VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
         let authorInfo = vueInfo?.author;
         if (!authorInfo) {
-          log.error(["获取贴主信息失败", vueInfo]);
+          log.error("获取贴主信息失败", vueInfo);
           return;
         }
         log.success("贴主信息", authorInfo);

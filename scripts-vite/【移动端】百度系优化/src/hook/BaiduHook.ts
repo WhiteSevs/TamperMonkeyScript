@@ -559,7 +559,7 @@ export const BaiduHook = {
     // 					typeof result?.toLogin === "function"
     // 				) {
     // 					result.toLogin = function (...args2: any[]) {
-    // 						log.error([`阻止跳转登录组件的初始化`, args2]);
+    // 						log.error(`阻止跳转登录组件的初始化`, args2);
     // 					};
     // 				}
     // 				return result;

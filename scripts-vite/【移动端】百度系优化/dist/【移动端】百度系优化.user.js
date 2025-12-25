@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.25
+// @version      2025.12.25.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-CaUXpnMf.js"(exports$1, module) {
+    "entrance-7_7W0qgv.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -4713,7 +4713,7 @@ match-attr##srcid##yx_entity_pc_san
           function parseOneRule(ruleItem) {
             let cRuleItemSplit = ruleItem.split("##");
             if (!cRuleItemSplit.length) {
-              log.error(["无效规则", ruleItem]);
+              log.error("无效规则", ruleItem);
               return;
             }
             let ruleName = cRuleItemSplit[0];
@@ -4728,7 +4728,7 @@ match-attr##srcid##yx_entity_pc_san
             } else if (ruleNameLowerCase === "match-attr") {
               let otherRuleSplit = endRule.split("##");
               if (otherRuleSplit.length === 1) {
-                log.error(["无效规则", ruleItem]);
+                log.error("无效规则", ruleItem);
                 return;
               }
               let attrName = otherRuleSplit[0];
@@ -4746,7 +4746,7 @@ match-attr##srcid##yx_entity_pc_san
                 matchText: endRule,
               };
             } else {
-              log.error(["无效规则", ruleItem]);
+              log.error("无效规则", ruleItem);
             }
           }
           localRule.split("\n").forEach((ruleItem) => {
@@ -6280,7 +6280,7 @@ div[class^="new-summary-container_"] {\r
                   try {
                     await BaiduHandleResultItem.replaceLink();
                   } catch (error) {
-                    log.error(["替换为真实链接失败", error]);
+                    log.error("替换为真实链接失败", error);
                   }
                 }, 600);
                 let removeAdsLockFunction = new utils.LockFunction(() => {
@@ -6373,9 +6373,17 @@ div[class^="new-summary-container_"] {\r
               const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
               if ($foldSwitch) {
                 const $more = $foldSwitch.closest(`[data-module="more"]`);
-                $more && domUtils.hide($more);
+                if ($more) {
+                  domUtils.hide($more);
+                } else {
+                  log.error("未找到展开按钮元素");
+                }
                 const $content = $result.querySelector(`[class*="content-folded"]`);
-                $content && domUtils.css($content, "maxHeight", "unset !important");
+                if ($content) {
+                  domUtils.css($content, "max-height", "unset !important");
+                } else {
+                  log.error("未找到展开内容元素");
+                }
                 log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
                 return;
               }
@@ -7252,7 +7260,7 @@ div[class^="new-summary-container_"] {\r
                 VueUtils.getVue(element.parentElement) || VueUtils.getVue(element.closest(".user-line-wrapper"));
               let authorInfo = vueInfo?.author;
               if (!authorInfo) {
-                log.error(["获取贴主信息失败", vueInfo]);
+                log.error("获取贴主信息失败", vueInfo);
                 return;
               }
               log.success("贴主信息", authorInfo);
@@ -8722,7 +8730,7 @@ div[class^="new-summary-container_"] {\r
               }
               log.success(`设置额外参数：${key}=${value}`);
             });
-            log.error(["百度验证后的参数👇", TiebaComment.extraSearchSignParams]);
+            log.error("百度验证后的参数👇", TiebaComment.extraSearchSignParams);
           }
           domUtils.waitNode(".main-page-wrap").then(() => {
             TiebaComment.insertLoadingHTML();

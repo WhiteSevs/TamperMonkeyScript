@@ -372,7 +372,7 @@ export const BaiduHandleResultItem = {
 
     if (this.isNotRlLinkUrl(url)) {
       url = null;
-      /* log.error(["未在元素节点中找到隐藏的原始URL", jQDOM]); */
+      /* log.error("未在元素节点中找到隐藏的原始URL", jQDOM); */
     } else {
       /* 对每个中文字符进行编码 */
       let chineseArr = url.match(/[\u4e00-\u9fa5]/g);
