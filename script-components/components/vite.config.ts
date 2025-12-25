@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
-import { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
-import { GenerateUserConfig } from "./../../script-components/components/base.vite.config";
+import { ViteUtils } from "./../../vite.utils";
+import { GenerateUserConfig } from "./vite.config.base";
 
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();

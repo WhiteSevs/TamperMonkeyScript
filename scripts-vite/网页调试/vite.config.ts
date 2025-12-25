@@ -3,7 +3,7 @@ import path from "path";
 import { defineConfig } from "vite";
 import { cdn } from "vite-plugin-monkey";
 import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
-import { GenerateUserConfig } from "./../../script-components/components/base.vite.config";
+import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
 
 /**
  * 更新README.md的版本信息

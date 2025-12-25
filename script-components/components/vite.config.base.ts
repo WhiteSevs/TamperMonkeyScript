@@ -1,6 +1,6 @@
 import { type UserConfig, type Plugin } from "vite";
 import monkey, { cdn, util, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
+import { ViteUtils, GetLib, viteUtils } from "../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
@@ -272,11 +272,7 @@ const GenerateUserConfig = async (option: {
    * vite配置
    */
   let BaseUserConfig: UserConfig = {
-    plugins: [
-      mkcert({
-        force: true,
-      }),
-    ],
+    plugins: [mkcert()],
     resolve: {
       alias: {
         "@": inheritUtils.getAbsolutePath("./src"),

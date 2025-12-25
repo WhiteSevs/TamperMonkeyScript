@@ -1,5 +1,5 @@
 {
-  "extends": "./../../script-components/components/base.tsconfig.json",
+  "extends": "./../../script-components/components/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
