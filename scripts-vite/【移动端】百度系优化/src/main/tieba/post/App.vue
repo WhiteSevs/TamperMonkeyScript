@@ -149,7 +149,7 @@
   watch(
     () => TiebaComment.reply_num,
     (newValue) => {
-      log.success(["update reply_num", newValue.value]);
+      log.success("update reply_num", newValue.value);
       toolbarStore.showCommentCount = newValue.value > 999 ? "999+" : newValue.value.toString();
     },
     {
@@ -161,7 +161,7 @@
   watch(
     () => TiebaComment.agree_num,
     (newValue) => {
-      log.success(["update agree_num", newValue.value]);
+      log.success("update agree_num", newValue.value);
       toolbarStore.showGoodCount = newValue.value > 999 ? "999+" : newValue.value.toString();
     },
     {

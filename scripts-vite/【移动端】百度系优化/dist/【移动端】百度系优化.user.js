@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-D7cr6E0N.js"(exports$1, module) {
+    "entrance-CaUXpnMf.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -2529,9 +2529,9 @@
                   "token" in firstParam[0] &&
                   "useDeeplink" in firstParam[0]
                 ) {
-                  log.success(["劫持复制到剪贴板函数", ...firstParam]);
+                  log.success("劫持复制到剪贴板函数", ...firstParam);
                   return new Promise(function (resolve) {
-                    log.success(["修改参数并劫持复制到剪贴板返回true"]);
+                    log.success("修改参数并劫持复制到剪贴板返回true");
                     resolve({
                       status: true,
                     });
@@ -2549,7 +2549,7 @@
                   firstParam.length === 2 &&
                   firstParam[1] === "scheme"
                 ) {
-                  log.success(["劫持Scheme", ...firstParam]);
+                  log.success("劫持Scheme", ...firstParam);
                   return;
                 }
               } catch (error) {}
@@ -2578,25 +2578,25 @@
               ) {
                 args[1]["exports"]["execCopy"] = function (...args2) {
                   return new Promise((resolve) => {
-                    log.success(["阻止调用execCopy", args2]);
+                    log.success("阻止调用execCopy", args2);
                     resolve(null);
                   });
                 };
                 args[1]["exports"]["invokeApp"] = function (...args2) {
                   return new Promise((resolve) => {
-                    log.success(["阻止调用invokeApp", args2]);
+                    log.success("阻止调用invokeApp", args2);
                     resolve(null);
                   });
                 };
                 args[1]["exports"]["invokeMarket"] = function (...args2) {
                   return new Promise((resolve) => {
-                    log.success(["阻止调用invokeMarket", args2]);
+                    log.success("阻止调用invokeMarket", args2);
                     resolve(null);
                   });
                 };
                 args[1]["exports"]["invokeTpApp"] = function (...args2) {
                   return new Promise((resolve) => {
-                    log.success(["阻止调用invokeTpApp", args2]);
+                    log.success("阻止调用invokeTpApp", args2);
                     resolve(null);
                   });
                 };
@@ -2611,7 +2611,7 @@
                 "next" in args[1] &&
                 "prev" in args[1]
               ) {
-                log.success(["修改参数", args[1]]);
+                log.success("修改参数", args[1]);
                 args[1]["method"] = "return";
                 args[1]["next"] = "end";
                 args[1]["prev"] = 24;
@@ -2628,7 +2628,7 @@
                 "next" in args[1] &&
                 "prev" in args[1]
               ) {
-                log.success(["修改参数", args[1]]);
+                log.success("修改参数", args[1]);
                 args[1]["method"] = "return";
                 args[1]["next"] = "end";
                 args[1]["prev"] = 24;
@@ -2674,7 +2674,7 @@
               return unsafeDefine;
             },
             set(v) {
-              log.success(["define ==> ", v]);
+              log.success("define ==> ", v);
               safeDefine = v;
             },
           });
@@ -2693,7 +2693,7 @@
                 let eventNodeName = this._getType(eventNode);
                 if (eventNodeName === "link") {
                   let linkProps2 = this._getLinkProps(eventNode);
-                  log.success(["点击事件-linkProps信息", linkProps2]);
+                  log.success("点击事件-linkProps信息", linkProps2);
                   if (!linkProps2.href) {
                     domUtils.emit(document, "click", event, false);
                     return;
@@ -2706,7 +2706,7 @@
                     window.location.href = linkProps2.href;
                   }
                 } else {
-                  log.success(["点击事件-this._getType(eventNode)不为link", eventNodeName, event]);
+                  log.success("点击事件-this._getType(eventNode)不为link", eventNodeName, event);
                   oldFn.call(this, ...arguments);
                 }
               };
@@ -2718,7 +2718,7 @@
           handleCallBack = function (element) {
             if (element instanceof HTMLIFrameElement) {
               if (typeof element?.src === "string" && !element.src.startsWith("http")) {
-                log.success(["劫持iframe唤醒：" + element.src, element]);
+                log.success("劫持iframe唤醒：" + element.src, element);
                 return true;
               }
             }
@@ -2749,7 +2749,7 @@
             if (typeof params === "string") {
               params = params.trim();
               if (params.startsWith('<iframe src="') && !params.startsWith('<iframe src="http')) {
-                log.success(["劫持jQuery的iframe", params]);
+                log.success("劫持jQuery的iframe", params);
                 return;
               }
             }
@@ -2818,7 +2818,7 @@
             if (typeof callback === "function") {
               let callBackString = callback.toString();
               if (callBackString.match(matchStr)) {
-                log.success(["劫持延迟函数", callBackString]);
+                log.success("劫持延迟函数", callBackString);
                 return;
               }
             }
@@ -2870,7 +2870,7 @@
               typeof webpackExports.exports["init"] === "function" &&
               typeof webpackExports.exports["initDiffer"] === "function"
             ) {
-              log.success(["成功劫持webpack调用函数", webpackExports]);
+              log.success("成功劫持webpack调用函数", webpackExports);
               webpackExports?.["i"];
               webpackExports.exports.getSchema = function (...args) {};
               webpackExports.exports.getToken = function (...args) {
@@ -2904,14 +2904,14 @@
               typeof webpackExports.exports["LaunchScheme"] === "function" &&
               typeof webpackExports.exports["__esModule"] === "boolean"
             ) {
-              log.success(["成功劫持webpack调用函数", webpackExports]);
+              log.success("成功劫持webpack调用函数", webpackExports);
               webpackExports?.["i"];
               webpackExports.exports["LaunchScheme"] = function () {
-                log.success(["修改参数：LaunchScheme"]);
+                log.success("修改参数：LaunchScheme");
                 return {
                   launch() {
                     return new Promise(function (resolve) {
-                      log.success(["修改参数：launch"]);
+                      log.success("修改参数：launch");
                       resolve(void 0);
                     });
                   },
@@ -3456,13 +3456,13 @@
               }
             );
             vueObj.$parent.openBgkApp = function (...args) {
-              log.success(["openBgkApp：阻止调用App Scheme", args]);
+              log.success("openBgkApp：阻止调用App Scheme", args);
             };
             vueObj.openApp = function (...args) {
-              log.success(["openApp：阻止调用App Scheme", args]);
+              log.success("openApp：阻止调用App Scheme", args);
             };
             vueObj.$parent.goToApp = function (...args) {
-              log.success(["goToApp：阻止调用App Scheme", args]);
+              log.success("goToApp：阻止调用App Scheme", args);
             };
           });
         },
@@ -4965,16 +4965,20 @@ match-attr##srcid##yx_entity_pc_san
               return "interaction";
             },
             () => {
-              const $feedback =
+              let $feedback =
                 $searchResult.querySelector(".cosc-feedback") ||
                 $searchResult.querySelector(".sc-feedback") ||
                 $searchResult.querySelector("div:has(>.c-gap-left-middle)");
               if (!$feedback) return;
-              if ($searchResult.getAttribute("srcid") === "poi_map") {
+              const srcid = $searchResult.getAttribute("srcid") || "";
+              if (["poi_map", "lego_tpl"].includes(srcid)) {
+                const $leftMiddle = $feedback.querySelector(".c-gap-left-middle");
+                if (srcid === "lego_tpl") {
+                  $feedback = $leftMiddle;
+                }
                 const lockFn = new utils.LockFunction(() => {
-                  if ($searchResult.contains($filterBtn)) {
-                    return;
-                  }
+                  if ($searchResult.contains($filterBtn)) return;
+                  if (domUtils.prev($feedback) === $filterBtn) return;
                   domUtils.before($feedback, $filterBtn);
                 });
                 utils.mutationObserver($searchResult, {
@@ -5017,6 +5021,7 @@ match-attr##srcid##yx_entity_pc_san
               break;
             }
           }
+          $filterBtn.setAttribute("data-filter-type", attrValue);
           $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);
         },
       };
@@ -6269,7 +6274,7 @@ div[class^="new-summary-container_"] {\r
             });
             domUtils.onReady(() => {
               BaiduHandleResultItem.$data.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
-              let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
+              const baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
               if (baidu_search_handle_search_result_enable) {
                 let searchUpdateRealLink = new utils.LockFunction(async () => {
                   try {
@@ -6344,42 +6349,46 @@ div[class^="new-summary-container_"] {\r
           };
           const globalResultClickEvent = (event, $selectorTarget) => {
             let url = null;
-            let $click = event.composedPath()[0];
+            const $click = event.composedPath()[0];
             let $result = $selectorTarget;
             if ($click) {
               if (Panel.getValue("baidu-search-add-filter-button")) {
                 if (CommonUtil.findParentNode($click, ".gm-search-filter-wrapper")) {
-                  log.info(`该点击为自定义的过滤按钮，不点击跳转`);
+                  log.info(`该点击为自定义的过滤按钮，不跳转`);
                   return;
                 }
               }
-              let isWenDa = $result.matches('[srcid="wenda_generate"]');
+              const isWenDa = $result.matches('[srcid="wenda_generate"]');
               if (isWenDa) {
-                log.warn(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
+                log.warn("该点击来自百度AI总结全网xx篇结果，不跳转", { event, $click, $result, isWenDa });
                 return;
               }
-              let isTab =
+              const $tabSwitch =
                 CommonUtil.findParentNode($click, ".cos-tab") ||
                 CommonUtil.findParentNode($click, '[class*="each-tab-name"]');
-              if (isTab) {
-                log.warn(["该点击来自切换tab，不点击跳转", { event, $click, $result }]);
+              if ($tabSwitch) {
+                log.warn("该点击来自切换tab，不跳转", { event, $click, $result });
                 return;
               }
-              let isFold = CommonUtil.findParentNode($click, ".cos-fold-switch");
-              if (isFold) {
-                log.warn(["该点击来自折叠，不点击跳转", { event, $click, $result }]);
+              const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
+              if ($foldSwitch) {
+                const $more = $foldSwitch.closest(`[data-module="more"]`);
+                $more && domUtils.hide($more);
+                const $content = $result.querySelector(`[class*="content-folded"]`);
+                $content && domUtils.css($content, "maxHeight", "unset !important");
+                log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
                 return;
               }
-              let isRightBottomMoreBtn =
+              const $rightBottomMoreBtn =
                 CommonUtil.findParentNode($click, ".cosc-feedback") ||
                 CommonUtil.findParentNode($click, `[data-tool*='"feedback"'][data-tool*='您遇到了什么问题']`);
-              if (isRightBottomMoreBtn) {
-                log.warn(["该点击来自右下角的更多按钮，不点击跳转", { event, $click, $result }]);
+              if ($rightBottomMoreBtn) {
+                log.warn("该点击来自右下角的更多按钮，不跳转", { event, $click, $result });
                 return;
               }
               if ($click.closest("a")) {
-                let $link = $click.closest("a");
-                let linkUrl = $link.getAttribute("data-url") || $link.href;
+                const $link = $click.closest("a");
+                const linkUrl = $link.getAttribute("data-url") || $link.href;
                 if (utils.isNotNull(linkUrl)) {
                   log.info([
                     "链接来自上层a元素",
@@ -6393,8 +6402,8 @@ div[class^="new-summary-container_"] {\r
                   url = linkUrl;
                 }
               } else if ($click.closest("[rl-link-href]")) {
-                let $rlLinkDiv = $click.closest("[rl-link-href]");
-                let rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
+                const $rlLinkDiv = $click.closest("[rl-link-href]");
+                const rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
                 if (utils.isNotNull(rlLinkHref)) {
                   log.info([
                     "链接来自上层含有[rl-link-href]属性的元素",
@@ -6409,15 +6418,15 @@ div[class^="new-summary-container_"] {\r
                 }
               }
             } else {
-              let $article = $result.querySelector("article");
+              const $article = $result.querySelector("article");
               url = $article.getAttribute("rl-link-href");
               log.info("链接来自顶层向下寻找article元素", { event, $click, $result, $article });
             }
             if (utils.isNull(url)) {
-              log.warn(["未找到有效链接", { event, $click, $result, url }]);
+              log.warn("未找到有效链接", { event, $click, $result, url });
               return;
             }
-            let urlInst = new URL(url);
+            const urlInst = new URL(url);
             if (urlInst.hostname === "www.baidu.com") {
               if (urlInst.pathname.match(/\/[\d]+$/)) {
                 log.warn("不符合新标签页打开的链接");
@@ -6425,7 +6434,7 @@ div[class^="new-summary-container_"] {\r
               }
             }
             domUtils.preventEvent(event);
-            log.success(["新标签页打开-来自click事件", url]);
+            log.success("新标签页打开-来自click事件", url);
             changeVisitedNodeColor($click, $result);
             window.open(url, "_blank");
           };
@@ -6724,7 +6733,7 @@ div[class^="new-summary-container_"] {\r
           return data.chatUser;
         },
         async forumSign(forumName, tbs2) {
-          log.success(["发送签到请求→", forumName, tbs2]);
+          log.success("发送签到请求→", forumName, tbs2);
           let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
             data: `ie=utf-8&kw=${forumName}&tbs=${tbs2}`,
             responseType: "json",
@@ -7246,7 +7255,7 @@ div[class^="new-summary-container_"] {\r
                 log.error(["获取贴主信息失败", vueInfo]);
                 return;
               }
-              log.success(["贴主信息", authorInfo]);
+              log.success("贴主信息", authorInfo);
               window.open(`/home/main?id=${authorInfo.portrait}`);
             });
           });
@@ -10060,17 +10069,17 @@ div[class^="new-summary-container_"] {\r
           if (contentElement && contentElement["data-whitesev"]) {
             data = contentElement["data-whitesev"];
           }
-          log.success(["data-whitesev数据", data]);
+          log.success("data-whitesev数据", data);
           let currentCommentData = data["pageCommentList"]["commentList"][data["userPostId"]]["comment_info"];
-          log.success(["当前评论数据信息JSON", currentCommentData]);
+          log.success("当前评论数据信息JSON", currentCommentData);
           let currentCommentListNum = data["pageCommentList"]["commentList"][data["userPostId"]]["comment_num"];
           let userList = data["pageCommentList"]["userList"];
           let mainUserAvatar = data["userAvatar"];
           let userAvatarHostName = new URL(mainUserAvatar).hostname;
           let userAvatarPath = new URL(mainUserAvatar).pathname.split("/")[1];
           let landlordInfo = TiebaCore.getLandlordInfo();
-          log.success(["头像加密值路径是", userAvatarPath]);
-          log.success(["本帖楼主的信息", landlordInfo]);
+          log.success("头像加密值路径是", userAvatarPath);
+          log.success("本帖楼主的信息", landlordInfo);
           let $ohterCommentFragment = document.createDocumentFragment();
           currentCommentData.forEach((item) => {
             let itemUserInfo = userList[item["user_id"]];
@@ -10120,7 +10129,7 @@ div[class^="new-summary-container_"] {\r
             };
             $ohterCommentFragment.appendChild($otherCommentItem);
           });
-          log.success(["显示评论的弹窗", data]);
+          log.success("显示评论的弹窗", data);
           let dialog = domUtils.createElement("div", {
             id: "whitesev-reply-dialog",
             innerHTML: `
@@ -10260,7 +10269,7 @@ div[class^="new-summary-container_"] {\r
               data["userPostId"].toString(),
               lzlPage
             );
-            log.success(["加载更多回复的数据", replyInfo]);
+            log.success("加载更多回复的数据", replyInfo);
             if (replyInfo === "暂无更多回复") {
               log.error("暂无更多回复");
               lzlLoadingView.setText("暂无更多回复");
@@ -10376,7 +10385,7 @@ div[class^="new-summary-container_"] {\r
             dialog.setAttribute("data-on", "true");
             dialogContentElement.style.setProperty("height", `calc(100% - ${domUtils.height(dialogTitleElement)}px)`);
             this.vueRootView = $(".main-page-wrap");
-            log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
+            log.success("成功获取Vue根元素", VueUtils.getVue(this.vueRootView));
             if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
               setPopStateEvent();
             }
@@ -10455,7 +10464,7 @@ div[class^="new-summary-container_"] {\r
           };
           let getResp = await httpx.get(getDetails);
           let respData = getResp.data;
-          log.success(["获取评论", getResp]);
+          log.success("获取评论", getResp);
           if (getResp.status) {
             let pageCommentHTMLElement = domUtils.toElement(respData.responseText, true, true);
             if (
@@ -10516,7 +10525,7 @@ div[class^="new-summary-container_"] {\r
           let respData = getResp.data;
           let data = utils.toJSON(respData.responseText);
           if (getResp.status && data["errno"] === 0) {
-            log.success(["帖子评论信息JSON", data]);
+            log.success("帖子评论信息JSON", data);
             return {
               commentList: data["data"]["comment_list"],
               userList: data["data"]["user_list"],
@@ -24093,7 +24102,7 @@ div[class^="new-summary-container_"] {\r
           vue.watch(
             () => TiebaComment.reply_num,
             (newValue) => {
-              log.success(["update reply_num", newValue.value]);
+              log.success("update reply_num", newValue.value);
               toolbarStore.showCommentCount = newValue.value > 999 ? "999+" : newValue.value.toString();
             },
             {
@@ -24104,7 +24113,7 @@ div[class^="new-summary-container_"] {\r
           vue.watch(
             () => TiebaComment.agree_num,
             (newValue) => {
-              log.success(["update agree_num", newValue.value]);
+              log.success("update agree_num", newValue.value);
               toolbarStore.showGoodCount = newValue.value > 999 ? "999+" : newValue.value.toString();
             },
             {
@@ -24328,7 +24337,7 @@ div[class^="new-summary-container_"] {\r
                           let picId = picIdSplit[0];
                           if (TiebaData.imageMap.has(picId)) {
                             imgSrc = TiebaData.imageMap.get(picId);
-                            log.success(["替换成高清图片", imgSrc]);
+                            log.success("替换成高清图片", imgSrc);
                           }
                         }
                       }
@@ -24352,7 +24361,7 @@ div[class^="new-summary-container_"] {\r
                         let picId = picIdSplit[0];
                         if (TiebaData.imageMap.has(picId)) {
                           imgSrc = TiebaData.imageMap.get(picId);
-                          log.success(["替换成高清图片", imgSrc]);
+                          log.success("替换成高清图片", imgSrc);
                         }
                       }
                     }
@@ -24457,7 +24466,7 @@ div[class^="new-summary-container_"] {\r
                   return;
                 }
                 let imgSudoKuImageElementList = $imgSudoKu.querySelectorAll("img.img");
-                log.success(["重构主内容的图片", $imgSudoKu, imgSudoKuImageElementList]);
+                log.success("重构主内容的图片", $imgSudoKu, imgSudoKuImageElementList);
                 imgSudoKuImageElementList.forEach(($imgItem) => {
                   if ($imgItem.hasAttribute("data-src")) {
                     $imgItem.src = $imgItem.getAttribute("data-src");
@@ -24473,7 +24482,7 @@ div[class^="new-summary-container_"] {\r
                   },
                   set(vueObj) {
                     TiebaPost.mainPostImgList = vueObj.imgs;
-                    log.success(["Vue上隐藏的帖子高清图片列表", TiebaPost.mainPostImgList]);
+                    log.success("Vue上隐藏的帖子高清图片列表", TiebaPost.mainPostImgList);
                   },
                 },
               ]);
@@ -24489,7 +24498,7 @@ div[class^="new-summary-container_"] {\r
                 log.error("获取图片信息失败");
                 return;
               }
-              log.success(["请求本贴图片信息", result]);
+              log.success("请求本贴图片信息", result);
               Object.values(result["pic_list"]).forEach((item) => {
                 let id =
                   item?.["img"]?.["original"]?.["id"] ||

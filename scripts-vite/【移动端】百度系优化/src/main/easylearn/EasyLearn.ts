@@ -150,13 +150,13 @@ const BaiduEasyLearn = {
       );
       /* 阻止调用App Scheme */
       vueObj.$parent.openBgkApp = function (...args: any[]) {
-        log.success(["openBgkApp：阻止调用App Scheme", args]);
+        log.success("openBgkApp：阻止调用App Scheme", args);
       };
       vueObj.openApp = function (...args: any[]) {
-        log.success(["openApp：阻止调用App Scheme", args]);
+        log.success("openApp：阻止调用App Scheme", args);
       };
       vueObj.$parent.goToApp = function (...args: any[]) {
-        log.success(["goToApp：阻止调用App Scheme", args]);
+        log.success("goToApp：阻止调用App Scheme", args);
       };
     });
   },

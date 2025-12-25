@@ -68,9 +68,9 @@ export const BaiduHook = {
             "token" in firstParam[0] &&
             "useDeeplink" in firstParam[0]
           ) {
-            log.success(["劫持复制到剪贴板函数", ...firstParam]);
+            log.success("劫持复制到剪贴板函数", ...firstParam);
             return new Promise(function (resolve) {
-              log.success(["修改参数并劫持复制到剪贴板返回true"]);
+              log.success("修改参数并劫持复制到剪贴板返回true");
               resolve({
                 status: true,
               });
@@ -94,7 +94,7 @@ export const BaiduHook = {
             firstParam.length === 2 &&
             firstParam[1] === "scheme"
           ) {
-            log.success(["劫持Scheme", ...firstParam]);
+            log.success("劫持Scheme", ...firstParam);
             return;
           }
         } catch (error) {
@@ -136,25 +136,25 @@ export const BaiduHook = {
         ) {
           args[1]["exports"]["execCopy"] = function (...args: any[]) {
             return new Promise((resolve) => {
-              log.success(["阻止调用execCopy", args]);
+              log.success("阻止调用execCopy", args);
               resolve(null);
             });
           };
           args[1]["exports"]["invokeApp"] = function (...args: any[]) {
             return new Promise((resolve) => {
-              log.success(["阻止调用invokeApp", args]);
+              log.success("阻止调用invokeApp", args);
               resolve(null);
             });
           };
           args[1]["exports"]["invokeMarket"] = function (...args: any[]) {
             return new Promise((resolve) => {
-              log.success(["阻止调用invokeMarket", args]);
+              log.success("阻止调用invokeMarket", args);
               resolve(null);
             });
           };
           args[1]["exports"]["invokeTpApp"] = function (...args: any[]) {
             return new Promise((resolve) => {
-              log.success(["阻止调用invokeTpApp", args]);
+              log.success("阻止调用invokeTpApp", args);
               resolve(null);
             });
           };
@@ -169,7 +169,7 @@ export const BaiduHook = {
           "next" in args[1] &&
           "prev" in args[1]
         ) {
-          log.success(["修改参数", args[1]]);
+          log.success("修改参数", args[1]);
           args[1]["method"] = "return";
           args[1]["next"] = "end";
           args[1]["prev"] = 24;
@@ -187,7 +187,7 @@ export const BaiduHook = {
           "next" in args[1] &&
           "prev" in args[1]
         ) {
-          log.success(["修改参数", args[1]]);
+          log.success("修改参数", args[1]);
           args[1]["method"] = "return";
           args[1]["next"] = "end";
           args[1]["prev"] = 24;
@@ -236,7 +236,7 @@ export const BaiduHook = {
         return unsafeDefine;
       },
       set(v) {
-        log.success(["define ==> ", v]);
+        log.success("define ==> ", v);
         safeDefine = v;
       },
     });
@@ -268,7 +268,7 @@ export const BaiduHook = {
           let eventNodeName = this._getType(eventNode);
           if (eventNodeName === "link") {
             let linkProps = this._getLinkProps(eventNode);
-            log.success(["点击事件-linkProps信息", linkProps]);
+            log.success("点击事件-linkProps信息", linkProps);
             if (!linkProps.href) {
               DOMUtils.emit(document, "click", event, false);
               return;
@@ -281,7 +281,7 @@ export const BaiduHook = {
               window.location.href = linkProps.href;
             }
           } else {
-            log.success(["点击事件-this._getType(eventNode)不为link", eventNodeName, event]);
+            log.success("点击事件-this._getType(eventNode)不为link", eventNodeName, event);
             oldFn.call(this, ...arguments);
           }
         };
@@ -301,7 +301,7 @@ export const BaiduHook = {
     handleCallBack: (element: HTMLElement) => boolean | void = function (element) {
       if (element instanceof HTMLIFrameElement) {
         if (typeof element?.src === "string" && !element.src.startsWith("http")) {
-          log.success(["劫持iframe唤醒：" + element.src, element]);
+          log.success("劫持iframe唤醒：" + element.src, element);
           // @ts-ignore
           return true;
         }
@@ -341,7 +341,7 @@ export const BaiduHook = {
       if (typeof params === "string") {
         params = params.trim();
         if (params.startsWith('<iframe src="') && !params.startsWith('<iframe src="http')) {
-          log.success(["劫持jQuery的iframe", params]);
+          log.success("劫持jQuery的iframe", params);
           return;
         }
       }
@@ -424,7 +424,7 @@ export const BaiduHook = {
       if (typeof callback === "function") {
         let callBackString = callback.toString();
         if (callBackString.match(matchStr)) {
-          log.success(["劫持延迟函数", callBackString]);
+          log.success("劫持延迟函数", callBackString);
           return;
         }
       }
@@ -505,7 +505,7 @@ export const BaiduHook = {
           typeof webpackExports.exports["init"] === "function" &&
           typeof webpackExports.exports["initDiffer"] === "function"
         ) {
-          log.success(["成功劫持webpack调用函数", webpackExports]);
+          log.success("成功劫持webpack调用函数", webpackExports);
           let codeId = webpackExports?.["i"];
           webpackExports.exports.getSchema = function (...args: any) {
             // log.info("阻止调用getSchema", ...arguments);
@@ -588,14 +588,14 @@ export const BaiduHook = {
           typeof webpackExports.exports["LaunchScheme"] === "function" &&
           typeof webpackExports.exports["__esModule"] === "boolean"
         ) {
-          log.success(["成功劫持webpack调用函数", webpackExports]);
+          log.success("成功劫持webpack调用函数", webpackExports);
           let codeId = webpackExports?.["i"];
           webpackExports.exports["LaunchScheme"] = function () {
-            log.success(["修改参数：LaunchScheme"]);
+            log.success("修改参数：LaunchScheme");
             return {
               launch() {
                 return new Promise(function (resolve) {
-                  log.success(["修改参数：launch"]);
+                  log.success("修改参数：launch");
                   resolve(void 0);
                 });
               },

@@ -213,7 +213,7 @@ export const TiebaCore = {
           log.error(["获取贴主信息失败", vueInfo]);
           return;
         }
-        log.success(["贴主信息", authorInfo]);
+        log.success("贴主信息", authorInfo);
         window.open(`/home/main?id=${authorInfo.portrait}`);
       });
     });

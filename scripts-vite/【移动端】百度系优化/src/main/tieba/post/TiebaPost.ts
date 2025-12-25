@@ -185,7 +185,7 @@ const TiebaPost = {
                     let picId = picIdSplit[0];
                     if (TiebaData.imageMap.has(picId)) {
                       imgSrc = TiebaData.imageMap.get(picId) as string;
-                      log.success(["替换成高清图片", imgSrc]);
+                      log.success("替换成高清图片", imgSrc);
                     }
                   }
                 }
@@ -211,7 +211,7 @@ const TiebaPost = {
                   let picId = picIdSplit[0];
                   if (TiebaData.imageMap.has(picId)) {
                     imgSrc = TiebaData.imageMap.get(picId) as string;
-                    log.success(["替换成高清图片", imgSrc]);
+                    log.success("替换成高清图片", imgSrc);
                   }
                 }
               }
@@ -333,7 +333,7 @@ const TiebaPost = {
             return;
           }
           let imgSudoKuImageElementList = $imgSudoKu.querySelectorAll<HTMLImageElement>("img.img");
-          log.success(["重构主内容的图片", $imgSudoKu, imgSudoKuImageElementList]);
+          log.success("重构主内容的图片", $imgSudoKu, imgSudoKuImageElementList);
           imgSudoKuImageElementList.forEach(($imgItem) => {
             if ($imgItem.hasAttribute("data-src")) {
               $imgItem.src = $imgItem.getAttribute("data-src") as string;
@@ -350,7 +350,7 @@ const TiebaPost = {
             },
             set(vueObj) {
               TiebaPost.mainPostImgList = vueObj.imgs;
-              log.success(["Vue上隐藏的帖子高清图片列表", TiebaPost.mainPostImgList]);
+              log.success("Vue上隐藏的帖子高清图片列表", TiebaPost.mainPostImgList);
             },
           },
         ]);
@@ -369,7 +369,7 @@ const TiebaPost = {
           log.error("获取图片信息失败");
           return;
         }
-        log.success(["请求本贴图片信息", result]);
+        log.success("请求本贴图片信息", result);
         Object.values(result["pic_list"]).forEach((item) => {
           /* 图片id */
           let id =

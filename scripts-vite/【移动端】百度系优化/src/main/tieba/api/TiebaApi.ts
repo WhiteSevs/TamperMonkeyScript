@@ -356,7 +356,7 @@ const TieBaApi = {
    * @param tbs 应该是用户token
    */
   async forumSign(forumName: string, tbs: string) {
-    log.success(["发送签到请求→", forumName, tbs]);
+    log.success("发送签到请求→", forumName, tbs);
     let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
       data: `ie=utf-8&kw=${forumName}&tbs=${tbs}`,
       responseType: "json",

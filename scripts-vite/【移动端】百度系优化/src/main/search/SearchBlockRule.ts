@@ -452,18 +452,23 @@ match-attr##srcid##yx_entity_pc_san
         return "interaction";
       },
       () => {
-        const $feedback =
+        let $feedback =
           $searchResult.querySelector<HTMLElement>(".cosc-feedback") ||
           $searchResult.querySelector<HTMLElement>(".sc-feedback") ||
           $searchResult.querySelector<HTMLElement>("div:has(>.c-gap-left-middle)");
         if (!$feedback) return;
-        if ($searchResult.getAttribute("srcid") === "poi_map") {
+        const srcid = $searchResult.getAttribute("srcid") || "";
+        if (["poi_map", "lego_tpl"].includes(srcid)) {
           // 百度地图
+          // 爱企查
+          const $leftMiddle = $feedback.querySelector<HTMLElement>(".c-gap-left-middle")!;
+          if (srcid === "lego_tpl") {
+            $feedback = $leftMiddle;
+          }
           const lockFn = new utils.LockFunction(() => {
-            if ($searchResult.contains($filterBtn)) {
-              return;
-            }
-            DOMUtils.before($feedback, $filterBtn);
+            if ($searchResult.contains($filterBtn)) return;
+            if (DOMUtils.prev($feedback!) === $filterBtn) return;
+            DOMUtils.before($feedback!, $filterBtn);
           });
           utils.mutationObserver($searchResult, {
             config: {
@@ -509,6 +514,7 @@ match-attr##srcid##yx_entity_pc_san
     if (import.meta.env.DEV && attrValue === "") {
       log.error(["未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult]);
     }
+    $filterBtn.setAttribute("data-filter-type", attrValue);
     $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);
   },
 };

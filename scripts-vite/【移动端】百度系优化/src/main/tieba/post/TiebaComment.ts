@@ -1719,10 +1719,10 @@ const TiebaComment = {
     if (contentElement && contentElement["data-whitesev"]) {
       data = contentElement["data-whitesev"];
     }
-    log.success(["data-whitesev数据", data]);
+    log.success("data-whitesev数据", data);
     /* 当前评论数据信息JSON */
     let currentCommentData = data["pageCommentList"]["commentList"][data["userPostId"]]["comment_info"];
-    log.success(["当前评论数据信息JSON", currentCommentData]);
+    log.success("当前评论数据信息JSON", currentCommentData);
     /* 楼中楼评论的总共数量 */
     let currentCommentListNum = data["pageCommentList"]["commentList"][data["userPostId"]]["comment_num"];
     /* 用户信息JSON */
@@ -1732,8 +1732,8 @@ const TiebaComment = {
     let userAvatarHostName = new URL(mainUserAvatar).hostname;
     let userAvatarPath = new URL(mainUserAvatar).pathname.split("/")[1];
     let landlordInfo = TiebaCore.getLandlordInfo();
-    log.success(["头像加密值路径是", userAvatarPath]);
-    log.success(["本帖楼主的信息", landlordInfo]);
+    log.success("头像加密值路径是", userAvatarPath);
+    log.success("本帖楼主的信息", landlordInfo);
 
     let $ohterCommentFragment = document.createDocumentFragment();
     currentCommentData.forEach((item) => {
@@ -1791,7 +1791,7 @@ const TiebaComment = {
       } as LzlItemData;
       $ohterCommentFragment.appendChild($otherCommentItem);
     });
-    log.success(["显示评论的弹窗", data]);
+    log.success("显示评论的弹窗", data);
     let dialog = DOMUtils.createElement("div", {
       id: "whitesev-reply-dialog",
       innerHTML: /*html*/ `
@@ -1963,7 +1963,7 @@ const TiebaComment = {
         data["userPostId"].toString(),
         lzlPage
       );
-      log.success(["加载更多回复的数据", replyInfo]);
+      log.success("加载更多回复的数据", replyInfo);
       if (replyInfo === "暂无更多回复") {
         log.error("暂无更多回复");
         lzlLoadingView.setText("暂无更多回复");
@@ -2100,7 +2100,7 @@ const TiebaComment = {
       /* 修改根据标题高度设置内容margin-bottom */
       dialogContentElement.style.setProperty("height", `calc(100% - ${DOMUtils.height(dialogTitleElement)}px)`);
       this.vueRootView = $(".main-page-wrap") as HTMLDivElement;
-      log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
+      log.success("成功获取Vue根元素", VueUtils.getVue(this.vueRootView));
       if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
         setPopStateEvent();
       }
@@ -2194,7 +2194,7 @@ const TiebaComment = {
     };
     let getResp = await httpx.get(getDetails);
     let respData = getResp.data;
-    log.success(["获取评论", getResp]);
+    log.success("获取评论", getResp);
     if (getResp.status) {
       let pageCommentHTMLElement = DOMUtils.toElement(respData.responseText, true, true);
       if (
@@ -2259,7 +2259,7 @@ const TiebaComment = {
     let respData = getResp.data;
     let data = utils.toJSON(respData.responseText);
     if (getResp.status && data["errno"] === 0) {
-      log.success(["帖子评论信息JSON", data]);
+      log.success("帖子评论信息JSON", data);
       return {
         commentList: data["data"]["comment_list"],
         userList: data["data"]["user_list"],
