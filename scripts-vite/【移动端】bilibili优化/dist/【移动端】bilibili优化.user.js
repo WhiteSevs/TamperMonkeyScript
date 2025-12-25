@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.24
+// @version      2025.12.25
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -2100,6 +2100,7 @@
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
+  const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   const BilibiliApiConfig = {
     web_host: "api.bilibili.com",
@@ -3041,14 +3042,14 @@
     let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
     Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
-  let _ajaxHooker_ = null;
   const XhrHook = {
+    _ajaxHooker_: null,
     get ajaxHooker() {
-      if (_ajaxHooker_ == null) {
+      if (XhrHook._ajaxHooker_ == null) {
         log.info("启用ajaxHooker拦截网络");
-        _ajaxHooker_ = utils.ajaxHooker();
+        XhrHook._ajaxHooker_ = utils.ajaxHooker();
       }
-      return _ajaxHooker_;
+      return XhrHook._ajaxHooker_;
     },
   };
   const BilibiliNetworkHook = {
@@ -4501,10 +4502,6 @@
       }
     }
   }
-  const artPlayerCSS$1 =
-    ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
-  const artPlayerCommonCSS =
-    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliApiRequestCheck = {
     mergeAidOrBvidSearchParamsData(searchParamsData, config) {
       if ("aid" in config && config["aid"] != null) {
@@ -4609,6 +4606,8 @@
       return false;
     },
   };
+  const artPlayerCommonCSS =
+    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const VideoSoundQualityCode = {
     30216: "64K",
     30232: "132K",
@@ -6890,6 +6889,8 @@
       }
     },
   };
+  const artPlayerCSS$1 =
+    ".artplayer-container {\r\n  position: absolute;\r\n  width: 100%;\r\n  height: 100%;\r\n  top: 0;\r\n  left: 0;\r\n  overflow: hidden;\r\n}\r\n";
   function handleDashVideoQualityInfo$1(dashInfo) {
     let result = [];
     dashInfo.video.forEach((dashVideoInfo) => {
@@ -14735,74 +14736,80 @@
     },
     views: [],
   };
-  PanelContent.addContentConfig([
-    SettingUICommon,
-    SettingUIHead,
-    SettingUIVideo,
-    SettingUIOpus,
-    SettingUIDynamic,
-    SettingUIBangumi,
-    SettingUITopicDetail,
-    SettingUISearch,
-    SettingUISpace,
-    SettingUILive,
-  ]);
-  PanelMenu.addMenuOption([
-    {
-      key: "go_to_login",
-      text: "🛠 前往登录",
-      autoReload: false,
-      isStoreValue: false,
-      showText(text) {
-        return text;
+  const RunningFlag = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss") + "BilibiliPerfScriptRunning";
+  if (Reflect.has(_unsafeWindow, RunningFlag)) {
+    log.error(`${_SCRIPT_NAME_}运行异常，请勿重复运行脚本：${RunningFlag}`);
+  } else {
+    Reflect.set(_unsafeWindow, RunningFlag, true);
+    PanelContent.addContentConfig([
+      SettingUICommon,
+      SettingUIHead,
+      SettingUIVideo,
+      SettingUIOpus,
+      SettingUIDynamic,
+      SettingUIBangumi,
+      SettingUITopicDetail,
+      SettingUISearch,
+      SettingUISpace,
+      SettingUILive,
+    ]);
+    PanelMenu.addMenuOption([
+      {
+        key: "go_to_login",
+        text: "🛠 前往登录",
+        autoReload: false,
+        isStoreValue: false,
+        showText(text) {
+          return text;
+        },
+        callback() {
+          BilibiliUtils.goToLogin();
+        },
       },
-      callback() {
-        BilibiliUtils.goToLogin();
+      {
+        key: "go_to_login_to_parse_access_key",
+        text: "🛠 扫码并解析access_key",
+        autoReload: false,
+        isStoreValue: false,
+        showText(text) {
+          return text;
+        },
+        callback() {
+          BilibiliQrCodeLogin.init();
+        },
       },
-    },
-    {
-      key: "go_to_login_to_parse_access_key",
-      text: "🛠 扫码并解析access_key",
-      autoReload: false,
-      isStoreValue: false,
-      showText(text) {
-        return text;
-      },
-      callback() {
-        BilibiliQrCodeLogin.init();
-      },
-    },
-  ]);
-  Panel.init();
-  Bilibili.init();
-  __pops__.config.cssText.index += `
-/* bilibili颜色 #FB7299 */
-.pops{
-    --bili-color: #FB7299;
-    --bili-color-rgb: 251, 114, 153;
-}
-`;
-  __pops__.config.cssText.panelCSS += `
+    ]);
+    Panel.init();
+    Bilibili.init();
+    __pops__.config.cssText.index += `
+  /* bilibili颜色 #FB7299 */
+  .pops{
+      --bili-color: #FB7299;
+      --bili-color-rgb: 251, 114, 153;
+  }
+  `;
+    __pops__.config.cssText.panelCSS += `
 
-.pops-slider{
-    --pops-slider-main-bg-color: var(--bili-color);
-    --pops-slider-color-primary: var(--bili-color);
-}
-aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
-    color: rgb(var(--bili-color-rgb));
-    background: rgba(var(--bili-color-rgb), 0.1);
-}
-/* switch的 */
-.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{
-    border-color: rgb(var(--bili-color-rgb),var(--pops-bd-opacity));
-    background-color: rgb(var(--bili-color-rgb),var(--pops-bg-opacity));
-}
-.pops button[type="primary"],
-.pops button[type="primary"]:active ,
-.pops button[type="primary"]:hover{
-    --button-color: #ffffff;
-    --button-bd-color: var(--bili-color);
-    --button-bg-color: var(--bili-color);
-}
-`;
+  .pops-slider{
+      --pops-slider-main-bg-color: var(--bili-color);
+      --pops-slider-color-primary: var(--bili-color);
+  }
+  aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
+      color: rgb(var(--bili-color-rgb));
+      background: rgba(var(--bili-color-rgb), 0.1);
+  }
+  /* switch的 */
+  .pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core{
+      border-color: rgb(var(--bili-color-rgb),var(--pops-bd-opacity));
+      background-color: rgb(var(--bili-color-rgb),var(--pops-bg-opacity));
+  }
+  .pops button[type="primary"],
+  .pops button[type="primary"]:active ,
+  .pops button[type="primary"]:hover{
+      --button-color: #ffffff;
+      --button-bd-color: var(--bili-color);
+      --button-bg-color: var(--bili-color);
+  }
+  `;
+  }
 })(DOMUtils, pops, Utils, Qmsg, MD5, Viewer, Artplayer, artplayerPluginDanmuku, MD5);

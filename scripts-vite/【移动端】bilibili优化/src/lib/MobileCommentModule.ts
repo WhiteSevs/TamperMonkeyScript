@@ -14,6 +14,10 @@ const global = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
 // define sort types
 const sortTypeConstant = { LATEST: 0, HOT: 2 };
 
+/**
+ *
+ * + https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
+ */
 export const MobileCommentModule = {
   $data: {
     oid: null as null | string,

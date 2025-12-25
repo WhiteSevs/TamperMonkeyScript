@@ -771,8 +771,6 @@ export const BilibiliVideo = {
   },
   /**
    * 新增评论模块
-   *
-   * + https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
    */
   addCommentModule() {
     log.info(`新增评论模块`);

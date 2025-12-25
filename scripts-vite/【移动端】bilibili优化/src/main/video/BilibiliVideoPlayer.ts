@@ -1,18 +1,18 @@
-import { $, addStyle, DOMUtils, log, utils } from "@/env";
-import artPlayerCSS from "./artplayer/index.css?raw";
-import artPlayerCommonCSS from "@/player/player.css?raw";
-import { VueUtils } from "@components/utils/VueUtils";
-import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
+import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
+import { BilibiliData } from "@/data/BlibiliData";
+import { $, addStyle, DOMUtils, log } from "@/env";
+import artPlayerCommonCSS from "@/player/player.css?raw";
+import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
-import { BilibiliVideoArtPlayer, type BilibiliVideoArtPlayerOption } from "./artplayer/ArtPlayer";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
-import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
-import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
-import { BilibiliData } from "@/data/BlibiliData";
-import { Panel } from "@components/setting/panel";
-import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { BilibiliVideoArtPlayer, type BilibiliVideoArtPlayerOption } from "./artplayer/ArtPlayer";
+import artPlayerCSS from "./artplayer/index.css?raw";
+import type { VIDEO_EP_LIST } from "./TypeVideo";
 
 export type VideoInfo = {
   /** 视频的bvid */

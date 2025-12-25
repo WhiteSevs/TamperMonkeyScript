@@ -2,7 +2,7 @@ import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-
 import Artplayer from "artplayer";
 import type { Option } from "artplayer";
 import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
-import { log, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import {
   ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
   artplayerPluginM4SAudioSupport,
