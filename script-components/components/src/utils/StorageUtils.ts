@@ -209,7 +209,7 @@ class StorageUtils {
         } else {
           __newValue = value;
         }
-        await data.callback(key, __oldValue, __newValue);
+        await data.callback(key, __newValue, __oldValue);
       }
     }
   }

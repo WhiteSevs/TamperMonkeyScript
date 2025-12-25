@@ -380,10 +380,8 @@ const Panel = {
    * @param key 需要监听的键
    * @param callback
    */
-  addValueChangeListener(key: string, callback: (key: string, oldValue: any, newValue: any) => void) {
-    const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-      callback(key, __oldValue, __newValue);
-    });
+  addValueChangeListener(key: string, callback: (key: string, newValue: any, oldValue: any) => void) {
+    const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
     return listenerId;
   },
   /**
