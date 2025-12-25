@@ -43,7 +43,7 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
     }
   };
   const $style = addStyle(hideStyle());
-  const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+  const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, newValue, oldValue) => {
     DOMUtils.html($style, hideStyle(newValue));
   });
   const lockFn = new utils.LockFunction(() => {

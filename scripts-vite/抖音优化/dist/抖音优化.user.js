@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.24
+// @version      2025.12.25
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
 // @connect      *
@@ -883,7 +883,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -898,7 +898,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -945,7 +945,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -966,7 +966,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1121,16 +1121,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -3909,7 +3907,7 @@
             const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
             const $videoInfoDetail = $basePlayerContainer?.querySelector(".video-info-detail");
             if ($videoInfoDetail) {
-              domUtils.css($videoInfoDetail, "paddingBottom", "8px");
+              domUtils.css($videoInfoDetail, "padding-bottom", "8px");
             }
           }
           domUtils.remove($reminder);
@@ -4001,37 +3999,113 @@
       menuSelector:
         '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
     },
+    $el: {
+      hideMenuStyle: void 0,
+    },
     init() {
-      Panel.execMenuOnce("dy-video-player-block-right-menu-clearScreen", () => {
-        return this.clearScreen();
+      const ExecMenu = [
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-clearScreen",
+          callback: () => {
+            return this.clearScreen();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-comment",
+          callback: () => {
+            return this.comment();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-like",
+          callback: () => {
+            return this.like();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-enterAuthorHomePage",
+          callback: () => {
+            return this.enterAuthorHomePage();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-recommendToFriends",
+          callback: () => {
+            return this.recommendToFriends();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-share",
+          callback: () => {
+            return this.share();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-notInterested",
+          callback: () => {
+            return this.notInterested();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-feedback",
+          callback: () => {
+            return this.feedback();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-report",
+          callback: () => {
+            return this.report();
+          },
+        },
+        {
+          enable: false,
+          key: "dy-video-player-block-right-menu-enterDetailsPage",
+          callback: () => {
+            return this.enterDetailsPage();
+          },
+        },
+      ];
+      const handlerBlock = () => {
+        if (ExecMenu.every((it) => it.enable)) {
+          if (this.$el.hideMenuStyle == null) {
+            this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`);
+          } else {
+            if (!document.contains(this.$el.hideMenuStyle)) {
+              document.head.appendChild(this.$el.hideMenuStyle);
+            }
+          }
+        } else {
+          if (this.$el.hideMenuStyle == null);
+          else {
+            this.$el.hideMenuStyle.parentElement?.removeChild(this.$el.hideMenuStyle);
+            this.$el.hideMenuStyle = void 0;
+          }
+        }
+      };
+      ExecMenu.forEach((item) => {
+        Panel.execMenuOnce(item.key, () => {
+          item.enable = true;
+          return item.callback();
+        });
+        Panel.addValueChangeListener(item.key, (key, newValue, oldValue) => {
+          const findValue = ExecMenu.find((it) => it.key === key);
+          if (findValue) {
+            findValue.enable = newValue;
+          }
+          handlerBlock();
+        });
       });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-comment", () => {
-        return this.comment();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-like", () => {
-        return this.like();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-enterAuthorHomePage", () => {
-        return this.enterAuthorHomePage();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-recommendToFriends", () => {
-        return this.recommendToFriends();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-share", () => {
-        return this.share();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-notInterested", () => {
-        return this.notInterested();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-feedback", () => {
-        return this.feedback();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-report", () => {
-        return this.report();
-      });
-      Panel.execMenuOnce("dy-video-player-block-right-menu-enterDetailsPage", () => {
-        return this.enterDetailsPage();
-      });
+      handlerBlock();
     },
     clearScreen() {
       log.info(`【屏蔽】右键菜单-清屏`);
@@ -4386,7 +4460,7 @@
       }
     };
     const $style = addStyle(hideStyle());
-    const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+    const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, newValue, oldValue) => {
       domUtils.html($style, hideStyle(newValue));
     });
     const lockFn = new utils.LockFunction(() => {
@@ -10981,10 +11055,10 @@
   };
   const AutoOpenOrClose = {
     text: `
-		<p>注：开启是禁用该快捷键、关闭是不禁用该快捷键</p>
-        <a href="javascript:;" class="keyboard-oneClickOpen">禁用全部快捷键</a>
+		<p>注：开启是启用该功能、关闭是不启用|不执行该功能</p>
+        <a href="javascript:;" class="keyboard-oneClickOpen">一键全部开启</a>
         <br>
-        <a href="javascript:;" class="keyboard-oneClickClose">取消禁用全部快捷键</a>
+        <a href="javascript:;" class="keyboard-oneClickClose">一键全部关闭</a>
     `,
     afterEnterDeepMenuCallBack,
   };

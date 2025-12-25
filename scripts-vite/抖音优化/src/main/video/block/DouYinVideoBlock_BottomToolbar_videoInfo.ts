@@ -93,7 +93,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
           const $basePlayerContainer = $reminderItem.closest<HTMLElement>(".basePlayerContainer");
           const $videoInfoDetail = $basePlayerContainer?.querySelector<HTMLElement>(".video-info-detail");
           if ($videoInfoDetail) {
-            DOMUtils.css($videoInfoDetail, "paddingBottom", "8px");
+            DOMUtils.css($videoInfoDetail, "padding-bottom", "8px");
           }
         }
         DOMUtils.remove($reminder);
