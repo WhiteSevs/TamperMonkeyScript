@@ -1,7 +1,8 @@
 import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import { type DOMUtilsTargetElementType } from "./types/global";
+import { type DOMUtilsCSSProperty, type DOMUtilsCSSPropertyType } from "./types/DOMUtilsCSSProperty";
 import type { WindowApiOption } from "./types/WindowApi";
 import { ElementHandler } from "./ElementHandler";
+import type { DOMUtilsTargetElementType } from "./types/global";
 declare class DOMUtils extends ElementHandler {
     constructor(option?: WindowApiOption);
     /** 版本号 */
@@ -102,7 +103,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css($el: DOMUtilsTargetElementType, property: keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index"): string;
+    css($el: DOMUtilsTargetElementType, property: DOMUtilsCSSPropertyType): string;
     /**
      * 获取元素的样式属性值
      * @param $el 目标元素
@@ -130,7 +131,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
      * DOMUtils.css(document.querySelector("a.xx"),"top",10);
      * */
-    css($el: DOMUtilsTargetElementType, property: (keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index") & string, value: string | number): string;
+    css($el: DOMUtilsTargetElementType, property: DOMUtilsCSSPropertyType & string, value: string | number): string;
     /**
      * 设置元素的样式属性
      * @param $el 目标元素
@@ -145,13 +146,9 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.css(document.querySelector("a.xx"),{ top: "10px" });
      * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
      * */
-    css($el: DOMUtilsTargetElementType, property: {
-        [P in keyof Omit<CSSStyleDeclaration, "zIndex">]?: CSSStyleDeclaration[P];
-    } | {
-        "z-index": string | number;
-    } | {
+    css($el: DOMUtilsTargetElementType, property: DOMUtilsCSSProperty | {
         [key: string]: string | number;
-    }): string;
+    } | string): string;
     /**
      * 获取元素的文本内容，优先返回textContent
      * @param $el 目标元素
