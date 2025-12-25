@@ -8,7 +8,7 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 type ListenerData = {
   id: number;
   key: string;
-  callback: (key: string, oldValue: any, newValue: any) => IPromise<void>;
+  callback: (key: string, newValue: any, oldValue: any) => IPromise<void>;
 };
 
 class StorageUtils {
@@ -84,7 +84,7 @@ class StorageUtils {
     const localValue = this.getLocalValue();
     Reflect.set(localValue, key, value);
     this.setLocalValue(localValue);
-    this.emitValueChangeListener(key, oldValue, value);
+    this.emitValueChangeListener(key, value, oldValue);
   }
   /**
    * 获取值
@@ -111,7 +111,7 @@ class StorageUtils {
     const localValue = this.getLocalValue();
     Reflect.deleteProperty(localValue, key);
     this.setLocalValue(localValue);
-    this.emitValueChangeListener(key, oldValue, void 0);
+    this.emitValueChangeListener(key, void 0, oldValue);
   }
   /**
    * 判断是否存在该值
@@ -183,12 +183,12 @@ class StorageUtils {
   /**
    * 主动触发监听器
    * @param key 键
-   * @param oldValue （可选）旧值
    * @param newValue （可选）新值
+   * @param oldValue （可选）旧值
    */
-  emitValueChangeListener(key: string, oldValue?: any, newValue?: any): Promise<void>;
+  emitValueChangeListener(key: string, newValue?: any, oldValue?: any): Promise<void>;
   async emitValueChangeListener(...args: any[]) {
-    const [key, oldValue, newValue] = args;
+    const [key, newValue, oldValue] = args;
     if (!this.listenerData.has(key)) {
       return;
     }

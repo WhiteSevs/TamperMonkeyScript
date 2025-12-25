@@ -400,7 +400,7 @@ const Panel = {
    * @param oldValue 想要触发的旧值，默认使用当前值
    */
   emitMenuValueChange(key: string, newValue?: any, oldValue?: any) {
-    PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+    PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
   },
   /**
    * 执行菜单
