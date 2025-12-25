@@ -8,6 +8,8 @@ div.common-widget-bottom-banner-changeId,
 #message-center-panel,
 .xiaoduVoice-banner.-border-round,
 /* 底部中间横幅-打开百度地图APP */
-#main div[id^="fis_elm"] .btn-banner-float {
+#main div[id^="fis_elm"] .btn-banner-float,
+/* 顶部导航栏右上角 打开百度地图APP */
+.baidu-entrance {
   display: none !important;
 }

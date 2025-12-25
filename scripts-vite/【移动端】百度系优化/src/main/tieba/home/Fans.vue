@@ -80,7 +80,7 @@
         cancleScrollListener();
       }
     } else {
-      log.info(["获取粉丝数据失败"]);
+      log.info("获取粉丝数据失败");
       if (isFirstLoad) {
         isAsyncLoadEnd.value = true;
         isCanceled = true;
@@ -90,7 +90,7 @@
       }
     }
     showIsLoading.value = !isCanceled;
-    log.info(["获取到的粉丝", getFansInfoList]);
+    log.info("获取到的粉丝", getFansInfoList);
   };
   /**
    * 箭头点击事件

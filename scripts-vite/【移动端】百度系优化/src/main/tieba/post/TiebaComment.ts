@@ -786,7 +786,7 @@ const TiebaComment = {
       let $item = $click.closest(".post-item") as HTMLDivElement;
       let $textContent = $item.querySelector(".text-content") as HTMLDivElement;
       let data = ($item as any)["data-whitesev"] as FloorCommentData;
-      log.info(["获取本条回复的数据", data]);
+      log.info("获取本条回复的数据", data);
       if (!data) {
         Qmsg.error("获取本条回复的数据失败");
         return;
@@ -831,7 +831,7 @@ const TiebaComment = {
       let $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item") as HTMLDivElement;
       let $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
       let data = ($item as any)["data-lzl-item"] as LzlItemData;
-      log.info(["获取本条楼中楼回复的数据", data]);
+      log.info("获取本条楼中楼回复的数据", data);
       if (!data) {
         Qmsg.error("获取本条回复的数据失败");
         return;
@@ -2255,7 +2255,7 @@ const TiebaComment = {
       },
       allowInterceptConfig: false,
     });
-    log.info(["获取楼中楼评论", getResp]);
+    log.info("获取楼中楼评论", getResp);
     let respData = getResp.data;
     let data = utils.toJSON(respData.responseText);
     if (getResp.status && data["errno"] === 0) {

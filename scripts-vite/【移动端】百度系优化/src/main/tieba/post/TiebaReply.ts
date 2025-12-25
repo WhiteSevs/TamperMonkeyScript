@@ -338,7 +338,7 @@ export const TiebaReply = {
         let itemData = ($postItem as any)["data-whitesev"];
         let $textContent = $clickContent.querySelector(".text-content") as HTMLDivElement;
         let textContent = $textContent.innerText;
-        log.info(["获取元素上的数据", itemData]);
+        log.info("获取元素上的数据", itemData);
 
         let authorName = itemData["userName"] as string;
         let pid = itemData["userPostId"] as number;
@@ -382,8 +382,8 @@ export const TiebaReply = {
         let userCommentText = $userComment.innerText;
         let mainData = ($replyDialog as any)["data-whitesev"];
         let itemData = ($clickContent as any)["data-lzl-item"];
-        log.info(["主数据-获取元素上的数据", mainData]);
-        log.info(["获取元素上的数据", itemData]);
+        log.info("主数据-获取元素上的数据", mainData);
+        log.info("获取元素上的数据", itemData);
 
         let authorName = (itemData["userInfo"]["user_nickname"] || itemData["userInfo"]["user_name"]) as string;
         let pid = itemData["data"]["post_id"] as number;

@@ -91,8 +91,8 @@ const TiebaPost = {
      * @param imgIndex 当前查看图片的索引下标
      */
     function viewIMG(imgList: string[] = [], imgIndex = 0) {
-      log.info(["当前查看图片的索引下标：" + imgIndex]);
-      log.info(["当前查看图片的列表信息：", imgList]);
+      log.info("当前查看图片的索引下标：" + imgIndex);
+      log.info("当前查看图片的列表信息：", imgList);
       let viewerULNodeHTML = "";
       imgList.forEach((item) => {
         viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
@@ -542,7 +542,7 @@ const TiebaPost = {
       if (!pageInfo) {
         return;
       }
-      log.info(["获取到的页面信息", pageInfo]);
+      log.info("获取到的页面信息", pageInfo);
       let postList = getPostList(pageInfo.field, pageInfo.PageData, pageInfo.time);
       appViewVue.postList = postList;
       appViewVue.postAuthorId = postList[0].author.id;
@@ -613,7 +613,7 @@ const TiebaPost = {
           vueObj.$root.$router.matcher.match = function (...args: any[]) {
             let raw = args[0];
             let currentRoute: Vue2Instance["$route"] = args[1];
-            log.info(["$router match", args]);
+            log.info("$router match", args);
             // if (raw === "/seeLzlReply") {
             // 	log.error(
             // 		"$router match：当前是/seeLzlReply，阻止match，返回currentRoute"

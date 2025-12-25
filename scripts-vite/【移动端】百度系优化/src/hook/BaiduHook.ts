@@ -261,7 +261,7 @@ export const BaiduHook = {
     ): T {
       if (propertyKey === "_onClick") {
         BaiduData.search.isHijack_onClick = true;
-        log.info(["成功劫持_onClick", arguments]);
+        log.info("成功劫持_onClick", arguments);
         let oldFn = _attributes["value"];
         _attributes["value"] = function (this: any, event: Event) {
           let eventNode = this._getNode(event.target);
@@ -362,7 +362,7 @@ export const BaiduHook = {
     let OpenBox = function () {
       return {
         open(...args: any[]) {
-          log.info(["劫持OpenBox-open传入参数👇", args]);
+          log.info("劫持OpenBox-open传入参数👇", args);
           if (!args.length) {
             return;
           }
@@ -373,7 +373,7 @@ export const BaiduHook = {
           }
         },
         ready(...args: any[]) {
-          log.info(["劫持OpenBox-ready传入参数👇", args]);
+          log.info("劫持OpenBox-ready传入参数👇", args);
         },
         version: 20170811,
       };
@@ -383,7 +383,7 @@ export const BaiduHook = {
     };
     let OpenBox_u = {
       open(...args: any[]) {
-        log.info(["劫持OpenBox-open传入参数👇", args]);
+        log.info("劫持OpenBox-open传入参数👇", args);
         if (!args.length) {
           return;
         }
@@ -400,7 +400,7 @@ export const BaiduHook = {
         return isObjectOpenBox ? OpenBox_u : OpenBox;
       },
       set(v) {
-        log.info(["OpenBox ==> ", v]);
+        log.info("OpenBox ==> ", v);
         isObjectOpenBox = typeof v === "object";
       },
     });
@@ -508,23 +508,23 @@ export const BaiduHook = {
           log.success(["成功劫持webpack调用函数", webpackExports]);
           let codeId = webpackExports?.["i"];
           webpackExports.exports.getSchema = function (...args: any) {
-            // log.info(["阻止调用getSchema", ...arguments]);
+            // log.info("阻止调用getSchema", ...arguments);
           };
           webpackExports.exports.getToken = function (...args: any) {
-            log.info(["阻止调用getToken", ...args]);
+            log.info("阻止调用getToken", ...args);
           };
           webpackExports.exports.init = function (...args) {
-            log.info(["阻止初始化", ...args]);
+            log.info("阻止初始化", ...args);
             if (args?.[0]?.["page"] === "usercenter") {
               /* 跳转至用户空间 */
               let homeUrl = "/home/main?id=" + args[0]["param"]["portrait"];
-              log.info(["跳转至用户空间", homeUrl]);
+              log.info("跳转至用户空间", homeUrl);
               window.open(homeUrl);
             }
             return;
           };
           webpackExports.exports.initDiffer = function (...args: any) {
-            log.info(["阻止初始化差异", ...args]);
+            log.info("阻止初始化差异", ...args);
             return;
           };
         }

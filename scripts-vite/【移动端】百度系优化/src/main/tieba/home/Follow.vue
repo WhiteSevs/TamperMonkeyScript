@@ -49,7 +49,7 @@
     observe.disconnect();
     showIsLoading.value = false;
     isLoadingEnd.value = true;
-    log.info(["移除滚动监听"]);
+    log.info("移除滚动监听");
   };
 
   const loadMore = async () => {
@@ -72,7 +72,7 @@
         cancleLoadMoreObserve();
       }
     } else {
-      log.info(["获取关注的吧数据失败"]);
+      log.info("获取关注的吧数据失败");
       if (isFirstLoad) {
         isAsyncLoadEnd.value = true;
         isCanceled = true;
@@ -82,7 +82,7 @@
       }
     }
     showIsLoading.value = !isCanceled;
-    log.info(["获取到的Ta关注的人", getFollowInfoList]);
+    log.info("获取到的Ta关注的人", getFollowInfoList);
   };
   /**
    * 箭头点击事件

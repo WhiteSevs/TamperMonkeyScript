@@ -71,7 +71,7 @@
     }
     const userName = props.UserData.name as string;
     let concernData = await TiebaHomeApi.getConcern(userName, pageNumber.value);
-    log.info(["Api获取到的关注的吧：", concernData]);
+    log.info("Api获取到的关注的吧：", concernData);
     let userHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
     showIsLoading.value = true;
     if (concernData) {

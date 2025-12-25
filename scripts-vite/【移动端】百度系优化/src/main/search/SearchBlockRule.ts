@@ -94,7 +94,7 @@ match-attr##srcid##yx_entity_pc_san
         BaiduHandleResultItem.$el.$resultList.forEach(($result) => {
           const url = BaiduHandleResultItem.getSearchArticleOriginal_link($result);
           if (Panel.getValue("baidu-search-filter-enable") && BaiduSearchBlockRule.checkFilter($result, url)) {
-            log.info(["触发自定义规则，屏蔽该搜索结果，url：", url]);
+            log.info("触发自定义规则，屏蔽该搜索结果，url：", url);
             $result.remove();
             return;
           }
@@ -313,11 +313,6 @@ match-attr##srcid##yx_entity_pc_san
       return;
     }
     $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
-    const $feedback =
-      $searchResult.querySelector<HTMLElement>(".cosc-feedback") ||
-      $searchResult.querySelector<HTMLElement>(`.sc-feedback`);
-    const $cardSection = $searchResult.querySelector<HTMLElement>("article.cosc-card section");
-    const $section = $searchResult.querySelector<HTMLElement>("article section");
     const $filterBtn = this.createFilterButton();
 
     DOMUtils.on(
@@ -429,7 +424,7 @@ match-attr##srcid##yx_entity_pc_san
             Qmsg.error("规则不存在");
             return;
           }
-          log.info(["添加过滤规则：", rule]);
+          log.info("添加过滤规则：", rule);
           Qmsg.success("添加成功");
           this.addRule(rule);
           this.initRule();
@@ -441,22 +436,79 @@ match-attr##srcid##yx_entity_pc_san
         capture: true,
       }
     );
-    const feedbackRect = $feedback?.getBoundingClientRect();
-    if ($feedback && feedbackRect?.width !== 0 && feedbackRect?.height !== 0) {
-      // 右下角反馈按钮里面（必须是显示的）
-      DOMUtils.prepend($feedback, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "feedback");
-    } else if ($cardSection) {
-      DOMUtils.append($cardSection, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "cardSection");
-    } else if ($section) {
-      DOMUtils.append($section, $filterBtn);
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "section");
-    } else {
-      $searchResult.setAttribute("data-is-add-search-result-filter-button", "");
-      if (import.meta.env.DEV) {
-        log.error(["未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult]);
+    const setButtonRuleMap: (() => string | void)[] = [
+      () => {
+        if ($searchResult.getAttribute("srcid") !== "new_baikan_index") return;
+        // AI总结
+        // 动态的，等待它加载
+        DOMUtils.waitNode<HTMLElement>(
+          '[data-show="interaction"] [class^="interact-container"]',
+          $searchResult,
+          10000
+        ).then(($interaction) => {
+          if (!$interaction) return;
+          DOMUtils.append($interaction, $filterBtn);
+        });
+        return "interaction";
+      },
+      () => {
+        const $feedback =
+          $searchResult.querySelector<HTMLElement>(".cosc-feedback") ||
+          $searchResult.querySelector<HTMLElement>(".sc-feedback") ||
+          $searchResult.querySelector<HTMLElement>("div:has(>.c-gap-left-middle)");
+        if (!$feedback) return;
+        if ($searchResult.getAttribute("srcid") === "poi_map") {
+          // 百度地图
+          const lockFn = new utils.LockFunction(() => {
+            if ($searchResult.contains($filterBtn)) {
+              return;
+            }
+            DOMUtils.before($feedback, $filterBtn);
+          });
+          utils.mutationObserver($searchResult, {
+            config: {
+              subtree: true,
+              childList: true,
+              attributes: true,
+            },
+            immediate: true,
+            callback: () => {
+              lockFn.run();
+            },
+          });
+        } else if ($feedback) {
+          const feedbackRect = $feedback.getBoundingClientRect();
+          if (!feedbackRect.width || !feedbackRect.height) return;
+          // 右下角反馈按钮里面（必须是显示的）
+          DOMUtils.prepend($feedback, $filterBtn);
+        }
+        return "feedback";
+      },
+      () => {
+        const $cardSection = $searchResult.querySelector<HTMLElement>("article.cosc-card section");
+        if (!$cardSection) return;
+        DOMUtils.append($cardSection, $filterBtn);
+        return "cardSection";
+      },
+      () => {
+        const $section = $searchResult.querySelector<HTMLElement>("article section");
+        if (!$section) return;
+        DOMUtils.append($section, $filterBtn);
+        return "section";
+      },
+    ];
+    let attrValue = "";
+    for (let index = 0; index < setButtonRuleMap.length; index++) {
+      const item = setButtonRuleMap[index];
+      const result = item();
+      if (typeof result === "string") {
+        attrValue = result;
+        break;
       }
     }
+    if (import.meta.env.DEV && attrValue === "") {
+      log.error(["未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult]);
+    }
+    $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);
   },
 };

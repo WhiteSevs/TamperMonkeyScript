@@ -152,7 +152,7 @@ const BaiduSearch = {
       } else if ($title) {
         // 存在标题
         // 修改访问的颜色
-        log.info([`修改标题的被访问的颜色`, $title]);
+        log.info(`修改标题的被访问的颜色`, $title);
         setNodeVisited($title);
       }
     };
@@ -237,7 +237,7 @@ const BaiduSearch = {
       } else {
         let $article = $result.querySelector<HTMLElement>("article")!;
         url = $article.getAttribute("rl-link-href");
-        log.info(["链接来自顶层向下寻找article元素", { event, $click, $result, $article }]);
+        log.info("链接来自顶层向下寻找article元素", { event, $click, $result, $article });
       }
 
       if (utils.isNull(url)) {

@@ -95,7 +95,7 @@ export const TiebaPostApi = {
       return;
     }
     let postData = utils.toJSON(postResp.data.responseText);
-    log.info(["发表回复", postData]);
+    log.info("发表回复", postData);
     if (postData["no"] != 0) {
       Qmsg.error("发表回复失败");
       log.error("发表回复失败");
@@ -164,7 +164,7 @@ export const TiebaPostApi = {
     if (!resp.status) {
       return;
     }
-    log.info(["删除回复的情况：", resp]);
+    log.info("删除回复的情况：", resp);
     let respData = utils.toJSON<{
       no: number;
       err_code: number;

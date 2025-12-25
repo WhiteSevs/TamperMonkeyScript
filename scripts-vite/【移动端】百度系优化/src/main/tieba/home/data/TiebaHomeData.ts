@@ -119,7 +119,7 @@ const TiebaHomeData = {
     if (!userPCHomeInfo) {
       return;
     }
-    log.info(["成功获取PC端的数据", userPCHomeInfo]);
+    log.info("成功获取PC端的数据", userPCHomeInfo);
     let $name = $<HTMLAnchorElement>(".home_card_uname_link");
     let userName = ($name && new URL($name.href).searchParams.get("un")) || userPCHomeInfo.userName;
     /* un可能为空，例如?un= */
@@ -135,12 +135,12 @@ const TiebaHomeData = {
     if (!userHomeInfo) {
       return;
     }
-    log.info(["成功获取主页JSON数据 => ", userHomeInfo]);
+    log.info("成功获取主页JSON数据 => ", userHomeInfo);
     let userInfo = await TieBaApi.getUserInfo(userName);
     if (!userInfo) {
       return;
     }
-    log.info(["成功获取用户JSON数据 => ", userInfo]);
+    log.info("成功获取用户JSON数据 => ", userInfo);
     // 获取显示的用户名
     let $showName = $<HTMLAnchorElement>(".home_card_uname_link");
     let showName = $showName?.innerText || userHomeInfo.name_show || userHomeInfo.show_nickname;
@@ -172,7 +172,7 @@ const TiebaHomeData = {
     // 获赞的数量
     let receivedLikes = userPCHomeInfo.postInfo.receivedLikes || 0;
 
-    log.info(["请求PC端的数据 => ", userPCHomeInfo]);
+    log.info("请求PC端的数据 => ", userPCHomeInfo);
     let portrait = userHomeInfo.portrait.replace(/\?t=(.+)/, "");
     // 判断用户性别
     let sex: keyof UserSex = 0;

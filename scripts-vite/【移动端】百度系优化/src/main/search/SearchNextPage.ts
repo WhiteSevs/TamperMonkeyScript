@@ -359,7 +359,7 @@ const SearchNextPage = {
         if (utils.isNull(dataVueSsrIdValue) || !$(`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`)) {
           let cssDOM = addStyle(item.innerHTML);
           cssDOM.setAttribute("data-vue-ssr-id", dataVueSsrIdValue);
-          log.info(["插入Vue的CSS", cssDOM]);
+          log.info("插入Vue的CSS", cssDOM);
         }
       });
       // 解析下一页的搜索结果项
@@ -391,8 +391,8 @@ const SearchNextPage = {
         // 解析下下一页的页码信息
         let nextNextPageInfo = this.parseNextPageInfoWithPageController(nextPageDoc);
         if (nextNextPageInfo) {
-          log.info(["请求的页信息：", this.nextPageInfo]);
-          log.info(["请求的页解析出的下一页信息：", nextNextPageInfo]);
+          log.info("请求的页信息：", this.nextPageInfo);
+          log.info("请求的页解析出的下一页信息：", nextNextPageInfo);
           if (nextNextPageInfo.pageNum > this.nextPageInfo.pageNum) {
             let nextPageInfo = this.nextPageInfo;
 

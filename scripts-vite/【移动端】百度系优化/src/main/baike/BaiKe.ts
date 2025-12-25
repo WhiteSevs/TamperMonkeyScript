@@ -47,12 +47,12 @@ export const BaiduBaiKe = {
               let android = Reflect.get(target, prop, receiver);
               if (android["invokeApp"] && Panel.getValue("baidu-baike-Box-android.invokeApp")) {
                 android["invokeApp"] = function (...args: any[]) {
-                  log.info(["阻止调用android.invokeApp", args]);
+                  log.info("阻止调用android.invokeApp", args);
                 };
               }
               if (android["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-android.invokeLiteApp")) {
                 android["invokeLiteApp"] = function (...args: any[]) {
-                  log.info(["阻止调用android.invokeLiteApp", args]);
+                  log.info("阻止调用android.invokeLiteApp", args);
                 };
               }
             }
@@ -60,7 +60,7 @@ export const BaiduBaiKe = {
               let ios = Reflect.get(target, prop, receiver);
               if (ios["invokeLiteApp"] && Panel.getValue("baidu-baike-Box-ios.invokeApp")) {
                 ios["invokeLiteApp"] = function (...args: any[]) {
-                  log.info(["阻止调用ios.invokeApp", args]);
+                  log.info("阻止调用ios.invokeApp", args);
                 };
               }
             }

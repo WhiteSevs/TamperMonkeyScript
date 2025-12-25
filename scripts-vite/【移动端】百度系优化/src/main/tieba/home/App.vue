@@ -15,7 +15,7 @@
     let userData = await TiebaHomeData.getUserData();
     loading.close();
     if (userData) {
-      log.info(["用户信息", userData]);
+      log.info("用户信息", userData);
       Object.assign(UserData.value, userData);
     } else {
       log.error("加载用户信息失败");

@@ -126,7 +126,7 @@
         text: content,
         html: $parseContent.innerHTML,
       };
-      log.info(["Editor: 解析的内容 => ", parseData]);
+      log.info("Editor: 解析的内容 => ", parseData);
       return parseData;
     },
     /**

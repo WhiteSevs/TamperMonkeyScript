@@ -346,7 +346,7 @@ const YiYanChat = {
           latestQuestion.answerText = answer;
           /* 把text转换成markdown元素 */
           let parseData = YiYanChat.conversionTextToMarkdown(answer);
-          log.info(["转换为markdown", parseData]);
+          log.info("转换为markdown", parseData);
           if (parseData.status) {
             latestQuestion.markdownText = parseData.text;
             answerTextElement.innerHTML = parseData.text;
