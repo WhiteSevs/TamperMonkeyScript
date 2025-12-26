@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.26
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -909,7 +909,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -924,7 +924,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -971,7 +971,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -992,7 +992,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1147,16 +1147,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;

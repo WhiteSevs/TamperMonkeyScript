@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -1058,7 +1058,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -1073,7 +1073,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -1120,7 +1120,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -1141,7 +1141,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1296,16 +1296,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;

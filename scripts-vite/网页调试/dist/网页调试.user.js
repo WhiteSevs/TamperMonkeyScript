@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.26
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
@@ -1032,7 +1032,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -1047,7 +1047,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -1094,7 +1094,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -1115,7 +1115,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1270,16 +1270,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;

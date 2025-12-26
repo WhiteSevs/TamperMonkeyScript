@@ -606,7 +606,7 @@ export const MTEditorOptimization = {
       "height",
       `${window.screen.height - top_height - fatie_toupiao - 48 - title_height - nav_bottom_height - 10}px`
     );
-    DOMUtils.css("#needmessage", "marginBottom", extra_margin_bottom + "px");
+    DOMUtils.css("#needmessage", "margin-bottom", extra_margin_bottom + "px");
 
     if (MTRouter.isPostPublish_edit() && DOMUtils.val("#needsubject") === "") {
       DOMUtils.hide(".comiis_styli.comiis_flex", false);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.26
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -14,9 +14,9 @@
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
@@ -1020,7 +1020,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -1035,7 +1035,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -1082,7 +1082,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -1103,7 +1103,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1258,16 +1258,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;

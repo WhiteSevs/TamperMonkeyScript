@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.19
+// @version      2025.12.26
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -258,23 +258,69 @@
   const LAST_NUMBER_WEAK_MAP$3 = new WeakMap();
   const cache$3 = createCache$3(LAST_NUMBER_WEAK_MAP$3);
   const generateUniqueNumber$3 = createGenerateUniqueNumber$3(cache$3, LAST_NUMBER_WEAK_MAP$3);
-  const isMessagePort$3 = (sender) => {
-    return typeof sender.start === "function";
+  const createBrokerFactory$1 =
+    (createOrGetOngoingRequests2, extendBrokerImplementation2, generateUniqueNumber2, isMessagePort2) =>
+    (brokerImplementation) => {
+      const fullBrokerImplementation = extendBrokerImplementation2(brokerImplementation);
+      return (sender) => {
+        const ongoingRequests = createOrGetOngoingRequests2(sender);
+        sender.addEventListener("message", ({ data: message }) => {
+          const { id } = message;
+          if (id !== null && ongoingRequests.has(id)) {
+            const { reject, resolve } = ongoingRequests.get(id);
+            ongoingRequests.delete(id);
+            if (message.error === void 0) {
+              resolve(message.result);
+            } else {
+              reject(new Error(message.error.message));
+            }
+          }
+        });
+        if (isMessagePort2(sender)) {
+          sender.start();
+        }
+        const call = (method, params = null, transferables = []) => {
+          return new Promise((resolve, reject) => {
+            const id = generateUniqueNumber2(ongoingRequests);
+            ongoingRequests.set(id, { reject, resolve });
+            if (params === null) {
+              sender.postMessage({ id, method }, transferables);
+            } else {
+              sender.postMessage({ id, method, params }, transferables);
+            }
+          });
+        };
+        const notify = (method, params, transferables = []) => {
+          sender.postMessage({ id: null, method, params }, transferables);
+        };
+        let functions = {};
+        for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+          functions = { ...functions, [key]: handler({ call, notify }) };
+        }
+        return { ...functions };
+      };
+    };
+  const createCreateOrGetOngoingRequests$1 = (ongoingRequestsMap) => (sender) => {
+    if (ongoingRequestsMap.has(sender)) {
+      return ongoingRequestsMap.get(sender);
+    }
+    const ongoingRequests = new Map();
+    ongoingRequestsMap.set(sender, ongoingRequests);
+    return ongoingRequests;
   };
-  const PORT_MAP$3 = new WeakMap();
-  const extendBrokerImplementation$3 = (partialBrokerImplementation) => ({
+  const createExtendBrokerImplementation$1 = (portMap) => (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
       return async () => {
         const { port1, port2 } = new MessageChannel();
         const portId = await call("connect", { port: port1 }, [port1]);
-        PORT_MAP$3.set(port2, portId);
+        portMap.set(port2, portId);
         return port2;
       };
     },
     disconnect: ({ call }) => {
       return async (port) => {
-        const portId = PORT_MAP$3.get(port);
+        const portId = portMap.get(port);
         if (portId === void 0) {
           throw new Error("The given port is not connected.");
         }
@@ -285,128 +331,90 @@
       return () => call("isSupported");
     },
   });
-  const ONGOING_REQUESTS$3 = new WeakMap();
-  const createOrGetOngoingRequests$3 = (sender) => {
-    if (ONGOING_REQUESTS$3.has(sender)) {
-      return ONGOING_REQUESTS$3.get(sender);
-    }
-    const ongoingRequests = new Map();
-    ONGOING_REQUESTS$3.set(sender, ongoingRequests);
-    return ongoingRequests;
+  const isMessagePort$3 = (sender) => {
+    return typeof sender.start === "function";
   };
-  const createBroker$3 = (brokerImplementation) => {
-    const fullBrokerImplementation = extendBrokerImplementation$3(brokerImplementation);
-    return (sender) => {
-      const ongoingRequests = createOrGetOngoingRequests$3(sender);
-      sender.addEventListener("message", ({ data: message }) => {
-        const { id } = message;
-        if (id !== null && ongoingRequests.has(id)) {
-          const { reject, resolve } = ongoingRequests.get(id);
-          ongoingRequests.delete(id);
-          if (message.error === void 0) {
-            resolve(message.result);
-          } else {
-            reject(new Error(message.error.message));
-          }
-        }
+  const createBroker$3 = createBrokerFactory$1(
+    createCreateOrGetOngoingRequests$1(new WeakMap()),
+    createExtendBrokerImplementation$1(new WeakMap()),
+    generateUniqueNumber$3,
+    isMessagePort$3
+  );
+  const createClearIntervalFactory$2 = (scheduledIntervalsState2) => (clear) => (timerId) => {
+    if (typeof scheduledIntervalsState2.get(timerId) === "symbol") {
+      scheduledIntervalsState2.set(timerId, null);
+      clear(timerId).then(() => {
+        scheduledIntervalsState2.delete(timerId);
       });
-      if (isMessagePort$3(sender)) {
-        sender.start();
-      }
-      const call = (method, params = null, transferables = []) => {
-        return new Promise((resolve, reject) => {
-          const id = generateUniqueNumber$3(ongoingRequests);
-          ongoingRequests.set(id, { reject, resolve });
-          if (params === null) {
-            sender.postMessage({ id, method }, transferables);
-          } else {
-            sender.postMessage({ id, method, params }, transferables);
-          }
-        });
-      };
-      const notify = (method, params, transferables = []) => {
-        sender.postMessage({ id: null, method, params }, transferables);
-      };
-      let functions = {};
-      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
-        functions = { ...functions, [key]: handler({ call, notify }) };
-      }
-      return { ...functions };
-    };
+    }
   };
-  const scheduledIntervalsState$3 = new Map([[0, null]]);
-  const scheduledTimeoutsState$3 = new Map([[0, null]]);
-  const wrap$3 = createBroker$3({
-    clearInterval: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledIntervalsState$3.get(timerId) === "symbol") {
-          scheduledIntervalsState$3.set(timerId, null);
-          call("clear", { timerId, timerType: "interval" }).then(() => {
-            scheduledIntervalsState$3.delete(timerId);
-          });
-        }
-      };
-    },
-    clearTimeout: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledTimeoutsState$3.get(timerId) === "symbol") {
-          scheduledTimeoutsState$3.set(timerId, null);
-          call("clear", { timerId, timerType: "timeout" }).then(() => {
-            scheduledTimeoutsState$3.delete(timerId);
-          });
-        }
-      };
-    },
-    setInterval: ({ call }) => {
-      return (func, delay = 0, ...args) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber$3(scheduledIntervalsState$3);
-        scheduledIntervalsState$3.set(timerId, symbol);
-        const schedule = () =>
-          call("set", {
-            delay,
-            now: performance.timeOrigin + performance.now(),
-            timerId,
-            timerType: "interval",
-          }).then(() => {
-            const state = scheduledIntervalsState$3.get(timerId);
-            if (state === void 0) {
-              throw new Error("The timer is in an undefined state.");
-            }
-            if (state === symbol) {
-              func(...args);
-              if (scheduledIntervalsState$3.get(timerId) === symbol) {
-                schedule();
-              }
-            }
-          });
-        schedule();
-        return timerId;
-      };
-    },
-    setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber$3(scheduledTimeoutsState$3);
-        scheduledTimeoutsState$3.set(timerId, symbol);
-        call("set", {
-          delay,
-          now: performance.timeOrigin + performance.now(),
-          timerId,
-          timerType: "timeout",
-        }).then(() => {
-          const state = scheduledTimeoutsState$3.get(timerId);
+  const createClearTimeoutFactory$2 = (scheduledTimeoutsState2) => (clear) => (timerId) => {
+    if (typeof scheduledTimeoutsState2.get(timerId) === "symbol") {
+      scheduledTimeoutsState2.set(timerId, null);
+      clear(timerId).then(() => {
+        scheduledTimeoutsState2.delete(timerId);
+      });
+    }
+  };
+  const createSetIntervalFactory$2 =
+    (generateUniqueNumber2, scheduledIntervalsState2) =>
+    (set) =>
+    (func, delay = 0, ...args) => {
+      const symbol = Symbol();
+      const timerId = generateUniqueNumber2(scheduledIntervalsState2);
+      scheduledIntervalsState2.set(timerId, symbol);
+      const schedule = () =>
+        set(delay, timerId).then(() => {
+          const state = scheduledIntervalsState2.get(timerId);
           if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            scheduledTimeoutsState$3.delete(timerId);
             func(...args);
+            if (scheduledIntervalsState2.get(timerId) === symbol) {
+              schedule();
+            }
           }
         });
-        return timerId;
-      };
-    },
+      schedule();
+      return timerId;
+    };
+  const createSetTimeoutFactory$2 =
+    (generateUniqueNumber2, scheduledTimeoutsState2) =>
+    (set) =>
+    (func, delay = 0, ...args) => {
+      const symbol = Symbol();
+      const timerId = generateUniqueNumber2(scheduledTimeoutsState2);
+      scheduledTimeoutsState2.set(timerId, symbol);
+      set(delay, timerId).then(() => {
+        const state = scheduledTimeoutsState2.get(timerId);
+        if (state === void 0) {
+          throw new Error("The timer is in an undefined state.");
+        }
+        if (state === symbol) {
+          scheduledTimeoutsState2.delete(timerId);
+          func(...args);
+        }
+      });
+      return timerId;
+    };
+  const scheduledIntervalsState$3 = new Map([[0, null]]);
+  const scheduledTimeoutsState$3 = new Map([[0, null]]);
+  const createClearInterval$2 = createClearIntervalFactory$2(scheduledIntervalsState$3);
+  const createClearTimeout$2 = createClearTimeoutFactory$2(scheduledTimeoutsState$3);
+  const createSetInterval$2 = createSetIntervalFactory$2(generateUniqueNumber$3, scheduledIntervalsState$3);
+  const createSetTimeout$2 = createSetTimeoutFactory$2(generateUniqueNumber$3, scheduledTimeoutsState$3);
+  const wrap$3 = createBroker$3({
+    clearInterval: ({ call }) => createClearInterval$2((timerId) => call("clear", { timerId, timerType: "interval" })),
+    clearTimeout: ({ call }) => createClearTimeout$2((timerId) => call("clear", { timerId, timerType: "timeout" })),
+    setInterval: ({ call }) =>
+      createSetInterval$2((delay, timerId) =>
+        call("set", { delay, now: performance.timeOrigin + performance.now(), timerId, timerType: "interval" })
+      ),
+    setTimeout: ({ call }) =>
+      createSetTimeout$2((delay, timerId) =>
+        call("set", { delay, now: performance.timeOrigin + performance.now(), timerId, timerType: "timeout" })
+      ),
   });
   const load$3 = (url) => {
     const worker2 = new Worker(url);
@@ -425,13 +433,21 @@
       return broker;
     };
   };
-  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
+  const worker$3 = `(()=>{var e={455(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},m=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},f=new Map,h=d(globalThis.clearTimeout,f),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=m(f,performance,globalThis.setTimeout,w),T=m(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$3 = createLoadOrReturnBroker$3(load$3, worker$3);
-  const clearInterval$2 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
-  const clearTimeout$2 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
-  const setInterval$2 = (...args) => loadOrReturnBroker$3().setInterval(...args);
+  const clearInterval$3 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
+  const clearTimeout$3 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
+  const setInterval$3 = (...args) => loadOrReturnBroker$3().setInterval(...args);
   const setTimeout$1$3 = (...args) => loadOrReturnBroker$3().setTimeout(...args);
   const QmsgUtils = {
+    toStr(target) {
+      return JSON.stringify(target, (_key, value) => {
+        if (typeof value === "object" && value != null && value instanceof Node) {
+          return String(value);
+        }
+        return value;
+      });
+    },
     getNameSpacify(...args) {
       const result = QmsgDefaultConfig.NAMESPACE;
       return [result, ...args].join("-");
@@ -501,7 +517,7 @@
     clearTimeout(timeId) {
       try {
         if (timeId != null) {
-          clearTimeout$2(timeId);
+          clearTimeout$3(timeId);
         }
       } catch {
       } finally {
@@ -510,7 +526,7 @@
     },
     setInterval(callback, timeout) {
       try {
-        return setInterval$2(callback, timeout);
+        return setInterval$3(callback, timeout);
       } catch {
         return globalThis.setInterval(callback, timeout);
       }
@@ -518,7 +534,7 @@
     clearInterval(timeId) {
       try {
         if (timeId != null) {
-          clearInterval$2(timeId);
+          clearInterval$3(timeId);
         }
       } catch {
       } finally {
@@ -616,7 +632,7 @@
       this.startTime = Date.now();
       this.endTime = null;
       this.setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
-      this.settingStr = JSON.stringify(this.setting);
+      this.settingStr = QmsgUtils.toStr(this.setting);
       this.settingJSON = Object.assign({}, this.setting);
       this.uuid = uuid;
       this.state = "opening";
@@ -903,9 +919,9 @@
     }
   }
   function QmsgInstHandler(config = {}) {
-    const optionStr = JSON.stringify(config);
+    const optionStr = QmsgUtils.toStr(config);
     const setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
-    const settingStr = JSON.stringify(setting);
+    const settingStr = QmsgUtils.toStr(setting);
     let qmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
       return item.configStr === optionStr && item.inst.settingStr === settingStr;
     });
@@ -994,7 +1010,7 @@
       },
     },
   };
-  const version$3 = "1.6.1";
+  const version$3 = "1.6.2";
   CompatibleProcessing();
   class Qmsg {
     $data;
@@ -1205,23 +1221,69 @@
   const LAST_NUMBER_WEAK_MAP$2 = new WeakMap();
   const cache$2 = createCache$2(LAST_NUMBER_WEAK_MAP$2);
   const generateUniqueNumber$2 = createGenerateUniqueNumber$2(cache$2, LAST_NUMBER_WEAK_MAP$2);
-  const isMessagePort$2 = (sender) => {
-    return typeof sender.start === "function";
+  const createBrokerFactory =
+    (createOrGetOngoingRequests2, extendBrokerImplementation2, generateUniqueNumber2, isMessagePort2) =>
+    (brokerImplementation) => {
+      const fullBrokerImplementation = extendBrokerImplementation2(brokerImplementation);
+      return (sender) => {
+        const ongoingRequests = createOrGetOngoingRequests2(sender);
+        sender.addEventListener("message", ({ data: message }) => {
+          const { id } = message;
+          if (id !== null && ongoingRequests.has(id)) {
+            const { reject, resolve } = ongoingRequests.get(id);
+            ongoingRequests.delete(id);
+            if (message.error === void 0) {
+              resolve(message.result);
+            } else {
+              reject(new Error(message.error.message));
+            }
+          }
+        });
+        if (isMessagePort2(sender)) {
+          sender.start();
+        }
+        const call = (method, params = null, transferables = []) => {
+          return new Promise((resolve, reject) => {
+            const id = generateUniqueNumber2(ongoingRequests);
+            ongoingRequests.set(id, { reject, resolve });
+            if (params === null) {
+              sender.postMessage({ id, method }, transferables);
+            } else {
+              sender.postMessage({ id, method, params }, transferables);
+            }
+          });
+        };
+        const notify = (method, params, transferables = []) => {
+          sender.postMessage({ id: null, method, params }, transferables);
+        };
+        let functions = {};
+        for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+          functions = { ...functions, [key]: handler({ call, notify }) };
+        }
+        return { ...functions };
+      };
+    };
+  const createCreateOrGetOngoingRequests = (ongoingRequestsMap) => (sender) => {
+    if (ongoingRequestsMap.has(sender)) {
+      return ongoingRequestsMap.get(sender);
+    }
+    const ongoingRequests = new Map();
+    ongoingRequestsMap.set(sender, ongoingRequests);
+    return ongoingRequests;
   };
-  const PORT_MAP$2 = new WeakMap();
-  const extendBrokerImplementation$2 = (partialBrokerImplementation) => ({
+  const createExtendBrokerImplementation = (portMap) => (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
       return async () => {
         const { port1, port2 } = new MessageChannel();
         const portId = await call("connect", { port: port1 }, [port1]);
-        PORT_MAP$2.set(port2, portId);
+        portMap.set(port2, portId);
         return port2;
       };
     },
     disconnect: ({ call }) => {
       return async (port) => {
-        const portId = PORT_MAP$2.get(port);
+        const portId = portMap.get(port);
         if (portId === void 0) {
           throw new Error("The given port is not connected.");
         }
@@ -1232,128 +1294,90 @@
       return () => call("isSupported");
     },
   });
-  const ONGOING_REQUESTS$2 = new WeakMap();
-  const createOrGetOngoingRequests$2 = (sender) => {
-    if (ONGOING_REQUESTS$2.has(sender)) {
-      return ONGOING_REQUESTS$2.get(sender);
-    }
-    const ongoingRequests = new Map();
-    ONGOING_REQUESTS$2.set(sender, ongoingRequests);
-    return ongoingRequests;
+  const isMessagePort$2 = (sender) => {
+    return typeof sender.start === "function";
   };
-  const createBroker$2 = (brokerImplementation) => {
-    const fullBrokerImplementation = extendBrokerImplementation$2(brokerImplementation);
-    return (sender) => {
-      const ongoingRequests = createOrGetOngoingRequests$2(sender);
-      sender.addEventListener("message", ({ data: message }) => {
-        const { id } = message;
-        if (id !== null && ongoingRequests.has(id)) {
-          const { reject, resolve } = ongoingRequests.get(id);
-          ongoingRequests.delete(id);
-          if (message.error === void 0) {
-            resolve(message.result);
-          } else {
-            reject(new Error(message.error.message));
-          }
-        }
+  const createBroker$2 = createBrokerFactory(
+    createCreateOrGetOngoingRequests(new WeakMap()),
+    createExtendBrokerImplementation(new WeakMap()),
+    generateUniqueNumber$2,
+    isMessagePort$2
+  );
+  const createClearIntervalFactory$1 = (scheduledIntervalsState2) => (clear) => (timerId) => {
+    if (typeof scheduledIntervalsState2.get(timerId) === "symbol") {
+      scheduledIntervalsState2.set(timerId, null);
+      clear(timerId).then(() => {
+        scheduledIntervalsState2.delete(timerId);
       });
-      if (isMessagePort$2(sender)) {
-        sender.start();
-      }
-      const call = (method, params = null, transferables = []) => {
-        return new Promise((resolve, reject) => {
-          const id = generateUniqueNumber$2(ongoingRequests);
-          ongoingRequests.set(id, { reject, resolve });
-          if (params === null) {
-            sender.postMessage({ id, method }, transferables);
-          } else {
-            sender.postMessage({ id, method, params }, transferables);
-          }
-        });
-      };
-      const notify = (method, params, transferables = []) => {
-        sender.postMessage({ id: null, method, params }, transferables);
-      };
-      let functions = {};
-      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
-        functions = { ...functions, [key]: handler({ call, notify }) };
-      }
-      return { ...functions };
-    };
+    }
   };
-  const scheduledIntervalsState$2 = new Map([[0, null]]);
-  const scheduledTimeoutsState$2 = new Map([[0, null]]);
-  const wrap$2 = createBroker$2({
-    clearInterval: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledIntervalsState$2.get(timerId) === "symbol") {
-          scheduledIntervalsState$2.set(timerId, null);
-          call("clear", { timerId, timerType: "interval" }).then(() => {
-            scheduledIntervalsState$2.delete(timerId);
-          });
-        }
-      };
-    },
-    clearTimeout: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledTimeoutsState$2.get(timerId) === "symbol") {
-          scheduledTimeoutsState$2.set(timerId, null);
-          call("clear", { timerId, timerType: "timeout" }).then(() => {
-            scheduledTimeoutsState$2.delete(timerId);
-          });
-        }
-      };
-    },
-    setInterval: ({ call }) => {
-      return (func, delay = 0, ...args) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber$2(scheduledIntervalsState$2);
-        scheduledIntervalsState$2.set(timerId, symbol);
-        const schedule = () =>
-          call("set", {
-            delay,
-            now: performance.timeOrigin + performance.now(),
-            timerId,
-            timerType: "interval",
-          }).then(() => {
-            const state = scheduledIntervalsState$2.get(timerId);
-            if (state === void 0) {
-              throw new Error("The timer is in an undefined state.");
-            }
-            if (state === symbol) {
-              func(...args);
-              if (scheduledIntervalsState$2.get(timerId) === symbol) {
-                schedule();
-              }
-            }
-          });
-        schedule();
-        return timerId;
-      };
-    },
-    setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber$2(scheduledTimeoutsState$2);
-        scheduledTimeoutsState$2.set(timerId, symbol);
-        call("set", {
-          delay,
-          now: performance.timeOrigin + performance.now(),
-          timerId,
-          timerType: "timeout",
-        }).then(() => {
-          const state = scheduledTimeoutsState$2.get(timerId);
+  const createClearTimeoutFactory$1 = (scheduledTimeoutsState2) => (clear) => (timerId) => {
+    if (typeof scheduledTimeoutsState2.get(timerId) === "symbol") {
+      scheduledTimeoutsState2.set(timerId, null);
+      clear(timerId).then(() => {
+        scheduledTimeoutsState2.delete(timerId);
+      });
+    }
+  };
+  const createSetIntervalFactory$1 =
+    (generateUniqueNumber2, scheduledIntervalsState2) =>
+    (set) =>
+    (func, delay = 0, ...args) => {
+      const symbol = Symbol();
+      const timerId = generateUniqueNumber2(scheduledIntervalsState2);
+      scheduledIntervalsState2.set(timerId, symbol);
+      const schedule = () =>
+        set(delay, timerId).then(() => {
+          const state = scheduledIntervalsState2.get(timerId);
           if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            scheduledTimeoutsState$2.delete(timerId);
             func(...args);
+            if (scheduledIntervalsState2.get(timerId) === symbol) {
+              schedule();
+            }
           }
         });
-        return timerId;
-      };
-    },
+      schedule();
+      return timerId;
+    };
+  const createSetTimeoutFactory$1 =
+    (generateUniqueNumber2, scheduledTimeoutsState2) =>
+    (set) =>
+    (func, delay = 0, ...args) => {
+      const symbol = Symbol();
+      const timerId = generateUniqueNumber2(scheduledTimeoutsState2);
+      scheduledTimeoutsState2.set(timerId, symbol);
+      set(delay, timerId).then(() => {
+        const state = scheduledTimeoutsState2.get(timerId);
+        if (state === void 0) {
+          throw new Error("The timer is in an undefined state.");
+        }
+        if (state === symbol) {
+          scheduledTimeoutsState2.delete(timerId);
+          func(...args);
+        }
+      });
+      return timerId;
+    };
+  const scheduledIntervalsState$2 = new Map([[0, null]]);
+  const scheduledTimeoutsState$2 = new Map([[0, null]]);
+  const createClearInterval$1 = createClearIntervalFactory$1(scheduledIntervalsState$2);
+  const createClearTimeout$1 = createClearTimeoutFactory$1(scheduledTimeoutsState$2);
+  const createSetInterval$1 = createSetIntervalFactory$1(generateUniqueNumber$2, scheduledIntervalsState$2);
+  const createSetTimeout$1 = createSetTimeoutFactory$1(generateUniqueNumber$2, scheduledTimeoutsState$2);
+  const wrap$2 = createBroker$2({
+    clearInterval: ({ call }) => createClearInterval$1((timerId) => call("clear", { timerId, timerType: "interval" })),
+    clearTimeout: ({ call }) => createClearTimeout$1((timerId) => call("clear", { timerId, timerType: "timeout" })),
+    setInterval: ({ call }) =>
+      createSetInterval$1((delay, timerId) =>
+        call("set", { delay, now: performance.timeOrigin + performance.now(), timerId, timerType: "interval" })
+      ),
+    setTimeout: ({ call }) =>
+      createSetTimeout$1((delay, timerId) =>
+        call("set", { delay, now: performance.timeOrigin + performance.now(), timerId, timerType: "timeout" })
+      ),
   });
   const load$2 = (url) => {
     const worker2 = new Worker(url);
@@ -1372,21 +1396,21 @@
       return broker;
     };
   };
-  const worker$2 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
+  const worker$2 = `(()=>{var e={455(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},m=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},f=new Map,h=d(globalThis.clearTimeout,f),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=m(f,performance,globalThis.setTimeout,w),T=m(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$2 = createLoadOrReturnBroker$2(load$2, worker$2);
-  const clearInterval$1$2 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
-  const clearTimeout$1$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
-  const setInterval$1$2 = (...args) => loadOrReturnBroker$2().setInterval(...args);
+  const clearInterval$2 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
+  const clearTimeout$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
+  const setInterval$2 = (...args) => loadOrReturnBroker$2().setInterval(...args);
   const setTimeout$1$2 = (...args) => loadOrReturnBroker$2().setTimeout(...args);
   const CommonUtils = {
     windowApi: new WindowApi$1({
       document,
       window,
       top,
-      setTimeout,
-      clearTimeout,
-      setInterval,
-      clearInterval,
+      setTimeout: globalThis.setTimeout.bind(globalThis),
+      clearTimeout: globalThis.clearTimeout.bind(globalThis),
+      setInterval: globalThis.setInterval.bind(globalThis),
+      clearInterval: globalThis.clearInterval.bind(globalThis),
     }),
     isShow($el) {
       return Boolean($el.getClientRects().length);
@@ -1486,7 +1510,7 @@
     clearTimeout(timeId) {
       try {
         if (timeId != null) {
-          clearTimeout$1$2(timeId);
+          clearTimeout$2(timeId);
         }
       } catch {
       } finally {
@@ -1495,7 +1519,7 @@
     },
     setInterval(callback, timeout = 0) {
       try {
-        return setInterval$1$2(callback, timeout);
+        return setInterval$2(callback, timeout);
       } catch {
         return this.windowApi.setInterval(callback, timeout);
       }
@@ -1503,7 +1527,7 @@
     clearInterval(timeId) {
       try {
         if (timeId != null) {
-          clearInterval$1$2(timeId);
+          clearInterval$2(timeId);
         }
       } catch {
       } finally {
@@ -1520,7 +1544,7 @@
       return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     },
   };
-  const version$2 = "1.8.0";
+  const version$2 = "1.8.7";
   class ElementSelector {
     windowApi;
     constructor(windowApiOption) {
@@ -1533,7 +1557,23 @@
       const context = this;
       parent = parent || context.windowApi.document;
       selector = selector.trim();
-      if (selector.match(/[^\s]{1}:empty$/gi)) {
+      if (selector.startsWith("xpath:")) {
+        selector = selector.replace(/^xpath:/i, "");
+        const xpathResult = context.windowApi.document.evaluate(
+          selector,
+          parent,
+          null,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+          null
+        );
+        const result = [];
+        let iterateNext = xpathResult.iterateNext();
+        while (iterateNext) {
+          result.push(iterateNext);
+          iterateNext = xpathResult.iterateNext();
+        }
+        return result;
+      } else if (selector.match(/[^\s]{1}:empty$/gi)) {
         selector = selector.replace(/:empty$/gi, "");
         return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           return $ele?.innerHTML?.trim() === "";
@@ -1938,7 +1978,7 @@
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
       if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
-        throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
+        throw new TypeError("DOMUtils.waitNode 第一个参数必须是string|string[]|Function");
       }
       if (args.length === 1);
       else if (args.length === 2) {
@@ -1948,7 +1988,7 @@
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
         } else {
-          throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
+          throw new TypeError("DOMUtils.waitNode 第二个参数必须是number|Node");
         }
       } else if (args.length === 3) {
         const secondParam = args[1];
@@ -1958,13 +1998,13 @@
           if (typeof thirdParam === "number") {
             timeout = thirdParam;
           } else {
-            throw new TypeError("Utils.waitNode 第三个参数必须是number");
+            throw new TypeError("DOMUtils.waitNode 第三个参数必须是number");
           }
         } else {
-          throw new TypeError("Utils.waitNode 第二个参数必须是Node");
+          throw new TypeError("DOMUtils.waitNode 第二个参数必须是Node");
         }
       } else {
-        throw new TypeError("Utils.waitNode 参数个数错误");
+        throw new TypeError("DOMUtils.waitNode 参数个数错误");
       }
       function getNode() {
         if (Array.isArray(selector)) {
@@ -2010,7 +2050,7 @@
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
       if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
+        throw new TypeError("DOMUtils.waitAnyNode 第一个参数必须是string[]");
       }
       if (args.length === 1);
       else if (args.length === 2) {
@@ -2020,7 +2060,7 @@
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
         } else {
-          throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
+          throw new TypeError("DOMUtils.waitAnyNode 第二个参数必须是number|Node");
         }
       } else if (args.length === 3) {
         const secondParam = args[1];
@@ -2030,13 +2070,13 @@
           if (typeof thirdParam === "number") {
             timeout = thirdParam;
           } else {
-            throw new TypeError("Utils.waitAnyNode 第三个参数必须是number");
+            throw new TypeError("DOMUtils.waitAnyNode 第三个参数必须是number");
           }
         } else {
-          throw new TypeError("Utils.waitAnyNode 第二个参数必须是Node");
+          throw new TypeError("DOMUtils.waitAnyNode 第二个参数必须是Node");
         }
       } else {
-        throw new TypeError("Utils.waitAnyNode 参数个数错误");
+        throw new TypeError("DOMUtils.waitAnyNode 参数个数错误");
       }
       const promiseList = selectorList.map((selector) => {
         return UtilsContext.waitNode(selector, parent, timeout);
@@ -2050,7 +2090,7 @@
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
       if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
+        throw new TypeError("DOMUtils.waitNodeList 第一个参数必须是string|string[]");
       }
       if (args.length === 1);
       else if (args.length === 2) {
@@ -2060,7 +2100,7 @@
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
         } else {
-          throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
+          throw new TypeError("DOMUtils.waitNodeList 第二个参数必须是number|Node");
         }
       } else if (args.length === 3) {
         const secondParam = args[1];
@@ -2070,13 +2110,13 @@
           if (typeof thirdParam === "number") {
             timeout = thirdParam;
           } else {
-            throw new TypeError("Utils.waitNodeList 第三个参数必须是number");
+            throw new TypeError("DOMUtils.waitNodeList 第三个参数必须是number");
           }
         } else {
-          throw new TypeError("Utils.waitNodeList 第二个参数必须是Node");
+          throw new TypeError("DOMUtils.waitNodeList 第二个参数必须是Node");
         }
       } else {
-        throw new TypeError("Utils.waitNodeList 参数个数错误");
+        throw new TypeError("DOMUtils.waitNodeList 参数个数错误");
       }
       function getNodeList() {
         if (Array.isArray(selector)) {
@@ -2123,7 +2163,7 @@
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
       if (!Array.isArray(args[0])) {
-        throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
+        throw new TypeError("DOMUtils.waitAnyNodeList 第一个参数必须是string[]");
       }
       if (args.length === 1);
       else if (args.length === 2) {
@@ -2133,7 +2173,7 @@
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
         } else {
-          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
+          throw new TypeError("DOMUtils.waitAnyNodeList 第二个参数必须是number|Node");
         }
       } else if (args.length === 3) {
         const secondParam = args[1];
@@ -2143,13 +2183,13 @@
           if (typeof thirdParam === "number") {
             timeout = thirdParam;
           } else {
-            throw new TypeError("Utils.waitAnyNodeList 第三个参数必须是number");
+            throw new TypeError("DOMUtils.waitAnyNodeList 第三个参数必须是number");
           }
         } else {
-          throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是Node");
+          throw new TypeError("DOMUtils.waitAnyNodeList 第二个参数必须是Node");
         }
       } else {
-        throw new TypeError("Utils.waitAnyNodeList 参数个数错误");
+        throw new TypeError("DOMUtils.waitAnyNodeList 参数个数错误");
       }
       const promiseList = selectorList.map((selector) => {
         return UtilsContext.waitNodeList(selector, parent, timeout);
@@ -3007,29 +3047,48 @@
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
-      const dblclick_handler = async (evt) => {
+      const checkClickTime = 200;
+      const dblclick_handler = async (evt, option) => {
         if (evt.type === "dblclick" && isMobileTouch) {
           return;
         }
-        await handler(evt);
+        await handler(evt, option);
       };
-      const dblClickListener = this.on($el, "dblclick", dblclick_handler, options);
+      const dblClickListener = this.on(
+        $el,
+        "dblclick",
+        (evt) => {
+          this.preventEvent(evt);
+          dblclick_handler(evt, {
+            isDoubleClick: true,
+          });
+        },
+        options
+      );
       const touchEndListener = this.on(
         $el,
-        "touchend",
+        "pointerup",
         selector,
         (evt, selectorTarget) => {
-          isMobileTouch = true;
+          this.preventEvent(evt);
+          if (evt.pointerType === "touch") {
+            isMobileTouch = true;
+          }
           CommonUtils.clearTimeout(timer);
           timer = void 0;
           if (isDoubleClick && $click === selectorTarget) {
             isDoubleClick = false;
             $click = null;
-            dblclick_handler(evt);
+            dblclick_handler(evt, {
+              isDoubleClick: true,
+            });
           } else {
             timer = CommonUtils.setTimeout(() => {
               isDoubleClick = false;
-            }, 200);
+              dblclick_handler(evt, {
+                isDoubleClick: false,
+              });
+            }, checkClickTime);
             isDoubleClick = true;
             $click = selectorTarget;
           }
@@ -4079,7 +4138,7 @@
     checkUserClickInNode($el) {
       const that = this;
       if (!CommonUtils.isDOM($el)) {
-        throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
+        throw new Error("DOMUtils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
       }
       const clickEvent = that.windowApi.window.event;
       const touchEvent = that.windowApi.window.event;
@@ -22811,7 +22870,7 @@ ${err.stack}`);
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -22826,7 +22885,7 @@ ${err.stack}`);
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -22873,7 +22932,7 @@ ${err.stack}`);
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -22894,7 +22953,7 @@ ${err.stack}`);
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -23049,16 +23108,14 @@ ${err.stack}`);
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;

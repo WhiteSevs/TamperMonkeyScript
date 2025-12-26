@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.12.19
+// @version            2025.12.26
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -14,9 +14,9 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.7.3/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
@@ -1079,7 +1079,7 @@
       const localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, value);
+      this.emitValueChangeListener(key, value, oldValue);
     }
     get(key, defaultValue) {
       const localValue = this.getLocalValue();
@@ -1094,7 +1094,7 @@
       const localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      this.emitValueChangeListener(key, oldValue, void 0);
+      this.emitValueChangeListener(key, void 0, oldValue);
     }
     has(key) {
       const localValue = this.getLocalValue();
@@ -1141,7 +1141,7 @@
       return flag;
     }
     async emitValueChangeListener(...args) {
-      const [key, oldValue, newValue] = args;
+      const [key, newValue, oldValue] = args;
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -1162,7 +1162,7 @@
           } else {
             __newValue = value;
           }
-          await data.callback(key, __oldValue, __newValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
@@ -1317,16 +1317,14 @@
       return PopsPanelStorageApi.has(key);
     },
     addValueChangeListener(key, callback) {
-      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
-        callback(key, __oldValue, __newValue);
-      });
+      const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     emitMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.emitValueChangeListener(key, oldValue, newValue);
+      PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
       const that = this;
@@ -5712,17 +5710,20 @@
     },
   };
   class ShortCut {
-    key = "short-cut";
-    $data;
-    isWaitPress = false;
-    currentWaitEnterPressInstanceHandler = null;
-    constructor(key) {
-      if (typeof key === "string") {
-        this.key = key;
+    KEY = "short-cut";
+    #data = {
+      otherShortCutOptions: [],
+      localOptions: [],
+      currentWaitEnterPressInstanceHandler: null,
+    };
+    #flag = {
+      isWaitPress: false,
+    };
+    constructor(KEY2) {
+      if (typeof KEY2 === "string") {
+        this.KEY = KEY2;
       }
-      this.$data = {
-        otherShortCutOptions: [],
-      };
+      this.initData();
     }
     initConfig(key, option) {
       if (this.hasOption(key));
@@ -5730,33 +5731,116 @@
         this.setOption(key, option);
       }
     }
+    initData(localOptions) {
+      this.#data.localOptions.length = 0;
+      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
+    }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const that = this;
+      const setListenKeyboard = function ($target, option) {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          (keyName, keyValue, ohterCodeList, event) => {
+            if (that.#flag.isWaitPress) {
+              return;
+            }
+            if (config?.isPrevent) {
+              domUtils.preventEvent(event);
+            }
+            const tempOption = {
+              keyName,
+              keyValue,
+              ohterCodeList,
+            };
+            const tempOptionStr = JSON.stringify(tempOption);
+            const findShortcut = that.#data.localOptions.find((item) => {
+              const __option = item.value;
+              const __optionStr = JSON.stringify(__option);
+              if (__optionStr === tempOptionStr) {
+                return true;
+              }
+            });
+            if (findShortcut) {
+              if (findShortcut.key in option) {
+                log.info("调用快捷键", findShortcut);
+                option[findShortcut.key].callback();
+              }
+            }
+          },
+          {
+            capture: Boolean(config?.capture),
+          }
+        );
+      };
+      const WindowShortCutOption = {};
+      const ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        const option = shortCutOption[localKey];
+        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.onReady(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          const option = ElementShortCutOption[localKey];
+          const shortCutOptionMap = {};
+          let target = null;
+          if (typeof option.target === "string") {
+            target = await domUtils.waitNode(option.target, 1e4);
+          } else if (typeof option.target === "function") {
+            target = await option.target();
+          } else {
+            target = option.target;
+          }
+          if (target) {
+            Reflect.set(shortCutOptionMap, localKey, option);
+            setListenKeyboard(target, shortCutOptionMap);
+          }
+        });
+      });
+    }
+    isWaitKeyboardPress() {
+      return this.#flag.isWaitPress;
+    }
     getStorageKey() {
-      return this.key;
+      return this.KEY;
     }
     getLocalAllOptions() {
-      return _GM_getValue(this.key, []);
+      const allOptions = _GM_getValue(this.KEY, []);
+      return allOptions;
     }
     hasOption(key) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
       return !!findOption;
     }
     hasOptionValue(key) {
       if (this.hasOption(key)) {
-        let option = this.getOption(key);
+        const option = this.getOption(key);
         return !(option?.value == null);
       } else {
         return false;
       }
     }
     getOption(key, defaultValue) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findOption = localOptions.find((item) => item.key === key);
       return findOption ?? defaultValue;
     }
     setOption(key, value) {
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex == -1) {
         localOptions.push({
           key,
@@ -5765,29 +5849,32 @@
       } else {
         Reflect.set(localOptions[findIndex], "value", value);
       }
-      _GM_setValue(this.key, localOptions);
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
     }
     emptyOption(key) {
-      let result = false;
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex !== -1) {
         localOptions[findIndex].value = null;
-        result = true;
+        flag = true;
       }
-      _GM_setValue(this.key, localOptions);
-      return result;
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
     }
     deleteOption(key) {
-      let result = false;
-      let localValue = this.getLocalAllOptions();
-      let findValueIndex = localValue.findIndex((item) => item.key === key);
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findValueIndex = localOptions.findIndex((item) => item.key === key);
       if (findValueIndex !== -1) {
-        localValue.splice(findValueIndex, 1);
-        result = true;
+        localOptions.splice(findValueIndex, 1);
+        flag = true;
       }
-      _GM_setValue(this.key, localValue);
-      return result;
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
     }
     translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
@@ -5799,7 +5886,7 @@
     }
     getShowText(key, defaultShowText) {
       if (this.hasOption(key)) {
-        let localOption = this.getOption(key);
+        const localOption = this.getOption(key);
         if (localOption.value == null) {
           return defaultShowText;
         } else {
@@ -5810,10 +5897,9 @@
       }
     }
     async enterShortcutKeys(key) {
-      const that = this;
       return new Promise((resolve) => {
-        this.isWaitPress = true;
-        let keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+        this.#flag.isWaitPress = true;
+        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
             keyValue,
@@ -5822,9 +5908,9 @@
           let result = {};
           try {
             const shortcutJSONString = JSON.stringify(currentOption);
-            const allOptions = this.getLocalAllOptions();
-            if (Array.isArray(this.$data.otherShortCutOptions)) {
-              allOptions.push(...this.$data.otherShortCutOptions);
+            let allOptions = this.getLocalAllOptions();
+            if (Array.isArray(this.#data.otherShortCutOptions)) {
+              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
             }
             for (let index = 0; index < allOptions.length; index++) {
               let localValue = allOptions[index];
@@ -5852,115 +5938,30 @@
               option: currentOption,
             };
           } catch (error) {
-            console.log(error);
+            log.error(error);
             result = {
               status: false,
               key,
               option: currentOption,
             };
           } finally {
-            that.isWaitPress = false;
+            this.#flag.isWaitPress = false;
             keyboardListener.removeListen();
-            that.currentWaitEnterPressInstanceHandler = null;
+            this.#data.currentWaitEnterPressInstanceHandler = null;
             resolve(result);
           }
         });
-        that.currentWaitEnterPressInstanceHandler = null;
-        that.currentWaitEnterPressInstanceHandler = () => {
-          that.isWaitPress = false;
+        this.#data.currentWaitEnterPressInstanceHandler = null;
+        this.#data.currentWaitEnterPressInstanceHandler = () => {
+          this.#flag.isWaitPress = false;
           keyboardListener.removeListen();
         };
       });
     }
     cancelEnterShortcutKeys() {
-      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
-        this.currentWaitEnterPressInstanceHandler();
+      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+        this.#data.currentWaitEnterPressInstanceHandler();
       }
-    }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      let localOptions = this.getLocalAllOptions();
-      if (!localOptions.length) {
-        log.warn("没有设置快捷键");
-        return;
-      }
-      const that = this;
-      function setListenKeyboard($ele, option) {
-        domUtils.onKeyboard(
-          $ele,
-          "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
-            if (that.isWaitPress) {
-              return;
-            }
-            if (config?.isPrevent) {
-              domUtils.preventEvent(event);
-            }
-            localOptions = that.getLocalAllOptions();
-            let findShortcutIndex = localOptions.findIndex((item) => {
-              let option2 = item.value;
-              let tempOption = {
-                keyName,
-                keyValue,
-                ohterCodeList,
-              };
-              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
-                return item;
-              }
-            });
-            if (findShortcutIndex != -1) {
-              let findShortcut = localOptions[findShortcutIndex];
-              if (findShortcut.key in option) {
-                log.info(["调用快捷键", findShortcut]);
-                option[findShortcut.key].callback();
-              }
-            }
-          },
-          {
-            capture: Boolean(config?.capture),
-          }
-        );
-      }
-      let WindowShortCutOption = {};
-      let ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        let option = shortCutOption[localKey];
-        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.onReady(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          let option = ElementShortCutOption[localKey];
-          if (typeof option.target === "string") {
-            domUtils.waitNode(option.target, 1e4).then(($ele) => {
-              if (!$ele) {
-                return;
-              }
-              let __option = {};
-              Reflect.set(__option, localKey, option);
-              setListenKeyboard($ele, __option);
-            });
-          } else if (typeof option.target === "function") {
-            let target = await option.target();
-            if (target == null) {
-              return;
-            }
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(target, __option);
-          } else {
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(option.target, __option);
-          }
-        });
-      });
     }
   }
   const GreasyforkShortCut = {
@@ -7301,7 +7302,7 @@
     const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
       const $click = event.target;
       const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
-      if (shortCut.isWaitPress) {
+      if (shortCut.isWaitKeyboardPress()) {
         Qmsg.warning("请先执行当前的录入操作");
         return;
       }
