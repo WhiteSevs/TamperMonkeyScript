@@ -1,19 +1,19 @@
+import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 import { QmsgMsg } from "./QmsgInst";
 import { QmsgInstStorage, type QmsgInstStorageInfo } from "./QmsgInstStorage";
-import type { QmsgConfig } from "./types/config";
 import { QmsgUtils } from "./QmsgUtils";
-import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
+import type { QmsgConfig } from "./types/config";
 
 /**
  * 通过配置信息 来判断是否为同一条消息,并返回消息实例
  * @param config 配置项
  */
 export function QmsgInstHandler(config: QmsgConfig = {} as QmsgConfig): QmsgMsg {
-  const optionStr = JSON.stringify(config);
+  const optionStr = QmsgUtils.toStr(config);
   // 处理后的配置
   const setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
   // 处理后的配置字符串
-  const settingStr = JSON.stringify(setting);
+  const settingStr = QmsgUtils.toStr(setting);
   // 寻找已生成的实例是否存在配置相同的
   let qmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
     return item.configStr === optionStr && item.inst.settingStr === settingStr;

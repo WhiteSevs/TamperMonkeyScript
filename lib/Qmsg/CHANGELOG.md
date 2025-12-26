@@ -1,5 +1,5 @@
-# v1.6.1
+# v1.6.2
 
 ## Fix
 
-- 修复.assign对数组的处理
+- 修复JSON.stringify()方法处理Node类型失败的问题

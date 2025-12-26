@@ -71,7 +71,7 @@ export class QmsgMsg {
     // 按顺序获取值
     // 先获取用户的配置值，如果没有，获取自定义的全局配置值，如果没有，最后获取全局默认值
     this.setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
-    this.settingStr = JSON.stringify(this.setting);
+    this.settingStr = QmsgUtils.toStr(this.setting);
     this.settingJSON = Object.assign({}, this.setting);
     this.uuid = uuid;
     this.state = "opening";

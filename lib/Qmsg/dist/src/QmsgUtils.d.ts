@@ -1,6 +1,10 @@
 import type { QmsgConfig } from "./types/config";
 export declare const QmsgUtils: {
     /**
+     * 转字符串
+     */
+    toStr(target: any): string;
+    /**
      * 生成带插件名的名称
      * @param args
      */
