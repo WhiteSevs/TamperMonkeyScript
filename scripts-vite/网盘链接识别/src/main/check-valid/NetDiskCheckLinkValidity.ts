@@ -167,7 +167,9 @@ export const NetDiskCheckLinkValidity = {
     // 网盘键
     const ruleKeyName = checkInfo.ruleKeyName;
     if (!NetDiskRuleData.function.checkLinkValidity(ruleKeyName)) {
-      log.error("该规则未开启checkLinkValidity功能", checkInfo);
+      if (import.meta.env.DEV) {
+        log.error("该规则未开启checkLinkValidity功能", checkInfo);
+      }
       return result;
     }
     const netDiskCheck = this.ruleCheckValidFunction[checkInfo.ruleKeyName];

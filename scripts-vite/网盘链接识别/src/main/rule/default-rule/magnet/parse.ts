@@ -1,4 +1,3 @@
-import { log } from "@/env";
 import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { MetaDataParser } from "@/main/parse/MetaDataParser";
 import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";

@@ -75,21 +75,18 @@ let userConfig = await GenerateUserConfig({
       require: [...(await GetLib(["网盘链接识别-图标库"]))],
       // 资源引用
       resource: {
-        // ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
+        ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
       },
     },
     build: {
       // import库的文件映射
       externalGlobals: {
-        // viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+        viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
         "crypto-js": ["CryptoJS", await GetLib("Crypto-JS")],
       },
       // import资源文件的映射
       externalResource: {
-        // "viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-        // 	"Viewer",
-        // 	"dist/viewer.min.css"
-        // ),
+        "viewerjs/dist/viewer.css": cdn.jsdelivrFastly("Viewer", "dist/viewer.min.css"),
       },
     },
   },

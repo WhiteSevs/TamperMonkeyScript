@@ -483,6 +483,7 @@ export const NetDiskLinkView = {
    */
   clearLinkView() {
     DOMUtils.empty(this.$el.$urlBoxAll);
+    this.$el.$urlBoxAll.scrollTo(0, 0);
   },
   /**
    * 分页 页码更新回调

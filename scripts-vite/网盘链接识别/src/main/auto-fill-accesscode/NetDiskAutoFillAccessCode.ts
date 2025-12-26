@@ -74,7 +74,7 @@ export const NetDiskAutoFillAccessCode = {
         break;
       }
     }
-    if (!flag) {
+    if (!flag && import.meta.env.DEV) {
       log.error("未触发自动填充访问码，原因：未找到对应的网盘信息：👇", this.$data.netDiskInfo);
     }
   },

@@ -267,6 +267,7 @@ export const NetDiskHistoryMatchView = {
   clearLinkElements() {
     let $liItemContainer = this.getLinkContainer();
     DOMUtils.empty($liItemContainer);
+    $liItemContainer.scrollTo(0, 0);
   },
   /**
    * 清空分页元素

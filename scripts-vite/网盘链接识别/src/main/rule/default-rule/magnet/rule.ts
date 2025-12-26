@@ -29,9 +29,11 @@ export const NetDiskRule_magnet: NetDiskRuleOption = {
           },
           parseFile: {
             enable: true,
+            text: "元数据预览",
           },
           "parseFile-closePopup": {
             enable: true,
+            text: "元数据预览 & 关闭弹窗",
           },
         },
       },

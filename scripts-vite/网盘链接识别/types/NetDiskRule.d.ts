@@ -48,7 +48,14 @@ declare type NetDiskRuleSettingConfigurationInterface_Function = {
       enable?: boolean;
       /**
        * 显示的文字
-       * @default "..."
+       *
+       * + `复制到剪贴板`
+       * + `复制到剪贴板 & 关闭弹窗`
+       * + `新标签页打开`
+       * + `新标签页打开 & 关闭弹窗`
+       * + `文件解析`
+       * + `文件解析 & 关闭弹窗`
+       * @default "复制到剪贴板"
        */
       text?: string;
     };
