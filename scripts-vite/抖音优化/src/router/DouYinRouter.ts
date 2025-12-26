@@ -117,4 +117,12 @@ export const DouYinRouter = {
   isFriend() {
     return this.isIndex() && window.location.pathname.startsWith("/friend");
   },
+  /**
+   * 私信
+   *
+   * + /chat
+   */
+  isChat() {
+    return this.isIndex() && window.location.pathname.startsWith("/chat");
+  },
 };

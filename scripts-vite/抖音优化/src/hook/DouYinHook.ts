@@ -77,7 +77,7 @@ export const DouYinHook = {
   disableShortCut() {
     type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
     /**
-     * 检测是否是在.pops组件库内的输入控件（input、textarea）内
+     * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者其它内容
      */
     const isInPopsComponentsRequireInputNode = ($el: Element | null | undefined) => {
       if ($el == null) return false;
@@ -124,7 +124,12 @@ export const DouYinHook = {
               enableKey: "dy-keyboard-hook-likeOrDislike",
               code: ["KeyZ", "Space"],
               callback(evt) {
-                if (evt.code !== "Space") {
+                if (evt.code !== "Space") return;
+                if (DouYinRouter.isChat()) return;
+                // must space
+                const $active = document.activeElement;
+                if ($active?.closest(".DraftEditor-editorContainer") || $active?.closest(".im-richtext-container")) {
+                  // 如果在输入框内，则不阻止触发快捷键
                   return;
                 }
                 utils.workerClearTimeout(timeId);
