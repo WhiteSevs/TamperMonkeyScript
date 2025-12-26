@@ -128,7 +128,13 @@ export const DouYinHook = {
                 if (DouYinRouter.isChat()) return;
                 // must space
                 const $active = document.activeElement;
-                if ($active?.closest(".DraftEditor-editorContainer") || $active?.closest(".im-richtext-container")) {
+                const tagName = $active?.tagName?.toLowerCase();
+                const isInputNode = typeof tagName === "string" ? ["input", "textarea"].includes(tagName) : false;
+                if (
+                  $active?.closest(".DraftEditor-editorContainer") ||
+                  $active?.closest(".im-richtext-container") ||
+                  isInputNode
+                ) {
                   // 如果在输入框内，则不阻止触发快捷键
                   return;
                 }
