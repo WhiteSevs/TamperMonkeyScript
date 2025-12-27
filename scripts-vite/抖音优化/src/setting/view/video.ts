@@ -1,16 +1,16 @@
-import { DOMUtils, log, SCRIPT_NAME, utils } from "@/env";
-import { UISelect } from "@components/setting/components/ui-select";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { UIButton } from "@components/setting/components/ui-button";
-import { DouYinVideoPlayerShortCut } from "@/main/video/player/DouYinVideoPlayerShortCut";
-import { Panel } from "@components/setting/panel";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
-import { UISlider } from "@components/setting/components/ui-slider";
-import { AutoOpenOrClose } from "../all-open-or-close";
+import { DOMUtils, log, SCRIPT_NAME } from "@/env";
 import { DouYinVideoFilter } from "@/main/video/filter/DouYinVideoFilter";
+import { DouYinVideoPlayerShortCut } from "@/main/video/player/DouYinVideoPlayerShortCut";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UIOwn } from "@components/setting/components/ui-own";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISlider } from "@components/setting/components/ui-slider";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { Panel } from "@components/setting/panel";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { AutoOpenOrClose } from "../all-open-or-close";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
@@ -613,6 +613,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "该元素出现在视频底部的用户名、标题信息的上面"
                 ),
                 UISwitch("【屏蔽】弹幕", "dy-video-blockDanmaku", false),
+                UISwitch(
+                  "【屏蔽】中间的播放图标",
+                  "dy-video-blockStartPlayIcon",
+                  false,
+                  void 0,
+                  "该图标暂停视频时显示在视频中间"
+                ),
               ],
             },
           ],

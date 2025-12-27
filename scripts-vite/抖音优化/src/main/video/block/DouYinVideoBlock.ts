@@ -39,6 +39,9 @@ export const DouYinVideoBlock = {
     Panel.execMenuOnce("dy-video-blockDanmaku", () => {
       return this.blockDanmaku();
     });
+    Panel.execMenuOnce("dy-video-blockStartPlayIcon", () => {
+      return this.blockStartPlayIcon();
+    });
     DouYinVideoBlock_BottomToolbar_videoInfo.init();
     DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
     DouYinVideoBlock_RightToolbar.init();
@@ -157,5 +160,12 @@ export const DouYinVideoBlock = {
   blockDanmaku() {
     log.info(`【屏蔽】弹幕`);
     return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
+  },
+  /**
+   * 【屏蔽】中间的播放图标
+   */
+  blockStartPlayIcon() {
+    log.info(`【屏蔽】中间的播放图标`);
+    return CommonUtil.addBlockCSS(".xgplayer-start");
   },
 };
