@@ -56,7 +56,7 @@ export const NetDiskHistoryMatchView = {
           close: {
             callback(details) {
               details.close();
-              // @ts-ignore
+              // @ts-expect-error
               NetDiskView.$el.$historyView = void 0;
             },
           },
@@ -64,7 +64,7 @@ export const NetDiskHistoryMatchView = {
             enable: false,
             callback(details) {
               details.close();
-              // @ts-ignore
+              // @ts-expect-error
               NetDiskView.$el.$historyView = void 0;
             },
           },
@@ -73,7 +73,7 @@ export const NetDiskHistoryMatchView = {
             text: "关闭",
             callback(details) {
               details.close();
-              // @ts-ignore
+              // @ts-expect-error
               NetDiskView.$el.$historyView = void 0;
             },
           },
@@ -119,7 +119,7 @@ export const NetDiskHistoryMatchView = {
         mask: {
           clickCallBack(originalRun) {
             originalRun();
-            // @ts-ignore
+            // @ts-expect-error
             NetDiskView.$el.$historyView = null;
           },
         },
@@ -618,23 +618,23 @@ export const NetDiskHistoryMatchView = {
         }
         if (
           typeof itemData.ruleKeyName !== "string" &&
-          // @ts-ignore
+          // @ts-expect-error
           typeof itemData.netDiskName === "string"
         ) {
-          // @ts-ignore
+          // @ts-expect-error
           itemData.ruleKeyName = itemData.netDiskName;
-          // @ts-ignore
+          // @ts-expect-error
           delete itemData.netDiskName;
           repairFlag = true;
         }
         if (
           typeof itemData.ruleIndex !== "number" &&
-          // @ts-ignore
+          // @ts-expect-error
           typeof itemData.netDiskIndex === "number"
         ) {
-          // @ts-ignore
+          // @ts-expect-error
           itemData.ruleIndex = itemData.netDiskIndex;
-          // @ts-ignore
+          // @ts-expect-error
           delete itemData.netDiskIndex;
           repairFlag = true;
         }

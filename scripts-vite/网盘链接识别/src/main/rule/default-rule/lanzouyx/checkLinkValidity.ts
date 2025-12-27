@@ -1,19 +1,16 @@
 import { httpx, log, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskParse } from "../../../parse/NetDiskParse";
 
 export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let LanZouYX = new NetDiskParse.rule.lanzouyx();
+    const LanZouYX = new NetDiskParse.rule.lanzouyx();
     LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
-    let timestamp = LanZouYX.getEncodeTimeStamp();
-    let uuid = LanZouYX.getEncodeUUID();
-    let response = await httpx.post(
+    const timestamp = LanZouYX.getEncodeTimeStamp();
+    const uuid = LanZouYX.getEncodeUUID();
+    const response = await httpx.post(
       `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr({
         devType: LanZouYX.$data.devType,
         devModel: LanZouYX.$data.devModel,
@@ -45,7 +42,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
         data: response,
       };
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     log.success("获取链接信息：", data);
     if (data["code"] !== 200) {
       return {

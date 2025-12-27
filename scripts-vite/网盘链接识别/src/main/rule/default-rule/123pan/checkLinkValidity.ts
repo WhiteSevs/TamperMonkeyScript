@@ -1,11 +1,11 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
 
 export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let response = await httpx.get("https://www.123pan.com/api/share/info?shareKey=" + shareCode, {
+    const response = await httpx.get("https://www.123pan.com/api/share/info?shareKey=" + shareCode, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "www.123pan.com",
@@ -21,7 +21,7 @@ export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceIn
         data: response,
       };
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (response.data.responseText.includes("分享页面不存在")) {
       return {
         ...NetDiskCheckLinkValidityStatus.failed,

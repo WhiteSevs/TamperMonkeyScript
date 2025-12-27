@@ -1,9 +1,9 @@
-import { log } from "@/env";
+import { DOMUtils, log } from "@/env";
+import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
 import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
-import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
-import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
 export class NetDiskParse_Baidu extends ParseFileCore {
   /**
@@ -11,50 +11,50 @@ export class NetDiskParse_Baidu extends ParseFileCore {
    */
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let url = GM_getValue<string>("baidu-baiduwp-php-url");
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const url = GM_getValue<string>("baidu-baiduwp-php-url");
     let postForm = GM_getValue<string>("baidu-baiduwp-php-post-form");
-    let enableCopy = GM_getValue<boolean>("baidu-baiduwp-php-copy-url");
+    const enableCopy = GM_getValue<boolean>("baidu-baiduwp-php-copy-url");
     if (!url) {
       Qmsg.error("请先在设置中配置百度网盘-网址");
-      return void 0;
+      return;
     }
     if (!postForm) {
       Qmsg.error("请先在设置中配置百度网盘-表单参数");
-      return void 0;
+      return;
     }
     postForm = NetDiskRuleUtils.replaceParam(postForm, {
       shareCode: shareCode,
       accessCode: accessCode!,
     });
-    let formElement = document.createElement("form");
+    const $form = DOMUtils.createElement("form", {
+      action: url,
+      method: "post",
+      target: "_blank",
+    });
     /* POST的表单数据 */
-    let formData: {
+    const formData: {
       [key: string]: string;
     } = {};
     const urlParams = new URLSearchParams(postForm);
-    /* 解析网址 */
-    formElement.action = url;
-    formElement.method = "post";
-    formElement.style.display = "none";
-    formElement.target = "_blank";
+    DOMUtils.css($form, "display", "none");
     urlParams.forEach((value, key) => {
       const textAreaElement = document.createElement("textarea");
       textAreaElement.name = key;
       textAreaElement.value = value;
-      formElement.appendChild(textAreaElement);
+      $form.appendChild(textAreaElement);
       formData[key] = value;
     });
-    log.info("表单数据", formData);
-    document.body.appendChild(formElement);
-    log.info("访问网址", url);
+    log.info("表单数据：", formData);
+    log.info("访问网址：", url);
+    (document.body || document.documentElement).appendChild($form);
     if (enableCopy) {
       NetDiskLinkClickMode.copy("baidu", ruleIndex, shareCode, accessCode, "1.5秒后跳转至解析站");
       setTimeout(() => {
-        formElement.submit();
+        $form.submit();
       }, 1500);
     } else {
-      formElement.submit();
+      $form.submit();
     }
   }
 }

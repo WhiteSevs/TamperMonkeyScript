@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -9,8 +9,8 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
    */
   function loopWaitElementShow(targetElement: HTMLElement, callback: Function) {
     let loopCount = 0;
-    let maxLoopCount = 30;
-    let interval = setInterval(() => {
+    const maxLoopCount = 30;
+    const interval = setInterval(() => {
       loopCount++;
       if (loopCount > maxLoopCount) {
         log.error("结束循环检查，退出。");
@@ -32,11 +32,11 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
     DOMUtils.waitNode<HTMLInputElement>("input#code_txt").then((codeTxtElement) => {
       loopWaitElementShow(codeTxtElement, () => {
         Qmsg.success("自动填充访问码");
-        let visitBtn = document.querySelector<HTMLElement>(".btn.btn-primary.visit")!;
+        const $visit = $<HTMLElement>(".btn.btn-primary.visit")!;
         codeTxtElement.value = netDiskInfo.accessCode;
         Reflect.set(codeTxtElement, "_value", netDiskInfo.accessCode);
         DOMUtils.emit(codeTxtElement, "input");
-        DOMUtils.emit(visitBtn, "click");
+        DOMUtils.emit($visit, "click");
       });
     });
   }
@@ -49,7 +49,7 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
         accessInputElement.value = netDiskInfo.accessCode;
         Reflect.set(accessInputElement, "_value", netDiskInfo.accessCode);
         DOMUtils.emit(accessInputElement, "input");
-        DOMUtils.emit(document.querySelector<HTMLElement>("div.button")!, "click");
+        DOMUtils.emit($<HTMLElement>("div.button")!, "click");
       });
     });
   }

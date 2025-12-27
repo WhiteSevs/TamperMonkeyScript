@@ -49,9 +49,9 @@ export const NetDiskLinearChainDialogView = {
             fileName: fileDetails.fileName,
             fileSize: fileDetails.fileSize!,
             fileType: fileDetails.fileType ?? "",
-            // @ts-ignore
+            // @ts-expect-error
             createTime: fileDetails.fileUploadTime! || fileDetails.fileLatestTime!,
-            // @ts-ignore
+            // @ts-expect-error
             latestTime: fileDetails.fileLatestTime! || fileDetails.fileUploadTime!,
             isFolder: false,
             index: 0,

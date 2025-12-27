@@ -1,15 +1,12 @@
 import { DOMUtils, httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "@/main/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskCheckLinkValidityRequestOption } from "@/main/check-valid/NetDiskCheckLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_360yunpan: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let url = "https://www.yunpan.com/lk/surl_" + shareCode;
-    let response = await httpx.get(url, {
+    const url = "https://www.yunpan.com/lk/surl_" + shareCode;
+    const response = await httpx.get(url, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
       },
@@ -22,10 +19,10 @@ export const NetDiskCheckLinkValidity_360yunpan: NetDiskCheckLinkValidityEntranc
         data: response,
       };
     }
-    let responseDoc = DOMUtils.toElement(response.data.responseText, true, true);
-    let $errorMsg = responseDoc.querySelector<HTMLElement>(".page-error .error-msg");
+    const responseDoc = DOMUtils.toElement(response.data.responseText, true, true);
+    const $errorMsg = responseDoc.querySelector<HTMLElement>(".page-error .error-msg");
     if ($errorMsg) {
-      let errorMsg = DOMUtils.text($errorMsg);
+      const errorMsg = DOMUtils.text($errorMsg);
       if (errorMsg.includes("分享链接已失效")) {
         return {
           ...NetDiskCheckLinkValidityStatus.failed,

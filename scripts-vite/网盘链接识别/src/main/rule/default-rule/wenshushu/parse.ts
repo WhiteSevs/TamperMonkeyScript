@@ -20,17 +20,22 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
     const that = this;
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    Qmsg.info("正在请求直链中...");
-    let token = await this.getWssToken();
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const token = await this.getWssToken();
     if (!token) {
+      $loading.close();
       return;
     }
-    let pidInfo = await this.getPid();
+    $loading.setText("正在获取pid...");
+    const pidInfo = await this.getPid();
     if (!pidInfo) {
+      $loading.close();
       return;
     }
+    $loading.setText("正在获取文件列表信息...");
     await this.getFileNList(pidInfo.bid, pidInfo.pid);
+    $loading.close();
   }
   /**
    * 获取token
@@ -38,7 +43,7 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
    */
   async getWssToken(): Promise<string | undefined> {
     const that = this;
-    let postResp = await httpx.post("https://www.wenshushu.cn/ap/login/anonymous", {
+    const response = await httpx.post("https://www.wenshushu.cn/ap/login/anonymous", {
       responseType: "json",
       data: JSON.stringify({
         dev_info: "{}",
@@ -49,11 +54,11 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
         Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
       },
     });
-    log.success(postResp);
-    if (!postResp.status) {
+    log.success(response);
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(postResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["code"] === 0) {
       that.token = data["data"]["token"];
       return data["data"]["token"];
@@ -68,7 +73,7 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
    */
   async getPid() {
     const that = this;
-    let postResp = await httpx.post({
+    const response = await httpx.post({
       url: "https://www.wenshushu.cn/ap/task/mgrtask",
       responseType: "json",
       data: JSON.stringify({
@@ -83,12 +88,11 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
         "x-token": that.token,
       },
     });
-    log.success(postResp);
-    if (!postResp.status) {
+    log.success(response);
+    if (!response.status) {
       return;
     }
-    let respData = postResp.data;
-    let data = utils.toJSON(respData.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["code"] === 0) {
       return {
         bid: data["data"]["boxid"],
@@ -107,7 +111,7 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
    */
   async getFileNList(bid: string, pid: string) {
     const that = this;
-    let postResp = await httpx.post("https://www.wenshushu.cn/ap/ufile/nlist", {
+    const response = await httpx.post("https://www.wenshushu.cn/ap/ufile/nlist", {
       responseType: "json",
       data: JSON.stringify({
         start: 0,
@@ -128,12 +132,11 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
         "x-token": that.token,
       },
     });
-    log.success(postResp);
-    if (!postResp.status) {
+    log.success(response);
+    if (!response.status) {
       return;
     }
-    let respData = postResp.data;
-    let jsonData = utils.toJSON(respData.responseText);
+    let jsonData = utils.toJSON(response.data.responseText);
     if (jsonData["code"] === 0) {
       if (jsonData["data"]["fileList"][0]["type"] === 2) {
         Qmsg.error("该链接为多层级文件嵌套，跳转");
@@ -160,16 +163,16 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
   }
   /**
    * 获取下载链接
-   * @param data
+   * @param info
    */
-  async getDownloadUrl(data: any) {
+  async getDownloadUrl(info: { fname: string; fid: number | string; size: number }) {
     const that = this;
-    let file_name = data.fname;
-    let file_size = utils.formatByteToSize(data.size);
-    let postResp = await httpx.post("https://www.wenshushu.cn/ap/dl/sign", {
+    const file_name = info.fname;
+    const file_size = utils.formatByteToSize(info.size);
+    const response = await httpx.post("https://www.wenshushu.cn/ap/dl/sign", {
       responseType: "json",
       data: JSON.stringify({
-        ufileid: data.fid,
+        ufileid: info.fid,
         consumeCode: 0,
       }),
       headers: {
@@ -179,14 +182,13 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
         "x-token": that.token,
       },
     });
-    if (!postResp.status) {
+    if (!response.status) {
       return;
     }
-    log.success(postResp);
-    let respData = postResp.data;
-    let jsonData = utils.toJSON(respData.responseText);
-    if (jsonData["code"] == 0) {
-      let downloadUrl = jsonData["data"]["url"];
+    log.success(response);
+    const data = utils.toJSON(response.data.responseText);
+    if (data["code"] == 0) {
+      let downloadUrl = data["data"]["url"];
       if (downloadUrl === "") {
         Qmsg.error("对方的分享流量不足");
       } else {
@@ -202,8 +204,8 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
           downloadUrl: downloadUrl,
         });
       }
-    } else if (jsonData["data"] in that.code) {
-      Qmsg.error(that.code[jsonData["data"] as keyof typeof that.code]);
+    } else if (data["data"] in that.code) {
+      Qmsg.error(that.code[data["data"] as keyof typeof that.code]);
     } else {
       Qmsg.error("获取下载链接失败");
     }

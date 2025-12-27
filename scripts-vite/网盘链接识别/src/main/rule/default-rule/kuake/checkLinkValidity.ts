@@ -1,15 +1,12 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let response = await httpx.post("https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc", {
+    const response = await httpx.post("https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc", {
       data: JSON.stringify({
         pwd_id: shareCode,
         passcode: "",
@@ -34,7 +31,7 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
         data: response,
       };
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data.message.includes("需要提取码")) {
       return {
         ...NetDiskCheckLinkValidityStatus.needAccessCode,
@@ -42,8 +39,8 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
       };
     } else if (data.message.includes("ok")) {
       // 再请求判断是否存在部分违规文件
-      let stoken = data["data"]["stoken"];
-      let getSearchParams = {
+      const stoken = data["data"]["stoken"];
+      const getSearchParams = {
         // pr: "ucpro",
         // fr: "pc",
         // uc_param_str: "",
@@ -60,7 +57,7 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
         // __dt: 2283,
         __t: Date.now(),
       };
-      let getResponse = await httpx.get(
+      const detailResponse = await httpx.get(
         `https://drive-h.quark.cn/1/clouddrive/share/sharepage/detail?${utils.toSearchParamsStr(getSearchParams)}`,
         {
           headers: {
@@ -72,15 +69,15 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
           ...NetDiskCheckLinkValidityRequestOption,
         }
       );
-      if (!getResponse.status || utils.isNull(getResponse.data.responseText)) {
+      if (!detailResponse.status || utils.isNull(detailResponse.data.responseText)) {
         // 空的|失败的
         return {
           ...NetDiskCheckLinkValidityStatus.networkError,
-          data: getResponse,
+          data: detailResponse,
         };
       }
       // 解析json
-      let detailJSON = utils.toJSON(getResponse.data.responseText);
+      const detailJSON = utils.toJSON(detailResponse.data.responseText);
       if (detailJSON["data"]["share"]["status"] == 1) {
         // 判断是否存在部分违规文件
         if (detailJSON["data"]["share"]["partial_violation"]) {

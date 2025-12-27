@@ -23,13 +23,13 @@ export const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo: NetDiskAu
               return;
             }
             $el.value = netDiskInfo.accessCode;
-            let onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+            const onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
             onChange({
               currentTarget: $el,
               target: $el,
             });
             Qmsg.success("自动填充访问码");
-            let $submit = $<HTMLElement>('#root button[type="submit"]');
+            const $submit = $<HTMLElement>('#root button[type="submit"]');
             if (!$submit) {
               Qmsg.error("提交按钮不存在");
               return;

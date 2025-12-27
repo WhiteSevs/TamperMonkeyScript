@@ -1,11 +1,11 @@
 import { httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { NetDiskView } from "@/main/view/NetDiskView";
-import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
-import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { NetDiskView } from "@/main/view/NetDiskView";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import type { HttpxRequestOption, HttpxResponse } from "@whitesev/utils/dist/types/src/types/Httpx";
+import Qmsg from "qmsg";
 
 type FolderInfo = {
   mtime: number;
@@ -21,30 +21,33 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
   };
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     const that = this;
-    let downloadParams = await that.getRequestDownloadParams();
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const downloadParams = await that.getRequestDownloadParams();
     if (!downloadParams) {
+      $loading.close();
       return;
     }
     if (downloadParams["isdir"]) {
       /* 是文件夹 */
-      let Qmsg_loading = Qmsg.loading("正在遍历多文件信息...");
-      let folderInfo = await that.getFolderInfo(downloadParams["hash"]);
+      $loading.setText("正在解析多文件...");
+      const folderInfo = await that.getFolderInfo(downloadParams["hash"]);
       if (!folderInfo) {
-        Qmsg_loading.close();
+        $loading.close();
         return;
       }
-      let newFolderInfoList = that.parseMoreFile(folderInfo, downloadParams["hash"], downloadParams["name"]);
-      Qmsg_loading.close();
+      const newFolderInfoList = that.parseMoreFile(folderInfo, downloadParams["hash"], downloadParams["name"]);
 
       /* 坚果云盘没有上传时间信息(暂时是这样的) */
       NetDiskView.$inst.linearChainDialogView.moreFile("坚果云文件解析", newFolderInfoList);
     } else {
       /* 是文件 */
-      let fileSize = utils.formatByteToSize(downloadParams["size"]);
+      $loading.setText("正在获取下载链接...");
+      const fileSize = utils.formatByteToSize(downloadParams["size"]);
       let downloadUrl = await that.getFileLink(downloadParams.hash, downloadParams.name);
       if (!downloadUrl) {
+        $loading.close();
         return;
       }
       if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
@@ -60,6 +63,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
         downloadUrl: downloadUrl,
       });
     }
+    $loading.close();
   }
   /**
    * 解析多文件信息
@@ -70,7 +74,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
   parseMoreFile(folderInfo: FolderInfo[], hash = "", fileName = "") {
     const that = this;
     log.info("解析多文件信息", folderInfo);
-    let folderInfoList: PopsFolderDataConfig[] = [];
+    const folderInfoList: PopsFolderDataConfig[] = [];
     folderInfo.forEach((item) => {
       let fileName = item.relPath;
       if (fileName.startsWith("/")) {
@@ -85,8 +89,9 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
         isFolder: false,
         index: 0,
         async clickEvent() {
-          Qmsg.info("正在获取下载链接...");
+          const $loading = Qmsg.loading("正在获取下载链接...");
           let downloadUrl = await that.getDirLink(hash, fileName, item["relPath"]);
+          $loading.close();
           if (!downloadUrl) {
             return;
           }

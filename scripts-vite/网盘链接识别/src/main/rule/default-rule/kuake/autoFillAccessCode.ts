@@ -22,7 +22,7 @@ export const NetDiskAutoFillAccessCode_kuake = function (netDiskInfo: NetDiskAut
               return;
             }
             $el.value = netDiskInfo.accessCode;
-            let onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+            const onChange: Function = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
             onChange({
               currentTarget: $el,
               target: $el,

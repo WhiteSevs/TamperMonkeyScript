@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -15,7 +15,7 @@ export const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo: NetDiskAu
       DOMUtils.emit(element, "input");
       DOMUtils.emit(element, "change");
       setTimeout(() => {
-        document.querySelector<HTMLElement>(".form-item button.btn-main")!.click();
+        $<HTMLElement>(".form-item button.btn-main")!.click();
       }, 500);
     });
 
@@ -32,7 +32,7 @@ export const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo: NetDiskAu
       DOMUtils.emit(element, "input");
       DOMUtils.emit(element, "change");
       setTimeout(() => {
-        document.querySelector<HTMLElement>(".pw-btn-wrap button.btn")!.click();
+        $<HTMLElement>(".pw-btn-wrap button.btn")!.click();
       }, 500);
     });
   }

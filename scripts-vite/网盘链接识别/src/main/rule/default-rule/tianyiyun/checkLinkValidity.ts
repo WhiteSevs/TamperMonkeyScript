@@ -8,7 +8,7 @@ import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckL
 export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let response = await httpx.post("https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action", {
+    const response = await httpx.post("https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action", {
       data: `shareCode=${shareCode}`,
       headers: {
         Accept: "application/json;charset=UTF-8",
@@ -20,7 +20,7 @@ export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranc
       },
       ...NetDiskCheckLinkValidityRequestOption,
     });
-    let responseText = response.data.responseText;
+    const responseText = response.data.responseText;
     if (!response.status && utils.isNull(responseText)) {
       return {
         ...NetDiskCheckLinkValidityStatus.networkError,

@@ -1,12 +1,12 @@
 import { httpx, log, utils } from "@/env";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import Qmsg from "qmsg";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "../../../scheme/NetDiskFilterScheme";
 import { NetDiskView } from "../../../view/NetDiskView";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 import { NetDiskCheckLinkValidity_123pan } from "./checkLinkValidity";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export class NetDiskParse_123pan extends ParseFileCore {
   panelList = [];
@@ -30,32 +30,37 @@ export class NetDiskParse_123pan extends ParseFileCore {
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
     const that = this;
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.panelList.length = 0;
     this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
-    let checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
     if (
       checkLinkValidityStatus.code !== NetDiskCheckLinkValidityStatus.success.code &&
       checkLinkValidityStatus.code !== NetDiskCheckLinkValidityStatus.needAccessCode.code
     ) {
+      $loading.close();
       Qmsg.error(checkLinkValidityStatus.msg);
       return;
     }
     // 成功
     // 需要密码
-    let infoLists = await this.getFiles();
+    const infoLists = await this.getFiles();
     if (!infoLists) {
+      $loading.close();
       return;
     }
     if (infoLists.length === 1 && infoLists[0]["Type"] == 0) {
-      let fileInfo = infoLists[0];
+      const fileInfo = infoLists[0];
       if (fileInfo["Status"] == 104) {
+        $loading.close();
         Qmsg.error("文件已失效");
         return;
       }
       let downloadUrl = fileInfo["DownloadUrl"];
       let fileSize = "";
       if (downloadUrl === "") {
+        $loading.setText("正在获取下载链接...");
         let downloadInfo = await that.getFileDownloadInfo(
           fileInfo["Etag"],
           fileInfo["FileId"],
@@ -85,9 +90,9 @@ export class NetDiskParse_123pan extends ParseFileCore {
       }
       let fileUploadTime = new Date(fileInfo["CreateAt"]).getTime();
       let fileLatestTime = new Date(fileInfo["UpdateAt"]).getTime();
-      // @ts-ignore
+      // @ts-expect-error
       fileUploadTime = utils.formatTime(fileUploadTime);
-      // @ts-ignore
+      // @ts-expect-error
       fileLatestTime = utils.formatTime(fileLatestTime);
       NetDiskView.$inst.linearChainDialogView.oneFile({
         title: "123盘单文件直链",
@@ -98,13 +103,12 @@ export class NetDiskParse_123pan extends ParseFileCore {
         fileLatestTime: fileLatestTime,
       });
     } else {
-      Qmsg.info("正在递归文件");
-      let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-      let folderInfoList = that.getFolderInfo(infoLists, 0);
-      QmsgLoading.close();
-      log.info("递归完毕");
+      $loading.setText("正在解析多文件...");
+      const folderInfoList = that.getFolderInfo(infoLists, 0);
+      log.info("解析完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("123盘文件解析", folderInfoList);
     }
+    $loading.close();
   }
   /**
    * 校验链接有效性
@@ -336,7 +340,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
             if (item.Status == 104) {
               Qmsg.error("文件已失效");
             } else if (!Boolean(item.DownloadUrl)) {
-              let downloadInfo = await that.getFileDownloadInfo(
+              const downloadInfo = await that.getFileDownloadInfo(
                 item["Etag"],
                 item["FileId"],
                 item["S3KeyFlag"],
@@ -496,32 +500,21 @@ export class NetDiskParse_123pan extends ParseFileCore {
       var randomRoundNum = Math["round"](0x989680 * Math["random"]());
 
       var number_split;
-      var time_a;
+      var time_a = {} as any;
       var time_y;
       var time_m;
       var time_d;
       var time_h;
       var time_f;
       var time_array;
-      // @ts-ignore
       var time_push: any[];
-      // @ts-ignore
-      // @ts-ignore
-      // @ts-ignore
-      // @ts-ignore
-      // @ts-ignore
-      // @ts-ignore
+      // @ts-expect-error
       for (var number_item in ((number_split = key.split(",")),
       (time_a = encry_time(param_time)),
-      // @ts-ignore
       (time_y = time_a["y"]),
-      // @ts-ignore
       (time_m = time_a["m"]),
-      // @ts-ignore
       (time_d = time_a["d"]),
-      // @ts-ignore
       (time_h = time_a["h"]),
-      // @ts-ignore
       (time_f = time_a["f"]),
       (time_array = [time_y, time_m, time_d, time_h, time_f].join("")),
       (time_push = []),
@@ -530,38 +523,17 @@ export class NetDiskParse_123pan extends ParseFileCore {
       var param_no;
       var param_join_s;
       return (
-        // @ts-ignore
-        (
-          (param_no = encry_join(time_push["join"](""))),
-          (param_join_s = encry_join(
-            ""
-              ["concat"](param_time, "|")
-              [
-                // @ts-ignore
-                "concat"
-                // @ts-ignore
-              ](randomRoundNum, "|")
-              ["concat"](urlPath, "|")
-              ["concat"](param_web, "|")
-              [
-                // @ts-ignore
-                "concat"
-                // @ts-ignore
-              ](param_type, "|")
-              ["concat"](param_no)
-          )),
-          [
-            param_no,
-            ""
-              ["concat"](param_time, "-")
-              [
-                // @ts-ignore
-                "concat"
-                // @ts-ignore
-              ](randomRoundNum, "-")
-              ["concat"](param_join_s),
-          ]
-        )
+        (param_no = encry_join(time_push["join"](""))),
+        (param_join_s = encry_join(
+          ""
+            ["concat"](param_time, "|")
+            ["concat"](String(randomRoundNum), "|")
+            ["concat"](urlPath, "|")
+            ["concat"](param_web, "|")
+            ["concat"](String(param_type), "|")
+            ["concat"](param_no)
+        )),
+        [param_no, ""["concat"](param_time, "-")["concat"](String(randomRoundNum), "-")["concat"](param_join_s)]
       );
     }
     return getSign("/a/api/share/download/info");

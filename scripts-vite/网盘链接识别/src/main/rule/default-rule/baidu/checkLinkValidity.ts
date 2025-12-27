@@ -1,21 +1,18 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let url = NetDiskLinkClickModeUtils.getBlankUrl({
+    const url = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName: "baidu",
       ruleIndex,
       shareCode,
       accessCode,
     });
-    let response = await httpx.get(url, {
+    const response = await httpx.get(url, {
       headers: {
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -27,10 +24,10 @@ export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceIns
       },
       ...NetDiskCheckLinkValidityRequestOption,
     });
-    let responseText = response.data.responseText;
-    let finalUrl = response.data.finalUrl;
+    const responseText = response.data.responseText;
+    const finalUrl = response.data.finalUrl;
     if (typeof finalUrl === "string") {
-      let finalUrlInstance = new URL(finalUrl);
+      const finalUrlInstance = new URL(finalUrl);
       if (finalUrlInstance.hostname !== "pan.baidu.com") {
         // 可能是触发了百度验证
         // passport.baidu.com

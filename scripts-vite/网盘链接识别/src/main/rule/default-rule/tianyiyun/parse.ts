@@ -425,7 +425,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
         isFolder: false,
         index: index,
         async clickEvent() {
+          const $loading = Qmsg.loading("正在获取下载链接...");
           let downloadUrl = await that.getDownloadUrl(shareCode, accessCode, fileInfo["id"], that.shareId);
+          $loading.close();
           if (downloadUrl) {
             if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
               downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);

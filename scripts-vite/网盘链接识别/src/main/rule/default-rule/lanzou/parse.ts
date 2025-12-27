@@ -1,11 +1,11 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
+import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import type { HttpxResponseData } from "@whitesev/utils/src/types/Httpx";
+import Qmsg from "qmsg";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 
 export const NetDiskParse_Lanzou_Config = {
   /** 蓝奏云默认域名 */
@@ -192,30 +192,32 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    */
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
-    let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
-    let pageInfoResponse = await this.getPageInfo(url);
+    const url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const pageInfoResponse = await this.getPageInfo(url);
     if (!pageInfoResponse) {
+      $loading.close();
       return;
     }
     if (this.isMoreFile(pageInfoResponse)) {
       // 多文件
       log.info(`多文件`);
-      let $loading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-      let fileInfo = await this.parseFiles(shareCode, accessCode);
+      $loading.setText("正在解析多文件...");
+      const fileInfo = await this.parseFiles(shareCode, accessCode);
       if (!fileInfo) {
         $loading.close();
         return;
       }
-      let folderInfoList = this.getFolderInfo(this.transformFileInfoToInfoList(shareCode, accessCode, fileInfo), 0);
-      $loading.close();
+      const folderInfoList = this.getFolderInfo(this.transformFileInfoToInfoList(shareCode, accessCode, fileInfo), 0);
       log.info("递归完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("蓝奏云文件解析", folderInfoList);
     } else {
       // 单文件
       log.info(`单文件`);
-      let fileDownloadInfo = await this.getFileDownloadInfo(shareCode, accessCode, pageInfoResponse);
+      $loading.setText("正在获取下载链接...");
+      const fileDownloadInfo = await this.getFileDownloadInfo(shareCode, accessCode, pageInfoResponse);
       if (fileDownloadInfo) {
         NetDiskView.$inst.linearChainDialogView.oneFile({
           title: "蓝奏云单文件直链",
@@ -226,6 +228,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         });
       }
     }
+    $loading.close();
   }
   /**
    * 参数转换
@@ -277,9 +280,9 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           fileName: item.fileName,
           fileSize: 0,
           fileType: "",
-          // @ts-ignore
+          // @ts-expect-error
           createTime: item.createTime,
-          // @ts-ignore
+          // @ts-expect-error
           latestTime: item.latestTime,
           isFolder: true,
           index: index,
@@ -300,22 +303,27 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           fileName: item.fileName,
           fileSize: item.fileSize,
           fileType: "",
-          // @ts-ignore
+          // @ts-expect-error
           createTime: item.createTime,
-          // @ts-ignore
+          // @ts-expect-error
           latestTime: item.latestTime,
           isFolder: false,
           index: index,
           clickEvent: async () => {
-            let url = this.ruleIndex === 1 ? this.router.root_s(item.shareCode) : this.router.root(item.shareCode);
-            let responseData = await this.getPageInfo(url);
+            const url = this.ruleIndex === 1 ? this.router.root_s(item.shareCode) : this.router.root(item.shareCode);
+            const $loading = Qmsg.loading("正在解析链接页面信息...");
+            const responseData = await this.getPageInfo(url);
             if (!responseData) {
+              $loading.close();
               return;
             }
-            let fileDownloadInfo = await this.getFileDownloadInfo(item.shareCode, item.accessCode, responseData);
+            $loading.setText("正在获取下载链接...");
+            const fileDownloadInfo = await this.getFileDownloadInfo(item.shareCode, item.accessCode, responseData);
             if (!fileDownloadInfo) {
+              $loading.close();
               return;
             }
+            $loading.close();
             return {
               url: fileDownloadInfo.downloadUrl,
               autoDownload: true,
@@ -355,17 +363,16 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           downloadUrl: string;
         }
       | undefined = void 0;
-    let $pageDoc = DOMUtils.toElement(responseData.responseText, true, true);
-    let pageText = deleteAnnotationCode(responseData.responseText);
-    let $pageIframe =
+    const $pageDoc = DOMUtils.toElement(responseData.responseText, true, true);
+    const pageText = deleteAnnotationCode(responseData.responseText);
+    const $pageIframe =
       $pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="ifr"]') ||
       $pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="n_downlink"]');
     if ($pageIframe) {
       // 该链接需要重新通过iframe地址访问获取信息
-      let iframeUrl = $pageIframe.getAttribute("src")!;
+      const iframeUrl = $pageIframe.getAttribute("src")!;
       log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
-      Qmsg.info("正在请求下载信息");
-      let fileName =
+      const fileName =
         $pageDoc.querySelector<HTMLElement>("body div.d > div")?.innerText ||
         $pageDoc.querySelector<HTMLElement>("#filenajax")?.innerText ||
         $pageDoc.querySelector("title")?.textContent?.replace(/ - 蓝奏云$/i, "")!;
@@ -399,10 +406,10 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       } else {
         log.error("解析文件上传时间信息失败");
       }
-      let downloadUrl = await this.getLinkByIframe(shareCode, accessCode, iframeUrl, {
+      const downloadUrl = await this.getLinkByIframe(shareCode, accessCode, iframeUrl, {
         fileName,
         fileSize,
-        // @ts-ignore
+        // @ts-expect-error
         fileUploadTime,
       });
       if (!downloadUrl) {
@@ -417,22 +424,22 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     } else {
       log.warn("该页面不是使用iframe获取链接，使用其它方式解析");
 
-      let sign = pageText.match(/'sign':'(.+?)',/i) || pageText.match(this.regexp.sign.match);
+      const sign = pageText.match(/'sign':'(.+?)',/i) || pageText.match(this.regexp.sign.match);
 
       let postData_p = "";
       let postData_sign = "";
-      let fileNameMatch = pageText.match(this.regexp.fileName.match);
+      const fileNameMatch = pageText.match(this.regexp.fileName.match);
       let fileName = fileNameMatch ? fileNameMatch[fileNameMatch.length - 1].trim() : "";
-      let fileSizeMatch =
+      const fileSizeMatch =
         pageText.match(this.regexp.fileSize.match) || pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
-      let fileSize = fileSizeMatch ? fileSizeMatch[fileSizeMatch.length - 1].trim() : "";
-      let fileUploadTimeMatch =
+      const fileSize = fileSizeMatch ? fileSizeMatch[fileSizeMatch.length - 1].trim() : "";
+      const fileUploadTimeMatch =
         pageText.match(this.regexp.uploadTime.match) || pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
-      let fileUploadTime = fileUploadTimeMatch ? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim() : "";
-      let fileIdMatch =
+      const fileUploadTime = fileUploadTimeMatch ? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim() : "";
+      const fileIdMatch =
         pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) ||
         pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
-      let fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
+      const fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
       if (sign) {
         postData_sign = sign[sign.length - 1];
         log.info(`获取Sign: ${postData_sign}`);
@@ -442,8 +449,8 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         } else {
           log.info("传入参数=>无密码");
         }
-        let kd = await this.getKNDS();
-        let ajaxmResponse = await httpx.post({
+        const kd = await this.getKNDS();
+        const ajaxmResponse = await httpx.post({
           url: this.router.root("ajaxm.php?file=" + fileId),
           responseType: "json",
           headers: {
@@ -458,10 +465,10 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         if (!ajaxmResponse.status) {
           return;
         }
-        let ajaxmResponseData = ajaxmResponse.data;
+        const ajaxmResponseData = ajaxmResponse.data;
         log.info(ajaxmResponseData);
 
-        let json_data = utils.toJSON(ajaxmResponseData.responseText);
+        const json_data = utils.toJSON(ajaxmResponseData.responseText);
         let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
         if (
           typeof json_data["url"] === "string" &&
@@ -471,11 +478,11 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           downloadUrl = json_data["url"];
         }
         /* json_data["zt"]表示状态，一般为1 */
-        let zt = json_data["zt"];
+        const zt = json_data["zt"];
         /* json_data["inf"]一般是文件名，也可以看作是请求信息提示 */
         if ("密码不正确".indexOf(json_data["inf"]) != -1) {
           Qmsg.error("密码不正确!");
-          let newAccessCodeInfo = await new Promise<
+          const newAccessCodeInfo = await new Promise<
             | undefined
             | {
                 accessCode: AccessCodeNonNullType;
@@ -501,8 +508,8 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
             return;
           }
           accessCode = newAccessCodeInfo.accessCode;
-          let url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
-          let newResponseData = await this.getPageInfo(url);
+          const url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+          const newResponseData = await this.getPageInfo(url);
           if (!newResponseData) {
             return;
           }
@@ -519,7 +526,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       } else {
         let loadDownHost = pageText.match(this.regexp.loadDownHost.match);
         let loadDown = pageText.match(this.regexp.loadDown.match);
-        let appleDownMatch = pageText.match(this.regexp.appleDown.match)!;
+        const appleDownMatch = pageText.match(this.regexp.appleDown.match)!;
         let appleDown = appleDownMatch[appleDownMatch.length - 1];
         if (utils.isNull(loadDown)) {
           loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
@@ -542,7 +549,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           });
           return;
         }
-        let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${loadDown[loadDown.length - 1]}`;
+        const downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${loadDown[loadDown.length - 1]}`;
 
         fileDownloadInfo = {
           fileName,
@@ -563,7 +570,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    * 获取链接页面的信息
    */
   async getPageInfo(url: string) {
-    let response = await httpx.get({
+    const response = await httpx.get({
       url: url,
       headers: {
         Accept: "*/*",
@@ -587,7 +594,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       }
       return;
     }
-    let responseText = response.data.responseText;
+    const responseText = response.data.responseText;
     if (utils.isNull(responseText)) {
       log.error(response);
       Qmsg.error("获取网页内容为空");
@@ -606,7 +613,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    * + false 已失效
    */
   checkPageCode(responseData: HttpxResponseData<any>): boolean {
-    let pageText = responseData.responseText;
+    const pageText = responseData.responseText;
     if (pageText.match(this.regexp.noFile.match)) {
       Qmsg.error(this.regexp.noFile.tip);
       return false;
@@ -633,7 +640,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    * + false 单文件
    */
   isMoreFile(responseData: HttpxResponseData<any>) {
-    let pageText = responseData.responseText;
+    const pageText = responseData.responseText;
     if (pageText.match(this.regexp.moreFile.match)) {
       log.info("该链接为多文件");
       return true;
@@ -661,24 +668,24 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       }
     | undefined
   > {
-    let url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
-    let pageInfoResponse = await this.getPageInfo(url);
+    const url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+    const pageInfoResponse = await this.getPageInfo(url);
     if (!pageInfoResponse) {
       return;
     }
-    let pageText = pageInfoResponse.responseText;
-    let pageDoc = DOMUtils.toElement(pageText, true, true);
-    let folders = Array.from(pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]"))
+    const pageText = pageInfoResponse.responseText;
+    const pageDoc = DOMUtils.toElement(pageText, true, true);
+    const folders = Array.from(pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]"))
       .map(($link) => {
-        let url = $link.href;
-        let urlInst = new URL(url);
-        let shareCodeMatch = urlInst.pathname.match(/^\/([0-9a-zA-Z]{5,})/);
+        const url = $link.href;
+        const urlInst = new URL(url);
+        const shareCodeMatch = urlInst.pathname.match(/^\/([0-9a-zA-Z]{5,})/);
         if (shareCodeMatch == null) {
           return;
         }
-        let __shareCode__ = shareCodeMatch[shareCodeMatch.length - 1];
-        let $filename = $link.querySelector(".filename");
-        let filename = $filename?.firstChild?.textContent || "";
+        const __shareCode__ = shareCodeMatch[shareCodeMatch.length - 1];
+        const $filename = $link.querySelector(".filename");
+        const filename = $filename?.firstChild?.textContent || "";
         return {
           url: url,
           shareCode: __shareCode__,
@@ -690,17 +697,17 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
 
     let infos;
     // 不管存不存在普通文件，都需要请求一下重新获取信息
-    let fid = pageText.match(/\'fid\':(.+?),/)![1].replaceAll("'", "");
-    let uid = pageText.match(/\'uid\':(.+?),/)![1].replaceAll("'", "");
-    let pgs = 1;
-    let t_name = pageText.match(/\'t\':(.+?),/)![1];
-    let t_rexp = new RegExp(t_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
-    let t = pageText.match(t_rexp)![2];
-    let k_name = pageText.match(/\'k\':(.+?),/)![1];
-    let k_rexp = new RegExp(k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
-    let k = pageText.match(k_rexp)![2];
-    let lx = shareCode.match(this.regexp.unicode.match) ? 1 : 2;
-    let json_data = await this.fileMoreAjax(shareCode, accessCode, {
+    const fid = pageText.match(/\'fid\':(.+?),/)![1].replaceAll("'", "");
+    const uid = pageText.match(/\'uid\':(.+?),/)![1].replaceAll("'", "");
+    const pgs = 1;
+    const t_name = pageText.match(/\'t\':(.+?),/)![1];
+    const t_rexp = new RegExp(t_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
+    const t = pageText.match(t_rexp)![2];
+    const k_name = pageText.match(/\'k\':(.+?),/)![1];
+    const k_rexp = new RegExp(k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
+    const k = pageText.match(k_rexp)![2];
+    const lx = shareCode.match(this.regexp.unicode.match) ? 1 : 2;
+    const json_data = await this.fileMoreAjax(shareCode, accessCode, {
       lx: lx,
       fid: fid,
       uid: uid,
@@ -719,7 +726,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           error = text as string;
         } else if (info?.includes("密码不正确")) {
           Qmsg.error("密码不正确!");
-          let newAccessCodeInfo = await new Promise<
+          const newAccessCodeInfo = await new Promise<
             | undefined
             | {
                 accssCode: AccessCodeNonNullType;
@@ -758,7 +765,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     if (typeof error === "string") {
       log.error(error);
     }
-    let result = {
+    const result = {
       folders: folders,
       infos: infos,
     };

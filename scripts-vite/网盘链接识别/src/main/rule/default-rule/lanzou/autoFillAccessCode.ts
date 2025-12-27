@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -12,11 +12,8 @@ export const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo: NetDiskAu
       Qmsg.success("自动填充访问码");
       $input.value = netDiskInfo.accessCode;
       DOMUtils.emit($input, "input");
-      (
-        document.querySelector<HTMLElement>("#passwddiv div.passwddiv-input > div") ||
-        ($input.nextElementSibling as HTMLElement)
-      )?.click();
-      document.querySelector<HTMLElement>("#sub")?.click();
+      ($<HTMLElement>("#passwddiv div.passwddiv-input > div") || ($input.nextElementSibling as HTMLElement))?.click();
+      $<HTMLElement>("#sub")?.click();
     });
     DOMUtils.waitNode<HTMLInputElement>("#f_pwd").then((element) => {
       utils.mutationObserver(element, {
@@ -25,17 +22,16 @@ export const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo: NetDiskAu
           attributeFilter: ["style"],
         },
         callback: (mutations, observer) => {
-          let inputElement = document.querySelector<HTMLInputElement>("#f_pwd #pwd")!;
-          if (!utils.isVisible(inputElement)) {
+          const $input = $<HTMLInputElement>("#f_pwd #pwd")!;
+          if (!utils.isVisible($input)) {
             log.error("输入框不可见，不输入密码");
             return;
           }
           observer.disconnect();
-          log.success("自动填充访问码并关闭观察者");
           Qmsg.success("自动填充访问码");
-          inputElement.value = netDiskInfo.accessCode;
-          DOMUtils.emit(inputElement, "input");
-          document.querySelector<HTMLElement>("#f_pwd #sub")?.click();
+          $input.value = netDiskInfo.accessCode;
+          DOMUtils.emit($input, "input");
+          $<HTMLElement>("#f_pwd #sub")?.click();
         },
       });
     });

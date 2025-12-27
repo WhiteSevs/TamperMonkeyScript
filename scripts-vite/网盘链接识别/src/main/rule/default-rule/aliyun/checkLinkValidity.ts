@@ -1,14 +1,11 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "@/main/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskCheckLinkValidityRequestOption } from "@/main/check-valid/NetDiskCheckLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { shareCode } = netDiskInfo;
-    let response = await httpx.post(
+    const response = await httpx.post(
       "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" + shareCode,
       {
         data: JSON.stringify({
@@ -24,7 +21,7 @@ export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceIn
         ...NetDiskCheckLinkValidityRequestOption,
       }
     );
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!response.status && utils.isNull(data)) {
       return {
         ...NetDiskCheckLinkValidityStatus.networkError,

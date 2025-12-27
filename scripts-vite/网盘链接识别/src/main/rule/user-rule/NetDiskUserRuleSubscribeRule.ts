@@ -50,7 +50,6 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
           continue;
         }
         // 赋值订阅的uuid
-        // @ts-ignore
         subscribeRuleData.subscribeUUID = subscribeItem.uuid;
         allSubscribeRule.push(subscribeRuleData);
       }

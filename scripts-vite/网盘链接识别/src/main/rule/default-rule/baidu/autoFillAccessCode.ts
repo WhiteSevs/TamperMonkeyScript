@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -16,7 +16,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
       Qmsg.success("自动填充访问码");
       $ele.value = netDiskInfo.accessCode;
       DOMUtils.emit($ele, "input");
-      document.querySelector<HTMLElement>("div.verify-form #submitBtn")?.click();
+      $<HTMLElement>("div.verify-form #submitBtn")?.click();
     });
   }
   if (
@@ -35,7 +35,7 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
       Qmsg.success("自动填充访问码");
       $input.value = netDiskInfo.accessCode;
       DOMUtils.emit($input, "input");
-      document.querySelector<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
+      $<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
     });
   }
 };

@@ -193,7 +193,7 @@ export const NetDiskWorker = {
       log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
     } catch (error: any) {
       this.workerInitError = error;
-      // @ts-ignore
+      // @ts-expect-error
       NetDiskWorker.GM_matchWorker = {
         postMessage(data: NetDiskWorkerOptions) {
           return new Promise((resolve, reject) => {

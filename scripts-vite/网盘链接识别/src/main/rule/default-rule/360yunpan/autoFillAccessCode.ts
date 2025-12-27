@@ -13,7 +13,7 @@ export const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo: NetDis
       Qmsg.success("自动填充访问码");
       $el.value = netDiskInfo.accessCode;
       DOMUtils.emit($el, "input");
-      let $submit = $<HTMLInputElement>("#extract-bg-container input.submit-btn");
+      const $submit = $<HTMLInputElement>("#extract-bg-container input.submit-btn");
       $submit?.click();
     });
 
@@ -28,7 +28,7 @@ export const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo: NetDis
       Qmsg.success("自动填充访问码");
       $el.value = netDiskInfo.accessCode;
       DOMUtils.emit($el, "input");
-      let $submit = $<HTMLInputElement>("#extractForm input.submit-btn");
+      const $submit = $<HTMLInputElement>("#extractForm input.submit-btn");
       $submit?.click();
     });
   }

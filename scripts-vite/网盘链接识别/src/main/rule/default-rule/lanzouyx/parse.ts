@@ -1,10 +1,10 @@
-import { httpx, log, utils, Cryptojs } from "@/env";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import Qmsg from "qmsg";
+import { Cryptojs, httpx, log, utils } from "@/env";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import Qmsg from "qmsg";
 
 const LanZouUtils = {
   LanZouDiskApp: "lanZouY-disk-app",
@@ -92,27 +92,20 @@ const LanZouUtils = {
     return n;
   },
   encrypt(e: any) {
-    // @ts-ignore
     const t = Cryptojs.enc.Utf8.parse(this.LanZouDiskApp),
-      // @ts-ignore
       n = Cryptojs.enc.Utf8.parse(e),
-      // @ts-ignore
       r = Cryptojs.AES.encrypt(n, t, {
-        // @ts-ignore
         mode: Cryptojs.mode.ECB,
-        // @ts-ignore
         padding: Cryptojs.pad.Pkcs7,
       });
     return r;
   },
   /**
    * 用于时间戳转加密字符串
-   * @param {any} e
-   * @returns
+   * @param e
    */
   encryptHex(e: any) {
-    // @ts-ignore
-    const t = this.encrypt(e, this.LanZouDiskApp);
+    const t = this.encrypt(e);
     return t.ciphertext.toString().toUpperCase();
   },
 };
@@ -143,10 +136,11 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
     const that = this;
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.shareCodeId = this.getDecodeShareCodeId(shareCode);
     this.uuid = this.getEncodeUUID();
-    let linkInfo = await this.recommendList(
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const linkInfo = await this.recommendList(
       this.$data.devType,
       this.$data.devModel,
       this.uuid,
@@ -157,25 +151,25 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
       this.$data.offset,
       this.$data.limit
     );
-    if (!linkInfo) {
-      return;
-    }
-    if (!linkInfo["list"].length) {
+    if (!linkInfo || !linkInfo["list"].length) {
+      $loading.close();
       return;
     }
     if (linkInfo["list"][0]?.["map"]?.["userId"]) {
       this.userId = linkInfo["list"][0]?.["map"]?.["userId"];
     } else {
+      $loading.close();
       Qmsg.error("解析获取【userId】为空");
       return;
     }
     if (linkInfo["list"][0]["folderIds"] == null) {
-      /* 单文件 */
+      // 单文件
       log.success("该链接是 单文件");
       let fileInfo = linkInfo["list"][0]["fileList"][0];
       let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
-      /* 获取文件下载信息 */
-      // @ts-ignore
+      // 获取文件下载信息
+      $loading.setText("正在获取下载链接...");
+      // @ts-expect-error
       let downloadInfo = await folderInfoList[0]["clickEvent"]();
       if (downloadInfo && !Array.isArray(downloadInfo)) {
         let downloadUrl = downloadInfo["url"];
@@ -194,13 +188,12 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
     } else {
       /* 多文件 */
       log.success("该链接是 多文件");
-      Qmsg.info("正在递归文件");
-      let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-      let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
-      QmsgLoading.close();
+      $loading.setText("正在解析多文件...");
+      const folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
       log.info("递归完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("蓝奏云优享解析", folderInfoList);
     }
+    $loading.close();
   }
   /**
    * 获取直链弹窗的文件夹信息
@@ -255,9 +248,9 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
           isFolder: false,
           index: index,
           async clickEvent() {
-            let fileId = item["fileId"];
-            let userId = item["userId"] || that.userId;
-            let uuid = that.uuid;
+            const fileId = item["fileId"];
+            const userId = item["userId"] || that.userId;
+            const uuid = that.uuid;
             if (utils.isNull(userId)) {
               Qmsg.error("获取【userId】为空");
               return;
@@ -266,10 +259,12 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
               Qmsg.error("获取【uuid】为空");
               return;
             }
+            const $loading = Qmsg.loading("正在获取下载链接...");
             let downloadUrl = await that.getDownloadFileUrl(
-              // @ts-ignore
+              // @ts-expect-error
               ...that.getDownloadFileParams(fileId, userId, uuid)
             );
+            $loading.close();
             if (downloadUrl) {
               if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);

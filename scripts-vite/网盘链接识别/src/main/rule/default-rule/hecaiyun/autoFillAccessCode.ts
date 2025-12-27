@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
@@ -13,7 +13,8 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
       DOMUtils.emit(element, "input");
-      document.querySelector<HTMLElement>("#homepage div.token div.token-form a")!.click();
+
+      $<HTMLElement>("#homepage div.token div.token-form a")!.click();
     });
     /* 移动端 */
     DOMUtils.waitNode<HTMLInputElement>("#app div.token-form input[type=text]").then((element) => {
@@ -24,7 +25,8 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
       DOMUtils.emit(element, "input");
-      document.querySelector<HTMLElement>("div.token-form a.btn-token")!.click();
+
+      $<HTMLElement>("div.token-form a.btn-token")!.click();
     });
   }
 };

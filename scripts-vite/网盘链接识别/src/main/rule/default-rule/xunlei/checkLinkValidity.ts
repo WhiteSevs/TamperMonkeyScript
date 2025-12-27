@@ -1,15 +1,12 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let postResponse = await httpx.post("https://xluser-ssl.xunlei.com/v1/shield/captcha/init", {
+    const response = await httpx.post("https://xluser-ssl.xunlei.com/v1/shield/captcha/init", {
       data: JSON.stringify({
         client_id: "Xqp0kJBXWhwaTpB6",
         device_id: "925b7631473a13716b791d7f28289cad",
@@ -34,15 +31,15 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
       },
       ...NetDiskCheckLinkValidityRequestOption,
     });
-    if (!postResponse.status && utils.isNull(postResponse.data.responseText)) {
+    if (!response.status && utils.isNull(response.data.responseText)) {
       return {
         ...NetDiskCheckLinkValidityStatus.networkError,
-        data: postResponse,
+        data: response,
       };
     }
-    let postResponseData = utils.toJSON(postResponse.data.responseText);
-    let token = postResponseData["captcha_token"];
-    let getResponse = await httpx.get("https://api-pan.xunlei.com/drive/v1/share?share_id=" + shareCode, {
+    const postResponseData = utils.toJSON(response.data.responseText);
+    const token = postResponseData["captcha_token"];
+    const shareResponse = await httpx.get("https://api-pan.xunlei.com/drive/v1/share?share_id=" + shareCode, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "pan.xunlei.com",
@@ -60,13 +57,13 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
       ...NetDiskCheckLinkValidityRequestOption,
     });
 
-    if (!getResponse.status && utils.isNull(getResponse.data.responseText)) {
+    if (!shareResponse.status && utils.isNull(shareResponse.data.responseText)) {
       return {
         ...NetDiskCheckLinkValidityStatus.networkError,
-        data: [postResponse, getResponse],
+        data: [response, shareResponse],
       };
     }
-    let responseText = getResponse.data.responseText;
+    let responseText = shareResponse.data.responseText;
     if (
       responseText.includes("NOT_FOUND") ||
       responseText.includes("SENSITIVE_RESOURCE") ||
@@ -75,17 +72,17 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
     ) {
       return {
         ...NetDiskCheckLinkValidityStatus.failed,
-        data: getResponse,
+        data: shareResponse,
       };
     } else if (responseText.includes("PASS_CODE_EMPTY")) {
       return {
         ...NetDiskCheckLinkValidityStatus.needAccessCode,
-        data: getResponse,
+        data: shareResponse,
       };
     }
     return {
       ...NetDiskCheckLinkValidityStatus.success,
-      data: getResponse,
+      data: shareResponse,
     };
   },
 };

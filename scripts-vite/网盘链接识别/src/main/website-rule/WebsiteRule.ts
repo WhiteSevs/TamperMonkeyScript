@@ -30,11 +30,11 @@ function deepCopy<T>(obj: T): T {
   let copy = Array.isArray(obj) ? [] : {};
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      // @ts-ignore
+      // @ts-expect-error
       copy[key] = deepCopy(obj[key]);
     }
   }
-  // @ts-ignore
+  // @ts-expect-error
   return copy;
 }
 

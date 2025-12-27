@@ -15,38 +15,43 @@ export class NetDiskParse_UC extends ParseFileCore {
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
     const that = this;
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 
-    Qmsg.info("检查是否已登录UC网盘");
-    let loginStatus = await this.isLogin();
+    const $loading = Qmsg.loading("正在检查是否已登录UC网盘...");
+    const loginStatus = await this.isLogin();
     if (!Boolean(loginStatus)) {
+      $loading.close();
       this.gotoLogin(
         "检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
       );
       return;
     }
-    let stoken = await this.getStoken(this.shareCode, this.accessCode);
+    $loading.setText("正在获取UC网盘的stoken...");
+    const stoken = await this.getStoken(this.shareCode, this.accessCode);
     if (!stoken) {
+      $loading.close();
       return;
     }
-    let detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
+    $loading.setText("正在解析文件列表...");
+    const detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
     if (!detail) {
+      $loading.close();
       Qmsg.error("UC网盘：获取detail失败");
       return;
     }
     if (detail.length === 1 && detail[0].dir == false && detail[0].file_type === 1) {
-      let oneFileDetail = detail[0];
-      let oneFileDownloadDetail = await this.getDownload(
+      // 单文件
+      $loading.setText("正在获取下载链接...");
+      const oneFileDetail = detail[0];
+      const oneFileDownloadDetail = await this.getDownload(
         this.shareCode,
         stoken,
         oneFileDetail.fid,
         oneFileDetail.share_fid_token
       );
-      if (!oneFileDownloadDetail) {
-        return;
-      }
-      if (!oneFileDownloadDetail[0].download_url) {
-        Qmsg.error("获取download_url失败");
+      if (!oneFileDownloadDetail || !oneFileDownloadDetail[0].download_url) {
+        $loading.close();
+        Qmsg.error("获取单文件download_url失败");
         return;
       }
       NetDiskView.$inst.linearChainDialogView.oneFile({
@@ -61,29 +66,30 @@ export class NetDiskParse_UC extends ParseFileCore {
         },
       });
     } else {
-      Qmsg.info("正在递归文件");
-      let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-      let folderInfoList = this.getFolderInfo(detail, stoken, 0);
-      QmsgLoading.close();
+      /* 多文件 */
+      log.success("该链接是 多文件");
+      $loading.setText("正在解析多文件...");
+      const folderInfoList = this.getFolderInfo(detail, stoken, 0);
       log.info("递归完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("UC网盘文件解析", folderInfoList);
       return;
     }
+    $loading.close();
   }
   /**
    * 判断是否已登录UC网盘
    */
   async isLogin() {
-    let getResp = await httpx.get("https://drive.uc.cn/", {
+    const response = await httpx.get("https://drive.uc.cn/", {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
       },
     });
-    log.success("判断是否已登录UC网盘", getResp);
-    if (!getResp.status) {
+    log.success("判断是否已登录UC网盘", response);
+    if (!response.status) {
       return;
     }
-    if (getResp.data.finalUrl === "https://drive.uc.cn/list") {
+    if (response.data.finalUrl === "https://drive.uc.cn/list") {
       return "已登录";
     } else {
       return false;
@@ -104,7 +110,6 @@ export class NetDiskParse_UC extends ParseFileCore {
       Qmsg.error("当前脚本环境不支持API 【GM_download】");
       return;
     }
-    Qmsg.info(`调用【GM_download】下载：${fileName}`);
     /** 取消下载函数 */
     let abortDownload: null | Function = null;
     /** 是否成功下载 */
@@ -262,7 +267,7 @@ export class NetDiskParse_UC extends ParseFileCore {
     _fetch_share = 0,
     _fetch_total = 1
   ): Promise<any> {
-    let response = await httpx.get(
+    const response = await httpx.get(
       `https://pc-api.uc.cn/1/clouddrive/transfer_share/detail?pr=UCBrowser&fr=h5&pwd_id=${pwd_id}&__t=${new Date().getTime()}&passcode=${passcode}&stoken=${encodeURIComponent(
         stoken
       )}&pdir_fid=${pdir_fid}&force=${force}&_page=${_page}&_size=${_size}&_fetch_banner=${_fetch_banner}&_fetch_share=${_fetch_share}&_fetch_total=${_fetch_total}&_sort=${encodeURIComponent(
@@ -280,14 +285,14 @@ export class NetDiskParse_UC extends ParseFileCore {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     log.info("获取detail：", data);
     if (data["code"] !== 0) {
       log.error("获取detail失败", data);
       Qmsg.error("获取detail失败");
       return;
     }
-    let metadata = data["metadata"];
+    const metadata = data["metadata"];
     if (metadata && metadata["_total"] && metadata["_total"] > metadata["_size"]) {
       // 文件的总数量超过默认的值
       return await this.getDetail(
@@ -417,8 +422,10 @@ export class NetDiskParse_UC extends ParseFileCore {
           isFolder: false,
           index: index,
           async clickEvent() {
+            const $loading = Qmsg.loading("正在获取下载链接...");
             let fileDownloadUrl = "";
             let fileDownloadUrlInfo = await that.getDownload(that.shareCode, stoken, item.fid, item.share_fid_token);
+            $loading.close();
             if (fileDownloadUrlInfo) {
               if (fileDownloadUrlInfo.length) {
                 fileDownloadUrl = fileDownloadUrlInfo[0].download_url;

@@ -149,7 +149,7 @@ export const NetDiskLinkView = {
         NetDiskView.$inst.suspension.init();
       } else {
         NetDiskView.$el.$linkView.close();
-        // @ts-ignore
+        // @ts-expect-error
         NetDiskView.$el.$linkView = void 0;
       }
     };
@@ -182,7 +182,7 @@ export const NetDiskLinkView = {
             // 没有遮罩层
             enable: false,
           },
-          // @ts-ignore
+          // @ts-expect-error
           animation: "",
           beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
             let $headerControl = $shadowRoot.querySelector<HTMLElement>(".pops-header-control")!;

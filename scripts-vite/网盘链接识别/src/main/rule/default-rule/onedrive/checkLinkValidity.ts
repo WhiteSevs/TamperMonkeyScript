@@ -1,29 +1,29 @@
 import { DOMUtils, httpx, utils } from "@/env";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let url = NetDiskLinkClickModeUtils.getBlankUrl({
+    const url = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName: "onedrive",
       ruleIndex,
       shareCode,
       accessCode,
     });
-    let urlObj = new URL(url);
-    let response = await httpx.get(url, {
+    const urlInst = new URL(url);
+    const response = await httpx.get(url, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
-        Host: urlObj.hostname,
+        Host: urlInst.hostname,
         Referer: url,
-        Origin: urlObj.origin,
+        Origin: urlInst.origin,
       },
       ...NetDiskCheckLinkValidityRequestOption,
     });
     if (!response.status) {
-      let status = response.data?.status?.toString();
+      const status = response.data?.status?.toString();
       if (status === "429") {
         return {
           ...NetDiskCheckLinkValidityStatus.networkError,
@@ -40,13 +40,13 @@ export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntrance
         data: response,
       };
     }
-    let responseText = response.data.responseText;
+    const responseText = response.data.responseText;
     if (utils.isNotNull(responseText)) {
       try {
-        let respDOM = DOMUtils.toElement(responseText, true, true);
-        let $title = respDOM.querySelector("title");
+        const responseDocument = DOMUtils.toElement(responseText, true, true);
+        const $title = responseDocument.querySelector("title");
         if ($title) {
-          let title = DOMUtils.html($title);
+          const title = DOMUtils.html($title);
           if (title.includes("错误")) {
             return {
               ...NetDiskCheckLinkValidityStatus.failed,

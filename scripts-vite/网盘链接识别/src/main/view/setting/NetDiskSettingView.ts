@@ -18,10 +18,10 @@ export const NetDiskSettingView = {
       return;
     }
     // 规则的设置
-    let ruleContent = NetDiskRule.getRulePanelContent();
+    const ruleContent = NetDiskRule.getRulePanelContent();
     // 总设置
-    let content = [...PanelContent.getConfig(0), ...ruleContent, ...PanelContent.getDefaultBottomContentConfig()];
-    let $panel = NetDiskPops.panel(
+    const content = [...PanelContent.getConfig(0), ...ruleContent, ...PanelContent.getDefaultBottomContentConfig()];
+    const $panel = NetDiskPops.panel(
       {
         title: {
           text: `${GM_info?.script?.name || SCRIPT_NAME}-设置`,
@@ -33,7 +33,7 @@ export const NetDiskSettingView = {
             enable: true,
             callback(event) {
               event.close();
-              // @ts-ignore
+              // @ts-expect-error
               NetDiskView.$el.$settingView = void 0;
             },
           },
@@ -41,7 +41,7 @@ export const NetDiskSettingView = {
         mask: {
           clickCallBack(originalRun) {
             originalRun();
-            // @ts-ignore
+            // @ts-expect-error
             NetDiskView.$el.$settingView = void 0;
           },
         },
@@ -72,10 +72,10 @@ export const NetDiskSettingView = {
    */
   setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot | HTMLElement) {
     DOMUtils.on($shadowRoot, "click", ".netdisk-custom-rule-edit", function (event) {
-      let $click = event.target as HTMLElement;
-      let ruleKey = $click.getAttribute("data-key")!;
-      let ruleName = $click.getAttribute("data-type")!;
-      let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
+      const $click = event.target as HTMLElement;
+      const ruleKey = $click.getAttribute("data-key")!;
+      const ruleName = $click.getAttribute("data-type")!;
+      const subscribeUUID = $click.getAttribute("data-subscribe-uuid");
       if (typeof subscribeUUID === "string" && subscribeUUID.trim() !== "") {
         // 来自订阅的规则
         NetDiskUserRuleUI.showSubscribe(subscribeUUID, ruleKey, function (rule) {
@@ -87,10 +87,10 @@ export const NetDiskSettingView = {
     });
 
     DOMUtils.on($shadowRoot, "click", ".netdisk-custom-rule-delete", function (event) {
-      let $click = event.target as HTMLElement;
-      let ruleKey = $click.getAttribute("data-key")!;
-      let ruleName = $click.getAttribute("data-type")!;
-      let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
+      const $click = event.target as HTMLElement;
+      const ruleKey = $click.getAttribute("data-key")!;
+      const ruleName = $click.getAttribute("data-type")!;
+      const subscribeUUID = $click.getAttribute("data-subscribe-uuid");
       NetDiskPops.alert({
         title: {
           text: "提示",
@@ -110,17 +110,17 @@ export const NetDiskSettingView = {
                 flag = NetDiskUserRule.deleteRule(ruleKey);
               }
               if (flag) {
-                let asideElement = NetDiskView.$el.$settingView.$shadowRoot.querySelector<HTMLLIElement>(
+                const $aside = NetDiskView.$el.$settingView.$shadowRoot.querySelector<HTMLLIElement>(
                   `.pops-panel-aside > ul > li[data-key="${ruleKey}"]`
                 )!;
-                let $prev = asideElement.previousElementSibling as HTMLElement;
-                let $next = asideElement.nextElementSibling as HTMLElement;
+                const $prev = $aside.previousElementSibling as HTMLElement;
+                const $next = $aside.nextElementSibling as HTMLElement;
                 if ($prev) {
                   $prev.click();
                 } else if ($next) {
                   $next.click();
                 }
-                asideElement?.remove();
+                $aside?.remove();
                 Qmsg.success("删除成功");
                 okEvent.close();
               } else {

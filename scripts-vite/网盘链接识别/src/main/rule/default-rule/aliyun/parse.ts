@@ -1,12 +1,12 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { NetDiskView } from "@/main/view/NetDiskView";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
+import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
-import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
-import { NetDiskView } from "@/main/view/NetDiskView";
-import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
-import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
 
 /**
  * 阿里云解析下载已失效
@@ -42,21 +42,22 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
         timeout: 10000,
         isHTML: true,
       });
-      DOMUtils.on($QmsgErrorTip.$el.$item.querySelector("a[href]"), "click", void 0, (event) => {
+      DOMUtils.on($QmsgErrorTip.$el.$item.querySelector("a[href]"), "click", (event) => {
         DOMUtils.preventEvent(event);
         NetDiskLinkClickMode.openBlankUrl(url, "aliyun", that.ruleIndex, that.shareCode, that.accessCode);
       });
       return;
     }
-    let detail = await this.list_by_share(shareCode, "root");
+    const $loading = Qmsg.loading("正在解析，请稍后...");
+    const detail = await this.list_by_share(shareCode, "root");
     if (!detail) {
+      $loading.close();
       return;
     }
-    Qmsg.info("正在解析链接");
-    let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-    let folderInfoList = that.getFolderInfo(detail, 0);
-    QmsgLoading.close();
+    $loading.setText("正在解析多文件...");
+    const folderInfoList = that.getFolderInfo(detail, 0);
     log.info("解析完毕");
+    $loading.close();
     NetDiskView.$inst.linearChainDialogView.moreFile("阿里云盘文件解析", folderInfoList);
   }
   /**
@@ -84,11 +85,8 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
   ) {
     const that = this;
     let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-    /**
-     * @type {PopsFolderDataConfig[]}
-     */
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
+    const tempFolderInfoList: PopsFolderDataConfig[] = [];
+    const tempFolderFileInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item: any) => {
       if (item.type !== "folder") {
         /* 文件 */
@@ -101,7 +99,9 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
           isFolder: false,
           index: index,
           async clickEvent() {
-            let fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
+            const $loading = Qmsg.loading("正在获取下载链接...");
+            const fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
+            $loading.close();
             if (!fileDownloadUrl) {
               return;
             }

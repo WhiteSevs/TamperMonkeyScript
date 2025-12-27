@@ -10,8 +10,8 @@ export class NetDiskParse_Chengtong extends ParseFileCore {
    */
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let ruleKeyName = "chengtong";
+    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+    const ruleKeyName = "chengtong";
     if (ruleIndex !== 3) {
       log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);
       NetDiskLinkViewEvent.netDiskUrlClickEvent({

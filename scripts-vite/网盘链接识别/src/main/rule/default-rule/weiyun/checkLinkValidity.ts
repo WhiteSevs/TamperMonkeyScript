@@ -1,21 +1,18 @@
 import { httpx, utils } from "@/env";
-import {
-  NetDiskCheckLinkValidity,
-  NetDiskCheckLinkValidityRequestOption,
-} from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    let url = NetDiskLinkClickModeUtils.getBlankUrl({
+    const url = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName: "weiyun",
       ruleIndex,
       shareCode,
       accessCode,
     });
-    let response = await httpx.get(url, {
+    const response = await httpx.get(url, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "share.weiyun.com",
@@ -31,7 +28,7 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceIn
         data: response,
       };
     }
-    let responseText = response.data.responseText;
+    const responseText = response.data.responseText;
     if (
       responseText.includes("已删除") ||
       responseText.includes("已被删除") ||
