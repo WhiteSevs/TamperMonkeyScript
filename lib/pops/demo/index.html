@@ -16,7 +16,7 @@
       <div class="pops-inst" data-type="folder" onclick="pops.folder()">pops.folder</div>
       <div class="pops-inst" data-type="iframe" onclick="pops.iframe()">pops.iframe</div>
       <div class="pops-inst" data-type="panel">pops.panel</div>
-      <div class="pops-inst" data-type="loading" onclick="pops.loading({mask:{clickEvent:{toClose:true}}})">
+      <div class="pops-inst" data-type="loading" onclick="pops.loading({ mask: { clickEvent: { toClose: true } } })">
         pops.loading
       </div>
       <div class="pops-inst" data-type="rightClickMenu" onclick="pops.rightClickMenu({})">pops.rightClickMenu</div>
@@ -24,12 +24,25 @@
       <div
         class="pops-inst"
         data-type="tooltip-always"
-        onclick="pops.tooltip({$target:this,position:'bottom',alwaysShow:true,isFixed:true})">
+        onclick="pops.tooltip({ $target: this, position: 'bottom', alwaysShow: true, isFixed: true })">
         pops.tooltip always
       </div>
       <div
         class="pops-inst"
-        onclick="pops.tooltip({$target:this,content: ()=> '不建议使用本功能，若文件过大下载完成后有可能不会弹出窗口，此时请换用“RPC 下载 + Mortix”的组合<br/>基于浏览器的 Blob 文件流下载文件，下载完成可自动命名，适用于较新的浏览器，可以在此窗口中显示下载剩余时间和下载速度，此方式下载不会被 IDM 捕获下载链接',position:'follow',alwaysShow:false,isFixed:false,showArrow:false,triggerShowEventName:'mouseenter touchstart mousemove touchmove',otherDistance: 18,className:'github-tooltip'})">
+        onclick="
+          pops.tooltip({
+            $target: this,
+            content: () =>
+              '不建议使用本功能，若文件过大下载完成后有可能不会弹出窗口，此时请换用“RPC 下载 + Mortix”的组合<br/>基于浏览器的 Blob 文件流下载文件，下载完成可自动命名，适用于较新的浏览器，可以在此窗口中显示下载剩余时间和下载速度，此方式下载不会被 IDM 捕获下载链接',
+            position: 'follow',
+            alwaysShow: false,
+            isFixed: false,
+            showArrow: false,
+            triggerShowEventName: 'mouseenter touchstart mousemove touchmove',
+            otherDistance: 18,
+            className: 'github-tooltip',
+          })
+        ">
         pops.tooltip follow
       </div>
       <div class="pops-inst" data-type="suggestion">

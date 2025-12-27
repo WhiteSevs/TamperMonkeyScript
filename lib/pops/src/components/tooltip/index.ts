@@ -358,9 +358,12 @@ export class ToolTip {
    * 取消绑定 显示事件
    */
   offShowEvent() {
-    popsDOMUtils.off(this.$data.config.$target, this.$data.config.onShowEventName, this.show, {
-      capture: true,
-    });
+    popsDOMUtils.off(
+      this.$data.config.$target,
+      this.$data.config.onShowEventName,
+      this.show,
+      this.$data.config.eventOption
+    );
   }
   /**
    * 关闭提示框
@@ -428,9 +431,12 @@ export class ToolTip {
    * 取消绑定 关闭事件
    */
   offCloseEvent() {
-    popsDOMUtils.off(this.$data.config.$target, this.$data.config.onCloseEventName, this.close, {
-      capture: true,
-    });
+    popsDOMUtils.off(
+      this.$data.config.$target,
+      this.$data.config.onCloseEventName,
+      this.close,
+      this.$data.config.eventOption
+    );
   }
   /**
    * 销毁元素
