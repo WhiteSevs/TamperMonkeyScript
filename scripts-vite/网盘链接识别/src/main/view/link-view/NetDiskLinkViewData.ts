@@ -1,7 +1,7 @@
-import type { LinkViewData } from "./NetDiskLinkView";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import utils from "@whitesev/utils";
+import type { LinkViewData } from "./NetDiskLinkView";
 
 export const NetDiskLinkViewData = {
   /**

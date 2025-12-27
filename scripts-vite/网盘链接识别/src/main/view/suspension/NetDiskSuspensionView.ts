@@ -1,13 +1,12 @@
 import { AnyTouch, log, utils } from "@/env";
-import { unsafeWindow } from "ViteGM";
+import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
+import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
+import { Panel } from "@components/setting/panel";
+import DOMUtils from "@whitesev/domutils";
+import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import { NetDiskView } from "../NetDiskView";
 import { NetDiskSettingView } from "../setting/NetDiskSettingView";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import indexCSS from "./index.css?raw";
-import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
-import DOMUtils from "@whitesev/domutils";
-import { Panel } from "@components/setting/panel";
-import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
 
 export const NetDiskSuspensionConfig = {
   position: {
@@ -84,48 +83,42 @@ export const NetDiskSuspension = {
    */
   createElement() {
     if (NetDiskGlobalData.suspension.size.value < 15) {
-      /* 大小不能小于 15px */
+      // 大小不能小于 15px
       NetDiskGlobalData.suspension.size.value = 15;
     }
     if (NetDiskGlobalData.suspension.size.value > 250) {
-      /* 大小不能大于 250px */
+      // 大小不能大于 250px
       NetDiskGlobalData.suspension.size.value = 250;
     }
     if (NetDiskGlobalData.suspension.opacity.value < 0.1) {
-      /* 透明度不能小于 0.1 */
+      // 透明度不能小于 0.1
       NetDiskGlobalData.suspension.opacity.value = 0.1;
     }
     if (NetDiskGlobalData.suspension.opacity.value > 1.0) {
-      /* 透明度不能大于 1.0 */
+      // 透明度不能大于 1.0
       NetDiskGlobalData.suspension.opacity.value = 1.0;
     }
-    let $shadowContainer = DOMUtils.createElement("div", {
+    const $shadowContainer = DOMUtils.createElement("div", {
       className: "whitesev-suspension-shadow-container",
     });
-    let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-    this.$el.$suspension = DOMUtils.createElement(
-      "div",
-      {
-        id: "whitesevSuspensionId",
-        className: "whitesevSuspension",
-        innerHTML: /*html*/ `
-					<style type="text/css">${indexCSS}</style>
-					<style type="text/css" data-z-index></style>
-					<div class="whitesevSuspensionMain">
-						<div class="whitesevSuspensionFloor">
-							<div class="netdisk"></div>
-						</div>
-					</div>
-                `,
-      },
-      {
-        style: `
-                    width: ${NetDiskGlobalData.suspension.size.value}px;
-                    height: ${NetDiskGlobalData.suspension.size.value}px;
-                    opacity: ${NetDiskGlobalData.suspension.opacity.value}
-                `,
-      }
-    );
+    const $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+    this.$el.$suspension = DOMUtils.createElement("div", {
+      id: "whitesevSuspensionId",
+      className: "whitesevSuspension",
+      innerHTML: /*html*/ `
+      <style type="text/css">${indexCSS}</style>
+      <style type="text/css" data-z-index></style>
+      <div class="whitesevSuspensionMain">
+        <div class="whitesevSuspensionFloor">
+          <div class="netdisk"></div>
+        </div>
+      </div>`,
+    });
+    DOMUtils.css(this.$el.$suspension, {
+      width: `${NetDiskGlobalData.suspension.size.value}px`,
+      height: `${NetDiskGlobalData.suspension.size.value}px`,
+      opacity: `${NetDiskGlobalData.suspension.opacity.value}`,
+    });
     this.$el.$suspensionZIndexStyle = this.$el.$suspension.querySelector<HTMLStyleElement>("style[data-z-index]")!;
     $shadowRoot.appendChild(this.$el.$suspension);
     (document.body || document.documentElement).appendChild($shadowContainer);
@@ -134,19 +127,19 @@ export const NetDiskSuspension = {
    * 设置 悬浮按钮所有事件
    */
   setAllEvent() {
-    let that = this;
-    let needDragElement = NetDiskView.$inst.suspension.$el.$suspension;
-    let dragNode = new AnyTouch(needDragElement);
+    const that = this;
+    const needDragElement = NetDiskView.$inst.suspension.$el.$suspension;
+    const $drag = new AnyTouch(needDragElement);
     let netDiskLinkViewTimer: number | undefined = void 0;
     let moveFlag = false;
-    /* 是否是双击 */
+    // 是否是双击
     let isDouble = false;
-    /* 点击元素，left偏移 */
+    // 点击元素，left偏移
     let clickElementLeftOffset = 0;
-    /* 点击元素，top偏移 */
+    // 点击元素，top偏移
     let clickElementTopOffset = 0;
-    /* 设置悬浮按钮 按下事件 */
-    dragNode.on("pan", function (event) {
+    // 设置悬浮按钮 按下事件
+    $drag.on("pan", function (event) {
       if (!moveFlag) {
         moveFlag = true;
         let rect = needDragElement.getBoundingClientRect();
@@ -164,24 +157,24 @@ export const NetDiskSuspension = {
       }
       // 移动
       if (event.phase === "move") {
-        /* 悬浮按钮大小不能超过250px */
-        /* left偏移最大值 */
-        let maxLeftOffset = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-        /* top偏移的最大值 */
-        let maxTopOffset = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
-        /* 当前移动的left偏移 */
+        // 悬浮按钮大小不能超过250px
+        // left偏移最大值
+        const maxLeftOffset = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
+        // top偏移的最大值
+        const maxTopOffset = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
+        // 当前移动的left偏移
         let currentSuspensionLeftOffset = event.x - clickElementLeftOffset;
-        /* 当前移动的top偏移 */
+        // 当前移动的top偏移
         let currentSuspensionTopOffset = event.y - clickElementTopOffset;
-        /* 不允许超过窗口最大宽度 */
+        // 不允许超过窗口最大宽度
         currentSuspensionLeftOffset =
           currentSuspensionLeftOffset > maxLeftOffset ? maxLeftOffset : currentSuspensionLeftOffset;
-        /* 不允许超过窗口最大高度 */
+        // 不允许超过窗口最大高度
         currentSuspensionTopOffset =
           currentSuspensionTopOffset > maxTopOffset ? maxTopOffset : currentSuspensionTopOffset;
-        /* 不允许小于0 */
+        // 不允许小于0
         currentSuspensionLeftOffset = currentSuspensionLeftOffset < 0 ? 0 : currentSuspensionLeftOffset;
-        /* 不允许小于0 */
+        // 不允许小于0
         currentSuspensionTopOffset = currentSuspensionTopOffset < 0 ? 0 : currentSuspensionTopOffset;
         NetDiskSuspension.savePosition({
           x: currentSuspensionLeftOffset,
@@ -199,13 +192,13 @@ export const NetDiskSuspension = {
         DOMUtils.css(needDragElement, {
           cursor: "auto",
         });
-        /* 获取当前悬浮按钮left偏移 */
-        let currentSuspensionLeftOffset = parseInt(DOMUtils.css(needDragElement, "left"));
+        // 获取当前悬浮按钮left偏移
+        const currentSuspensionLeftOffset = parseInt(DOMUtils.css(needDragElement, "left"));
         if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value) {
           let setCSSLeft = 0;
-          /* 判断悬浮按钮是否在右边区域 */
+          // 判断悬浮按钮是否在右边区域
           if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
-            /* 设置悬浮按钮的left偏移 */
+            // 设置悬浮按钮的left偏移
             setCSSLeft = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
             if (Panel.isTopWindow()) {
               NetDiskSuspensionConfig.position.isRight.value = true;
@@ -229,13 +222,13 @@ export const NetDiskSuspension = {
         that.updateZIndex();
       }
     });
-    /* 设置悬浮按钮 点击/按下事件 */
-    dragNode.on("tap", function (event) {
+    // 设置悬浮按钮 点击/按下事件
+    $drag.on("tap", function (event) {
       clearTimeout(netDiskLinkViewTimer);
       netDiskLinkViewTimer = void 0;
       if (isDouble) {
         isDouble = false;
-        /* 判定为双击 */
+        // 判定为双击
         NetDiskSettingView.show();
       } else {
         netDiskLinkViewTimer = setTimeout(() => {
@@ -255,26 +248,29 @@ export const NetDiskSuspension = {
    * 设置window的resize事件监听，来重新设置悬浮按钮的位置
    */
   setResizeEventListener() {
-    let isMobileInputKeyboard = ($el: Element | null | undefined) => {
+    /**
+     * 判断是否是移动端输入框触发的
+     */
+    const isMobileInputKeyboard = ($el: Element | null | undefined) => {
       const localName = $el?.localName?.toLowerCase?.();
       if (typeof localName === "string" && ["input", "textarea"].includes(localName)) {
-        /* 可能是移动端的输入框弹出的键盘导致的resize */
+        // 可能是移动端的输入框弹出的键盘导致的resize
         return true;
       } else if ($el?.getAttribute?.("contenteditable") === "true" || $el?.closest?.("[contenteditable='true']")) {
-        /* 可能是移动端的输入框弹出的键盘导致的resize */
+        // 可能是移动端的输入框弹出的键盘导致的resize
         return true;
       }
       return false;
     };
     DOMUtils.on(globalThis, "resize", () => {
       if (utils.isPhone()) {
-        let $active = document.activeElement;
-        let $activeShadowRoot = $active?.shadowRoot?.activeElement;
+        const $active = document.activeElement;
+        const $activeShadowRoot = $active?.shadowRoot?.activeElement;
         if (isMobileInputKeyboard($activeShadowRoot ?? $active)) {
           return;
         }
         if (!document.hasFocus()) {
-          /* 页面失焦 */
+          // 页面失焦
           return true;
         }
       }
@@ -307,10 +303,11 @@ export const NetDiskSuspension = {
    * @param isTrusted 是否为用户行为触发，如果为true，保存位置信息
    */
   updatePosition(isTrusted: boolean) {
+    const suspendSize = NetDiskGlobalData.suspension.size.value;
     /** 最大的left偏移*/
-    const MAX_X = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
+    const MAX_X = DOMUtils.width(window) - suspendSize;
     /** 最大的top偏移 */
-    const MAX_Y = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
+    const MAX_Y = DOMUtils.height(window) - suspendSize;
 
     /** 上次页面的最大left偏移 */
     const LAST_MAX_X = NetDiskSuspensionConfig.position.suspensionMaxX.value;
@@ -320,10 +317,10 @@ export const NetDiskSuspension = {
     // 把上面的配置的默认值重新设置一下，不能为50
     NetDiskSuspensionConfig.position.suspensionMaxX.default = MAX_X;
     NetDiskSuspensionConfig.position.suspensionMaxY.default = MAX_Y;
-    /* 用户自己拖动设置的悬浮按钮left偏移 */
+    // 用户自己拖动设置的悬浮按钮left偏移
     let suspension_X = NetDiskSuspensionConfig.position.suspensionX.value;
 
-    /* 用户自己拖动设置的悬浮按钮top偏移 */
+    // 用户自己拖动设置的悬浮按钮top偏移
     let suspension_Y = NetDiskSuspensionConfig.position.suspensionY.value;
 
     // 根据上一次移动的位置，判断上次的最大坐标是否和当前页面的最大坐标一致
@@ -382,26 +379,26 @@ export const NetDiskSuspension = {
     }
     if (suspension_X > MAX_X) {
       // log.warn("left超出最大值，重置为最大值");
-      /* 如果用户设置的left偏移为正的，那么是超出边界，归位设置为最大值 */
+      // 如果用户设置的left偏移为正的，那么是超出边界，归位设置为最大值
       suspension_X = MAX_X;
     } else if (suspension_X < 0) {
       // log.warn(`left超出最小值，重置为0`);
-      /* 如果用户设置的left偏移为负的，那么是超出边界，归位设置为0 */
+      // 如果用户设置的left偏移为负的，那么是超出边界，归位设置为0
       suspension_X = 0;
     }
     if (suspension_Y > MAX_Y) {
       // log.warn("top超出最大值，重置为最大值");
-      /* 如果用户设置的top偏移为正的，那么是超出边界，归位设置为最大值 */
+      // 如果用户设置的top偏移为正的，那么是超出边界，归位设置为最大值
       suspension_Y = MAX_Y;
     } else if (suspension_Y < 0) {
       // log.warn(`top超出最小值，重置为0`);
-      /* 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0 */
+      // 如果用户设置的top偏移为负的，那么是超出边界，归位设置为0
       suspension_Y = 0;
     }
 
     if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value) {
       // 吸附边缘，只需要该x坐标
-      /* 如果isRight为true，悬浮按钮放到最右边，否则最左边 */
+      // 如果isRight为true，悬浮按钮放到最右边，否则最左边
       if (NetDiskSuspensionConfig.position.isRight.value) {
         suspension_X = MAX_X;
       } else {
@@ -430,7 +427,7 @@ export const NetDiskSuspension = {
     if (suspendedZIndex <= 0) {
       suspendedZIndex = utils.getMaxValue(40000, utils.getMaxZIndex(10));
     }
-    /* 动态生成z-index */
+    // 动态生成z-index
     DOMUtils.html(
       this.$el.$suspensionZIndexStyle,
       /*css*/ `
@@ -488,7 +485,7 @@ export const NetDiskSuspension = {
       "background-image": `url(${randBgSrc})`,
     });
     if (currentList.length < 2 || NetDiskGlobalData.suspension["randbg-time"].value <= 0) {
-      /* 只有一个的话或淡入/淡出的时间<=0 就不进行背景切换 */
+      // 只有一个的话或淡入/淡出的时间<=0 就不进行背景切换
       return;
     }
     this.$data.isSwitchBackground = true;

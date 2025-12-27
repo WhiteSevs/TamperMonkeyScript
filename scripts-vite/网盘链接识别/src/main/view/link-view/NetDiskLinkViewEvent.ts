@@ -1,8 +1,10 @@
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
-import { NetDiskLinkClickModeUtils, NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { NetDiskView } from "@/main/view/NetDiskView";
+import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
 import { log } from "@components/base.env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
@@ -13,11 +15,9 @@ import type {
 import Qmsg from "qmsg";
 import {
   NetDiskLinkView,
-  type LinkViewRegisterContextMenuShowTextOption,
   type LinkViewItemInfo,
+  type LinkViewRegisterContextMenuShowTextOption,
 } from "./NetDiskLinkView";
-import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
-import { NetDiskView } from "@/main/view/NetDiskView";
 
 export const NetDiskLinkViewEvent = {
   /**

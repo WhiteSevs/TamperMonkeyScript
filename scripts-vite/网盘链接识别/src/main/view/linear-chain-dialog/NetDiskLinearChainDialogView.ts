@@ -1,7 +1,7 @@
 import { log } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskView } from "../NetDiskView";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
 
 /** 单文件配置 */

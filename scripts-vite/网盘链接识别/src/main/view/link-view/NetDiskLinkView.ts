@@ -1,17 +1,17 @@
-import { NetDisk } from "../../NetDisk";
-import { NetDiskPops } from "../../pops/NetDiskPops";
-import { NetDiskView } from "../NetDiskView";
-import { DataPaging, DOMUtils, log, pops, utils } from "@/env";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+import { DataPaging, DOMUtils, log } from "@/env";
+import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
+import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
+import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import {
   NetDiskCheckLinkValidity,
   type NetDiskCheckLinkValidityInfoConfig,
 } from "../../check-valid/NetDiskCheckLinkValidity";
-import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
+import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+import { NetDisk } from "../../NetDisk";
+import { NetDiskPops } from "../../pops/NetDiskPops";
+import { NetDiskView } from "../NetDiskView";
 import { NetDiskSuspensionConfig } from "../suspension/NetDiskSuspensionView";
 import indexCSS from "./index.css?raw";
-import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
-import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
 import { NetDiskLinkViewData } from "./NetDiskLinkViewData";
 import { NetDiskLinkViewEvent } from "./NetDiskLinkViewEvent";
 
@@ -135,12 +135,12 @@ export const NetDiskLinkView = {
     /**
      * 判断是否存在悬浮按钮的行为模式
      */
-    let hasSuspension = () =>
+    const hasSuspension = () =>
       NetDiskGlobalData.features["netdisk-behavior-mode"].value.toLowerCase().includes("suspension");
     /**
      * 关闭视图
      */
-    let closeView = () => {
+    const closeView = () => {
       if (hasSuspension()) {
         // 存在悬浮按钮
         // 仅隐藏并显示悬浮按钮
