@@ -53,30 +53,30 @@ declare interface NetDiskMatchRuleConfig {
    */
   accessCodeNeedRemoveStr?: RegExp | RegExp[];
   /**
-   * （可选）用于对matchText进行提取需要的关键内容
+   * （可选）用于对`link_innerText`和`link_innerHTML`中进行匹配获取需要的内容
    *
    * 会自动进行正则转换，正则模式i
    *
-   * 提取到的内容会被转换成以下格式，可在uiLinkShow、blank、copyUrl中使用
-   * + 类似：{#$1#}、{#$2#}...
+   * 匹配到的内容可以用以下占位符（在uiLinkShow、blank、copyUrl中使用）
+   * + `{#$1#}`、`{#$2#}`...
    */
   paramMatch?: RegExp;
   /**
    * 用于显示在弹窗中的字符串
    *
-   * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
+   * + 如果设置了paramMatch进行匹配，可以使用：`{#$1#}`、`{#$2#}`...进行引用匹配结果
    */
   uiLinkShow: string;
   /**
    * 用于点击跳转的链接
    *
-   * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
+   * + 如果设置了paramMatch进行匹配，可以使用：`{#$1#}`、`{#$2#}`...进行引用匹配结果
    */
   blank: string;
   /**
    * 用于复制到剪贴板的链接
    *
-   * + 如果设置了paramMatch进行匹配，可以使用：{#$1#}、{#$2#}...进行引用匹配结果
+   * + 如果设置了paramMatch进行匹配，可以使用：`{#$1#}`、`{#$2#}`...进行引用匹配结果
    */
   copyUrl: string;
 }

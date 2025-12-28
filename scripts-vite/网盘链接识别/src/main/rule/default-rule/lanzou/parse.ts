@@ -121,8 +121,8 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
      * 蓝奏文件链接错误
      */
     noExists: {
-      match: /div>文件不存在，或已删除<\/div>/g,
-      tip: "文件不存在，或已删除",
+      match: /div>(文件不存在，或已删除|文件不存在，或者已被删除)<\/div>/g,
+      tip: "文件不存在，或者已被删除",
     },
     /**
      * 链接失效

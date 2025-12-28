@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.27
+// @version      2025.12.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -8853,8 +8853,8 @@
         tip: "来晚啦...文件取消分享了",
       },
       noExists: {
-        match: /div>文件不存在，或已删除<\/div>/g,
-        tip: "文件不存在，或已删除",
+        match: /div>(文件不存在，或已删除|文件不存在，或者已被删除)<\/div>/g,
+        tip: "文件不存在，或者已被删除",
       },
       linkInValid: {
         match: /div>文件链接失效，请获取新链接<\/div>/g,
@@ -16376,15 +16376,27 @@
         copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}",
       },
       {
-        link_innerText: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /yun\.139\.com\/link\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /yun\.139\.com\/link\/w\/i\//gi,
+        link_innerText: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\//gi,
         checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
         accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "yun.139.com/link/w/i/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://yun.139.com/link/w/i/{#shareCode#}",
-        copyUrl: "https://yun.139.com/link/w/i/{#shareCode#}\n密码：{#accessCode#}",
+        paramMatch: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//i,
+        uiLinkShow: "yun.139.com{#$1#}w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://yun.139.com{#$1#}w/i/{#shareCode#}",
+        copyUrl: "https://yun.139.com{#$1#}w/i/{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /yun\.139\.com\/shareweb\/#\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /yun\.139\.com\/shareweb\/#\/w\/i\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "yun.139.com/shareweb/#/w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}",
+        copyUrl: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}\n密码：{#accessCode#}",
       },
     ],
     setting: {
