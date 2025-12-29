@@ -39,6 +39,7 @@ ul[data-e2e="scroll-list"] {
     > div[data-click="doubleClick"]
     > div:has(input[data-e2e="searchbar-input"]) {
     width: -webkit-fill-available;
+    width: -moz-available;
     padding-right: 0;
   }
 }

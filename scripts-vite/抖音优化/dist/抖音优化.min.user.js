@@ -257,6 +257,13 @@
     max-width: unset;\r
     flex: 1;\r
   }\r
+  /* 搜索框获取焦点时隐藏右侧的菜单 */\r
+  #douyin-header\r
+    div[data-click="doubleClick"]\r
+    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\r
+    [id^="douyin-header-menu"] {\r
+    display: none !important;\r
+  }\r
   /* 搜索框获取焦点时自动放大宽度 */\r
   #douyin-header\r
     div[data-click="doubleClick"]\r
@@ -271,6 +278,7 @@
   #search-content-area > div #search-result-container {\r
     width: 100%;\r
     width: -webkit-fill-available;\r
+    width: -moz-available;\r
   }\r
   /* 搜索页面 视频右侧的工具栏缩小 */\r
   #search-content-area .basePlayerContainer .positionBox {\r
@@ -657,6 +665,7 @@ ul[data-e2e="scroll-list"] {\r
     > div[data-click="doubleClick"]\r
     > div:has(input[data-e2e="searchbar-input"]) {\r
     width: -webkit-fill-available;\r
+    width: -moz-available;\r
     padding-right: 0;\r
   }\r
 }\r

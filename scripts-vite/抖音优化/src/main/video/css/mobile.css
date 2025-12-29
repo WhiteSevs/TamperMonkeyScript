@@ -26,6 +26,13 @@
     max-width: unset;
     flex: 1;
   }
+  /* 搜索框获取焦点时隐藏右侧的菜单 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)
+    [id^="douyin-header-menu"] {
+    display: none !important;
+  }
   /* 搜索框获取焦点时自动放大宽度 */
   #douyin-header
     div[data-click="doubleClick"]
@@ -40,6 +47,7 @@
   #search-content-area > div #search-result-container {
     width: 100%;
     width: -webkit-fill-available;
+    width: -moz-available;
   }
   /* 搜索页面 视频右侧的工具栏缩小 */
   #search-content-area .basePlayerContainer .positionBox {
