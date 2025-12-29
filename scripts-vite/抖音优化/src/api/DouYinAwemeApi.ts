@@ -12,7 +12,7 @@ export const DouYinAwemeApi = {
    * @param aweme_id 视频id
    */
   async detail(aweme_id: string) {
-    let response = await httpx.get("/aweme/v1/web/aweme/detail/", {
+    const response = await httpx.get("/aweme/v1/web/aweme/detail/", {
       data: {
         ...ApiConfig.getCommonData(),
         aweme_id: aweme_id,
@@ -26,7 +26,7 @@ export const DouYinAwemeApi = {
       return;
     }
 
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!ApiResponseCheck.isSuccess(data)) {
       return;
     }
@@ -38,10 +38,10 @@ export const DouYinAwemeApi = {
    * @param webid 浏览器id
    */
   async dislike(aweme_id: string, webid: string) {
-    let verifyFp = cookieManager.get("s_v_web_id")?.value;
-    let msToken = generate_msToken();
-    let uifid = cookieManager.get("UIFID")?.value;
-    let postParam = {
+    const verifyFp = cookieManager.get("s_v_web_id")?.value;
+    const msToken = generate_msToken();
+    const uifid = cookieManager.get("UIFID")?.value;
+    const postParam = {
       ...ApiConfig.getCommonData(),
       aweme_id: aweme_id,
       webid: webid,
@@ -50,11 +50,11 @@ export const DouYinAwemeApi = {
       fp: verifyFp,
       msToken: msToken,
     };
-    let a_bogus = generate_a_bogus(postParam, window.navigator.userAgent);
+    const a_bogus = generate_a_bogus(postParam, window.navigator.userAgent);
     Reflect.set(postParam, "a_bogus", a_bogus);
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append("aweme_id", aweme_id);
-    let response = await httpx.post(
+    const response = await httpx.post(
       `${ApiConfig.BASE_URL}aweme/v1/web/commit/dislike/item/${utils.toSearchParamsStr(postParam, true)}`,
       {
         fetch: true,
@@ -71,7 +71,7 @@ export const DouYinAwemeApi = {
       log.error(response);
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!ApiResponseCheck.isSuccess(data, false)) {
       log.error(response);
       return;

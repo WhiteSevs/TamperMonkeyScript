@@ -12,8 +12,8 @@ export const BlockLeftNavigator = {
       },
       (keyList) => {
         const [mainKey, childKey] = keyList;
-        let mainValue = Panel.getValue<boolean>(mainKey);
-        let childValue = Panel.getValue<number>(childKey);
+        const mainValue = Panel.getValue<boolean>(mainKey);
+        const childValue = Panel.getValue<number>(childKey);
         if (DouYinRouter.isSearch()) {
           if (childValue == 1) {
             // 开
@@ -55,13 +55,16 @@ export const BlockLeftNavigator = {
     Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
       return this.block_tab_ai_search();
     });
+    Panel.execMenuOnce("shieldLeftNavigator-tab-activity_2753848", () => {
+      return this.block_tab_activity_2753848();
+    });
   },
   /**
    * 【屏蔽】左侧导航栏
    */
   shieldLeftNavigator() {
     log.info("【屏蔽】左侧导航栏");
-    let result = [];
+    const result = [];
     result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
     result.push(
       addStyle(/*css*/ `
@@ -77,36 +80,52 @@ export const BlockLeftNavigator = {
    */
   block_tab_home() {
     log.info("【屏蔽】精选");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
   },
   /**
    * 【屏蔽】推荐
    */
   block_tab_recommend() {
     log.info("【屏蔽】推荐");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+  },
+  /**
+   * 【屏蔽】AI搜索/抖音
+   */
+  block_tab_ai_search() {
+    log.info(`【屏蔽】AI搜索/抖音`);
+    return CommonUtil.addBlockCSS(
+      '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
+    );
   },
   /**
    * 【屏蔽】关注
    */
   block_tab_follow() {
     log.info("【屏蔽】关注");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
   },
   /**
    * 【屏蔽】朋友
    */
   block_tab_friend() {
     log.info("【屏蔽】朋友");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
   },
   /**
    * 【屏蔽】我的
    */
   block_tab_user_self() {
     log.info("【屏蔽】我的");
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
+  },
+  /**
+   * 【屏蔽】科技特辑
+   */
+  block_tab_activity_2753848() {
+    log.info(`【屏蔽】科技特辑`);
     return CommonUtil.addBlockCSS(
-      'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
+      '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_2753848"])'
     );
   },
   /**
@@ -114,29 +133,20 @@ export const BlockLeftNavigator = {
    */
   block_tab_live() {
     log.info("【屏蔽】直播");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
   },
   /**
    * 【屏蔽】放映厅
    */
   block_tab_vs() {
     log.info("【屏蔽】放映厅");
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
   },
   /**
    * 【屏蔽】短剧
    */
   block_tab_series() {
     log.info(`短剧`);
-    return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
-  },
-  /**
-   * 【屏蔽】AI搜索
-   */
-  block_tab_ai_search() {
-    log.info(`【屏蔽】AI搜索`);
-    return CommonUtil.addBlockCSS(
-      'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-    );
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
   },
 };

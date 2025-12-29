@@ -56,14 +56,14 @@ export const DouYinLivePlayerInstance = {
         return text;
       },
       callback: () => {
-        let $playerIns = $<HTMLDivElement>(`[id^="living_room_player_container"]`);
+        const $playerIns = $<HTMLDivElement>(`[id^="living_room_player_container"]`);
         if (!$playerIns) {
           log.error("获取playerInstance所在的元素失败");
           Qmsg.error("获取playerInstance所在的元素失败");
           return;
         }
         this.$el.$playerIns = $playerIns;
-        let playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
+        const playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
         if (playerInstance == null) {
           log.error("获取playerInstance失败");
           log.error("获取playerInstance失败");
@@ -78,19 +78,19 @@ export const DouYinLivePlayerInstance = {
    * 解析元素上的播放器实例
    */
   parseElementPlayerIns($ele: HTMLElement) {
-    let react = utils.getReactInstance($ele);
+    const react = utils.getReactInstance($ele);
     return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance as null | DouYinLivePlayerInstance;
   },
   /**
    * 显示解析的信息弹窗
    */
   showParseDialog() {
-    log.info(["解析的信息：", this.$data.playerInstance]);
+    log.info("解析的信息：", this.$data.playerInstance);
     /** blob播放地址 */
-    let blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
+    const blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
     /** 推流地址 */
-    let pushSrc = this.$data.playerInstance?.config.url;
-    let $alert = pops.alert({
+    const pushSrc = this.$data.playerInstance?.config.url;
+    const $alert = pops.alert({
       title: {
         text: "解析信息",
         position: "center",

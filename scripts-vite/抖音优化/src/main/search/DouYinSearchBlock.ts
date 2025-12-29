@@ -39,7 +39,7 @@ export const DouYinSearchBlock = {
    */
   shieldReleatedSearches() {
     log.info("【屏蔽】相关搜索");
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       if (!DouYinRouter.isSearch()) return;
       $$<HTMLElement>('[id^="waterfall_item"]:has(.search-result-card p)').forEach(($el) => {
         const $p = $el.querySelector("p")!;

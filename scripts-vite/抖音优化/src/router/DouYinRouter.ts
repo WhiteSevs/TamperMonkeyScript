@@ -41,7 +41,7 @@ export const DouYinRouter = {
    * + /?recommend=1
    */
   isRecommend() {
-    let searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     return this.isIndex() && window.location.pathname === "/" && searchParams.has("recommend");
   },
   /**

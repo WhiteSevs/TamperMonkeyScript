@@ -15,7 +15,7 @@ export const ApiResponseCheck = {
       showToast && Qmsg.error("接口返回数据不是JSON", { consoleLogContent: true });
       return false;
     }
-    let status_code = responseData["status_code"];
+    const status_code = responseData["status_code"];
     if (status_code == 0) {
       return true;
     } else {

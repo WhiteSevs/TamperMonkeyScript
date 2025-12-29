@@ -2,12 +2,12 @@ import { DOMUtils } from "@/env";
 import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 
 const afterEnterDeepMenuCallBack: PopsPanelDeepViewConfig["afterEnterDeepMenuCallBack"] = (formConfig, container) => {
-  let $oneClickOpen = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickOpen");
-  let $oneClickClose = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickClose");
-  let clickCallBack = (isOpen: boolean) => {
+  const $oneClickOpen = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickOpen");
+  const $oneClickClose = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickClose");
+  const clickCallBack = (isOpen: boolean) => {
     container.$sectionBodyContainer?.querySelectorAll<HTMLElement>(".pops-panel-switch").forEach(($ele) => {
-      let $input = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
-      let $checkbox = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__core")!;
+      const $input = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
+      const $checkbox = $ele.querySelector<HTMLInputElement>(".pops-panel-switch__core")!;
       if (isOpen) {
         if (!$input.checked) {
           $checkbox.click();

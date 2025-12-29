@@ -18,16 +18,16 @@ export const MDouYinShareMusic = {
     log.info("覆盖视频卡片点击事件");
     const callback = (event: MouseEvent | PointerEvent, $click: HTMLElement) => {
       DOMUtils.preventEvent(event);
-      let rectFiber = utils.getReactInstance($click).reactFiber;
+      const rectFiber = utils.getReactInstance($click).reactFiber;
       if (!rectFiber) {
         log.error("获取reactFiber失败");
         Qmsg.error("获取reactFiber失败");
         return;
       }
-      let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
-      let index = rectFiber.index;
-      let currentList = listData[index];
-      let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+      const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
+      const index = rectFiber.index;
+      const currentList = listData[index];
+      const url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {

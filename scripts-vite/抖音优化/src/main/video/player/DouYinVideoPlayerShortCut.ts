@@ -24,15 +24,15 @@ export const DouYinVideoPlayerShortCut = {
       "dy-video-rate-low": {
         callback() {
           log.info("触发快捷键 ==> 调用倍速：小");
-          let currentRate = unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-          let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+          const currentRate = unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+          const findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
             return rate === currentRate;
           });
           if (findIndex === 0) {
             log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
             return;
           }
-          let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
+          const prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
           log.info("触发快捷键 ==> 设置倍速: " + prevRate);
           DouYinVideoPlayer.chooseVideoRate(prevRate);
         },
@@ -40,15 +40,15 @@ export const DouYinVideoPlayerShortCut = {
       "dy-video-rate-up": {
         callback() {
           log.info("触发快捷键 ==> 调用倍速：大");
-          let currentRate = unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-          let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+          const currentRate = unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+          const findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
             return rate === currentRate;
           });
           if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
             log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
             return;
           }
-          let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
+          const nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
           log.info("触发快捷键 ==> 设置倍速: " + nextRate);
           DouYinVideoPlayer.chooseVideoRate(nextRate);
         },
@@ -56,7 +56,7 @@ export const DouYinVideoPlayerShortCut = {
       "dy-video-shortcut-immersionMode": {
         callback() {
           log.info("触发快捷键 ==> 沉浸模式");
-          let value = Panel.getValue<boolean>("fullScreen");
+          const value = Panel.getValue<boolean>("fullScreen");
           Panel.setValue("fullScreen", !value);
           Panel.execMenuOnce("fullScreen", () => {
             return DouYinVideoPlayer.fullScreen();
@@ -69,7 +69,7 @@ export const DouYinVideoPlayerShortCut = {
           const $videos = $$<HTMLVideoElement>("video[src]");
           $videos.forEach(($video) => {
             if (utils.isNull($video.src)) return;
-            let muted = !$video.muted;
+            const muted = !$video.muted;
             log.success(`切换video标签的静音状态为 ${muted}`);
             $video.muted = muted;
           });
@@ -92,8 +92,7 @@ export const DouYinVideoPlayerShortCut = {
       "dy-video-shortcut-playbackRate": {
         callback() {
           log.info("触发快捷键 ==> 倍速播放");
-          let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
-          enable = !enable;
+          const enable = !Boolean(Panel.getValue("dy-video-playbackrate"));
           if (enable) {
             const rate = Panel.getValue<string>("dy-video-playbackrate-select-value");
             Qmsg.success("开启倍速：" + rate);

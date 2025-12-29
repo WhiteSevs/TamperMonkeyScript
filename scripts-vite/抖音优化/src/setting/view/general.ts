@@ -265,14 +265,31 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
             {
               type: "container",
               text: AutoOpenOrClose.text,
+              views: [UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false)],
+            },
+            {
+              type: "container",
+              text: "",
               views: [
-                UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false),
                 UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false),
                 UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false),
                 UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
                 UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false),
                 UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false),
                 UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】科技特辑", "shieldLeftNavigator-tab-activity_2753848", false),
                 UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
                 UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
                 UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
@@ -291,6 +308,13 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               views: [
                 UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
                 UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
                 UISwitch("【屏蔽】客户端提示", "shieldClientTip", true),
                 UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true),
                 UISwitch("【屏蔽】客户端", "shieldClient", true),
@@ -301,7 +325,6 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】壁纸", "shieldWallpaper", false),
                 UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false),
                 UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false),
-                UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
               ],
             },
           ],

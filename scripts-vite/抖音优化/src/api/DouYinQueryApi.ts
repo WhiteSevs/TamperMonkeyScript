@@ -9,7 +9,7 @@ export const DouYinQueryApi = {
    * 获取当前登录的用户的信息
    */
   async user() {
-    let response = await httpx.get("/aweme/v1/web/query/user/", {
+    const response = await httpx.get("/aweme/v1/web/query/user/", {
       fetch: true,
       data: {
         ...ApiConfig.getCommonData(),
@@ -25,7 +25,7 @@ export const DouYinQueryApi = {
       Qmsg.error("获取用户信息失败");
       return;
     }
-    let data = utils.toJSON(response.data.responseText) as {
+    const data = utils.toJSON(response.data.responseText) as {
       browser_name: string;
       /** 时间戳字符串 */
       create_time: string;
@@ -42,7 +42,7 @@ export const DouYinQueryApi = {
       return;
     }
 
-    let { user_uid } = data;
+    const { user_uid } = data;
     if (typeof user_uid !== "string") {
       return;
     }
@@ -52,7 +52,7 @@ export const DouYinQueryApi = {
    * 获取当前的webid
    */
   async webid() {
-    let response = await httpx.get(ApiConfig.BASE_URL + "?recommend=1", {
+    const response = await httpx.get(ApiConfig.BASE_URL + "?recommend=1", {
       fetch: true,
       allowInterceptConfig: false,
     });
@@ -64,7 +64,7 @@ export const DouYinQueryApi = {
       log.error(response);
       return;
     }
-    let webid = response.data.responseText.match(/\"user_unique_id\\":\\"([\d]+)\\"/);
+    const webid = response.data.responseText.match(/\"user_unique_id\\":\\"([\d]+)\\"/);
     if (webid) {
       return webid[webid.length - 1];
     } else {

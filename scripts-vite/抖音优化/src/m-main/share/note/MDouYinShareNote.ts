@@ -66,15 +66,15 @@ export const MDouYinShareNote = {
       "#masonry .card",
       (event) => {
         DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLDivElement;
-        let rectFiber = utils.getReactInstance($click).reactFiber;
+        const $click = event.target as HTMLDivElement;
+        const rectFiber = utils.getReactInstance($click).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
           return;
         }
-        let awemeId = rectFiber?.return?.memoizedProps.awemeId;
-        let url = DouYinUrlUtils.getNoteUrl(awemeId);
+        const awemeId = rectFiber?.return?.memoizedProps.awemeId;
+        const url = DouYinUrlUtils.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true }
@@ -142,16 +142,16 @@ export const MDouYinShareNote = {
       ".message-con__footer",
       (event) => {
         DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactInstance($click).reactFiber;
+        const $click = event.target as HTMLElement;
+        const rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
           return;
         }
-        let musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-        let url = DouYinUrlUtils.getMusicUrl(musicId);
+        const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
+        const url = DouYinUrlUtils.getMusicUrl(musicId);
         window.open(url, "_blank");
       },
       { capture: true }
@@ -169,17 +169,17 @@ export const MDouYinShareNote = {
       ".container .related-list-con .related-note-item",
       (event) => {
         DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLElement;
-        let rectFiber = utils.getReactInstance($click).reactFiber;
+        const $click = event.target as HTMLElement;
+        const rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
           return;
         }
-        let itemData = rectFiber?.return?.memoizedProps?.itemData;
-        let awemeId = itemData["awemeId"];
-        let url = DouYinUrlUtils.getNoteUrl(awemeId);
+        const itemData = rectFiber?.return?.memoizedProps?.itemData;
+        const awemeId = itemData["awemeId"];
+        const url = DouYinUrlUtils.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true }

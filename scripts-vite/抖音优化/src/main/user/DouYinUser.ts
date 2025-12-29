@@ -23,9 +23,9 @@ export const DouYinUser = {
         return typeof reactInstance?.return?.memoizedProps?.userInfo?.uid === "string";
       },
       set(reactInstance, $target) {
-        let uid: string = reactInstance?.return?.memoizedProps?.userInfo?.uid;
+        const uid: string = reactInstance?.return?.memoizedProps?.userInfo?.uid;
         DOMUtils.remove($target.querySelectorAll<HTMLElement>(".gm-user-uid"));
-        let $userUID = DOMUtils.createElement(
+        const $userUID = DOMUtils.createElement(
           "p",
           {
             className: "gm-user-uid",

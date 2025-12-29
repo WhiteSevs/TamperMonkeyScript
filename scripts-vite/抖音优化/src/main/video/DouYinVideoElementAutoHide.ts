@@ -8,11 +8,11 @@ import { Panel } from "@components/setting/panel";
  * @param selectors 选择器
  */
 export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: string[]) => {
-  let isInjectAttrName = "data-is-inject-mouse-hide";
-  let opacityShowAttrName = "data-opacity-show";
-  let opacityHideAttrName = "data-opacity-hide";
+  const isInjectAttrName = "data-is-inject-mouse-hide";
+  const opacityShowAttrName = "data-opacity-show";
+  const opacityHideAttrName = "data-opacity-hide";
   const result: any[] = [];
-  let delayTime = () => Panel.getValue<number>(delayTimeKey);
+  const delayTime = () => Panel.getValue<number>(delayTimeKey);
 
   const hideStyle = (__delayTime__ = delayTime()) => {
     if (__delayTime__ === 0) {

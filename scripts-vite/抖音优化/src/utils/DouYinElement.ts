@@ -14,7 +14,7 @@ export const DouYinElement = {
         '#search-content-area ul[data-e2e="scroll-list"]',
       ]).then(($ele) => {
         log.info(`启用观察器观察加载的视频`);
-        let lockFn = new utils.LockFunction((observer) => {
+        const lockFn = new utils.LockFunction((observer) => {
           $os = $os || this.selectorRootOSNode();
           if (!$os) {
             log.error("watchVideDataListChange：获取osElement失败");

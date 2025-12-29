@@ -19,7 +19,7 @@ export const DouYinFollowingApi = {
   }) {
     // 未看
     // not_seen_item_id_list_v2
-    let response = await httpx.get("/aweme/v1/web/user/following/list/", {
+    const response = await httpx.get("/aweme/v1/web/user/following/list/", {
       fetch: true,
       allowInterceptConfig: false,
       data: {
@@ -59,7 +59,7 @@ export const DouYinFollowingApi = {
       Qmsg.error("获取关注列表信息失败");
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!ApiResponseCheck.isSuccess(data)) {
       return;
     }
@@ -67,7 +67,7 @@ export const DouYinFollowingApi = {
     /**
      * 未看的视频信息
      */
-    let notSeenIdInfoList: {
+    const notSeenIdInfoList: {
       /** 请求的数据 */
       data: any;
       /** 未看的视频id列表 */
@@ -87,7 +87,7 @@ export const DouYinFollowingApi = {
       };
     }[] = [];
 
-    let getAvatarUri = (avatarData: any) => {
+    const getAvatarUri = (avatarData: any) => {
       return avatarData?.["url_list"]?.[0];
     };
     for (let index = 0; index < data["followings"].length; index++) {

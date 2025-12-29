@@ -112,9 +112,9 @@ export const DouYinSearch = {
           return;
         }
         DOMUtils.preventEvent(event);
-        let $click = selectorTarget;
-        let $parent = $click.parentElement?.parentElement as HTMLElement;
-        let $video = $parent.querySelector("video");
+        const $click = selectorTarget;
+        const $parent = $click.parentElement?.parentElement as HTMLElement;
+        const $video = $parent.querySelector("video");
         if ($video) {
           if ($video.paused) {
             $video.play();
@@ -143,7 +143,7 @@ export const DouYinSearch = {
           return;
         }
         DOMUtils.preventEvent(event);
-        let $video = selectorTarget as HTMLVideoElement;
+        const $video = selectorTarget as HTMLVideoElement;
         if ($video.paused) {
           $video.play();
           log.info("#sliderVideo video：播放视频");

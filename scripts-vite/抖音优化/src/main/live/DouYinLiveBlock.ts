@@ -224,7 +224,7 @@ export const DouYinLiveBlock = {
    */
   shieldGiftEffects() {
     log.info("【屏蔽】礼物特效");
-    let result: (HTMLStyleElement | undefined)[] = [
+    const result: (HTMLStyleElement | undefined)[] = [
       CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
     ];
     return result;

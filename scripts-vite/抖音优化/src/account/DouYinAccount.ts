@@ -20,7 +20,7 @@ export const DouYinAccount = {
     // DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
     const uid = parseInt((Math.random() * 10000000000).toString());
-    // let uid = 114514;
+    // const uid = 114514;
     const info = {
       uid: uid,
       secUid: "",
@@ -103,13 +103,13 @@ export const DouYinAccount = {
     Object.freeze(info);
     /**
      * 获取用户信息
-     * @param element
+     * @param $el
      */
-    function getUserInfo(element: HTMLElement) {
-      let userInfoList = [];
-      let reactInstance = utils.getReactInstance(element);
-      let reactFiber = reactInstance?.reactFiber;
-      let reactProps = reactInstance?.reactProps;
+    function getUserInfo($el: HTMLElement) {
+      const userInfoList = [];
+      const reactInstance = utils.getReactInstance($el);
+      const reactFiber = reactInstance?.reactFiber;
+      const reactProps = reactInstance?.reactProps;
       if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
         userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
       }
@@ -126,10 +126,10 @@ export const DouYinAccount = {
     }
     /**
      * 设置登录
-     * @param element
+     * @param $el
      */
-    function setLogin(element: HTMLElement) {
-      getUserInfo(element).forEach((userInfo) => {
+    function setLogin($el: HTMLElement) {
+      getUserInfo($el).forEach((userInfo) => {
         if (!userInfo.isLogin) {
           userInfo.info = info;
           userInfo.isLogin = true;
@@ -140,8 +140,8 @@ export const DouYinAccount = {
     DouYinElement.watchFeedVideoListChange(setLogin);
     DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
-        let lockFn = new utils.LockFunction(() => {
-          let $os = DouYinElement.selectorRootOSNode();
+        const lockFn = new utils.LockFunction(() => {
+          const $os = DouYinElement.selectorRootOSNode();
           if (!$os) {
             return;
           }
@@ -163,10 +163,10 @@ export const DouYinAccount = {
     if (DouYinRouter.isLive()) {
       log.info("伪装登录：live");
       DOMUtils.waitNode<HTMLDivElement>(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
-        let lockFn = new utils.LockFunction(() => {
+        const lockFn = new utils.LockFunction(() => {
           setLogin($<HTMLDivElement>(`[id^="douyin-header"]`)!);
         }, 70);
-        const observer = utils.mutationObserver(document.body, {
+        utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true,
@@ -182,9 +182,9 @@ export const DouYinAccount = {
       /* 搜索 */
       function setUserInfoBySearch($ele: HTMLElement) {
         /* 搜索页面的用户信息 */
-        let $react = utils.getReactInstance($ele);
-        let reactFiber = $react?.reactFiber;
-        let reactProps = $react?.reactProps;
+        const $react = utils.getReactInstance($ele);
+        const reactFiber = $react?.reactFiber;
+        const reactProps = $react?.reactProps;
         if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
           Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
         }
@@ -197,10 +197,10 @@ export const DouYinAccount = {
           log.error("#root > div获取失败");
           return;
         }
-        let lockFn = new utils.LockFunction(() => {
+        const lockFn = new utils.LockFunction(() => {
           setUserInfoBySearch($rootDiv);
         }, 70);
-        const observer = utils.mutationObserver(document, {
+        utils.mutationObserver(document, {
           config: {
             subtree: true,
             childList: true,
@@ -257,10 +257,10 @@ export const DouYinAccount = {
           }
         }
       }
-      let $ohterDialog = $<HTMLElement>("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
+      const $ohterDialog = $<HTMLElement>("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
       if ($ohterDialog) {
-        let reactInst = utils.getReactInstance($ohterDialog);
-        let onClick = reactInst?.reactProps?.onClick;
+        const reactInst = utils.getReactInstance($ohterDialog);
+        const onClick = reactInst?.reactProps?.onClick;
         if (typeof onClick === "function") {
           onClick(new Event("click"));
         } else {
@@ -290,13 +290,13 @@ export const DouYinAccount = {
    * 关闭评论区的登录遮罩层
    */
   watchCommentDialogToClose() {
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       // 评论区的登录屏蔽罩
-      let $cardLoginGuide = $<HTMLElement>('[id^="related-video-card-login-guide"]');
+      const $cardLoginGuide = $<HTMLElement>('[id^="related-video-card-login-guide"]');
       if (!$cardLoginGuide) {
         return;
       }
-      let $close = $cardLoginGuide.querySelector<HTMLElement>(".related-video-card-login-guide__footer-close");
+      const $close = $cardLoginGuide.querySelector<HTMLElement>(".related-video-card-login-guide__footer-close");
       if (!$close) {
         log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
         return;

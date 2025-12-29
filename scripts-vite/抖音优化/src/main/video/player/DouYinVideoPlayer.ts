@@ -52,8 +52,8 @@ export const DouYinVideoPlayer = {
       },
       (keyList) => {
         const [mainKey, childKey] = keyList;
-        let mainValue = Panel.getValue<boolean>(mainKey);
-        let childValue = Panel.getValue<number>(childKey);
+        const mainValue = Panel.getValue<boolean>(mainKey);
+        const childValue = Panel.getValue<number>(childKey);
         if (DouYinRouter.isSearch()) {
           if (mainValue) {
             if (childValue == 1) {
@@ -78,7 +78,7 @@ export const DouYinVideoPlayer = {
       return this.changeBackgroundColor(option.value[1]);
     });
     Panel.execMenuOnce("repairProgressBar", () => {
-      let result: HTMLStyleElement[] = [];
+      const result: HTMLStyleElement[] = [];
       Panel.onceExec("repairProgressBar", () => {
         result.push(...this.repairVideoProgressBar());
       });
@@ -127,7 +127,7 @@ export const DouYinVideoPlayer = {
    */
   fullScreen() {
     log.info("沉浸模式");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         /* 右侧工具栏 */
@@ -177,7 +177,7 @@ export const DouYinVideoPlayer = {
       // 使用键盘事件触发全屏
       // 优点：只要抖音不修改触发全屏的快捷键，则此方案可以一直使用
       DOMUtils.onReady(() => {
-        let keydownEvent = new KeyboardEvent("keydown", {
+        const keydownEvent = new KeyboardEvent("keydown", {
           bubbles: true,
           cancelable: true,
           key: "Y",
@@ -285,8 +285,8 @@ export const DouYinVideoPlayer = {
    */
   chooseQuality(mode = 0) {
     log.info("选择视频清晰度: " + mode);
-    let QualitySessionKey = "MANUAL_SWITCH";
-    let clarityReal = [
+    const QualitySessionKey = "MANUAL_SWITCH";
+    const clarityReal = [
       "normal_720_0",
       "normal_1080_0",
       "normal_540_0",
@@ -307,7 +307,7 @@ export const DouYinVideoPlayer = {
       "adapt_lowest_hdr_4_1",
     ];
 
-    let definition = [
+    const definition = [
       {
         // clarityReal: clarityReal,
         done: 1,
@@ -364,7 +364,7 @@ export const DouYinVideoPlayer = {
         gearType: 0,
       },
     ];
-    let choose = definition.find((item) => item.gearType === mode);
+    const choose = definition.find((item) => item.gearType === mode);
     /**
      * 抖音清晰度读取是来自session的
      * @param value
@@ -373,8 +373,8 @@ export const DouYinVideoPlayer = {
       unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
     }
     if (choose) {
-      let chooseStr = JSON.stringify(choose);
-      let intervalId = setInterval(() => {
+      const chooseStr = JSON.stringify(choose);
+      const intervalId = setInterval(() => {
         setVideoQuality(chooseStr);
       }, 250);
       setTimeout(() => {
@@ -390,7 +390,7 @@ export const DouYinVideoPlayer = {
    * @param [rate="1"] 倍速
    */
   chooseVideoRate(rate: VideoPlayerRate = "1") {
-    let Definition_Key = "player_playbackratio";
+    const Definition_Key = "player_playbackratio";
     /**
      * 设置播放倍速
      *
@@ -400,7 +400,7 @@ export const DouYinVideoPlayer = {
     function setRate(value: VideoPlayerRate = "1") {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
       $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
-        let $container = utils.getReactInstance($playbackSetting).reactContainer;
+        const $container = utils.getReactInstance($playbackSetting).reactContainer;
         $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
       });
     }
@@ -476,7 +476,7 @@ export const DouYinVideoPlayer = {
     }) => {
       let showParseInfoHTML = "";
       info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
-        let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+        const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
         let downloadFileName = info.downloadInfo.video.fileName;
         // 占位符替换
         downloadFileName = transformDownloadFileName(
@@ -520,7 +520,7 @@ export const DouYinVideoPlayer = {
 				</div>`;
       });
       info.downloadInfo.picture.urlInfoList.forEach((downloadInfo) => {
-        let pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
+        const pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
         let downloadFileName = info.downloadInfo.picture.fileName;
         // 占位符替换
         downloadFileName = transformDownloadFileName(
@@ -672,8 +672,8 @@ export const DouYinVideoPlayer = {
             },
             onprogress(details) {
               if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
-                let progressNum = details.loaded / details.total;
-                let formatProgressNum = (progressNum * 100).toFixed(2);
+                const progressNum = details.loaded / details.total;
+                const formatProgressNum = (progressNum * 100).toFixed(2);
                 downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
                 if (details.loaded === details.total) {
                   isDownloadEnd = true;
@@ -738,7 +738,7 @@ export const DouYinVideoPlayer = {
       const $basePlayerContainer = $click.closest<HTMLElement>(".basePlayerContainer");
       const basePlayerContainerReactFiber = utils.getReactInstance($basePlayerContainer!)?.reactFiber;
       if (!parentReactFilber && !basePlayerContainerReactFiber) {
-        log.error([$click, parentReactFilber, $basePlayerContainer, basePlayerContainerReactFiber]);
+        log.error($click, parentReactFilber, $basePlayerContainer, basePlayerContainerReactFiber);
         Qmsg.error("获取rectFiber属性失败");
         return;
       }
@@ -748,11 +748,11 @@ export const DouYinVideoPlayer = {
           parentReactFilber?.return?.return?.return?.memoizedProps?.awemeInfo ||
           basePlayerContainerReactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
         if (!awemeInfo) {
-          log.error([$click, parentReactFilber, basePlayerContainerReactFiber]);
+          log.error($click, parentReactFilber, basePlayerContainerReactFiber);
           Qmsg.error("获取awemeInfo属性失败");
           return;
         }
-        log.info([`解析的awemeInfo: `, awemeInfo]);
+        log.info(`解析的awemeInfo: `, awemeInfo);
         const filterBase = new DouYinVideoFilterBase();
         const transformAwemeInfo = filterBase.parseAwemeInfoDictData(awemeInfo) as Required<DouYinVideoHandlerInfo>;
         if (transformAwemeInfo.nickname == null) {
@@ -942,7 +942,7 @@ export const DouYinVideoPlayer = {
         }
         log.info(`视频链接：` + shareUrl);
         try {
-          let shareUrlInst = new URL(shareUrl);
+          const shareUrlInst = new URL(shareUrl);
           shareUrlInst.search = "";
           shareUrl = shareUrlInst.toString();
           log.info(`去除search参数后的链接：` + shareUrl);
@@ -967,7 +967,7 @@ export const DouYinVideoPlayer = {
    */
   mobileMode() {
     log.info("启用手机模式");
-    let result: HTMLStyleElement[] = [];
+    const result: HTMLStyleElement[] = [];
     DouYin.initialScale();
     /* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
     result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
@@ -981,7 +981,7 @@ export const DouYinVideoPlayer = {
    */
   repairVideoProgressBar() {
     log.info("修复进度条按钮");
-    let result: HTMLStyleElement[] = [
+    const result: HTMLStyleElement[] = [
       addStyle(/*css*/ `
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
       @media screen and (max-width: 600px) and (orientation: portrait),
@@ -1126,7 +1126,7 @@ export const DouYinVideoPlayer = {
    */
   gestureBackCloseComment() {
     log.info(`手势返回关闭评论区`);
-    let gestureback = new GestureBack({
+    const gestureback = new GestureBack({
       hash: DouYinGestureBackHashConfig.videoCommentDrawer,
       useUrl: true,
       beforeHistoryBackCallBack(isUrlChange) {
@@ -1141,11 +1141,11 @@ export const DouYinVideoPlayer = {
      * 关闭评论区
      */
     function closeComment() {
-      let $close = $<HTMLElement>($closeSelector);
+      const $close = $<HTMLElement>($closeSelector);
       if ($close) {
-        let rect = utils.getReactInstance($close);
+        const rect = utils.getReactInstance($close);
         if (rect) {
-          let fn = rect.reactProps?.onClick;
+          const fn = rect.reactProps?.onClick;
           if (typeof fn === "function") {
             fn();
           } else {
@@ -1202,15 +1202,15 @@ export const DouYinVideoPlayer = {
      * 检测并关闭弹窗
      * @param $ele
      */
-    let checkDialogToClose = ($ele: HTMLElement) => {
-      let eleText = DOMUtils.text($ele);
+    const checkDialogToClose = ($ele: HTMLElement) => {
+      const eleText = DOMUtils.text($ele);
       if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
         Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
           consoleLogContent: true,
         });
-        let $rect = utils.getReactInstance($ele);
+        const $rect = utils.getReactInstance($ele);
         if (typeof $rect.reactProps === "object") {
-          let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
+          const closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
             if (typeof obj?.["props"]?.["onClose"] === "function") {
               return {
                 isFind: true,
@@ -1218,7 +1218,7 @@ export const DouYinVideoPlayer = {
               };
             } else {
               // 未找到，进入下一层
-              let children = obj?.["props"]?.["children"] ?? obj?.["children"];
+              const children = obj?.["props"]?.["children"] ?? obj?.["children"];
               return {
                 isFind: false,
                 data: Array.isArray(children) ? children[0] : children,
@@ -1232,7 +1232,7 @@ export const DouYinVideoPlayer = {
         }
       }
     };
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
         return;
       }

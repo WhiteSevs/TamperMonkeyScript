@@ -12,7 +12,7 @@ export const DouYinGestureBackHashConfig = {
  * 清理因刷新页面导致hash没清空的情况
  */
 export const DouYinGestureBackClearHash = () => {
-  let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
+  const findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
     return globalThis.location.hash.endsWith(hash);
   });
   if (findValue) {

@@ -85,26 +85,31 @@ export const DouYinRecommend = {
      * 切换视频
      */
     const switchActiveVideo = () => {
-      if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
-        Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
-        return;
+      const $next = $(".xgplayer-playswitch-next");
+      if ($next) {
+        $next.click();
+      } else {
+        if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+          Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
+          return;
+        }
+        const keydownEvent = new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "ArrowDown",
+          code: "ArrowDown",
+          keyCode: 40,
+          which: 40,
+        });
+        document.body.dispatchEvent(keydownEvent);
       }
-      let keydownEvent = new KeyboardEvent("keydown", {
-        bubbles: true,
-        cancelable: true,
-        key: "ArrowDown",
-        code: "ArrowDown",
-        keyCode: 40,
-        which: 40,
-      });
-      document.body.dispatchEvent(keydownEvent);
     };
     const lockFn = new utils.LockFunction(() => {
       if (!DouYinRouter.isRecommend()) {
         // 必须在推荐页面
         return;
       }
-      let $activeVideo = queryActiveVideo();
+      const $activeVideo = queryActiveVideo();
       if (!$activeVideo) {
         return;
       }
@@ -123,15 +128,15 @@ export const DouYinRecommend = {
           /**
            * 当前是否是合集播放
            */
-          let isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+          const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
           CommonUtil.interval(
             (isTimeout) => {
               if (isTimeout) {
                 log.error(`切换视频超时，切换失败`);
                 return false;
               }
-              let $playingVideo = queryActiveVideo();
-              let playingSrc = $playingVideo?.src!;
+              const $playingVideo = queryActiveVideo();
+              const playingSrc = $playingVideo?.src!;
               // 不是同一video元素
               // 是同一video元素,但是src不同(这个时候是在合集页面里播放的)
               if (isSlideMode) {

@@ -13,8 +13,8 @@ export const BlockTopNavigator = {
       },
       (keyList) => {
         const [mainKey, childKey] = keyList;
-        let mainValue = Panel.getValue<boolean>(mainKey);
-        let childValue = Panel.getValue<number>(childKey);
+        const mainValue = Panel.getValue<boolean>(mainKey);
+        const childValue = Panel.getValue<number>(childKey);
         if (DouYinRouter.isSearch()) {
           if (childValue == 1) {
             // 开
@@ -111,7 +111,7 @@ export const BlockTopNavigator = {
    */
   shieldTopNavigator() {
     log.info("【屏蔽】顶部导航栏");
-    let result: (HTMLStyleElement | undefined)[] = [];
+    const result: (HTMLStyleElement | undefined)[] = [];
     result.push(CommonUtil.addBlockCSS("#douyin-header"));
     result.push(
       addStyle(/*css*/ `
@@ -159,7 +159,7 @@ export const BlockTopNavigator = {
    */
   shieldFillingBricksAndStones() {
     log.info("【屏蔽】充钻石");
-    let result = [];
+    const result = [];
     const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
     result.push(
       CommonUtil.addBlockCSS(
@@ -193,14 +193,15 @@ export const BlockTopNavigator = {
    */
   shieldClient() {
     log.info("【屏蔽】客户端");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
         // 2024.7.15
         'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
         // ios
-        'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
+        'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
+        'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
       )
     );
     if (DouYinRouter.isSearch()) {
@@ -232,7 +233,7 @@ export const BlockTopNavigator = {
    */
   shieldQuickAccess() {
     log.info("【屏蔽】快捷访问");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
@@ -258,7 +259,7 @@ export const BlockTopNavigator = {
    */
   shieldNotifitation() {
     log.info("【屏蔽】通知");
-    let result = [];
+    const result = [];
     result.push(
       // 2024.11.11
       CommonUtil.addBlockCSS(
@@ -289,7 +290,7 @@ export const BlockTopNavigator = {
    */
   shieldPrivateMessage() {
     log.info("【屏蔽】私信");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
@@ -314,7 +315,7 @@ export const BlockTopNavigator = {
    */
   shieldSubmission() {
     log.info("【屏蔽】投稿");
-    let result = [];
+    const result = [];
     // 图标
     const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
     result.push(
@@ -346,7 +347,7 @@ export const BlockTopNavigator = {
    */
   shieldClientTip() {
     log.info("【屏蔽】客户端提示");
-    let result = [];
+    const result = [];
 
     result.push(
       CommonUtil.addBlockCSS(
@@ -378,7 +379,7 @@ export const BlockTopNavigator = {
    */
   shieldWallpaper() {
     log.info("【屏蔽】壁纸");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         // 2024.8.12

@@ -32,7 +32,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   "origin",
                   (() => {
                     return Object.keys(VideoQualityMap).map((key: string) => {
-                      let item = VideoQualityMap[key];
+                      const item = VideoQualityMap[key];
                       return {
                         value: key,
                         text: item.label,

@@ -59,17 +59,17 @@ export const DouYinMessageFilter = {
    */
   execMessageFilter(messageQueue: HTMLElement[], from: string) {
     for (let index = 0; index < messageQueue.length; index++) {
-      let $danmu = messageQueue[index];
+      const $danmu = messageQueue[index];
       // 获取消息对象
-      let react = utils.getReactInstance($danmu);
-      let messageIns =
+      const react = utils.getReactInstance($danmu);
+      const messageIns =
         react?.reactFiber?.return?.memoizedProps?.message ||
         react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message ||
         react?.reactContainer?.memoizedState?.element?.props?.message;
       if (typeof messageIns !== "object" || messageIns == null) {
         continue;
       }
-      let message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
+      const message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
 
       /**
        * 消息类型
@@ -83,9 +83,9 @@ export const DouYinMessageFilter = {
        * + WebcastScreenChatMessage
        * + WebcastLikeMessage
        */
-      let method = messageIns.method;
-      let chat_by: undefined | string = messageIns?.payload?.chat_by;
-      let biz_scene: undefined | string = messageIns?.payload?.biz_scene;
+      const method = messageIns.method;
+      const chat_by: undefined | string = messageIns?.payload?.chat_by;
+      const biz_scene: undefined | string = messageIns?.payload?.biz_scene;
       let flag = false;
       if (!flag) {
         if (method === "WebcastGiftMessage") {

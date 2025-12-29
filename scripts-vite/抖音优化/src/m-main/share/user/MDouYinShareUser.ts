@@ -25,25 +25,25 @@ export const MDouYinShareUser = {
       (event) => {
         DOMUtils.preventEvent(event);
 
-        let $click = event.target as HTMLDivElement;
-        let reactFiber = utils.getReactInstance($click)?.reactFiber;
-        let key = reactFiber?.key;
+        const $click = event.target as HTMLDivElement;
+        const reactFiber = utils.getReactInstance($click)?.reactFiber;
+        const key = reactFiber?.key;
         if (key == null) {
           Qmsg.error("获取视频合集key失败");
           return;
         }
-        let index = reactFiber?.index;
+        const index = reactFiber?.index;
         if (index == null) {
           Qmsg.error("获取视频合集index失败");
           return;
         }
-        let playletList = reactFiber?.return?.return?.pendingProps?.playletList;
+        const playletList = reactFiber?.return?.return?.pendingProps?.playletList;
         if (playletList == null) {
           Qmsg.error("获取视频合集playletList失败");
           return;
         }
-        let currentPlaylet = playletList[index];
-        let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+        const currentPlaylet = playletList[index];
+        const url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
         window.open(url, "_blank");
       },
       {
@@ -62,10 +62,10 @@ export const MDouYinShareUser = {
       ".post-list-container .user-post-cover",
       (event) => {
         DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLDivElement;
-        let reactFiber = utils.getReactInstance($click)?.reactFiber;
+        const $click = event.target as HTMLDivElement;
+        const reactFiber = utils.getReactInstance($click)?.reactFiber;
         if (reactFiber?.return?.memoizedProps?.productionUrl) {
-          let url = reactFiber?.return?.memoizedProps?.productionUrl;
+          const url = reactFiber?.return?.memoizedProps?.productionUrl;
           window.open(url, "_blank");
         } else {
           Qmsg.error("获取视频链接失败");

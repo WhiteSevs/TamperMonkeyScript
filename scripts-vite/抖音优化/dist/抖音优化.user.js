@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.27
+// @version      2025.12.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2006,7 +2006,7 @@
       return this.isIndex() && window.location.pathname.startsWith("/root/live/");
     },
     isRecommend() {
-      let searchParams = new URLSearchParams(window.location.search);
+      const searchParams = new URLSearchParams(window.location.search);
       return this.isIndex() && window.location.pathname === "/" && searchParams.has("recommend");
     },
     isSearch() {
@@ -2049,8 +2049,8 @@
         },
         (keyList) => {
           const [mainKey, childKey] = keyList;
-          let mainValue = Panel.getValue(mainKey);
-          let childValue = Panel.getValue(childKey);
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (childValue == 1) {
               return true;
@@ -2140,7 +2140,7 @@
     },
     shieldTopNavigator() {
       log.info("【屏蔽】顶部导航栏");
-      let result = [];
+      const result = [];
       result.push(CommonUtil.addBlockCSS("#douyin-header"));
       result.push(
         addStyle(
@@ -2188,7 +2188,7 @@
     },
     shieldFillingBricksAndStones() {
       log.info("【屏蔽】充钻石");
-      let result = [];
+      const result = [];
       const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
       result.push(
         CommonUtil.addBlockCSS(
@@ -2209,12 +2209,13 @@
     },
     shieldClient() {
       log.info("【屏蔽】客户端");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
           'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
@@ -2237,7 +2238,7 @@
     },
     shieldQuickAccess() {
       log.info("【屏蔽】快捷访问");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
@@ -2255,7 +2256,7 @@
     },
     shieldNotifitation() {
       log.info("【屏蔽】通知");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
@@ -2278,7 +2279,7 @@
     },
     shieldPrivateMessage() {
       log.info("【屏蔽】私信");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
@@ -2298,7 +2299,7 @@
     },
     shieldSubmission() {
       log.info("【屏蔽】投稿");
-      let result = [];
+      const result = [];
       const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
       result.push(
         CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`)
@@ -2316,7 +2317,7 @@
     },
     shieldClientTip() {
       log.info("【屏蔽】客户端提示");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
@@ -2337,7 +2338,7 @@
     },
     shieldWallpaper() {
       log.info("【屏蔽】壁纸");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
@@ -2404,7 +2405,7 @@
     },
     shieldSearchPlaceholder() {
       log.info("【屏蔽】搜索框的提示");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
@@ -2441,7 +2442,7 @@
       domUtils.onReady(() => {
         domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
           log.info(`启用观察器观察加载的视频`);
-          let lockFn = new utils.LockFunction((observer) => {
+          const lockFn = new utils.LockFunction((observer) => {
             $os = $os || this.selectorRootOSNode();
             if (!$os) {
               log.error("watchVideDataListChange：获取osElement失败");
@@ -2915,11 +2916,11 @@
       Hook.setInterval((fn) => {
         const funcStr = fn.toString().trim();
         if (funcStr.includes("debugger")) {
-          log.success(["拦截→", [funcStr]]);
+          log.success("拦截→", [funcStr]);
           return false;
         }
         if (funcStr.includes("checkEXp")) {
-          log.success(["拦截→", [funcStr]]);
+          log.success("拦截→", [funcStr]);
           return false;
         }
       });
@@ -3340,10 +3341,10 @@
         profileRankLabel: null,
       };
       Object.freeze(info);
-      function getUserInfo(element) {
-        let userInfoList = [];
-        let reactInstance = utils.getReactInstance(element);
-        let reactFiber = reactInstance?.reactFiber;
+      function getUserInfo($el) {
+        const userInfoList = [];
+        const reactInstance = utils.getReactInstance($el);
+        const reactFiber = reactInstance?.reactFiber;
         reactInstance?.reactProps;
         if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
           userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
@@ -3359,8 +3360,8 @@
         }
         return userInfoList;
       }
-      function setLogin(element) {
-        getUserInfo(element).forEach((userInfo) => {
+      function setLogin($el) {
+        getUserInfo($el).forEach((userInfo) => {
           if (!userInfo.isLogin) {
             userInfo.info = info;
             userInfo.isLogin = true;
@@ -3372,8 +3373,8 @@
       domUtils
         .waitNode("#root div[class*='-os']", WAIT_TIME)
         .then(() => {
-          let lockFn = new utils.LockFunction(() => {
-            let $os = DouYinElement.selectorRootOSNode();
+          const lockFn = new utils.LockFunction(() => {
+            const $os = DouYinElement.selectorRootOSNode();
             if (!$os) {
               return;
             }
@@ -3394,7 +3395,7 @@
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
         domUtils.waitNode(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
-          let lockFn = new utils.LockFunction(() => {
+          const lockFn = new utils.LockFunction(() => {
             setLogin($(`[id^="douyin-header"]`));
           }, 70);
           utils.mutationObserver(document.body, {
@@ -3410,9 +3411,9 @@
         });
       } else if (DouYinRouter.isSearch()) {
         let setUserInfoBySearch = function ($ele) {
-          let $react = utils.getReactInstance($ele);
+          const $react = utils.getReactInstance($ele);
           $react?.reactFiber;
-          let reactProps = $react?.reactProps;
+          const reactProps = $react?.reactProps;
           if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
             Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
           }
@@ -3426,7 +3427,7 @@
             log.error("#root > div获取失败");
             return;
           }
-          let lockFn = new utils.LockFunction(() => {
+          const lockFn = new utils.LockFunction(() => {
             setUserInfoBySearch($rootDiv);
           }, 70);
           utils.mutationObserver(document, {
@@ -3480,10 +3481,10 @@
             }
           }
         }
-        let $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
+        const $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
         if ($ohterDialog) {
-          let reactInst = utils.getReactInstance($ohterDialog);
-          let onClick = reactInst?.reactProps?.onClick;
+          const reactInst = utils.getReactInstance($ohterDialog);
+          const onClick = reactInst?.reactProps?.onClick;
           if (typeof onClick === "function") {
             onClick(new Event("click"));
           } else {
@@ -3509,12 +3510,12 @@
       ];
     },
     watchCommentDialogToClose() {
-      let lockFn = new utils.LockFunction(() => {
-        let $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
+      const lockFn = new utils.LockFunction(() => {
+        const $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
         if (!$cardLoginGuide) {
           return;
         }
-        let $close = $cardLoginGuide.querySelector(".related-video-card-login-guide__footer-close");
+        const $close = $cardLoginGuide.querySelector(".related-video-card-login-guide__footer-close");
         if (!$close) {
           log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
           return;
@@ -3719,7 +3720,7 @@
     videoCommentDrawer: "videoCommentDrawer",
   };
   const DouYinGestureBackClearHash = () => {
-    let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
+    const findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
       return globalThis.location.hash.endsWith(hash);
     });
     if (findValue) {
@@ -3912,8 +3913,8 @@
       ];
     },
     blockClickUpdateReminder() {
-      let lockFn = new utils.LockFunction(() => {
-        let $reminder = $$(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
+      const lockFn = new utils.LockFunction(() => {
+        const $reminder = $$(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
         if ($reminder.length) {
           for (const $reminderItem of $reminder) {
             const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
@@ -4369,7 +4370,7 @@
     },
     shieldSearchFloatingBar() {
       log.info("【屏蔽】搜索悬浮栏");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           "#slideMode + div",
@@ -4401,7 +4402,7 @@
     },
     shieldCloseFullScreenButton() {
       log.info("【屏蔽】网页全屏关闭按钮");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])',
@@ -4447,11 +4448,11 @@
   const MobileCSS$1 =
     '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100dvw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 网页全屏下的推荐视频的高度适配 */\r\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r\n    margin: 0px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n    white-space: nowrap;\r\n    overflow: auto;\r\n    align-items: start;\r\n    justify-content: start;\r\n    margin: 0px;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   const DouYinVideoElementAutoHide = (delayTimeKey, selectors) => {
-    let isInjectAttrName = "data-is-inject-mouse-hide";
-    let opacityShowAttrName = "data-opacity-show";
-    let opacityHideAttrName = "data-opacity-hide";
+    const isInjectAttrName = "data-is-inject-mouse-hide";
+    const opacityShowAttrName = "data-opacity-show";
+    const opacityHideAttrName = "data-opacity-hide";
     const result = [];
-    let delayTime = () => Panel.getValue(delayTimeKey);
+    const delayTime = () => Panel.getValue(delayTimeKey);
     const hideStyle = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
         return `
@@ -4914,7 +4915,7 @@
           window,
           unsafeWindow: _unsafeWindow,
         });
-        let handlerResult = await handlerFunction({
+        const handlerResult = await handlerFunction({
           ruleKey: config.ruleKey,
           transformAwemeInfo: config.transformAwemeInfo,
         });
@@ -4930,7 +4931,7 @@
         }
       } else if (typeof config.videoInfoValue === "object") {
         if (Array.isArray(config.videoInfoValue)) {
-          let findValue = config.videoInfoValue.find((awemeInfoDictValue) => {
+          const findValue = config.videoInfoValue.find((awemeInfoDictValue) => {
             if (typeof awemeInfoDictValue === "string" && config.ruleValue != null) {
               return Boolean(awemeInfoDictValue.match(config.ruleValue));
             } else {
@@ -4943,13 +4944,13 @@
         }
       } else if (typeof config.videoInfoValue === "number") {
         if (typeof config.ruleValue === "string") {
-          let ruleValue = config.ruleValue.trim();
-          let compareNumberMatch = ruleValue.match(/(\d+)/);
+          const ruleValue = config.ruleValue.trim();
+          const compareNumberMatch = ruleValue.match(/(\d+)/);
           if (!compareNumberMatch) {
             log.warn("过滤器-解析比较大小的数字失败: ", config);
             return false;
           }
-          let compareNumber = Number(compareNumberMatch[1]);
+          const compareNumber = Number(compareNumberMatch[1]);
           if (ruleValue.startsWith(">")) {
             if (ruleValue.startsWith(">=")) {
               if (config.videoInfoValue >= compareNumber) {
@@ -4981,18 +4982,18 @@
         }
       } else if (typeof config.videoInfoValue === "boolean") {
         if (typeof config.ruleValue === "string") {
-          let trimRuleValue = config.ruleValue.trim();
+          const trimRuleValue = config.ruleValue.trim();
           return config.videoInfoValue.toString() === trimRuleValue;
         }
       }
       return false;
     }
     async checkAwemeInfoIsFilter(rules, awemeInfo, isQueryAllMatchedFilterRules) {
-      let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
+      const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       let matchedFilterOption = null;
-      let matchedFilterOptionList = [];
-      let notMatchedFilterRule = [];
+      const matchedFilterOptionList = [];
+      const notMatchedFilterRule = [];
       outerLoop: for (let index = 0; index < rules.length; index++) {
         const filterRule = rules[index];
         const ruleNameList = Array.isArray(filterRule.data.ruleName)
@@ -5003,9 +5004,9 @@
           if (!Reflect.has(transformAwemeInfo, ruleName)) {
             continue;
           }
-          let tagKey = ruleName;
-          let tagValue = transformAwemeInfo[tagKey];
-          let details = {
+          const tagKey = ruleName;
+          const tagValue = transformAwemeInfo[tagKey];
+          const details = {
             videoInfoKey: tagKey,
             videoInfoValue: tagValue,
             ruleKey: filterRule.data.ruleName,
@@ -5016,12 +5017,12 @@
           flag = await this.checkFilterWithRule(details, filterRule.data);
           if (flag) {
             if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
-              let dynamicDetailsList = [];
+              const dynamicDetailsList = [];
               for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
                 const dynamicOption = filterRule.dynamicData[dynamicIndex];
-                let dynamicTagKey = dynamicOption.ruleName;
-                let dynamicTagValue = transformAwemeInfo[dynamicTagKey];
-                let dynamicDetails = {
+                const dynamicTagKey = dynamicOption.ruleName;
+                const dynamicTagValue = transformAwemeInfo[dynamicTagKey];
+                const dynamicDetails = {
                   videoInfoKey: dynamicTagKey,
                   videoInfoValue: dynamicTagValue,
                   ruleKey: dynamicOption.ruleName,
@@ -5030,24 +5031,24 @@
                   rule: filterRule,
                 };
                 dynamicDetailsList.push(dynamicDetails);
-                let dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
+                const dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
                 flag = flag && dynamicCheckFlag;
                 if (!flag) {
                   break;
                 }
               }
               if (flag) {
-                log.success([
+                log.success(
                   `视频过滤器-多组 ==> ${filterRule.name}`,
                   transformAwemeInfo,
                   details,
                   dynamicDetailsList,
                   awemeInfo,
-                  filterRule,
-                ]);
+                  filterRule
+                );
               }
             } else {
-              log.success([`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule]);
+              log.success(`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule);
             }
           }
           if (flag) {
@@ -5075,15 +5076,15 @@
     async sendDislikeVideo(rule, awemeInfo) {}
     removeAweme(...args) {
       if (args.length === 1) {
-        let $video = args[0];
+        const $video = args[0];
         if ($video != null && $video instanceof HTMLElement) {
           $video.remove();
         }
       } else if (args.length === 2) {
-        let videoList = args[0];
-        let deleteIndex = args[1];
+        const videoList = args[0];
+        const deleteIndex = args[1];
         if (typeof deleteIndex === "number") {
-          let item = videoList[deleteIndex];
+          const item = videoList[deleteIndex];
           if (item != null && item instanceof Element) {
             item?.remove();
           }
@@ -5467,15 +5468,15 @@
         "dy-video-rate-low": {
           callback() {
             log.info("触发快捷键 ==> 调用倍速：小");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+            const currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            const findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
               return rate === currentRate;
             });
             if (findIndex === 0) {
               log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
               return;
             }
-            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
+            const prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
             log.info("触发快捷键 ==> 设置倍速: " + prevRate);
             DouYinVideoPlayer.chooseVideoRate(prevRate);
           },
@@ -5483,15 +5484,15 @@
         "dy-video-rate-up": {
           callback() {
             log.info("触发快捷键 ==> 调用倍速：大");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
+            const currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            const findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex((rate) => {
               return rate === currentRate;
             });
             if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
               log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
               return;
             }
-            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
+            const nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
             log.info("触发快捷键 ==> 设置倍速: " + nextRate);
             DouYinVideoPlayer.chooseVideoRate(nextRate);
           },
@@ -5499,7 +5500,7 @@
         "dy-video-shortcut-immersionMode": {
           callback() {
             log.info("触发快捷键 ==> 沉浸模式");
-            let value = Panel.getValue("fullScreen");
+            const value = Panel.getValue("fullScreen");
             Panel.setValue("fullScreen", !value);
             Panel.execMenuOnce("fullScreen", () => {
               return DouYinVideoPlayer.fullScreen();
@@ -5512,7 +5513,7 @@
             const $videos = $$("video[src]");
             $videos.forEach(($video) => {
               if (utils.isNull($video.src)) return;
-              let muted = !$video.muted;
+              const muted = !$video.muted;
               log.success(`切换video标签的静音状态为 ${muted}`);
               $video.muted = muted;
             });
@@ -5535,8 +5536,7 @@
         "dy-video-shortcut-playbackRate": {
           callback() {
             log.info("触发快捷键 ==> 倍速播放");
-            let enable = Boolean(Panel.getValue("dy-video-playbackrate"));
-            enable = !enable;
+            const enable = !Boolean(Panel.getValue("dy-video-playbackrate"));
             if (enable) {
               const rate = Panel.getValue("dy-video-playbackrate-select-value");
               Qmsg.success("开启倍速：" + rate);
@@ -5578,8 +5578,8 @@
         },
         (keyList) => {
           const [mainKey, childKey] = keyList;
-          let mainValue = Panel.getValue(mainKey);
-          let childValue = Panel.getValue(childKey);
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (mainValue) {
               if (childValue == 1) {
@@ -5600,7 +5600,7 @@
         return this.changeBackgroundColor(option.value[1]);
       });
       Panel.execMenuOnce("repairProgressBar", () => {
-        let result = [];
+        const result = [];
         Panel.onceExec("repairProgressBar", () => {
           result.push(...this.repairVideoProgressBar());
         });
@@ -5646,7 +5646,7 @@
     },
     fullScreen() {
       log.info("沉浸模式");
-      let result = [];
+      const result = [];
       result.push(
         CommonUtil.addBlockCSS(".slider-video .positionBox", "#video-info-wrap", "xg-controls.xgplayer-controls")
       );
@@ -5685,7 +5685,7 @@
       this.$flag.isWaitEnterFullScreen = true;
       if (userKeyBoard) {
         domUtils.onReady(() => {
-          let keydownEvent = new KeyboardEvent("keydown", {
+          const keydownEvent = new KeyboardEvent("keydown", {
             bubbles: true,
             cancelable: true,
             key: "Y",
@@ -5774,8 +5774,8 @@
     },
     chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
-      let QualitySessionKey = "MANUAL_SWITCH";
-      let definition = [
+      const QualitySessionKey = "MANUAL_SWITCH";
+      const definition = [
         {
           done: 1,
           gearClarity: "20",
@@ -5825,13 +5825,13 @@
           gearType: 0,
         },
       ];
-      let choose = definition.find((item) => item.gearType === mode);
+      const choose = definition.find((item) => item.gearType === mode);
       function setVideoQuality(value) {
         _unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
       }
       if (choose) {
-        let chooseStr = JSON.stringify(choose);
-        let intervalId = setInterval(() => {
+        const chooseStr = JSON.stringify(choose);
+        const intervalId = setInterval(() => {
           setVideoQuality(chooseStr);
         }, 250);
         setTimeout(() => {
@@ -5843,11 +5843,11 @@
       }
     },
     chooseVideoRate(rate = "1") {
-      let Definition_Key = "player_playbackratio";
+      const Definition_Key = "player_playbackratio";
       function setRate(value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
         $$("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
-          let $container = utils.getReactInstance($playbackSetting).reactContainer;
+          const $container = utils.getReactInstance($playbackSetting).reactContainer;
           $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
         });
       }
@@ -5858,7 +5858,7 @@
       const showParseInfoDialog = (info) => {
         let showParseInfoHTML = "";
         info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
-          let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+          const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
           let downloadFileName = info.downloadInfo.video.fileName;
           downloadFileName = transformDownloadFileName(
             {
@@ -5900,7 +5900,7 @@
 				</div>`;
         });
         info.downloadInfo.picture.urlInfoList.forEach((downloadInfo) => {
-          let pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
+          const pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
           let downloadFileName = info.downloadInfo.picture.fileName;
           downloadFileName = transformDownloadFileName(
             {
@@ -6044,8 +6044,8 @@
               },
               onprogress(details) {
                 if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
-                  let progressNum = details.loaded / details.total;
-                  let formatProgressNum = (progressNum * 100).toFixed(2);
+                  const progressNum = details.loaded / details.total;
+                  const formatProgressNum = (progressNum * 100).toFixed(2);
                   downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
                   if (details.loaded === details.total) {
                     isDownloadEnd = true;
@@ -6101,7 +6101,7 @@
         const $basePlayerContainer = $click.closest(".basePlayerContainer");
         const basePlayerContainerReactFiber = utils.getReactInstance($basePlayerContainer)?.reactFiber;
         if (!parentReactFilber && !basePlayerContainerReactFiber) {
-          log.error([$click, parentReactFilber, $basePlayerContainer, basePlayerContainerReactFiber]);
+          log.error($click, parentReactFilber, $basePlayerContainer, basePlayerContainerReactFiber);
           Qmsg.error("获取rectFiber属性失败");
           return;
         }
@@ -6111,11 +6111,11 @@
             parentReactFilber?.return?.return?.return?.memoizedProps?.awemeInfo ||
             basePlayerContainerReactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
           if (!awemeInfo) {
-            log.error([$click, parentReactFilber, basePlayerContainerReactFiber]);
+            log.error($click, parentReactFilber, basePlayerContainerReactFiber);
             Qmsg.error("获取awemeInfo属性失败");
             return;
           }
-          log.info([`解析的awemeInfo: `, awemeInfo]);
+          log.info(`解析的awemeInfo: `, awemeInfo);
           const filterBase = new DouYinVideoFilterBase();
           const transformAwemeInfo = filterBase.parseAwemeInfoDictData(awemeInfo);
           if (transformAwemeInfo.nickname == null) {
@@ -6263,7 +6263,7 @@
           }
           log.info(`视频链接：` + shareUrl);
           try {
-            let shareUrlInst = new URL(shareUrl);
+            const shareUrlInst = new URL(shareUrl);
             shareUrlInst.search = "";
             shareUrl = shareUrlInst.toString();
             log.info(`去除search参数后的链接：` + shareUrl);
@@ -6285,7 +6285,7 @@
     },
     mobileMode() {
       log.info("启用手机模式");
-      let result = [];
+      const result = [];
       DouYin.initialScale();
       result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar"), addStyle(MobileCSS$1));
       Panel.onceExec("repairProgressBar", () => {
@@ -6295,7 +6295,7 @@
     },
     repairVideoProgressBar() {
       log.info("修复进度条按钮");
-      let result = [
+      const result = [
         addStyle(
           `
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
@@ -6410,7 +6410,7 @@
     },
     gestureBackCloseComment() {
       log.info(`手势返回关闭评论区`);
-      let gestureback = new GestureBack({
+      const gestureback = new GestureBack({
         hash: DouYinGestureBackHashConfig.videoCommentDrawer,
         useUrl: true,
         beforeHistoryBackCallBack(isUrlChange) {
@@ -6421,11 +6421,11 @@
       });
       const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
       function closeComment() {
-        let $close = $($closeSelector);
+        const $close = $($closeSelector);
         if ($close) {
-          let rect = utils.getReactInstance($close);
+          const rect = utils.getReactInstance($close);
           if (rect) {
-            let fn = rect.reactProps?.onClick;
+            const fn = rect.reactProps?.onClick;
             if (typeof fn === "function") {
               fn();
             } else {
@@ -6472,22 +6472,22 @@
     },
     waitToRemovePauseDialog() {
       log.info("监听信息区域【长时间无操作，已暂停播放】弹窗");
-      let checkDialogToClose = ($ele) => {
-        let eleText = domUtils.text($ele);
+      const checkDialogToClose = ($ele) => {
+        const eleText = domUtils.text($ele);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
             consoleLogContent: true,
           });
-          let $rect = utils.getReactInstance($ele);
+          const $rect = utils.getReactInstance($ele);
           if (typeof $rect.reactProps === "object") {
-            let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
+            const closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
               if (typeof obj?.["props"]?.["onClose"] === "function") {
                 return {
                   isFind: true,
                   data: obj["props"]["onClose"],
                 };
               } else {
-                let children = obj?.["props"]?.["children"] ?? obj?.["children"];
+                const children = obj?.["props"]?.["children"] ?? obj?.["children"];
                 return {
                   isFind: false,
                   data: Array.isArray(children) ? children[0] : children,
@@ -6501,7 +6501,7 @@
           }
         }
       };
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
           return;
         }
@@ -6661,19 +6661,19 @@
     },
     execMessageFilter(messageQueue, from) {
       for (let index = 0; index < messageQueue.length; index++) {
-        let $danmu = messageQueue[index];
-        let react = utils.getReactInstance($danmu);
-        let messageIns =
+        const $danmu = messageQueue[index];
+        const react = utils.getReactInstance($danmu);
+        const messageIns =
           react?.reactFiber?.return?.memoizedProps?.message ||
           react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message ||
           react?.reactContainer?.memoizedState?.element?.props?.message;
         if (typeof messageIns !== "object" || messageIns == null) {
           continue;
         }
-        let message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
-        let method = messageIns.method;
-        let chat_by = messageIns?.payload?.chat_by;
-        let biz_scene = messageIns?.payload?.biz_scene;
+        const message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
+        const method = messageIns.method;
+        const chat_by = messageIns?.payload?.chat_by;
+        const biz_scene = messageIns?.payload?.biz_scene;
         let flag = false;
         if (!flag) {
           if (method === "WebcastGiftMessage") {
@@ -6922,7 +6922,7 @@
     },
     shieldGiftEffects() {
       log.info("【屏蔽】礼物特效");
-      let result = [
+      const result = [
         CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
       ];
       return result;
@@ -6971,14 +6971,14 @@
           return text;
         },
         callback: () => {
-          let $playerIns = $(`[id^="living_room_player_container"]`);
+          const $playerIns = $(`[id^="living_room_player_container"]`);
           if (!$playerIns) {
             log.error("获取playerInstance所在的元素失败");
             Qmsg.error("获取playerInstance所在的元素失败");
             return;
           }
           this.$el.$playerIns = $playerIns;
-          let playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
+          const playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
           if (playerInstance == null) {
             log.error("获取playerInstance失败");
             log.error("获取playerInstance失败");
@@ -6990,13 +6990,13 @@
       });
     },
     parseElementPlayerIns($ele) {
-      let react = utils.getReactInstance($ele);
+      const react = utils.getReactInstance($ele);
       return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance;
     },
     showParseDialog() {
-      log.info(["解析的信息：", this.$data.playerInstance]);
-      let blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
-      let pushSrc = this.$data.playerInstance?.config.url;
+      log.info("解析的信息：", this.$data.playerInstance);
+      const blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
+      const pushSrc = this.$data.playerInstance?.config.url;
       __pops__.alert({
         title: {
           text: "解析信息",
@@ -7194,7 +7194,7 @@
           return typeof reactInstance?.memoizedProps?.onClick === "function";
         },
         set(reactInstance, $target) {
-          let $xgIcon = $target.closest("xg-icon");
+          const $xgIcon = $target.closest("xg-icon");
           if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
             log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
             return;
@@ -7205,6 +7205,7 @@
       });
     },
     chooseQuality(quality = "origin") {
+      const qualityName = VideoQualityMap[quality].label;
       ReactUtils.waitReactPropsToSet(
         'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
         "reactProps",
@@ -7217,8 +7218,8 @@
             );
           },
           set(reactInstance) {
-            let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
-            let currentQualityList = qualityHandler.getCurrentQualityList();
+            const qualityHandler = reactInstance.children.props.children.props.qualityHandler;
+            const currentQualityList = qualityHandler.getCurrentQualityList();
             if (!currentQualityList.includes(quality)) {
               Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
               currentQualityList.sort((a, b) => {
@@ -7250,8 +7251,8 @@
             );
           },
           set(reactPropInst, $el) {
-            let qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
-            let currentQualityList = reactPropInst?.return?.memoizedProps?.qualityList;
+            const qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
+            const currentQualityList = reactPropInst?.return?.memoizedProps?.qualityList;
             if (!currentQualityList.includes(quality)) {
               Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
               currentQualityList.sort((a, b) => {
@@ -7272,6 +7273,18 @@
           },
         }
       );
+      const switchSelector = qualityName.includes("自动")
+        ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${qualityName}")`
+        : `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
+      ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.onClick === "function";
+        },
+        set(reactPropInst, $el) {
+          log.success(`调用onClick切换至画质【${domUtils.text($el)}】`);
+          reactPropInst.onClick();
+        },
+      });
     },
     unlockImageQuality() {
       log.info("解锁画质选择");
@@ -7282,10 +7295,10 @@
         function (event, clickNode) {
           domUtils.preventEvent(event);
           try {
-            let reactInst = utils.getReactInstance(clickNode);
-            let $QualitySwitchNewPlugin = clickNode.closest(".QualitySwitchNewPlugin");
-            let parent = clickNode.closest(".QualitySwitchNewPlugin > div") || clickNode.closest("div[data-index]");
-            let parentReactInst = utils.getReactInstance(parent);
+            const reactInst = utils.getReactInstance(clickNode);
+            const $QualitySwitchNewPlugin = clickNode.closest(".QualitySwitchNewPlugin");
+            const parent = clickNode.closest(".QualitySwitchNewPlugin > div") || clickNode.closest("div[data-index]");
+            const parentReactInst = utils.getReactInstance(parent);
             let qualityHandler = {
               getCurrentQuality() {
                 return reactInst?.reactFiber?.["key"];
@@ -7297,7 +7310,7 @@
                 );
               },
               setCurrentQuality(quality) {
-                let setCurrentQuality =
+                const setCurrentQuality =
                   parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
                   parentReactInst?.reactFiber?.child?.memoizedProps?.qualityHandler?.setCurrentQuality ||
                   parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
@@ -7310,8 +7323,8 @@
               },
             };
             if ($QualitySwitchNewPlugin) {
-              let QualitySwitchNewPluginReactInst = utils.getReactInstance($QualitySwitchNewPlugin);
-              let current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
+              const QualitySwitchNewPluginReactInst = utils.getReactInstance($QualitySwitchNewPlugin);
+              const current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
               if (
                 typeof current === "object" &&
                 current != null &&
@@ -7322,9 +7335,9 @@
                 qualityHandler = current;
               }
             }
-            let currentQuality = qualityHandler.getCurrentQuality();
+            const currentQuality = qualityHandler.getCurrentQuality();
             log.info("当前选择的画质: " + currentQuality);
-            log.info(["所有的画质: ", qualityHandler.getCurrentQualityList()]);
+            log.info("所有的画质: ", qualityHandler.getCurrentQualityList());
             qualityHandler.setCurrentQuality(currentQuality);
           } catch (error) {
             log.error(error);
@@ -7338,15 +7351,15 @@
     },
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
-      let checkDialogToClose = ($ele, from) => {
-        let eleText = domUtils.text($ele);
+      const checkDialogToClose = ($el, from) => {
+        const eleText = domUtils.text($el);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
             consoleLogContent: true,
           });
-          let $rect = utils.getReactInstance($ele);
+          const $rect = utils.getReactInstance($el);
           if (typeof $rect.reactContainer === "object") {
-            let closeDialogFn =
+            const closeDialogFn =
               utils.queryProperty($rect.reactContainer, (obj) => {
                 if (typeof obj["onClose"] === "function") {
                   return {
@@ -7374,7 +7387,7 @@
           }
         }
       };
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         if (!Panel.getValue("live-waitToRemovePauseDialog")) {
           return;
         }
@@ -7496,7 +7509,7 @@
     },
     changeBackgroundColor() {
       log.info("修改视频背景颜色");
-      let color = Panel.getValue("live-changeBackgroundColor");
+      const color = Panel.getValue("live-changeBackgroundColor");
       return addStyle(
         `
 		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg),
@@ -7570,7 +7583,7 @@
     },
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isSearch()) return;
         $$('[id^="waterfall_item"]:has(.search-result-card p)').forEach(($el) => {
           const $p = $el.querySelector("p");
@@ -7716,9 +7729,9 @@
             return;
           }
           domUtils.preventEvent(event);
-          let $click = selectorTarget;
-          let $parent = $click.parentElement?.parentElement;
-          let $video = $parent.querySelector("video");
+          const $click = selectorTarget;
+          const $parent = $click.parentElement?.parentElement;
+          const $video = $parent.querySelector("video");
           if ($video) {
             if ($video.paused) {
               $video.play();
@@ -7746,7 +7759,7 @@
             return;
           }
           domUtils.preventEvent(event);
-          let $video = selectorTarget;
+          const $video = selectorTarget;
           if ($video.paused) {
             $video.play();
             log.info("#sliderVideo video：播放视频");
@@ -7821,8 +7834,8 @@
         },
         (keyList) => {
           const [mainKey, childKey] = keyList;
-          let mainValue = Panel.getValue(mainKey);
-          let childValue = Panel.getValue(childKey);
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (childValue == 1) {
               return true;
@@ -7860,10 +7873,13 @@
       Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
         return this.block_tab_ai_search();
       });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-activity_2753848", () => {
+        return this.block_tab_activity_2753848();
+      });
     },
     shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
-      let result = [];
+      const result = [];
       result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
       result.push(
         addStyle(
@@ -7878,43 +7894,47 @@
     },
     block_tab_home() {
       log.info("【屏蔽】精选");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
     },
     block_tab_recommend() {
       log.info("【屏蔽】推荐");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+    },
+    block_tab_ai_search() {
+      log.info(`【屏蔽】AI搜索/抖音`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
+      );
     },
     block_tab_follow() {
       log.info("【屏蔽】关注");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
     },
     block_tab_friend() {
       log.info("【屏蔽】朋友");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
     },
     block_tab_user_self() {
       log.info("【屏蔽】我的");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
+    },
+    block_tab_activity_2753848() {
+      log.info(`【屏蔽】科技特辑`);
       return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
+        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_2753848"])'
       );
     },
     block_tab_live() {
       log.info("【屏蔽】直播");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
     },
     block_tab_vs() {
       log.info("【屏蔽】放映厅");
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
     },
     block_tab_series() {
       log.info(`短剧`);
-      return CommonUtil.addBlockCSS('div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
-    },
-    block_tab_ai_search() {
-      log.info(`【屏蔽】AI搜索`);
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-      );
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
     },
   };
   const blockCSS$8 =
@@ -7937,9 +7957,9 @@
           return typeof reactInstance?.return?.memoizedProps?.userInfo?.uid === "string";
         },
         set(reactInstance, $target) {
-          let uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
+          const uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
           domUtils.remove($target.querySelectorAll(".gm-user-uid"));
-          let $userUID = domUtils.createElement(
+          const $userUID = domUtils.createElement(
             "p",
             {
               className: "gm-user-uid",
@@ -9634,16 +9654,16 @@
         }
         let transformAwemeInfo;
         const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
-        log.info(["DOM上的的awemeInfo：", awemeInfo]);
-        log.info(["DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage]);
+        log.info("DOM上的的awemeInfo：", awemeInfo);
+        log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
         if (
           typeof transformAwemeInfoWithPage.awemeId === "string" &&
           DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
         ) {
           const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-          log.info([`网络请求的awemeInfo：`, awemeInfoMapData.awemeInfo]);
-          log.info([`网络请求解析出的transformAwemeInfo：`, awemeInfoMapData.transformAwemeInfo]);
+          log.info(`网络请求的awemeInfo：`, awemeInfoMapData.awemeInfo);
+          log.info(`网络请求解析出的transformAwemeInfo：`, awemeInfoMapData.transformAwemeInfo);
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }
@@ -10368,25 +10388,30 @@
         );
       };
       const switchActiveVideo = () => {
-        if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
-          Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
-          return;
+        const $next = $(".xgplayer-playswitch-next");
+        if ($next) {
+          $next.click();
+        } else {
+          if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+            Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
+            return;
+          }
+          const keydownEvent = new KeyboardEvent("keydown", {
+            bubbles: true,
+            cancelable: true,
+            key: "ArrowDown",
+            code: "ArrowDown",
+            keyCode: 40,
+            which: 40,
+          });
+          document.body.dispatchEvent(keydownEvent);
         }
-        let keydownEvent = new KeyboardEvent("keydown", {
-          bubbles: true,
-          cancelable: true,
-          key: "ArrowDown",
-          code: "ArrowDown",
-          keyCode: 40,
-          which: 40,
-        });
-        document.body.dispatchEvent(keydownEvent);
       };
       const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isRecommend()) {
           return;
         }
-        let $activeVideo = queryActiveVideo();
+        const $activeVideo = queryActiveVideo();
         if (!$activeVideo) {
           return;
         }
@@ -10402,15 +10427,15 @@
             log.success(`视频播放完毕，切换至下一个视频`);
             domUtils.preventEvent(evt);
             currentVideoSrc = $activeVideo.src;
-            let isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+            const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
             CommonUtil.interval(
               (isTimeout) => {
                 if (isTimeout) {
                   log.error(`切换视频超时，切换失败`);
                   return false;
                 }
-                let $playingVideo = queryActiveVideo();
-                let playingSrc = $playingVideo?.src;
+                const $playingVideo = queryActiveVideo();
+                const playingSrc = $playingVideo?.src;
                 if (isSlideMode) {
                   if (playingSrc && $activeVideo === $playingVideo && currentVideoSrc !== playingSrc) {
                     log.success("合集-切换视频成功");
@@ -10707,25 +10732,25 @@
         ".user-playlet-list .playlet-item",
         (event) => {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let reactFiber = utils.getReactInstance($click)?.reactFiber;
-          let key = reactFiber?.key;
+          const $click = event.target;
+          const reactFiber = utils.getReactInstance($click)?.reactFiber;
+          const key = reactFiber?.key;
           if (key == null) {
             Qmsg.error("获取视频合集key失败");
             return;
           }
-          let index = reactFiber?.index;
+          const index = reactFiber?.index;
           if (index == null) {
             Qmsg.error("获取视频合集index失败");
             return;
           }
-          let playletList = reactFiber?.return?.return?.pendingProps?.playletList;
+          const playletList = reactFiber?.return?.return?.pendingProps?.playletList;
           if (playletList == null) {
             Qmsg.error("获取视频合集playletList失败");
             return;
           }
-          let currentPlaylet = playletList[index];
-          let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+          const currentPlaylet = playletList[index];
+          const url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
           window.open(url, "_blank");
         },
         {
@@ -10741,10 +10766,10 @@
         ".post-list-container .user-post-cover",
         (event) => {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let reactFiber = utils.getReactInstance($click)?.reactFiber;
+          const $click = event.target;
+          const reactFiber = utils.getReactInstance($click)?.reactFiber;
           if (reactFiber?.return?.memoizedProps?.productionUrl) {
-            let url = reactFiber?.return?.memoizedProps?.productionUrl;
+            const url = reactFiber?.return?.memoizedProps?.productionUrl;
             window.open(url, "_blank");
           } else {
             Qmsg.error("获取视频链接失败");
@@ -10834,15 +10859,15 @@
         "#masonry .card",
         (event) => {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactInstance($click).reactFiber;
+          const $click = event.target;
+          const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let awemeId = rectFiber?.return?.memoizedProps.awemeId;
-          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          const awemeId = rectFiber?.return?.memoizedProps.awemeId;
+          const url = DouYinUrlUtils.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -10901,15 +10926,15 @@
         ".message-con__footer",
         (event) => {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactInstance($click).reactFiber;
+          const $click = event.target;
+          const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-          let url = DouYinUrlUtils.getMusicUrl(musicId);
+          const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
+          const url = DouYinUrlUtils.getMusicUrl(musicId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -10924,16 +10949,16 @@
         ".container .related-list-con .related-note-item",
         (event) => {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactInstance($click).reactFiber;
+          const $click = event.target;
+          const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
             Qmsg.error("获取reactFiber失败");
             return;
           }
-          let itemData = rectFiber?.return?.memoizedProps?.itemData;
-          let awemeId = itemData["awemeId"];
-          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          const itemData = rectFiber?.return?.memoizedProps?.itemData;
+          const awemeId = itemData["awemeId"];
+          const url = DouYinUrlUtils.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -10974,16 +10999,16 @@
       log.info("覆盖视频卡片点击事件");
       const callback = (event, $click) => {
         domUtils.preventEvent(event);
-        let rectFiber = utils.getReactInstance($click).reactFiber;
+        const rectFiber = utils.getReactInstance($click).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
           return;
         }
-        let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
-        let index = rectFiber.index;
-        let currentList = listData[index];
-        let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+        const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
+        const index = rectFiber.index;
+        const currentList = listData[index];
+        const url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
@@ -11005,16 +11030,16 @@
       log.info("覆盖视频卡片点击事件");
       const callback = (event, $click) => {
         domUtils.preventEvent(event);
-        let rectFiber = utils.getReactInstance($click).reactFiber;
+        const rectFiber = utils.getReactInstance($click).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
           Qmsg.error("获取reactFiber失败");
           return;
         }
-        let listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
-        let index = rectFiber.index;
-        let currentList = listData[index];
-        let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+        const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
+        const index = rectFiber.index;
+        const currentList = listData[index];
+        const url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
@@ -11046,12 +11071,12 @@
     },
   };
   const afterEnterDeepMenuCallBack = (formConfig, container) => {
-    let $oneClickOpen = container.$sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
-    let $oneClickClose = container.$sectionBodyContainer.querySelector(".keyboard-oneClickClose");
-    let clickCallBack = (isOpen) => {
+    const $oneClickOpen = container.$sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
+    const $oneClickClose = container.$sectionBodyContainer.querySelector(".keyboard-oneClickClose");
+    const clickCallBack = (isOpen) => {
       container.$sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
-        let $input = $ele.querySelector(".pops-panel-switch__input");
-        let $checkbox = $ele.querySelector(".pops-panel-switch__core");
+        const $input = $ele.querySelector(".pops-panel-switch__input");
+        const $checkbox = $ele.querySelector(".pops-panel-switch__core");
         if (isOpen) {
           if (!$input.checked) {
             $checkbox.click();
@@ -11344,14 +11369,31 @@
               {
                 type: "container",
                 text: AutoOpenOrClose.text,
+                views: [UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false)],
+              },
+              {
+                type: "container",
+                text: "",
                 views: [
-                  UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false),
                   UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false),
                   UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false),
                   UISwitch("【屏蔽】AI搜索/抖音", "shieldLeftNavigator-tab-ai-search", false),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
                   UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false),
                   UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false),
                   UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UISwitch("【屏蔽】科技特辑", "shieldLeftNavigator-tab-activity_2753848", false),
                   UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
                   UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
                   UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
@@ -11370,6 +11412,13 @@
                 views: [
                   UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
                   UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
                   UISwitch("【屏蔽】客户端提示", "shieldClientTip", true),
                   UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true),
                   UISwitch("【屏蔽】客户端", "shieldClient", true),
@@ -11380,7 +11429,6 @@
                   UISwitch("【屏蔽】壁纸", "shieldWallpaper", false),
                   UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false),
                   UISwitch("【屏蔽】登录头像", "shield-topNav-rightMenu-loginAvatar", false),
-                  UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false),
                 ],
               },
             ],
@@ -12293,7 +12341,7 @@
                     "origin",
                     (() => {
                       return Object.keys(VideoQualityMap).map((key) => {
-                        let item = VideoQualityMap[key];
+                        const item = VideoQualityMap[key];
                         return {
                           value: key,
                           text: item.label,

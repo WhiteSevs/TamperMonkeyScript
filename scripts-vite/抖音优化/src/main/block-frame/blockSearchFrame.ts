@@ -31,7 +31,7 @@ export const BlockSearchFrame = {
    */
   shieldSearchPlaceholder() {
     log.info("【屏蔽】搜索框的提示");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'

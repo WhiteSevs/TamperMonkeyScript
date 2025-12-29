@@ -71,7 +71,7 @@ export const DouYinVideoBlock = {
    */
   shieldSearchFloatingBar() {
     log.info("【屏蔽】搜索悬浮栏");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         /* 看相关页面的 */
@@ -112,7 +112,7 @@ export const DouYinVideoBlock = {
    */
   shieldCloseFullScreenButton() {
     log.info("【屏蔽】网页全屏关闭按钮");
-    let result = [];
+    const result = [];
     result.push(
       CommonUtil.addBlockCSS(
         // 2024.7.16

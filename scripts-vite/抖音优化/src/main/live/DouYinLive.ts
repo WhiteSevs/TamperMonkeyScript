@@ -1,4 +1,4 @@
-import { $$, DOMUtils, addStyle, log, utils } from "@/env";
+import { $, $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
@@ -128,7 +128,7 @@ export const DouYinLive = {
         return typeof reactInstance?.memoizedProps?.onClick === "function";
       },
       set(reactInstance, $target) {
-        let $xgIcon = $target.closest<HTMLElement>("xg-icon");
+        const $xgIcon = $target.closest<HTMLElement>("xg-icon");
         if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
           log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
           return;
@@ -143,6 +143,7 @@ export const DouYinLive = {
    * @param quality 选择的画质，默认原画
    */
   chooseQuality(quality = "origin") {
+    const qualityName = VideoQualityMap[quality].label;
     ReactUtils.waitReactPropsToSet(
       'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
       "reactProps",
@@ -154,9 +155,9 @@ export const DouYinLive = {
           );
         },
         set(reactInstance) {
-          let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
+          const qualityHandler = reactInstance.children.props.children.props.qualityHandler;
           // 当前直播可选的画质
-          let currentQualityList: string[] = qualityHandler.getCurrentQualityList();
+          const currentQualityList: string[] = qualityHandler.getCurrentQualityList();
           if (!currentQualityList.includes(quality)) {
             Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
             currentQualityList.sort((a, b) => {
@@ -188,9 +189,9 @@ export const DouYinLive = {
           );
         },
         set(reactPropInst, $el) {
-          let qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
+          const qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
           // 当前直播可选的画质
-          let currentQualityList: string[] = reactPropInst?.return?.memoizedProps?.qualityList;
+          const currentQualityList: string[] = reactPropInst?.return?.memoizedProps?.qualityList;
           if (!currentQualityList.includes(quality)) {
             Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
             currentQualityList.sort((a, b) => {
@@ -211,6 +212,19 @@ export const DouYinLive = {
         },
       }
     );
+    const switchSelector = qualityName.includes("自动")
+      ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${qualityName}")`
+      : // 排掉第一个画质（自动）
+        `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
+    ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
+      check(reactPropInst, $el) {
+        return typeof reactPropInst?.onClick === "function";
+      },
+      set(reactPropInst, $el) {
+        log.success(`调用onClick切换至画质【${DOMUtils.text($el)}】`);
+        reactPropInst.onClick();
+      },
+    });
   },
   /**
    * 解锁画质选择
@@ -226,12 +240,12 @@ export const DouYinLive = {
       function (event, clickNode) {
         DOMUtils.preventEvent(event);
         try {
-          let reactInst = utils.getReactInstance(clickNode);
-          let $QualitySwitchNewPlugin = clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin");
-          let parent =
+          const reactInst = utils.getReactInstance(clickNode);
+          const $QualitySwitchNewPlugin = clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin");
+          const parent =
             clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin > div") ||
             clickNode.closest<HTMLElement>("div[data-index]");
-          let parentReactInst = utils.getReactInstance(parent as HTMLDivElement);
+          const parentReactInst = utils.getReactInstance(parent as HTMLDivElement);
           let qualityHandler = {
             getCurrentQuality(): string {
               return reactInst?.reactFiber?.["key"];
@@ -243,7 +257,7 @@ export const DouYinLive = {
               );
             },
             setCurrentQuality(quality: string) {
-              let setCurrentQuality =
+              const setCurrentQuality =
                 parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
                 parentReactInst?.reactFiber?.child?.memoizedProps?.qualityHandler?.setCurrentQuality ||
                 parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
@@ -257,8 +271,8 @@ export const DouYinLive = {
           };
 
           if ($QualitySwitchNewPlugin) {
-            let QualitySwitchNewPluginReactInst = utils.getReactInstance($QualitySwitchNewPlugin);
-            let current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
+            const QualitySwitchNewPluginReactInst = utils.getReactInstance($QualitySwitchNewPlugin);
+            const current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
             if (
               typeof current === "object" &&
               current != null &&
@@ -269,9 +283,9 @@ export const DouYinLive = {
               qualityHandler = current;
             }
           }
-          let currentQuality = qualityHandler.getCurrentQuality();
+          const currentQuality = qualityHandler.getCurrentQuality();
           log.info("当前选择的画质: " + currentQuality);
-          log.info(["所有的画质: ", qualityHandler.getCurrentQualityList()]);
+          log.info("所有的画质: ", qualityHandler.getCurrentQualityList());
           qualityHandler.setCurrentQuality(currentQuality);
         } catch (error) {
           log.error(error);
@@ -291,20 +305,20 @@ export const DouYinLive = {
     log.info("监听【长时间无操作，已暂停播放】弹窗");
     /**
      * 检测并关闭弹窗
-     * @param $ele
+     * @param $el
      * @param from 检测来源
      * + "1"
      * + "2"
      */
-    let checkDialogToClose = ($ele: HTMLElement, from: string) => {
-      let eleText = DOMUtils.text($ele);
+    const checkDialogToClose = ($el: HTMLElement, from: string) => {
+      const eleText = DOMUtils.text($el);
       if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
         Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
           consoleLogContent: true,
         });
-        let $rect = utils.getReactInstance($ele);
+        const $rect = utils.getReactInstance($el);
         if (typeof $rect.reactContainer === "object") {
-          let closeDialogFn =
+          const closeDialogFn =
             utils.queryProperty($rect.reactContainer, (obj) => {
               // 不要用onMaskClick，该函数调用不会关闭弹窗
               if (typeof obj["onClose"] === "function") {
@@ -334,7 +348,7 @@ export const DouYinLive = {
         }
       }
     };
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       if (!Panel.getValue("live-waitToRemovePauseDialog")) {
         return;
       }
@@ -475,7 +489,7 @@ export const DouYinLive = {
    */
   changeBackgroundColor() {
     log.info("修改视频背景颜色");
-    let color = Panel.getValue<string>("live-changeBackgroundColor");
+    const color = Panel.getValue<string>("live-changeBackgroundColor");
     return addStyle(/*css*/ `
 		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg),
 		#LeftBackgroundLayout {

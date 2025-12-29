@@ -85,8 +85,8 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    * 【屏蔽】及时接收作品更新提醒
    */
   blockClickUpdateReminder() {
-    let lockFn = new utils.LockFunction(() => {
-      let $reminder = $$<HTMLElement>(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
+    const lockFn = new utils.LockFunction(() => {
+      const $reminder = $$<HTMLElement>(".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')");
       // 修复因移除导致视频信息为归为问题
       if ($reminder.length) {
         for (const $reminderItem of $reminder) {

@@ -41,11 +41,11 @@ export const DouYinHook = {
     Hook.setInterval((fn) => {
       const funcStr = fn.toString().trim();
       if (funcStr.includes("debugger")) {
-        log.success(["拦截→", [funcStr]]);
+        log.success("拦截→", [funcStr]);
         return false;
       }
       if (funcStr.includes("checkEXp")) {
-        log.success(["拦截→", [funcStr]]);
+        log.success("拦截→", [funcStr]);
         return false;
       }
     });

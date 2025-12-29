@@ -10,7 +10,7 @@ export const DouYinWatchlaterApi = {
    * @param aweme_id 视频id
    */
   async upsert(aweme_id: string) {
-    let response = await httpx.post(
+    const response = await httpx.post(
       "/aweme/v1/web/watchlater/upsert/?" +
         utils.toSearchParamsStr({
           ...ApiConfig.getCommonData(),
@@ -32,7 +32,7 @@ export const DouYinWatchlaterApi = {
       Qmsg.error("添加到稍后再看失败");
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!ApiResponseCheck.isSuccess(data)) {
       return;
     }
