@@ -48,7 +48,7 @@ declare class ElementWait extends ElementSelector {
      *  console.log($div); // $div => HTMLDivELement
      * })
      */
-    waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
+    waitNode<K = HTMLElement>(selectorFn: () => K | null | undefined): Promise<K>;
     /**
      * 等待元素出现
      * @param selectorFn 获取元素的函数
@@ -58,7 +58,7 @@ declare class ElementWait extends ElementSelector {
      *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
+    waitNode<K = HTMLElement>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
     /**
      * 等待元素出现
      * @param selectorFn 获取元素的函数
@@ -72,7 +72,7 @@ declare class ElementWait extends ElementSelector {
      *  console.log($div); // $div => HTMLDivELement | null
      * })
      */
-    waitNode<K>(selectorFn: () => K | null | undefined, parent: Node | Element | Document | HTMLElement, timeout?: number): Promise<K | null | undefined>;
+    waitNode<K = HTMLElement>(selectorFn: () => K | null | undefined, parent: Node | Element | Document | HTMLElement, timeout?: number): Promise<K | null | undefined>;
     /**
      * 等待元素出现
      * @param selector CSS选择器
@@ -86,7 +86,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K]>;
-    waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitNode<T extends Element = HTMLElement>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
      * 等待元素出现
      * @param selectorList CSS选择器数组
@@ -100,7 +100,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K][]>;
-    waitNode<T extends Element[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitNode<T extends Element[] = HTMLElement[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
      * 等待元素出现
      * @param selector CSS选择器
@@ -112,7 +112,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    waitNode<T extends Element = HTMLElement>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
      * 等待元素出现
      * @param selectorList CSS选择器数组
@@ -124,7 +124,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    waitNode<T extends Element[] = HTMLElement[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
      * 等待元素出现
      * @param selector CSS选择器
@@ -135,7 +135,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selector: K, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
+    waitNode<T extends Element = HTMLElement>(selector: string, timeout: number): Promise<T | null>;
     /**
      * 等待元素出现
      * @param selectorList CSS选择器数组
@@ -146,7 +146,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
+    waitNode<T extends Element[] = HTMLElement[]>(selectorList: string[], timeout: number): Promise<T | null>;
     /**
      * 等待任意元素出现
      * @param selectorList CSS选择器数组
@@ -160,7 +160,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<HTMLElementTagNameMap[K]>;
-    waitAnyNode<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitAnyNode<T extends Element = HTMLElement>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
      * 等待任意元素出现
      * @param selectorList CSS选择器数组
@@ -172,7 +172,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitAnyNode<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    waitAnyNode<T extends Element = HTMLElement>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
      * 等待任意元素出现
      * @param selectorList CSS选择器数组
@@ -183,7 +183,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNode<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<HTMLElementTagNameMap[K] | null>;
-    waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
+    waitAnyNode<T extends Element = HTMLElement>(selectorList: string[], timeout: number): Promise<T | null>;
     /**
      * 等待元素数组出现
      * @param selector CSS选择器
@@ -197,7 +197,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNodeList<T extends keyof HTMLElementTagNameMap>(selector: T, parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[T]>>;
-    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
      * 等待元素数组出现
      * @param selectorList CSS选择器数组
@@ -211,7 +211,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>[]>;
-    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
     /**
      * 等待元素数组出现
      * @param selector CSS选择器
@@ -222,7 +222,7 @@ declare class ElementWait extends ElementSelector {
      *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
      * })
      */
-    waitNodeList<T extends NodeListOf<Element>>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: K, parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
     /**
      * 等待元素数组出现
@@ -235,7 +235,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-    waitNodeList<T extends NodeListOf<Element>[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
+    waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
      * 等待元素数组出现
      * @param selector CSS选择器数组
@@ -246,7 +246,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string[], timeout: number): Promise<T | null>;
     /**
      * 等待元素数组出现
      * @param selectorList CSS选择器数组
@@ -257,7 +257,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-    waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selectorList: string[], timeout: number): Promise<T[] | null>;
     /**
      * 等待任意元素数组出现
      * @param selectorList CSS选择器数组
@@ -271,7 +271,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<T>>;
+    waitAnyNodeList<T extends Element = HTMLElement>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<T>>;
     /**
      * 等待任意元素数组出现
      * @param selectorList CSS选择器数组
@@ -283,7 +283,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<T> | null>;
+    waitAnyNodeList<T extends Element = HTMLElement>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<T> | null>;
     /**
      * 等待任意元素出现
      * @param selectorList CSS选择器数组
@@ -294,7 +294,7 @@ declare class ElementWait extends ElementSelector {
      * })
      */
     waitAnyNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
+    waitAnyNodeList<T extends Element = HTMLElement>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
 }
 declare const elementWait: ElementWait;
 export { elementWait, ElementWait };

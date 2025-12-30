@@ -108,7 +108,7 @@ class ElementWait extends ElementSelector {
    *  console.log($div); // $div => HTMLDivELement
    * })
    */
-  waitNode<K>(selectorFn: () => K | null | undefined): Promise<K>;
+  waitNode<K = HTMLElement>(selectorFn: () => K | null | undefined): Promise<K>;
   /**
    * 等待元素出现
    * @param selectorFn 获取元素的函数
@@ -118,7 +118,7 @@ class ElementWait extends ElementSelector {
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
-  waitNode<K>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
+  waitNode<K = HTMLElement>(selectorFn: () => K | null | undefined, timeout: number): Promise<K | null | undefined>;
   /**
    * 等待元素出现
    * @param selectorFn 获取元素的函数
@@ -132,7 +132,7 @@ class ElementWait extends ElementSelector {
    *  console.log($div); // $div => HTMLDivELement | null
    * })
    */
-  waitNode<K>(
+  waitNode<K = HTMLElement>(
     selectorFn: () => K | null | undefined,
     parent: Node | Element | Document | HTMLElement,
     timeout?: number
@@ -153,7 +153,10 @@ class ElementWait extends ElementSelector {
     selector: K,
     parent?: Node | Element | Document | HTMLElement
   ): Promise<HTMLElementTagNameMap[K]>;
-  waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
+  waitNode<T extends Element = HTMLElement>(
+    selector: string,
+    parent?: Node | Element | Document | HTMLElement
+  ): Promise<T>;
   /**
    * 等待元素出现
    * @param selectorList CSS选择器数组
@@ -170,7 +173,10 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<HTMLElementTagNameMap[K][]>;
-  waitNode<T extends Element[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+  waitNode<T extends Element[] = HTMLElement[]>(
+    selectorList: string[],
+    parent?: Node | Element | Document | HTMLElement
+  ): Promise<T>;
   /**
    * 等待元素出现
    * @param selector CSS选择器
@@ -186,7 +192,7 @@ class ElementWait extends ElementSelector {
     parent: Node | Element | Document | HTMLElement,
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element>(
+  waitNode<T extends Element = HTMLElement>(
     selector: string,
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -206,7 +212,7 @@ class ElementWait extends ElementSelector {
     parent: Node | Element | Document | HTMLElement,
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element[]>(
+  waitNode<T extends Element[] = HTMLElement[]>(
     selectorList: string[],
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -224,7 +230,7 @@ class ElementWait extends ElementSelector {
     selector: K,
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
+  waitNode<T extends Element = HTMLElement>(selector: string, timeout: number): Promise<T | null>;
   /**
    * 等待元素出现
    * @param selectorList CSS选择器数组
@@ -238,7 +244,7 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
+  waitNode<T extends Element[] = HTMLElement[]>(selectorList: string[], timeout: number): Promise<T | null>;
   waitNode<T extends Element | Element[]>(...args: any[]): Promise<T | null> {
     // 过滤掉undefined
     args = args.filter((arg) => arg !== void 0);
@@ -337,7 +343,10 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<HTMLElementTagNameMap[K]>;
-  waitAnyNode<T extends Element>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+  waitAnyNode<T extends Element = HTMLElement>(
+    selectorList: string[],
+    parent?: Node | Element | Document | HTMLElement
+  ): Promise<T>;
   /**
    * 等待任意元素出现
    * @param selectorList CSS选择器数组
@@ -353,7 +362,7 @@ class ElementWait extends ElementSelector {
     parent: Node | Element | Document | HTMLElement,
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitAnyNode<T extends Element>(
+  waitAnyNode<T extends Element = HTMLElement>(
     selectorList: string[],
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -371,8 +380,8 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     timeout: number
   ): Promise<HTMLElementTagNameMap[K] | null>;
-  waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
-  waitAnyNode<T extends Element>(...args: any[]): Promise<T | null> {
+  waitAnyNode<T extends Element = HTMLElement>(selectorList: string[], timeout: number): Promise<T | null>;
+  waitAnyNode<T extends Element = HTMLElement>(...args: any[]): Promise<T | null> {
     // 过滤掉undefined
     args = args.filter((arg) => arg !== void 0);
     const UtilsContext = this;
@@ -438,7 +447,7 @@ class ElementWait extends ElementSelector {
     selector: T,
     parent?: Node | Element | Document | HTMLElement
   ): Promise<NodeListOf<HTMLElementTagNameMap[T]>>;
-  waitNodeList<T extends NodeListOf<Element>>(
+  waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(
     selector: string,
     parent?: Node | Element | Document | HTMLElement
   ): Promise<T>;
@@ -458,7 +467,7 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[]>;
-  waitNodeList<T extends NodeListOf<Element>[]>(
+  waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(
     selectorList: string[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<T>;
@@ -472,7 +481,7 @@ class ElementWait extends ElementSelector {
    *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
    * })
    */
-  waitNodeList<T extends NodeListOf<Element>>(
+  waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(
     selector: string,
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -497,7 +506,7 @@ class ElementWait extends ElementSelector {
     parent: Node | Element | Document | HTMLElement,
     timeout: number
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-  waitNodeList<T extends NodeListOf<Element>[]>(
+  waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(
     selectorList: string[],
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -515,7 +524,10 @@ class ElementWait extends ElementSelector {
     selector: K[],
     timeout: number
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
+  waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(
+    selector: string[],
+    timeout: number
+  ): Promise<T | null>;
   /**
    * 等待元素数组出现
    * @param selectorList CSS选择器数组
@@ -529,7 +541,10 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     timeout: number
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-  waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
+  waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(
+    selectorList: string[],
+    timeout: number
+  ): Promise<T[] | null>;
   waitNodeList<T extends NodeListOf<Element> | NodeListOf<Element>[]>(...args: any[]): Promise<T | null> {
     // 过滤掉undefined
     args = args.filter((arg) => arg !== void 0);
@@ -629,7 +644,7 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]>>;
-  waitAnyNodeList<T extends Element>(
+  waitAnyNodeList<T extends Element = HTMLElement>(
     selectorList: string[],
     parent?: Node | Element | Document | HTMLElement
   ): Promise<NodeListOf<T>>;
@@ -648,7 +663,7 @@ class ElementWait extends ElementSelector {
     parent: Node | Element | Document | HTMLElement,
     timeout: number
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitAnyNodeList<T extends Element>(
+  waitAnyNodeList<T extends Element = HTMLElement>(
     selectorList: string[],
     parent: Node | Element | Document | HTMLElement,
     timeout: number
@@ -666,8 +681,11 @@ class ElementWait extends ElementSelector {
     selectorList: K[],
     timeout: number
   ): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-  waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
-  waitAnyNodeList<T extends Element>(...args: any[]): Promise<NodeListOf<T> | null> {
+  waitAnyNodeList<T extends Element = HTMLElement>(
+    selectorList: string[],
+    timeout: number
+  ): Promise<NodeListOf<T> | null>;
+  waitAnyNodeList<T extends Element = HTMLElement>(...args: any[]): Promise<NodeListOf<T> | null> {
     // 过滤掉undefined
     args = args.filter((arg) => arg !== void 0);
     const UtilsContext = this;
