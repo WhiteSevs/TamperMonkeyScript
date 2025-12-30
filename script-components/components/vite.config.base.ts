@@ -144,7 +144,7 @@ const GenerateUserConfig = async (option: {
     "Element-Plus": {
       cdn: await (async () => {
         const url = await GetLib("element-plus", false);
-        return isMinify ? url : url.replace("min.js", ".js");
+        return isMinify ? url : url.replace("min.js", "js");
       })(),
       local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Element-Plus/index.full.${isMinify ? "min." : ""}js`)}`,
     },
