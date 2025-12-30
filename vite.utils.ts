@@ -563,6 +563,16 @@ const LIB_MAP = {
       return await viteUtils.getGreasyForkLibLatestVersionUrl(512574);
     },
   },
+  "element-plus": {
+    localPath: "file:///" + viteUtils.getAbsolutePath("./lib/Element-Plus/index.full.min.js"),
+    url: async () => {
+      return await viteUtils.getGitHubLibLatestVersionUrl(
+        "WhiteSevs/TamperMonkeyScript",
+        "master",
+        "/lib/Element-Plus/index.full.min.js"
+      );
+    },
+  },
 };
 
 /**
