@@ -289,10 +289,26 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
-                UISwitch("【屏蔽】科技特辑", "shieldLeftNavigator-tab-activity_2753848", false),
+                UISwitch(
+                  "【屏蔽】activity",
+                  "shieldLeftNavigator-tab-activity",
+                  false,
+                  void 0,
+                  "在<code>直播</code>上面出现的按钮"
+                ),
                 UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
                 UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
                 UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】设置", "shieldLeftNavigator-panel-menu-setting", false),
+                UISwitch("【屏蔽】关于", "shieldLeftNavigator-panel-menu-about", false),
+                UISwitch("【屏蔽】问题/反馈", "shieldLeftNavigator-panel-menu-q_a", false),
+                UISwitch("【屏蔽】用户体验调研", "shieldLeftNavigator-panel-menu-survey", false),
               ],
             },
           ],
