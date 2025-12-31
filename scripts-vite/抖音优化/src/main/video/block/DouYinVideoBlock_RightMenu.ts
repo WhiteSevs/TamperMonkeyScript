@@ -10,7 +10,7 @@ export const DouYinVideoBlock_RightMenu = {
     menuSelector: '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
   },
   $el: {
-    hideMenuStyle: void 0 as undefined | HTMLStyleElement,
+    hideMenuStyle: null as null | HTMLStyleElement,
   },
   init() {
     const ExecMenu: {
@@ -89,8 +89,9 @@ export const DouYinVideoBlock_RightMenu = {
         },
       },
     ];
-    const handlerBlock = () => {
-      if (ExecMenu.every((it) => it.enable)) {
+    const handleMenuBlock = () => {
+      const allEnable = ExecMenu.every((it) => it.enable);
+      if (allEnable) {
         // 全部执行了
         // 屏蔽总菜单
         if (this.$el.hideMenuStyle == null) {
@@ -104,11 +105,9 @@ export const DouYinVideoBlock_RightMenu = {
       } else {
         // 不完全执行
         // 移除总屏蔽css
-        if (this.$el.hideMenuStyle == null) {
-          //
-        } else {
-          this.$el.hideMenuStyle.parentElement?.removeChild(this.$el.hideMenuStyle);
-          this.$el.hideMenuStyle = void 0;
+        if (this.$el.hideMenuStyle != null) {
+          this.$el.hideMenuStyle.remove();
+          this.$el.hideMenuStyle = null;
         }
       }
     };
@@ -122,10 +121,10 @@ export const DouYinVideoBlock_RightMenu = {
         if (findValue) {
           findValue.enable = newValue;
         }
-        handlerBlock();
+        handleMenuBlock();
       });
     });
-    handlerBlock();
+    handleMenuBlock();
   },
   /**
    * 【屏蔽】清屏
@@ -196,5 +195,103 @@ export const DouYinVideoBlock_RightMenu = {
   enterDetailsPage() {
     log.info(`【屏蔽】右键菜单-进入详情页`);
     return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(10):not([data-danmu-id]):not(:empty)`);
+  },
+};
+
+export const DouYinVideoBlock_RightMenu_Live = {
+  $data: {
+    /**
+     * 右键菜单的通用选择器
+     */
+    menuSelector: '[data-e2e="feed-live"] div[style*="top:"][style*="left:"]:not([style*="transform:"])',
+  },
+  $el: {
+    hideMenuStyle: null as null | HTMLStyleElement,
+  },
+  init() {
+    const ExecMenu: {
+      enable: boolean;
+      key: string;
+      callback: () => any;
+    }[] = [
+      {
+        enable: false,
+        key: "dy-video-player-block-right-menu-live-not-interested",
+        callback: () => {
+          return this.notInterested();
+        },
+      },
+      {
+        enable: false,
+        key: "dy-video-player-block-right-menu-live-report",
+        callback: () => {
+          return this.report();
+        },
+      },
+      {
+        enable: false,
+        key: "dy-video-player-block-right-menu-live-open-blank-room",
+        callback: () => {
+          return this.openBlankRoom();
+        },
+      },
+    ];
+    const handleMenuBlock = () => {
+      const allEnable = ExecMenu.every((it) => it.enable);
+      if (allEnable) {
+        // 全部执行了
+        // 屏蔽总菜单
+        if (this.$el.hideMenuStyle == null) {
+          this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`)!;
+        } else {
+          if (!document.contains(this.$el.hideMenuStyle)) {
+            // 不在页面，重新添加
+            document.head.appendChild(this.$el.hideMenuStyle);
+          }
+        }
+      } else {
+        // 不完全执行
+        // 移除总屏蔽css
+        if (this.$el.hideMenuStyle != null) {
+          this.$el.hideMenuStyle.remove();
+          this.$el.hideMenuStyle = null;
+        }
+      }
+    };
+    ExecMenu.forEach((item) => {
+      Panel.execMenuOnce(item.key, () => {
+        item.enable = true;
+        return item.callback();
+      });
+      Panel.addValueChangeListener(item.key, (key, newValue, oldValue) => {
+        const findValue = ExecMenu.find((it) => it.key === key);
+        if (findValue) {
+          findValue.enable = newValue;
+        }
+        handleMenuBlock();
+      });
+    });
+    handleMenuBlock();
+  },
+  /**
+   * 【屏蔽】不感兴趣
+   */
+  notInterested() {
+    log.info(`【屏蔽】右键菜单-直播间-不感兴趣`);
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not(:empty)`);
+  },
+  /**
+   * 【屏蔽】举报
+   */
+  report() {
+    log.info(`【屏蔽】右键菜单-直播间-举报`);
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not(:empty)`);
+  },
+  /**
+   * 【屏蔽】在新标签页打开直播间
+   */
+  openBlankRoom() {
+    log.info(`【屏蔽】右键菜单-直播间-在新标签页打开直播间`);
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not(:empty)`);
   },
 };

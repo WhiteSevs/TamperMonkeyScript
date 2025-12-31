@@ -6,7 +6,7 @@ import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "./DouYinVideoBl
 import { DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock_BottomToolbar_videoInfo";
 import { DouYinVideoBlock_Comment } from "./DouYinVideoBlock_Comment";
 import { DouYinVideoBlock_Live } from "./DouYinVideoBlock_Live";
-import { DouYinVideoBlock_RightMenu } from "./DouYinVideoBlock_RightMenu";
+import { DouYinVideoBlock_RightMenu, DouYinVideoBlock_RightMenu_Live } from "./DouYinVideoBlock_RightMenu";
 import { DouYinVideoBlock_RightToolbar } from "./DouYinVideoBlock_RightToolbar";
 
 /**
@@ -48,6 +48,7 @@ export const DouYinVideoBlock = {
     DouYinVideoBlock_Comment.init();
     DouYinVideoBlock_Live.init();
     DouYinVideoBlock_RightMenu.init();
+    DouYinVideoBlock_RightMenu_Live.init();
   },
   /**
    * 【屏蔽】右侧的展开评论按钮

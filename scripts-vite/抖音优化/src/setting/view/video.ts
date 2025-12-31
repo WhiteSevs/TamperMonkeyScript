@@ -585,6 +585,19 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】进入详情页", "dy-video-player-block-right-menu-enterDetailsPage", false),
               ],
             },
+            {
+              type: "container",
+              text: "直播视频",
+              views: [
+                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-live-not-interested", false),
+                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-live-report", false),
+                UISwitch(
+                  "【屏蔽】在新标签页打开直播间",
+                  "dy-video-player-block-right-menu-live-open-blank-room",
+                  false
+                ),
+              ],
+            },
           ],
         },
         {
