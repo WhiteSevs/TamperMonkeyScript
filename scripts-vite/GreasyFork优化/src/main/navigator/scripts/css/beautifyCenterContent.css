@@ -17,6 +17,7 @@ ol.script-list li {
   border: 1px solid var(--border-color);
   border-radius: 5px;
   box-shadow: var(--shadow-color) 0px 0px 5px 2px;
+  width: fit-content;
 }
 ol.script-list .script-description {
   overflow-wrap: anywhere;

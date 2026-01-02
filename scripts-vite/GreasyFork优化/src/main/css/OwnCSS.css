@@ -4,3 +4,8 @@
 .whitesev-hide-important {
   display: none !important;
 }
+/* ads */
+.ad,
+.ad-entry {
+  display: none !important;
+}
