@@ -1,4 +1,5 @@
 import { GM_download } from "ViteGM";
+import { log } from "@/env";
 
 export const NetDiskCommonUtils = {
   /**
@@ -8,7 +9,7 @@ export const NetDiskCommonUtils = {
     try {
       return typeof GM_download === "function";
     } catch (error) {
-      console.error(error);
+      log.error(error);
       return false;
     }
   },

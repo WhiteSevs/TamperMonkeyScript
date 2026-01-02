@@ -513,7 +513,7 @@ export const NetDiskLinkView = {
     const { refreshView, page, isCheckValid } = config;
     let { data } = config;
     if (!data.length) {
-      console.warn("data is empty");
+      log.warn("data is empty");
       return;
     }
     if (refreshView) {

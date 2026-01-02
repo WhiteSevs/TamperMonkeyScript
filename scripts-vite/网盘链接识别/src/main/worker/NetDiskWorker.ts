@@ -209,7 +209,7 @@ export const NetDiskWorker = {
           matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerHTML"], "gi"));
         }
         if (!workerOptionData.matchTextRange.length) {
-          console.error(workerOptionData);
+          log.error(workerOptionData);
           throw new TypeError("未设置匹配范围");
         }
         if (!matchRegExpList.length) {

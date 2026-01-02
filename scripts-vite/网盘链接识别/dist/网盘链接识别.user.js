@@ -7793,7 +7793,7 @@
       const { refreshView, page, isCheckValid } = config;
       let { data } = config;
       if (!data.length) {
-        console.warn("data is empty");
+        log.warn("data is empty");
         return;
       }
       if (refreshView) {
@@ -10364,7 +10364,7 @@
       try {
         return typeof _GM_download === "function";
       } catch (error) {
-        console.error(error);
+        log.error(error);
         return false;
       }
     },
@@ -13209,7 +13209,7 @@
             matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerHTML"], "gi"));
           }
           if (!workerOptionData.matchTextRange.length) {
-            console.error(workerOptionData);
+            log.error(workerOptionData);
             throw new TypeError("未设置匹配范围");
           }
           if (!matchRegExpList.length) {
@@ -21596,7 +21596,7 @@
     NetDiskView.$inst.icon.assign(GLOBAL_RESOURCE_ICON);
     Object.assign(NetDiskView.$inst.icon.src, GLOBAL_RESOURCE_ICON);
   } catch (error) {
-    console.error("init NetDisk icon error", error);
+    log.error("init NetDisk icon error", error);
   }
   ["input", "select-multiple", "select", "slider", "switch", "textarea"].forEach((type) => {
     PanelComponents.setStorageApi(type, {

@@ -3,7 +3,7 @@ import { NetDisk } from "@/main/NetDisk";
 import { NetDiskRule } from "./main/rule/NetDiskRule";
 import { NetDiskView } from "./main/view/NetDiskView";
 import { NetDiskShortcut } from "./main/shortcut/NetDiskShortcut";
-import { DOMUtils } from "./env";
+import { DOMUtils, log } from "./env";
 import { NetDiskAutoFillAccessCode } from "./main/auto-fill-accesscode/NetDiskAutoFillAccessCode";
 import { NetDiskAuthorization } from "./main/authorization/NetDiskAuthorization";
 import { NetDiskWorker } from "./main/worker/NetDiskWorker";
@@ -29,7 +29,7 @@ try {
   NetDiskView.$inst.icon.assign(GLOBAL_RESOURCE_ICON);
   Object.assign(NetDiskView.$inst.icon.src, GLOBAL_RESOURCE_ICON);
 } catch (error) {
-  console.error("init NetDisk icon error", error);
+  log.error("init NetDisk icon error", error);
 }
 // 更新面板组件存储Api
 (["input", "select-multiple", "select", "slider", "switch", "textarea"] as PanelComponentsType[]).forEach((type) => {
