@@ -217,9 +217,10 @@ export const NetDiskLinkClickMode = {
    * @param accessCode 提取码
    */
   async parseFile(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
-    log.success(`链接解析：`, [...arguments]);
-    if (NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]) {
-      let parseInst = new NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]();
+    log.success(`链接解析：`, JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
+    const ParseInst = NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule];
+    if (ParseInst) {
+      const parseInst = new ParseInst();
       const netDiskInfo: ParseFileInitConfig = {
         ruleIndex,
         shareCode,
@@ -229,7 +230,7 @@ export const NetDiskLinkClickMode = {
       parseInst.ruleIndex = netDiskInfo.ruleIndex;
       parseInst.shareCode = netDiskInfo.shareCode;
       parseInst.accessCode = netDiskInfo.accessCode;
-      log.info(["文件解析：", netDiskInfo]);
+      log.info("文件解析：", netDiskInfo);
 
       await parseInst.init(netDiskInfo);
     } else {
@@ -254,8 +255,12 @@ export const NetDiskLinkClickMode = {
     accessCode: AccessCodeType,
     isOpenInBackEnd: boolean = false
   ) {
-    log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [...arguments]);
+    log.success(
+      `新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
+      JSON.stringify({ url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd }, null, 2)
+    );
     if (NetDiskAutoFillAccessCode.$data.enable) {
+      // 自动填充访问码
       NetDiskAutoFillAccessCode.addValue({
         url: url,
         ruleKeyName: ruleKeyName,
@@ -283,13 +288,13 @@ export const NetDiskLinkClickMode = {
       } else {
         // 新标签页打开（自动获取焦点）
         try {
-          let blankWindow = window.open(url, "_blank");
+          const blankWindow = window.open(url, "_blank");
           if (blankWindow) {
             blankWindow.focus();
           }
         } catch (error) {
           log.error(error, url);
-          let $blank = DOMUtils.createElement("a");
+          const $blank = DOMUtils.createElement("a");
           $blank.setAttribute("href", url);
           $blank.setAttribute("target", "_blank");
           $blank.click();
@@ -317,7 +322,7 @@ export const NetDiskLinkClickMode = {
    * @param accessCode
    */
   openBlankWithScheme(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
-    log.success("scheme新标签页打开", [...arguments]);
+    log.success("scheme新标签页打开", JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
     let url = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName,
       ruleIndex,

@@ -12,7 +12,7 @@ export class ParseFileCore {
    *
    * super.init(netDiskInfo);
    * const that = this;
-   * let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+   * const { ruleIndex, shareCode, accessCode } = netDiskInfo;
    */
   init(netDiskInfo: ParseFileInitConfig): IPromise<void> {
     this.ruleIndex = netDiskInfo.ruleIndex;

@@ -21,7 +21,7 @@ export const NetDiskParse_Lanzou_Config = {
 /**
  * 删除注释的代码
  */
-let deleteAnnotationCode = (text: string) => {
+const deleteAnnotationCode = (text: string) => {
   text = text.replace(/\/\/.+/gi, "");
   text = text.replace(/\/\*[\s\S\n]+\*\//gi, "");
   return text;
@@ -857,7 +857,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       ves: 1,
     };
     log.success("请求的路径参数：" + ajaxUrl);
-    log.success(["ajaxm.php的请求参数-> ", postData]);
+    log.success("ajaxm.php的请求参数-> ", postData);
     let postResp = await httpx.post(this.router.root(ajaxUrl), {
       data: utils.toSearchParamsStr(postData),
       headers: {

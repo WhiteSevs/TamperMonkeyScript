@@ -1,15 +1,15 @@
 import { DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { UIInput } from "@components/setting/components/ui-input";
+import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
+import { StorageUtils } from "@components/utils/StorageUtils";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
-import { PanelUISize } from "@components/setting/panel-ui-size";
 import { CharacterMappingSubscribe } from "./CharacterMappingSubscribe";
-import { StorageUtils } from "@components/utils/StorageUtils";
-import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 
 /** 字符映射的存储操作Api */
 const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
@@ -47,15 +47,15 @@ export const CharacterMapping = {
    */
   getRulePanelViewOption(quickAddData?: CharacterMappingOption) {
     const that = this;
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
-    let addData = () => {
+    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const addData = () => {
       return quickAddData ?? this.getTemplateData();
     };
     /**
      * 自定义存储api的配置
      * @param uuid
      */
-    function generateStorageApi(data: any) {
+    const generateStorageApi = function (data: any) {
       return {
         get(key: string, defaultValue: any) {
           return (data as any)[key] ?? defaultValue;
@@ -64,37 +64,37 @@ export const CharacterMapping = {
           (data as any)[key] = value;
         },
       };
-    }
+    };
 
     const ruleEditHandler = (data: CharacterMappingOption, isEdit: boolean) => {
       if (!isEdit) {
         data = addData();
       }
-      let $fragment = document.createDocumentFragment();
+      const $fragment = document.createDocumentFragment();
 
       // 启用
-      let enable_template = UISwitch("启用", "enable", true);
+      const enable_template = UISwitch("启用", "enable", true);
       Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+      const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
       // 规则名称
-      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+      const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
       Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+      const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
       // 匹配网址
-      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+      const url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
       Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
+      const $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
       /**
        * 获取动态的元素
        * @param storageData 存储的数据
        */
-      let getDynamicPropElement = (storageData: any) => {
-        let template_data = this.getTemplateData();
+      const getDynamicPropElement = (storageData: any) => {
+        const template_data = this.getTemplateData();
         // 字符规则
-        let data_searchValue_template = UIInput(
+        const data_searchValue_template = UIInput(
           "字符规则",
           "searchValue",
           template_data.data.searchValue,
@@ -103,10 +103,11 @@ export const CharacterMapping = {
           "必填，可正则"
         );
         Reflect.set(data_searchValue_template.props!, PROPS_STORAGE_API, generateStorageApi(storageData));
-        let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template).$el;
+        const $data_searchValue =
+          panelHandlerComponents.createSectionContainerItem_input(data_searchValue_template).$el;
 
         // 是否启用正则
-        let data_isRegExp_template = UISwitch(
+        const data_isRegExp_template = UISwitch(
           "是否启用正则",
           "isRegExp",
           template_data.data.isRegExp,
@@ -114,10 +115,10 @@ export const CharacterMapping = {
           "使用正则进行匹配字符规则"
         );
         Reflect.set(data_isRegExp_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-        let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template).$el;
+        const $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(data_isRegExp_template).$el;
 
         // 正则标识符
-        let data_regExpFlag_template = UISelectMultiple<string>(
+        const data_regExpFlag_template = UISelectMultiple<string>(
           "正则标识符",
           "regExpFlag",
           template_data.data.regExpFlag.split(""),
@@ -142,11 +143,11 @@ export const CharacterMapping = {
             (data.data as any)[key] = value;
           },
         });
-        let $data_regExpFlag =
+        const $data_regExpFlag =
           panelHandlerComponents.createSectionContainerItem_select_multiple(data_regExpFlag_template).$el;
 
         // 映射为
-        let data_replaceValue_template = UIInput(
+        const data_replaceValue_template = UIInput(
           "映射为",
           "replaceValue",
           template_data.data.replaceValue,
@@ -155,7 +156,7 @@ export const CharacterMapping = {
           ""
         );
         Reflect.set(data_replaceValue_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-        let $data_replaceValue =
+        const $data_replaceValue =
           panelHandlerComponents.createSectionContainerItem_input(data_replaceValue_template).$el;
 
         return {
@@ -167,7 +168,7 @@ export const CharacterMapping = {
       };
 
       // 动态属性容器
-      let $dynamicContainer = DOMUtils.createElement("div", {
+      const $dynamicContainer = DOMUtils.createElement("div", {
         className: "rule-form-ulist-dynamic",
         innerHTML: /*html*/ `
 												<div class="rule-form-ulist-dynamic__inner">
@@ -180,20 +181,20 @@ export const CharacterMapping = {
 													</button>
 												</div>`,
       });
-      let $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
-      let $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
+      const $dynamicInner = $dynamicContainer.querySelector<HTMLElement>(".rule-form-ulist-dynamic__inner")!;
+      const $addDynamicButton = $dynamicContainer.querySelector<HTMLButtonElement>(".pops-panel-button")!;
       /**
        * 添加动态项
        */
-      let addDynamicElementItem = (dynamicData?: CharacterMappingDynamicOption) => {
-        let template_data = this.getTemplateData();
+      const addDynamicElementItem = (dynamicData?: CharacterMappingDynamicOption) => {
+        const template_data = this.getTemplateData();
         dynamicData = dynamicData ?? {
           searchValue: template_data.data.searchValue,
           isRegExp: template_data.data.isRegExp,
           regExpFlag: template_data.data.regExpFlag,
           replaceValue: template_data.data.replaceValue,
         };
-        let $dynamicUListContainer = DOMUtils.createElement("div", {
+        const $dynamicUListContainer = DOMUtils.createElement("div", {
           className: "rule-form-ulist-dynamic__inner-container",
           innerHTML: /*html*/ `
 										<div class="dynamic-control-delete">
@@ -209,22 +210,22 @@ export const CharacterMapping = {
 										</ul>`,
         });
         /** 删除按钮 */
-        let $dynamicDelete = $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
+        const $dynamicDelete = $dynamicUListContainer.querySelector<HTMLElement>(".dynamic-control-delete")!;
         // 设置删除事件
         DOMUtils.on($dynamicDelete, "click", (event) => {
           DOMUtils.preventEvent(event);
           // 移除元素
           $dynamicUListContainer.remove();
           if (Array.isArray(data.dynamicData)) {
-            let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+            const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
             if (findIndex !== -1) {
               data.dynamicData.splice(findIndex, 1);
             }
           }
         });
         /** 动态添加的项 */
-        let $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
-        let { $data_searchValue, $data_isRegExp, $data_regExpFlag, $data_replaceValue } =
+        const $dynamicUList = $dynamicUListContainer.querySelector<HTMLUListElement>(".dynamic-forms")!;
+        const { $data_searchValue, $data_isRegExp, $data_regExpFlag, $data_replaceValue } =
           getDynamicPropElement(dynamicData);
         // 在动态元素容器内添加元素
         $dynamicUList.appendChild($data_searchValue);
@@ -246,7 +247,7 @@ export const CharacterMapping = {
         }
       }
 
-      let $firstDynamicElement = getDynamicPropElement(data.data);
+      const $firstDynamicElement = getDynamicPropElement(data.data);
       $fragment.appendChild($enable);
       $fragment.appendChild($name);
       $fragment.appendChild($data_url);
@@ -260,18 +261,18 @@ export const CharacterMapping = {
 
     const ruleEditSubmitHandler = ($form: HTMLFormElement, isEdit: boolean, editData?: CharacterMappingOption) => {
       // 提交表单
-      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-      let data: CharacterMappingOption = this.getTemplateData();
+      const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+      const data: CharacterMappingOption = this.getTemplateData();
       if (isEdit) {
         data.uuid = editData!.uuid;
       }
       $ulist_li.forEach(($li) => {
-        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
-        let attrs = Reflect.get(viewConfig, "attributes");
-        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-        let value = storageApi.get(key, defaultValue);
+        const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
+        const attrs = Reflect.get(viewConfig, "attributes");
+        const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+        const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+        const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+        const value = storageApi.get(key, defaultValue);
         if (Reflect.has(data, key)) {
           Reflect.set(data, key, value);
         } else if (Reflect.has(data.data, key)) {
@@ -282,20 +283,20 @@ export const CharacterMapping = {
       });
       // 添加的动态属性
       $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-        let dynamicData = {};
+        const dynamicData = {};
         $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
+          const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
           if (!viewConfig) {
             return;
           }
-          let attrs = Reflect.get(viewConfig, "attributes");
+          const attrs = Reflect.get(viewConfig, "attributes");
           if (!attrs) {
             return;
           }
-          let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-          let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-          let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-          let value = storageApi.get(key, defaultValue);
+          const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+          const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+          const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+          const value = storageApi.get(key, defaultValue);
           Reflect.set(dynamicData, key, value);
         });
         data.dynamicData!.push(dynamicData as any);
@@ -336,7 +337,7 @@ export const CharacterMapping = {
         };
       }
     };
-    let rulePanelViewOption: RulePanelContentOption<CharacterMappingOption> = {
+    const rulePanelViewOption: RulePanelContentOption<CharacterMappingOption> = {
       id: "netdisk-rule",
       title: "字符映射",
       headerTitle: "字符映射规则",
@@ -346,7 +347,7 @@ export const CharacterMapping = {
           return CharacterMappingSubscribe.getAllSubscribe();
         },
         getData: (data) => {
-          let findValue = CharacterMappingSubscribe.getSubscribe(data.uuid);
+          const findValue = CharacterMappingSubscribe.getSubscribe(data.uuid);
           return findValue ?? data;
         },
         getDataItemName(subscribeOption) {
@@ -458,11 +459,11 @@ export const CharacterMapping = {
                   // 订阅的链接
                   option.ruleData.data.url,
                 data() {
-                  let currentData = CharacterMappingSubscribe.getSubscribe(subscribeUUID);
+                  const currentData = CharacterMappingSubscribe.getSubscribe(subscribeUUID);
                   return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                 },
                 getData(data) {
-                  let currentData = CharacterMappingSubscribe.getSubscribeRule(subscribeUUID, data.uuid);
+                  const currentData = CharacterMappingSubscribe.getSubscribeRule(subscribeUUID, data.uuid);
                   return currentData ?? data;
                 },
                 getDataItemName(data) {
@@ -636,8 +637,8 @@ export const CharacterMapping = {
           return addData();
         },
         getData: (data) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
+          const allData = this.getData();
+          const findValue = allData.find((item) => item.uuid === data.uuid);
           return findValue ?? data;
         },
         getDataItemName: (data) => {
@@ -684,7 +685,7 @@ export const CharacterMapping = {
    */
   getMappingData(url: string = window.location.href) {
     const matchedRule = this.getUrlMatchedRule(true, url);
-    let replaceMappingData: {
+    const replaceMappingData: {
       searchValue: RegExp | string;
       replaceValue: string;
     }[] = [];
@@ -875,7 +876,7 @@ export const CharacterMapping = {
          * 自定义存储api的配置
          * @param uuid
          */
-        let generateStorageApi = function (data: any) {
+        const generateStorageApi = function (data: any) {
           return {
             get(key: string, defaultValue: any) {
               return data[key] ?? defaultValue;
@@ -889,7 +890,7 @@ export const CharacterMapping = {
         /**
          * 按下导出的按钮的回调
          */
-        let exportCallBack = () => {
+        const exportCallBack = () => {
           let configData = CharacterMappingStorageApi.get<
             Partial<RuleSubscribeOption<CharacterMappingOption>["subscribeData"]>
           >(this.$data.EXPORT_CONFIG_KEY, {});
@@ -912,7 +913,7 @@ export const CharacterMapping = {
           exportFile(subscribeFileName, configData);
           $exportSubscribeDialog.close();
         };
-        let $exportSubscribeDialog = NetDiskPops.alert({
+        const $exportSubscribeDialog = NetDiskPops.alert({
           title: {
             text: "请填写导出配置",
             position: "center",
@@ -956,24 +957,24 @@ export const CharacterMapping = {
 						}
 					`,
         });
-        let $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
-        let configData = CharacterMappingStorageApi.get<
+        const $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
+        const configData = CharacterMappingStorageApi.get<
           Partial<RuleSubscribeOption<CharacterMappingOption>["subscribeData"]>
         >(this.$data.EXPORT_CONFIG_KEY, {});
         // 订阅名称
-        let title_template = UIInput("订阅标题", "title", "");
+        const title_template = UIInput("订阅标题", "title", "");
         Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
+        const $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
 
         // 版本号
-        let version_template = UIInput("版本号", "version", "");
+        const version_template = UIInput("版本号", "version", "");
         Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
+        const $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
 
         // 主页地址
-        let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+        const homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
         Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
+        const $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
 
         DOMUtils.append($content, $title);
         DOMUtils.append($content, $version);
@@ -988,7 +989,7 @@ export const CharacterMapping = {
    * @param importEndCallBack 导入完毕后的回调
    */
   importRule(importEndCallBack?: () => void) {
-    let $alert = NetDiskPops.alert({
+    const $alert = NetDiskPops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
@@ -1015,28 +1016,28 @@ export const CharacterMapping = {
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      `,
     });
     /** 本地导入 */
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
     /** 网络导入 */
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
     /** 剪贴板导入 */
-    let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
+    const $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
     /**
      * 将获取到的规则更新至存储
      */
-    let updateRuleToStorage = (data: any[]) => {
+    const updateRuleToStorage = (data: any[]) => {
       let allData = this.getData();
-      let addNewData: typeof allData = [];
+      const addNewData: typeof allData = [];
       for (let index = 0; index < data.length; index++) {
         const dataItem = data[index];
         let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
@@ -1057,9 +1058,9 @@ export const CharacterMapping = {
     /**
      * @param subscribeText 订阅文件文本
      */
-    let importFile = (subscribeText: string) => {
+    const importFile = (subscribeText: string) => {
       return new Promise<boolean>((resolve) => {
-        let data = utils.toJSON(subscribeText);
+        const data = utils.toJSON(subscribeText);
         if (!Array.isArray(data)) {
           log.error(data);
           Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -1084,7 +1085,7 @@ export const CharacterMapping = {
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
@@ -1092,8 +1093,8 @@ export const CharacterMapping = {
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
           importFile(fileReader.result as string);
         };
@@ -1105,7 +1106,7 @@ export const CharacterMapping = {
     DOMUtils.on($network, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $prompt = NetDiskPops.prompt({
+      const $prompt = NetDiskPops.prompt({
         title: {
           text: "网络导入",
           position: "center",
@@ -1125,13 +1126,13 @@ export const CharacterMapping = {
           ok: {
             text: "导入",
             callback: async (eventDetails, event) => {
-              let url = eventDetails.text;
+              const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
                 return;
               }
-              let $loading = Qmsg.loading("正在获取配置...");
-              let response = await httpx.get(url, {
+              const $loading = Qmsg.loading("正在获取配置...");
+              const response = await httpx.get(url, {
                 allowInterceptConfig: false,
               });
               $loading.close();
@@ -1140,7 +1141,7 @@ export const CharacterMapping = {
                 Qmsg.error("获取配置失败", { consoleLogContent: true });
                 return;
               }
-              let flag = await importFile(response.data.responseText);
+              const flag = await importFile(response.data.responseText);
               if (!flag) {
                 return;
               }
@@ -1156,10 +1157,10 @@ export const CharacterMapping = {
         width: PanelUISize.info.width,
         height: "auto",
       });
-      let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-      let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+      const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+      const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
       DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
-        let value = DOMUtils.val($promptInput);
+        const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
         } else {
@@ -1168,7 +1169,7 @@ export const CharacterMapping = {
       });
       DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
-          let value = DOMUtils.val($promptInput);
+          const value = DOMUtils.val($promptInput);
           if (value !== "") {
             DOMUtils.emit($promptOk, "click");
           }
@@ -1180,7 +1181,7 @@ export const CharacterMapping = {
     DOMUtils.on($clipboard, "click", async (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let clipboardInfo = await utils.getClipboardInfo();
+      const clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {
         Qmsg.error(clipboardInfo.error.toString());
         return;
@@ -1189,7 +1190,7 @@ export const CharacterMapping = {
         Qmsg.warning("获取到的剪贴板内容为空");
         return;
       }
-      let flag = await importFile(clipboardInfo.content);
+      const flag = await importFile(clipboardInfo.content);
       if (!flag) {
         return;
       }

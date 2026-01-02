@@ -104,21 +104,19 @@ export const NetDisk = {
 
     // 这里是输出信息用的，无其它的作用
     const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
+    const TAG = Panel.isTopWindow() ? "" : "iframe：";
     if (matchedUrlRuleList.length) {
-      log.info("成功命中的网站规则 ==> ", matchedUrlRuleList);
+      log.info(`${TAG}成功命中的网站规则 ==> `, matchedUrlRuleList);
       MenuRegister.add({
-        key: "matchedUrlRuleList",
-        text: `🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
+        key: "matchedUrlRuleList" + TAG,
+        text: `${TAG}🌏 命中网站规则 ${matchedUrlRuleList.length} 条`,
         autoReload: false,
         isStoreValue: false,
         showText(text) {
           return text;
         },
         callback: () => {
-          log.info("当前网址：" + self.location.href);
-          if (!Panel.isTopWindow()) {
-            return;
-          }
+          log.info(`${TAG}当前网址：` + self.location.href);
           const ruleList: WebsiteRuleOption[] = [];
           const subscribeRuleList: WebsiteRuleOption[] = [];
           matchedUrlRuleList.forEach((rule) => {
@@ -140,27 +138,25 @@ export const NetDisk = {
               .concat(subscribeRuleList.map((it) => it.name ?? it.url))
               .join("\n");
           }
-          window.alert(alertMessage);
+          log.info(alertMessage);
+          globalThis.alert(alertMessage);
         },
       });
     }
     // 这里是输出信息用的，无其它的作用
     const matchedCharacterMappingRuleList = CharacterMapping.getUrlMatchedRule();
     if (matchedCharacterMappingRuleList.length) {
-      log.info("成功命中的字符规则 ==> ", matchedCharacterMappingRuleList);
+      log.info(`${TAG}成功命中的字符规则 ==> `, matchedCharacterMappingRuleList);
       MenuRegister.add({
         key: "characterMapping",
-        text: `🌏 命中字符规则 ${matchedCharacterMappingRuleList.length} 条`,
+        text: `${TAG}🌏 命中字符规则 ${matchedCharacterMappingRuleList.length} 条`,
         autoReload: false,
         isStoreValue: false,
         showText(text) {
           return text;
         },
         callback: () => {
-          log.info("当前网址：" + self.location.href);
-          if (!Panel.isTopWindow()) {
-            return;
-          }
+          log.info(`${TAG}当前网址：` + self.location.href);
           const ruleList: CharacterMappingOption[] = [];
           const subscribeRuleList: CharacterMappingOption[] = [];
           matchedCharacterMappingRuleList.forEach((rule) => {
@@ -182,8 +178,8 @@ export const NetDisk = {
               .concat(subscribeRuleList.map((it) => it.name ?? it.data.url))
               .join("\n");
           }
-
-          window.alert(alertMessage);
+          log.info(alertMessage);
+          globalThis.alert(alertMessage);
         },
       });
     }

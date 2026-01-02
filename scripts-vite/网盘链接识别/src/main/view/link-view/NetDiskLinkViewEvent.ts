@@ -99,13 +99,13 @@ export const NetDiskLinkViewEvent = {
   }) {
     const { ruleKeyName, ruleIndex, shareCode, accessCode } = option.data;
     // 获取对应的点击动作
-    let linkClickMode = option.clickMode ?? NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
+    const linkClickMode = option.clickMode ?? NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
     /** 关闭弹窗 */
-    let closePopup = () => {
+    const closePopup = () => {
       if (option.$click) {
-        let $pops = option.$click.closest<HTMLElement>(".pops");
+        const $pops = option.$click.closest<HTMLElement>(".pops");
         if ($pops) {
-          let $close = $pops.querySelector<HTMLElement>('.pops-header-control[type="close"]');
+          const $close = $pops.querySelector<HTMLElement>('.pops-header-control[type="close"]');
           $close && $close.click();
         }
       }
@@ -119,14 +119,14 @@ export const NetDiskLinkViewEvent = {
       }
     } else if (linkClickMode === "openBlank" || linkClickMode === "openBlank-closePopup") {
       // 新页打开
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+      const url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName,
         ruleIndex,
         shareCode,
         accessCode,
       });
       // 判断scheme转发新标签页链接是否开启
-      let isForwardBlankUrl = NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
+      const isForwardBlankUrl = NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
       if (isForwardBlankUrl) {
         // 用scheme处理的进行新标签打开
         NetDiskLinkClickMode.openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode);
@@ -147,7 +147,6 @@ export const NetDiskLinkViewEvent = {
         }
       });
     } else {
-      log.error("未知点击动作：" + linkClickMode);
       Qmsg.error("未知点击动作：" + linkClickMode);
     }
   },
@@ -174,7 +173,7 @@ export const NetDiskLinkViewEvent = {
         item: item?.item ?? null,
       });
     });
-    let detail: PopsRightClickMenuConfig = {
+    const config: PopsRightClickMenuConfig = {
       $target: target,
       targetSelector: selector,
       data: data,
@@ -184,7 +183,7 @@ export const NetDiskLinkViewEvent = {
       chileMenuLeftOrRightDistance: -3,
       childMenuTopOrBottomDistance: -5,
     };
-    NetDiskPops.rightClickMenu(detail);
+    NetDiskPops.rightClickMenu(config);
   },
   /**
    * 设置点击图标按钮导航至该网盘链接所在网页中位置

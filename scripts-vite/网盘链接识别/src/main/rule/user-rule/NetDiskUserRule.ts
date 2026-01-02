@@ -1369,7 +1369,7 @@ export const NetDiskUserRule = {
       allData = allData.concat(addNewData);
       if (addNewData.length) {
         NetDiskUserRuleStorageApi.set(this.$data.STORAGE_KEY, allData);
-        log.info(["新增的规则：", addNewData]);
+        log.info("新增的规则：", addNewData);
         Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
       } else {
         Qmsg.error("未新增规则，请删除旧规则再重新导入");

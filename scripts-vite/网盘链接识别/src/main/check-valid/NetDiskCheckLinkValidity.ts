@@ -300,7 +300,7 @@ export const NetDiskCheckLinkValidity = {
    */
   getStatusName(statusInfo: NetDiskCheckLinkValidityStatusInstance) {
     for (const statusName of Object.keys(NetDiskCheckLinkValidityStatus)) {
-      let statusNewInfo = NetDiskCheckLinkValidityStatus[statusName as keyof typeof NetDiskCheckLinkValidityStatus];
+      const statusNewInfo = NetDiskCheckLinkValidityStatus[statusName as keyof typeof NetDiskCheckLinkValidityStatus];
       if (statusInfo.code === statusNewInfo.code) {
         return statusName;
       }
@@ -316,10 +316,10 @@ export const NetDiskCheckLinkValidity = {
     /**
      * 获取网盘校验状态
      */
-    function getNetDiskStatus() {
+    const getNetDiskStatus = function () {
       const { $checkValidStatus } = NetDiskLinkView.parseBoxItemInfo(checkInfo.$urlBox);
       return $checkValidStatus;
-    }
+    };
     let $netDiskStatus = getNetDiskStatus();
 
     if ($netDiskStatus.hasAttribute("data-pops-tooltip")) {
@@ -330,7 +330,7 @@ export const NetDiskCheckLinkValidity = {
     /**
      * 获取提示的信息
      */
-    let queryMsg = ($el: HTMLElement) => {
+    const queryMsg = ($el: HTMLElement) => {
       let msgProp: string = Reflect.get($el, "data-msg");
       let msg = $el.getAttribute("data-msg");
       return msgProp ?? msg;
@@ -340,18 +340,18 @@ export const NetDiskCheckLinkValidity = {
       className: "github-tooltip",
       isFixed: true,
       content() {
-        let msg = queryMsg($netDiskStatus);
+        const msg = queryMsg($netDiskStatus);
         return msg;
       },
       showBeforeCallBack() {
-        let msg = queryMsg($netDiskStatus);
+        const msg = queryMsg($netDiskStatus);
         if (msg == null || (typeof msg === "string" && msg.trim() === "")) {
           return false;
         }
       },
       zIndex() {
-        let maxZIndex = utils.getMaxZIndex(10);
-        let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
+        const maxZIndex = utils.getMaxZIndex(10);
+        const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
         return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
       },
     });

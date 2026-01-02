@@ -131,10 +131,10 @@ export const MetaDataParser = {
       imgList.forEach((item) => {
         viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
       });
-      let viewerULNode = DOMUtils.createElement("ul", {
+      const $viewerContainer = DOMUtils.createElement("ul", {
         innerHTML: viewerULNodeHTML,
       });
-      let viewer = new Viewer(viewerULNode, {
+      const viewer = new Viewer($viewerContainer, {
         inline: false,
         url: "data-src",
         zIndex: utils.getMaxZIndex(1, $alert.$shadowRoot) + 100,

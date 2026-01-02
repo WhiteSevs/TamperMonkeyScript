@@ -43,7 +43,7 @@ export const NetDiskUserRuleDebug = {
         text += item;
       }
     });
-    let logElement = DOMUtils.createElement(
+    const $log = DOMUtils.createElement(
       "p",
       {
         innerText: text,
@@ -52,7 +52,7 @@ export const NetDiskUserRuleDebug = {
         "data-tag": tag,
       }
     );
-    DOMUtils.append(this.$el.$log, logElement);
+    DOMUtils.append(this.$el.$log, $log);
   },
   /**
    * 清空日志
@@ -70,10 +70,10 @@ export const NetDiskUserRuleDebug = {
       Qmsg.error("请先配置regexp");
       return;
     }
-    let that = this;
-    let customRule = NetDiskUserRule.parseRule([ruleJSON]);
-    let regexp = customRule[0].rule;
-    let dialog = NetDiskPops.confirm(
+    const that = this;
+    const customRule = NetDiskUserRule.parseRule([ruleJSON]);
+    const regexp = customRule[0].rule;
+    const dialog = NetDiskPops.confirm(
       {
         title: {
           text: `调试规则 ${ruleJSON.key}`,
@@ -81,20 +81,20 @@ export const NetDiskUserRuleDebug = {
         },
         content: {
           text: /*html*/ `
-                    <div class="custom-rule-container">
-                        <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
-                        <div class="custom-rule-input-container">
-                        <select class="custom-rule-select-regexp"></select>
-                        <button class="custom-rule-run-match-button" type="button" data-type="primary" data-icon="" data-righticon="false">
-                            <span>执行</span>
-                        </button>
-                        </div>
-                    </div>
-                    <div class="custom-rule-match-log">
-                        <div>匹配日志↓</div>
-                        <div class="custom-rule-match-log-container"></div>
-                    </div>
-                    `,
+          <div class="custom-rule-container">
+              <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
+              <div class="custom-rule-input-container">
+              <select class="custom-rule-select-regexp"></select>
+              <button class="custom-rule-run-match-button" type="button" data-type="primary" data-icon="" data-righticon="false">
+                  <span>执行</span>
+              </button>
+              </div>
+          </div>
+          <div class="custom-rule-match-log">
+              <div>匹配日志↓</div>
+              <div class="custom-rule-match-log-container"></div>
+          </div>
+          `,
           html: true,
         },
         btn: {
@@ -103,80 +103,80 @@ export const NetDiskUserRuleDebug = {
           },
         },
         style: /*css*/ `
-                .custom-rule-container{
-                    display: flex;
-                    align-items: center;
-                }
-                .custom-rule-select-regexp{
-                    width: 100%;
-                    height: 32px;
-                    line-height: normal;
-                    border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
-                    border-radius: 5px;
-                    text-align: center;
-                    outline: 0;
-                    background: rgb(255, 255, 255, var(--pops-bg-opacity));
-                    box-shadow: none;
-                }
-                .custom-rule-input-container{
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    margin: 5px;
-                    width: 30%;
-                }
-                .custom-rule-select-regexp-item{
+        .custom-rule-container{
+            display: flex;
+            align-items: center;
+        }
+        .custom-rule-select-regexp{
+            width: 100%;
+            height: 32px;
+            line-height: normal;
+            border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
+            border-radius: 5px;
+            text-align: center;
+            outline: 0;
+            background: rgb(255, 255, 255, var(--pops-bg-opacity));
+            box-shadow: none;
+        }
+        .custom-rule-input-container{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 5px;
+            width: 30%;
+        }
+        .custom-rule-select-regexp-item{
 
-                }
-                button.custom-rule-run-match-button{
-                    margin-top: 5px;
-                }
-                textarea.custom-rule-match-text{
-                    width: 100%;
-                    min-height: 70px;
-                    outline: none;
-                    margin: 0px;
-                    background-image: none;
-                    background-color: transparent;
-                    display: inline-block;
-                    resize: vertical;
-                    padding: 5px;
-                    line-height: normal;
-                    box-sizing: border-box;
-                    border: 1px solid rgb(220, 223, 230);
-                    appearance: none;
-                }
-                .custom-rule-match-log{
+        }
+        button.custom-rule-run-match-button{
+            margin-top: 5px;
+        }
+        textarea.custom-rule-match-text{
+            width: 100%;
+            min-height: 70px;
+            outline: none;
+            margin: 0px;
+            background-image: none;
+            background-color: transparent;
+            display: inline-block;
+            resize: vertical;
+            padding: 5px;
+            line-height: normal;
+            box-sizing: border-box;
+            border: 1px solid rgb(220, 223, 230);
+            appearance: none;
+        }
+        .custom-rule-match-log{
 
-                }
-                .custom-rule-match-log-container{
-                    padding: 5px;
-                    background: rgb(229, 229, 229);
-                }
-                .custom-rule-match-log-container p{
-                    margin: 2px 0px;
-                    border-bottom: 1px solid #000000;
-                }
-                .custom-rule-match-log-container p:last-child{
-                    border-bottom: 0px;
-                    margin-bottom: 0px;
-                }
-                .custom-rule-match-log-container p[data-tag]{
-                	padding: 10px 0px;
-                }
-                .custom-rule-match-log-container p[data-tag="info"]{
+        }
+        .custom-rule-match-log-container{
+            padding: 5px;
+            background: rgb(229, 229, 229);
+        }
+        .custom-rule-match-log-container p{
+            margin: 2px 0px;
+            border-bottom: 1px solid #000000;
+        }
+        .custom-rule-match-log-container p:last-child{
+            border-bottom: 0px;
+            margin-bottom: 0px;
+        }
+        .custom-rule-match-log-container p[data-tag]{
+          padding: 10px 0px;
+        }
+        .custom-rule-match-log-container p[data-tag="info"]{
 
-                }
-                .custom-rule-match-log-container p[data-tag="success"]{
-                    color: green;
-                }
-                .custom-rule-match-log-container p[data-tag="warn"]{
-                    color: yellow;
-                }
-                .custom-rule-match-log-container p[data-tag="error"]{
-                    color: red;
-                }
-                `,
+        }
+        .custom-rule-match-log-container p[data-tag="success"]{
+            color: green;
+        }
+        .custom-rule-match-log-container p[data-tag="warn"]{
+            color: yellow;
+        }
+        .custom-rule-match-log-container p[data-tag="error"]{
+            color: red;
+        }
+        `,
       },
       NetDiskView.$config.viewSizeConfig.customRuleDebugView
     );
@@ -197,7 +197,7 @@ export const NetDiskUserRuleDebug = {
      * 日志回调
      * @param logData
      */
-    function logCallBack(logData: NetDiskDebugLogData) {
+    const logCallBack = function (logData: NetDiskDebugLogData) {
       if (Array.isArray(logData.msg)) {
         that.setLog(logData.status ? "info" : "error", ...logData.msg);
       } else {
@@ -206,11 +206,11 @@ export const NetDiskUserRuleDebug = {
       if (!logData.status) {
         that.setLog("error", "执行完毕");
       }
-    }
+    };
     /**
      * 开始调试的事件
      */
-    function debugRunClickEvent() {
+    const debugRunClickEvent = function () {
       try {
         if (utils.isNull(that.$el.$matchText.value)) {
           Qmsg.error("请先输入待匹配的字符串");
@@ -219,13 +219,15 @@ export const NetDiskUserRuleDebug = {
         /* 清空日志 */
         that.clearLog();
         /** 网盘名 */
-        let ruleKeyName = ruleJSON.key;
+        const ruleKeyName = ruleJSON.key;
         /** 网盘索引下标 */
-        let ruleIndex = that.$el.$select.selectedIndex;
+        const ruleIndex = that.$el.$select.selectedIndex;
         /** 选择的规则 */
-        let selectRegularOption = (that.$el.$select.options[ruleIndex] as any)["data-value"] as NetDiskMatchRuleConfig;
+        const selectRegularOption = (that.$el.$select.options[ruleIndex] as any)[
+          "data-value"
+        ] as NetDiskMatchRuleConfig;
         log.info("当前选中的规则: ", selectRegularOption);
-        let testCustomRuleOption = <NetDiskMatchedRuleOption>{};
+        const testCustomRuleOption = <NetDiskMatchedRuleOption>{};
         testCustomRuleOption[ruleJSON.key] = [selectRegularOption];
         let matchTextList: string[] = [];
         NetDiskWorker.handleRegularMatch(
@@ -250,7 +252,7 @@ export const NetDiskUserRuleDebug = {
         matchTextList.forEach((matchText, index) => {
           that.setLog("success", "当前处理的字符串: " + matchText);
           that.setLog("success", "当前执行: 对shareCode进行处理获取");
-          let shareCode = NetDisk.handleShareCode({
+          const shareCode = NetDisk.handleShareCode({
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             matchText: matchText,
@@ -267,7 +269,7 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对accessCode进行处理获取");
-          let accessCode = NetDisk.handleAccessCode({
+          const accessCode = NetDisk.handleAccessCode({
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             matchText: matchText,
@@ -281,7 +283,7 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对uiLinkShow进行处理获取");
-          let uiLinkShow = NetDisk.handleLinkShow({
+          const uiLinkShow = NetDisk.handleLinkShow({
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             shareCode: shareCode,
@@ -297,7 +299,7 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对blank进行处理获取");
-          let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
+          const blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
             ruleKeyName,
             ruleIndex,
             shareCode,
@@ -312,7 +314,7 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对copyUrl进行处理获取");
-          let copyUrl = NetDiskLinkClickModeUtils.getCopyUrlInfo({
+          const copyUrl = NetDiskLinkClickModeUtils.getCopyUrlInfo({
             ruleKeyName,
             ruleIndex,
             shareCode,
@@ -329,7 +331,7 @@ export const NetDiskUserRuleDebug = {
         log.error(error);
         that.setLog(error.toString());
       }
-    }
-    DOMUtils.on(that.$el.$button, "click", void 0, debugRunClickEvent);
+    };
+    DOMUtils.on(that.$el.$button, "click", debugRunClickEvent);
   },
 };
