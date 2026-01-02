@@ -42,7 +42,7 @@ type OwnMonkeyOption = {
      * @example
      * ["@whitesev/utils","file:///..."]
      */
-    externalGlobalsLocal?: Record<string, string>;
+    externalLocalRequire?: Record<string, string>;
     /**
      * 前提条件，设置了 `metaLocalFileName`
      *
@@ -52,7 +52,7 @@ type OwnMonkeyOption = {
      * @example
      * ["ElementPlusResourceCSS","file:///..."]
      */
-    externalResourceLocal?: Record<string, string>;
+    externalLocalResouce?: Record<string, string>;
   };
 };
 
@@ -105,16 +105,16 @@ const GenerateUserConfig = async (option: {
   /**
    * cdn是提供给vite-plugin-monkey的配置
    *
-   * local是提供给hook使用替换的
-   *
    * key: {
    *   cdn: string;
    *   local: string;
    * }
    *
-   * 其中`key`是用于匹配的字符串
+   * `key`：用于匹配的字符串
+   * `cdn`：是提供给vite-plugin-monkey使用的cdn
+   * `local`：是提供给hook使用替换的
    */
-  const externalGlobalsConfig = {
+  const externalRequireConfig = {
     CoverUMD: {
       local: await GetLib("CoverUMD", true),
     },
@@ -147,6 +147,31 @@ const GenerateUserConfig = async (option: {
         return isMinify ? url : url.replace("min.js", "js");
       })(),
       local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Element-Plus/index.full.${isMinify ? "min." : ""}js`)}`,
+    },
+    viewerjs: {
+      cdn: cdn.jsdelivrFastly("Viewer", isMinify ? "dist/viewer.min.js" : "dist/viewer.js"),
+    },
+  };
+  /**
+   * cdn是提供给vite-plugin-monkey的配置
+   *
+   *
+   * key: {
+   *   name: string;
+   *   cdn: string;
+   *   local: string;
+   * }
+   *
+   * `key`：用于匹配的字符串
+   * `name`：用于GM_getResource使用的名称
+   * `cdn`：是提供给vite-plugin-monkey使用的cdn
+   * `local`：是提供给hook使用替换的
+   *
+   */
+  const externalResouceConfig = {
+    "viewerjs/dist/viewer.css": {
+      name: "ViewerCSS",
+      cdn: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer${isMinify ? ".min" : ""}.css`,
     },
   };
   /**
@@ -185,14 +210,12 @@ const GenerateUserConfig = async (option: {
       metaFileName: true,
       // 自动申请权限，可以不用填上面的grant
       autoGrant: true,
-      // import库的文件映射
+      // 通过import导入库文件的cdn映射
       externalGlobals: Object.assign(
-        {
-          viewerjs: cdn.jsdelivrFastly("Viewer", isMinify ? "dist/viewer.min.js" : "dist/viewer.js"),
-        },
+        {},
         (() => {
           const result = {};
-          for (const [key, value] of Object.entries(externalGlobalsConfig)) {
+          for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("cdn" in value) {
               result[key] = value.cdn;
             }
@@ -200,10 +223,8 @@ const GenerateUserConfig = async (option: {
           return result;
         })()
       ),
-      // import资源文件的映射
-      externalResource: Object.assign({
-        "viewerjs/dist/viewer.css": cdn.jsdelivrFastly("Viewer", isMinify ? "dist/viewer.min.css" : "dist/viewer.css"),
-      }),
+      // 通过import导入资源文件的cdn映射
+      externalResource: Object.assign({}),
       cssSideEffects: (cssText: string) => {
         function addStyle(cssText: string) {
           // @ts-ignore
@@ -239,20 +260,32 @@ const GenerateUserConfig = async (option: {
     build: {
       metaLocalFileName: option.monkeyOption?.build?.metaLocalFileName ?? true,
       // 本地映射
-      externalGlobalsLocal: Object.assign(
+      externalLocalRequire: Object.assign(
         {},
         (() => {
           let result = {};
-          for (const [key, value] of Object.entries(externalGlobalsConfig)) {
+          for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("local" in value) {
               result[key] = value.local;
             }
           }
           return result;
         })(),
-        option.monkeyOption?.build?.externalGlobalsLocal ?? {}
+        option.monkeyOption?.build?.externalLocalRequire ?? {}
       ),
-      externalResourceLocal: Object.assign({}, option.monkeyOption?.build?.externalResourceLocal ?? {}),
+      externalLocalResouce: Object.assign(
+        {},
+        (() => {
+          let result = {};
+          for (const [key, value] of Object.entries(externalResouceConfig)) {
+            if ("local" in value) {
+              result[key] = value.local;
+            }
+          }
+          return result;
+        })(),
+        option.monkeyOption?.build?.externalLocalResouce ?? {}
+      ),
     },
   };
   /* -------------以下配置不需要动------------- */
@@ -433,7 +466,7 @@ const GenerateUserConfig = async (option: {
           pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
           "vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
           // "element-plus": cdn.jsdelivrFastly("ElementPlus", "dist/index.full.min.js"),
-          "element-plus": ["ElementPlus", () => externalGlobalsConfig["Element-Plus"].cdn],
+          "element-plus": ["ElementPlus", () => externalRequireConfig["Element-Plus"].cdn],
           "@element-plus/icons-vue": cdn.jsdelivrFastly("ElementPlusIconsVue", "dist/index.iife.min.js"),
         },
       },
@@ -594,7 +627,7 @@ const GenerateUserConfig = async (option: {
           if (requireMatch) {
             metaItem = metaItem.replace(requireMatch[0], "");
             for (const [requiredMatchKey, requiredUrl] of Object.entries(
-              DefaultOwnMonkeyOption.build.externalGlobalsLocal
+              DefaultOwnMonkeyOption.build.externalLocalRequire
             )) {
               if (metaItem.includes(requiredMatchKey)) {
                 splitContent[index] = `// @require${inserRequireSpace}${requiredUrl}`;
@@ -607,7 +640,7 @@ const GenerateUserConfig = async (option: {
             let resourceKey = metaEndStr.split(" ")[0];
             let metaAfterResouceStr = metaEndStr.replace(resourceKey, "").match(/^([\s]+)/)[1];
             for (const [resourceMatchKey, resourceUrl] of Object.entries(
-              DefaultOwnMonkeyOption.build.externalResourceLocal
+              DefaultOwnMonkeyOption.build.externalLocalResouce
             )) {
               if (resourceKey === resourceMatchKey) {
                 splitContent[index] =
