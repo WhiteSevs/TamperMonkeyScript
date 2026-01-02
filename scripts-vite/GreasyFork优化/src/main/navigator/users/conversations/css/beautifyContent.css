@@ -11,6 +11,7 @@ section.text-content {
   max-width: 70%;
   border-radius: 10px;
   width: fit-content;
+  width: -moz-fit-content;
 }
 
 .comment .comment-meta-spacer {

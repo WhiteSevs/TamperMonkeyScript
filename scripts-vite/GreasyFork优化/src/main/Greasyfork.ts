@@ -307,7 +307,9 @@ const Greasyfork = {
             text-size-adjust: 100%;
             overflow-wrap: break-word;
             width: fit-content;
+            width: -moz-fit-content;
             height: fit-content;
+            height: -moz-fit-content;
         }
         .zeroclipboard-container svg{
             vertical-align: text-bottom;
