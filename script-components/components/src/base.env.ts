@@ -165,7 +165,10 @@ const OriginPrototype = {
   Element: {
     appendChild: unsafeWindow.Element.prototype.appendChild,
   },
-  setTimeout: unsafeWindow.setTimeout,
+  setTimeout: unsafeWindow.setTimeout.bind(unsafeWindow),
+  clearTimeout: unsafeWindow.clearTimeout.bind(unsafeWindow),
+  setInterval: unsafeWindow.setInterval.bind(unsafeWindow),
+  clearInterval: unsafeWindow.clearInterval.bind(unsafeWindow),
 };
 
 /**
