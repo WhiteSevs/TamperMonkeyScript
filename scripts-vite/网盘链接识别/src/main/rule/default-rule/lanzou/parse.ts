@@ -151,6 +151,13 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/,
     },
     /**
+     * 需要生成签名
+     */
+    need_sign: {
+      match: "acw_sc__v2=",
+      tip: "请先手动打开链接，生成acw_sc__v2参数",
+    },
+    /**
      * 蓝奏文件名
      */
     fileName: {
@@ -576,6 +583,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         Accept: "*/*",
         "User-Agent": utils.getRandomPCUA(),
         Referer: url,
+        // 现在蓝奏限制了Cookie必须包含acw_sc__v2才可以获取到内容
       },
       allowInterceptConfig: false,
     });
@@ -628,6 +636,10 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     }
     if (pageText.match(this.regexp.linkInValid.match)) {
       Qmsg.error(this.regexp.linkInValid.tip);
+      return false;
+    }
+    if (pageText.match(this.regexp.need_sign.match)) {
+      Qmsg.error(this.regexp.need_sign.tip);
       return false;
     }
     return true;

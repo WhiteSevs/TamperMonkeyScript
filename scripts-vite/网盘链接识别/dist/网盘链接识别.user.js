@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.3
+// @version      2026.1.3.20
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -498,7 +498,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -8869,6 +8872,10 @@
       sign: {
         match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/,
       },
+      need_sign: {
+        match: "acw_sc__v2=",
+        tip: "请先手动打开链接，生成acw_sc__v2参数",
+      },
       fileName: {
         match: /<title>(.*)<\/title>/,
       },
@@ -9258,6 +9265,10 @@
       }
       if (pageText.match(this.regexp.linkInValid.match)) {
         Qmsg.error(this.regexp.linkInValid.tip);
+        return false;
+      }
+      if (pageText.match(this.regexp.need_sign.match)) {
+        Qmsg.error(this.regexp.need_sign.tip);
         return false;
       }
       return true;
