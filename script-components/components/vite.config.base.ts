@@ -12,6 +12,8 @@ import fs from "fs";
 import path from "path";
 import pc from "picocolors";
 
+type IArray<T> = T[] | T;
+
 type OwnMonkeyOption = {
   /**
    * 是否是Vue项目
@@ -53,6 +55,20 @@ type OwnMonkeyOption = {
      * ["ElementPlusResourceCSS","file:///..."]
      */
     externalLocalResouce?: Record<string, string>;
+  };
+  userscript: {
+    /**
+     * 其它脚本管理器的权限Api
+     */
+    otherGrant?: IArray<
+      | "GM.ChromeXt"
+      | "CAT_userConfig"
+      | "CAT_fileStorage"
+      | "CAT_scriptLoaded"
+      | "CAT_setProxy"
+      | "CAT_clearProxy"
+      | "CAT_click"
+    >;
   };
 };
 
@@ -287,6 +303,9 @@ const GenerateUserConfig = async (option: {
         option.monkeyOption?.build?.externalLocalResouce ?? {}
       ),
     },
+    userscript: {
+      otherGrant: option.monkeyOption?.userscript?.otherGrant ?? [],
+    },
   };
   /* -------------以下配置不需要动------------- */
   /* -------------以下配置不需要动------------- */
@@ -351,6 +370,8 @@ const GenerateUserConfig = async (option: {
     },
   };
 
+  const plugins = BaseUserConfig.plugins!;
+
   if (option.userConfig) {
     BaseUserConfig = viteUtils.assign(BaseUserConfig, option.userConfig, true);
   }
@@ -407,7 +428,7 @@ const GenerateUserConfig = async (option: {
   }
   if (DefaultOwnMonkeyOption.isVueProject) {
     // 添加vue插件
-    BaseUserConfig.plugins!.push(
+    plugins.push(
       vue(),
       AutoImport({
         // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
@@ -483,9 +504,66 @@ const GenerateUserConfig = async (option: {
   // 添加@require
   DefaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
 
+  // 其它脚本管理器的Api引用
+  const otherGrant = DefaultOwnMonkeyOption.userscript.otherGrant;
+  if (Array.isArray(otherGrant)) {
+    if (Array.isArray(DefaultMonkeyOption.userscript.grant)) {
+      DefaultMonkeyOption.userscript!.grant = DefaultMonkeyOption.userscript!.grant.concat(
+        // @ts-expect-error
+        otherGrant
+      );
+    } else {
+      // @ts-expect-error
+      DefaultMonkeyOption.userscript!.grant = otherGrant;
+    }
+  }
+  const LibTag = DefaultMonkeyOption.clientAlias ?? "ViteGM";
+  const LibInfo = [
+    {
+      name: LibTag + "ChromeXt",
+      code: /*js*/ `
+      const _ChromeXt = /* @__PURE__ */ (() => typeof ChromeXt != "undefined" ? ChromeXt : typeof GM === "object" && GM != null && typeof GM.ChromeXt !== "undefined" ? GM.ChromeXt : void 0)();
+      export { _ChromeXt as ChromeXt };
+      `,
+    },
+    {
+      name: LibTag + "ScriptCat",
+      code: /*js*/ `
+      ${["CAT_userConfig", "CAT_fileStorage", "CAT_scriptLoaded", "CAT_setProxy", "CAT_clearProxy", "CAT_click"]
+        .map((it) => {
+          return `
+          const _${it} = /* @__PURE__ */ (() => typeof ${it} != "undefined" ? ${it} : void 0)();
+          export { _${it} as ${it} };
+          `;
+        })
+        .join("\n")}
+      `,
+    },
+  ];
+  const LibName = LibInfo.map((it) => it.name);
+  const VirtualLibName = LibName.map((it) => "\0" + it);
+  const ScriptManagerTransformPlugin: Plugin = {
+    name: "hook:vite-plugin-monkey:script-manager-transform-api",
+    enforce: "pre",
+    apply: "build",
+    resolveId(source) {
+      if (LibName.includes(source)) {
+        return "\0" + source;
+      }
+    },
+    load(id) {
+      if (VirtualLibName.includes(id)) {
+        const name = id.slice(1);
+        const code = LibInfo.find((it) => it.name === name).code;
+        if (typeof code === "string") {
+          return code;
+        }
+      }
+    },
+  };
   // 对vite-plugin-monkey插件进行hook
   const MonkeyHookPlugin: Plugin = {
-    name: "vite-plugin-monkey-hook",
+    name: "hook:vite-plugin-monkey",
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url;
@@ -667,8 +745,11 @@ const GenerateUserConfig = async (option: {
       }
     },
   };
-  BaseUserConfig.plugins!.push(MonkeyHookPlugin);
-  BaseUserConfig.plugins!.push(monkey(DefaultMonkeyOption));
+
+  plugins.push(ScriptManagerTransformPlugin);
+  plugins.push(MonkeyHookPlugin);
+  plugins.push(monkey(DefaultMonkeyOption));
+
   // https://vitejs.dev/config/
   return BaseUserConfig;
 };

@@ -4,4 +4,14 @@
 
 declare module "ViteGM" {
   export * from "vite-plugin-monkey/dist/client";
+  // export * from "chromext-api";
+  // export * from "scriptcat-api";
+}
+
+declare module "ViteGMChromeXt" {
+  export * from "chromext-api";
+}
+
+declare module "ViteGMScriptCat" {
+  export * from "scriptcat-api";
 }
