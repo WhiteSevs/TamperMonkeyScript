@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.3
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -13,8 +13,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -29,16 +29,40 @@
 // @resource     Resource_erudaVue             https://fastly.jsdelivr.net/npm/eruda-vue@1.1.1
 // @resource     Resource_vConsoleVueDevtools  https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9
 // @connect      *
+// @grant        CAT_clearProxy
+// @grant        CAT_click
+// @grant        CAT_fileStorage
+// @grant        CAT_scriptLoaded
+// @grant        CAT_setProxy
+// @grant        CAT_userConfig
+// @grant        GM.ChromeXt
+// @grant        GM_addElement
+// @grant        GM_addStyle
+// @grant        GM_addValueChangeListener
+// @grant        GM_audio
+// @grant        GM_cookie
 // @grant        GM_deleteValue
+// @grant        GM_deleteValues
+// @grant        GM_download
 // @grant        GM_getResourceText
+// @grant        GM_getResourceURL
+// @grant        GM_getTab
+// @grant        GM_getTabs
 // @grant        GM_getValue
+// @grant        GM_getValues
 // @grant        GM_info
 // @grant        GM_listValues
+// @grant        GM_log
+// @grant        GM_notification
+// @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
+// @grant        GM_saveTab
 // @grant        GM_setClipboard
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_webRequest
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @run-at       document-start
@@ -47,19 +71,39 @@
 (function (Qmsg, DOMUtils, pops, Utils) {
   "use strict";
 
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
+  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
+  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
+  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
   var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
   var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
   var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
+  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
   var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
   var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
     typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
   const PanelSettingConfig = {
@@ -440,7 +484,7 @@
     }
     return data;
   });
-  ({
+  const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
     },
@@ -451,12 +495,15 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
-  });
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
+  };
   const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
+  const cookieManager = new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -2002,8 +2049,8 @@
       }
     },
   };
-  const unsafeWin = _unsafeWindow;
-  const console = unsafeWin.console;
+  const unsafeWin = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+  const console$1 = unsafeWin.console;
   const copy = _GM_setClipboard || utils.copy.bind(utils);
   const WebSiteDebugUtil = {
     evalPlugin: (...args) => {
@@ -2080,6 +2127,10 @@
     autoLoadDebugTool: {
       key: "autoLoadDebugTool",
       defaultValue: true,
+    },
+    registerDebugBridgeApi: {
+      key: "registerDebugBridgeApi",
+      defaultValue: "GM_bridge",
     },
     eruda_auto_open_panel: {
       key: "eruda-auto-open-panel",
@@ -2347,9 +2398,9 @@
     Eruda2.init({
       tool: inintPanelList,
     });
-    console.log(`eruda当前版本：${Eruda2.version}`);
-    console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
-    console.log("eruda的全局变量名: Eruda");
+    console$1.log(`eruda当前版本：${Eruda2.version}`);
+    console$1.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
+    console$1.log("eruda的全局变量名: Eruda");
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
@@ -2357,7 +2408,7 @@
         );
         Eruda2.add(erudaMonitor);
       } catch (error) {
-        console.error("插件【eruda-monitor】加载失败，原因：", error);
+        console$1.error("插件【eruda-monitor】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
@@ -2367,7 +2418,7 @@
         );
         Eruda2.add(erudaFeatures);
       } catch (error) {
-        console.error("插件【eruda-features】加载失败，原因：", error);
+        console$1.error("插件【eruda-features】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
@@ -2377,7 +2428,7 @@
         );
         Eruda2.add(erudaTiming);
       } catch (error) {
-        console.error("插件【eruda-timing】加载失败，原因：", error);
+        console$1.error("插件【eruda-timing】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
@@ -2385,7 +2436,7 @@
         WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource));
         Eruda2.add(erudaCode);
       } catch (error) {
-        console.error("插件【eruda-code】加载失败，原因：", error);
+        console$1.error("插件【eruda-code】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)) {
@@ -2395,7 +2446,7 @@
         );
         Eruda2.add(erudaBenchmark);
       } catch (error) {
-        console.error("插件【eruda-benchmark】加载失败，原因：", error);
+        console$1.error("插件【eruda-benchmark】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key)) {
@@ -2405,7 +2456,7 @@
         );
         Eruda2.add(erudaGeolocation);
       } catch (error) {
-        console.error("插件【eruda-geolocation】加载失败，原因：", error);
+        console$1.error("插件【eruda-geolocation】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key)) {
@@ -2415,7 +2466,7 @@
         );
         Eruda2.add(erudaOrientation);
       } catch (error) {
-        console.error("插件【eruda-orientation】加载失败，原因：", error);
+        console$1.error("插件【eruda-orientation】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
@@ -2425,7 +2476,7 @@
         );
         Eruda2.add(erudaTouches);
       } catch (error) {
-        console.error("插件【eruda-touches】加载失败，原因：", error);
+        console$1.error("插件【eruda-touches】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key)) {
@@ -2435,7 +2486,7 @@
         );
         Eruda2.add(erudaOutlinePlugin);
       } catch (error) {
-        console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
+        console$1.error("插件【eruda-outline-plugin】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
@@ -2443,7 +2494,7 @@
         WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource));
         Eruda2.add(erudaPixel);
       } catch (error) {
-        console.error("插件【eruda-pixel】加载失败，原因：", error);
+        console$1.error("插件【eruda-pixel】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
@@ -2451,7 +2502,7 @@
         WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource));
         Eruda2.add(erudaVue);
       } catch (error) {
-        console.error("插件【eruda-vue】加载失败，原因：", error);
+        console$1.error("插件【eruda-vue】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_auto_open_panel.key)) {
@@ -2632,7 +2683,7 @@
             statusButton.addEventListener("click", (event) => {
               const currentType = event.target.dataset.type;
               if (currentType.toString() === "2" && !(self.performance && self.performance.memory)) {
-                console.error("浏览器不支持window.performance或者window.performance.memory");
+                console$1.error("浏览器不支持window.performance或者window.performance.memory");
                 return;
               }
               this.changePanel(currentType);
@@ -2760,7 +2811,7 @@
       init() {
         const vConsoleExportLogs = new this.VConsole.VConsolePlugin("exportLog", "exportLog");
         vConsoleExportLogs.on("ready", () => {
-          console.log("[vConsole-exportlog-plugin] -- load");
+          console$1.log("[vConsole-exportlog-plugin] -- load");
         });
         vConsoleExportLogs.on("renderTab", (callback) => {
           const html = `<div class="vconsole-exportlog"></div>`;
@@ -2874,21 +2925,21 @@
     });
     DebugToolConfig.vConsole.version = vConsole2.version;
     unsafeWin.vConsole = vConsole2;
-    console.log(`VConsole当前版本：${vConsole2.version}`);
-    console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
-    console.log("VConsole的实例化的全局变量名: vConsole");
+    console$1.log(`VConsole当前版本：${vConsole2.version}`);
+    console$1.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
+    console$1.log("VConsole的实例化的全局变量名: vConsole");
     if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key)) {
       try {
         vConsolePluginState(vConsole2, VConsole);
       } catch (error) {
-        console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
+        console$1.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key)) {
       try {
         vConsolePluginExportLog(vConsole2, VConsole);
       } catch (error) {
-        console.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
+        console$1.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key)) {
@@ -2899,7 +2950,7 @@
         const Devtools = unsafeWin.vueVconsoleDevtools;
         Devtools.initPlugin(vConsole2);
       } catch (error) {
-        console.error("插件【vconsole-vue-devtools-plugin】加载失败，原因：", error);
+        console$1.error("插件【vconsole-vue-devtools-plugin】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.vconsole_auto_open_panel.key)) {
@@ -2921,11 +2972,11 @@
     );
     if (Panel.getValue(GlobalSettingConfig.pagespy_disable_run_in_debug_client.key)) {
       if (window.location.hostname.includes(api)) {
-        console.log("禁止在调试端运行 ==> hostname包含api");
+        console$1.log("禁止在调试端运行 ==> hostname包含api");
         return;
       }
       if (window.location.origin.includes(clientOrigin)) {
-        console.log("禁止在调试端运行 ==> origin包含clientOrigin");
+        console$1.log("禁止在调试端运行 ==> origin包含clientOrigin");
         return;
       }
     }
@@ -2974,9 +3025,9 @@
       ),
     });
     unsafeWin.$pageSpy = $pageSpy;
-    console.log($pageSpy);
+    console$1.log($pageSpy);
     DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
-    console.log("PageSpy全局变量：$pageSpy");
+    console$1.log("PageSpy全局变量：$pageSpy");
   };
   const ChiiPluginHeight = {
     $data: {
@@ -3006,7 +3057,7 @@
     },
     setLocalHeight(value) {
       if (typeof value !== "number") {
-        console.log(value);
+        console$1.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
       let storageValue = value.toString();
@@ -3024,7 +3075,7 @@
     },
     setGMLocalHeight(value) {
       if (typeof value !== "number") {
-        console.log(value);
+        console$1.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
       Panel.setValue(this.$data.key, value);
@@ -3042,7 +3093,7 @@
         GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
       )
     ) {
-      console.log("禁止在调试端运行 ==> href包含debugUrl");
+      console$1.log("禁止在调试端运行 ==> href包含debugUrl");
       return;
     }
     Panel.execMenu(GlobalSettingConfig.chii_embedded_height_enable.key, () => {
@@ -3101,7 +3152,7 @@
       try {
         top.console.log("iframe信息：" + window.location.href);
       } catch (error) {
-        console.error(error);
+        console$1.error(error);
       }
       MenuRegister.add({
         key: "iframeUrl",
@@ -3120,7 +3171,7 @@
     execDebugTool() {
       let debugTool = Panel.getValue(GlobalSettingConfig.debugTool.key);
       debugTool = debugTool.toString().toLowerCase();
-      console.log(`网页调试：当前使用的调试工具【${debugTool}】`);
+      console$1.log(`网页调试：当前使用的调试工具【${debugTool}】`);
       if (debugTool === "vconsole") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "vconsole";
@@ -3138,12 +3189,12 @@
         this.$data.loadDebugToolName = "chii";
         Chii();
       } else {
-        console.error("当前未配置该调试工具的运行");
+        console$1.error("当前未配置该调试工具的运行");
       }
     },
     registerDebugToolMenuControls() {
       if (!Panel.isTopWindow()) {
-        console.warn("不在iframe内重复添加菜单按钮");
+        console$1.warn("不在iframe内重复添加菜单按钮");
         return;
       }
       let menuData = {
@@ -3209,22 +3260,22 @@
     },
     hideCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode == null) {
-        console.log("未创建隐藏【调试工具】的style元素 => 创建元素");
+        console$1.log("未创建隐藏【调试工具】的style元素 => 创建元素");
         this.$ele.hideDebugToolCSSNode = this.createDebugToolHideCSS();
       }
       if (!this.isInjectDebugToolHideCSS()) {
-        console.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
+        console$1.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
         document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
       }
     },
     showCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode) {
-        console.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
+        console$1.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
         this.$ele.hideDebugToolCSSNode = void 0;
       }
       if (!this.$data.isLoadDebugTool) {
-        console.log("尚未运行【调试工具】 => 运行调试工具");
+        console$1.log("尚未运行【调试工具】 => 运行调试工具");
         this.execDebugTool();
       }
     },
@@ -3593,6 +3644,12 @@
             GlobalSettingConfig.autoLoadDebugTool.defaultValue,
             void 0,
             "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
+          ),
+          UIInput(
+            "注册调试Api",
+            GlobalSettingConfig.registerDebugBridgeApi.key,
+            GlobalSettingConfig.registerDebugBridgeApi.defaultValue,
+            "自定义调试Api名，留空则为不注册"
           ),
         ],
       },
@@ -4582,6 +4639,136 @@
       },
     ],
   };
+  const _ChromeXt = (() =>
+    typeof ChromeXt != "undefined"
+      ? ChromeXt
+      : typeof GM === "object" && GM != null && typeof GM.ChromeXt !== "undefined"
+        ? GM.ChromeXt
+        : void 0)();
+  const _CAT_userConfig = (() => (typeof CAT_userConfig != "undefined" ? CAT_userConfig : void 0))();
+  const _CAT_fileStorage = (() => (typeof CAT_fileStorage != "undefined" ? CAT_fileStorage : void 0))();
+  const _CAT_scriptLoaded = (() => (typeof CAT_scriptLoaded != "undefined" ? CAT_scriptLoaded : void 0))();
+  const _CAT_setProxy = (() => (typeof CAT_setProxy != "undefined" ? CAT_setProxy : void 0))();
+  const _CAT_clearProxy = (() => (typeof CAT_clearProxy != "undefined" ? CAT_clearProxy : void 0))();
+  const _CAT_click = (() => (typeof CAT_click != "undefined" ? CAT_click : void 0))();
+  const DebugBridge = {
+    init() {
+      this.register();
+    },
+    register() {
+      const exportName = Panel.getValue(GlobalSettingConfig.registerDebugBridgeApi.key);
+      if (typeof exportName !== "string" || exportName.trim() === "") {
+        return;
+      }
+      const GMApi = {
+        window,
+        unsafeWindow: _unsafeWindow,
+        GM: typeof _GM !== "undefined" ? _GM : void 0,
+        GM_addElement: typeof _GM_addElement !== "undefined" ? _GM_addElement : void 0,
+        GM_addStyle: typeof _GM_addStyle !== "undefined" ? _GM_addStyle : void 0,
+        GM_download: typeof _GM_download !== "undefined" ? _GM_download : void 0,
+        GM_getResourceText: typeof _GM_getResourceText !== "undefined" ? _GM_getResourceText : void 0,
+        GM_getResourceURL: typeof _GM_getResourceURL !== "undefined" ? _GM_getResourceURL : void 0,
+        GM_info: typeof _GM_info !== "undefined" ? _GM_info : void 0,
+        GM_log: typeof _GM_log !== "undefined" ? _GM_log : void 0,
+        GM_notification: typeof _GM_notification !== "undefined" ? _GM_notification : void 0,
+        GM_openInTab: typeof _GM_openInTab !== "undefined" ? _GM_openInTab : void 0,
+        GM_registerMenuCommand: typeof _GM_registerMenuCommand !== "undefined" ? _GM_registerMenuCommand : void 0,
+        GM_unregisterMenuCommand: typeof _GM_unregisterMenuCommand !== "undefined" ? _GM_unregisterMenuCommand : void 0,
+        GM_setClipboard: typeof _GM_setClipboard !== "undefined" ? _GM_setClipboard : void 0,
+        GM_getTab: typeof _GM_getTab !== "undefined" ? _GM_getTab : void 0,
+        GM_saveTab: typeof _GM_saveTab !== "undefined" ? _GM_saveTab : void 0,
+        GM_getTabs: typeof _GM_getTabs !== "undefined" ? _GM_getTabs : void 0,
+        GM_setValue: typeof _GM_setValue !== "undefined" ? _GM_setValue : void 0,
+        GM_getValue: typeof _GM_getValue !== "undefined" ? _GM_getValue : void 0,
+        GM_getValues: typeof _GM_getValues !== "undefined" ? _GM_getValues : void 0,
+        GM_deleteValue: typeof _GM_deleteValue !== "undefined" ? _GM_deleteValue : void 0,
+        GM_listValues: typeof _GM_listValues !== "undefined" ? _GM_listValues : void 0,
+        GM_addValueChangeListener:
+          typeof _GM_addValueChangeListener !== "undefined" ? _GM_addValueChangeListener : void 0,
+        GM_removeValueChangeListener:
+          typeof _GM_removeValueChangeListener !== "undefined" ? _GM_removeValueChangeListener : void 0,
+        GM_xmlhttpRequest: typeof _GM_xmlhttpRequest !== "undefined" ? _GM_xmlhttpRequest : void 0,
+        GM_audio: typeof _GM_audio !== "undefined" ? _GM_audio : void 0,
+        GM_setValues: typeof _GM_setValues !== "undefined" ? _GM_setValues : void 0,
+        GM_deleteValues: typeof _GM_deleteValues !== "undefined" ? _GM_deleteValues : void 0,
+      };
+      const GMBetaApi = {
+        GM_cookie:
+          typeof _GM_cookie === "undefined" || (typeof _GM_cookie !== "undefined" && _GM_cookie == null)
+            ? void 0
+            : _GM_cookie,
+        GM_webRequest:
+          typeof _GM_webRequest === "undefined" || (typeof _GM_webRequest !== "undefined" && _GM_webRequest == null)
+            ? void 0
+            : void 0,
+      };
+      const ChromeXtApi = {
+        ChromeXt: typeof _ChromeXt !== "undefined" ? _ChromeXt : void 0,
+      };
+      const ScriptCatApi = {
+        CAT_userConfig: typeof _CAT_userConfig !== "undefined" ? _CAT_userConfig : void 0,
+        CAT_fileStorage: typeof _CAT_fileStorage !== "undefined" ? _CAT_fileStorage : void 0,
+        CAT_scriptLoaded: typeof _CAT_scriptLoaded !== "undefined" ? _CAT_scriptLoaded : void 0,
+      };
+      const ScriptCatBetaApi = {};
+      const ScriptCatDeprecatedApi = {
+        CAT_setProxy: typeof _CAT_setProxy !== "undefined" ? _CAT_setProxy : void 0,
+        CAT_clearProxy: typeof _CAT_clearProxy !== "undefined" ? _CAT_clearProxy : void 0,
+        CAT_click: typeof _CAT_click !== "undefined" ? _CAT_click : void 0,
+      };
+      const otherApi = {
+        OriginPrototype,
+        addStyle,
+        AnyTouch,
+        cookieManager,
+        log: new utils.Log(_GM_info, _unsafeWindow.console || console),
+        httpx,
+        utils,
+        DOMUtils: domUtils,
+        pops: __pops__,
+        Qmsg,
+        MenuRegister,
+        loadScript: (url) => {
+          const $script = document.createElement("script");
+          $script.src = url;
+          return new Promise((resolve) => {
+            $script.onload = () => {
+              $script.remove();
+              resolve(true);
+            };
+            (document.head || document.documentElement).appendChild($script);
+          });
+        },
+      };
+      const windowApi = {
+        window,
+        document,
+        globalThis,
+        self,
+        topWindow: top?.window,
+      };
+      const exportApi = {
+        ...GMApi,
+        ...GMBetaApi,
+        ...ChromeXtApi,
+        ...ScriptCatApi,
+        ...ScriptCatBetaApi,
+        ...ScriptCatDeprecatedApi,
+        ...otherApi,
+        ...windowApi,
+      };
+      Object.freeze(exportApi);
+      Reflect.set(unsafeWin, exportName, exportApi);
+      if (
+        typeof window[exportName] === "undefined" ||
+        (typeof window[exportName] !== "undefined" && window[exportName] == null)
+      ) {
+        Reflect.set(window, exportName, exportApi);
+      }
+      console.log(`Debug Api${Panel.isTopWindow() ? "" : "（iframe）"}：` + exportName);
+    },
+  };
   PanelContent.addContentConfig([
     PanelUI_globalSetting,
     PanelUI_eruda,
@@ -4591,17 +4778,18 @@
   ]);
   Panel.$data.panelConfig = {
     style: `
-				aside.pops-panel-aside{
-					width: 20%;
-				}
-				.plugin-anchor{
-					text-decoration: none;
-					display: inline-flex;
-    				vertical-align: text-bottom;
-				}
-			`,
+	aside.pops-panel-aside{
+		width: 20%;
+	}
+	.plugin-anchor{
+		text-decoration: none;
+		display: inline-flex;
+		vertical-align: text-bottom;
+	}
+`,
   };
   Panel.init();
   WebSiteDebug.init();
+  DebugBridge.init();
   PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));
 })(Qmsg, DOMUtils, pops, Utils);

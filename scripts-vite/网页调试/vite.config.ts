@@ -1,27 +1,25 @@
 import fs from "fs";
-import path from "path";
 import { defineConfig } from "vite";
-import { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
+import { GetLib, ViteUtils } from "./../../vite.utils";
 
 /**
  * 更新README.md的版本信息
  */
-let updateREADMEInfo = (name: "erdua" | "VConsole" | "PageSpy", replace: string) => {
+const updateREADMEInfo = (name: "erdua" | "VConsole" | "PageSpy", replace: string) => {
   const filePath = Utils.getAbsolutePath("./README.md");
-  let README_Text = fs.readFileSync(filePath, { encoding: "utf-8" });
-  let README_Text_Split = README_Text.split("\n");
+  const README_Text = fs.readFileSync(filePath, { encoding: "utf-8" });
+  const README_Text_Split = README_Text.split("\n");
   let flag = false;
   for (let index = 0; index < README_Text_Split.length; index++) {
-    let text = README_Text_Split[index].trim().toLowerCase();
+    const text = README_Text_Split[index].trim().toLowerCase();
     if (text.startsWith("## " + name.toLowerCase())) {
       flag = true;
       continue;
     }
     if (flag) {
       if (text.startsWith("- 当前版本：")) {
-        let newText = `- 当前版本：\`${replace}\``;
+        const newText = `- 当前版本：\`${replace}\``;
         README_Text_Split[index] = newText;
         console.log(`更新README.md`);
         console.log("原内容：" + README_Text_Split[index]);
@@ -38,8 +36,8 @@ let updateREADMEInfo = (name: "erdua" | "VConsole" | "PageSpy", replace: string)
  * @link file:///./src/setting/panel-setting-config.ts
  * @link file:///./src/main/version.json
  */
-let getResource = () => {
-  let resourceMap = {};
+const getResource = () => {
+  const resourceMap = {};
   const eruda_DynamicQueryResourceVersion = [
     {
       npm: "eruda-monitor",
@@ -146,7 +144,7 @@ let getResource = () => {
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();
 
-let userConfig = await GenerateUserConfig({
+const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
   monkeyOption: {
     userscript: {
@@ -163,7 +161,6 @@ let userConfig = await GenerateUserConfig({
       require: [...(await GetLib(["Eruda", "vConsole", "PageSpy"]))],
       // 资源引用
       resource: {
-        // ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
         ...getResource(),
         Resource_erudaGeolocation: await Utils.getGitHubLibLatestVersionUrl(
           "WhiteSevs/eruda-geolocation",
@@ -171,6 +168,18 @@ let userConfig = await GenerateUserConfig({
           "eruda-geolocation.js"
         ),
       },
+      otherGrant: [
+        // chromext
+        "GM.ChromeXt",
+        // scriptcat
+        "CAT_userConfig",
+        "CAT_fileStorage",
+        "CAT_scriptLoaded",
+        // scriptcat deprecated
+        "CAT_setProxy",
+        "CAT_clearProxy",
+        "CAT_click",
+      ],
     },
     build: {
       // import库的文件映射

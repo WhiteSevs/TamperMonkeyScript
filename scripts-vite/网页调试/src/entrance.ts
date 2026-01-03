@@ -7,21 +7,22 @@ import { PanelUI_vConsole } from "./setting/view/vConsole";
 import { PanelUI_pagespy } from "./setting/view/pagespy";
 import { PanelUI_chii } from "./setting/view/chii";
 import { PanelSizeUtil } from "@components/setting/panel-size-util";
+import { DebugBridge } from "./main/DebugBridge";
 
 PanelContent.addContentConfig([PanelUI_globalSetting, PanelUI_eruda, PanelUI_vConsole, PanelUI_pagespy, PanelUI_chii]);
 Panel.$data.panelConfig = {
   style: /*css*/ `
-				aside.pops-panel-aside{
-					width: 20%;
-				}
-				.plugin-anchor{
-					text-decoration: none;
-					display: inline-flex;
-    				vertical-align: text-bottom;
-				}
-			`,
+	aside.pops-panel-aside{
+		width: 20%;
+	}
+	.plugin-anchor{
+		text-decoration: none;
+		display: inline-flex;
+		vertical-align: text-bottom;
+	}
+`,
 };
 Panel.init();
 WebSiteDebug.init();
-
+DebugBridge.init();
 PanelSizeUtil.followBrowserSize = Boolean(Panel.getValue("panel-ui-size-follow-browser-window", false));

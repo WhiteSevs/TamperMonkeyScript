@@ -2,6 +2,7 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { GlobalSettingConfig } from "../config";
+import { UIInput } from "@components/setting/panel-components";
 
 export const PanelUI_globalSetting: PopsPanelContentConfig = {
   id: "debug-panel-config-all",
@@ -50,6 +51,12 @@ export const PanelUI_globalSetting: PopsPanelContentConfig = {
           GlobalSettingConfig.autoLoadDebugTool.defaultValue,
           void 0,
           "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
+        ),
+        UIInput(
+          "注册调试Api",
+          GlobalSettingConfig.registerDebugBridgeApi.key,
+          GlobalSettingConfig.registerDebugBridgeApi.defaultValue,
+          "自定义调试Api名，留空则为不注册"
         ),
       ],
     },

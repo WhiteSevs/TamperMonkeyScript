@@ -13,6 +13,10 @@ export const GlobalSettingConfig = {
     key: "autoLoadDebugTool",
     defaultValue: true,
   },
+  registerDebugBridgeApi: {
+    key: "registerDebugBridgeApi",
+    defaultValue: "GM_bridge",
+  },
   eruda_auto_open_panel: {
     key: "eruda-auto-open-panel",
     defaultValue: false,

@@ -2,7 +2,7 @@ import { SCRIPT_NAME, utils } from "@components/base.env";
 import { GM_setClipboard, unsafeWindow } from "ViteGM";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "网页调试";
-const unsafeWin = unsafeWindow;
+const unsafeWin = typeof unsafeWindow === "object" && unsafeWindow != null ? unsafeWindow : window;
 const console = unsafeWin.console;
 /** 复制 */
 const copy = GM_setClipboard || utils.copy.bind(utils);
@@ -20,4 +20,5 @@ export {
   $$,
   MountVue,
   cookieManager,
+  AnyTouch,
 } from "@components/base.env";

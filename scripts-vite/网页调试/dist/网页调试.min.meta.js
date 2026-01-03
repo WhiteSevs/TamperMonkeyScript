@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.3
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -13,8 +13,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.3/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.min.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -29,16 +29,40 @@
 // @resource     Resource_erudaVue             https://fastly.jsdelivr.net/npm/eruda-vue@1.1.1
 // @resource     Resource_vConsoleVueDevtools  https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9
 // @connect      *
+// @grant        CAT_clearProxy
+// @grant        CAT_click
+// @grant        CAT_fileStorage
+// @grant        CAT_scriptLoaded
+// @grant        CAT_setProxy
+// @grant        CAT_userConfig
+// @grant        GM.ChromeXt
+// @grant        GM_addElement
+// @grant        GM_addStyle
+// @grant        GM_addValueChangeListener
+// @grant        GM_audio
+// @grant        GM_cookie
 // @grant        GM_deleteValue
+// @grant        GM_deleteValues
+// @grant        GM_download
 // @grant        GM_getResourceText
+// @grant        GM_getResourceURL
+// @grant        GM_getTab
+// @grant        GM_getTabs
 // @grant        GM_getValue
+// @grant        GM_getValues
 // @grant        GM_info
 // @grant        GM_listValues
+// @grant        GM_log
+// @grant        GM_notification
+// @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
+// @grant        GM_saveTab
 // @grant        GM_setClipboard
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_webRequest
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @run-at       document-start
