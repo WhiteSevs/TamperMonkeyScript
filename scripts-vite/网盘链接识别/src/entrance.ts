@@ -1,27 +1,27 @@
-import { Panel } from "@components/setting/panel";
 import { NetDisk } from "@/main/NetDisk";
-import { NetDiskRule } from "./main/rule/NetDiskRule";
-import { NetDiskView } from "./main/view/NetDiskView";
-import { NetDiskShortcut } from "./main/shortcut/NetDiskShortcut";
-import { DOMUtils, log } from "./env";
-import { NetDiskAutoFillAccessCode } from "./main/auto-fill-accesscode/NetDiskAutoFillAccessCode";
-import { NetDiskAuthorization } from "./main/authorization/NetDiskAuthorization";
-import { NetDiskWorker } from "./main/worker/NetDiskWorker";
-import { NetDiskUserRule } from "./main/rule/user-rule/NetDiskUserRule";
-import { WebsiteRule } from "./main/website-rule/WebsiteRule";
-import { NetDiskRuleManager } from "./main/NetDiskRuleManager";
-import { PanelContent } from "@components/setting/panel-content";
-import { PanelUI_allSetting } from "./setting/view/all-setting";
-import { PanelMenu } from "@components/setting/panel-menu";
-import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
-import { NetDiskSettingView } from "./main/view/setting/NetDiskSettingView";
+import { Panel } from "@components/setting/panel";
 import { PanelComponents, type PanelComponentsType } from "@components/setting/panel-components";
-import { GM_getValue, GM_info, GM_setValue } from "ViteGM";
+import { PanelContent } from "@components/setting/panel-content";
+import { PanelMenu } from "@components/setting/panel-menu";
+import { GM_getValue, GM_setValue } from "ViteGM";
+import { DOMUtils, log } from "./env";
+import { NetDiskAuthorization } from "./main/authorization/NetDiskAuthorization";
+import { NetDiskAutoFillAccessCode } from "./main/auto-fill-accesscode/NetDiskAutoFillAccessCode";
+import { NetDiskRuleManager } from "./main/NetDiskRuleManager";
+import { NetDiskRule } from "./main/rule/NetDiskRule";
+import { NetDiskUserRule } from "./main/rule/user-rule/NetDiskUserRule";
+import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
+import { NetDiskShortcut } from "./main/shortcut/NetDiskShortcut";
+import { NetDiskView } from "./main/view/NetDiskView";
+import { NetDiskSettingView } from "./main/view/setting/NetDiskSettingView";
+import { WebsiteRule } from "./main/website-rule/WebsiteRule";
+import { NetDiskWorker } from "./main/worker/NetDiskWorker";
+import { PanelUI_allSetting } from "./setting/view/all-setting";
 
 try {
   let GLOBAL_RESOURCE_ICON;
   if (import.meta.env.DEV) {
-    let RESOURCE_ICON_TEXT = (await import("@/../网盘链接识别-图标.js?raw")).default;
+    const RESOURCE_ICON_TEXT = (await import("@/../网盘链接识别-图标.js?raw")).default;
     GLOBAL_RESOURCE_ICON = new Function(`return (() => { ${RESOURCE_ICON_TEXT} ;return RESOURCE_ICON; })()`)();
   } else {
     GLOBAL_RESOURCE_ICON = RESOURCE_ICON;

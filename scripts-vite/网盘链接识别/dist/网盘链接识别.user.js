@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.3.20
+// @version      2026.1.5
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -84,7 +84,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, pops, Utils, CryptoJS, DataPaging, Viewer) {
+(function (DOMUtils, pops, Utils, Qmsg, CryptoJS, DataPaging, Viewer) {
   "use strict";
 
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -107,20 +107,6 @@
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
-    },
-  };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom",
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3,
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false,
     },
   };
   const CommonUtil = {
@@ -383,130 +369,6 @@
       return dataStr;
     },
   };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
-  const DEBUG = false;
-  log.config({
-    debug: false,
-    logMaxCount: 250,
-    autoClearConsole: true,
-    tag: true,
-  });
-  Qmsg.config({
-    isHTML: true,
-    autoClose: true,
-    showClose: false,
-    consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
-      const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
-      return true;
-    },
-    get position() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_position.key,
-        PanelSettingConfig.qmsg_config_position.defaultValue
-      );
-    },
-    get maxNums() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_maxnums.key,
-        PanelSettingConfig.qmsg_config_maxnums.defaultValue
-      );
-    },
-    get showReverse() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_showreverse.key,
-        PanelSettingConfig.qmsg_config_showreverse.defaultValue
-      );
-    },
-    get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    },
-  });
-  __pops__.GlobalConfig.setGlobalConfig({
-    zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    },
-    mask: {
-      enable: true,
-      clickEvent: {
-        toClose: false,
-        toHide: false,
-      },
-    },
-    drag: true,
-  });
-  const MenuRegister = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
-  });
-  const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
-  });
-  httpx.interceptors.request.use((data) => {
-    return data;
-  });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
-    }
-    return data;
-  });
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty,
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call,
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
-    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
-    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
-    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
-    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
-  const addStyle = domUtils.addStyle.bind(domUtils);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -2062,6 +1924,144 @@
       }
     },
   };
+  const PanelSettingConfig = {
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom",
+    },
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3,
+    },
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false,
+    },
+  };
+  const utils = Utils.noConflict();
+  const domUtils = DOMUtils.noConflict();
+  const __pops__ = pops;
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const AnyTouch = pops.config.Utils.AnyTouch();
+  const DEBUG = false;
+  log.config({
+    debug: false,
+    logMaxCount: 250,
+    autoClearConsole: true,
+    tag: true,
+  });
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.setting.type;
+      if (qmsgType === "loading") {
+        return false;
+      }
+      const content = qmsgInst.setting.content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+  });
+  __pops__.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      enable: true,
+      clickEvent: {
+        toClose: false,
+        toHide: false,
+      },
+    },
+    drag: true,
+  });
+  const MenuRegister = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG,
+  });
+  httpx.interceptors.request.use((data) => {
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
+  });
+  ({
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty,
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call,
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
+    },
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
+  });
+  const addStyle = domUtils.addStyle.bind(domUtils);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
+  new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   const __DataPaging = DataPaging;
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
@@ -13266,6 +13266,7 @@
           const messageData = event.data;
           if (typeof messageData === "object" && messageData?.["type"] === this.postMessageType) {
             const data = messageData.data;
+            NetDiskWorker.workerInitError = data.error;
             that.registerWorkerInitErrorNeverTipToast(data.hostname);
             NetDiskPops.confirm(
               {
@@ -13276,22 +13277,58 @@
                 content: {
                   text: `
                 <div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
-                  <p>链接：${data.url}</p>
-                  <p>来源：${Panel.isTopWindow() ? "top" : "iframe"}</p>
-                  <p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
-                  <p>
-                    错误信息：
-                    <span style="color: red;">${data.error}</span>
-                  </p>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">错误：</div>
+                    <div class="msg-container" data-type="error">
+                      <p>${data.error}</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">链接${Panel.isTopWindow() ? "" : "（iframe）"}：</div>  
+                    <div class="msg-container" data-type="url">
+                      <p>${data.url}</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">信息：</div>  
+                    <div class="msg-container" data-type="msg">
+                      <p>初始化Worker失败，若页面文本过大，则执行文本匹配时会导致页面卡死</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">解决：</div>
+                    <div class="msg-container" data-type="solution">
+                      <div>1. 点击下面的<code>快速添加网站规则</code>-<code>自定义</code>，把<code>设置</code>-<code>功能</code>-<code>匹配模式</code>切换为<code>Menu</code></div>
+                      <div>2. 使用CSP插件禁用CSP策略（不建议使用）</div>
+                    </div>
+                  </div>
                 </div>
                 `,
                   html: true,
                 },
+                style: `
+              .msg-wrapper{
+                display: flex;
+                align-items: baseline;
+              }
+              .tip-text{
+                white-space: nowrap;
+              }
+              .msg-container{
+
+              }
+              .msg-container > p{
+
+              }
+              .msg-container[data-type="error"]{
+                color: red;
+              }
+              `,
                 btn: {
                   merge: true,
                   position: "space-between",
                   ok: {
-                    text: "添加网站规则",
+                    text: "快速添加网站规则",
                     callback(eventDetails, event2) {
                       const ruleOption = WebsiteRule.getTemplateData();
                       ruleOption.name = "手动匹配：" + data.hostname;
@@ -13733,7 +13770,7 @@
         set: function (value) {
           dispatchMonitorDOMChange = value;
           if (value) {
-            let addedNodes = $$("html");
+            const addedNodes = $$("html");
             observeEvent([
               {
                 addedNodes,
@@ -13764,7 +13801,7 @@
             "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
             this.workerInitError
           );
-          let findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
+          const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
           if (findHostName) {
             this.registerWorkerInitErrorNeverTipToast(findHostName);
           } else {
@@ -21688,4 +21725,4 @@
     NetDiskWorker.init();
     NetDiskRuleManager.init();
   });
-})(Qmsg, DOMUtils, pops, Utils, CryptoJS, DataPaging, Viewer);
+})(DOMUtils, pops, Utils, Qmsg, CryptoJS, DataPaging, Viewer);

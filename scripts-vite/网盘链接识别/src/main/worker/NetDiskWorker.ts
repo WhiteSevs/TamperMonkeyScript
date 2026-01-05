@@ -268,6 +268,7 @@ export const NetDiskWorker = {
         const messageData = event.data;
         if (typeof messageData === "object" && messageData?.["type"] === this.postMessageType) {
           const data: NetDiskInitErrorPostMessageObject = messageData.data;
+          NetDiskWorker.workerInitError = data.error;
           that.registerWorkerInitErrorNeverTipToast(data.hostname);
           NetDiskPops.confirm(
             {
@@ -278,22 +279,58 @@ export const NetDiskWorker = {
               content: {
                 text: /*html*/ `
                 <div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
-                  <p>链接：${data.url}</p>
-                  <p>来源：${Panel.isTopWindow() ? "top" : "iframe"}</p>
-                  <p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
-                  <p>
-                    错误信息：
-                    <span style="color: red;">${data.error}</span>
-                  </p>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">错误：</div>
+                    <div class="msg-container" data-type="error">
+                      <p>${data.error}</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">链接${Panel.isTopWindow() ? "" : "（iframe）"}：</div>  
+                    <div class="msg-container" data-type="url">
+                      <p>${data.url}</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">信息：</div>  
+                    <div class="msg-container" data-type="msg">
+                      <p>初始化Worker失败，若页面文本过大，则执行文本匹配时会导致页面卡死</p>
+                    </div>
+                  </div>
+                  <div class="msg-wrapper">
+                    <div class="tip-text">解决：</div>
+                    <div class="msg-container" data-type="solution">
+                      <div>1. 点击下面的<code>快速添加网站规则</code>-<code>自定义</code>，把<code>设置</code>-<code>功能</code>-<code>匹配模式</code>切换为<code>Menu</code></div>
+                      <div>2. 使用CSP插件禁用CSP策略（不建议使用）</div>
+                    </div>
+                  </div>
                 </div>
                 `,
                 html: true,
               },
+              style: /*css*/ `
+              .msg-wrapper{
+                display: flex;
+                align-items: baseline;
+              }
+              .tip-text{
+                white-space: nowrap;
+              }
+              .msg-container{
+
+              }
+              .msg-container > p{
+
+              }
+              .msg-container[data-type="error"]{
+                color: red;
+              }
+              `,
               btn: {
                 merge: true,
                 position: "space-between",
                 ok: {
-                  text: "添加网站规则",
+                  text: "快速添加网站规则",
                   callback(eventDetails, event) {
                     const ruleOption = WebsiteRule.getTemplateData();
                     ruleOption.name = "手动匹配：" + data.hostname;
@@ -850,7 +887,7 @@ export const NetDiskWorker = {
       set: function (value) {
         dispatchMonitorDOMChange = value;
         if (value) {
-          let addedNodes = $$<HTMLElement>("html") as any as NodeList;
+          const addedNodes = $$<HTMLElement>("html") as any as NodeList;
           observeEvent([
             {
               addedNodes: addedNodes,
@@ -883,7 +920,7 @@ export const NetDiskWorker = {
           "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
           this.workerInitError
         );
-        let findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
+        const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
         if (findHostName) {
           this.registerWorkerInitErrorNeverTipToast(findHostName);
         } else {

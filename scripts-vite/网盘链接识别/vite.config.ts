@@ -6,7 +6,7 @@ import { GenerateUserConfig } from "./../../script-components/components/vite.co
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();
 
-let userConfig = await GenerateUserConfig({
+const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
   monkeyOption: {
     userscript: {
@@ -72,7 +72,7 @@ let userConfig = await GenerateUserConfig({
       // 脚本运行域
       match: ["*://*/*"],
       // 引用库
-      require: [...(await GetLib(["网盘链接识别-图标库"]))],
+      require: [...(await GetLib(["网盘链接识别-图标"]))],
       // 资源引用
       resource: {
         ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
