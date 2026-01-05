@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "check": "pnpm run format && vue-tsc",
-    "dev": "pnpm run format && vue-tsc --noEmit && vite --force",
+    "dev": "vue-tsc --noEmit && vite --force",
     "format": "prettier . --write",
     "format:dist": "prettier dist --write",
     "build": "pnpm run format && vue-tsc --noEmit && vite build && pnpm run format:dist",

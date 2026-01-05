@@ -19,7 +19,7 @@ const localizedConfig = {
   },
 };
 
-let userConfig = await GenerateUserConfig({
+const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
   monkeyOption: {
     userscript: {

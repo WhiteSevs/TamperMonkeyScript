@@ -6,7 +6,7 @@ import { GenerateUserConfig } from "./../../script-components/components/vite.co
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();
 
-let userConfig = await GenerateUserConfig({
+const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
   monkeyOption: {
     userscript: {

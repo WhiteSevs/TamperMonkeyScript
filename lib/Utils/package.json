@@ -26,7 +26,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "dev": "pnpm run format && pnpm run lint && rollup -c -w",
+    "dev": "vue-tsc --noEmit && vite --force",
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
   "publishConfig": {
