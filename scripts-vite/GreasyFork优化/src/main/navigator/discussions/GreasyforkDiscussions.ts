@@ -1,10 +1,10 @@
 import { addStyle, DOMUtils, log, pops, utils } from "@/env";
-import { DiscuessionsFilterRule, GreasyforkDiscussionsFilter } from "./GreasyforkDiscussionsFilter";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { Panel } from "@components/setting/panel";
+import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
 import i18next from "i18next";
 import Qmsg from "qmsg";
-import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
+import { DiscuessionsFilterRule, GreasyforkDiscussionsFilter } from "./GreasyforkDiscussionsFilter";
 
 export const GreasyforkForum = {
   init() {
@@ -76,7 +76,6 @@ export const GreasyforkForum = {
     log.info("设置已读背景颜色");
     const color = Panel.getValue<string>("discussions-readBgColor");
     const colorConversion = new utils.ColorConversion();
-    // @ts-ignore
     const darkColor = colorConversion.getDarkColor(color, 0.8);
     return addStyle(/*css*/ `
         .discussion-read{
@@ -98,9 +97,9 @@ export const GreasyforkForum = {
       if ($listContainer.querySelector<HTMLAnchorElement>(`.${buttonClassName}`)) {
         return;
       }
-      let $listItem = $listContainer.querySelector<HTMLElement>(".discussion-list-item")!;
-      let $meta = $listItem.querySelector<HTMLElement>(".discussion-meta")!;
-      let $ownMetaItem = DOMUtils.createElement(
+      const $listItem = $listContainer.querySelector<HTMLElement>(".discussion-list-item")!;
+      const $meta = $listItem.querySelector<HTMLElement>(".discussion-meta")!;
+      const $ownMetaItem = DOMUtils.createElement(
         "div",
         {
           className: "discussion-meta-item",
@@ -113,7 +112,7 @@ export const GreasyforkForum = {
           "data-type": "filter",
         }
       );
-      let $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
+      const $button = $ownMetaItem.querySelector<HTMLButtonElement>(`.${buttonClassName}`)!;
       $meta.appendChild($ownMetaItem);
       DOMUtils.on($button, "click", (event) => {
         DOMUtils.preventEvent(event);
@@ -122,9 +121,9 @@ export const GreasyforkForum = {
         if (!discussionInfo) {
           return;
         }
-        let attr_filter_key = "data-filter-key";
-        let attr_filter_value = "data-filter-value";
-        let $dialog = pops.alert({
+        const attr_filter_key = "data-filter-key";
+        const attr_filter_value = "data-filter-value";
+        const $dialog = pops.alert({
           title: {
             text: i18next.t("选择需要过滤的选项"),
             position: "center",
@@ -186,7 +185,7 @@ export const GreasyforkForum = {
 						}
 						`,
         });
-        let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
+        const $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
         if (discussionInfo.scriptId == null) {
           $content.querySelector(`button[${attr_filter_key}="scriptId"]`)?.remove();
         }
@@ -197,7 +196,7 @@ export const GreasyforkForum = {
           $content.querySelector(`button[${attr_filter_key}="postUserId"]`)?.remove();
         }
         if (discussionInfo.replyUserId != null) {
-          let $replyUserIdButton = DOMUtils.createElement("button", {
+          const $replyUserIdButton = DOMUtils.createElement("button", {
             innerHTML: i18next.t("作者id：{{text}}", {
               text: discussionInfo.replyUserId,
             }),
@@ -208,9 +207,9 @@ export const GreasyforkForum = {
         }
         DOMUtils.on($dialog.$shadowRoot, "click", `button[${attr_filter_key}]`, (event) => {
           DOMUtils.preventEvent(event);
-          let $click = event.target as HTMLButtonElement;
-          let key = $click.getAttribute(attr_filter_key)! as keyof DiscuessionsFilterRule;
-          let value = $click.getAttribute(attr_filter_value)!;
+          const $click = event.target as HTMLButtonElement;
+          const key = $click.getAttribute(attr_filter_key)! as keyof DiscuessionsFilterRule;
+          const value = $click.getAttribute(attr_filter_value)!;
           GreasyforkDiscussionsFilter.addValue(key, value);
           $dialog.close();
           GreasyforkDiscussionsFilter.filter();

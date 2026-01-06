@@ -18,7 +18,7 @@ import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScri
 import { Panel } from "@components/setting/panel";
 import { UIOwn } from "@components/setting/components/ui-own";
 
-export const SettingUICommon: PopsPanelContentConfig = {
+export const SettingUIGeneral: PopsPanelContentConfig = {
   id: "greasy-fork-panel-config-account",
   title: i18next.t("通用"),
   views: [
@@ -210,7 +210,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
                   "language-selector-locale",
                   "",
                   (function () {
-                    let result = [
+                    const result = [
                       {
                         value: "",
                         text: i18next.t("无"),
@@ -218,11 +218,11 @@ export const SettingUICommon: PopsPanelContentConfig = {
                     ];
                     DOMUtils.onReady(() => {
                       $$<HTMLOptionElement>("select.language-selector-locale option").forEach(($languageOption) => {
-                        let value = $languageOption.getAttribute("value") as string;
+                        const value = $languageOption.getAttribute("value") as string;
                         if (value === "help") {
                           return;
                         }
-                        let text = DOMUtils.text($languageOption).trim();
+                        const text = DOMUtils.text($languageOption).trim();
                         result.push({
                           value: value,
                           text: text,
@@ -266,6 +266,13 @@ export const SettingUICommon: PopsPanelContentConfig = {
                   true,
                   void 0,
                   i18next.t("在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容")
+                ),
+                UISwitch(
+                  i18next.t("查询用户注册时间"),
+                  "queryUserRegisterTime",
+                  true,
+                  void 0,
+                  i18next.t("在用户名称后面添加查询按钮，点击查询用户注册时间")
                 ),
               ],
             },

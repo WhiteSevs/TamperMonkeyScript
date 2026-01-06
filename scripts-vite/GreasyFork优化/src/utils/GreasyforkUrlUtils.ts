@@ -76,6 +76,14 @@ export const GreasyforkUrlUtils = {
     return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
   },
   /**
+   * 从字符串中提取收藏集的id
+   * @param text
+   * @default window.location.pathname
+   */
+  getSetsId(text?: string) {
+    return (text || window.location.pathname).match(/\/sets\/([\d]+)\//)?.[1];
+  },
+  /**
    * 获取举报地址
    */
   getReportUrl(item_class: "script" | "discussion" | "user", item_id: string | number) {
@@ -84,6 +92,7 @@ export const GreasyforkUrlUtils = {
   /**
    * 从字符串中提取脚本名
    * @param text
+   * @default window.location.pathname
    */
   getScriptName(text?: string) {
     let pathname = window.location.pathname;
@@ -91,9 +100,9 @@ export const GreasyforkUrlUtils = {
       pathname = new URL(text).pathname;
     }
     pathname = decodeURIComponent(pathname);
-    let pathnameSplit = pathname.split("/");
+    const pathnameSplit = pathname.split("/");
     for (const name of pathnameSplit) {
-      let nameMatch = name.match(/[\d]+/);
+      const nameMatch = name.match(/[\d]+/);
       if (nameMatch && nameMatch.length) {
         return nameMatch[1];
       }
@@ -105,7 +114,7 @@ export const GreasyforkUrlUtils = {
    */
   getSwitchLanguageUrl(localeLanguage = "zh-CN") {
     let url = window.location.origin;
-    let urlSplit = window.location.pathname.split("/");
+    const urlSplit = window.location.pathname.split("/");
     urlSplit[1] = localeLanguage;
     url = url + urlSplit.join("/");
     url += window.location.search;

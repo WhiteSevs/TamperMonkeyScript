@@ -75,21 +75,24 @@ const Greasyfork = {
       GreasyforkRememberFormTextArea.init();
       GreasyforkMenu.handleLocalGotoCallBack();
       Panel.execMenuOnce("fixImageWidth", () => {
-        Greasyfork.fixImageWidth();
+        return this.fixImageWidth();
       });
-      Greasyfork.languageSelectorLocale();
+      this.languageSelectorLocale();
       Panel.execMenuOnce("optimizeImageBrowsing", () => {
-        Greasyfork.optimizeImageBrowsing();
+        this.optimizeImageBrowsing();
       });
       Panel.execMenuOnce("overlayBedImageClickEvent", () => {
-        Greasyfork.overlayBedImageClickEvent();
+        this.overlayBedImageClickEvent();
       });
       /* 不在/code页面添加Markdown复制按钮 */
       if (!GreasyforkRouter.isCodeStrict()) {
         Panel.execMenuOnce("addMarkdownCopyButton", () => {
-          Greasyfork.addMarkdownCopyButton();
+          this.addMarkdownCopyButton();
         });
       }
+      Panel.execMenuOnce("queryUserRegisterTime", () => {
+        return this.queryUserRegisterTime();
+      });
     });
   },
   /**
@@ -98,7 +101,7 @@ const Greasyfork = {
   fixImageWidth() {
     if (window.innerWidth < window.innerHeight) {
       log.info("修复图片显示问题");
-      addStyle(/*css*/ `
+      return addStyle(/*css*/ `
             img.lum-img{
                 width: 100% !important;
                 height: 100% !important;
@@ -255,8 +258,8 @@ const Greasyfork = {
   overlayBedImageClickEvent() {
     log.info("覆盖图床图片的parentElement的a标签");
     $$<HTMLImageElement>(".user-content a>img").forEach(($img) => {
-      let $link = $img.parentElement as HTMLAnchorElement;
-      let url = $link.getAttribute("href")!;
+      const $link = $img.parentElement as HTMLAnchorElement;
+      const url = $link.getAttribute("href")!;
       $link.setAttribute("data-href", url);
       $link.removeAttribute("href");
       if (url.startsWith("/rails/active_storage/blobs/redirect")) {
@@ -453,26 +456,26 @@ const Greasyfork = {
       return $copy;
     }
 
-    $$<HTMLPreElement>("pre").forEach((preElement) => {
-      let zeroclipboardElement = preElement.querySelector("div.zeroclipboard-container");
-      if (zeroclipboardElement) {
+    $$<HTMLPreElement>("pre").forEach(($pre) => {
+      const $zeroclipboard = $pre.querySelector("div.zeroclipboard-container");
+      if ($zeroclipboard) {
         return;
       }
-      let copyElement = createCopyElement();
-      let snippetClipboardContentElement = DOMUtils.createElement("div", {
+      const $copy = createCopyElement();
+      const $snippetClipboardContent = DOMUtils.createElement("div", {
         className: "snippet-clipboard-content",
       });
-      DOMUtils.before(preElement, snippetClipboardContentElement);
-      snippetClipboardContentElement.appendChild(preElement);
-      snippetClipboardContentElement.appendChild(copyElement);
+      DOMUtils.before($pre, $snippetClipboardContent);
+      $snippetClipboardContent.appendChild($pre);
+      $snippetClipboardContent.appendChild($copy);
     });
   },
   /**
    * 固定当前语言
    */
   languageSelectorLocale() {
-    let localeLanguage = Panel.getValue<string>("language-selector-locale");
-    let currentLocaleLanguage = window.location.pathname.split("/").filter((item) => Boolean(item))[0];
+    const localeLanguage = Panel.getValue<string>("language-selector-locale");
+    const currentLocaleLanguage = window.location.pathname.split("/").filter((item) => Boolean(item))[0];
     log.success("选择语言：" + localeLanguage);
     log.success("当前语言：" + currentLocaleLanguage);
     if (utils.isNull(localeLanguage)) {
@@ -672,6 +675,161 @@ const Greasyfork = {
         },
       });
     });
+  },
+  /**
+   * 查询用户注册时间
+   */
+  queryUserRegisterTime() {
+    const userRegisterTimeMap = new Map<
+      string,
+      {
+        name: string;
+        formatTime: string;
+      }
+    >();
+    /**
+     * 更新
+     */
+    const updateUserRegisterTime = (option: { userId: string; formatTime: string; name: string }) => {
+      $$(`.query-wrapper[data-user-id='${option.userId}']`).forEach(($wrapper) => {
+        const $userLink = DOMUtils.prev($wrapper);
+        $wrapper.remove();
+        DOMUtils.text(
+          $userLink,
+          i18next.t("{{name}} {{leftBracket}}{{created_at}}{{rightBracket}}", {
+            name: option.name,
+            created_at: option.formatTime,
+            leftBracket: i18next.t("（"),
+            rightBracket: i18next.t("）"),
+          })
+        );
+      });
+    };
+    const lockFn = new utils.LockFunction(() => {
+      $$<HTMLAnchorElement>("a[href*='/users/']:not(:has(+.query-wrapper))").forEach(($userLink) => {
+        if ($userLink.closest("#nav-user-info")) return;
+        const userHomeUrl = $userLink.href;
+        const userIdMatcher = GreasyforkUsers;
+        if (!userIdMatcher) return;
+        const userId = GreasyforkUrlUtils.getUserId(userHomeUrl);
+        if (userId == null) return;
+        if (userRegisterTimeMap.has(userId)) {
+          // 该用户已查询过注册时间
+          // 直接更新
+          const data = userRegisterTimeMap.get(userId)!;
+          updateUserRegisterTime({ userId, ...data });
+          return;
+        }
+        const $query = DOMUtils.createElement(
+          "div",
+          {
+            className: "query-wrapper",
+            innerHTML: /*html*/ `
+            <div class="query-badge-control">
+              <span class="query-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </span>
+              <span class="query-msg"></span>
+            </div>
+            `,
+          },
+          {
+            "data-user-id": userId,
+          }
+        );
+        DOMUtils.after($userLink, $query);
+      });
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    const listener = DOMUtils.on(document, "click", ".query-badge-control", async (evt, selectorTarget) => {
+      DOMUtils.preventEvent(evt);
+      const $wrapper = DOMUtils.parent(selectorTarget);
+      const userId = $wrapper.getAttribute("data-user-id");
+      if (!userId) {
+        Qmsg.error(i18next.t("获取用户ID失败"));
+        return;
+      }
+      const $msg = $wrapper.querySelector<HTMLSpanElement>(".query-msg")!;
+      DOMUtils.text($msg, i18next.t("查询中..."));
+      const userInfo = await GreasyforkApi.getUserInfo(userId);
+      if (!userInfo) {
+        DOMUtils.text($msg, i18next.t("查询失败"));
+        return;
+      }
+      DOMUtils.empty($msg);
+      const { name, created_at } = userInfo;
+      const formatTime = utils.formatTime(created_at, i18next.t("yyyy年MM月dd日 HH:mm:ss"));
+      // 将查询结果临时保存在内存中
+      userRegisterTimeMap.set(userId, {
+        name,
+        formatTime,
+      });
+      updateUserRegisterTime({ userId, name, formatTime });
+    });
+
+    return [
+      () => {
+        observer.disconnect();
+        listener.off();
+        DOMUtils.remove(".query-wrapper");
+        userRegisterTimeMap.clear();
+      },
+      addStyle(/*css*/ `
+        
+        .query-wrapper{
+          padding: 4px 0px;
+        }
+        .query-wrapper{
+          display: inline-flex;
+          vertical-align: middle;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        /* 查询按钮 */
+        .query-wrapper .query-badge-control {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          width: fit-content;
+          height: fit-content;
+          background: #574AB830;
+          border-radius: 8px;
+          margin: 0 0 0 6px;
+          font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei, sans-serif;
+        }
+
+        .query-wrapper .query-icon {
+          color: #7367F0;
+          padding: 2px 8px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          height: 20px;
+          line-height: normal;
+        }
+              
+        .query-wrapper .query-icon svg {
+          vertical-align: middle;
+          width: 16px;
+          height: 16px;
+        }
+        .query-wrapper .query-msg:not(:empty){
+          padding-right: 8px;
+        }
+        /* ↑查询按钮 */
+      `),
+    ];
   },
 };
 

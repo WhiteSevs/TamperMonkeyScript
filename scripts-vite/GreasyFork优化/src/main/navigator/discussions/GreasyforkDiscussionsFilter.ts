@@ -126,16 +126,16 @@ export const GreasyforkDiscussionsFilter = {
    * 解析出元素上的属性
    */
   parseDiscuessionListContainerInfo($listContainer: HTMLElement) {
-    let $title = $listContainer.querySelector<HTMLAnchorElement>("a.discussion-title");
+    const $title = $listContainer.querySelector<HTMLAnchorElement>("a.discussion-title");
     if (!$title) {
       return;
     }
-    let discussionUrl = $title.href;
-    let discuessionIdMatch = discussionUrl.match(/\/discussions(|\/greasyfork)\/([\d]+)/);
+    const discussionUrl = $title.href;
+    const discuessionIdMatch = discussionUrl.match(/\/discussions(|\/greasyfork)\/([\d]+)/);
     if (!discuessionIdMatch) {
       return;
     }
-    let discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
+    const discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
 
     const $scriptName = $listContainer.querySelector<HTMLDivElement>(".discussion-meta-item-script-name");
     const $scriptNameLink = $scriptName?.querySelector<HTMLAnchorElement>("a");

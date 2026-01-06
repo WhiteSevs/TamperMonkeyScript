@@ -18,13 +18,13 @@ export const PopsPanelUISetting = {
       Qmsg.error(i18next.t("请先登录账号！"));
       return;
     }
-    let userLinkElement = GreasyforkMenu.getUserLinkElement();
-    let userLink = userLinkElement!.href;
-    let userId = userLink
+    const $userLink = GreasyforkMenu.getUserLinkElement();
+    const userLink = $userLink!.href;
+    const userId = userLink
       ?.split("/")
       ?.pop()
       ?.match(/([0-9]+)/)?.[0] as string;
-    let loading = pops.loading({
+    const $loading = pops.loading({
       mask: {
         enable: true,
       },
@@ -34,20 +34,20 @@ export const PopsPanelUISetting = {
       },
       addIndexCSS: false,
     });
-    let userInfo = await GreasyforkApi.getUserInfo(userId);
-    loading.close();
+    const userInfo = await GreasyforkApi.getUserAllInfo(userId);
+    $loading.close();
     if (!userInfo) {
       return;
     }
     log.info(userInfo);
-    let scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
+    const scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
     Qmsg.success(
       i18next.t("获取成功，共 {{count}} 个", {
         count: scriptList.length,
       })
     );
     for (const scriptInfo of scriptList) {
-      let liElement = DOMUtils.createElement("li", {
+      const $li = DOMUtils.createElement("li", {
         className: "w-script-list-item",
         innerHTML: /*html*/ `
 				<div class="w-script-info">
@@ -73,7 +73,7 @@ export const PopsPanelUISetting = {
 				</div>
             `,
       });
-      const $scriptInfo = liElement.querySelector(".w-script-info") as HTMLElement;
+      const $scriptInfo = $li.querySelector(".w-script-info") as HTMLElement;
       const $syncCode = DOMUtils.createElement("div", {
         className: "pops-panel-button",
         innerHTML: /*html*/ `
@@ -84,7 +84,7 @@ export const PopsPanelUISetting = {
       });
       if (scriptInfo["deleted"]) {
         /* 该脚本已给删除 */
-        liElement.classList.add("w-script-deleted");
+        $li.classList.add("w-script-deleted");
         $syncCode.querySelector<HTMLButtonElement>("button")!.setAttribute("disabled", "true");
       }
 
@@ -132,7 +132,7 @@ export const PopsPanelUISetting = {
               // 新版本直接是 script[sync_type]
               syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE) as string;
             }
-            const $oldSyncType = liElement.querySelector<HTMLLIElement>(".w-script-sync-type")!;
+            const $oldSyncType = $li.querySelector<HTMLLIElement>(".w-script-sync-type")!;
             if ($oldSyncType) {
               $oldSyncType.querySelector("p")!.innerText = i18next.t("同步方式：{{syncMode}}", { syncMode });
             } else {
@@ -167,8 +167,8 @@ export const PopsPanelUISetting = {
         $span.innerText = i18next.t("同步代码");
         $icon.remove();
       });
-      liElement.appendChild($syncCode);
-      rightContainerElement.appendChild(liElement);
+      $li.appendChild($syncCode);
+      rightContainerElement.appendChild($li);
     }
   },
 };

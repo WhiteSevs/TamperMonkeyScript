@@ -2,14 +2,14 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { $, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
+import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { Panel } from "@components/setting/panel";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import i18next from "i18next";
 import Qmsg from "qmsg";
-import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { unsafeWindow } from "ViteGM";
+import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
-import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import { PanelUISize } from "@components/setting/panel-ui-size";
 
 let userCollection: {
   id: string;
@@ -22,14 +22,14 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
     Qmsg.error(i18next.t("请先登录账号"));
     return;
   }
-  let userId = GreasyforkUrlUtils.getUserId(GreasyforkMenu.getUserLinkElement()!.href);
+  const userId = GreasyforkUrlUtils.getUserId(GreasyforkMenu.getUserLinkElement()!.href);
   if (userId == null) {
     log.error("获取用户id失败");
     Qmsg.error(i18next.t("获取用户id失败"));
     return;
   }
   if (!userCollection.length) {
-    let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
+    const loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
     userCollection = (await GreasyforkApi.getUserCollection(userId)) || [];
     loading.close();
     if (!userCollection.length) {
@@ -44,7 +44,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
   const checkFavoriteFormInfo = (form: FormData, scriptId: string | number) => {
     let flag = false;
     scriptId = scriptId.toString().trim();
-    // @ts-ignore
+    // @ts-expect-error
     for (const [key, value] of form.entries()) {
       if (key === "scripts-included[]" && value.toString().trim() === scriptId) {
         flag = true;
@@ -72,7 +72,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
 		</li>
 		  `;
   });
-  let collectionDialog = pops.alert({
+  const collectionDialog = pops.alert({
     title: {
       text: i18next.t("收藏集"),
       position: "center",
@@ -131,12 +131,12 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
     "click",
     ".collect-add-script-id",
     async function (event) {
-      let $userCollectItem = (event.target as HTMLLIElement).closest(".user-collect-item") as HTMLElement;
-      let setsId = $userCollectItem.dataset.id as string;
-      let setsName = $userCollectItem.dataset.name;
-      let loading = Qmsg.loading(i18next.t("添加中..."));
+      const $userCollectItem = (event.target as HTMLLIElement).closest(".user-collect-item") as HTMLElement;
+      const setsId = $userCollectItem.dataset.id as string;
+      const setsName = $userCollectItem.dataset.name;
+      const loading = Qmsg.loading(i18next.t("添加中..."));
       try {
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
+        const formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
         if (!formData) {
           return;
         }
@@ -144,33 +144,33 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
           return;
         }
-        let editForm = utils.cloneFormData(formData);
-        let saveEditForm = utils.cloneFormData(formData);
+        const editForm = utils.cloneFormData(formData);
+        const saveEditForm = utils.cloneFormData(formData);
         editForm.set("add-script", scriptId.toString());
         editForm.set("script-action", "i");
         saveEditForm.append("scripts-included[]", scriptId.toString());
         saveEditForm.set("save", "1");
-        let addFormDataSearchParams = new URLSearchParams(editForm as any);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm as any);
-        let addData = Array.from(addFormDataSearchParams as any)
+        const addFormDataSearchParams = new URLSearchParams(editForm as any);
+        const saveFormDataSearchParams = new URLSearchParams(saveEditForm as any);
+        const addData = Array.from(addFormDataSearchParams as any)
           .map(
-            // @ts-ignore
+            // @ts-expect-error
             ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
           )
           .join("&");
-        let saveData = Array.from(saveFormDataSearchParams as any)
+        const saveData = Array.from(saveFormDataSearchParams as any)
           .map(
-            // @ts-ignore
+            // @ts-expect-error
             ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
           )
           .join("&");
         log.info("添加的数据", addData);
         log.info("保存的数据", saveData);
-        let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, addData);
+        const changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, addData);
         if (!changeResultDoc) {
           return;
         }
-        let $changeScriptSet = changeResultDoc.querySelector<HTMLFormElement>(".change-script-set");
+        const $changeScriptSet = changeResultDoc.querySelector<HTMLFormElement>(".change-script-set");
         if (!$changeScriptSet) {
           Qmsg.error(
             i18next.t("添加失败，{{selector}}元素不存在", {
@@ -179,7 +179,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           );
           return;
         }
-        let $section = $changeScriptSet.querySelector<HTMLElement>("section");
+        const $section = $changeScriptSet.querySelector<HTMLElement>("section");
         if (!$section) {
           Qmsg.error(
             i18next.t("添加失败，{{selector}}元素不存在", {
@@ -188,7 +188,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           );
           return;
         }
-        let $alertElement = $section.querySelector(".alert");
+        const $alertElement = $section.querySelector(".alert");
         if ($alertElement) {
           pops.alert({
             title: {
@@ -221,8 +221,8 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           });
           return;
         }
-        let changeScriptForm = new FormData($changeScriptSet);
-        let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+        const changeScriptForm = new FormData($changeScriptSet);
+        const changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
         if (!changeFlag) {
           log.error("添加失败，提交的添加请求中不包含该脚本id");
           Qmsg.error(i18next.t("添加失败，表单数据中不包含该脚本"));
@@ -243,12 +243,12 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
     "click",
     ".collect-delete-script-id",
     async function (event) {
-      let $collectItem = (event.target as HTMLElement).closest(".user-collect-item") as HTMLLIElement;
-      let setsId = $collectItem.dataset.id as string;
-      let setsName = $collectItem.dataset.name;
-      let loading = Qmsg.loading(i18next.t("删除中..."));
+      const $collectItem = (event.target as HTMLElement).closest(".user-collect-item") as HTMLLIElement;
+      const setsId = $collectItem.dataset.id as string;
+      const setsName = $collectItem.dataset.name;
+      const loading = Qmsg.loading(i18next.t("删除中..."));
       try {
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
+        const formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
         if (!formData) {
           return;
         }
@@ -261,39 +261,39 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           return;
         }
 
-        let editForm = utils.cloneFormData(formData, (key, value) => {
+        const editForm = utils.cloneFormData(formData, (key, value) => {
           return (
             key === "scripts-included[]" &&
             typeof value === "string" &&
             value.toString().trim() === scriptId.toString().trim()
           );
         });
-        let saveEditForm = utils.cloneFormData(editForm);
+        const saveEditForm = utils.cloneFormData(editForm);
         editForm.set("remove-scripts-included[]", scriptId.toString());
         editForm.set("remove-selected-scripts", "i");
         editForm.delete("script-action");
         saveEditForm.set("save", "1");
-        let deleteFormDataSearchParams = new URLSearchParams(editForm as any);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm as any);
-        let removeData = Array.from(deleteFormDataSearchParams as any)
+        const deleteFormDataSearchParams = new URLSearchParams(editForm as any);
+        const saveFormDataSearchParams = new URLSearchParams(saveEditForm as any);
+        const removeData = Array.from(deleteFormDataSearchParams as any)
           .map(
-            // @ts-ignore
+            // @ts-expect-error
             ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
           )
           .join("&");
-        let saveData = Array.from(saveFormDataSearchParams as any)
+        const saveData = Array.from(saveFormDataSearchParams as any)
           .map(
-            // @ts-ignore
+            // @ts-expect-error
             ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
           )
           .join("&");
         log.info("删除的数据", removeData);
         log.info("保存的数据", saveData);
-        let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, removeData);
+        const changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, removeData);
         if (!changeResultDoc) {
           return;
         }
-        let $changeScriptSet = changeResultDoc.querySelector<HTMLFormElement>(".change-script-set");
+        const $changeScriptSet = changeResultDoc.querySelector<HTMLFormElement>(".change-script-set");
 
         if (!$changeScriptSet) {
           Qmsg.error(
@@ -303,8 +303,8 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
           );
           return;
         }
-        let changeScriptForm = new FormData($changeScriptSet);
-        let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+        const changeScriptForm = new FormData($changeScriptSet);
+        const changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
         if (changeFlag) {
           log.error("删除失败，提交的删除请求中包含该脚本id");
           Qmsg.error(i18next.t("删除失败，表单数据中仍包含该脚本"));
@@ -354,21 +354,20 @@ export const GreasyforkScripts = {
   addCollectionButton() {
     log.info("添加收藏按钮");
     DOMUtils.waitNode<HTMLSpanElement>("ul#script-links li.current span").then(() => {
-      let $collectBtn = DOMUtils.createElement("li", {
-        innerHTML: `
+      const $collectBtn = DOMUtils.createElement("li", {
+        innerHTML: /*js*/ `
 					<a href="javascript:;">
 						<span>${i18next.t("收藏")}</span>
 					</a>`,
       });
       DOMUtils.append($<HTMLUListElement>("ul#script-links")!, $collectBtn);
       DOMUtils.on($collectBtn, "click", () => {
-        let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-        if (!scriptIdMatch) {
-          log.error(scriptIdMatch, window.location.pathname);
+        const scriptId = GreasyforkUrlUtils.getScriptId(window.location.pathname);
+        if (!scriptId) {
+          log.error(window.location.pathname);
           Qmsg.error(i18next.t("获取脚本id失败"));
           return;
         }
-        let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
         GreasyforkScriptsCollectEvent(scriptId);
       });
     });
@@ -382,7 +381,7 @@ export const GreasyforkScripts = {
 		.code-container:has(.code-wide-screen){
 			height: auto !important;
 		}
-        .code-wide-screen{
+    .code-wide-screen{
 			position: absolute !important;
 			top: 0 !important;
 			left: 0 !important;
@@ -397,14 +396,14 @@ export const GreasyforkScripts = {
 			max-width: 100% !important;
 			max-height: 100% !important;
 			z-index: 1000000 !important;
-        }
+    }
         `);
     let isFullScreen = false;
     DOMUtils.onKeydown(
       unsafeWindow,
       function (event) {
         if (event.key.toLowerCase() === "f") {
-          let $code = $<HTMLElement>(".monaco-editor") || $<HTMLElement>("#script-content div.code-container code");
+          const $code = $<HTMLElement>(".monaco-editor") || $<HTMLElement>("#script-content div.code-container code");
           if (event.altKey && event.shiftKey) {
             log.info(`宽屏`);
             DOMUtils.preventEvent(event);
@@ -441,21 +440,20 @@ export const GreasyforkScripts = {
   setFindCodeSearchBtn() {
     log.info("设置代码搜索按钮(对于库)");
     DOMUtils.waitNode<HTMLSpanElement>("ul#script-links li.current span").then(() => {
-      let searchBtn = DOMUtils.createElement("li", {
+      const $search = DOMUtils.createElement("li", {
         innerHTML: `
 					<a href="javascript:;">
 						<span>${i18next.t("寻找引用")}</span>
 					</a>`,
       });
-      DOMUtils.append($<HTMLUListElement>("ul#script-links") as HTMLUListElement, searchBtn);
-      DOMUtils.on(searchBtn, "click", async function () {
-        let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-        if (!scriptIdMatch) {
-          log.error(scriptIdMatch, window.location.pathname);
+      DOMUtils.append($<HTMLUListElement>("ul#script-links") as HTMLUListElement, $search);
+      DOMUtils.on($search, "click", async function () {
+        let scriptId = GreasyforkUrlUtils.getScriptId(window.location.pathname);
+        if (!scriptId) {
+          log.error(window.location.pathname);
           Qmsg.error(i18next.t("获取脚本id失败"));
           return;
         }
-        let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
         window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(`/scripts/${scriptId}`);
       });
     });
@@ -468,17 +466,17 @@ export const GreasyforkScripts = {
       return;
     }
     log.info("脚本首页新增【今日检查】");
-    let scriptStatsJSON = await GreasyforkApi.getScriptStats(GreasyforkUrlUtils.getScriptId() as string);
+    const scriptStatsJSON = await GreasyforkApi.getScriptStats(GreasyforkUrlUtils.getScriptId() as string);
     if (!scriptStatsJSON) {
       return;
     }
     log.info("统计信息", scriptStatsJSON);
-    let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
+    const todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
     if (!todayStatsJSON) {
       log.error("今日份的统计信息不存在");
       return;
     }
-    let update_checks = todayStatsJSON["update_checks"];
+    const update_checks = todayStatsJSON["update_checks"];
     log.info("今日统计信息", todayStatsJSON);
     DOMUtils.after(
       "dd.script-show-daily-installs",
@@ -501,7 +499,7 @@ export const GreasyforkScripts = {
   addCopyCodeButton() {
     log.info("添加复制代码按钮");
     DOMUtils.waitNode<HTMLDivElement>("div#script-content div.code-container").then(($codeContainer) => {
-      let copyButton = DOMUtils.createElement(
+      const $copy = DOMUtils.createElement(
         "button",
         {
           textContent: i18next.t("复制代码"),
@@ -510,26 +508,26 @@ export const GreasyforkScripts = {
           style: "margin-bottom: 1em;",
         }
       );
-      DOMUtils.on(copyButton, "click", async function () {
-        let loading = Qmsg.loading(i18next.t("加载文件中..."));
-        let scriptId = GreasyforkUrlUtils.getScriptId();
-        let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId!);
+      DOMUtils.on($copy, "click", async function () {
+        const $loading = Qmsg.loading(i18next.t("加载文件中..."));
+        const scriptId = GreasyforkUrlUtils.getScriptId();
+        const scriptInfo = await GreasyforkApi.getScriptInfo(scriptId!);
         if (!scriptInfo) {
-          loading.close();
+          $loading.close();
           return;
         }
-        let code_url = scriptInfo["code_url"];
+        const code_url = scriptInfo["code_url"];
         log.success("代码地址：", code_url);
-        let scriptJS = await httpx.get(code_url);
+        const scriptJS = await httpx.get(code_url);
         if (!scriptJS.status) {
-          loading.close();
+          $loading.close();
           return;
         }
-        loading.close();
+        $loading.close();
         utils.copy(scriptJS.data.responseText);
         Qmsg.success(i18next.t("复制成功"));
       });
-      DOMUtils.before($codeContainer, copyButton);
+      DOMUtils.before($codeContainer, $copy);
     });
   },
 };

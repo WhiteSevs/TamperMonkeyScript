@@ -6,11 +6,11 @@ export const GreasyforkElementUtils = {
    * 获取当前登录用户id
    */
   getCurrentLoginUserId() {
-    let $anchor = $<HTMLAnchorElement>("#nav-user-info .user-profile-link a");
+    const $anchor = $<HTMLAnchorElement>("#nav-user-info .user-profile-link a");
     if (!$anchor) {
       return;
     }
-    let userId = GreasyforkUrlUtils.getUserId($anchor.href);
+    const userId = GreasyforkUrlUtils.getUserId($anchor.href);
     if (userId == null) {
       return;
     }
@@ -21,7 +21,7 @@ export const GreasyforkElementUtils = {
    * @param $script 元素
    */
   parseScriptListInfo($script: HTMLLIElement) {
-    let dataset = $script.dataset as any as GreasyforkScriptListInfoDataset;
+    const dataset = $script.dataset as any as GreasyforkScriptListInfoDataset;
     const info = {
       scriptId: parseInt(dataset.scriptId),
       scriptName: dataset.scriptName,
@@ -42,9 +42,9 @@ export const GreasyforkElementUtils = {
       scriptAuthorName: dataset.scriptAuthorName,
     } as GreasyforkScriptListInfo;
 
-    let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
-    Object.keys(scriptAuthorsObj).forEach((authorId) => {
-      let authorName = scriptAuthorsObj[authorId];
+    const scriptAuthorsInst = utils.toJSON(dataset.scriptAuthors);
+    Object.keys(scriptAuthorsInst).forEach((authorId) => {
+      const authorName = scriptAuthorsInst[authorId];
       info.scriptAuthors.push({
         authorId: parseInt(authorId),
         authorName: authorName,
@@ -76,19 +76,17 @@ export const GreasyforkElementUtils = {
     clickEvent: (event: MouseEvent | PointerEvent) => void;
   }) {
     DOMUtils.onReady(() => {
-      let $nav = $<HTMLElement>("#site-nav nav");
+      const $nav = $<HTMLElement>("#site-nav nav");
       // 更多
-      let $subNav = $<HTMLElement>("#site-nav .with-submenu nav");
+      const $subNav = $<HTMLElement>("#site-nav .with-submenu nav");
       if (!$nav) {
         log.error("元素#site-nav nav不存在");
         return;
       }
 
-      let $menuLink = DOMUtils.createElement("li", {
+      const $menuLink = DOMUtils.createElement("li", {
         className: config.className,
-        innerHTML: /*html*/ `
-                <a href="javascript:;">${config.name}</a>
-                `,
+        innerHTML: /*html*/ `<a href="javascript:;">${config.name}</a>`,
       });
       DOMUtils.on($menuLink, "click", (event) => {
         DOMUtils.preventEvent(event);
@@ -103,19 +101,17 @@ export const GreasyforkElementUtils = {
 
       // 再克隆一个，新版新增的移动端的更多的样式
 
-      let $mobileMenuLink = DOMUtils.createElement("li", {
+      const $mobileMenuLink = DOMUtils.createElement("li", {
         className: config.className,
-        innerHTML: /*html*/ `
-                <a href="javascript:;">${config.name}</a>
-                `,
+        innerHTML: /*html*/ `<a href="javascript:;">${config.name}</a>`,
       });
       DOMUtils.on($mobileMenuLink, "click", (event) => {
         DOMUtils.preventEvent(event);
         config.clickEvent(event);
       });
-      let $mobileNav = $<HTMLElement>("#mobile-nav nav");
+      const $mobileNav = $<HTMLElement>("#mobile-nav nav");
       // 已登录的账号的元素
-      let $multiLinkNav = $<HTMLElement>("#mobile-nav nav .multi-link-nav");
+      const $multiLinkNav = $<HTMLElement>("#mobile-nav nav .multi-link-nav");
       if ($multiLinkNav) {
         DOMUtils.before($multiLinkNav, $mobileMenuLink);
       } else {

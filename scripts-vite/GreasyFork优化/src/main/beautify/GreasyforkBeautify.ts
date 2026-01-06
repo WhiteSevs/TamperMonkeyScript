@@ -34,7 +34,7 @@ export const GreasyforkBeautify = {
    */
   beautifyPageElement() {
     log.info("美化页面元素");
-    let result = [];
+    const result = [];
     result.push(addStyle(beautifyMarkdownCSS));
     result.push(addStyle(beautifyButtonCSS));
     result.push(addStyle(beautifyRadioCSS));
@@ -228,7 +228,7 @@ export const GreasyforkBeautify = {
    */
   beautifyGreasyforkBeautify() {
     log.info("美化 Greasyfork Beautify脚本");
-    let result = [];
+    const result = [];
     result.push(addStyle(compatibleBeautifyCSS));
     if (utils.isPhone()) {
       /* 移动端 */
@@ -262,7 +262,7 @@ export const GreasyforkBeautify = {
    */
   beautifyUploadImage() {
     log.info("美化上传图片");
-    let result = [];
+    const result = [];
     result.push(addStyle(beautifyUploadImageCSS));
     DOMUtils.onReady(() => {
       /**
@@ -274,7 +274,7 @@ export const GreasyforkBeautify = {
           element.parentElement!.removeChild(element.nextElementSibling);
         }
       }
-      let $fileInputList = $$<HTMLInputElement>('input[type="file"]');
+      const $fileInputList = $$<HTMLInputElement>('input[type="file"]');
 
       $fileInputList.forEach(($input) => {
         if ($input.getAttribute("name") === "code_upload") {
@@ -285,7 +285,7 @@ export const GreasyforkBeautify = {
         }
         DOMUtils.on($input, ["propertychange", "input"], function (event) {
           clearErrorTip(event.target as HTMLInputElement);
-          let chooseImageFiles = (event.currentTarget as HTMLInputElement).files;
+          const chooseImageFiles = (event.currentTarget as HTMLInputElement).files;
           if (!chooseImageFiles) {
             return;
           }
@@ -301,7 +301,7 @@ export const GreasyforkBeautify = {
               })
             );
           }
-          let notAllowImage: File[] = [];
+          const notAllowImage: File[] = [];
           Array.from(chooseImageFiles).forEach((imageFile) => {
             if (imageFile.size > 204800 || !imageFile.type.match(/png|jpg|jpeg|gif|apng|webp/i)) {
               notAllowImage.push(imageFile);
@@ -323,7 +323,7 @@ export const GreasyforkBeautify = {
           });
         });
       });
-      let $textAreaSelectorString = [
+      const $textAreaSelectorString = [
         /* 某条反馈内的回复框 */
         "textarea#comment_text",
         /* 反馈页面的回复框 */
@@ -346,13 +346,13 @@ export const GreasyforkBeautify = {
    */
   beautifyTopNavigationBar() {
     log.info("美化顶部导航栏");
-    let result: (HTMLStyleElement | undefined)[] = [];
+    const result: (HTMLStyleElement | undefined)[] = [];
     result.push(addStyle(beautifyTopNavigationBarCSS));
     if (window.outerWidth > 550) {
       result.push(CommonUtil.addBlockCSS(".with-submenu"));
       DOMUtils.onReady(() => {
-        let $siteNav = $<HTMLElement>("#site-nav")!;
-        let $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;
+        const $siteNav = $<HTMLElement>("#site-nav")!;
+        const $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;
         // 把更多的内容添加到顶部导航栏中
         $$<HTMLLIElement>(".with-submenu nav li").forEach(($ele) => {
           $siteNavNav.appendChild($ele);

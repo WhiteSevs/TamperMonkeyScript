@@ -1,4 +1,4 @@
-import { $, DOMUtils, httpx, log, utils } from "@/env";
+import { DOMUtils, httpx, log, utils } from "@/env";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
@@ -97,10 +97,11 @@ interface GreasyForkScriptInfo {
 interface GreasyForkUserInfo {
   id: number;
   name: string;
+  created_at: string;
+  url: string;
   scripts: GreasyForkScriptInfo[];
   scriptList: GreasyForkScriptInfo[];
   scriptLibraryList: GreasyForkScriptInfo[];
-  url: string;
 }
 
 export const GreasyforkApi = {
@@ -109,36 +110,40 @@ export const GreasyforkApi = {
    * @param scriptId 脚本id
    */
   async getScriptInfo(scriptId: string | number) {
-    let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
-    let response = await httpx.get(url, {
+    const url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
+    const response = await httpx.get(url, {
       // fetch: true,
       allowInterceptConfig: false,
       responseType: "json",
     });
     if (!response.status) {
       // 脚本不存在配置信息json
-      let scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
-      let scriptHomeResponse = await httpx.get(scriptHomeUrl, {
+      const scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
+      const scriptHomeResponse = await httpx.get(scriptHomeUrl, {
         fetch: true,
       });
       if (!scriptHomeResponse.status) {
         return;
       }
-      let $scriptHomeDoc = DOMUtils.toElement(scriptHomeResponse.data.responseText, true, true);
+      const $scriptHomeDoc = DOMUtils.toElement(scriptHomeResponse.data.responseText, true, true);
       // 如果是脚本库
       // 那是没有脚本安装按钮的
-      let $installLink = $scriptHomeDoc.querySelector<HTMLElement>(".install-link");
-      let $createAt = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-created-date relative-time[datetime]");
-      let $dailyInstalls = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-daily-installs");
-      let $totalInstalls = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-total-installs");
-      let $updateAt = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-updated-date relative-time[datetime]");
-      let $description = $scriptHomeDoc.querySelector<HTMLElement>("#script-description");
-      let $goodRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".good-rating-count");
-      let $okRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".ok-rating-count");
-      let $badRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".bad-rating-count");
+      const $installLink = $scriptHomeDoc.querySelector<HTMLElement>(".install-link");
+      const $createAt = $scriptHomeDoc.querySelector<HTMLElement>(
+        "dd.script-show-created-date relative-time[datetime]"
+      );
+      const $dailyInstalls = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-daily-installs");
+      const $totalInstalls = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-total-installs");
+      const $updateAt = $scriptHomeDoc.querySelector<HTMLElement>(
+        "dd.script-show-updated-date relative-time[datetime]"
+      );
+      const $description = $scriptHomeDoc.querySelector<HTMLElement>("#script-description");
+      const $goodRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".good-rating-count");
+      const $okRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".ok-rating-count");
+      const $badRatingCount = $scriptHomeDoc.querySelector<HTMLElement>(".bad-rating-count");
 
-      let $license = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-license");
-      let scriptHomeInfo: GreasyforkScriptUrlInfo = {
+      const $license = $scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-license");
+      const scriptHomeInfo: GreasyforkScriptUrlInfo = {
         id: Number(scriptId),
         created_at: $createAt?.getAttribute("datetime") || "",
         daily_installs: Number(DOMUtils.text($dailyInstalls!) || "0"),
@@ -177,7 +182,7 @@ export const GreasyforkApi = {
       }
       return scriptHomeInfo;
     }
-    let data = utils.toJSON<GreasyforkScriptUrlInfo>(response.data.responseText);
+    const data = utils.toJSON<GreasyforkScriptUrlInfo>(response.data.responseText);
     return data;
   },
   /**
@@ -185,7 +190,7 @@ export const GreasyforkApi = {
    * @param scriptId 脚本id
    */
   async getScriptStats(scriptId: string) {
-    let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
+    const response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
       // fetch: true,
       allowInterceptConfig: false,
     });
@@ -194,7 +199,7 @@ export const GreasyforkApi = {
       log.error(i18next.t("获取脚本统计数据失败"));
       return;
     }
-    let scriptStatsJSON = utils.toJSON(response.data.responseText);
+    const scriptStatsJSON = utils.toJSON(response.data.responseText);
     return scriptStatsJSON;
   },
   /**
@@ -202,7 +207,7 @@ export const GreasyforkApi = {
    * @param scriptId 脚本id
    */
   async getSourceCodeSyncFormDataInfo(scriptId: string) {
-    let response = await httpx.get(`/scripts/${scriptId}/admin`, {
+    const response = await httpx.get(`/scripts/${scriptId}/admin`, {
       fetch: true,
       allowInterceptConfig: false,
     });
@@ -211,15 +216,15 @@ export const GreasyforkApi = {
       Qmsg.error(i18next.t("请求admin内容失败"));
       return;
     }
-    let adminHTML = response.data.responseText;
-    let $admin = DOMUtils.toElement(adminHTML, false, true);
-    let $form = $admin.querySelector<HTMLFormElement>("form.edit_script[action*='sync_update']");
+    const adminHTML = response.data.responseText;
+    const $admin = DOMUtils.toElement(adminHTML, false, true);
+    const $form = $admin.querySelector<HTMLFormElement>("form.edit_script[action*='sync_update']");
     if (!$form) {
       Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
       return;
     }
-    let formData = new FormData($form);
-    let $submit = $form.querySelector<HTMLInputElement>("input[type='submit'][name='update-and-sync']");
+    const formData = new FormData($form);
+    const $submit = $form.querySelector<HTMLInputElement>("input[type='submit'][name='update-and-sync']");
     if ($submit) {
       formData.append($submit.name, $submit.value);
     }
@@ -235,7 +240,7 @@ export const GreasyforkApi = {
    * @param syncUrl 同步的url
    */
   async sourceCodeSync(scriptId: string, data: FormData, syncUrl?: string) {
-    let response = await httpx.post(syncUrl || `/scripts/${scriptId}/sync_update`, {
+    const response = await httpx.post(syncUrl || `/scripts/${scriptId}/sync_update`, {
       fetch: true,
       data: data,
       allowInterceptConfig: false,
@@ -256,10 +261,10 @@ export const GreasyforkApi = {
     return response;
   },
   /**
-   * 获取用户的信息，包括脚本列表、未上架的脚本、库
+   * 获取用户信息
    */
   async getUserInfo(userId: string) {
-    let response = await httpx.get(`/users/${userId}.json`, {
+    const response = await httpx.get(`/users/${userId}.json`, {
       // fetch: true,
       allowInterceptConfig: false,
     });
@@ -268,7 +273,7 @@ export const GreasyforkApi = {
       Qmsg.error(i18next.t("获取用户信息失败"));
       return;
     }
-    let data = utils.toJSON<GreasyForkUserInfo>(response.data.responseText);
+    const data = utils.toJSON<GreasyForkUserInfo>(response.data.responseText);
     data["scriptList"] = [];
     data["scriptLibraryList"] = [];
     data["scripts"].forEach((scriptInfo) => {
@@ -278,10 +283,18 @@ export const GreasyforkApi = {
         data["scriptLibraryList"].push(scriptInfo);
       }
     });
-    if (!data["scriptLibraryList"].length) {
+    return data;
+  },
+  /**
+   * 获取用户所有的信息，包括脚本列表、未上架的脚本、库
+   */
+  async getUserAllInfo(userId: string) {
+    const data = await this.getUserInfo(userId);
+    if (!data) return;
+    if (!data.scriptLibraryList.length) {
       // 现在的Api获取不到库的信息了
       // 只能通过解析主页信息来获取库
-      let userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
+      const userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
         fetch: true,
         allowInterceptConfig: false,
       });
@@ -289,14 +302,14 @@ export const GreasyforkApi = {
         Qmsg.error(i18next.t("获取用户主页信息失败"));
         return;
       }
-      let userHomeHTML = userHomeInfoResponse.data.responseText;
-      let $userHomeDocument = DOMUtils.toElement(userHomeHTML, true, true);
-      let $userLibraryList = $userHomeDocument.querySelector<HTMLOListElement>("#user-library-script-list");
+      const userHomeHTML = userHomeInfoResponse.data.responseText;
+      const $userHomeDocument = DOMUtils.toElement(userHomeHTML, true, true);
+      const $userLibraryList = $userHomeDocument.querySelector<HTMLOListElement>("#user-library-script-list");
       if ($userLibraryList) {
         $userLibraryList.querySelectorAll("li").forEach(($li) => {
-          let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
-          let scriptLink = $li.querySelector<HTMLAnchorElement>("a.script-link")!.href;
-          data["scriptLibraryList"].push({
+          const scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
+          const scriptLink = $li.querySelector<HTMLAnchorElement>("a.script-link")!.href;
+          data.scriptLibraryList.push({
             id: scriptInfo.scriptId,
             created_at: scriptInfo.scriptCreatedDate.toISOString(),
             daily_installs: scriptInfo.scriptDailyInstalls,
@@ -331,7 +344,7 @@ export const GreasyforkApi = {
    * @param userId
    */
   async getUserCollection(userId: string) {
-    let response = await httpx.get(`/users/${userId}`, {
+    const response = await httpx.get(`/users/${userId}`, {
       fetch: true,
       allowInterceptConfig: false,
     });
@@ -340,29 +353,29 @@ export const GreasyforkApi = {
       Qmsg.error(i18next.t("获取用户的收藏集失败"));
       return;
     }
-    let respText = response.data.responseText;
-    let respDocument = DOMUtils.toElement(respText, true, true);
-    let userScriptSets = respDocument.querySelector("#user-script-sets");
+    const respText = response.data.responseText;
+    const respDocument = DOMUtils.toElement(respText, true, true);
+    const userScriptSets = respDocument.querySelector("#user-script-sets");
     if (!userScriptSets) {
       log.error("解析Script Sets失败");
       return;
     }
-    let scriptSetsIdList: {
+    const scriptSetsIdList: {
       id: string;
       name: string;
     }[] = [];
     userScriptSets.querySelectorAll("li").forEach(($li) => {
-      let $el = $li.querySelector<HTMLAnchorElement>("a:last-child");
+      const $el = $li.querySelector<HTMLAnchorElement>("a:last-child");
       if (!$el) {
         return;
       }
-      let setsUrl = $el.href;
+      const setsUrl = $el.href;
       if (setsUrl.includes("?fav=1")) {
         /* 自带的收藏夹 */
         return;
       }
-      let setsName = $li.querySelector<HTMLAnchorElement>("a")!.innerText;
-      let setsId = setsUrl.match(/\/sets\/([\d]+)\//)?.[1] as string;
+      const setsName = $li.querySelector<HTMLAnchorElement>("a")!.innerText;
+      const setsId = GreasyforkUrlUtils.getSetsId()!;
       scriptSetsIdList.push({
         id: setsId,
         name: setsName,
@@ -377,7 +390,7 @@ export const GreasyforkApi = {
    * @param setsId 收藏集id
    */
   async getUserCollectionInfo(userId: string, setsId: string) {
-    let response = await httpx.get(`/users/${userId}/sets/${setsId}/edit`, {
+    const response = await httpx.get(`/users/${userId}/sets/${setsId}/edit`, {
       fetch: true,
       allowInterceptConfig: false,
     });
@@ -386,21 +399,21 @@ export const GreasyforkApi = {
       Qmsg.error(i18next.t("获取收藏集{{setsId}}失败", { setsId }));
       return;
     }
-    let respText = response.data.responseText;
-    let respDocument = DOMUtils.toElement(respText, true, true);
-    let $edit_script_set_form = respDocument.querySelector<HTMLFormElement>('form[id^="edit_script_set"]');
+    const respText = response.data.responseText;
+    const respDocument = DOMUtils.toElement(respText, true, true);
+    const $edit_script_set_form = respDocument.querySelector<HTMLFormElement>('form[id^="edit_script_set"]');
     if (!$edit_script_set_form) {
       Qmsg.error(i18next.t("获取表单元素#edit_script_set失败"));
       return;
     }
-    let formData = new FormData($edit_script_set_form);
-    let csrfToken = respDocument.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+    const formData = new FormData($edit_script_set_form);
+    const csrfToken = respDocument.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
     if (!csrfToken) {
       Qmsg.error(i18next.t("获取表单csrfToken失败"));
       return;
     }
     if (csrfToken.hasAttribute("content")) {
-      let authenticity_token = csrfToken.getAttribute("content");
+      const authenticity_token = csrfToken.getAttribute("content");
       if (authenticity_token) {
         formData.set("authenticity_token", authenticity_token);
       }
@@ -414,7 +427,7 @@ export const GreasyforkApi = {
    * @param data
    */
   async updateUserSetsInfo(userId: string, setsId: string, data: string) {
-    let response = await httpx.post(`/users/${userId}/sets/${setsId}`, {
+    const response = await httpx.post(`/users/${userId}/sets/${setsId}`, {
       fetch: true,
       allowInterceptConfig: false,
       headers: {
@@ -435,8 +448,8 @@ export const GreasyforkApi = {
       Qmsg.error(i18next.t("更新收藏集表单请求失败"));
       return;
     }
-    let respText = response.data.responseText;
-    let respDocument = DOMUtils.toElement(respText, true, true);
+    const respText = response.data.responseText;
+    const respDocument = DOMUtils.toElement(respText, true, true);
     return respDocument;
   },
   /**
@@ -444,7 +457,7 @@ export const GreasyforkApi = {
    * @param url
    */
   async switchLanguage(url: string) {
-    let response = await httpx.get(url, {
+    const response = await httpx.get(url, {
       fetch: true,
       headers: {
         "Upgrade-Insecure-Requests": "1",

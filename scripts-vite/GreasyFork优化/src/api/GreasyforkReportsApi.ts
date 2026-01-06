@@ -9,7 +9,7 @@ export const GreasyforkReportsApi = {
    * @param item_id
    */
   async new(item_class: "script" | "discussion" | "user", item_id: string | number) {
-    let response = await httpx.get(`/reports/new`, {
+    const response = await httpx.get(`/reports/new`, {
       data: {
         item_class: item_class,
         item_id: item_id,
@@ -22,8 +22,8 @@ export const GreasyforkReportsApi = {
       Qmsg.error(i18next.t("获取举报表单信息失败"));
       return;
     }
-    let doc = DOMUtils.toElement(response.data.responseText, true, true);
-    let form = doc.querySelector<HTMLFormElement>('form[action*="/reports"]')!;
+    const responseDocument = DOMUtils.toElement(response.data.responseText, true, true);
+    const form = responseDocument.querySelector<HTMLFormElement>('form[action*="/reports"]')!;
     return form;
   },
   /**
@@ -31,7 +31,7 @@ export const GreasyforkReportsApi = {
    * @param form
    */
   async reports(form: FormData) {
-    let response = await httpx.post("/reports", {
+    const response = await httpx.post("/reports", {
       data: form,
       fetch: true,
       allowInterceptConfig: false,
@@ -41,8 +41,8 @@ export const GreasyforkReportsApi = {
       Qmsg.error(i18next.t("发送举报表单失败"));
       return;
     }
-    let doc = DOMUtils.toElement(response.data.responseText, true, true);
-    let $validErrors = doc.querySelector<HTMLElement>(".validation-errors");
+    const responseDocument = DOMUtils.toElement(response.data.responseText, true, true);
+    const $validErrors = responseDocument.querySelector<HTMLElement>(".validation-errors");
     if ($validErrors) {
       // 返回的报错信息
       return {
@@ -50,7 +50,7 @@ export const GreasyforkReportsApi = {
         msg: $validErrors.innerHTML,
       };
     } else {
-      let $notice = doc.querySelector<HTMLElement>(".width-constraint .notice");
+      const $notice = responseDocument.querySelector<HTMLElement>(".width-constraint .notice");
       return {
         success: true,
         msg: ($notice && DOMUtils.text($notice)) || "",

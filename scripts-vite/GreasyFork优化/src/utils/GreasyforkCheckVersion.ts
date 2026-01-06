@@ -81,7 +81,7 @@ export const GreasyforkCheckVersion = {
    * 获取脚本容器启用状态
    */
   getScriptContainerStatus() {
-    let containerStatus = {
+    const containerStatus = {
       Tampermonkey: false,
       Violentmonkey: false,
       ScriptCat: false,
@@ -103,12 +103,12 @@ export const GreasyforkCheckVersion = {
    * 获取已注册的脚本容器名
    */
   getRegisterScriptContainerNameList() {
-    let allScriptContainerStatus = this.getScriptContainerStatus();
+    const allScriptContainerStatus = this.getScriptContainerStatus();
     /** 获取当前已注册的脚本容器 */
-    let isRegisterScriptContainer = allScriptContainerStatus;
-    let scriptContainerNameList: string[] = [];
+    const isRegisterScriptContainer = allScriptContainerStatus;
+    const scriptContainerNameList: string[] = [];
     Object.keys(isRegisterScriptContainer).forEach((containerName) => {
-      let containerEnable = Reflect.get(
+      const containerEnable = Reflect.get(
         isRegisterScriptContainer,
         containerName
       ) as (typeof isRegisterScriptContainer)[keyof typeof isRegisterScriptContainer];

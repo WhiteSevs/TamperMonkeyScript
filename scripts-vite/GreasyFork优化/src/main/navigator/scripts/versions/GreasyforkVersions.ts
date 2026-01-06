@@ -13,11 +13,13 @@ export const GreasyforkVersions = {
     Panel.execMenuOnce("beautifyHistoryVersionPage", () => {
       return this.beautifyHistoryVersionPage();
     });
-    Panel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
-      this.addExtraTagButton();
-    });
     Panel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
       this.sourceDiffMonacoEditor();
+    });
+    DOMUtils.onReady(() => {
+      Panel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
+        this.addExtraTagButton();
+      });
     });
   },
   /**
@@ -25,50 +27,48 @@ export const GreasyforkVersions = {
    */
   beautifyHistoryVersionPage() {
     log.info("美化 历史版本 页面");
-    let result = [];
+    const result = [];
     /* 美化version页面 */
     result.push(addStyle(beautifyVersionsPageCSS));
     result.push(CommonUtil.addBlockCSS(".version-number", ".version-date", ".version-changelog"));
     DOMUtils.onReady(function () {
-      let $historyVersion = $<HTMLUListElement>("ul.history_versions");
+      const $historyVersion = $<HTMLUListElement>("ul.history_versions");
       if (!$historyVersion) {
         Qmsg.error(i18next.t("未找到history_versions元素列表"));
         return;
       }
       /* 遍历每一个版本块 */
-      Array.from($historyVersion.children).forEach((liElement) => {
+      Array.from($historyVersion.children).forEach(($versionItem) => {
         /* 版本链接 */
-        let versionUrl = liElement.querySelector<HTMLAnchorElement>(".version-number a")!.href;
+        const versionUrl = $versionItem.querySelector<HTMLAnchorElement>(".version-number a")!.href;
         /* 版本号 */
-        let versionNumber = liElement.querySelector<HTMLAnchorElement>(".version-number a")!.innerText;
+        const versionNumber = $versionItem.querySelector<HTMLAnchorElement>(".version-number a")!.innerText;
         /* 更新日期 */
-        let versionDate = liElement.querySelector(".version-date")?.getAttribute("datetime") as string;
+        const versionDate = $versionItem.querySelector(".version-date")?.getAttribute("datetime") as string;
         /* 更新日志 */
-        let updateNote = liElement.querySelector(".version-changelog")?.innerHTML || "";
+        const updateNote = $versionItem.querySelector(".version-changelog")?.innerHTML || "";
 
-        let versionDateElement = DOMUtils.createElement("span", {
+        const $versionDate = DOMUtils.createElement("span", {
           className: "script-version-date",
           innerHTML: utils.formatTime(versionDate, i18next.t("yyyy年MM月dd日 HH:mm:ss")),
         });
-        let tagElement = DOMUtils.createElement("div", {
+        const $scriptTag = DOMUtils.createElement("div", {
           className: "script-tag",
           innerHTML: /*html*/ `
-                    <div class="script-tag-version">
-                        <a href="${versionUrl}" class="flex-align-item-center">
-                        <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
-                            <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
-                        </svg>
-                        <span>${versionNumber}</span>
-                        </a>
-                    </div>`,
+          <div class="script-tag-version">
+              <a href="${versionUrl}" class="flex-align-item-center">
+              <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                  <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
+              </svg>
+              <span>${versionNumber}</span>
+              </a>
+          </div>`,
         });
-        let boxBodyElement = DOMUtils.createElement("div", {
+        const $scriptBoxBody = DOMUtils.createElement("div", {
           className: "script-note-box-body",
           innerHTML: updateNote,
         });
-        liElement.appendChild(versionDateElement);
-        liElement.appendChild(tagElement);
-        liElement.appendChild(boxBodyElement);
+        DOMUtils.append($versionItem as HTMLElement, [$versionDate, $scriptTag, $scriptBoxBody]);
       });
     });
 
@@ -79,29 +79,27 @@ export const GreasyforkVersions = {
    */
   addExtraTagButton() {
     log.info("添加额外的标签按钮");
-    DOMUtils.onReady(() => {
-      $$<HTMLDivElement>(".script-tag-version").forEach(($tagVersion) => {
-        let $anchor = $tagVersion.querySelector<HTMLAnchorElement>("a");
-        if (!$anchor) {
-          return;
-        }
-        let urlObj = new URL($anchor.href);
-        let scriptId = urlObj.pathname.match(/\/scripts\/([\d]+)/)?.[1]!;
-        let scriptVersion = urlObj.searchParams.get("version")!;
-        let scriptName = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)?.[1]!;
-        let installUrl = GreasyforkUrlUtils.getInstallUrl(scriptId, scriptVersion, scriptName);
-        let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
-        let $buttonTag = DOMUtils.createElement("div", {
-          className: "scripts-tag-install",
-          innerHTML: /*html*/ `
-						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
-              "安装此脚本"
-            )}</a>
-						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t("查看代码")}</a>
-						`,
-        });
-        DOMUtils.after($tagVersion, $buttonTag);
+    $$<HTMLDivElement>(".script-tag-version:has(a[href])").forEach(($tagVersion) => {
+      const $anchor = $tagVersion.querySelector<HTMLAnchorElement>("a");
+      if (!$anchor) {
+        return;
+      }
+      const urlInst = new URL($anchor.href);
+      const scriptId = GreasyforkUrlUtils.getScriptId(urlInst.pathname)!;
+      const scriptVersion = urlInst.searchParams.get("version")!;
+      const scriptName = GreasyforkUrlUtils.getScriptName(urlInst.toString())!;
+      const installUrl = GreasyforkUrlUtils.getInstallUrl(scriptId, scriptVersion, scriptName);
+      const codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
+      const $buttonTag = DOMUtils.createElement("div", {
+        className: "scripts-tag-install",
+        innerHTML: /*html*/ `
+        <a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
+          "安装此脚本"
+        )}</a>
+        <a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t("查看代码")}</a>
+        `,
       });
+      DOMUtils.after($tagVersion, $buttonTag);
     });
   },
   /**

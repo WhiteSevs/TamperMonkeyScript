@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.1.3
+// @version            2026.1.6
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -14,7 +14,7 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -490,7 +490,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -2611,6 +2614,11 @@
     "monaco-editor加载中...": "monaco-editor loading...",
     "未找到【过滤】按钮": "[Filter] button not found",
     "未找到【举报】按钮": "[Report] button not found",
+    "（": "(",
+    "）": ")",
+    获取用户ID失败: "Failed to obtain user ID",
+    "查询中...": "Querying...",
+    查询失败: "Query failed",
   };
   const LanguageInit = function () {
     let settingPanel = _GM_getValue(KEY, {});
@@ -2782,6 +2790,9 @@
     getUserId(text) {
       return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
     },
+    getSetsId(text) {
+      return (text || window.location.pathname).match(/\/sets\/([\d]+)\//)?.[1];
+    },
     getReportUrl(item_class, item_id) {
       return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
     },
@@ -2791,9 +2802,9 @@
         pathname = new URL(text).pathname;
       }
       pathname = decodeURIComponent(pathname);
-      let pathnameSplit = pathname.split("/");
+      const pathnameSplit = pathname.split("/");
       for (const name of pathnameSplit) {
-        let nameMatch = name.match(/[\d]+/);
+        const nameMatch = name.match(/[\d]+/);
         if (nameMatch && nameMatch.length) {
           return nameMatch[1];
         }
@@ -2801,7 +2812,7 @@
     },
     getSwitchLanguageUrl(localeLanguage = "zh-CN") {
       let url = window.location.origin;
-      let urlSplit = window.location.pathname.split("/");
+      const urlSplit = window.location.pathname.split("/");
       urlSplit[1] = localeLanguage;
       url = url + urlSplit.join("/");
       url += window.location.search;
@@ -2815,18 +2826,18 @@
   };
   const GreasyforkElementUtils = {
     getCurrentLoginUserId() {
-      let $anchor = $("#nav-user-info .user-profile-link a");
+      const $anchor = $("#nav-user-info .user-profile-link a");
       if (!$anchor) {
         return;
       }
-      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
+      const userId = GreasyforkUrlUtils.getUserId($anchor.href);
       if (userId == null) {
         return;
       }
       return userId;
     },
     parseScriptListInfo($script) {
-      let dataset = $script.dataset;
+      const dataset = $script.dataset;
       const info = {
         scriptId: parseInt(dataset.scriptId),
         scriptName: dataset.scriptName,
@@ -2846,9 +2857,9 @@
         scriptAuthorId: parseInt(dataset.scriptAuthorId),
         scriptAuthorName: dataset.scriptAuthorName,
       };
-      let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
-      Object.keys(scriptAuthorsObj).forEach((authorId) => {
-        let authorName = scriptAuthorsObj[authorId];
+      const scriptAuthorsInst = utils.toJSON(dataset.scriptAuthors);
+      Object.keys(scriptAuthorsInst).forEach((authorId) => {
+        const authorName = scriptAuthorsInst[authorId];
         info.scriptAuthors.push({
           authorId: parseInt(authorId),
           authorName,
@@ -2868,17 +2879,15 @@
     },
     registerTopNavMenu(config) {
       domUtils.onReady(() => {
-        let $nav = $("#site-nav nav");
-        let $subNav = $("#site-nav .with-submenu nav");
+        const $nav = $("#site-nav nav");
+        const $subNav = $("#site-nav .with-submenu nav");
         if (!$nav) {
           log.error("元素#site-nav nav不存在");
           return;
         }
-        let $menuLink = domUtils.createElement("li", {
+        const $menuLink = domUtils.createElement("li", {
           className: config.className,
-          innerHTML: `
-                <a href="javascript:;">${config.name}</a>
-                `,
+          innerHTML: `<a href="javascript:;">${config.name}</a>`,
         });
         domUtils.on($menuLink, "click", (event) => {
           domUtils.preventEvent(event);
@@ -2889,18 +2898,16 @@
         } else {
           $nav.appendChild($menuLink);
         }
-        let $mobileMenuLink = domUtils.createElement("li", {
+        const $mobileMenuLink = domUtils.createElement("li", {
           className: config.className,
-          innerHTML: `
-                <a href="javascript:;">${config.name}</a>
-                `,
+          innerHTML: `<a href="javascript:;">${config.name}</a>`,
         });
         domUtils.on($mobileMenuLink, "click", (event) => {
           domUtils.preventEvent(event);
           config.clickEvent(event);
         });
-        let $mobileNav = $("#mobile-nav nav");
-        let $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
+        const $mobileNav = $("#mobile-nav nav");
+        const $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
         if ($multiLinkNav) {
           domUtils.before($multiLinkNav, $mobileMenuLink);
         } else {
@@ -2915,31 +2922,31 @@
   };
   const GreasyforkApi = {
     async getScriptInfo(scriptId) {
-      let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
-      let response = await httpx.get(url, {
+      const url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
+      const response = await httpx.get(url, {
         allowInterceptConfig: false,
         responseType: "json",
       });
       if (!response.status) {
-        let scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
-        let scriptHomeResponse = await httpx.get(scriptHomeUrl, {
+        const scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
+        const scriptHomeResponse = await httpx.get(scriptHomeUrl, {
           fetch: true,
         });
         if (!scriptHomeResponse.status) {
           return;
         }
-        let $scriptHomeDoc = domUtils.toElement(scriptHomeResponse.data.responseText, true, true);
-        let $installLink = $scriptHomeDoc.querySelector(".install-link");
-        let $createAt = $scriptHomeDoc.querySelector("dd.script-show-created-date relative-time[datetime]");
-        let $dailyInstalls = $scriptHomeDoc.querySelector("dd.script-show-daily-installs");
-        let $totalInstalls = $scriptHomeDoc.querySelector("dd.script-show-total-installs");
-        let $updateAt = $scriptHomeDoc.querySelector("dd.script-show-updated-date relative-time[datetime]");
-        let $description = $scriptHomeDoc.querySelector("#script-description");
-        let $goodRatingCount = $scriptHomeDoc.querySelector(".good-rating-count");
-        let $okRatingCount = $scriptHomeDoc.querySelector(".ok-rating-count");
-        let $badRatingCount = $scriptHomeDoc.querySelector(".bad-rating-count");
-        let $license = $scriptHomeDoc.querySelector("dd.script-show-license");
-        let scriptHomeInfo = {
+        const $scriptHomeDoc = domUtils.toElement(scriptHomeResponse.data.responseText, true, true);
+        const $installLink = $scriptHomeDoc.querySelector(".install-link");
+        const $createAt = $scriptHomeDoc.querySelector("dd.script-show-created-date relative-time[datetime]");
+        const $dailyInstalls = $scriptHomeDoc.querySelector("dd.script-show-daily-installs");
+        const $totalInstalls = $scriptHomeDoc.querySelector("dd.script-show-total-installs");
+        const $updateAt = $scriptHomeDoc.querySelector("dd.script-show-updated-date relative-time[datetime]");
+        const $description = $scriptHomeDoc.querySelector("#script-description");
+        const $goodRatingCount = $scriptHomeDoc.querySelector(".good-rating-count");
+        const $okRatingCount = $scriptHomeDoc.querySelector(".ok-rating-count");
+        const $badRatingCount = $scriptHomeDoc.querySelector(".bad-rating-count");
+        const $license = $scriptHomeDoc.querySelector("dd.script-show-license");
+        const scriptHomeInfo = {
           id: Number(scriptId),
           created_at: $createAt?.getAttribute("datetime") || "",
           daily_installs: Number(domUtils.text($dailyInstalls) || "0"),
@@ -2978,11 +2985,11 @@
         }
         return scriptHomeInfo;
       }
-      let data = utils.toJSON(response.data.responseText);
+      const data = utils.toJSON(response.data.responseText);
       return data;
     },
     async getScriptStats(scriptId) {
-      let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
+      const response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
         allowInterceptConfig: false,
       });
       log.info(response);
@@ -2990,11 +2997,11 @@
         log.error(i18next.t("获取脚本统计数据失败"));
         return;
       }
-      let scriptStatsJSON = utils.toJSON(response.data.responseText);
+      const scriptStatsJSON = utils.toJSON(response.data.responseText);
       return scriptStatsJSON;
     },
     async getSourceCodeSyncFormDataInfo(scriptId) {
-      let response = await httpx.get(`/scripts/${scriptId}/admin`, {
+      const response = await httpx.get(`/scripts/${scriptId}/admin`, {
         fetch: true,
         allowInterceptConfig: false,
       });
@@ -3003,15 +3010,15 @@
         Qmsg.error(i18next.t("请求admin内容失败"));
         return;
       }
-      let adminHTML = response.data.responseText;
-      let $admin = domUtils.toElement(adminHTML, false, true);
-      let $form = $admin.querySelector("form.edit_script[action*='sync_update']");
+      const adminHTML = response.data.responseText;
+      const $admin = domUtils.toElement(adminHTML, false, true);
+      const $form = $admin.querySelector("form.edit_script[action*='sync_update']");
       if (!$form) {
         Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
         return;
       }
-      let formData = new FormData($form);
-      let $submit = $form.querySelector("input[type='submit'][name='update-and-sync']");
+      const formData = new FormData($form);
+      const $submit = $form.querySelector("input[type='submit'][name='update-and-sync']");
       if ($submit) {
         formData.append($submit.name, $submit.value);
       }
@@ -3021,7 +3028,7 @@
       };
     },
     async sourceCodeSync(scriptId, data, syncUrl) {
-      let response = await httpx.post(syncUrl || `/scripts/${scriptId}/sync_update`, {
+      const response = await httpx.post(syncUrl || `/scripts/${scriptId}/sync_update`, {
         fetch: true,
         data,
         allowInterceptConfig: false,
@@ -3042,7 +3049,7 @@
       return response;
     },
     async getUserInfo(userId) {
-      let response = await httpx.get(`/users/${userId}.json`, {
+      const response = await httpx.get(`/users/${userId}.json`, {
         allowInterceptConfig: false,
       });
       log.success(response);
@@ -3050,7 +3057,7 @@
         Qmsg.error(i18next.t("获取用户信息失败"));
         return;
       }
-      let data = utils.toJSON(response.data.responseText);
+      const data = utils.toJSON(response.data.responseText);
       data["scriptList"] = [];
       data["scriptLibraryList"] = [];
       data["scripts"].forEach((scriptInfo) => {
@@ -3060,8 +3067,13 @@
           data["scriptLibraryList"].push(scriptInfo);
         }
       });
-      if (!data["scriptLibraryList"].length) {
-        let userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
+      return data;
+    },
+    async getUserAllInfo(userId) {
+      const data = await this.getUserInfo(userId);
+      if (!data) return;
+      if (!data.scriptLibraryList.length) {
+        const userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
           fetch: true,
           allowInterceptConfig: false,
         });
@@ -3069,14 +3081,14 @@
           Qmsg.error(i18next.t("获取用户主页信息失败"));
           return;
         }
-        let userHomeHTML = userHomeInfoResponse.data.responseText;
-        let $userHomeDocument = domUtils.toElement(userHomeHTML, true, true);
-        let $userLibraryList = $userHomeDocument.querySelector("#user-library-script-list");
+        const userHomeHTML = userHomeInfoResponse.data.responseText;
+        const $userHomeDocument = domUtils.toElement(userHomeHTML, true, true);
+        const $userLibraryList = $userHomeDocument.querySelector("#user-library-script-list");
         if ($userLibraryList) {
           $userLibraryList.querySelectorAll("li").forEach(($li) => {
-            let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
-            let scriptLink = $li.querySelector("a.script-link").href;
-            data["scriptLibraryList"].push({
+            const scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
+            const scriptLink = $li.querySelector("a.script-link").href;
+            data.scriptLibraryList.push({
               id: scriptInfo.scriptId,
               created_at: scriptInfo.scriptCreatedDate.toISOString(),
               daily_installs: scriptInfo.scriptDailyInstalls,
@@ -3107,7 +3119,7 @@
       return data;
     },
     async getUserCollection(userId) {
-      let response = await httpx.get(`/users/${userId}`, {
+      const response = await httpx.get(`/users/${userId}`, {
         fetch: true,
         allowInterceptConfig: false,
       });
@@ -3116,25 +3128,25 @@
         Qmsg.error(i18next.t("获取用户的收藏集失败"));
         return;
       }
-      let respText = response.data.responseText;
-      let respDocument = domUtils.toElement(respText, true, true);
-      let userScriptSets = respDocument.querySelector("#user-script-sets");
+      const respText = response.data.responseText;
+      const respDocument = domUtils.toElement(respText, true, true);
+      const userScriptSets = respDocument.querySelector("#user-script-sets");
       if (!userScriptSets) {
         log.error("解析Script Sets失败");
         return;
       }
-      let scriptSetsIdList = [];
+      const scriptSetsIdList = [];
       userScriptSets.querySelectorAll("li").forEach(($li) => {
-        let $el = $li.querySelector("a:last-child");
+        const $el = $li.querySelector("a:last-child");
         if (!$el) {
           return;
         }
-        let setsUrl = $el.href;
+        const setsUrl = $el.href;
         if (setsUrl.includes("?fav=1")) {
           return;
         }
-        let setsName = $li.querySelector("a").innerText;
-        let setsId = setsUrl.match(/\/sets\/([\d]+)\//)?.[1];
+        const setsName = $li.querySelector("a").innerText;
+        const setsId = GreasyforkUrlUtils.getSetsId();
         scriptSetsIdList.push({
           id: setsId,
           name: setsName,
@@ -3143,7 +3155,7 @@
       return scriptSetsIdList;
     },
     async getUserCollectionInfo(userId, setsId) {
-      let response = await httpx.get(`/users/${userId}/sets/${setsId}/edit`, {
+      const response = await httpx.get(`/users/${userId}/sets/${setsId}/edit`, {
         fetch: true,
         allowInterceptConfig: false,
       });
@@ -3152,21 +3164,21 @@
         Qmsg.error(i18next.t("获取收藏集{{setsId}}失败", { setsId }));
         return;
       }
-      let respText = response.data.responseText;
-      let respDocument = domUtils.toElement(respText, true, true);
-      let $edit_script_set_form = respDocument.querySelector('form[id^="edit_script_set"]');
+      const respText = response.data.responseText;
+      const respDocument = domUtils.toElement(respText, true, true);
+      const $edit_script_set_form = respDocument.querySelector('form[id^="edit_script_set"]');
       if (!$edit_script_set_form) {
         Qmsg.error(i18next.t("获取表单元素#edit_script_set失败"));
         return;
       }
-      let formData = new FormData($edit_script_set_form);
-      let csrfToken = respDocument.querySelector('meta[name="csrf-token"]');
+      const formData = new FormData($edit_script_set_form);
+      const csrfToken = respDocument.querySelector('meta[name="csrf-token"]');
       if (!csrfToken) {
         Qmsg.error(i18next.t("获取表单csrfToken失败"));
         return;
       }
       if (csrfToken.hasAttribute("content")) {
-        let authenticity_token = csrfToken.getAttribute("content");
+        const authenticity_token = csrfToken.getAttribute("content");
         if (authenticity_token) {
           formData.set("authenticity_token", authenticity_token);
         }
@@ -3174,7 +3186,7 @@
       return formData;
     },
     async updateUserSetsInfo(userId, setsId, data) {
-      let response = await httpx.post(`/users/${userId}/sets/${setsId}`, {
+      const response = await httpx.post(`/users/${userId}/sets/${setsId}`, {
         fetch: true,
         allowInterceptConfig: false,
         headers: {
@@ -3195,12 +3207,12 @@
         Qmsg.error(i18next.t("更新收藏集表单请求失败"));
         return;
       }
-      let respText = response.data.responseText;
-      let respDocument = domUtils.toElement(respText, true, true);
+      const respText = response.data.responseText;
+      const respDocument = domUtils.toElement(respText, true, true);
       return respDocument;
     },
     async switchLanguage(url) {
-      let response = await httpx.get(url, {
+      const response = await httpx.get(url, {
         fetch: true,
         headers: {
           "Upgrade-Insecure-Requests": "1",
@@ -3309,7 +3321,7 @@
     },
     beautifyPageElement() {
       log.info("美化页面元素");
-      let result = [];
+      const result = [];
       result.push(addStyle(beautifyMarkdownCSS));
       result.push(addStyle(beautifyButtonCSS));
       result.push(addStyle(beautifyRadioCSS));
@@ -3479,7 +3491,7 @@
     },
     beautifyGreasyforkBeautify() {
       log.info("美化 Greasyfork Beautify脚本");
-      let result = [];
+      const result = [];
       result.push(addStyle(compatibleBeautifyCSS));
       if (utils.isPhone()) {
         result.push(
@@ -3513,7 +3525,7 @@
     },
     beautifyUploadImage() {
       log.info("美化上传图片");
-      let result = [];
+      const result = [];
       result.push(addStyle(beautifyUploadImageCSS));
       domUtils.onReady(() => {
         function clearErrorTip(element) {
@@ -3521,7 +3533,7 @@
             element.parentElement.removeChild(element.nextElementSibling);
           }
         }
-        let $fileInputList = $$('input[type="file"]');
+        const $fileInputList = $$('input[type="file"]');
         $fileInputList.forEach(($input) => {
           if ($input.getAttribute("name") === "code_upload") {
             return;
@@ -3531,7 +3543,7 @@
           }
           domUtils.on($input, ["propertychange", "input"], function (event) {
             clearErrorTip(event.target);
-            let chooseImageFiles = event.currentTarget.files;
+            const chooseImageFiles = event.currentTarget.files;
             if (!chooseImageFiles) {
               return;
             }
@@ -3547,7 +3559,7 @@
                 })
               );
             }
-            let notAllowImage = [];
+            const notAllowImage = [];
             Array.from(chooseImageFiles).forEach((imageFile) => {
               if (imageFile.size > 204800 || !imageFile.type.match(/png|jpg|jpeg|gif|apng|webp/i)) {
                 notAllowImage.push(imageFile);
@@ -3569,7 +3581,7 @@
             });
           });
         });
-        let $textAreaSelectorString = ["textarea#comment_text", "textarea.comment-entry"];
+        const $textAreaSelectorString = ["textarea#comment_text", "textarea.comment-entry"];
         $textAreaSelectorString.forEach((selector) => {
           domUtils.on(selector, "paste", (event) => {
             log.info("触发粘贴事件", event);
@@ -3583,13 +3595,13 @@
     },
     beautifyTopNavigationBar() {
       log.info("美化顶部导航栏");
-      let result = [];
+      const result = [];
       result.push(addStyle(beautifyTopNavigationBarCSS));
       if (window.outerWidth > 550) {
         result.push(CommonUtil.addBlockCSS(".with-submenu"));
         domUtils.onReady(() => {
-          let $siteNav = $("#site-nav");
-          let $siteNavNav = $siteNav.querySelector("nav");
+          const $siteNav = $("#site-nav");
+          const $siteNavNav = $siteNav.querySelector("nav");
           $$(".with-submenu nav li").forEach(($ele) => {
             $siteNavNav.appendChild($ele);
           });
@@ -4347,16 +4359,16 @@
       });
     },
     parseDiscuessionListContainerInfo($listContainer) {
-      let $title = $listContainer.querySelector("a.discussion-title");
+      const $title = $listContainer.querySelector("a.discussion-title");
       if (!$title) {
         return;
       }
-      let discussionUrl = $title.href;
-      let discuessionIdMatch = discussionUrl.match(/\/discussions(|\/greasyfork)\/([\d]+)/);
+      const discussionUrl = $title.href;
+      const discuessionIdMatch = discussionUrl.match(/\/discussions(|\/greasyfork)\/([\d]+)/);
       if (!discuessionIdMatch) {
         return;
       }
-      let discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
+      const discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
       const $scriptName = $listContainer.querySelector(".discussion-meta-item-script-name");
       const $scriptNameLink = $scriptName?.querySelector("a");
       const $userLink = $listContainer.querySelector("a.user-link");
@@ -4495,9 +4507,9 @@
         if ($listContainer.querySelector(`.${buttonClassName}`)) {
           return;
         }
-        let $listItem = $listContainer.querySelector(".discussion-list-item");
-        let $meta = $listItem.querySelector(".discussion-meta");
-        let $ownMetaItem = domUtils.createElement(
+        const $listItem = $listContainer.querySelector(".discussion-list-item");
+        const $meta = $listItem.querySelector(".discussion-meta");
+        const $ownMetaItem = domUtils.createElement(
           "div",
           {
             className: "discussion-meta-item",
@@ -4510,7 +4522,7 @@
             "data-type": "filter",
           }
         );
-        let $button = $ownMetaItem.querySelector(`.${buttonClassName}`);
+        const $button = $ownMetaItem.querySelector(`.${buttonClassName}`);
         $meta.appendChild($ownMetaItem);
         domUtils.on($button, "click", (event) => {
           domUtils.preventEvent(event);
@@ -4518,9 +4530,9 @@
           if (!discussionInfo) {
             return;
           }
-          let attr_filter_key = "data-filter-key";
-          let attr_filter_value = "data-filter-value";
-          let $dialog = __pops__.alert({
+          const attr_filter_key = "data-filter-key";
+          const attr_filter_value = "data-filter-value";
+          const $dialog = __pops__.alert({
             title: {
               text: i18next.t("选择需要过滤的选项"),
               position: "center",
@@ -4582,7 +4594,7 @@
 						}
 						`,
           });
-          let $content = $dialog.$shadowRoot.querySelector(".pops-alert-content");
+          const $content = $dialog.$shadowRoot.querySelector(".pops-alert-content");
           if (discussionInfo.scriptId == null) {
             $content.querySelector(`button[${attr_filter_key}="scriptId"]`)?.remove();
           }
@@ -4593,7 +4605,7 @@
             $content.querySelector(`button[${attr_filter_key}="postUserId"]`)?.remove();
           }
           if (discussionInfo.replyUserId != null) {
-            let $replyUserIdButton = domUtils.createElement("button", {
+            const $replyUserIdButton = domUtils.createElement("button", {
               innerHTML: i18next.t("作者id：{{text}}", {
                 text: discussionInfo.replyUserId,
               }),
@@ -4604,9 +4616,9 @@
           }
           domUtils.on($dialog.$shadowRoot, "click", `button[${attr_filter_key}]`, (event2) => {
             domUtils.preventEvent(event2);
-            let $click = event2.target;
-            let key = $click.getAttribute(attr_filter_key);
-            let value = $click.getAttribute(attr_filter_value);
+            const $click = event2.target;
+            const key = $click.getAttribute(attr_filter_key);
+            const value = $click.getAttribute(attr_filter_value);
             GreasyforkDiscussionsFilter.addValue(key, value);
             $dialog.close();
             GreasyforkDiscussionsFilter.filter();
@@ -4812,7 +4824,7 @@
   };
   const GreasyforkUtils = {
     isCurrentLoginUserHome() {
-      let currentLoginUserId = GreasyforkElementUtils.getCurrentLoginUserId();
+      const currentLoginUserId = GreasyforkElementUtils.getCurrentLoginUserId();
       if (
         currentLoginUserId != null &&
         GreasyforkRouter.isUsers() &&
@@ -4831,8 +4843,8 @@
           resolve(_unsafeWindow.monaco);
           return;
         }
-        let $loading = Qmsg.loading(i18next.t("monaco-editor加载中..."));
-        let $monacoScript = domUtils.createElement("script", {
+        const $loading = Qmsg.loading(i18next.t("monaco-editor加载中..."));
+        const $monacoScript = domUtils.createElement("script", {
           type: "module",
           defer: true,
           innerHTML: `
@@ -4847,7 +4859,7 @@
           _unsafeWindow,
           readyEventType,
           () => {
-            let monaco = _unsafeWindow.monaco;
+            const monaco = _unsafeWindow.monaco;
             log.success(`网络加载monaco编辑器成功`);
             $loading.close();
             resolve(monaco);
@@ -4969,81 +4981,79 @@
       Panel.execMenuOnce("beautifyHistoryVersionPage", () => {
         return this.beautifyHistoryVersionPage();
       });
-      Panel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
-        this.addExtraTagButton();
-      });
       Panel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
         this.sourceDiffMonacoEditor();
+      });
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
+          this.addExtraTagButton();
+        });
       });
     },
     beautifyHistoryVersionPage() {
       log.info("美化 历史版本 页面");
-      let result = [];
+      const result = [];
       result.push(addStyle(beautifyVersionsPageCSS));
       result.push(CommonUtil.addBlockCSS(".version-number", ".version-date", ".version-changelog"));
       domUtils.onReady(function () {
-        let $historyVersion = $("ul.history_versions");
+        const $historyVersion = $("ul.history_versions");
         if (!$historyVersion) {
           Qmsg.error(i18next.t("未找到history_versions元素列表"));
           return;
         }
-        Array.from($historyVersion.children).forEach((liElement) => {
-          let versionUrl = liElement.querySelector(".version-number a").href;
-          let versionNumber = liElement.querySelector(".version-number a").innerText;
-          let versionDate = liElement.querySelector(".version-date")?.getAttribute("datetime");
-          let updateNote = liElement.querySelector(".version-changelog")?.innerHTML || "";
-          let versionDateElement = domUtils.createElement("span", {
+        Array.from($historyVersion.children).forEach(($versionItem) => {
+          const versionUrl = $versionItem.querySelector(".version-number a").href;
+          const versionNumber = $versionItem.querySelector(".version-number a").innerText;
+          const versionDate = $versionItem.querySelector(".version-date")?.getAttribute("datetime");
+          const updateNote = $versionItem.querySelector(".version-changelog")?.innerHTML || "";
+          const $versionDate = domUtils.createElement("span", {
             className: "script-version-date",
             innerHTML: utils.formatTime(versionDate, i18next.t("yyyy年MM月dd日 HH:mm:ss")),
           });
-          let tagElement = domUtils.createElement("div", {
+          const $scriptTag = domUtils.createElement("div", {
             className: "script-tag",
             innerHTML: `
-                    <div class="script-tag-version">
-                        <a href="${versionUrl}" class="flex-align-item-center">
-                        <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
-                            <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
-                        </svg>
-                        <span>${versionNumber}</span>
-                        </a>
-                    </div>`,
+          <div class="script-tag-version">
+              <a href="${versionUrl}" class="flex-align-item-center">
+              <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                  <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
+              </svg>
+              <span>${versionNumber}</span>
+              </a>
+          </div>`,
           });
-          let boxBodyElement = domUtils.createElement("div", {
+          const $scriptBoxBody = domUtils.createElement("div", {
             className: "script-note-box-body",
             innerHTML: updateNote,
           });
-          liElement.appendChild(versionDateElement);
-          liElement.appendChild(tagElement);
-          liElement.appendChild(boxBodyElement);
+          domUtils.append($versionItem, [$versionDate, $scriptTag, $scriptBoxBody]);
         });
       });
       return result;
     },
     addExtraTagButton() {
       log.info("添加额外的标签按钮");
-      domUtils.onReady(() => {
-        $$(".script-tag-version").forEach(($tagVersion) => {
-          let $anchor = $tagVersion.querySelector("a");
-          if (!$anchor) {
-            return;
-          }
-          let urlObj = new URL($anchor.href);
-          let scriptId = urlObj.pathname.match(/\/scripts\/([\d]+)/)?.[1];
-          let scriptVersion = urlObj.searchParams.get("version");
-          let scriptName = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)?.[1];
-          let installUrl = GreasyforkUrlUtils.getInstallUrl(scriptId, scriptVersion, scriptName);
-          let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
-          let $buttonTag = domUtils.createElement("div", {
-            className: "scripts-tag-install",
-            innerHTML: `
-						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
-              "安装此脚本"
-            )}</a>
-						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t("查看代码")}</a>
-						`,
-          });
-          domUtils.after($tagVersion, $buttonTag);
+      $$(".script-tag-version:has(a[href])").forEach(($tagVersion) => {
+        const $anchor = $tagVersion.querySelector("a");
+        if (!$anchor) {
+          return;
+        }
+        const urlInst = new URL($anchor.href);
+        const scriptId = GreasyforkUrlUtils.getScriptId(urlInst.pathname);
+        const scriptVersion = urlInst.searchParams.get("version");
+        const scriptName = GreasyforkUrlUtils.getScriptName(urlInst.toString());
+        const installUrl = GreasyforkUrlUtils.getInstallUrl(scriptId, scriptVersion, scriptName);
+        const codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
+        const $buttonTag = domUtils.createElement("div", {
+          className: "scripts-tag-install",
+          innerHTML: `
+        <a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
+          "安装此脚本"
+        )}</a>
+        <a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t("查看代码")}</a>
+        `,
         });
+        domUtils.after($tagVersion, $buttonTag);
       });
     },
     sourceDiffMonacoEditor() {
@@ -5207,14 +5217,14 @@
       Qmsg.error(i18next.t("请先登录账号"));
       return;
     }
-    let userId = GreasyforkUrlUtils.getUserId(GreasyforkMenu.getUserLinkElement().href);
+    const userId = GreasyforkUrlUtils.getUserId(GreasyforkMenu.getUserLinkElement().href);
     if (userId == null) {
       log.error("获取用户id失败");
       Qmsg.error(i18next.t("获取用户id失败"));
       return;
     }
     if (!userCollection.length) {
-      let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
+      const loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
       userCollection = (await GreasyforkApi.getUserCollection(userId)) || [];
       loading.close();
       if (!userCollection.length) {
@@ -5252,7 +5262,7 @@
 		</li>
 		  `;
     });
-    let collectionDialog = __pops__.alert({
+    const collectionDialog = __pops__.alert({
       title: {
         text: i18next.t("收藏集"),
         position: "center",
@@ -5306,12 +5316,12 @@
 		`,
     });
     domUtils.on(collectionDialog.$shadowRoot, "click", ".collect-add-script-id", async function (event) {
-      let $userCollectItem = event.target.closest(".user-collect-item");
-      let setsId = $userCollectItem.dataset.id;
+      const $userCollectItem = event.target.closest(".user-collect-item");
+      const setsId = $userCollectItem.dataset.id;
       $userCollectItem.dataset.name;
-      let loading = Qmsg.loading(i18next.t("添加中..."));
+      const loading = Qmsg.loading(i18next.t("添加中..."));
       try {
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
+        const formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
         if (!formData) {
           return;
         }
@@ -5319,27 +5329,27 @@
           Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
           return;
         }
-        let editForm = utils.cloneFormData(formData);
-        let saveEditForm = utils.cloneFormData(formData);
+        const editForm = utils.cloneFormData(formData);
+        const saveEditForm = utils.cloneFormData(formData);
         editForm.set("add-script", scriptId.toString());
         editForm.set("script-action", "i");
         saveEditForm.append("scripts-included[]", scriptId.toString());
         saveEditForm.set("save", "1");
-        let addFormDataSearchParams = new URLSearchParams(editForm);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-        let addData = Array.from(addFormDataSearchParams)
+        const addFormDataSearchParams = new URLSearchParams(editForm);
+        const saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+        const addData = Array.from(addFormDataSearchParams)
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&");
-        let saveData = Array.from(saveFormDataSearchParams)
+        const saveData = Array.from(saveFormDataSearchParams)
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&");
         log.info("添加的数据", addData);
         log.info("保存的数据", saveData);
-        let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, addData);
+        const changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, addData);
         if (!changeResultDoc) {
           return;
         }
-        let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+        const $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
         if (!$changeScriptSet) {
           Qmsg.error(
             i18next.t("添加失败，{{selector}}元素不存在", {
@@ -5348,7 +5358,7 @@
           );
           return;
         }
-        let $section = $changeScriptSet.querySelector("section");
+        const $section = $changeScriptSet.querySelector("section");
         if (!$section) {
           Qmsg.error(
             i18next.t("添加失败，{{selector}}元素不存在", {
@@ -5357,7 +5367,7 @@
           );
           return;
         }
-        let $alertElement = $section.querySelector(".alert");
+        const $alertElement = $section.querySelector(".alert");
         if ($alertElement) {
           __pops__.alert({
             title: {
@@ -5390,8 +5400,8 @@
           });
           return;
         }
-        let changeScriptForm = new FormData($changeScriptSet);
-        let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+        const changeScriptForm = new FormData($changeScriptSet);
+        const changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
         if (!changeFlag) {
           log.error("添加失败，提交的添加请求中不包含该脚本id");
           Qmsg.error(i18next.t("添加失败，表单数据中不包含该脚本"));
@@ -5406,12 +5416,12 @@
       }
     });
     domUtils.on(collectionDialog.$shadowRoot, "click", ".collect-delete-script-id", async function (event) {
-      let $collectItem = event.target.closest(".user-collect-item");
-      let setsId = $collectItem.dataset.id;
+      const $collectItem = event.target.closest(".user-collect-item");
+      const setsId = $collectItem.dataset.id;
       $collectItem.dataset.name;
-      let loading = Qmsg.loading(i18next.t("删除中..."));
+      const loading = Qmsg.loading(i18next.t("删除中..."));
       try {
-        let formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
+        const formData = await GreasyforkApi.getUserCollectionInfo(userId, setsId);
         if (!formData) {
           return;
         }
@@ -5423,33 +5433,33 @@
           );
           return;
         }
-        let editForm = utils.cloneFormData(formData, (key, value) => {
+        const editForm = utils.cloneFormData(formData, (key, value) => {
           return (
             key === "scripts-included[]" &&
             typeof value === "string" &&
             value.toString().trim() === scriptId.toString().trim()
           );
         });
-        let saveEditForm = utils.cloneFormData(editForm);
+        const saveEditForm = utils.cloneFormData(editForm);
         editForm.set("remove-scripts-included[]", scriptId.toString());
         editForm.set("remove-selected-scripts", "i");
         editForm.delete("script-action");
         saveEditForm.set("save", "1");
-        let deleteFormDataSearchParams = new URLSearchParams(editForm);
-        let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-        let removeData = Array.from(deleteFormDataSearchParams)
+        const deleteFormDataSearchParams = new URLSearchParams(editForm);
+        const saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+        const removeData = Array.from(deleteFormDataSearchParams)
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&");
-        let saveData = Array.from(saveFormDataSearchParams)
+        const saveData = Array.from(saveFormDataSearchParams)
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&");
         log.info("删除的数据", removeData);
         log.info("保存的数据", saveData);
-        let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, removeData);
+        const changeResultDoc = await GreasyforkApi.updateUserSetsInfo(userId, setsId, removeData);
         if (!changeResultDoc) {
           return;
         }
-        let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+        const $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
         if (!$changeScriptSet) {
           Qmsg.error(
             i18next.t("删除失败，{{selector}}元素不存在", {
@@ -5458,8 +5468,8 @@
           );
           return;
         }
-        let changeScriptForm = new FormData($changeScriptSet);
-        let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+        const changeScriptForm = new FormData($changeScriptSet);
+        const changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
         if (changeFlag) {
           log.error("删除失败，提交的删除请求中包含该脚本id");
           Qmsg.error(i18next.t("删除失败，表单数据中仍包含该脚本"));
@@ -5504,7 +5514,7 @@
     addCollectionButton() {
       log.info("添加收藏按钮");
       domUtils.waitNode("ul#script-links li.current span").then(() => {
-        let $collectBtn = domUtils.createElement("li", {
+        const $collectBtn = domUtils.createElement("li", {
           innerHTML: `
 					<a href="javascript:;">
 						<span>${i18next.t("收藏")}</span>
@@ -5512,13 +5522,12 @@
         });
         domUtils.append($("ul#script-links"), $collectBtn);
         domUtils.on($collectBtn, "click", () => {
-          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-          if (!scriptIdMatch) {
-            log.error(scriptIdMatch, window.location.pathname);
+          const scriptId = GreasyforkUrlUtils.getScriptId(window.location.pathname);
+          if (!scriptId) {
+            log.error(window.location.pathname);
             Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
-          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
           GreasyforkScriptsCollectEvent(scriptId);
         });
       });
@@ -5530,7 +5539,7 @@
 		.code-container:has(.code-wide-screen){
 			height: auto !important;
 		}
-        .code-wide-screen{
+    .code-wide-screen{
 			position: absolute !important;
 			top: 0 !important;
 			left: 0 !important;
@@ -5545,7 +5554,7 @@
 			max-width: 100% !important;
 			max-height: 100% !important;
 			z-index: 1000000 !important;
-        }
+    }
         `
       );
       let isFullScreen = false;
@@ -5553,7 +5562,7 @@
         _unsafeWindow,
         function (event) {
           if (event.key.toLowerCase() === "f") {
-            let $code = $(".monaco-editor") || $("#script-content div.code-container code");
+            const $code = $(".monaco-editor") || $("#script-content div.code-container code");
             if (event.altKey && event.shiftKey) {
               log.info(`宽屏`);
               domUtils.preventEvent(event);
@@ -5583,21 +5592,20 @@
     setFindCodeSearchBtn() {
       log.info("设置代码搜索按钮(对于库)");
       domUtils.waitNode("ul#script-links li.current span").then(() => {
-        let searchBtn = domUtils.createElement("li", {
+        const $search = domUtils.createElement("li", {
           innerHTML: `
 					<a href="javascript:;">
 						<span>${i18next.t("寻找引用")}</span>
 					</a>`,
         });
-        domUtils.append($("ul#script-links"), searchBtn);
-        domUtils.on(searchBtn, "click", async function () {
-          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-          if (!scriptIdMatch) {
-            log.error(scriptIdMatch, window.location.pathname);
+        domUtils.append($("ul#script-links"), $search);
+        domUtils.on($search, "click", async function () {
+          let scriptId = GreasyforkUrlUtils.getScriptId(window.location.pathname);
+          if (!scriptId) {
+            log.error(window.location.pathname);
             Qmsg.error(i18next.t("获取脚本id失败"));
             return;
           }
-          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
           window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(`/scripts/${scriptId}`);
         });
       });
@@ -5607,17 +5615,17 @@
         return;
       }
       log.info("脚本首页新增【今日检查】");
-      let scriptStatsJSON = await GreasyforkApi.getScriptStats(GreasyforkUrlUtils.getScriptId());
+      const scriptStatsJSON = await GreasyforkApi.getScriptStats(GreasyforkUrlUtils.getScriptId());
       if (!scriptStatsJSON) {
         return;
       }
       log.info("统计信息", scriptStatsJSON);
-      let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
+      const todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
       if (!todayStatsJSON) {
         log.error("今日份的统计信息不存在");
         return;
       }
-      let update_checks = todayStatsJSON["update_checks"];
+      const update_checks = todayStatsJSON["update_checks"];
       log.info("今日统计信息", todayStatsJSON);
       domUtils.after(
         "dd.script-show-daily-installs",
@@ -5637,7 +5645,7 @@
     addCopyCodeButton() {
       log.info("添加复制代码按钮");
       domUtils.waitNode("div#script-content div.code-container").then(($codeContainer) => {
-        let copyButton = domUtils.createElement(
+        const $copy = domUtils.createElement(
           "button",
           {
             textContent: i18next.t("复制代码"),
@@ -5646,26 +5654,26 @@
             style: "margin-bottom: 1em;",
           }
         );
-        domUtils.on(copyButton, "click", async function () {
-          let loading = Qmsg.loading(i18next.t("加载文件中..."));
-          let scriptId = GreasyforkUrlUtils.getScriptId();
-          let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+        domUtils.on($copy, "click", async function () {
+          const $loading = Qmsg.loading(i18next.t("加载文件中..."));
+          const scriptId = GreasyforkUrlUtils.getScriptId();
+          const scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
           if (!scriptInfo) {
-            loading.close();
+            $loading.close();
             return;
           }
-          let code_url = scriptInfo["code_url"];
+          const code_url = scriptInfo["code_url"];
           log.success("代码地址：", code_url);
-          let scriptJS = await httpx.get(code_url);
+          const scriptJS = await httpx.get(code_url);
           if (!scriptJS.status) {
-            loading.close();
+            $loading.close();
             return;
           }
-          loading.close();
+          $loading.close();
           utils.copy(scriptJS.data.responseText);
           Qmsg.success(i18next.t("复制成功"));
         });
-        domUtils.before($codeContainer, copyButton);
+        domUtils.before($codeContainer, $copy);
       });
     },
   };
@@ -5770,7 +5778,7 @@
       return _unsafeWindow.external?.Scriptcat;
     },
     getScriptContainerStatus() {
-      let containerStatus = {
+      const containerStatus = {
         Tampermonkey: false,
         Violentmonkey: false,
         ScriptCat: false,
@@ -5787,11 +5795,11 @@
       return containerStatus;
     },
     getRegisterScriptContainerNameList() {
-      let allScriptContainerStatus = this.getScriptContainerStatus();
-      let isRegisterScriptContainer = allScriptContainerStatus;
-      let scriptContainerNameList = [];
+      const allScriptContainerStatus = this.getScriptContainerStatus();
+      const isRegisterScriptContainer = allScriptContainerStatus;
+      const scriptContainerNameList = [];
       Object.keys(isRegisterScriptContainer).forEach((containerName) => {
-        let containerEnable = Reflect.get(isRegisterScriptContainer, containerName);
+        const containerEnable = Reflect.get(isRegisterScriptContainer, containerName);
         if (containerEnable) {
           scriptContainerNameList.push(containerName);
         }
@@ -6704,26 +6712,29 @@
         GreasyforkRememberFormTextArea.init();
         GreasyforkMenu.handleLocalGotoCallBack();
         Panel.execMenuOnce("fixImageWidth", () => {
-          Greasyfork.fixImageWidth();
+          return this.fixImageWidth();
         });
-        Greasyfork.languageSelectorLocale();
+        this.languageSelectorLocale();
         Panel.execMenuOnce("optimizeImageBrowsing", () => {
-          Greasyfork.optimizeImageBrowsing();
+          this.optimizeImageBrowsing();
         });
         Panel.execMenuOnce("overlayBedImageClickEvent", () => {
-          Greasyfork.overlayBedImageClickEvent();
+          this.overlayBedImageClickEvent();
         });
         if (!GreasyforkRouter.isCodeStrict()) {
           Panel.execMenuOnce("addMarkdownCopyButton", () => {
-            Greasyfork.addMarkdownCopyButton();
+            this.addMarkdownCopyButton();
           });
         }
+        Panel.execMenuOnce("queryUserRegisterTime", () => {
+          return this.queryUserRegisterTime();
+        });
       });
     },
     fixImageWidth() {
       if (window.innerWidth < window.innerHeight) {
         log.info("修复图片显示问题");
-        addStyle(
+        return addStyle(
           `
             img.lum-img{
                 width: 100% !important;
@@ -6852,8 +6863,8 @@
     overlayBedImageClickEvent() {
       log.info("覆盖图床图片的parentElement的a标签");
       $$(".user-content a>img").forEach(($img) => {
-        let $link = $img.parentElement;
-        let url = $link.getAttribute("href");
+        const $link = $img.parentElement;
+        const url = $link.getAttribute("href");
         $link.setAttribute("data-href", url);
         $link.removeAttribute("href");
         if (url.startsWith("/rails/active_storage/blobs/redirect")) {
@@ -7046,23 +7057,23 @@
         });
         return $copy;
       }
-      $$("pre").forEach((preElement) => {
-        let zeroclipboardElement = preElement.querySelector("div.zeroclipboard-container");
-        if (zeroclipboardElement) {
+      $$("pre").forEach(($pre) => {
+        const $zeroclipboard = $pre.querySelector("div.zeroclipboard-container");
+        if ($zeroclipboard) {
           return;
         }
-        let copyElement = createCopyElement();
-        let snippetClipboardContentElement = domUtils.createElement("div", {
+        const $copy = createCopyElement();
+        const $snippetClipboardContent = domUtils.createElement("div", {
           className: "snippet-clipboard-content",
         });
-        domUtils.before(preElement, snippetClipboardContentElement);
-        snippetClipboardContentElement.appendChild(preElement);
-        snippetClipboardContentElement.appendChild(copyElement);
+        domUtils.before($pre, $snippetClipboardContent);
+        $snippetClipboardContent.appendChild($pre);
+        $snippetClipboardContent.appendChild($copy);
       });
     },
     languageSelectorLocale() {
-      let localeLanguage = Panel.getValue("language-selector-locale");
-      let currentLocaleLanguage = window.location.pathname.split("/").filter((item) => Boolean(item))[0];
+      const localeLanguage = Panel.getValue("language-selector-locale");
+      const currentLocaleLanguage = window.location.pathname.split("/").filter((item) => Boolean(item))[0];
       log.success("选择语言：" + localeLanguage);
       log.success("当前语言：" + currentLocaleLanguage);
       if (utils.isNull(localeLanguage)) {
@@ -7250,6 +7261,147 @@
           },
         });
       });
+    },
+    queryUserRegisterTime() {
+      const userRegisterTimeMap = new Map();
+      const updateUserRegisterTime = (option) => {
+        $$(`.query-wrapper[data-user-id='${option.userId}']`).forEach(($wrapper) => {
+          const $userLink = domUtils.prev($wrapper);
+          $wrapper.remove();
+          domUtils.text(
+            $userLink,
+            i18next.t("{{name}} {{leftBracket}}{{created_at}}{{rightBracket}}", {
+              name: option.name,
+              created_at: option.formatTime,
+              leftBracket: i18next.t("（"),
+              rightBracket: i18next.t("）"),
+            })
+          );
+        });
+      };
+      const lockFn = new utils.LockFunction(() => {
+        $$("a[href*='/users/']:not(:has(+.query-wrapper))").forEach(($userLink) => {
+          if ($userLink.closest("#nav-user-info")) return;
+          const userHomeUrl = $userLink.href;
+          const userIdMatcher = GreasyforkUsers;
+          if (!userIdMatcher) return;
+          const userId = GreasyforkUrlUtils.getUserId(userHomeUrl);
+          if (userId == null) return;
+          if (userRegisterTimeMap.has(userId)) {
+            const data = userRegisterTimeMap.get(userId);
+            updateUserRegisterTime({ userId, ...data });
+            return;
+          }
+          const $query = domUtils.createElement(
+            "div",
+            {
+              className: "query-wrapper",
+              innerHTML: `
+            <div class="query-badge-control">
+              <span class="query-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </span>
+              <span class="query-msg"></span>
+            </div>
+            `,
+            },
+            {
+              "data-user-id": userId,
+            }
+          );
+          domUtils.after($userLink, $query);
+        });
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      const listener = domUtils.on(document, "click", ".query-badge-control", async (evt, selectorTarget) => {
+        domUtils.preventEvent(evt);
+        const $wrapper = domUtils.parent(selectorTarget);
+        const userId = $wrapper.getAttribute("data-user-id");
+        if (!userId) {
+          Qmsg.error(i18next.t("获取用户ID失败"));
+          return;
+        }
+        const $msg = $wrapper.querySelector(".query-msg");
+        domUtils.text($msg, i18next.t("查询中..."));
+        const userInfo = await GreasyforkApi.getUserInfo(userId);
+        if (!userInfo) {
+          domUtils.text($msg, i18next.t("查询失败"));
+          return;
+        }
+        domUtils.empty($msg);
+        const { name, created_at } = userInfo;
+        const formatTime = utils.formatTime(created_at, i18next.t("yyyy年MM月dd日 HH:mm:ss"));
+        userRegisterTimeMap.set(userId, {
+          name,
+          formatTime,
+        });
+        updateUserRegisterTime({ userId, name, formatTime });
+      });
+      return [
+        () => {
+          observer.disconnect();
+          listener.off();
+          domUtils.remove(".query-wrapper");
+          userRegisterTimeMap.clear();
+        },
+        addStyle(
+          `
+        
+        .query-wrapper{
+          padding: 4px 0px;
+        }
+        .query-wrapper{
+          display: inline-flex;
+          vertical-align: middle;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        /* 查询按钮 */
+        .query-wrapper .query-badge-control {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          width: fit-content;
+          height: fit-content;
+          background: #574AB830;
+          border-radius: 8px;
+          margin: 0 0 0 6px;
+          font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei, sans-serif;
+        }
+
+        .query-wrapper .query-icon {
+          color: #7367F0;
+          padding: 2px 8px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          height: 20px;
+          line-height: normal;
+        }
+              
+        .query-wrapper .query-icon svg {
+          vertical-align: middle;
+          width: 16px;
+          height: 16px;
+        }
+        .query-wrapper .query-msg:not(:empty){
+          padding-right: 8px;
+        }
+        /* ↑查询按钮 */
+      `
+        ),
+      ];
     },
   };
   const UIButton = function (
@@ -7561,13 +7713,13 @@
         Qmsg.error(i18next.t("请先登录账号！"));
         return;
       }
-      let userLinkElement = GreasyforkMenu.getUserLinkElement();
-      let userLink = userLinkElement.href;
-      let userId = userLink
+      const $userLink = GreasyforkMenu.getUserLinkElement();
+      const userLink = $userLink.href;
+      const userId = userLink
         ?.split("/")
         ?.pop()
         ?.match(/([0-9]+)/)?.[0];
-      let loading = __pops__.loading({
+      const $loading = __pops__.loading({
         mask: {
           enable: true,
         },
@@ -7577,20 +7729,20 @@
         },
         addIndexCSS: false,
       });
-      let userInfo = await GreasyforkApi.getUserInfo(userId);
-      loading.close();
+      const userInfo = await GreasyforkApi.getUserAllInfo(userId);
+      $loading.close();
       if (!userInfo) {
         return;
       }
       log.info(userInfo);
-      let scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
+      const scriptList = type === "script-list" ? userInfo["scriptList"] : userInfo["scriptLibraryList"];
       Qmsg.success(
         i18next.t("获取成功，共 {{count}} 个", {
           count: scriptList.length,
         })
       );
       for (const scriptInfo of scriptList) {
-        let liElement = domUtils.createElement("li", {
+        const $li = domUtils.createElement("li", {
           className: "w-script-list-item",
           innerHTML: `
 				<div class="w-script-info">
@@ -7616,7 +7768,7 @@
 				</div>
             `,
         });
-        const $scriptInfo = liElement.querySelector(".w-script-info");
+        const $scriptInfo = $li.querySelector(".w-script-info");
         const $syncCode = domUtils.createElement("div", {
           className: "pops-panel-button",
           innerHTML: `
@@ -7626,7 +7778,7 @@
 				`,
         });
         if (scriptInfo["deleted"]) {
-          liElement.classList.add("w-script-deleted");
+          $li.classList.add("w-script-deleted");
           $syncCode.querySelector("button").setAttribute("disabled", "true");
         }
         domUtils.on($syncCode, "click", async function () {
@@ -7667,7 +7819,7 @@
               } else if (codeSyncFormData.has(SCRIPT_SYNC_TYPE)) {
                 syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE);
               }
-              const $oldSyncType = liElement.querySelector(".w-script-sync-type");
+              const $oldSyncType = $li.querySelector(".w-script-sync-type");
               if ($oldSyncType) {
                 $oldSyncType.querySelector("p").innerText = i18next.t("同步方式：{{syncMode}}", { syncMode });
               } else {
@@ -7701,12 +7853,12 @@
           $span.innerText = i18next.t("同步代码");
           $icon.remove();
         });
-        liElement.appendChild($syncCode);
-        rightContainerElement.appendChild(liElement);
+        $li.appendChild($syncCode);
+        rightContainerElement.appendChild($li);
       }
     },
   };
-  const SettingUICommon = {
+  const SettingUIGeneral = {
     id: "greasy-fork-panel-config-account",
     title: i18next.t("通用"),
     views: [
@@ -7895,7 +8047,7 @@
                     "language-selector-locale",
                     "",
                     (function () {
-                      let result = [
+                      const result = [
                         {
                           value: "",
                           text: i18next.t("无"),
@@ -7903,11 +8055,11 @@
                       ];
                       domUtils.onReady(() => {
                         $$("select.language-selector-locale option").forEach(($languageOption) => {
-                          let value = $languageOption.getAttribute("value");
+                          const value = $languageOption.getAttribute("value");
                           if (value === "help") {
                             return;
                           }
-                          let text = domUtils.text($languageOption).trim();
+                          const text = domUtils.text($languageOption).trim();
                           result.push({
                             value,
                             text,
@@ -7951,6 +8103,13 @@
                     true,
                     void 0,
                     i18next.t("在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容")
+                  ),
+                  UISwitch(
+                    i18next.t("查询用户注册时间"),
+                    "queryUserRegisterTime",
+                    true,
+                    void 0,
+                    i18next.t("在用户名称后面添加查询按钮，点击查询用户注册时间")
                   ),
                 ],
               },
@@ -8710,7 +8869,7 @@
     style: UIScriptListCSS,
   };
   PanelContent.addContentConfig([
-    SettingUICommon,
+    SettingUIGeneral,
     SettingUIScripts,
     SettingUIScriptSearch,
     SettingUIDiscuessions,

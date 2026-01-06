@@ -321,4 +321,9 @@ export const en_US_language = {
   "monaco-editor加载中...": "monaco-editor loading...",
   "未找到【过滤】按钮": "[Filter] button not found",
   "未找到【举报】按钮": "[Report] button not found",
+  "（": "(",
+  "）": ")",
+  获取用户ID失败: "Failed to obtain user ID",
+  "查询中...": "Querying...",
+  查询失败: "Query failed",
 };

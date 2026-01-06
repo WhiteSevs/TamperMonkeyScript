@@ -5,7 +5,7 @@ import { PanelMenu } from "@components/setting/panel-menu";
 import i18next from "i18next";
 import { GithubUrl2WebhookUrl } from "./main/GithubUrl2WebhookUrl";
 import { Greasyfork } from "./main/Greasyfork";
-import { SettingUICommon } from "./setting/view/common";
+import { SettingUIGeneral } from "./setting/view/general";
 import { SettingUIDiscuessions } from "./setting/view/discussions";
 import { SettingUIScripts } from "./setting/view/scripts";
 import { SettingUIScriptSearch } from "./setting/view/search";
@@ -27,7 +27,7 @@ Panel.$data.panelConfig = {
   style: UIScriptListCSS,
 };
 PanelContent.addContentConfig([
-  SettingUICommon,
+  SettingUIGeneral,
   SettingUIScripts,
   SettingUIScriptSearch,
   SettingUIDiscuessions,
