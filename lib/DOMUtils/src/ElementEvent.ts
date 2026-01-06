@@ -743,7 +743,7 @@ class ElementEvent extends ElementAnimate {
     function check() {
       if (checkDOMReadyState()) {
         /* 检查document状态 */
-        CommonUtils.setTimeout(completed, 0);
+        setTimeout(completed, 0);
       } else {
         /* 添加监听 */
         addDomReadyListener();
@@ -1440,7 +1440,7 @@ class ElementEvent extends ElementAnimate {
         if (evt.pointerType === "touch") {
           isMobileTouch = true;
         }
-        CommonUtils.clearTimeout(timer);
+        clearTimeout(timer);
         timer = void 0;
         if (isDoubleClick && $click === selectorTarget) {
           isDoubleClick = false;
@@ -1450,7 +1450,7 @@ class ElementEvent extends ElementAnimate {
             isDoubleClick: true,
           });
         } else {
-          timer = CommonUtils.setTimeout(() => {
+          timer = setTimeout(() => {
             isDoubleClick = false;
             // 判断为单击
             dblclick_handler(evt, {

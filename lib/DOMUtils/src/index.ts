@@ -1,10 +1,10 @@
-import { CommonUtils } from "./CommonUtils";
-import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import { type DOMUtilsCSSProperty, type DOMUtilsCSSPropertyType } from "./types/DOMUtilsCSSProperty";
-import type { WindowApiOption } from "./types/WindowApi";
 import { version } from "../package.json";
+import { CommonUtils } from "./CommonUtils";
 import { ElementHandler } from "./ElementHandler";
+import { type DOMUtilsCSSProperty, type DOMUtilsCSSPropertyType } from "./types/DOMUtilsCSSProperty";
+import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
+import type { WindowApiOption } from "./types/WindowApi";
 
 class DOMUtils extends ElementHandler {
   constructor(option?: WindowApiOption) {
@@ -784,20 +784,22 @@ class DOMUtils extends ElementHandler {
   /**
    * 函数在元素内部末尾添加子元素或HTML字符串
    * @param $el 目标元素
-   * @param content 子元素或HTML字符串
+   * @param args 子元素或HTML字符串
    * @example
    * // 元素a.xx的内部末尾添加一个元素
-   * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
-   * DOMUtils.append("a.xx","'<b class="xx"></b>")
+   * DOMUtils.append(document.querySelector("a.xx"), document.querySelector("b.xx"))
+   * DOMUtils.append("a.xx", "<b class="xx"></b>")
+   * DOMUtils.append(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+   * DOMUtils.append(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
    * */
   append(
     $el: DOMUtilsTargetElementType | DocumentFragment,
-    content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList
+    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
   ) {
-    const that = this;
     if (typeof $el === "string") {
-      $el = that.selectorAll($el);
+      $el = this.selectorAll($el);
     }
+
     if ($el == null) {
       return;
     }
@@ -805,150 +807,228 @@ class DOMUtils extends ElementHandler {
     if (CommonUtils.isNodeList($el)) {
       // 设置
       $el.forEach(($elItem) => {
-        that.append($elItem as HTMLElement, content);
+        this.append($elItem as HTMLElement, ...args);
       });
       return;
     }
-    function elementAppendChild(ele: HTMLElement | DocumentFragment, text: HTMLElement | string) {
-      if (typeof content === "string") {
-        if (ele instanceof DocumentFragment) {
-          if (typeof text === "string") {
-            text = that.toElement(text, true, false);
-          }
-          ele.appendChild(text);
-        } else {
-          ele.insertAdjacentHTML("beforeend", CommonUtils.createSafeHTML(text as string));
+    const handler = ($ele: HTMLElement | DocumentFragment, $target: HTMLElement | string | Node) => {
+      if ($ele instanceof DocumentFragment) {
+        if (typeof $target === "string") {
+          // 字符串转元素
+          $target = this.toElement($target, true, false);
         }
+        $ele.appendChild($target);
       } else {
-        ele.appendChild(text as HTMLElement);
-      }
-    }
-    if (Array.isArray(content) || content instanceof NodeList) {
-      /* 数组 */
-      const fragment = that.windowApi.document.createDocumentFragment();
-      content.forEach((ele) => {
-        if (typeof ele === "string") {
-          // 转为元素
-          ele = that.toElement(ele, true, false);
+        if (typeof $target === "string") {
+          $ele.insertAdjacentHTML("beforeend", CommonUtils.createSafeHTML($target));
+        } else {
+          $ele.appendChild($target);
         }
-        fragment.appendChild(ele);
-      });
-      $el.appendChild(fragment);
-    } else {
-      elementAppendChild($el, content);
-    }
+      }
+    };
+    const $fragment = this.windowApi.document.createDocumentFragment();
+    args.forEach((argItem) => {
+      if (CommonUtils.isNodeList(argItem)) {
+        // 数组
+        argItem.forEach((it) => {
+          handler($fragment, it);
+        });
+      } else {
+        handler($fragment, argItem);
+      }
+    });
+    handler($el, $fragment);
   }
   /**
    * 函数 在元素内部开头添加子元素或HTML字符串
    * @param $el 目标元素
-   * @param content 子元素或HTML字符串
+   * @param args 子元素或HTML字符串
    * @example
    * // 元素a.xx内部开头添加一个元素
    * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
+   * DOMUtils.prepend(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+   * DOMUtils.prepend(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
    * */
-  prepend($el: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string) {
-    const that = this;
+  prepend(
+    $el: DOMUtilsTargetElementType | DocumentFragment,
+    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+  ) {
     if (typeof $el === "string") {
-      $el = that.selectorAll($el);
+      $el = this.selectorAll($el);
     }
+
     if ($el == null) {
       return;
     }
+
     if (CommonUtils.isNodeList($el)) {
       // 设置
       $el.forEach(($elItem) => {
-        that.prepend($elItem as HTMLElement, content);
+        this.prepend($elItem as HTMLElement, ...args);
       });
       return;
     }
-    if (typeof content === "string") {
-      if ($el instanceof DocumentFragment) {
-        content = that.toElement(content, true, false);
-        $el.prepend(content);
+    const handler = ($ele: HTMLElement | DocumentFragment, $target: HTMLElement | string | Node) => {
+      if ($ele instanceof DocumentFragment) {
+        if (typeof $target === "string") {
+          // 字符串转元素
+          $target = this.toElement($target, true, false);
+        }
+        $ele.appendChild($target);
       } else {
-        $el.insertAdjacentHTML("afterbegin", CommonUtils.createSafeHTML(content));
+        if (typeof $target === "string") {
+          $ele.insertAdjacentHTML("afterbegin", CommonUtils.createSafeHTML($target));
+        } else {
+          const $firstChild = $ele.firstChild;
+          if ($firstChild) {
+            $ele.insertBefore($target, $firstChild);
+          } else {
+            $ele.prepend($target);
+          }
+        }
       }
-    } else {
-      const $firstChild = $el.firstChild;
-      if ($firstChild == null) {
-        $el.prepend(content);
+    };
+    const $fragment = this.windowApi.document.createDocumentFragment();
+    args.forEach((argItem) => {
+      if (CommonUtils.isNodeList(argItem)) {
+        // 数组
+        argItem.forEach((it) => {
+          handler($fragment, it);
+        });
       } else {
-        $el.insertBefore(content, $firstChild);
+        handler($fragment, argItem);
       }
-    }
+    });
+    handler($el, $fragment);
   }
   /**
    * 在元素后面添加兄弟元素或HTML字符串
    * @param $el 目标元素
-   * @param content 兄弟元素或HTML字符串
+   * @param args 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx后面添加一个元素
    * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.after("a.xx","'<b class="xx"></b>")
+   * DOMUtils.after(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+   * DOMUtils.after(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
    * */
-  after($el: DOMUtilsTargetElementType, content: HTMLElement | string) {
-    const that = this;
+  after(
+    $el: DOMUtilsTargetElementType,
+    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+  ) {
     if (typeof $el === "string") {
-      $el = that.selectorAll($el);
+      $el = this.selectorAll($el);
     }
+
     if ($el == null) {
       return;
     }
+
     if (CommonUtils.isNodeList($el)) {
       // 设置
       $el.forEach(($elItem) => {
-        that.after($elItem as HTMLElement, content);
+        this.after($elItem as HTMLElement, ...args);
       });
       return;
     }
-    if (typeof content === "string") {
-      $el.insertAdjacentHTML("afterend", CommonUtils.createSafeHTML(content));
-    } else {
-      const $parent = $el.parentElement;
-      const $nextSlibling = $el.nextSibling;
-      if (!$parent || $nextSlibling) {
-        // 任意一个不行
-        $el.after(content);
+    const handler = ($ele: HTMLElement | DocumentFragment, $target: HTMLElement | string | Node) => {
+      if ($ele instanceof DocumentFragment) {
+        if (typeof $target === "string") {
+          // 字符串转元素
+          $target = this.toElement($target, true, false);
+        }
+        $ele.appendChild($target);
       } else {
-        $parent.insertBefore(content, $nextSlibling);
+        if (typeof $target === "string") {
+          $ele.insertAdjacentHTML("afterend", CommonUtils.createSafeHTML($target));
+        } else {
+          const $parent = $el.parentElement;
+          const $nextSlibling = $el.nextSibling;
+          if ($parent && $nextSlibling) {
+            $parent.insertBefore($target, $nextSlibling);
+          } else {
+            $el.after($target);
+          }
+        }
       }
-    }
+    };
+    const $fragment = this.windowApi.document.createDocumentFragment();
+    args.forEach((argItem) => {
+      if (CommonUtils.isNodeList(argItem)) {
+        // 数组
+        argItem.forEach((it) => {
+          handler($fragment, it);
+        });
+      } else {
+        handler($fragment, argItem);
+      }
+    });
+    handler($el, $fragment);
   }
   /**
    * 在元素前面添加兄弟元素或HTML字符串
    * @param $el 目标元素
-   * @param content 兄弟元素或HTML字符串
+   * @param args 兄弟元素或HTML字符串
    * @example
    * // 元素a.xx前面添加一个元素
    * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
    * DOMUtils.before("a.xx","'<b class="xx"></b>")
+   * DOMUtils.before(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+   * DOMUtils.before(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
+   *
    * */
-  before($el: DOMUtilsTargetElementType, content: HTMLElement | string) {
-    const that = this;
+  before(
+    $el: DOMUtilsTargetElementType,
+    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+  ) {
     if (typeof $el === "string") {
-      $el = that.selectorAll($el);
+      $el = this.selectorAll($el);
     }
+
     if ($el == null) {
       return;
     }
+
     if (CommonUtils.isNodeList($el)) {
       // 设置
       $el.forEach(($elItem) => {
-        that.before($elItem as HTMLElement, content);
+        this.before($elItem as HTMLElement, ...args);
       });
       return;
     }
-    if (typeof content === "string") {
-      $el.insertAdjacentHTML("beforebegin", CommonUtils.createSafeHTML(content));
-    } else {
-      const $parent = $el.parentElement;
-      if (!$parent) {
-        $el.before(content);
+    const handler = ($ele: HTMLElement | DocumentFragment, $target: HTMLElement | string | Node) => {
+      if ($ele instanceof DocumentFragment) {
+        if (typeof $target === "string") {
+          // 字符串转元素
+          $target = this.toElement($target, true, false);
+        }
+        $ele.appendChild($target);
       } else {
-        $parent.insertBefore(content, $el);
+        if (typeof $target === "string") {
+          $el.insertAdjacentHTML("beforebegin", CommonUtils.createSafeHTML($target));
+        } else {
+          const $parent = $el.parentElement;
+          if ($parent) {
+            $parent.insertBefore($target, $el);
+          } else {
+            $el.before($target);
+          }
+        }
       }
-    }
+    };
+    const $fragment = this.windowApi.document.createDocumentFragment();
+    args.forEach((argItem) => {
+      if (CommonUtils.isNodeList(argItem)) {
+        // 数组
+        argItem.forEach((it) => {
+          handler($fragment, it);
+        });
+      } else {
+        handler($fragment, argItem);
+      }
+    });
+    handler($el, $fragment);
   }
   /**
    * 移除元素
@@ -982,7 +1062,7 @@ class DOMUtils extends ElementHandler {
     }
   }
   /**
-   * 移除元素的所有子元素
+   * 移除元素内所有的子元素
    * @param $el 目标元素
    * @example
    * // 移除元素a.xx元素的所有子元素

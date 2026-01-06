@@ -1,6 +1,6 @@
+import { ElementWait } from "./ElementWait";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
-import { ElementWait } from "./ElementWait";
 import { WindowApi } from "./WindowApi";
 declare class ElementAnimate extends ElementWait {
     windowApi: typeof WindowApi.prototype;

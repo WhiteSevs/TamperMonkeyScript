@@ -1,8 +1,8 @@
 import { CommonUtils } from "./CommonUtils";
 import { elementSelector } from "./ElementSelector";
+import { ElementWait } from "./ElementWait";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
-import { ElementWait } from "./ElementWait";
 import { WindowApi } from "./WindowApi";
 
 class ElementAnimate extends ElementWait {
@@ -66,7 +66,7 @@ class ElementAnimate extends ElementWait {
       from[prop] = element.style[prop] || context.windowApi.globalThis.getComputedStyle(element)[prop];
       to[prop] = styles[prop];
     }
-    const timer = CommonUtils.setInterval(function () {
+    const timer = setInterval(function () {
       const timePassed = performance.now() - start;
       let progress = timePassed / duration;
       if (progress > 1) {
@@ -76,7 +76,7 @@ class ElementAnimate extends ElementWait {
         element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
       }
       if (progress === 1) {
-        CommonUtils.clearInterval(timer);
+        clearInterval(timer);
         if (callback) {
           callback();
         }

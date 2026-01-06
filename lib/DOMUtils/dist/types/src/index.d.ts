@@ -1,8 +1,8 @@
-import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import { type DOMUtilsCSSProperty, type DOMUtilsCSSPropertyType } from "./types/DOMUtilsCSSProperty";
-import type { WindowApiOption } from "./types/WindowApi";
 import { ElementHandler } from "./ElementHandler";
+import { type DOMUtilsCSSProperty, type DOMUtilsCSSPropertyType } from "./types/DOMUtilsCSSProperty";
+import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
+import type { WindowApiOption } from "./types/WindowApi";
 declare class DOMUtils extends ElementHandler {
     constructor(option?: WindowApiOption);
     /** 版本号 */
@@ -304,43 +304,52 @@ declare class DOMUtils extends ElementHandler {
     /**
      * 函数在元素内部末尾添加子元素或HTML字符串
      * @param $el 目标元素
-     * @param content 子元素或HTML字符串
+     * @param args 子元素或HTML字符串
      * @example
      * // 元素a.xx的内部末尾添加一个元素
-     * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
-     * DOMUtils.append("a.xx","'<b class="xx"></b>")
+     * DOMUtils.append(document.querySelector("a.xx"), document.querySelector("b.xx"))
+     * DOMUtils.append("a.xx", "<b class="xx"></b>")
+     * DOMUtils.append(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+     * DOMUtils.append(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    append($el: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
+    append($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
     /**
      * 函数 在元素内部开头添加子元素或HTML字符串
      * @param $el 目标元素
-     * @param content 子元素或HTML字符串
+     * @param args 子元素或HTML字符串
      * @example
      * // 元素a.xx内部开头添加一个元素
      * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
+     * DOMUtils.prepend(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+     * DOMUtils.prepend(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    prepend($el: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string): void;
+    prepend($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
     /**
      * 在元素后面添加兄弟元素或HTML字符串
      * @param $el 目标元素
-     * @param content 兄弟元素或HTML字符串
+     * @param args 兄弟元素或HTML字符串
      * @example
      * // 元素a.xx后面添加一个元素
      * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.after("a.xx","'<b class="xx"></b>")
+     * DOMUtils.after(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+     * DOMUtils.after(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    after($el: DOMUtilsTargetElementType, content: HTMLElement | string): void;
+    after($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
     /**
      * 在元素前面添加兄弟元素或HTML字符串
      * @param $el 目标元素
-     * @param content 兄弟元素或HTML字符串
+     * @param args 兄弟元素或HTML字符串
      * @example
      * // 元素a.xx前面添加一个元素
      * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.before("a.xx","'<b class="xx"></b>")
+     * DOMUtils.before(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
+     * DOMUtils.before(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
+     *
      * */
-    before($el: DOMUtilsTargetElementType, content: HTMLElement | string): void;
+    before($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
     /**
      * 移除元素
      * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
@@ -352,7 +361,7 @@ declare class DOMUtils extends ElementHandler {
      * */
     remove($el: DOMUtilsTargetElementType | Element): void;
     /**
-     * 移除元素的所有子元素
+     * 移除元素内所有的子元素
      * @param $el 目标元素
      * @example
      * // 移除元素a.xx元素的所有子元素

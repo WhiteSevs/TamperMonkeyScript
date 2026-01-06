@@ -1,4 +1,3 @@
-import { CommonUtils } from "./CommonUtils";
 import { ElementSelector, elementSelector } from "./ElementSelector";
 import type { WindowApiOption } from "./types/WindowApi";
 import { utils } from "./Utils";
@@ -90,7 +89,7 @@ class ElementWait extends ElementSelector {
         },
       });
       if (__timeout__ > 0) {
-        CommonUtils.setTimeout(() => {
+        setTimeout(() => {
           // 取消观察器
           if (typeof observer?.disconnect === "function") {
             observer.disconnect();

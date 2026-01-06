@@ -1,10 +1,4 @@
 import { WindowApi } from "./WindowApi";
-import {
-  clearInterval as WorkerClearInterval,
-  clearTimeout as WorkerClearTimeout,
-  setInterval as WorkerSetInterval,
-  setTimeout as WorkerSetTimeout,
-} from "worker-timers";
 
 /** 通用工具类 */
 export const CommonUtils = {
@@ -149,54 +143,6 @@ export const CommonUtils = {
       return Reflect.deleteProperty(target, propName);
     } else {
       delete target[propName];
-    }
-  },
-  /**
-   * 自动使用 Worker 执行 setTimeout
-   */
-  setTimeout(callback: (...args: any[]) => any, timeout: number = 0) {
-    try {
-      return WorkerSetTimeout(callback, timeout);
-    } catch {
-      return this.windowApi.setTimeout(callback, timeout);
-    }
-  },
-  /**
-   * 配合 .setTimeout 使用
-   */
-  clearTimeout(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        WorkerClearTimeout(timeId);
-      }
-    } catch {
-      // TODO
-    } finally {
-      this.windowApi.clearTimeout(timeId);
-    }
-  },
-  /**
-   * 自动使用 Worker 执行 setInterval
-   */
-  setInterval(callback: (...args: any[]) => any, timeout: number = 0) {
-    try {
-      return WorkerSetInterval(callback, timeout);
-    } catch {
-      return this.windowApi.setInterval(callback, timeout);
-    }
-  },
-  /**
-   * 配合 .setInterval 使用
-   */
-  clearInterval(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        WorkerClearInterval(timeId);
-      }
-    } catch {
-      // TODO
-    } finally {
-      this.windowApi.clearInterval(timeId);
     }
   },
   /**

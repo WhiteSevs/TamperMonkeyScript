@@ -57,22 +57,6 @@ export declare const CommonUtils: {
      */
     delete(target: any, propName: any): boolean | undefined;
     /**
-     * 自动使用 Worker 执行 setTimeout
-     */
-    setTimeout(callback: (...args: any[]) => any, timeout?: number): number;
-    /**
-     * 配合 .setTimeout 使用
-     */
-    clearTimeout(timeId: number | undefined): void;
-    /**
-     * 自动使用 Worker 执行 setInterval
-     */
-    setInterval(callback: (...args: any[]) => any, timeout?: number): number;
-    /**
-     * 配合 .setInterval 使用
-     */
-    clearInterval(timeId: number | undefined): void;
-    /**
      * 判断是否是元素列表
      * @param $ele
      */
