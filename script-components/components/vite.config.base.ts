@@ -1,20 +1,20 @@
-import { type UserConfig, type Plugin } from "vite";
-import monkey, { cdn, util, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "../../vite.utils";
-import mkcert from "vite-plugin-mkcert";
 import vue from "@vitejs/plugin-vue";
-import Icons from "unplugin-icons/vite";
-import IconsResolver from "unplugin-icons/resolver";
-import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import fs from "fs";
 import path from "path";
 import pc from "picocolors";
+import AutoImport from "unplugin-auto-import/vite";
+import IconsResolver from "unplugin-icons/resolver";
+import Icons from "unplugin-icons/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import Components from "unplugin-vue-components/vite";
+import { type Plugin, type UserConfig } from "vite";
+import mkcert from "vite-plugin-mkcert";
+import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
+import { GetLib, ViteUtils, viteUtils } from "../../vite.utils";
 
 type IArray<T> = T[] | T;
 
-type OwnMonkeyOption = {
+type SuperMonkeyOption = {
   /**
    * 是否是Vue项目
    *
@@ -58,7 +58,7 @@ type OwnMonkeyOption = {
   };
   userscript: {
     /**
-     * 其它脚本管理器的权限Api
+     * 其它脚本管理器的权限Api（请手动添加需要申请的权限，目前暂未适配autoGrant=true）
      */
     otherGrant?: IArray<
       | "GM.ChromeXt"
@@ -81,7 +81,7 @@ const GenerateUserConfig = async (option: {
   /**
    * 油猴配置
    */
-  monkeyOption: Partial<__MonkeyOption__> & OwnMonkeyOption;
+  monkeyOption: Partial<__MonkeyOption__> & SuperMonkeyOption;
   /**
    * vite配置
    */
@@ -91,6 +91,10 @@ const GenerateUserConfig = async (option: {
    */
   __dirname: string;
 }) => {
+  /**
+   * 当前是否是build模式
+   */
+  const isBuild = process.argv.findIndex((i) => i.startsWith("build")) !== -1;
   const inheritUtils = new ViteUtils(option.__dirname);
   const pkg = inheritUtils.getPackageJSON();
   let SCRIPT_NAME = option.monkeyOption.userscript.name;
@@ -98,23 +102,33 @@ const GenerateUserConfig = async (option: {
     SCRIPT_NAME = Object.values(SCRIPT_NAME).find((it) => typeof it === "string");
   }
 
+  /**
+   * 用户脚本文件名
+   */
   let FILE_NAME = SCRIPT_NAME + ".user.js";
 
-  /* 是否压缩代码 */
+  /**
+   * 是否压缩代码
+   */
   let isMinify: boolean | "esbuild" | "terser" = false;
   if (process.argv.includes("--minify")) {
     isMinify = "esbuild";
     FILE_NAME = SCRIPT_NAME + ".min.user.js";
   }
 
-  /* 是否清空输出目录 */
+  /**
+   * 是否清空输出目录
+   */
   let isEmptyOutDir = true;
   if (process.argv.includes("--no-empty-outDir")) {
     isEmptyOutDir = false;
   }
-
-  let VERSION = "9999.99.99";
-  if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
+  /**
+   * dev模式或本地打包的版本号
+   */
+  const devOrLocalVersion = "9999.99.99";
+  let VERSION = devOrLocalVersion;
+  if (isBuild) {
     VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
   }
 
@@ -124,15 +138,17 @@ const GenerateUserConfig = async (option: {
    * key: {
    *   cdn: string;
    *   local: string;
+   *   importName?: string;
    * }
    *
    * `key`：用于匹配的字符串
+   * `importName`：是在ts中直接import xx from 'xx' 中引用的名称
    * `cdn`：是提供给vite-plugin-monkey使用的cdn
    * `local`：是提供给hook使用替换的
    */
   const externalRequireConfig = {
     CoverUMD: {
-      local: await GetLib("CoverUMD", true),
+      local: GetLib("CoverUMD", true),
     },
     "@whitesev/utils": {
       cdn: cdn.jsdelivrFastly("Utils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
@@ -155,10 +171,10 @@ const GenerateUserConfig = async (option: {
       local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     showdown: {
-      local: await GetLib("showdown", true),
+      local: GetLib("showdown", true),
     },
     "Element-Plus": {
-      cdn: await (async () => {
+      cdn: (async () => {
         const url = await GetLib("element-plus", false);
         return isMinify ? url : url.replace("min.js", "js");
       })(),
@@ -166,6 +182,16 @@ const GenerateUserConfig = async (option: {
     },
     viewerjs: {
       cdn: cdn.jsdelivrFastly("Viewer", isMinify ? "dist/viewer.min.js" : "dist/viewer.js"),
+    },
+    "crypto-js": {
+      requireMatch: "/lib/CryptoJS/index.js",
+      local: GetLib("Crypto-JS", true),
+      importName: "crypto-js",
+      cdn: GetLib("Crypto-JS", false),
+    },
+    "网盘链接识别-图标": {
+      requireMatch: encodeURIComponent("网盘链接识别-图标.js"),
+      local: GetLib("网盘链接识别-图标", true),
     },
   };
   /**
@@ -193,7 +219,7 @@ const GenerateUserConfig = async (option: {
   /**
    * 默认配置
    */
-  let DefaultMonkeyOption: __MonkeyOption__ = {
+  let defaultMonkeyOption: __MonkeyOption__ = {
     /**
      * 脚本入口文件
      * @link file://./src/entrance.ts
@@ -229,11 +255,12 @@ const GenerateUserConfig = async (option: {
       // 通过import导入库文件的cdn映射
       externalGlobals: Object.assign(
         {},
-        (() => {
+        await (async () => {
           const result = {};
           for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("cdn" in value) {
-              result[key] = value.cdn;
+              const libName = "importName" in value ? value.importName : key;
+              result[libName] = await value.cdn;
             }
           }
           return result;
@@ -270,7 +297,7 @@ const GenerateUserConfig = async (option: {
   /**
    * 默认自定义配置
    */
-  const DefaultOwnMonkeyOption: Required<OwnMonkeyOption> = {
+  const defaultSuperMonkeyOption: Required<SuperMonkeyOption> = {
     isVueProject: option.monkeyOption.isVueProject ?? false,
     disableExternalGlobals: option.monkeyOption.disableExternalGlobals ?? false,
     build: {
@@ -278,11 +305,12 @@ const GenerateUserConfig = async (option: {
       // 本地映射
       externalLocalRequire: Object.assign(
         {},
-        (() => {
+        await (async () => {
           let result = {};
           for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("local" in value) {
-              result[key] = value.local;
+              const libName = "requireMatch" in value ? value.requireMatch : key;
+              result[libName] = await value.local;
             }
           }
           return result;
@@ -310,17 +338,17 @@ const GenerateUserConfig = async (option: {
   /* -------------以下配置不需要动------------- */
   /* -------------以下配置不需要动------------- */
   /* -------------以下配置不需要动------------- */
-  if (DefaultOwnMonkeyOption.disableExternalGlobals) {
-    delete DefaultOwnMonkeyOption.disableExternalGlobals;
+  if (defaultSuperMonkeyOption.disableExternalGlobals) {
+    delete defaultSuperMonkeyOption.disableExternalGlobals;
     delete option.monkeyOption.disableExternalGlobals;
     if (
-      typeof DefaultMonkeyOption.build?.externalGlobals === "object" &&
-      DefaultMonkeyOption.build.externalGlobals != null
+      typeof defaultMonkeyOption.build?.externalGlobals === "object" &&
+      defaultMonkeyOption.build.externalGlobals != null
     ) {
-      DefaultMonkeyOption.build!.externalGlobals = {};
+      defaultMonkeyOption.build!.externalGlobals = {};
     }
   }
-  DefaultMonkeyOption = viteUtils.assign(DefaultMonkeyOption, option.monkeyOption, true);
+  defaultMonkeyOption = viteUtils.assign(defaultMonkeyOption, option.monkeyOption, true);
   process.on("exit", (code) => {
     try {
       const dir = option.__dirname; // 当前目录
@@ -377,20 +405,20 @@ const GenerateUserConfig = async (option: {
   }
 
   // 完善油猴配置
-  if (DefaultMonkeyOption.userscript!.resource == null) {
-    DefaultMonkeyOption.userscript!.resource = {};
+  if (defaultMonkeyOption.userscript!.resource == null) {
+    defaultMonkeyOption.userscript!.resource = {};
   }
-  if (!Array.isArray(DefaultMonkeyOption.userscript.require)) {
-    DefaultMonkeyOption.userscript!.require = [];
+  if (!Array.isArray(defaultMonkeyOption.userscript.require)) {
+    defaultMonkeyOption.userscript!.require = [];
   }
 
   const CheckOptionList = [
     {
       checkFn: () => {
         return (
-          typeof DefaultMonkeyOption.userscript!.icon !== "string" ||
-          (typeof DefaultMonkeyOption.userscript!.icon === "string" &&
-            DefaultMonkeyOption.userscript!.icon.trim() === "")
+          typeof defaultMonkeyOption.userscript!.icon !== "string" ||
+          (typeof defaultMonkeyOption.userscript!.icon === "string" &&
+            defaultMonkeyOption.userscript!.icon.trim() === "")
         );
       },
       msg: "Error：是不是忘记填 MonkeyOption.userscript.icon 了？不填会显得脚本有点儿不友好呢~",
@@ -398,11 +426,11 @@ const GenerateUserConfig = async (option: {
     {
       checkFn: () => {
         return (
-          DefaultMonkeyOption.userscript!.description == null ||
-          (Array.isArray(DefaultMonkeyOption.userscript!.description) &&
-            DefaultMonkeyOption.userscript!.description.length === 0) ||
-          (typeof DefaultMonkeyOption.userscript!.description === "string" &&
-            DefaultMonkeyOption.userscript!.description.trim() === "")
+          defaultMonkeyOption.userscript!.description == null ||
+          (Array.isArray(defaultMonkeyOption.userscript!.description) &&
+            defaultMonkeyOption.userscript!.description.length === 0) ||
+          (typeof defaultMonkeyOption.userscript!.description === "string" &&
+            defaultMonkeyOption.userscript!.description.trim() === "")
         );
       },
       msg: "Error：是不是忘记填 MonkeyOption.userscript.description 了？不填没人知道脚本是干嘛的呢~",
@@ -410,8 +438,8 @@ const GenerateUserConfig = async (option: {
     {
       checkFn: () => {
         return (
-          !Array.isArray(DefaultMonkeyOption.userscript.match) ||
-          (Array.isArray(DefaultMonkeyOption.userscript!.match) && DefaultMonkeyOption.userscript!.match.length === 0)
+          !Array.isArray(defaultMonkeyOption.userscript.match) ||
+          (Array.isArray(defaultMonkeyOption.userscript!.match) && defaultMonkeyOption.userscript!.match.length === 0)
         );
       },
       msg: "Error：是不是忘记填 MonkeyOption.userscript.match 了？不填脚本没法运行哦~",
@@ -422,11 +450,11 @@ const GenerateUserConfig = async (option: {
     const checkOption = CheckOptionList[index];
     if (checkOption.checkFn()) {
       console.error(checkOption.msg);
-      console.error(DefaultMonkeyOption);
+      console.error(defaultMonkeyOption);
       process.exit(0);
     }
   }
-  if (DefaultOwnMonkeyOption.isVueProject) {
+  if (defaultSuperMonkeyOption.isVueProject) {
     // 添加vue插件
     plugins.push(
       vue(),
@@ -463,6 +491,7 @@ const GenerateUserConfig = async (option: {
     );
 
     // 添加vue的油猴配置
+    const elementPlus_cdn = await externalRequireConfig["Element-Plus"].cdn;
     const VueMonkeyOption: Partial<__MonkeyOption__> = {
       userscript: {
         resource: {
@@ -487,37 +516,37 @@ const GenerateUserConfig = async (option: {
           pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
           "vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
           // "element-plus": cdn.jsdelivrFastly("ElementPlus", "dist/index.full.min.js"),
-          "element-plus": ["ElementPlus", () => externalRequireConfig["Element-Plus"].cdn],
+          "element-plus": ["ElementPlus", () => elementPlus_cdn],
           "@element-plus/icons-vue": cdn.jsdelivrFastly("ElementPlusIconsVue", "dist/index.iife.min.js"),
         },
       },
     };
-    DefaultMonkeyOption = viteUtils.assign(DefaultMonkeyOption, VueMonkeyOption, true);
+    defaultMonkeyOption = viteUtils.assign(defaultMonkeyOption, VueMonkeyOption, true);
   }
 
   // 添加油猴插件
   // @grant不用管，使用import GM_xxx from "ViteGM"会自动添加
   // 设置版本号
-  DefaultMonkeyOption.userscript!.version = VERSION;
+  defaultMonkeyOption.userscript!.version = VERSION;
   // 设置构建的文件名
-  DefaultMonkeyOption.build!.fileName = FILE_NAME;
+  defaultMonkeyOption.build!.fileName = FILE_NAME;
   // 添加@require
-  DefaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
+  defaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
 
   // 其它脚本管理器的Api引用
-  const otherGrant = DefaultOwnMonkeyOption.userscript.otherGrant;
+  const otherGrant = defaultSuperMonkeyOption.userscript.otherGrant;
   if (Array.isArray(otherGrant)) {
-    if (Array.isArray(DefaultMonkeyOption.userscript.grant)) {
-      DefaultMonkeyOption.userscript!.grant = DefaultMonkeyOption.userscript!.grant.concat(
+    if (Array.isArray(defaultMonkeyOption.userscript.grant)) {
+      defaultMonkeyOption.userscript!.grant = defaultMonkeyOption.userscript!.grant.concat(
         // @ts-expect-error
         otherGrant
       );
     } else {
       // @ts-expect-error
-      DefaultMonkeyOption.userscript!.grant = otherGrant;
+      defaultMonkeyOption.userscript!.grant = otherGrant;
     }
   }
-  const LibTag = DefaultMonkeyOption.clientAlias ?? "ViteGM";
+  const LibTag = defaultMonkeyOption.clientAlias ?? "ViteGM";
   const LibInfo = [
     {
       name: LibTag + "ChromeXt",
@@ -561,8 +590,68 @@ const GenerateUserConfig = async (option: {
       }
     },
   };
+  /**
+   * UserScript的meta的解析器
+   */
+  const ParseUserScriptMeta = (
+    meta: string
+  ):
+    | {
+        /**
+         * 在//和@中间的空格
+         */
+        spaceBeforeAt: string;
+        /**
+         * 在key后面的空格
+         */
+        spaceAfterKey: string;
+        /**
+         * @后面的名称，如@name、@version、@require等
+         */
+        key: string;
+        /**
+         * key后面的值（已去除左右空格）
+         */
+        value: string;
+      }
+    | undefined => {
+    // 必须是 // @xx 这种类型
+    const atMatcher = meta.match(/[\s]*\/\/[\s]+@/);
+    if (!atMatcher) return;
+
+    const spaceBeforeAtMatcher = meta.match(/[\s]*\/\/([\s]+)@/);
+    let spaceBeforeAt = "";
+    if (spaceBeforeAtMatcher?.length >= 2) {
+      spaceBeforeAt = spaceBeforeAtMatcher[1];
+    }
+
+    const keyMatcher = meta.match(/[\s]*\/\/[\s]+@([\w-]+)/);
+    // 必须匹配到键
+    if (!keyMatcher || keyMatcher.length < 2) return;
+    const key = keyMatcher[1];
+
+    const spaceAfterKeyMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s]+)/);
+    let spaceAfterKey = "";
+    if (spaceAfterKeyMatcher?.length >= 2) {
+      spaceAfterKey = spaceAfterKeyMatcher[1];
+    }
+
+    const valueMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s\S]+)/);
+    // 必须匹配到值
+    if (!valueMatcher || valueMatcher.length < 2) return;
+    const value = valueMatcher[1].trim();
+    // 不能为空
+    if (value === "") return;
+
+    return {
+      spaceBeforeAt,
+      spaceAfterKey,
+      key,
+      value,
+    };
+  };
   // 对vite-plugin-monkey插件进行hook
-  const MonkeyHookPlugin: Plugin = {
+  const SuperMonkeyPlugin: Plugin = {
     name: "hook:vite-plugin-monkey",
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
@@ -587,9 +676,10 @@ const GenerateUserConfig = async (option: {
             const collectGrant: string[] = [];
             textSplit.forEach((item, index) => {
               item = item.trim();
-              const grantApiMatcher = item.match(/^\/\/[\s]+@grant[\s]+/);
-              if (grantApiMatcher) {
-                const grantApi = item.replace(grantApiMatcher[grantApiMatcher.length - 1], "").trim();
+              const metaItemInfo = ParseUserScriptMeta(item);
+              if (!metaItemInfo) return;
+              if (metaItemInfo.key === "grant") {
+                const grantApi = metaItemInfo.value;
                 if (grantApi.startsWith("window.") || grantApi.startsWith("GM.")) {
                   // ignore window.* API
                   // ignore GM.* API
@@ -646,13 +736,12 @@ const GenerateUserConfig = async (option: {
       });
     },
     writeBundle(options, bundle) {
-      const isBuild = process.argv.includes("build");
       if (!isBuild) {
         return;
       }
       if (
-        typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "boolean" &&
-        !DefaultOwnMonkeyOption.build.metaLocalFileName
+        typeof defaultSuperMonkeyOption.build.metaLocalFileName === "boolean" &&
+        !defaultSuperMonkeyOption.build.metaLocalFileName
       ) {
         return;
       }
@@ -684,12 +773,15 @@ const GenerateUserConfig = async (option: {
         for (let index = splitContent.length - 1; index >= 0; index--) {
           // reverse loop because @require info in meta.js is end
           const metaItem = splitContent[index].trim();
+          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          if (!metaItemInfo) {
+            continue;
+          }
           if (metaEndIndex === -1 && metaItem.startsWith("// ==/UserScript==")) {
             metaEndIndex = index;
           }
-          const requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
-          if (requireMatch) {
-            inserRequireSpace = requireMatch[requireMatch.length - 1];
+          if (metaItemInfo.key === "require") {
+            inserRequireSpace = metaItemInfo.spaceAfterKey;
             insertIndex = index;
             break;
           } else if (insertIndex === -1 && metaItem.startsWith("// ==UserScript==")) {
@@ -699,30 +791,32 @@ const GenerateUserConfig = async (option: {
         }
         for (let index = 0; index < splitContent.length; index++) {
           let metaItem = splitContent[index];
+          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          if (!metaItemInfo) {
+            continue;
+          }
           // replace require lib link to local link
-          const requireMatch = metaItem.match(/^\/\/[\s]+@require([\s]+)/i);
-          const resourceMatch = metaItem.match(/^\/\/[\s]+@resource([\s]+)/i);
-          if (requireMatch) {
-            metaItem = metaItem.replace(requireMatch[0], "");
+          if (metaItemInfo.key === "require") {
             for (const [requiredMatchKey, requiredUrl] of Object.entries(
-              DefaultOwnMonkeyOption.build.externalLocalRequire
+              defaultSuperMonkeyOption.build.externalLocalRequire
             )) {
-              if (metaItem.includes(requiredMatchKey)) {
-                splitContent[index] = `// @require${inserRequireSpace}${requiredUrl}`;
+              if (metaItemInfo.value.includes(requiredMatchKey)) {
+                splitContent[index] =
+                  `//${metaItemInfo.spaceBeforeAt}@${metaItemInfo.key}${metaItemInfo.spaceAfterKey}${requiredUrl}`;
                 break;
               }
             }
-          } else if (resourceMatch) {
-            let insertResourceSpace = resourceMatch[1];
-            let metaEndStr = metaItem.replace(resourceMatch[0], "").trim();
-            let resourceKey = metaEndStr.split(" ")[0];
-            let metaAfterResouceStr = metaEndStr.replace(resourceKey, "").match(/^([\s]+)/)[1];
-            for (const [resourceMatchKey, resourceUrl] of Object.entries(
-              DefaultOwnMonkeyOption.build.externalLocalResouce
+          } else if (metaItemInfo.key === "resource") {
+            for (const [resourceKey, resourceUrl] of Object.entries(
+              defaultSuperMonkeyOption.build.externalLocalResouce
             )) {
-              if (resourceKey === resourceMatchKey) {
-                splitContent[index] =
-                  `// @resource${insertResourceSpace}${resourceKey}${metaAfterResouceStr}${resourceUrl}`;
+              const resourceKeyMatcher = metaItemInfo.value.match(/(.+?)[\s]+[\S]+/);
+              if (resourceKeyMatcher) {
+                const __resourceKey = resourceKeyMatcher[1];
+                if (__resourceKey === resourceKey) {
+                  splitContent[index] =
+                    `//${metaItemInfo.spaceBeforeAt}@${metaItemInfo.key}${metaItemInfo.spaceAfterKey}${resourceUrl}`;
+                }
               }
             }
           }
@@ -731,14 +825,30 @@ const GenerateUserConfig = async (option: {
         const localMainFileRequire = `// @require${inserRequireSpace}file:///${localMainFilePath}`;
         splitContent.splice(insertIndex + 1, 0, localMainFileRequire);
 
+        // 本地meta文件名
         localMetaFileName = `${localMetaFileName}.meta.local.user.js`;
-        if (typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "string") {
-          localMetaFileName = DefaultOwnMonkeyOption.build.metaLocalFileName;
-        } else if (typeof DefaultOwnMonkeyOption.build.metaLocalFileName === "function") {
-          localMetaFileName = DefaultOwnMonkeyOption.build.metaLocalFileName(localMetaFileName);
+        // meta文件内容
+        const metaLocalContentSplitList = [].concat(splitContent);
+        for (let index = 0; index < metaLocalContentSplitList.length; index++) {
+          const metaItem = metaLocalContentSplitList[index];
+          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          if (!metaItemInfo) {
+            continue;
+          }
+          // 处理版本号
+          if (metaItemInfo.key === "version") {
+            metaLocalContentSplitList[index] =
+              `//${metaItemInfo.spaceBeforeAt}@${metaItemInfo.key}${metaItemInfo.spaceAfterKey}${devOrLocalVersion}`;
+            break;
+          }
+        }
+        if (typeof defaultSuperMonkeyOption.build.metaLocalFileName === "string") {
+          localMetaFileName = defaultSuperMonkeyOption.build.metaLocalFileName;
+        } else if (typeof defaultSuperMonkeyOption.build.metaLocalFileName === "function") {
+          localMetaFileName = defaultSuperMonkeyOption.build.metaLocalFileName(localMetaFileName);
         }
         const metaLocalFilePath = `${options.dir}\\${localMetaFileName}`;
-        fs.writeFileSync(metaLocalFilePath, splitContent.join("\n"));
+        fs.writeFileSync(metaLocalFilePath, metaLocalContentSplitList.join("\n"));
 
         const metaLocalFileSize = fs.statSync(metaLocalFilePath).size;
         console.log(pc.green(metaLocalFilePath) + `   ${pc.gray(formatFileSize(metaLocalFileSize))}`);
@@ -746,12 +856,11 @@ const GenerateUserConfig = async (option: {
     },
   };
 
-  plugins.push(ScriptManagerTransformPlugin);
-  plugins.push(MonkeyHookPlugin);
-  plugins.push(monkey(DefaultMonkeyOption));
+  plugins.push([ScriptManagerTransformPlugin, SuperMonkeyPlugin]);
+  plugins.push(monkey(defaultMonkeyOption));
 
   // https://vitejs.dev/config/
   return BaseUserConfig;
 };
 
-export { GenerateUserConfig, baseUtils };
+export { baseUtils, GenerateUserConfig };
