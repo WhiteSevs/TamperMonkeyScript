@@ -709,8 +709,11 @@ const Greasyfork = {
       $$<HTMLAnchorElement>("a[href*='/users/']:not(:has(+.query-wrapper))").forEach(($userLink) => {
         if ($userLink.closest("#nav-user-info")) return;
         const userHomeUrl = $userLink.href;
-        const userIdMatcher = GreasyforkUsers;
-        if (!userIdMatcher) return;
+        const isUserLink = $userLink.classList.contains("user-link");
+        // 在用户主页内的其它链接
+        if (userHomeUrl.match(/\/users\/.+\/.+/) && !isUserLink) return;
+        // 私信链接
+        if (userHomeUrl.match(/\#message-[\d]+$/)) return;
         const userId = GreasyforkUrlUtils.getUserId(userHomeUrl);
         if (userId == null) return;
         if (userRegisterTimeMap.has(userId)) {
