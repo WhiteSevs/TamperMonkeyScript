@@ -14,10 +14,10 @@ export const blockLeftNavigatorOther = {
   tabFollowRedHot() {
     log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
     return CommonUtil.addBlockCSS(
-      // 具体的数量
+      // 99+，其中+就是svg图标
       '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
-      // 没有数量，纯小红点
-      '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):has(>div:empty)'
+      // 0~99、没有数量
+      '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
     );
   },
 };

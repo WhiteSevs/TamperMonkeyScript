@@ -10604,7 +10604,7 @@
       log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
       return CommonUtil.addBlockCSS(
         '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
-        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):has(>div:empty)'
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
       );
     },
   };
