@@ -544,7 +544,7 @@ const LIB_MAP = {
       );
     },
   },
-  "网盘链接识别-图标库": {
+  "网盘链接识别-图标": {
     localPath: "file:///" + viteUtils.getAbsolutePath("./scripts-vite/网盘链接识别/网盘链接识别-图标.js"),
     url: async () => {
       // return await viteUtils.getGreasyForkLibLatestVersionUrl(456470);
@@ -578,7 +578,10 @@ const LIB_MAP = {
 /**
  * 获取库的链接信息，server下是file://...，build下是https://...
  * @param libName 库名|库名数组
- * @param isLocal 是否指定获取本地的，true：强制本地，false：强制cdn
+ * @param isLocal 是否指定获取本地的
+ *
+ * `true`：强制本地
+ * `false`：（默认）强制cdn
  */
 export async function GetLib(libName: keyof typeof LIB_MAP, isLocal?: boolean): Promise<string>;
 export async function GetLib(libName: (keyof typeof LIB_MAP)[], isLocal?: boolean): Promise<string[]>;
