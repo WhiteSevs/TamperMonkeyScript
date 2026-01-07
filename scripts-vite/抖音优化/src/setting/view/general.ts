@@ -253,6 +253,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                   void 0,
                   "自动等待元素出现并关闭登录弹窗"
                 ),
+                UISwitch("【屏蔽】左侧导航栏关注右边的小红点", "shieldLeftNavigator-tab-follow-red-dot", false),
               ],
             },
           ],
@@ -299,6 +300,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
                 UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
                 UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
+                UISwitch("【屏蔽】小游戏", "shieldLeftNavigator-tab-microgame", false),
               ],
             },
             {

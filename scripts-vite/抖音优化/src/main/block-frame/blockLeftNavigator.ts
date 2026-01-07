@@ -52,6 +52,9 @@ export const BlockLeftNavigator = {
     Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
       return this.block_tab_series();
     });
+    Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
+      return this.block_tab_microgame();
+    });
     Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
       return this.block_tab_ai_search();
     });
@@ -160,6 +163,13 @@ export const BlockLeftNavigator = {
   block_tab_series() {
     log.info(`短剧`);
     return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
+  },
+  /**
+   * 【屏蔽】小游戏
+   */
+  block_tab_microgame() {
+    log.info(`【屏蔽】小游戏`);
+    return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
   },
   /**
    * 【屏蔽】设置

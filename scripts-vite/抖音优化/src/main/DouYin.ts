@@ -20,6 +20,7 @@ import { DouYinNote } from "./note/DouYinNote";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRecommend } from "./recommend/DouYinRecommend";
 import Qmsg from "qmsg";
+import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
 
 export const DouYin = {
   init() {
@@ -44,6 +45,7 @@ export const DouYin = {
       this.removeMetaAppleItunesApp();
     });
     BlockLeftNavigator.init();
+    blockLeftNavigatorOther.init();
     BlockTopNavigator.init();
     BlockSearchFrame.init();
 

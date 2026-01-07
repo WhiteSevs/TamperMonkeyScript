@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.31.16
+// @version      2026.1.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @connect      *
@@ -1982,7 +1982,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -7947,6 +7950,9 @@
       Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
         return this.block_tab_series();
       });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
+        return this.block_tab_microgame();
+      });
       Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
         return this.block_tab_ai_search();
       });
@@ -8024,6 +8030,10 @@
     block_tab_series() {
       log.info(`短剧`);
       return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
+    },
+    block_tab_microgame() {
+      log.info(`【屏蔽】小游戏`);
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
     },
     block_panel_menu_setting() {
       log.info(`【屏蔽】设置`);
@@ -10584,6 +10594,20 @@
       ];
     },
   };
+  const blockLeftNavigatorOther = {
+    init() {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot", () => {
+        return this.tabFollowRedHot();
+      });
+    },
+    tabFollowRedHot() {
+      log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):has(>div:empty)'
+      );
+    },
+  };
   const DouYin = {
     init() {
       Panel.onceExec("dy-global-block-css", () => {
@@ -10606,6 +10630,7 @@
         this.removeMetaAppleItunesApp();
       });
       BlockLeftNavigator.init();
+      blockLeftNavigatorOther.init();
       BlockTopNavigator.init();
       BlockSearchFrame.init();
       Panel.execMenuOnce(
@@ -11468,6 +11493,7 @@
                     void 0,
                     "自动等待元素出现并关闭登录弹窗"
                   ),
+                  UISwitch("【屏蔽】左侧导航栏关注右边的小红点", "shieldLeftNavigator-tab-follow-red-dot", false),
                 ],
               },
             ],
@@ -11514,6 +11540,7 @@
                   UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false),
                   UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false),
                   UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false),
+                  UISwitch("【屏蔽】小游戏", "shieldLeftNavigator-tab-microgame", false),
                 ],
               },
               {
