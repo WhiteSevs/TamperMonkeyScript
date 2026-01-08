@@ -280,6 +280,7 @@ export const PopsFolder = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     PopsHandler.handleClickEvent("close", $btnCloseBtn, evtConfig, config.btn.close.callback);
     PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok.callback);
     PopsHandler.handleClickEvent("cancel", btnCancelElement, evtConfig, config.btn.cancel.callback);
@@ -923,8 +924,9 @@ export const PopsFolder = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

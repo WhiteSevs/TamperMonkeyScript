@@ -128,6 +128,7 @@ export const PopsDrawer = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     // 处理方向
 
     $pops.setAttribute("direction", config.direction);
@@ -236,8 +237,9 @@ export const PopsDrawer = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

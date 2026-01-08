@@ -177,23 +177,23 @@ export declare const PopsHandler: {
      * @param guid
      * @param $shadowContainer
      * @param $shadowRoot
-     * @param mode 当前弹窗类型
+     * @param type 当前弹窗类型
      * @param $anim 动画层
      * @param $pops 主元素
      * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsInstStoreType, $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): PopsEventConfig;
+    handleEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, type: PopsInstStoreType, $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): PopsEventConfig;
     /**
      * 获取loading的事件配置
      * @param guid
-     * @param mode 当前弹窗类型
+     * @param type 当前弹窗类型
      * @param $anim 动画层
      * @param $pops 主元素
      * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleLoadingEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, mode: "loading", $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot">;
+    handleLoadingEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, type: "loading", $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot">;
     /**
      * 处理返回的配置，针对popsHandler.handleEventConfig
      * @param config 配置

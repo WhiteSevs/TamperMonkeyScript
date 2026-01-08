@@ -66,7 +66,7 @@ class PopsUtils {
    * @param propName
    */
   delete(target: any, propName: any) {
-    if (typeof Reflect === "object" && Reflect.deleteProperty) {
+    if (typeof Reflect === "object" && typeof Reflect.deleteProperty === "function") {
       Reflect.deleteProperty(target, propName);
     } else {
       delete target[propName];

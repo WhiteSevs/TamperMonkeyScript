@@ -1284,7 +1284,7 @@ export const PanelHandlerComponents = () => {
          * 监听输入框内容改变
          */
         onValueChange() {
-          popsDOMUtils.on<InputEvent>(this.$el.input, ["input", "propertychange"], void 0, (event) => {
+          popsDOMUtils.on<InputEvent>(this.$el.input, ["input", "propertychange"], (event) => {
             this.$data.value = this.$el.input.value;
             if (inputType !== "password") {
               // 不是密码框
@@ -1673,7 +1673,7 @@ export const PanelHandlerComponents = () => {
            * 监听点击事件
            */
           onClick() {
-            popsDOMUtils.on(this.$el.$select, "click", void 0, (event) => {
+            popsDOMUtils.on(this.$el.$select, "click", (event) => {
               this.setSelectOptionsDisableStatus();
               if (typeof viewConfig.clickCallBack === "function") {
                 const $isSelectedElement = this.$el.$select[this.$el.$select.selectedIndex] as HTMLOptionElement;
@@ -3461,7 +3461,7 @@ export const PanelHandlerComponents = () => {
          * 设置按钮的点击事件
          */
         onButtonClick() {
-          popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
+          popsDOMUtils.on(this.$ele.button, "click", (event) => {
             if (typeof viewConfig.callback === "function") {
               viewConfig.callback(event);
             }
@@ -3533,13 +3533,13 @@ export const PanelHandlerComponents = () => {
         initContainerItem($container: HTMLElement, formItemConfig: PopsPanelViewConfig | PopsPanelContainerConfig) {
           const containerViewConfig = formItemConfig as PopsPanelContainerConfig;
           if (containerViewConfig.type === "container") {
-            const childForms = containerViewConfig["views"];
+            const childViewConfig = containerViewConfig["views"];
             // 每一项<li>元素
-            const formContainerListElement = popsDOMUtils.createElement("li");
+            const $itemLi = popsDOMUtils.createElement("li");
             // 每一项<li>内的子<ul>元素
-            const formContainerULElement = popsDOMUtils.createElement("ul");
-            formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
-            formContainerListElement.classList.add("pops-panel-forms-container-item");
+            const $itemUL = popsDOMUtils.createElement("ul");
+            $itemUL.classList.add("pops-panel-forms-container-item-formlist");
+            $itemLi.classList.add("pops-panel-forms-container-item");
             // 区域头部的文字
             const formHeaderDivElement = popsDOMUtils.createElement("div", {
               className: "pops-panel-forms-container-item-header-text",
@@ -3562,41 +3562,41 @@ export const PanelHandlerComponents = () => {
               );
               // 添加点击事件
               popsDOMUtils.on(formHeaderDivElement, "click", () => {
-                if (formContainerListElement.hasAttribute("data-fold-enable")) {
-                  formContainerListElement.removeAttribute("data-fold-enable");
+                if ($itemLi.hasAttribute("data-fold-enable")) {
+                  $itemLi.removeAttribute("data-fold-enable");
                 } else {
-                  formContainerListElement.setAttribute("data-fold-enable", "");
+                  $itemLi.setAttribute("data-fold-enable", "");
                 }
               });
               popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold-container");
               popsDOMUtils.addClassName(formHeaderDivElement, PopsCommonCSSClassName.userSelectNone);
-              formContainerListElement.setAttribute("data-fold-enable", "");
+              $itemLi.setAttribute("data-fold-enable", "");
               popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold");
-              formContainerListElement.appendChild(formHeaderDivElement);
+              $itemLi.appendChild(formHeaderDivElement);
             } else {
               // 加进容器内
-              formContainerListElement.appendChild(formHeaderDivElement);
+              $itemLi.appendChild(formHeaderDivElement);
             }
 
-            that.setElementClassName(formContainerListElement, formItemConfig.className);
-            that.setElementAttributes(formContainerListElement, formItemConfig.attributes);
-            that.setElementProps(formContainerListElement, formItemConfig.props);
-            childForms.forEach((childViewConfig) => {
+            that.setElementClassName($itemLi, formItemConfig.className);
+            that.setElementAttributes($itemLi, formItemConfig.attributes);
+            that.setElementProps($itemLi, formItemConfig.props);
+            $itemLi.appendChild($itemUL);
+            $container.appendChild($itemLi);
+            childViewConfig.forEach((childViewConfig) => {
               that.uListContainerAddItem(childViewConfig, {
-                ulElement: formContainerULElement,
+                ulElement: $itemUL,
                 sectionContainerULElement: that.sectionContainerULElement,
-                formContainerListElement: formContainerListElement,
+                formContainerListElement: $itemLi,
                 formHeaderDivElement: formHeaderDivElement,
               });
             });
-            formContainerListElement.appendChild(formContainerULElement);
-            $container.appendChild(formContainerListElement);
             if (typeof containerViewConfig.afterAddToUListCallBack === "function") {
               containerViewConfig.afterAddToUListCallBack(viewConfig as any as PopsPanelContainerConfig, {
-                target: formContainerListElement,
-                ulElement: formContainerULElement,
+                target: $itemLi,
+                ulElement: $itemUL,
                 sectionContainerULElement: that.sectionContainerULElement,
-                formContainerListElement: formContainerListElement,
+                formContainerListElement: $itemLi,
                 formHeaderDivElement: formHeaderDivElement,
               });
             }
@@ -3747,7 +3747,7 @@ export const PanelHandlerComponents = () => {
         },
         /** 设置项的点击事件 */
         onLiClick() {
-          popsDOMUtils.on($li, "click", void 0, async (event) => {
+          popsDOMUtils.on($li, "click", async (event) => {
             if (typeof viewConfig.clickCallBack === "function") {
               const result = await viewConfig.clickCallBack(event, viewConfig);
               if (result) {

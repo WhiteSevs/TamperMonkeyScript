@@ -119,12 +119,12 @@ declare class Pops {
             addClassName($el: Element | undefined | null | undefined, className: string | string[] | (() => string | string[]) | undefined | null): void;
             removeClassName($el: Element | undefined | null, className: string): void;
             containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
-            css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
-            css(element: HTMLElement | string, property: string): string;
-            css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
-            css(element: HTMLElement | string, property: { [P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P]; } | {
+            css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSPropertyType): string;
+            css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: string): string;
+            css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSPropertyType & string, value: string | number): string;
+            css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSProperty | {
                 [key: string]: string | number;
-            }): string;
+            } | string): string;
             createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, property?: ({ [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P] extends string | boolean | number ? HTMLElementTagNameMap[K][P] : never; } & {
                 [key: string]: any;
             }) | string, attributes?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCreateElementAttributesMap): HTMLElementTagNameMap[K];
@@ -200,7 +200,7 @@ declare class Pops {
                 isOverMaxZIndex: boolean;
             };
             getMaxZIndex(deviation?: number): number;
-            removeInstance(instConfigList: import("./types/inst").PopsInstGeneralConfig[][], guid: string, isAll?: boolean): import("./types/inst").PopsInstGeneralConfig[][];
+            removeInstance(totalInstConfigList: import("./types/inst").PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<import("./types/inst").PopsInstGeneralConfig[][]>;
             hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
             show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
             close(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: string, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement): Promise<void>;
@@ -773,7 +773,7 @@ declare class Pops {
             otherDistance: number;
             useShadowRoot: boolean;
             only: boolean;
-            zIndex: number | (() => number);
+            zIndex: IFunction<number>;
             style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
@@ -801,14 +801,14 @@ declare class Pops {
         mode: import("./types/main").PopsType;
         close: () => Promise<void>;
         hide: () => Promise<void>;
-        show: () => Promise<void>;
-        guid: string;
+        show: ($parent?: HTMLElement | Document | ShadowRoot) => Promise<void>;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         $el: HTMLDivElement;
         $anim: HTMLDivElement;
         $pops: HTMLDivElement;
         $mask?: HTMLDivElement | undefined;
+        guid: string;
     };
     /**
      * 右键菜单
@@ -836,7 +836,7 @@ declare class Pops {
             shadowRootCheckClickEvent(event: MouseEvent | PointerEvent): void;
             addWindowCheckClickListener(): void;
             removeWindowCheckClickListener(): void;
-            contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>): void;
+            contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>): Promise<void>;
             addContextMenuEvent(target: PopsRightClickMenuConfig["$target"], selector?: string): void;
             removeContextMenuEvent(target: HTMLElement | typeof globalThis | Window, selector?: string): void;
             animationCloseMenu($menu: HTMLElement): void;

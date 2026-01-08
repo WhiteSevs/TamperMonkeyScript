@@ -47,7 +47,7 @@ export declare const PopsRightClickMenu: {
              * @param event
              * @param selectorTarget
              */
-            contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>): void;
+            contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>): Promise<void>;
             /**
              * 添加contextmenu事件
              * @param target 目标

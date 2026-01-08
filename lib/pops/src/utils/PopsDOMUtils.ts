@@ -7,6 +7,9 @@ import type {
   PopsDOMUtils_Event,
   PopsDOMUtilsElementEventType,
   PopsDOMUtilsAddEventListenerResult,
+  PopsDOMUtilsCSSProperty,
+  PopsDOMUtilsCSSPropertyType,
+  PopsDOMUtilsTargetElementType,
 } from "../types/PopsDOMUtilsEventType";
 import { SymbolEvents } from "./PopsDOMUtilsEventsConfig";
 import { OriginPrototype, PopsCore } from "../PopsCore";
@@ -479,12 +482,12 @@ class PopsDOMUtilsEvent {
     if (element == null) {
       return;
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: HTMLElement[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
       element = element as HTMLElement[];
-      elementList = [...element];
+      $elList = $elList.concat(element);
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element as HTMLElement);
     }
     let eventTypeList: string[] = [];
     if (Array.isArray(eventType)) {
@@ -540,7 +543,7 @@ class PopsDOMUtilsEvent {
         array: PopsDOMUtilsEventListenerOptionsAttribute[]
       ) => boolean;
     }
-    elementList.forEach((elementItem) => {
+    $elList.forEach((elementItem) => {
       // 获取对象上的事件
       const elementEvents: {
         [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
@@ -606,17 +609,18 @@ class PopsDOMUtilsEvent {
     element: PopsDOMUtilsElementEventType,
     eventType?: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string
   ) {
+    const that = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelectorAll(element);
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    let elementList: HTMLElement[] = [];
+    let $elList: (Element | Document | Window | typeof globalThis | Node | ChildNode | EventTarget)[] = [];
     if (element instanceof NodeList || Array.isArray(element)) {
-      elementList = [...(element as HTMLElement[])];
+      $elList = $elList.concat(Array.from(element as HTMLElement[]));
     } else {
-      elementList.push(element as HTMLElement);
+      $elList.push(element);
     }
 
     let eventTypeList: string[] = [];
@@ -625,24 +629,28 @@ class PopsDOMUtilsEvent {
     } else if (typeof eventType === "string") {
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
-    elementList.forEach((elementItem) => {
-      Object.getOwnPropertySymbols(elementItem).forEach((__symbolEvents) => {
-        if (!__symbolEvents.toString().startsWith("Symbol(events_")) {
+    $elList.forEach(($elItem) => {
+      const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), SymbolEvents])];
+      symbolList.forEach((symbolItem) => {
+        if (!symbolItem.toString().startsWith("Symbol(events_")) {
           return;
         }
-        const elementEvents = (elementItem as any)[__symbolEvents] || {};
+        const elementEvents: {
+          [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
+        } = Reflect.get($elItem, symbolItem) || {};
         const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
         iterEventNameList.forEach((eventName) => {
-          const handlers = elementEvents[eventName];
+          const handlers: PopsDOMUtilsEventListenerOptionsAttribute[] = elementEvents[eventName];
           if (!handlers) {
             return;
           }
           for (const handler of handlers) {
-            elementItem.removeEventListener(eventName, handler.callback, {
+            $elItem.removeEventListener(eventName, handler.callback, {
               capture: handler["option"]["capture"],
             });
           }
-          popsUtils.delete((elementItem as any)[__symbolEvents], eventName);
+          const events = Reflect.get($elItem, symbolItem);
+          popsUtils.delete(events, eventName);
         });
       });
     });
@@ -1666,7 +1674,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
   }
   /**
    * 获取元素的样式属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @example
    * // 获取元素a.xx的CSS属性display
@@ -1674,10 +1682,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * DOMUtils.css("a.xx","display");
    * > "none"
    * */
-  css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
+  css($el: PopsDOMUtilsTargetElementType, property: PopsDOMUtilsCSSPropertyType): string;
   /**
    * 获取元素的样式属性值
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @example
    * // 获取元素a.xx的CSS属性display
@@ -1685,10 +1693,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * DOMUtils.css("a.xx","display");
    * > "none"
    * */
-  css(element: HTMLElement | string, property: string): string;
+  css($el: PopsDOMUtilsTargetElementType, property: string): string;
   /**
    * 设置元素的样式属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @param value 样式属性值
    * @example
@@ -1702,10 +1710,14 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
    * DOMUtils.css(document.querySelector("a.xx"),"top",10);
    * */
-  css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
+  css(
+    $el: PopsDOMUtilsTargetElementType,
+    property: PopsDOMUtilsCSSPropertyType & string,
+    value: string | number
+  ): string;
   /**
    * 设置元素的样式属性
-   * @param element 目标元素
+   * @param $el 目标元素
    * @param property 样式属性名或包含多个属性名和属性值的对象
    * @param value 样式属性值
    * @example
@@ -1718,25 +1730,20 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
    * */
   css(
-    element: HTMLElement | string,
+    $el: PopsDOMUtilsTargetElementType,
     property:
-      | {
-          [P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
-        }
+      | PopsDOMUtilsCSSProperty
       | {
           [key: string]: string | number;
         }
+      | string
   ): string;
   css(
-    element: HTMLElement | string,
-    property:
-      | keyof CSSStyleDeclaration
-      | string
-      | {
-          [P in keyof CSSStyleDeclaration]?: string | number | CSSStyleDeclaration[P];
-        },
+    $el: PopsDOMUtilsTargetElementType,
+    property: PopsDOMUtilsCSSPropertyType | string | PopsDOMUtilsCSSProperty,
     value?: string | number
   ) {
+    const that = this;
     /**
      * 把纯数字没有px的加上
      */
@@ -1750,10 +1757,31 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       }
       return propertyValue;
     }
-    if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+    if (typeof $el === "string") {
+      $el = that.selectorAll($el);
     }
-    if (element == null) {
+    if ($el == null) {
+      return;
+    }
+    if (Array.isArray($el) || $el instanceof NodeList) {
+      if (typeof property === "string") {
+        if (value == null) {
+          // 获取属性
+          return that.css($el[0] as HTMLElement, property);
+        } else {
+          // 设置属性
+          $el.forEach(($elItem) => {
+            that.css($elItem as HTMLElement, property);
+          });
+          return;
+        }
+      } else if (typeof property === "object") {
+        // 设置属性
+        $el.forEach(($elItem) => {
+          that.css($elItem as HTMLElement, property as PopsDOMUtilsCSSProperty);
+        });
+        return;
+      }
       return;
     }
     const setStyleProperty = (propertyName: string, propertyValue: string | number) => {
@@ -1762,23 +1790,26 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
           .trim()
           .replace(/!important$/gi, "")
           .trim();
-        element.style.setProperty(propertyName, propertyValue, "important");
+        $el.style.setProperty(propertyName, propertyValue, "important");
       } else {
         propertyValue = handlePixe(propertyName, propertyValue);
-        element.style.setProperty(propertyName, propertyValue);
+        $el.style.setProperty(propertyName, propertyValue);
       }
     };
     if (typeof property === "string") {
       if (value == null) {
-        return getComputedStyle(element).getPropertyValue(property);
+        return PopsCore.globalThis.getComputedStyle($el).getPropertyValue(property);
       } else {
         setStyleProperty(property, value);
       }
     } else if (typeof property === "object") {
       for (const prop in property) {
-        const value = property[prop];
+        const value = property[prop as keyof typeof property];
         setStyleProperty(prop, value!);
       }
+    } else {
+      // 其他情况
+      throw new TypeError("property must be string or object");
     }
   }
   /**

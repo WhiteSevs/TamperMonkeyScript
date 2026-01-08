@@ -11,7 +11,7 @@ export const PopsTooltipDefaultConfig = (): DeepRequired<PopsToolTipConfig> => {
     isFixed: false,
     alwaysShow: false,
     onShowEventName: "mouseenter touchstart",
-    onCloseEventName: "mouseleave touchend",
+    onCloseEventName: "mouseleave touchend touchcancel",
     zIndex: 10000,
     only: false,
     eventOption: {

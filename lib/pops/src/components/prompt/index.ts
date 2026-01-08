@@ -133,6 +133,7 @@ export const PopsPrompt = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     // 输入框赋值初始值
 
     $input.value = config.content.text;
@@ -188,6 +189,8 @@ export const PopsPrompt = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
     // 拖拽
     if (config.drag) {
@@ -207,7 +210,6 @@ export const PopsPrompt = {
     if (config.content.select) {
       $input.select();
     }
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

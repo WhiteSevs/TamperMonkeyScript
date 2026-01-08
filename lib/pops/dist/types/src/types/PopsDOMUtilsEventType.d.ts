@@ -272,3 +272,42 @@ export declare type PopsDOMUtilsEventListenerOption = AddEventListenerOptions & 
    */
   isComposedPath?: boolean;
 };
+
+export type PopsDOMUtilsTargetElementType = HTMLElement | string | NodeList | HTMLElement[];
+
+/**
+ * 属性转驼峰
+ */
+export type PopsDOMUtilsCamelToKebabCSSProperty<S extends string> = S extends `webkit${infer U}`
+  ? `-${Lowercase<"webkit">}${U extends `${infer First}${infer Rest}`
+      ? First extends Uppercase<First>
+        ? `-${Uncapitalize<First>}${PopsDOMUtilsCamelToKebabCSSProperty<Rest>}`
+        : `${First}${PopsDOMUtilsCamelToKebabCSSProperty<Rest>}`
+      : U}`
+  : S extends `${infer T}${infer U}`
+    ? U extends Uncapitalize<U>
+      ? `${Uncapitalize<T>}${PopsDOMUtilsCamelToKebabCSSProperty<U>}`
+      : `${Uncapitalize<T>}-${PopsDOMUtilsCamelToKebabCSSProperty<U>}`
+    : S;
+
+export type PopsDOMUtilsCSSPropertyType = PopsDOMUtilsCamelToKebabCSSProperty<
+  Extract<
+    keyof Omit<
+      CSSStyleDeclaration,
+      | "cssFloat"
+      | "cssText"
+      | "length"
+      | "parentRule"
+      | "getPropertyPriority"
+      | "getPropertyValue"
+      | "item"
+      | "removeProperty"
+      | "setProperty"
+    >,
+    string
+  >
+>;
+
+export type PopsDOMUtilsCSSProperty = {
+  [P in PopsDOMUtilsCSSPropertyType]: string | number;
+};

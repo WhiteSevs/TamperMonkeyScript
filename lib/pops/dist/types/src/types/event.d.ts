@@ -18,10 +18,20 @@ export interface PopsEventConfig {
   $mask?: HTMLDivElement;
   /** 当前弹窗类型 */
   mode: PopsType;
+  /** 唯一id */
   guid: string;
-  close: () => Promise<void>;
-  hide: () => Promise<void>;
-  show: () => Promise<void>;
+  /**
+   * 关闭弹窗
+   */
+  close(): Promise<void>;
+  /**
+   * 隐藏弹窗
+   */
+  hide(): Promise<void>;
+  /**
+   * 显示弹出
+   */
+  show($parent?: HTMLElement | Document | ShadowRoot): Promise<void>;
 }
 
 /**

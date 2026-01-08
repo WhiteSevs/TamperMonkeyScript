@@ -146,6 +146,7 @@ export const PopsPanel = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     // 为顶部右边的关闭按钮添加点击事件
     PopsHandler.handleClickEvent("close", $headerBtnClose, evtConfig, config.btn?.close?.callback);
 
@@ -185,6 +186,8 @@ export const PopsPanel = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
     // 拖拽
     if (config.drag) {
@@ -196,7 +199,6 @@ export const PopsPanel = {
         endCallBack: config.dragEndCallBack,
       });
     }
-    const result = PopsHandler.handleResultConfig(evtConfig);
 
     return {
       ...result,

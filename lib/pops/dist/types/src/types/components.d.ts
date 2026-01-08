@@ -184,7 +184,7 @@ export interface PopsGeneralConfig {
    *
    * @default 10000
    */
-  zIndex?: number | (() => number);
+  zIndex?: IFunction<number>;
   /**
    * 遮罩层
    */
@@ -199,6 +199,7 @@ export interface PopsGeneralConfig {
   forbiddenScroll?: boolean;
   /**
    * （可选）自定义style
+   * @default ""
    */
   style?: string | null;
   /**

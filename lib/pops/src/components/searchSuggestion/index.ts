@@ -488,9 +488,9 @@ export const PopsSearchSuggestion = {
       setShowEvent(option: AddEventListenerOptions = defaultListenerOption) {
         /* 焦点|点击事件*/
         if (config.followPosition === "target") {
-          popsDOMUtils.on([config.$target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+          popsDOMUtils.on([config.$target], ["focus", "click"], SearchSuggestion.showEvent, option);
         } else if (config.followPosition === "input") {
-          popsDOMUtils.on([config.$inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+          popsDOMUtils.on([config.$inputTarget], ["focus", "click"], SearchSuggestion.showEvent, option);
         } else if (config.followPosition === "inputCursor") {
           popsDOMUtils.on([config.$inputTarget], ["focus", "click", "input"], SearchSuggestion.showEvent, option);
         } else {
@@ -502,15 +502,9 @@ export const PopsSearchSuggestion = {
        */
       removeShowEvent(option: AddEventListenerOptions = defaultListenerOption) {
         /* 焦点|点击事件*/
-        popsDOMUtils.off(
-          [config.$target, config.$inputTarget],
-          ["focus", "click"],
-          void 0,
-          SearchSuggestion.showEvent,
-          option
-        );
+        popsDOMUtils.off([config.$target, config.$inputTarget], ["focus", "click"], SearchSuggestion.showEvent, option);
         // 内容改变事件
-        popsDOMUtils.off([config.$inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
+        popsDOMUtils.off([config.$inputTarget], ["input"], SearchSuggestion.showEvent, option);
       },
       /**
        * 隐藏搜索建议框的事件
@@ -541,7 +535,7 @@ export const PopsSearchSuggestion = {
         // 全局触摸屏点击事件
         if (Array.isArray(SearchSuggestion.selfDocument)) {
           SearchSuggestion.selfDocument.forEach(($checkParent) => {
-            popsDOMUtils.on($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.on($checkParent, ["click", "touchstart"], SearchSuggestion.hideEvent, option);
           });
         } else {
           popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], SearchSuggestion.hideEvent, option);
@@ -553,16 +547,10 @@ export const PopsSearchSuggestion = {
       removeHideEvent(option: AddEventListenerOptions = defaultListenerOption) {
         if (Array.isArray(SearchSuggestion.selfDocument)) {
           SearchSuggestion.selfDocument.forEach(($checkParent) => {
-            popsDOMUtils.off($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.off($checkParent, ["click", "touchstart"], SearchSuggestion.hideEvent, option);
           });
         } else {
-          popsDOMUtils.off(
-            SearchSuggestion.selfDocument,
-            ["click", "touchstart"],
-            void 0,
-            SearchSuggestion.hideEvent,
-            option
-          );
+          popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], SearchSuggestion.hideEvent, option);
         }
       },
       /**

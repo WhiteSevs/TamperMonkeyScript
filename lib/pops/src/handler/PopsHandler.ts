@@ -171,12 +171,12 @@ export const PopsHandler = {
         );
       }
       // 判断按下的元素是否是pops-anim
-      popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], void 0, (event) => {
+      popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         isMaskClick = isAnimElement($click);
       });
       // 如果有动画层，在动画层上监听点击事件
-      popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", void 0, (event) => {
+      popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         if (isAnimElement($click) && isMaskClick) {
           return clickEvent(event);
@@ -184,7 +184,7 @@ export const PopsHandler = {
       });
       // 在遮罩层监听点击事件
       // 如果有动画层，那么该点击事件触发不了
-      popsDOMUtils.on<MouseEvent | PointerEvent>(result.maskElement, "click", void 0, (event) => {
+      popsDOMUtils.on<MouseEvent | PointerEvent>(result.maskElement, "click", (event) => {
         isMaskClick = true;
         clickEvent(event);
       });
@@ -343,7 +343,7 @@ export const PopsHandler = {
    * @param guid
    * @param $shadowContainer
    * @param $shadowRoot
-   * @param mode 当前弹窗类型
+   * @param type 当前弹窗类型
    * @param $anim 动画层
    * @param $pops 主元素
    * @param $mask 遮罩层
@@ -362,7 +362,7 @@ export const PopsHandler = {
     guid: string,
     $shadowContainer: HTMLDivElement,
     $shadowRoot: ShadowRoot | HTMLElement,
-    mode: PopsInstStoreType,
+    type: PopsInstStoreType,
     $anim: HTMLDivElement,
     $pops: HTMLDivElement,
     $mask?: HTMLDivElement
@@ -374,23 +374,26 @@ export const PopsHandler = {
       $anim: $anim,
       $pops: $pops,
       $mask: $mask,
-      mode: mode,
+      mode: type,
       guid: guid,
       close() {
-        return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
+        return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
+        return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
       },
-      show() {
-        return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
+      show($parent?: HTMLElement | Document | ShadowRoot) {
+        if ($parent) {
+          $parent.appendChild(PopsInstData[type][0].$shadowRoot);
+        }
+        return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
       },
     };
   },
   /**
    * 获取loading的事件配置
    * @param guid
-   * @param mode 当前弹窗类型
+   * @param type 当前弹窗类型
    * @param $anim 动画层
    * @param $pops 主元素
    * @param $mask 遮罩层
@@ -407,7 +410,7 @@ export const PopsHandler = {
       | PopsPanelConfig
       | PopsFolderConfig,
     guid: string,
-    mode: "loading",
+    type: "loading",
     $anim: HTMLDivElement,
     $pops: HTMLDivElement,
     $mask?: HTMLDivElement
@@ -417,16 +420,16 @@ export const PopsHandler = {
       $anim: $anim,
       $pops: $pops,
       $mask: $mask,
-      mode: mode,
+      mode: type,
       guid: guid,
       close() {
-        return PopsInstanceUtils.close(config, mode, PopsInstData[mode], guid, $anim);
+        return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(config, mode, PopsInstData[mode], guid, $anim, $mask);
+        return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
       },
       show() {
-        return PopsInstanceUtils.show(config, mode, PopsInstData[mode], guid, $anim, $mask);
+        return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
       },
     };
   },
@@ -563,8 +566,8 @@ export const PopsHandler = {
   handleOnly<T extends Required<PopsSupportOnlyConfig[keyof PopsSupportOnlyConfig]>>(type: PopsType, config: T): T {
     if (config.only) {
       // .loading
-      // .tooltip
       // .rightClickMenu
+      // .tooltip
       // 单独处理
       if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
         const inst = PopsInstData[type as keyof typeof PopsInstData];
@@ -576,11 +579,11 @@ export const PopsHandler = {
           [
             PopsInstData.alert,
             PopsInstData.confirm,
-            PopsInstData.prompt,
-            PopsInstData.iframe,
             PopsInstData.drawer,
             PopsInstData.folder,
+            PopsInstData.iframe,
             PopsInstData.panel,
+            PopsInstData.prompt,
           ],
           "",
           true

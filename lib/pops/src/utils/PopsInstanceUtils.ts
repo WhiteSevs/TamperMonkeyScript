@@ -13,6 +13,8 @@ import { popsUtils } from "./PopsUtils";
 import { PopsCore } from "../PopsCore";
 import { PopsInstData } from "../PopsInst";
 import { PopsAnimation } from "../PopsAnimation";
+import type { PopsRightClickMenuConfig } from "../components/rightClickMenu/types";
+import type { PopsToolTipConfig } from "../components/tooltip/types";
 
 export const PopsInstanceUtils = {
   /**
@@ -155,16 +157,16 @@ export const PopsInstanceUtils = {
   },
   /**
    * 删除配置中对应的对象
-   * @param instConfigList 配置实例列表
+   * @param totalInstConfigList 配置实例列表
    * @param  guid 唯一标识
    * @param isAll 是否全部删除
    */
-  removeInstance(instConfigList: PopsInstGeneralConfig[][], guid: string, isAll = false) {
+  async removeInstance(totalInstConfigList: PopsInstGeneralConfig[][], guid?: string, isAll = false) {
     /**
      * 移除元素实例
      * @param instCommonConfig
      */
-    function removeItem(instCommonConfig: PopsInstGeneralConfig) {
+    const removeInst = function (instCommonConfig: PopsInstGeneralConfig) {
       if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
         // 调用移除签的回调
         instCommonConfig.beforeRemoveCallBack(instCommonConfig);
@@ -173,43 +175,49 @@ export const PopsInstanceUtils = {
       instCommonConfig?.$pops?.remove();
       instCommonConfig?.$mask?.remove();
       instCommonConfig?.$shadowContainer?.remove();
-    }
+    };
+    const asyncInstTask: Promise<void>[] = [];
     // [ inst[], inst[],...]
-    instConfigList.forEach((instConfigList) => {
+    totalInstConfigList.forEach((instConfigList) => {
       //  inst[]
-      instConfigList.forEach((instConfigItem, index) => {
+      instConfigList.forEach(async (instConfigItem, index) => {
         // 移除全部或者guid相同
-        if (isAll || instConfigItem["guid"] === guid) {
+        if (isAll || (typeof guid === "string" && instConfigItem.guid === guid)) {
           // 判断是否有动画
           const animName = instConfigItem.$anim.getAttribute("anim")!;
           if (PopsAnimation.hasAnim(animName)) {
             const reverseAnimName = animName + "-reverse";
-            instConfigItem.$anim.style.width = "100%";
-            instConfigItem.$anim.style.height = "100%";
-            (instConfigItem.$anim.style as any)["animation-name"] = reverseAnimName;
-            if (PopsAnimation.hasAnim((instConfigItem.$anim.style as any)["animation-name"])) {
-              popsDOMUtils.on(
-                instConfigItem.$anim,
-                popsDOMUtils.getAnimationEndNameList(),
-                function () {
-                  removeItem(instConfigItem);
-                },
-                {
-                  capture: true,
-                }
+            popsDOMUtils.css(instConfigItem.$anim, "width", "100%");
+            popsDOMUtils.css(instConfigItem.$anim, "height", "100%");
+            popsDOMUtils.css(instConfigItem.$anim, "animation-name", reverseAnimName);
+            if (PopsAnimation.hasAnim(popsDOMUtils.css(instConfigItem.$anim, "animation-name"))) {
+              asyncInstTask.push(
+                new Promise<void>((resolve) => {
+                  popsDOMUtils.on(
+                    instConfigItem.$anim,
+                    popsDOMUtils.getAnimationEndNameList(),
+                    function () {
+                      removeInst(instConfigItem);
+                      resolve();
+                    },
+                    {
+                      capture: true,
+                    }
+                  );
+                })
               );
             } else {
-              removeItem(instConfigItem);
+              removeInst(instConfigItem);
             }
           } else {
-            removeItem(instConfigItem);
+            removeInst(instConfigItem);
           }
           instConfigList.splice(index, 1);
         }
       });
     });
-
-    return instConfigList;
+    await Promise.all(asyncInstTask);
+    return totalInstConfigList;
   },
   /**
    * 隐藏
@@ -385,7 +393,7 @@ export const PopsInstanceUtils = {
    * @param config
    * @param $anim
    */
-  close(
+  async close(
     config:
       | PopsAlertConfig
       | PopsDrawerConfig
@@ -400,7 +408,8 @@ export const PopsInstanceUtils = {
     guid: string,
     $anim: HTMLElement
   ) {
-    return new Promise<void>((resolve) => {
+    // eslint-disable-next-line no-async-promise-executor
+    await new Promise<void>(async (resolve) => {
       const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       const drawerConfig = config as Required<PopsDrawerConfig>;
       /**
@@ -410,12 +419,12 @@ export const PopsInstanceUtils = {
         /**
          * 弹窗已关闭的回调
          */
-        function closeCallBack(event: Event) {
+        async function closeCallBack(event: Event) {
           if ((event as TransitionEvent).propertyName !== "transform") {
             return;
           }
-          popsDOMUtils.off($pops, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
-          PopsInstanceUtils.removeInstance([instConfigList], guid);
+          popsDOMUtils.off($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
+          await PopsInstanceUtils.removeInstance([instConfigList], guid);
           resolve();
         }
         // 监听过渡结束
@@ -443,8 +452,31 @@ export const PopsInstanceUtils = {
           transitionendEvent();
         }, drawerConfig.closeDelay);
       } else {
-        PopsInstanceUtils.removeInstance([instConfigList], guid);
+        await PopsInstanceUtils.removeInstance([instConfigList], guid);
         resolve();
+      }
+    });
+
+    // 判断组件内是否有rightClickMenu、tooltip、searchSuggestion组件
+    // 有的话也需要关闭
+    PopsInstData.rightClickMenu.forEach((itemConfig) => {
+      const config = itemConfig.config as PopsRightClickMenuConfig;
+      if (config.$target instanceof HTMLElement) {
+        const $root = config.$target.getRootNode();
+        if ($root instanceof HTMLElement && $root.parentElement == null) {
+          // 触发销毁元素
+          itemConfig.destory();
+        }
+      }
+    });
+    PopsInstData.tooltip.forEach((itemConfig) => {
+      const config = itemConfig.config as PopsToolTipConfig;
+      if (config.$target instanceof HTMLElement) {
+        const $root = config.$target.getRootNode();
+        if ($root instanceof HTMLElement && $root.parentElement == null) {
+          // 触发销毁元素
+          itemConfig.destory();
+        }
       }
     });
   },

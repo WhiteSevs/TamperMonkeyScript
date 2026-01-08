@@ -21,4 +21,8 @@ export interface PopsInstGeneralConfig extends PopsInstConfig {
   $shadowRoot: ShadowRoot | HTMLElement;
   /** 移除实例前的回调函数 */
   beforeRemoveCallBack?: (instCommonConfig: PopsInstGeneralConfig) => void;
+  /** 配置 */
+  config: any;
+  /** 销毁元素 */
+  destory(): void | Promise<void>;
 }

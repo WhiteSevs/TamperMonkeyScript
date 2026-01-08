@@ -240,14 +240,14 @@ export class ToolTip {
       this.$data.config.otherDistance,
       event
     );
-    const positionKey = this.$data.config.position.toUpperCase() as any as keyof typeof positionInfo;
-    const positionDetail = positionInfo[positionKey];
-    if (positionDetail) {
-      this.$el.$toolTip.style.left = positionDetail.left + "px";
-      this.$el.$toolTip.style.top = positionDetail.top + "px";
-      this.$el.$toolTip.setAttribute("data-motion", positionDetail.motion);
+    const positionKey = this.$data.config.position.toUpperCase() as keyof typeof positionInfo;
+    const position = positionInfo[positionKey];
+    if (position) {
+      this.$el.$toolTip.style.left = position.left + "px";
+      this.$el.$toolTip.style.top = position.top + "px";
+      this.$el.$toolTip.setAttribute("data-motion", position.motion);
 
-      this.$el.$arrow.setAttribute("data-position", positionDetail.arrow);
+      this.$el.$arrow.setAttribute("data-position", position.arrow);
     } else {
       console.error("不存在该位置", this.$data.config.position);
     }
@@ -443,13 +443,13 @@ export class ToolTip {
    */
   destory() {
     if (this.$el.$toolTip) {
-      this.$el.$shadowRoot.removeChild(this.$el.$toolTip);
+      this.$el.$toolTip.remove();
     }
-    // @ts-ignore
+    // @ts-expect-error
     this.$el.$toolTip = null;
-    // @ts-ignore
+    // @ts-expect-error
     this.$el.$arrow = null;
-    // @ts-ignore
+    // @ts-expect-error
     this.$el.$content = null;
   }
   /**
@@ -502,7 +502,7 @@ export class ToolTip {
     );
   }
   /**
-   * 取消监听鼠标|触摸事件
+   * 取消监听事件 - 鼠标|触摸
    */
   offToolTipMouseEnterEvent() {
     popsDOMUtils.off(
@@ -513,30 +513,30 @@ export class ToolTip {
     );
   }
   /**
-   * 鼠标|触摸离开事件
+   * 离开事件 - 鼠标|触摸
    */
   toolTipMouseLeaveEvent(event: MouseEvent | PointerEvent) {
     this.close(event);
     // this.$el.$toolTip.style.animationPlayState = "running";
   }
   /**
-   * 监听鼠标|触摸离开事件
+   * 监听离开事件 - 鼠标|触摸
    */
   onToolTipMouseLeaveEvent() {
     popsDOMUtils.on(
       this.$el.$toolTip,
-      "mouseleave touchend",
+      "mouseleave touchend touchcancel",
       this.toolTipMouseLeaveEvent,
       this.$data.config.eventOption
     );
   }
   /**
-   * 取消监听鼠标|触摸离开事件
+   * 取消监听离开事件 - 鼠标|触摸
    */
   offToolTipMouseLeaveEvent() {
     popsDOMUtils.off(
       this.$el.$toolTip,
-      "mouseleave touchend",
+      "mouseleave touchend touchcancel",
       this.toolTipMouseLeaveEvent,
       this.$data.config.eventOption
     );
@@ -564,6 +564,15 @@ export const PopsTooltip = {
       throw new TypeError("config.target 必须是HTMLElement类型");
     }
     config = PopsHandler.handleOnly(popsType, config);
+
+    if (config.position === "follow") {
+      config.onShowEventName = config.onShowEventName.trim();
+      const showEventNameSplit = config.onShowEventName.split(" ");
+      ["mousemove", "touchmove"].forEach((it) => {
+        if (showEventNameSplit.includes(it)) return;
+        config.onShowEventName += ` ${it}`;
+      });
+    }
 
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [

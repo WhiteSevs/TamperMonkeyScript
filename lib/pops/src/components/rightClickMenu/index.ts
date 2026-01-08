@@ -80,6 +80,8 @@ export const PopsRightClickMenu = {
           return;
         }
         if ($click.className && $click.className === "pops-shadow-container" && $click.shadowRoot != null) {
+          // pops的shadow-container
+          PopsContextMenu.shadowRootCheckClickEvent(event);
           return;
         }
         PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
@@ -92,7 +94,7 @@ export const PopsRightClickMenu = {
         if (!PopsContextMenu.$el.$root) {
           return;
         }
-        const $click = event.target as HTMLElement;
+        const $click = event.composedPath()[0] as HTMLElement;
         if ($click.closest(`.pops-${popsType}`)) {
           return;
         }
@@ -102,13 +104,13 @@ export const PopsRightClickMenu = {
        * 添加全局点击检测事件
        */
       addWindowCheckClickListener() {
-        popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+        popsDOMUtils.on(globalThis, "click touchstart", PopsContextMenu.windowCheckClickEvent, {
           capture: true,
         });
         if (config.$target instanceof Node) {
           const $shadowRoot = config.$target.getRootNode();
           if ($shadowRoot instanceof ShadowRoot) {
-            popsDOMUtils.on($shadowRoot, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
+            popsDOMUtils.on($shadowRoot, "click touchstart", PopsContextMenu.shadowRootCheckClickEvent, {
               capture: true,
             });
           }
@@ -118,13 +120,13 @@ export const PopsRightClickMenu = {
        * 移除全局点击检测事件
        */
       removeWindowCheckClickListener() {
-        popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+        popsDOMUtils.off(globalThis, "click touchstart", PopsContextMenu.windowCheckClickEvent, {
           capture: true,
         });
         if (config.$target instanceof Node) {
           const $shadowRoot = config.$target.getRootNode();
           if ($shadowRoot instanceof ShadowRoot) {
-            popsDOMUtils.off($shadowRoot, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+            popsDOMUtils.off($shadowRoot, "click touchstart", PopsContextMenu.windowCheckClickEvent, {
               capture: true,
             });
           }
@@ -135,7 +137,7 @@ export const PopsRightClickMenu = {
        * @param event
        * @param selectorTarget
        */
-      contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>) {
+      async contextMenuEvent(event: PointerEvent, selectorTarget: NonNullable<PopsRightClickMenuConfig["$target"]>) {
         if (config.preventDefault) {
           popsDOMUtils.preventEvent(event);
         }
@@ -144,6 +146,10 @@ export const PopsRightClickMenu = {
           PopsContextMenu.closeAllMenu(PopsContextMenu.$el.$root);
         }
         selectorTarget = selectorTarget ?? config.$target;
+        const beforeShowCallBackResult = await config?.beforeShowCallBack(event);
+        if (typeof beforeShowCallBackResult === "boolean" && !beforeShowCallBackResult) {
+          return;
+        }
         const rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
         PopsContextMenu.$el.$root = rootElement;
         if (config.only) {
@@ -155,6 +161,10 @@ export const PopsRightClickMenu = {
             $pops: rootElement,
             beforeRemoveCallBack(instCommonConfig) {
               PopsContextMenu.closeAllMenu(instCommonConfig.$pops);
+            },
+            config: config,
+            destory: () => {
+              PopsContextMenu.closeAllMenu(rootElement);
             },
           });
         }
@@ -506,7 +516,8 @@ export const PopsRightClickMenu = {
             menuLiElement.appendChild(iconElement);
           }
           // 插入文字
-          menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`));
+          const text = typeof item.text === "function" ? item.text() : item.text;
+          menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${text}</span>`));
           // 如果存在子数据，显示
           if (item.item && Array.isArray(item.item)) {
             popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);

@@ -41,7 +41,7 @@ export interface PopsRightClickMenuDataConfig {
   /**
    * 文字
    */
-  text: string | (() => string);
+  text: IFunction<string>;
   /**
    * 点击的回调函数
    * @param clickEvent 点击菜单的click事件
@@ -133,4 +133,11 @@ export interface PopsRightClickMenuConfig
    * @default true
    */
   limitPositionYInView?: boolean;
+  /**
+   * 菜单显示前的回调
+   * @returns
+   *
+   * + `false`：阻止默认行为（显示菜单）
+   */
+  beforeShowCallBack?(event: PointerEvent): IPromise<false | void>;
 }

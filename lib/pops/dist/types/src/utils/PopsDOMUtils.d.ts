@@ -1,4 +1,4 @@
-import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType, PopsDOMUtilsAddEventListenerResult } from "../types/PopsDOMUtilsEventType";
+import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType, PopsDOMUtilsAddEventListenerResult, PopsDOMUtilsCSSProperty, PopsDOMUtilsCSSPropertyType, PopsDOMUtilsTargetElementType } from "../types/PopsDOMUtilsEventType";
 declare class PopsDOMUtilsEvent {
     /**
      * 绑定事件
@@ -517,7 +517,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
     /**
      * 获取元素的样式属性值
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param property 样式属性名或包含多个属性名和属性值的对象
      * @example
      * // 获取元素a.xx的CSS属性display
@@ -525,10 +525,10 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
+    css($el: PopsDOMUtilsTargetElementType, property: PopsDOMUtilsCSSPropertyType): string;
     /**
      * 获取元素的样式属性值
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param property 样式属性名或包含多个属性名和属性值的对象
      * @example
      * // 获取元素a.xx的CSS属性display
@@ -536,10 +536,10 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css(element: HTMLElement | string, property: string): string;
+    css($el: PopsDOMUtilsTargetElementType, property: string): string;
     /**
      * 设置元素的样式属性
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param property 样式属性名或包含多个属性名和属性值的对象
      * @param value 样式属性值
      * @example
@@ -553,10 +553,10 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
      * DOMUtils.css(document.querySelector("a.xx"),"top",10);
      * */
-    css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
+    css($el: PopsDOMUtilsTargetElementType, property: PopsDOMUtilsCSSPropertyType & string, value: string | number): string;
     /**
      * 设置元素的样式属性
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param property 样式属性名或包含多个属性名和属性值的对象
      * @param value 样式属性值
      * @example
@@ -568,11 +568,9 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),{ top: "10px" });
      * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
      * */
-    css(element: HTMLElement | string, property: {
-        [P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
-    } | {
+    css($el: PopsDOMUtilsTargetElementType, property: PopsDOMUtilsCSSProperty | {
         [key: string]: string | number;
-    }): string;
+    } | string): string;
     /**
      * 创建元素
      * @param tagName 标签名

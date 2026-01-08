@@ -155,19 +155,19 @@ export declare class ToolTip {
      */
     onToolTipMouseEnterEvent(): void;
     /**
-     * 取消监听鼠标|触摸事件
+     * 取消监听事件 - 鼠标|触摸
      */
     offToolTipMouseEnterEvent(): void;
     /**
-     * 鼠标|触摸离开事件
+     * 离开事件 - 鼠标|触摸
      */
     toolTipMouseLeaveEvent(event: MouseEvent | PointerEvent): void;
     /**
-     * 监听鼠标|触摸离开事件
+     * 监听离开事件 - 鼠标|触摸
      */
     onToolTipMouseLeaveEvent(): void;
     /**
-     * 取消监听鼠标|触摸离开事件
+     * 取消监听离开事件 - 鼠标|触摸
      */
     offToolTipMouseLeaveEvent(): void;
 }
@@ -206,7 +206,7 @@ export declare const PopsTooltip: {
             otherDistance: number;
             useShadowRoot: boolean;
             only: boolean;
-            zIndex: number | (() => number);
+            zIndex: IFunction<number>;
             style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };

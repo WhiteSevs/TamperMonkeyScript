@@ -118,6 +118,7 @@ export const PopsAlert = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     // 为顶部右边的关闭按钮添加点击事件
     PopsHandler.handleClickEvent("close", $headerCloseBtn, evtConfig, config.btn.close?.callback);
     // 为底部ok按钮添加点击事件
@@ -143,6 +144,8 @@ export const PopsAlert = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
     // 拖拽
     if (config.drag) {
@@ -155,7 +158,6 @@ export const PopsAlert = {
       });
     }
 
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

@@ -123,6 +123,7 @@ export const PopsConfirm = {
       $pops,
       $mask
     );
+    const result = PopsHandler.handleResultConfig(evtConfig);
     PopsHandler.handleClickEvent("close", $btnClose, evtConfig, config.btn.close.callback);
     PopsHandler.handleClickEvent("ok", $btnOk, evtConfig, config.btn.ok.callback);
     PopsHandler.handleClickEvent("cancel", $btnCancel, evtConfig, config.btn.cancel.callback);
@@ -146,6 +147,8 @@ export const PopsConfirm = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
     // 拖拽
     if (config.drag) {
@@ -157,7 +160,6 @@ export const PopsConfirm = {
         endCallBack: config.dragEndCallBack,
       });
     }
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

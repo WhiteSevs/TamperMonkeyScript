@@ -146,6 +146,8 @@ export const PopsIframe = {
     // 赋值额外的$iframe参数
     evtConfig.$iframe = $iframe!;
 
+    const result = PopsHandler.handleResultConfig(evtConfig);
+
     popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function () {
       // 动画加载完毕
       $anim.style.width = "0%";
@@ -301,10 +303,10 @@ export const PopsIframe = {
     popsDOMUtils.on<MouseEvent | PointerEvent>(
       headerCloseBtnElement,
       "click",
-      (event) => {
+      async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
+        await PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
         if (typeof config?.btn?.close?.callback === "function") {
           config.btn.close.callback(evtConfig, event);
         }
@@ -321,9 +323,9 @@ export const PopsIframe = {
       $mask: $mask!,
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
+      config: config,
+      destory: result.close,
     });
-
-    const result = PopsHandler.handleResultConfig(evtConfig);
     return result;
   },
 };

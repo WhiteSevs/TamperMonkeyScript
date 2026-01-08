@@ -98,5 +98,6 @@ export const PopsRightClickMenuDefaultConfig = (): DeepRequired<PopsRightClickMe
     beforeAppendToPageCallBack() {},
     limitPositionXInView: true,
     limitPositionYInView: true,
+    beforeShowCallBack() {},
   };
 };

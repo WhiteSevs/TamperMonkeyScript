@@ -44,11 +44,11 @@ export declare const PopsInstanceUtils: {
     getMaxZIndex(deviation?: number): number;
     /**
      * 删除配置中对应的对象
-     * @param instConfigList 配置实例列表
+     * @param totalInstConfigList 配置实例列表
      * @param  guid 唯一标识
      * @param isAll 是否全部删除
      */
-    removeInstance(instConfigList: PopsInstGeneralConfig[][], guid: string, isAll?: boolean): PopsInstGeneralConfig[][];
+    removeInstance(totalInstConfigList: PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<PopsInstGeneralConfig[][]>;
     /**
      * 隐藏
      * @param popsType
