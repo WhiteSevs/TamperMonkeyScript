@@ -126,7 +126,7 @@ class HttpxCookieManager {
       } else {
         details.headers["Cookie"] = ownCookie;
       }
-      log.info(["Httpx => 设置cookie:", details]);
+      log.info("Httpx => 设置cookie:", details);
     }
 
     if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {

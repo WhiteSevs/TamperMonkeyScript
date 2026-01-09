@@ -272,7 +272,7 @@ const Panel = {
         });
       }
       if (!menuDefaultConfig.size) {
-        log.warn(["请先配置键", config]);
+        log.warn("请先配置键", config);
         return;
       }
       if (config.type === "switch") {
@@ -821,15 +821,15 @@ const Panel = {
     this.$data.$panel = null;
     this.$data.panelContent = [];
     // 判断是否已有脚本版本号
-    let checkHasBottomVersionContentConfig =
+    const checkHasBottomVersionContentConfig =
       content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
         return isBottom && it.id === "script-version";
       }) !== -1;
     if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
       content.push(...PanelContent.getDefaultBottomContentConfig());
     }
-    let $panel = pops.panel({
+    const $panel = pops.panel({
       ...{
         title: {
           text: title,
@@ -862,6 +862,15 @@ const Panel = {
         height: PanelUISize.setting.height,
         drag: true,
         only: true,
+        style: /*css*/ `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
       },
       ...this.$data.panelConfig,
     });

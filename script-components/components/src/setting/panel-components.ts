@@ -76,7 +76,7 @@ const PanelComponents = {
     this.$data.storeApiValue.set(type, storageApiValue);
   },
   /**
-   * 初始化组件的存储接口属性
+   * 初始化/覆盖组件的存储接口属性
    *
    * @param type 组件类型
    * @param config 组件配置，必须包含prop属性
