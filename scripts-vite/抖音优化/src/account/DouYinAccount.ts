@@ -105,7 +105,7 @@ export const DouYinAccount = {
      * 获取用户信息
      * @param $el
      */
-    function getUserInfo($el: HTMLElement) {
+    const getUserInfo = function ($el: HTMLElement) {
       const userInfoList = [];
       const reactInstance = utils.getReactInstance($el);
       const reactFiber = reactInstance?.reactFiber;
@@ -123,12 +123,12 @@ export const DouYinAccount = {
         userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo);
       }
       return userInfoList;
-    }
+    };
     /**
      * 设置登录
      * @param $el
      */
-    function setLogin($el: HTMLElement) {
+    const setLogin = function ($el: HTMLElement) {
       getUserInfo($el).forEach((userInfo) => {
         if (!userInfo.isLogin) {
           userInfo.info = info;
@@ -136,7 +136,7 @@ export const DouYinAccount = {
           userInfo.statusCode = 0;
         }
       });
-    }
+    };
     DouYinElement.watchFeedVideoListChange(setLogin);
     DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
@@ -217,6 +217,18 @@ export const DouYinAccount = {
       result = result.concat(this.watchLoginDialogToClose());
     }
     result = result.concat(this.watchCommentDialogToClose());
+
+    // 清除localStorage的key
+    window.localStorage.removeItem("UNLOGIN_CLARITY_NEW");
+    window.localStorage.setItem("HasUserLogin", "1");
+    window.localStorage.setItem(
+      "has_login_show",
+      JSON.stringify({
+        count: 1,
+        lastTime: Date.now() - 1000 * 60 * 60 * 12,
+        firstTime: Date.now() - 1000 * 60 * 60 * 12,
+      })
+    );
     return result;
   },
   /**

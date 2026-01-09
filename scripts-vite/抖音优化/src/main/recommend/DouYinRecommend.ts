@@ -3,11 +3,15 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
 
 export const DouYinRecommend = {
   init() {
     Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
       return this.pauseVideo();
+    });
+    Panel.execMenuOnce("dy-recommend-disableVideoSatisfaction", () => {
+      this.disableVideoSatisfaction();
     });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
@@ -177,5 +181,12 @@ export const DouYinRecommend = {
         observer?.disconnect();
       },
     ];
+  },
+  /**
+   * 禁用视频满意评价
+   */
+  disableVideoSatisfaction() {
+    log.info(`禁用视频满意评价`);
+    unsafeWindow.localStorage.setItem("questionV1", String(Date.now() - 1000 * 60 * 60));
   },
 };

@@ -17,6 +17,7 @@ export const PanelRecommendConfig: PopsPanelContentConfig = {
           void 0,
           "注意：请勿和推荐页面自带的<code>连播</code>功能同时使用"
         ),
+        UISwitch("禁用视频满意评价", "dy-recommend-disableVideoSatisfaction", false),
       ],
     },
   ],

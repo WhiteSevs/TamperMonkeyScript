@@ -103,6 +103,9 @@ export const DouYinVideoPlayer = {
     Panel.execMenuOnce("dy-video-allowSelectTitleText", () => {
       return this.allowSelectTitleText();
     });
+    Panel.execMenuOnce("dy-video-playerCollectShowScroll", () => {
+      return this.playerCollectShowScroll();
+    });
     DOMUtils.onReady(() => {
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
       Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
@@ -185,7 +188,7 @@ export const DouYinVideoPlayer = {
           keyCode: 89,
           which: 89,
         });
-        document.dispatchEvent(keydownEvent);
+        document.body.dispatchEvent(keydownEvent);
         this.$flag.isWaitEnterFullScreen = false;
         log.success("成功自动进入网页全屏-快捷键");
       });
@@ -1357,5 +1360,16 @@ export const DouYinVideoPlayer = {
         listener.off();
       },
     ];
+  },
+  /**
+   * 收藏夹显示滚动条
+   */
+  playerCollectShowScroll() {
+    log.info(`收藏夹显示滚动条`);
+    return addStyle(/*css*/ `
+      [data-e2e="video-player-collect"] + div div:has(>.semi-radioGroup){
+        scrollbar-width: thin !important;
+      }
+    `);
   },
 };

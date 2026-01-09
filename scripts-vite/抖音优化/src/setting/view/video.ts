@@ -112,8 +112,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "双击视频自动进入网页全屏，检测间隔250ms"
                 ),
-                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0),
-                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false, void 0),
+                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false),
+                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false),
                 UISelect(
                   "object-fit",
                   "dy-video-object-fit",
@@ -147,7 +147,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "对video的object-fit属性进行覆盖"
                 ),
-                UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false, void 0),
+                UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
+                UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll", false),
               ],
             },
             {

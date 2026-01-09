@@ -1192,29 +1192,68 @@ export const DouYinVideoFilter = {
           enable: true,
           option: [
             {
-              name: "过滤-已启用",
-              filterCallBack(data) {
-                return data.enable;
+              name: "无",
+              value: "",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
               },
-              callback(event, closeDialog) {
-                Panel.setValue("dy-video-ui-rule-filter-option-index", 0);
+              filterCallBack(data) {
                 return true;
               },
             },
             {
-              name: "过滤-未启用",
+              name: "已启用",
+              value: "external-enabled",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
+              },
+              filterCallBack(data) {
+                return data.enable;
+              },
+            },
+            {
+              name: "未启用",
+              value: "external-notEnabled",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
+              },
               filterCallBack(data) {
                 return !data.enable;
               },
-              callback(event, closeDialog) {
-                Panel.setValue("dy-video-ui-rule-filter-option-index", 1);
-                return true;
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名称",
+              value: "rule-name",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+              },
+              filterCallBack(data, searchText) {
+                return Boolean(data.name.match(searchText));
+              },
+            },
+            {
+              name: "属性值",
+              value: "rule-ruleValue",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+              },
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.ruleValue.match(searchText));
+              },
+            },
+            {
+              name: "备注",
+              value: "rule-remarks",
+              selectedCallBack(config) {
+                Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+              },
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.remarks.match(searchText));
               },
             },
           ],
-          cancelFilterCallback(config) {
-            Panel.deleteValue("dy-video-ui-rule-filter-option-index");
-          },
         },
         clear: {
           enable: true,
@@ -1233,7 +1272,10 @@ export const DouYinVideoFilter = {
    */
   showView() {
     const ruleView = this.getRuleViewInstance();
-    ruleView.showView(Panel.getValue("dy-video-ui-rule-filter-option-index"));
+    ruleView.showView({
+      external: Panel.getValue("dy-video-ui-rule-filter-option-external-index"),
+      rule: Panel.getValue("dy-video-ui-rule-filter-option-rule-index"),
+    });
   },
   /**
    * 获取模板数据
