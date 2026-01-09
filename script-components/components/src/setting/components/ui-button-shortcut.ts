@@ -35,8 +35,8 @@ export const UIButtonShortCut = function (
   shortCut: ShortCut
 ) {
   const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
-  if (typeof defaultValue === "object") {
-    // 初始化配置
+  if (typeof defaultValue === "object" && defaultValue != null) {
+    // 初始化快捷键配置
     shortCut.initConfig(key, defaultValue);
   }
   // 获取按钮文字
@@ -66,7 +66,7 @@ export const UIButtonShortCut = function (
       const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
       loadingQmsg.close();
       if (status) {
-        log.success(["成功录入快捷键", option]);
+        log.success("成功录入快捷键", option);
         Qmsg.success("成功录入");
       } else {
         Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);

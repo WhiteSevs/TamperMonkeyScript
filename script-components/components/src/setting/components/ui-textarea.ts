@@ -19,10 +19,10 @@ export const UITextArea = function (
   key: string,
   defaultValue: string,
   description?: string,
-  changeCallback?: ((event: InputEvent, value: string) => void | boolean) | undefined,
+  changeCallback?: (event: InputEvent, value: string) => void | boolean,
   placeholder: string = "",
   disabled?: boolean,
-  valueChangeCallBack?: ((event: InputEvent, value: string) => void | boolean) | undefined
+  valueChangeCallBack?: (event: InputEvent, value: string) => void | boolean
 ) {
   const result: PopsPanelTextAreaConfig = {
     text: text,

@@ -21,11 +21,11 @@ export const UISelectMultiple = function <T>(
   key: string,
   defaultValue: T[],
   data: PopsPanelSelectMultipleConfig<T>["data"] | (() => PopsPanelSelectMultipleConfig<T>["data"]),
-  selectCallBack?: ((selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean) | undefined,
+  selectCallBack?: (selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean,
   description?: string,
   placeholder = "请至少选择一个选项",
   selectConfirmDialogDetails?: Partial<PopsAlertConfig>,
-  valueChangeCallBack?: ((selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean) | undefined
+  valueChangeCallBack?: (selectInfo: PopsPanelSelectMultipleConfig<T>["data"]) => void | boolean
 ): PopsPanelSelectMultipleConfig<T> {
   let selectData: PopsPanelSelectMultipleConfig<T>["data"] = [];
   if (typeof data === "function") {

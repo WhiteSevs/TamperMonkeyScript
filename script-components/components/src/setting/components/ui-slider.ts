@@ -22,11 +22,11 @@ export const UISlider = function (
   defaultValue: number,
   min: number,
   max: number,
-  changeCallback?: ((event: InputEvent, value: number) => boolean | void) | undefined,
+  changeCallback?: (event: InputEvent, value: number) => boolean | void,
   getToolTipContent?: (value: number) => string,
-  description?: string | undefined,
+  description?: string,
   step?: number,
-  valueChangeCallBack?: ((event: InputEvent, value: number) => boolean | void) | undefined
+  valueChangeCallBack?: (event: InputEvent, value: number) => boolean | void
 ): PopsPanelSliderConfig {
   const result: PopsPanelSliderConfig = {
     text: text,

@@ -25,11 +25,9 @@ export const UIButton = function (
   buttonIsRightIcon: boolean | undefined,
   buttonIconIsLoading: boolean | undefined,
   buttonType: PopsButtonStyleType,
-  clickCallBack?: ((event: MouseEvent | PointerEvent) => void) | undefined,
-  afterAddToUListCallBack?:
-    | ((viewConfig: PopsPanelButtonConfig, container: PopsPanelRightAsideContainerConfig) => void)
-    | undefined,
-  disable?: boolean | undefined | (() => boolean)
+  clickCallBack?: (event: MouseEvent | PointerEvent) => void,
+  afterAddToUListCallBack?: (viewConfig: PopsPanelButtonConfig, container: PopsPanelRightAsideContainerConfig) => void,
+  disable?: boolean | (() => boolean)
 ): PopsPanelButtonConfig {
   const result: PopsPanelButtonConfig = {
     text: text,
