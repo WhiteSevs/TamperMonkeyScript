@@ -1,8 +1,47 @@
 import Qmsg from "qmsg";
-import { DOMUtils, log, pops } from "../base.env";
+import { DOMUtils, log, pops, utils } from "../base.env";
 import { RuleEditView } from "./RuleEditView";
-import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
 
+type RuleViewSearchExternalOption<T> = {
+  /** 显示的名称 */
+  name: string;
+  /** 值，用于初始化时按照对应的value进行执行过滤 */
+  value: any;
+  /**
+   * 选项选中触发的回调
+   * @param config
+   */
+  selectedCallBack?(config: RuleViewSearchExternalOption<T>): void;
+  /**
+   * @param data
+   * @returns
+   *
+   * + `true`: 需要该数据
+   * + `false`: 不需要该数据
+   */
+  filterCallBack?(data: T): boolean;
+};
+type RuleViewSearchRuleValueOption<T> = {
+  /** 显示的名称 */
+  name: string;
+  /** 值，用于初始化时按照对应的value进行执行过滤 */
+  value: any;
+  /**
+   * 对input输入的字符串进行匹配
+   * @param data
+   * @param searchText 匹配的文本
+   * @returns
+   *
+   * + `true`: 需要该数据
+   * + `false`: 不需要该数据
+   */
+  filterCallBack(data: T, searchText: string): boolean;
+  /**
+   * 选项选中触发的回调
+   * @param config
+   */
+  selectedCallBack?(config: RuleViewSearchRuleValueOption<T>): void;
+};
 /**
  * 规则视图配置
  */
@@ -81,14 +120,13 @@ type RuleViewOption<T> = {
       /**
        * 当提交表单时触发的回调函数
        */
-      onsubmit: /**
+      onsubmit /**
        * @param event
        * @param isEdit 是否是编辑状态
        * @returns
        * + true 校验通过
        * + false 校验失败
-       */
-      (
+       */: (
         $form: HTMLFormElement,
         isEdit: boolean,
         data?: T
@@ -124,29 +162,14 @@ type RuleViewOption<T> = {
     filter?: {
       /** @default false */
       enable?: boolean;
-      /** 标题 */
-      title?: RuleFilterViewOption<T>["title"];
-      /** 自定义的过滤类型 */
-      option: RuleFilterViewOption<T>["filterOption"];
-      /**
-       * 点击回调
-       * @returns
-       * + false 阻止默认行为
-       */
-      callback?: () => IPromise<void | boolean>;
+      /** 搜索配置项1 */
+      option: RuleViewSearchExternalOption<T>[];
+      /** 输入框的前置选项 */
+      inputOption: RuleViewSearchRuleValueOption<T>[];
       /**
        * 执行过滤完毕后的回调
        */
       execFilterCallBack?: () => IPromise<void>;
-      /**
-       * 取消过滤的回调
-       * @returns
-       * + false 阻止默认行为
-       */
-      cancelFilterCallback?: (config: {
-        $button: HTMLElement;
-        getAllRuleElement: () => HTMLElement[];
-      }) => IPromise<void | boolean>;
     };
   };
 };
@@ -160,19 +183,99 @@ class RuleView<T> {
    * 显示视图
    * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理），如果值为number，则使用自定义的过滤规则内的配置项
    */
-  async showView(filterCallBack?: ((data: T) => boolean) | number) {
-    let $popsConfirm = pops.confirm({
+  async showView(
+    filterCallBack?:
+      | ((data: T) => boolean)
+      | {
+          external: number | string;
+          rule: number | string;
+        }
+  ) {
+    const $popsConfirm = pops.confirm({
       title: {
         text: this.option.title,
         position: "center",
       },
       content: {
         text: /*html*/ `
-                    <div class="rule-view-container">
-                    </div>
-                    `,
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
         html: true,
       },
+      style: /*css*/ `
+      ${pops.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: 40px;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
       btn: {
         merge: true,
         reverse: false,
@@ -192,63 +295,7 @@ class RuleView<T> {
           },
         },
         cancel: {
-          enable: this.option?.bottomControls?.filter?.enable || false,
-          type: "default",
-          text: "过滤",
-          callback: async (details, event) => {
-            if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-              let result = await this.option.bottomControls.filter.callback();
-              if (typeof result === "boolean" && !result) {
-                return;
-              }
-            }
-            /**
-             * 获取所有的规则元素
-             */
-            let getAllRuleElement = () => {
-              return Array.from(
-                $popsConfirm.$shadowRoot.querySelectorAll<HTMLDivElement>(".rule-view-container .rule-item")
-              );
-            };
-            let $button = (event.target as HTMLElement)
-              .closest<HTMLElement>(".pops-confirm-btn")!
-              .querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
-            if (DOMUtils.text($button).includes("取消")) {
-              let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
-                $button,
-                getAllRuleElement,
-              });
-              if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-                return;
-              }
-              getAllRuleElement().forEach(($el) => {
-                DOMUtils.show($el, false);
-              });
-              DOMUtils.text($button, "过滤");
-            } else {
-              let ruleFilterView = new RuleFilterView<T>({
-                title: this.option.bottomControls?.filter?.title ?? "过滤规则",
-                filterOption: this.option.bottomControls?.filter?.option || [],
-                execFilterCallBack: async () => {
-                  DOMUtils.text($button, "取消过滤");
-                  await this.option.bottomControls?.filter?.execFilterCallBack?.();
-                  const isFilteredData = ruleFilterView.getFilteredData();
-                  if (isFilteredData.length) {
-                    DOMUtils.text($button, `取消过滤(${isFilteredData.length})`);
-                  }
-                },
-                getAllRuleInfo: () => {
-                  return getAllRuleElement().map(($el) => {
-                    return {
-                      data: this.parseRuleItemElement($el).data,
-                      $el: $el,
-                    };
-                  });
-                },
-              });
-              ruleFilterView.showView();
-            }
-          },
+          enable: false,
         },
         other: {
           enable: this.option?.bottomControls?.clear?.enable || true,
@@ -301,75 +348,146 @@ class RuleView<T> {
       },
       width: window.innerWidth > 500 ? "500px" : "88vw",
       height: window.innerHeight > 500 ? "500px" : "80vh",
-      style: /*css*/ `
-            ${pops.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `,
     });
-    let allData = await this.option.data();
+    // 搜索容器
+    const $searchContainer = $popsConfirm.$shadowRoot.querySelector<HTMLElement>(".rule-view-search-container")!;
+    const $externalSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-status"
+    )!;
+    const $ruleValueSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-value"
+    )!;
+    const $searchInput = $searchContainer.querySelector<HTMLInputElement>(".pops-panel-input input")!;
 
-    // 执行过滤规则
-    let changeButtonText = false;
-    let isFilteredDataLength = 0;
-    for (let index = 0; index < allData.length; index++) {
-      let item = allData[index];
-      let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
-      let isNotFilterFlag = true;
-      if (typeof filterCallBack === "function") {
-        isNotFilterFlag = filterCallBack(item);
-      } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-        isNotFilterFlag =
-          (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
+    let externalSelectInfo: RuleViewSearchExternalOption<T> | null = null;
+    let ruleValueSelectInfo: RuleViewSearchRuleValueOption<T> | null = null;
+
+    if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+      DOMUtils.append(
+        $externalSelect,
+        this.option.bottomControls?.filter?.option.map((option) => {
+          const $option = DOMUtils.createElement("option", {
+            innerText: option.name,
+          });
+          Reflect.set($option, "data-value", option);
+          return $option;
+        })
+      );
+    }
+    if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+      DOMUtils.append(
+        $ruleValueSelect,
+        this.option.bottomControls?.filter?.inputOption.map((option) => {
+          const $option = DOMUtils.createElement("option", {
+            innerText: option.name,
+          });
+          Reflect.set($option, "data-value", option);
+          return $option;
+        })
+      );
+    }
+
+    DOMUtils.on($externalSelect, "change", async (evt) => {
+      const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
+      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchExternalOption<T>;
+      if (typeof selectInfo?.selectedCallBack === "function") {
+        selectInfo.selectedCallBack(selectInfo);
       }
-      if (!isNotFilterFlag) {
-        // 隐藏元素
-        changeButtonText = true;
-        DOMUtils.hide($ruleItemList, false);
-        isFilteredDataLength++;
+      externalSelectInfo = selectInfo;
+      await execFilter(false);
+    });
+    DOMUtils.on($ruleValueSelect, "change", async (evt) => {
+      const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
+      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchRuleValueOption<T>;
+      if (typeof selectInfo?.selectedCallBack === "function") {
+        selectInfo.selectedCallBack(selectInfo);
+      }
+      ruleValueSelectInfo = selectInfo;
+      await execFilter(false);
+    });
+    DOMUtils.onInput(
+      $searchInput,
+      utils.debounce(async () => {
+        await execFilter(false);
+      })
+    );
+    const updateSelectData = () => {
+      // 更新选中的选项数据
+      const $externalSelected = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
+      externalSelectInfo = Reflect.get($externalSelected, "data-value") as RuleViewSearchExternalOption<T>;
+      const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
+      ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value") as RuleViewSearchRuleValueOption<T>;
+    };
+    const execFilter = async (isUpdateSelectData: boolean) => {
+      // 清空旧的
+      this.clearContent($popsConfirm.$shadowRoot);
+      // 更新选项
+      isUpdateSelectData && updateSelectData();
+      const allData = await this.option.data();
+      const filteredData: T[] = [];
+      const searchText = DOMUtils.val($searchInput);
+      for (let index = 0; index < allData.length; index++) {
+        const item = allData[index];
+        // 先进行前置条件过滤
+        if (externalSelectInfo) {
+          const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+          if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+            // 不需要
+            continue;
+          }
+        }
+        if (ruleValueSelectInfo) {
+          let flag = true;
+          if (searchText === "") {
+            // 空，需要，不过滤
+            flag = true;
+          } else {
+            flag = false;
+          }
+          if (!flag) {
+            flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+          }
+          if (!flag) {
+            // 不需要
+            continue;
+          }
+        }
+        filteredData.push(item);
+      }
+      // 添加新的
+      await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+    };
+    if (typeof filterCallBack === "object" && filterCallBack != null) {
+      let externalIndex: number;
+      if (typeof filterCallBack.external === "number") {
+        // index
+        externalIndex = filterCallBack.external;
+      } else {
+        // value
+        externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+          const data = Reflect.get(option, "data-value") as RuleViewSearchExternalOption<T>;
+          return data.value === filterCallBack.external;
+        });
+      }
+      if (externalIndex !== -1) {
+        $externalSelect.selectedIndex = externalIndex;
+      }
+      let ruleIndex: number;
+      if (typeof filterCallBack.rule === "number") {
+        // index
+        ruleIndex = filterCallBack.rule;
+      } else {
+        // value
+        ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+          const data = Reflect.get(option, "data-value") as RuleViewSearchRuleValueOption<T>;
+          return data.value === filterCallBack.rule;
+        });
+      }
+      if (ruleIndex !== -1) {
+        $ruleValueSelect.selectedIndex = ruleIndex;
       }
     }
-    if (changeButtonText) {
-      let $button = $popsConfirm.$shadowRoot.querySelector<HTMLSpanElement>(".pops-confirm-btn-cancel span")!;
-      DOMUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
-    }
+    await execFilter(true);
   }
   /**
    * 显示编辑视图
@@ -466,8 +584,8 @@ class RuleView<T> {
    * 解析弹窗内的各个元素
    */
   parseViewElement($shadowRoot: ShadowRoot | HTMLElement) {
-    let $container = $shadowRoot.querySelector<HTMLElement>(".rule-view-container")!;
-    let $deleteBtn = $shadowRoot.querySelector<HTMLButtonElement>(".pops-confirm-btn button.pops-confirm-btn-other")!;
+    const $container = $shadowRoot.querySelector<HTMLElement>(".rule-view-container")!;
+    const $deleteBtn = $shadowRoot.querySelector<HTMLButtonElement>(".pops-confirm-btn button.pops-confirm-btn-other")!;
     return {
       /** 容器 */
       $container: $container,
@@ -479,14 +597,14 @@ class RuleView<T> {
    * 解析每一项的元素
    */
   parseRuleItemElement($ruleElement: ShadowRoot | HTMLElement) {
-    let $enable = $ruleElement.querySelector<HTMLElement>(".rule-controls-enable")!;
-    let $enableSwitch = $enable.querySelector<HTMLElement>(".pops-panel-switch")!;
-    let $enableSwitchInput = $enable.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
-    let $enableSwitchCore = $enable.querySelector<HTMLElement>(".pops-panel-switch__core");
+    const $enable = $ruleElement.querySelector<HTMLElement>(".rule-controls-enable")!;
+    const $enableSwitch = $enable.querySelector<HTMLElement>(".pops-panel-switch")!;
+    const $enableSwitchInput = $enable.querySelector<HTMLInputElement>(".pops-panel-switch__input")!;
+    const $enableSwitchCore = $enable.querySelector<HTMLElement>(".pops-panel-switch__core");
     /** 编辑按钮 */
-    let $edit = $ruleElement.querySelector<HTMLElement>(".rule-controls-edit")!;
+    const $edit = $ruleElement.querySelector<HTMLElement>(".rule-controls-edit")!;
     /** 删除按钮 */
-    let $delete = $ruleElement.querySelector<HTMLElement>(".rule-controls-delete")!;
+    const $delete = $ruleElement.querySelector<HTMLElement>(".rule-controls-delete")!;
 
     return {
       /** 启用开关 */
@@ -510,8 +628,8 @@ class RuleView<T> {
    */
   async createRuleItemElement(data: T, $shadowRoot: ShadowRoot | HTMLElement) {
     const that = this;
-    let name = await this.option.getDataItemName(data);
-    let $ruleItem = DOMUtils.createElement("div", {
+    const name = await this.option.getDataItemName(data);
+    const $ruleItem = DOMUtils.createElement("div", {
       className: "rule-item",
       innerHTML: /*html*/ `
 			<div class="rule-name">${name}</div>
@@ -536,7 +654,7 @@ class RuleView<T> {
     });
     Reflect.set($ruleItem, "data-rule", data);
     /** 开关切换的className */
-    let switchCheckedClassName = "pops-panel-switch-is-checked";
+    const switchCheckedClassName = "pops-panel-switch-is-checked";
 
     const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
       this.parseRuleItemElement($ruleItem);
@@ -580,7 +698,7 @@ class RuleView<T> {
       // 给删除按钮添加点击事件
       DOMUtils.on($delete, "click", (event) => {
         DOMUtils.preventEvent(event);
-        let $askDialog = pops.confirm({
+        const $askDialog = pops.confirm({
           title: {
             text: "提示",
             position: "center",
@@ -628,16 +746,16 @@ class RuleView<T> {
    * 添加一个规则元素
    */
   async appendRuleItemElement($shadowRoot: ShadowRoot | HTMLElement, data: T | T[]) {
-    let { $container } = this.parseViewElement($shadowRoot);
-    let $ruleItem: HTMLElement[] = [];
+    const { $container } = this.parseViewElement($shadowRoot);
+    const $ruleItem: HTMLElement[] = [];
     // 添加到页面中
-    let iteratorData = Array.isArray(data) ? data : [data];
+    const iteratorData = Array.isArray(data) ? data : [data];
     for (let index = 0; index < iteratorData.length; index++) {
-      let item = iteratorData[index];
-      let $item = await this.createRuleItemElement(item, $shadowRoot);
-      $container.appendChild($item);
+      const item = iteratorData[index];
+      const $item = await this.createRuleItemElement(item, $shadowRoot);
       $ruleItem.push($item);
     }
+    DOMUtils.append($container, $ruleItem);
     await this.updateDeleteAllBtnText($shadowRoot);
     return $ruleItem;
   }
@@ -647,7 +765,7 @@ class RuleView<T> {
   async updateRuleContaienrElement($shadowRoot: ShadowRoot | HTMLElement) {
     this.clearContent($shadowRoot);
     const { $container } = this.parseViewElement($shadowRoot);
-    let data = await this.option.data();
+    const data = await this.option.data();
     await this.appendRuleItemElement($shadowRoot, data);
     await this.updateDeleteAllBtnText($shadowRoot);
   }
@@ -655,7 +773,7 @@ class RuleView<T> {
    * 更新规则元素
    */
   async updateRuleItemElement(data: T, $oldRuleItem: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement) {
-    let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+    const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
     $oldRuleItem.after($newRuleItem);
     $oldRuleItem.remove();
   }

@@ -224,12 +224,11 @@ type RulePanelBtnControlsOption<T> = {
     /**
      * 当编辑/添加视图的提交表单时触发的回调函数
      */
-    onsubmit?: /**
+    onsubmit /**
      * @returns
      * + true 校验通过
      * + false 校验失败
-     */
-    (
+     */?: (
       /**  */
       $form: HTMLFormElement,
       /** 是否是编辑状态 */
@@ -992,9 +991,9 @@ class RulePanelView<T> {
     option: RulePanelAnyOption<T>,
     addButtonCallBack?: () => IPromise<void>
   ) {
-    let btnControlsOption = option.btnControls;
+    const btnControlsOption = option.btnControls;
     /** 控制按钮 */
-    let $ruleControls = DOMUtils.createElement("li", {
+    const $ruleControls = DOMUtils.createElement("li", {
       className: "rule-controls",
     });
     DOMUtils.append($controlsParent, $ruleControls);
@@ -1082,7 +1081,7 @@ class RulePanelView<T> {
             }
             let ruleFilterView = new RuleFilterView<T | RuleSubscribeOption<T>>({
               title: filterTitle,
-              // @ts-ignore
+              // @ts-expect-error
               filterOption: btnControlsOption?.filter?.option || [],
               execFilterCallBack() {
                 DOMUtils.text($button, "取消过滤");
@@ -1101,6 +1100,29 @@ class RulePanelView<T> {
         }
       });
       DOMUtils.append($ruleControls, $ruleControlFilter);
+
+      // new filter => search start
+      const $ruleControlsFilter = DOMUtils.createElement("li", {
+        className: "rule-controls",
+        innerHTML: /*html*/ `
+          <div class="rule-control-filter">
+            <div class="pops-panel-select pops-user-select-none" data-mode="native" style="width: 200px;">
+              <select>
+                ${btnControlsOption.filter.option.map((it) => {
+                  return `<option data-value="${it.name}">${it.name}</option>`;
+                })}
+              </select>
+          </div>
+          </div>
+          <div class="rule-control-search-values">
+            
+          </div>
+          <div class="rule-control-search">
+            <input type="text" name="rule-control-search-input" />
+          </div>
+        `,
+      });
+      DOMUtils.after($ruleControls, $ruleControlsFilter);
     }
 
     /** 清空所有按钮 */
@@ -1228,11 +1250,16 @@ class RulePanelView<T> {
     }
 
     /** 规则容器 */
-    let $ruleContainer = DOMUtils.createElement("div", {
+    const $ruleContainer = DOMUtils.createElement("div", {
       className: "rule-view-container",
       innerHTML: /*html*/ ``,
     });
-    DOMUtils.append($rightContainer, $ruleContainer);
+    // 搜索容器
+    const $searchContainer = DOMUtils.createElement("div", {
+      className: "rule-view-search-container",
+      innerHTML: /*html*/ ``,
+    });
+    DOMUtils.append($rightContainer, $searchContainer, $ruleContainer);
 
     return {
       $ruleContainer: $ruleContainer,
@@ -1412,7 +1439,7 @@ class RulePanelView<T> {
               let deepMenuCreateViewElementInfo = this.createButtonControls(
                 $deepMenuRightContainer,
                 deepMenuElementInfo.$rightRuleContainer,
-                // @ts-ignore
+                // @ts-expect-error
                 deepMenuOption,
                 void 0
               );
