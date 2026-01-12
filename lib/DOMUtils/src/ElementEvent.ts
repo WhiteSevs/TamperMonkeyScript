@@ -89,23 +89,23 @@ class ElementEvent extends ElementAnimate {
    * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click、tap、hover事件
-   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
-   * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    * @example
    * // 监听全局document下的子元素a.xx的click事件
-   * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    */
   on<T extends DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector: string | string[] | undefined | null,
-    handler: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void,
+    handler: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   /**
@@ -120,38 +120,30 @@ class ElementEvent extends ElementAnimate {
    * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click、tap、hover事件
-   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
-   * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    * @example
    * // 监听全局document下的子元素a.xx的click事件
-   * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    */
   on<T extends Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector: string | string[] | undefined | null,
-    handler: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
+    handler: (this: HTMLElement, event: T, $selector: HTMLElement) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   on<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
-    selector:
-      | string
-      | string[]
-      | undefined
-      | ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
-      | null,
-    callback?:
-      | ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
-      | DOMUtilsEventListenerOption
-      | boolean,
+    selector: string | string[] | undefined | ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | null,
+    callback?: ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | DOMUtilsEventListenerOption | boolean,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult {
     /**
@@ -218,7 +210,7 @@ class ElementEvent extends ElementAnimate {
       selectorList.push(selector);
     }
     // 事件回调
-    let listenerCallBack: (this: HTMLElement, event: Event, selectorTarget?: HTMLElement) => void = callback as any;
+    let listenerCallBack: (this: HTMLElement, event: Event, $selector?: HTMLElement) => void = callback as any;
     // 事件配置
     let listenerOption: DOMUtilsEventListenerOption = {
       capture: false,
@@ -238,17 +230,17 @@ class ElementEvent extends ElementAnimate {
     /**
      * 如果是once，那么删除该监听和元素上的事件和监听
      */
-    function checkOptionOnceToRemoveEventListener() {
+    const checkOptionOnceToRemoveEventListener = () => {
       if (listenerOption.once) {
         that.off(element, eventType as any, selector as any, callback as any, option);
       }
-    }
+    };
     $elList.forEach((elementItem) => {
       /**
        * 事件回调
        * @param event
        */
-      function domUtilsEventCallBack(event: Event) {
+      const handlerCallBack = function (event: Event) {
         if (selectorList.length) {
           /* 存在子元素选择器 */
           // 这时候的this和target都是子元素选择器的元素
@@ -294,11 +286,11 @@ class ElementEvent extends ElementAnimate {
           listenerCallBack.call(elementItem as HTMLElement, event as any);
           checkOptionOnceToRemoveEventListener();
         }
-      }
+      };
 
       /* 遍历事件名设置元素事件 */
       eventTypeList.forEach((eventName) => {
-        elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
+        elementItem.addEventListener(eventName, handlerCallBack, listenerOption);
         /* 获取对象上的事件 */
         const elementEvents: {
           [k: string]: DOMUtilsEventListenerOptionsAttribute[];
@@ -308,8 +300,8 @@ class ElementEvent extends ElementAnimate {
         elementEvents[eventName].push({
           selector: selectorList,
           option: listenerOption,
-          callback: domUtilsEventCallBack,
-          originCallBack: listenerCallBack,
+          handlerCallBack: handlerCallBack,
+          callback: listenerCallBack,
         });
         /* 覆盖事件 */
         Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
@@ -332,11 +324,11 @@ class ElementEvent extends ElementAnimate {
       },
       /**
        * 主动触发事件
-       * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-       * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+       * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+       * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了$selector的没有值
        */
-      emit: (details?: object, useDispatchToEmit?: boolean) => {
-        that.emit($elList, eventTypeList, details, useDispatchToEmit);
+      emit: (extraDetails?: object, useDispatchToTriggerEvent?: boolean) => {
+        that.emit($elList, eventTypeList, extraDetails, useDispatchToTriggerEvent);
       },
     };
   }
@@ -406,7 +398,7 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector?: string | string[] | undefined | null,
-    callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void,
+    callback?: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -432,7 +424,7 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector?: string | string[] | undefined | null,
-    callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
+    callback?: (this: HTMLElement, event: T, $selector: HTMLElement) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -443,13 +435,8 @@ class ElementEvent extends ElementAnimate {
   off<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
-    selector:
-      | string
-      | string[]
-      | undefined
-      | ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
-      | null,
-    callback?: ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void) | EventListenerOptions | boolean,
+    selector: string | string[] | undefined | ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | null,
+    callback?: ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | EventListenerOptions | boolean,
     option?:
       | EventListenerOptions
       | boolean
@@ -511,7 +498,7 @@ class ElementEvent extends ElementAnimate {
     /**
      * 事件的回调函数
      */
-    let listenerCallBack: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void = callback as any;
+    let listenerCallBack: (this: HTMLElement, event: T, $selector: HTMLElement) => void = callback as any;
 
     /**
      * 事件的配置
@@ -556,7 +543,7 @@ class ElementEvent extends ElementAnimate {
         for (let index = 0; index < filterHandler.length; index++) {
           const handler = filterHandler[index];
           let flag = true;
-          if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
+          if (flag && listenerCallBack && handler.callback !== listenerCallBack) {
             // callback不同
             flag = false;
           }
@@ -575,7 +562,7 @@ class ElementEvent extends ElementAnimate {
             flag = false;
           }
           if (flag || isRemoveAll) {
-            $elItem.removeEventListener(eventName, handler.callback, handler.option);
+            $elItem.removeEventListener(eventName, handler.handlerCallBack, handler.option);
             const findIndex = handlers.findIndex((item) => item === handler);
             if (findIndex !== -1) {
               handlers.splice(findIndex, 1);
@@ -644,7 +631,7 @@ class ElementEvent extends ElementAnimate {
             return;
           }
           for (const handler of handlers) {
-            $elItem.removeEventListener(eventName, handler.callback, {
+            $elItem.removeEventListener(eventName, handler.handlerCallBack, {
               capture: handler["option"]["capture"],
             });
           }
@@ -762,8 +749,7 @@ class ElementEvent extends ElementAnimate {
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback，但是这种会让使用了$selector的没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -775,15 +761,33 @@ class ElementEvent extends ElementAnimate {
   emit(
     element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document,
     eventType: string | string[],
-    details?: object,
-    useDispatchToEmit?: boolean
+    useDispatchToTriggerEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+   * @example
+   * // 触发元素a.xx的click事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
+   * // 触发元素a.xx的click、tap、hover事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
+   */
+  emit(
+    element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document,
+    eventType: string | string[],
+    extraDetails?: object,
+    useDispatchToTriggerEvent?: boolean
+  ): void;
+  /**
+   * 主动触发事件
+   * @param element 需要触发的元素|元素数组|window
+   * @param eventType 需要触发的事件
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -795,15 +799,34 @@ class ElementEvent extends ElementAnimate {
   emit(
     element: Element | string | NodeList | any[] | Window | Document,
     eventType: DOMUtils_EventType | DOMUtils_EventType[],
-    details?: object,
-    useDispatchToEmit?: boolean
+    useDispatchToTriggerEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmit 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了selectorTarget的没有值
+   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+   * @example
+   * // 触发元素a.xx的click事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
+   * // 触发元素a.xx的click、tap、hover事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
+   */
+  emit(
+    element: Element | string | NodeList | any[] | Window | Document,
+    eventType: DOMUtils_EventType | DOMUtils_EventType[],
+    extraDetails?: object,
+    useDispatchToTriggerEvent?: boolean
+  ): void;
+  /**
+   * 主动触发事件
+   * @param element 需要触发的元素|元素数组|window
+   * @param eventType 需要触发的事件
+   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -815,8 +838,8 @@ class ElementEvent extends ElementAnimate {
   emit(
     element: Element | string | NodeList | any[] | Window | Document,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
-    details?: object,
-    useDispatchToEmit: boolean = true
+    extraDetails?: object | boolean,
+    useDispatchToTriggerEvent: boolean = true
   ) {
     const that = this;
     if (typeof element === "string") {
@@ -845,24 +868,24 @@ class ElementEvent extends ElementAnimate {
       } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
       eventTypeList.forEach((eventTypeItem) => {
         let event: Event = null as any;
-        if (details && details instanceof Event) {
-          event = details;
+        if (extraDetails && extraDetails instanceof Event) {
+          event = extraDetails;
         } else {
           // 构造事件
           event = new Event(eventTypeItem);
-          if (details) {
-            const detailKeys = Object.keys(details);
+          if (typeof extraDetails === "object" && extraDetails != null) {
+            const detailKeys = Object.keys(extraDetails);
             detailKeys.forEach((keyName) => {
-              const value = Reflect.get(details, keyName);
+              const value = Reflect.get(extraDetails, keyName);
               // 在event上添加属性
               Reflect.set(event, keyName, value);
             });
           }
         }
-        if (useDispatchToEmit == false && eventTypeItem in elementEvents) {
+        if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
           // 直接调用监听的事件
-          elementEvents[eventTypeItem].forEach((eventsItem: any) => {
-            eventsItem.callback(event);
+          elementEvents[eventTypeItem].forEach((eventsItem) => {
+            eventsItem.handlerCallBack(event);
           });
         } else {
           $elItem.dispatchEvent(event);
@@ -888,7 +911,7 @@ class ElementEvent extends ElementAnimate {
   click(
     element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window,
     handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void,
-    details?: any,
+    details?: object,
     useDispatchToEmit?: boolean
   ) {
     const that = this;
@@ -1435,14 +1458,14 @@ class ElementEvent extends ElementAnimate {
       $el,
       "pointerup",
       selector,
-      (evt, selectorTarget) => {
+      (evt, $selector) => {
         this.preventEvent(evt);
         if (evt.pointerType === "touch") {
           isMobileTouch = true;
         }
         clearTimeout(timer);
         timer = void 0;
-        if (isDoubleClick && $click === selectorTarget) {
+        if (isDoubleClick && $click === $selector) {
           isDoubleClick = false;
           $click = null;
           /* 判定为双击 */
@@ -1458,7 +1481,7 @@ class ElementEvent extends ElementAnimate {
             });
           }, checkClickTime);
           isDoubleClick = true;
-          $click = selectorTarget;
+          $click = $selector;
         }
       },
       options

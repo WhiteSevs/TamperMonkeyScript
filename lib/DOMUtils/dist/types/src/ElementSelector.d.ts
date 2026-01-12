@@ -100,8 +100,8 @@ declare class ElementSelector {
      * DOMUtils.closest("div:regexp(/^xxx/ig)")
      * > null
      */
-    closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
-    closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+    closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element | null | undefined, selector: string): HTMLElementTagNameMap[K] | null;
+    closest<E extends Element = Element>($el: HTMLElement | Element | null | undefined, selector: string): E | null;
 }
 declare const elementSelector: ElementSelector;
 export { elementSelector, ElementSelector };

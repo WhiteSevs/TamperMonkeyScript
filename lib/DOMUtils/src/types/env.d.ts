@@ -7,3 +7,4 @@ declare interface Window {
   DOMUtils: typeof import("./../index").DOMUtils;
   trustedTypes: any;
 }
+declare type IArray<T> = T | T[];

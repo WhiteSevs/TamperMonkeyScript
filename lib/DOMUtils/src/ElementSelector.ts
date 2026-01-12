@@ -160,9 +160,8 @@ class ElementSelector {
    */
   matches($el: HTMLElement | Element | null | undefined, selector: string): boolean {
     selector = selector.trim();
-    if ($el == null) {
-      return false;
-    }
+    if ($el == null) return false;
+    if ($el instanceof Document) return false;
 
     if (selector.match(/[^\s]{1}:empty$/gi)) {
       // empty 语法
@@ -224,12 +223,15 @@ class ElementSelector {
    * > null
    */
   closest<K extends keyof HTMLElementTagNameMap>(
-    $el: HTMLElement | Element,
+    $el: HTMLElement | Element | null | undefined,
     selector: string
   ): HTMLElementTagNameMap[K] | null;
-  closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
-  closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null {
+  closest<E extends Element = Element>($el: HTMLElement | Element | null | undefined, selector: string): E | null;
+  closest<E extends Element = Element>($el: HTMLElement | Element | null | undefined, selector: string): E | null {
     selector = selector.trim();
+
+    if ($el == null) return null;
+    if ($el instanceof Document) return null;
 
     if (selector.match(/[^\s]{1}:empty$/gi)) {
       // empty 语法

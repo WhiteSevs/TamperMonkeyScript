@@ -1983,5 +1983,8 @@ class DOMUtils extends ElementHandler {
 }
 
 const domUtils = new DOMUtils();
-
+domUtils.emit(document, "test");
+domUtils.emit(document, "click");
+domUtils.emit(document, ["test", "click"]);
+domUtils.emit(document, ["test", "click"], true);
 export { domUtils as DOMUtils };
