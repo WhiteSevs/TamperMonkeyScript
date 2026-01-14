@@ -557,6 +557,22 @@ declare class DOMUtils extends ElementHandler {
      */
     toElement<T1 extends boolean, T2 extends boolean>(html: string, useParser?: T1, isComplete?: T2): T1 extends true ? (T2 extends true ? Document : HTMLElement) : HTMLElement;
     /**
+     * 将字符串转为Element元素数组
+     * @param html
+     * @param useParser 是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
+     * + true 使用DOMPraser来转换字符串
+     * + false （默认）创建一个div，里面放入字符串，然后提取childNodes
+     * @example
+     * // 将字符串转为Element元素数组
+     * DOMUtils.toElements("<a href='xxxx'></a>")
+     * > [<a href="xxxx"></a>]
+     * @example
+     * // 使用DOMParser将字符串转为Element元素数组
+     * DOMUtils.toElements("<a href='xxxx'></a>",true)
+     * > [<a href="xxxx"></a>]
+     */
+    toElements(html: string, useParser?: boolean): ChildNode[];
+    /**
      * 序列化表单元素
      * @param $form 表单元素
      * @example

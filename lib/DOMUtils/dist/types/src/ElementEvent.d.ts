@@ -28,7 +28,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], handler: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -47,7 +47,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], handler: (this: HTMLElement, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -72,7 +72,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, $selector)
      * })
      */
-    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, handler: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, handler: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T], $selector: E) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -97,7 +97,7 @@ declare class ElementEvent extends ElementAnimate {
      *    console.log("事件触发", event, $selector)
      * })
      */
-    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, handler: (this: HTMLElement, event: T, $selector: HTMLElement) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    on<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, handler: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -111,7 +111,7 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -125,7 +125,7 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], callback?: (this: HTMLElement, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -140,7 +140,7 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends DOMUtils_EventType>(element: DOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T], $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -155,7 +155,7 @@ declare class ElementEvent extends ElementAnimate {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: T, $selector: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: DOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: DOMUtilsEventListenerOptionsAttribute, index: number, array: DOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组

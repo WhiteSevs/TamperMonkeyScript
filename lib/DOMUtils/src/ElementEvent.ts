@@ -50,7 +50,7 @@ class ElementEvent extends ElementAnimate {
   on<T extends DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
-    handler: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   /**
@@ -74,7 +74,7 @@ class ElementEvent extends ElementAnimate {
   on<T extends Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
-    handler: (this: HTMLElement, event: T) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   /**
@@ -105,7 +105,7 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector: string | string[] | undefined | null,
-    handler: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T], $selector: E) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   /**
@@ -136,14 +136,22 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector: string | string[] | undefined | null,
-    handler: (this: HTMLElement, event: T, $selector: HTMLElement) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
   on<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
-    selector: string | string[] | undefined | ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | null,
-    callback?: ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | DOMUtilsEventListenerOption | boolean,
+    selector:
+      | string
+      | string[]
+      | undefined
+      | (<E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void)
+      | null,
+    callback?:
+      | (<E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void)
+      | DOMUtilsEventListenerOption
+      | boolean,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult {
     /**
@@ -348,7 +356,7 @@ class ElementEvent extends ElementAnimate {
   off<T extends DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
-    callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+    callback?: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -372,7 +380,7 @@ class ElementEvent extends ElementAnimate {
   off<T extends Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
-    callback?: (this: HTMLElement, event: T) => void,
+    callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -398,7 +406,7 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector?: string | string[] | undefined | null,
-    callback?: (this: HTMLElement, event: DOMUtils_Event[T], $selector: HTMLElement) => void,
+    callback?: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T], $selector: E) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -424,7 +432,7 @@ class ElementEvent extends ElementAnimate {
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector?: string | string[] | undefined | null,
-    callback?: (this: HTMLElement, event: T, $selector: HTMLElement) => void,
+    callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void,
     option?: EventListenerOptions | boolean,
     filter?: (
       value: DOMUtilsEventListenerOptionsAttribute,
@@ -435,8 +443,16 @@ class ElementEvent extends ElementAnimate {
   off<T extends Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
-    selector: string | string[] | undefined | ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | null,
-    callback?: ((this: HTMLElement, event: T, $selector: HTMLElement) => void) | EventListenerOptions | boolean,
+    selector:
+      | string
+      | string[]
+      | undefined
+      | (<E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void)
+      | null,
+    callback?:
+      | (<E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void)
+      | EventListenerOptions
+      | boolean,
     option?:
       | EventListenerOptions
       | boolean
@@ -632,7 +648,7 @@ class ElementEvent extends ElementAnimate {
           }
           for (const handler of handlers) {
             $elItem.removeEventListener(eventName, handler.handlerCallBack, {
-              capture: handler["option"]["capture"],
+              capture: handler.option.capture,
             });
           }
           const events = Reflect.get($elItem, symbolItem);
@@ -663,87 +679,95 @@ class ElementEvent extends ElementAnimate {
     let resolve: ((...args: any[]) => any) | undefined = void 0;
     const that = this;
     /**
-     * 检测文档是否加载完毕
-     */
-    function checkDOMReadyState() {
-      try {
-        if (
-          that.windowApi.document.readyState === "complete" ||
-          (that.windowApi.document.readyState !== "loading" &&
-            !(that.windowApi.document.documentElement as any).doScroll)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch {
-        return false;
-      }
-    }
-    /**
-     * 成功加载完毕后触发的回调函数
-     */
-    function completed() {
-      removeDomReadyListener();
-      if (typeof callback === "function") {
-        callback();
-      }
-      if (typeof resolve === "function") {
-        resolve();
-      }
-    }
-
-    /**
      * 监听目标
      */
     const listenTargetList = [
       {
         target: that.windowApi.document,
         eventType: "DOMContentLoaded",
-        callback: completed,
+        callback: () => {
+          ReadyChecker.completed();
+        },
       },
       {
         target: that.windowApi.window,
         eventType: "load",
-        callback: completed,
+        callback: () => {
+          ReadyChecker.completed();
+        },
       },
     ];
-    /**
-     * 添加监听
-     */
-    function addDomReadyListener() {
-      for (const item of listenTargetList) {
-        that.on(item.target, item.eventType, item.callback);
-      }
-    }
-    /**
-     * 移除监听
-     */
-    function removeDomReadyListener() {
-      for (const item of listenTargetList) {
-        that.off(item.target, item.eventType, item.callback);
-      }
-    }
-    /**
-     * 执行检查
-     */
-    function check() {
-      if (checkDOMReadyState()) {
-        /* 检查document状态 */
-        setTimeout(completed, 0);
-      } else {
-        /* 添加监听 */
-        addDomReadyListener();
-      }
-    }
-    if (args.length === 0) {
-      return new Promise((__resolve__) => {
-        resolve = __resolve__;
-        check();
-      });
-    } else {
-      check();
-    }
+    const ReadyChecker = {
+      init() {
+        if (args.length === 0) {
+          return new Promise<void>((__resolve__) => {
+            resolve = __resolve__;
+            ReadyChecker.check();
+          });
+        } else {
+          ReadyChecker.check();
+        }
+      },
+      check() {
+        if (ReadyChecker.isReady()) {
+          /* 检查document状态 */
+          setTimeout(() => {
+            ReadyChecker.completed();
+          }, 0);
+        } else {
+          /* 添加监听 */
+          ReadyChecker.onCompleted();
+        }
+      },
+      /**
+       * 检测文档是否加载完毕
+       */
+      isReady() {
+        try {
+          if (
+            that.windowApi.document.readyState === "complete" ||
+            // @ts-expect-error
+            (that.windowApi.document.readyState !== "loading" && !that.windowApi.document.documentElement.doScroll)
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch {
+          return false;
+        }
+      },
+      /**
+       * 成功加载完毕后触发的回调函数
+       */
+      completed() {
+        ReadyChecker.offCompleted();
+        if (typeof callback === "function") {
+          callback();
+        }
+        if (typeof resolve === "function") {
+          resolve();
+        }
+      },
+      /**
+       * 添加监听
+       */
+      onCompleted() {
+        for (const item of listenTargetList) {
+          that.on(item.target, item.eventType, item.callback);
+        }
+      },
+      /**
+       * 移除监听
+       */
+      offCompleted() {
+        for (const item of listenTargetList) {
+          that.off(item.target, item.eventType, item.callback);
+        }
+      },
+    };
+
+    return ReadyChecker.init();
   }
   /**
    * 主动触发事件

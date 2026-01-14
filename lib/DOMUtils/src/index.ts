@@ -1579,6 +1579,40 @@ class DOMUtils extends ElementHandler {
     }
   }
   /**
+   * 将字符串转为Element元素数组
+   * @param html
+   * @param useParser 是否使用DOMParser来生成元素，有些时候通过DOMParser生成的元素有点问题
+   * + true 使用DOMPraser来转换字符串
+   * + false （默认）创建一个div，里面放入字符串，然后提取childNodes
+   * @example
+   * // 将字符串转为Element元素数组
+   * DOMUtils.toElements("<a href='xxxx'></a>")
+   * > [<a href="xxxx"></a>]
+   * @example
+   * // 使用DOMParser将字符串转为Element元素数组
+   * DOMUtils.toElements("<a href='xxxx'></a>",true)
+   * > [<a href="xxxx"></a>]
+   */
+  toElements(html: string, useParser = false) {
+    const that = this;
+    // 去除html前后的空格
+    html = html.trim();
+    function parseHTMLByDOMParser() {
+      const parser = new DOMParser();
+      return Array.from(parser.parseFromString(html, "text/html").body.childNodes);
+    }
+    function parseHTMLByCreateDom() {
+      const $el = that.windowApi.document.createElement("div");
+      that.html($el, html);
+      return Array.from($el.childNodes);
+    }
+    if (useParser) {
+      return parseHTMLByDOMParser();
+    } else {
+      return parseHTMLByCreateDom();
+    }
+  }
+  /**
    * 序列化表单元素
    * @param $form 表单元素
    * @example
@@ -1586,29 +1620,32 @@ class DOMUtils extends ElementHandler {
    * > xxx=xxx&aaa=
    */
   serialize($form: HTMLFormElement): string {
+    if (!($form instanceof HTMLFormElement)) {
+      throw new TypeError("DOMUtils.serialize 参数必须是HTMLFormElement");
+    }
     const elements = $form.elements;
     const serializedArray: { name: string; value: string }[] = [];
 
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    for (let index = 0; index < elements.length; index++) {
+      const $el = elements[index] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
       if (
-        element.name &&
-        !element.disabled &&
-        ((element as HTMLInputElement).checked ||
-          ["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes(element.type))
+        $el.name &&
+        !$el.disabled &&
+        (($el as HTMLInputElement).checked ||
+          ["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes($el.type))
       ) {
-        if (element.type === "select-multiple") {
-          for (let j = 0; j < (element as HTMLSelectElement).options.length; j++) {
-            if ((element as HTMLSelectElement).options[j].selected) {
+        if ($el.type === "select-multiple") {
+          for (let j = 0; j < ($el as HTMLSelectElement).options.length; j++) {
+            if (($el as HTMLSelectElement).options[j].selected) {
               serializedArray.push({
-                name: (element as HTMLSelectElement).name,
-                value: (element as HTMLSelectElement).options[j].value,
+                name: ($el as HTMLSelectElement).name,
+                value: ($el as HTMLSelectElement).options[j].value,
               });
             }
           }
         } else {
-          serializedArray.push({ name: element.name, value: element.value });
+          serializedArray.push({ name: $el.name, value: $el.value });
         }
       }
     }
@@ -1983,8 +2020,5 @@ class DOMUtils extends ElementHandler {
 }
 
 const domUtils = new DOMUtils();
-domUtils.emit(document, "test");
-domUtils.emit(document, "click");
-domUtils.emit(document, ["test", "click"]);
-domUtils.emit(document, ["test", "click"], true);
+
 export { domUtils as DOMUtils };
