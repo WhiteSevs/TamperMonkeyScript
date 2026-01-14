@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.14
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -464,7 +464,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -1217,7 +1220,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
@@ -1544,15 +1547,15 @@
     ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig =
+      const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
           return isBottom && it.id === "script-version";
         }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops__.panel({
+      const $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1585,6 +1588,15 @@
           height: PanelUISize.setting.height,
           drag: true,
           only: true,
+          style: `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
         },
         ...this.$data.panelConfig,
       });
@@ -2088,7 +2100,7 @@
         } else {
           details.headers["Cookie"] = ownCookie;
         }
-        log.info(["Httpx => 设置cookie:", details]);
+        log.info("Httpx => 设置cookie:", details);
       }
       if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
         delete details.headers.Cookie;
@@ -2116,6 +2128,10 @@
       enable: true,
     },
     drag: true,
+  });
+  Qmsg.config({
+    isLimitWidth: true,
+    limitWidthWrap: "wrap",
   });
   const ElementUtils = {
     registerLeftMenu(config) {
@@ -3188,271 +3204,6 @@
   };
   const optimizationCSS$1 =
     '#comiis_foot_menu_beautify {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  z-index: 90;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  height: 48px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n  position: fixed;\r\n  display: inline-flex;\r\n  flex-direction: column;\r\n  z-index: 92;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  width: 100%;\r\n  min-height: 120px;\r\n  overflow: hidden;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n  padding-left: 10px;\r\n  color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n  display: block;\r\n  width: 22px;\r\n  height: 22px;\r\n  padding: 4px 8px;\r\n  margin: 8px 0;\r\n  position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n  width: 22px;\r\n  height: 22px;\r\n  line-height: 22px;\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n  position: absolute;\r\n  display: block;\r\n  font-size: 10px;\r\n  height: 14px;\r\n  line-height: 14px;\r\n  padding: 0 6px;\r\n  right: -8px;\r\n  top: 4px;\r\n  overflow: hidden;\r\n  border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n  border: transparent;\r\n  border-radius: 15px;\r\n  height: 30px;\r\n  width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n  padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n  margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n  display: inline-flex;\r\n  align-content: center;\r\n  justify-content: center;\r\n  align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n  width: 75vw;\r\n  margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n  width: 75vw;\r\n  word-wrap: break-word;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n  text-align: center;\r\n  margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n  font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n  width: 60px;\r\n  height: 30px;\r\n  border: transparent;\r\n  color: #fff;\r\n  background: #d1c9fc;\r\n  border-radius: 30px;\r\n  margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n  background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n  padding: 10px 10px 10px 10px;\r\n  border: transparent;\r\n  border-radius: 6px;\r\n  min-height: 70px;\r\n  max-height: 180px;\r\n  background: #e9e8ec;\r\n  overflow-y: auto;\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n  width: 65%;\r\n  margin: 0 3%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n  width: 7%;\r\n  text-align: -webkit-center;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n  width: 100%;\r\n  text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n  margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n  font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n  font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n  background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization {\r\n  max-height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t {\r\n  background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n  .other_area\r\n  .menu_body\r\n  .comiis_smiley_box\r\n  .bqbox_t\r\n  ul#comiis_smilies_key\r\n  li\r\n  a.bg_f.b_l.b_r {\r\n  background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key {\r\n  display: -webkit-box;\r\n  top: 0;\r\n  left: 0;\r\n  height: 42px;\r\n  line-height: 42px;\r\n  overflow: hidden;\r\n  overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li {\r\n  padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n  height: 140px;\r\n  overflow-y: auto;\r\n  flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n  display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 14.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 12.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 11%;\r\n  }\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 10%;\r\n  }\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 9%;\r\n  }\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 8%;\r\n  }\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 7%;\r\n  }\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6.5%;\r\n  }\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 6%;\r\n  }\r\n}\r\n@media screen and (min-width: 1200px) {\r\n  .comiis_bqbox .bqbox_c li {\r\n    width: 4.5%;\r\n  }\r\n}\r\n#imglist_settings button {\r\n  font-size: 13.333px;\r\n  color: #9baacf;\r\n  outline: 0;\r\n  border: none;\r\n  height: 35px;\r\n  width: 80px;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0.3rem 0.3rem 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n  font-weight: 800;\r\n  line-height: 40px;\r\n  background: #efefef;\r\n  padding: 0;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n  box-shadow:\r\n    inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n    inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n  color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n  display: flex;\r\n  align-content: center;\r\n  align-items: center;\r\n  justify-content: flex-end;\r\n  height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n  border: transparent;\r\n  background: 0 0;\r\n  text-align: center;\r\n  margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n  color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n  color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n  color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n  color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n  display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n  position: absolute;\r\n  top: -5px;\r\n  left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .p_img a {\r\n  float: left;\r\n  height: 36px;\r\n}\r\n#imglist .del a {\r\n  padding: 0;\r\n}\r\n';
-  const MTEditorSmilies = () => {
-    return [
-      {
-        "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
-        "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
-        "[色]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif",
-        "[发呆]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif",
-        "[得意]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif",
-        "[流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif",
-        "[害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif",
-        "[闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif",
-        "[睡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif",
-        "[大哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif",
-        "[尴尬]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif",
-        "[发怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif",
-        "[调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif",
-        "[呲牙]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif",
-        "[惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif",
-        "[难过]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif",
-        "[酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif",
-        "[冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif",
-        "[抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif",
-        "[吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif",
-        "[偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif",
-        "[可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif",
-        "[白眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif",
-        "[傲慢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif",
-        "[饥饿]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif",
-        "[困]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif",
-        "[惊恐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif",
-        "[流汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif",
-        "[憨笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif",
-        "[装逼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif",
-        "[奋斗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif",
-        "[咒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif",
-        "[疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif",
-        "[嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif",
-        "[晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif",
-        "[折磨]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif",
-        "[衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif",
-        "[骷髅]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif",
-        "[敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif",
-        "[再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif",
-        "[擦汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif",
-        "[抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif",
-        "[鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif",
-        "[糗大了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif",
-        "[坏笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif",
-        "[左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif",
-        "[右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif",
-        "[哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif",
-        "[鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif",
-        "[委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif",
-        "[快哭了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif",
-        "[阴脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif",
-        "[亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif",
-        "[吓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif",
-        "[可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif",
-        "[眨眼睛]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif",
-        "[笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif",
-        "[dogeQQ]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif",
-        "[泪奔]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif",
-        "[无奈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif",
-        "[托腮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif",
-        "[卖萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png",
-        "[斜眼笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif",
-        "[喷血]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif",
-        "[惊喜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif",
-        "[骚扰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif",
-        "[小纠结]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif",
-        "[我最美]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif",
-        "[菜刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif",
-        "[西瓜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif",
-        "[啤酒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif",
-        "[篮球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif",
-        "[乒乓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif",
-        "[咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif",
-        "[饭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif",
-        "[猪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif",
-        "[玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif",
-        "[凋谢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif",
-        "[示爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif",
-        "[爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif",
-        "[心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif",
-        "[蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif",
-        "[闪电]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif",
-        "[炸弹]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif",
-        "[刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif",
-        "[足球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif",
-        "[瓢虫]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif",
-        "[便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif",
-        "[月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif",
-        "[太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif",
-        "[礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif",
-        "[抱抱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif",
-        "[喝彩]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif",
-        "[祈祷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif",
-        "[棒棒糖]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif",
-        "[药]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif",
-        "[赞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif",
-        "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif",
-        "[握手]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif",
-        "[胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif",
-        "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
-        "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
-        "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
-        "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
-        "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
-        "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
-      },
-      {
-        "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
-        "[#滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png",
-        "[#吐舌]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png",
-        "[#哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png",
-        "[#啊]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png",
-        "[#酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png",
-        "[#怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png",
-        "[#开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png",
-        "[#汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png",
-        "[#泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png",
-        "[#黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png",
-        "[#鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png",
-        "[#不高兴]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png",
-        "[#真棒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png",
-        "[#钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png",
-        "[#疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png",
-        "[#阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png",
-        "[#吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png",
-        "[#咦]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png",
-        "[#委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png",
-        "[#花心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png",
-        "[#呼～]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png",
-        "[#激动]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png",
-        "[#冷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png",
-        "[#可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png",
-        "[#What？]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png",
-        "[#勉强]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png",
-        "[#狂汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png",
-        "[#酸爽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png",
-        "[#乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png",
-        "[#雅美蝶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png",
-        "[#睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png",
-        "[#惊哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png",
-        "[#哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png",
-        "[#笑尿]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png",
-        "[#惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png",
-        "[#小乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png",
-        "[#喷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png",
-        "[#抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png",
-        "[#捂嘴笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png",
-        "[#你懂的]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png",
-        "[#犀利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png",
-        "[#小红脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png",
-        "[#懒得理]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png",
-        "[#爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png",
-        "[#心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png",
-        "[#玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png",
-        "[#礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png",
-        "[#彩虹]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png",
-        "[#太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png",
-        "[#月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png",
-        "[#钱币]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png",
-        "[#咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png",
-        "[#蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png",
-        "[#大拇指]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png",
-        "[#胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png",
-        "[#爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png",
-        "[#OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png",
-        "[#弱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png",
-        "[#沙发]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png",
-        "[#纸巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png",
-        "[#香蕉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png",
-        "[#便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png",
-        "[#药丸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png",
-        "[#红领巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png",
-        "[#蜡烛]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png",
-        "[#三道杠]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png",
-        "[#音乐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png",
-        "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png",
-      },
-      {
-        "[doge]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png",
-        "[doge思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png",
-        "[doge再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png",
-        "[doge生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png",
-        "[doge气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png",
-        "[doge笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png",
-        "[doge调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png",
-        "[doge啊哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png",
-        "[doge原谅TA]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png",
-        "[miao]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png",
-        "[miao思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png",
-        "[miao拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png",
-        "[miao生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png",
-        "[miao气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png",
-        "[二哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png",
-        "[摊手]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png",
-        "[w并不简单]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png",
-        "[w滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png",
-        "[w色]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png",
-        "[w爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png",
-        "[w拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png",
-        "[w悲伤]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png",
-        "[w鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png",
-        "[w馋嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png",
-        "[w冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png",
-        "[w打哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png",
-        "[w打脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png",
-        "[w敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png",
-        "[w生病]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png",
-        "[w闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png",
-        "[w鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png",
-        "[w哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png",
-        "[w害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png",
-        "[w呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png",
-        "[w黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png",
-        "[w哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png",
-        "[w调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png",
-        "[w可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png",
-        "[w可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png",
-        "[w酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png",
-        "[w困]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png",
-        "[w懒得理你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png",
-        "[w流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png",
-        "[w怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png",
-        "[w怒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png",
-        "[w钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png",
-        "[w亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png",
-        "[w傻眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png",
-        "[w便秘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png",
-        "[w失望]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png",
-        "[w衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png",
-        "[w睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png",
-        "[w思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png",
-        "[w开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png",
-        "[w色舔]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png",
-        "[w偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png",
-        "[w吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png",
-        "[w抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png",
-        "[w委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png",
-        "[w笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png",
-        "[w嘻嘻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png",
-        "[w嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png",
-        "[w阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png",
-        "[w疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png",
-        "[w抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png",
-        "[w晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png",
-        "[w右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png",
-        "[w左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png",
-        "[w肥皂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png",
-        "[w奥特曼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png",
-        "[w草泥马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png",
-        "[w兔子]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png",
-        "[w熊猫]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png",
-        "[w猪头]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png",
-        "[w→_→]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png",
-        "[w给力]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png",
-        "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
-        "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
-        "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
-        "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
-      },
-    ];
-  };
   const GlobalImageDelete = [];
   class MTEditorImageBed {
     option;
@@ -3586,13 +3337,13 @@
       );
     }
     addTab() {
-      let $picture_key = $("#comiis_pictitle_key");
+      const $picture_key = $("#comiis_pictitle_key");
+      if (!$picture_key) return;
       let $history = $picture_key.querySelector("a[data-type='history']");
       let tabHTML = `
-            <li>
-                <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
-            </li>
-        `;
+    <li>
+        <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
+    </li>`;
       if (!$history) {
         let $history_parent = domUtils.createElement("li");
         $history = domUtils.createElement(
@@ -3620,10 +3371,7 @@
           "div",
           {
             className: "comiis_upbox bg_f cl",
-            innerHTML: `
-					<ul class="comiis_post_imglist cl" id="imglist_history">	
-                    </ul>
-				`,
+            innerHTML: `<ul class="comiis_post_imglist cl" id="imglist_history"></ul>`,
           },
           {
             style: "display: none;",
@@ -3637,39 +3385,37 @@
       domUtils.before(
         $historyBox,
         `
-            <div class="comiis_upbox bg_f cl" style="display: none;">
-                <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
-                    <li class="up_btn">
-                        <a href="javascript:;" class="bg_e b_ok f_d">
-                            <i class="comiis_font"></i>
-                            
-                        </a>
-                        <input type="file" name="Filedata" accept="image/*" multiple="" style="display: none;">
-                    </li>				
-                </ul>
-            </div>
+      <div class="comiis_upbox bg_f cl" style="display: none;">
+          <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
+              <li class="up_btn">
+                  <a href="javascript:;" class="bg_e b_ok f_d">
+                      <i class="comiis_font"></i>
+                  </a>
+                  <input type="file" name="Filedata" accept="image/*" multiple="" style="display: none;">
+              </li>				
+          </ul>
+      </div>
             `
       );
     }
     createImageBtnElement(labelName, url) {
       let $li = domUtils.createElement("li", {
         innerHTML: `
-            <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
-                <a href="javascript:;">
-                    <i class="comiis_font f_g"></i>
-                </a>
-            </span>
-            <span class="charu f_f">${labelName}</span>
-            <span class="p_img">
-                <a href="javascript:;"
-                onclick="comiis_addsmilies('[img]${url}[/img]')">
-                    <img style="height:54px;width:54px;" 
-                        title="${url}" 
-                        src="${url}" 
-                        loading="lazy"
-                        class="vm b_ok"></a>
-            </span>
-            `,
+      <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
+          <a href="javascript:;">
+              <i class="comiis_font f_g"></i>
+          </a>
+      </span>
+      <span class="charu f_f">${labelName}</span>
+      <span class="p_img">
+          <a href="javascript:;"
+          onclick="comiis_addsmilies('[img]${url}[/img]')">
+              <img style="height:54px;width:54px;" 
+                  title="${url}" 
+                  src="${url}" 
+                  loading="lazy"
+                  class="vm b_ok"></a>
+      </span>`,
       });
       return $li;
     }
@@ -4033,6 +3779,271 @@
         };
       });
     },
+  };
+  const MTEditorSmilies = () => {
+    return [
+      {
+        "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
+        "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
+        "[色]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq003.gif",
+        "[发呆]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq004.gif",
+        "[得意]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq005.gif",
+        "[流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq006.gif",
+        "[害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq007.gif",
+        "[闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq008.gif",
+        "[睡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq009.gif",
+        "[大哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq010.gif",
+        "[尴尬]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq011.gif",
+        "[发怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq012.gif",
+        "[调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq013.gif",
+        "[呲牙]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq014.gif",
+        "[惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq015.gif",
+        "[难过]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq016.gif",
+        "[酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq017.gif",
+        "[冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq018.gif",
+        "[抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq019.gif",
+        "[吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq020.gif",
+        "[偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq021.gif",
+        "[可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq022.gif",
+        "[白眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq023.gif",
+        "[傲慢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq024.gif",
+        "[饥饿]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq025.gif",
+        "[困]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq026.gif",
+        "[惊恐]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq027.gif",
+        "[流汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq028.gif",
+        "[憨笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq029.gif",
+        "[装逼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq030.gif",
+        "[奋斗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq031.gif",
+        "[咒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq032.gif",
+        "[疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq033.gif",
+        "[嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq034.gif",
+        "[晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq035.gif",
+        "[折磨]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq036.gif",
+        "[衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq037.gif",
+        "[骷髅]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq038.gif",
+        "[敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq039.gif",
+        "[再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq040.gif",
+        "[擦汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq041.gif",
+        "[抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq042.gif",
+        "[鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq043.gif",
+        "[糗大了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq044.gif",
+        "[坏笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq045.gif",
+        "[左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq046.gif",
+        "[右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq047.gif",
+        "[哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq048.gif",
+        "[鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq049.gif",
+        "[委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq050.gif",
+        "[快哭了]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq051.gif",
+        "[阴脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq052.gif",
+        "[亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq053.gif",
+        "[吓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq054.gif",
+        "[可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq055.gif",
+        "[眨眼睛]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq056.gif",
+        "[笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq057.gif",
+        "[dogeQQ]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq058.gif",
+        "[泪奔]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq059.gif",
+        "[无奈]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq060.gif",
+        "[托腮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq061.gif",
+        "[卖萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq062.png",
+        "[斜眼笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif",
+        "[喷血]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq064.gif",
+        "[惊喜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq065.gif",
+        "[骚扰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq066.gif",
+        "[小纠结]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq067.gif",
+        "[我最美]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq068.gif",
+        "[菜刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq069.gif",
+        "[西瓜]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq070.gif",
+        "[啤酒]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq071.gif",
+        "[篮球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq072.gif",
+        "[乒乓]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq073.gif",
+        "[咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq074.gif",
+        "[饭]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq075.gif",
+        "[猪]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq076.gif",
+        "[玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq077.gif",
+        "[凋谢]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq078.gif",
+        "[示爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq079.gif",
+        "[爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq080.gif",
+        "[心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq081.gif",
+        "[蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq082.gif",
+        "[闪电]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq083.gif",
+        "[炸弹]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq084.gif",
+        "[刀]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq085.gif",
+        "[足球]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq086.gif",
+        "[瓢虫]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq087.gif",
+        "[便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq088.gif",
+        "[月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq089.gif",
+        "[太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq090.gif",
+        "[礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq091.gif",
+        "[抱抱]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq092.gif",
+        "[喝彩]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq93.gif",
+        "[祈祷]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq94.gif",
+        "[棒棒糖]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq95.gif",
+        "[药]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq96.gif",
+        "[赞]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq097.gif",
+        "[差劲]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq098.gif",
+        "[握手]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq099.gif",
+        "[胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq100.gif",
+        "[抱拳]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq101.gif",
+        "[勾引]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq102.gif",
+        "[拳头]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq103.gif",
+        "[爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq105.gif",
+        "[NO]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq106.gif",
+        "[OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq107.gif",
+      },
+      {
+        "[#呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_1.png",
+        "[#滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png",
+        "[#吐舌]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_3.png",
+        "[#哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_2.png",
+        "[#啊]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_23.png",
+        "[#酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_22.png",
+        "[#怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_13.png",
+        "[#开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_39.png",
+        "[#汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_14.png",
+        "[#泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_16.png",
+        "[#黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_15.png",
+        "[#鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_21.png",
+        "[#不高兴]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_12.png",
+        "[#真棒]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_17.png",
+        "[#钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_40.png",
+        "[#疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_26.png",
+        "[#阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_20.png",
+        "[#吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_34.png",
+        "[#咦]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_41.png",
+        "[#委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_29.png",
+        "[#花心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_6.png",
+        "[#呼～]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_42.png",
+        "[#激动]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_5.png",
+        "[#冷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_43.png",
+        "[#可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_4.png",
+        "[#What？]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_25.png",
+        "[#勉强]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_38.png",
+        "[#狂汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_24.png",
+        "[#酸爽]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_27.png",
+        "[#乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_8.png",
+        "[#雅美蝶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_28.png",
+        "[#睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_31.png",
+        "[#惊哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_19.png",
+        "[#哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_44.png",
+        "[#笑尿]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_32.png",
+        "[#惊讶]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_30.png",
+        "[#小乖]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_7.png",
+        "[#喷]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_18.png",
+        "[#抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_33.png",
+        "[#捂嘴笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_9.png",
+        "[#你懂的]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_11.png",
+        "[#犀利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_35.png",
+        "[#小红脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_36.png",
+        "[#懒得理]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_37.png",
+        "[#爱心]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_45.png",
+        "[#心碎]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_46.png",
+        "[#玫瑰]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_47.png",
+        "[#礼物]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_48.png",
+        "[#彩虹]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_49.png",
+        "[#太阳]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_50.png",
+        "[#月亮]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_51.png",
+        "[#钱币]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_52.png",
+        "[#咖啡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_53.png",
+        "[#蛋糕]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_54.png",
+        "[#大拇指]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_55.png",
+        "[#胜利]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_56.png",
+        "[#爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_57.png",
+        "[#OK]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_58.png",
+        "[#弱]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_59.png",
+        "[#沙发]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_60.png",
+        "[#纸巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_61.png",
+        "[#香蕉]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_62.png",
+        "[#便便]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_63.png",
+        "[#药丸]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_64.png",
+        "[#红领巾]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_65.png",
+        "[#蜡烛]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_66.png",
+        "[#三道杠]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_67.png",
+        "[#音乐]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_68.png",
+        "[#灯泡]": "https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_69.png",
+      },
+      {
+        "[doge]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/1.png",
+        "[doge思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/2.png",
+        "[doge再见]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/3.png",
+        "[doge生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/4.png",
+        "[doge气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/5.png",
+        "[doge笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/7.png",
+        "[doge调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/6.png",
+        "[doge啊哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/8.png",
+        "[doge原谅TA]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/9.png",
+        "[miao]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/10.png",
+        "[miao思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/11.png",
+        "[miao拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/12.png",
+        "[miao生气]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/13.png",
+        "[miao气哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/14.png",
+        "[二哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/15.png",
+        "[摊手]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/19.png",
+        "[w并不简单]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/20.png",
+        "[w滑稽]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png",
+        "[w色]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/22.png",
+        "[w爱你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/23.png",
+        "[w拜拜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/24.png",
+        "[w悲伤]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/25.png",
+        "[w鄙视]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/26.png",
+        "[w馋嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/27.png",
+        "[w冷汗]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/28.png",
+        "[w打哈欠]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/29.png",
+        "[w打脸]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/30.png",
+        "[w敲打]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/31.png",
+        "[w生病]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/32.png",
+        "[w闭嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/33.png",
+        "[w鼓掌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/34.png",
+        "[w哈哈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/35.png",
+        "[w害羞]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/36.png",
+        "[w呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/37.png",
+        "[w黑线]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/38.png",
+        "[w哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/39.png",
+        "[w调皮]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/40.png",
+        "[w可爱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/41.png",
+        "[w可怜]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/42.png",
+        "[w酷]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/43.png",
+        "[w困]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/44.png",
+        "[w懒得理你]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/45.png",
+        "[w流泪]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/46.png",
+        "[w怒]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/47.png",
+        "[w怒骂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/48.png",
+        "[w钱]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/49.png",
+        "[w亲亲]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/50.png",
+        "[w傻眼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/51.png",
+        "[w便秘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/52.png",
+        "[w失望]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/53.png",
+        "[w衰]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/54.png",
+        "[w睡觉]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/55.png",
+        "[w思考]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/56.png",
+        "[w开心]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/57.png",
+        "[w色舔]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/58.png",
+        "[w偷笑]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/59.png",
+        "[w吐]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/60.png",
+        "[w抠鼻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/61.png",
+        "[w委屈]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/62.png",
+        "[w笑哭]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/63.png",
+        "[w嘻嘻]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/64.png",
+        "[w嘘]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/65.png",
+        "[w阴险]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/66.png",
+        "[w疑问]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/67.png",
+        "[w抓狂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/70.png",
+        "[w晕]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/69.png",
+        "[w右哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/68.png",
+        "[w左哼哼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/71.png",
+        "[w肥皂]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/77.png",
+        "[w奥特曼]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/78.png",
+        "[w草泥马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/79.png",
+        "[w兔子]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/80.png",
+        "[w熊猫]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/81.png",
+        "[w猪头]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/82.png",
+        "[w→_→]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/83.png",
+        "[w给力]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/84.png",
+        "[w囧]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/85.png",
+        "[w萌]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/86.png",
+        "[w神马]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/87.png",
+        "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
+      },
+    ];
   };
   const MTQuickUBB = () => {
     return {
@@ -4413,28 +4424,24 @@
       },
     });
   };
-  let error_code = {
-    1: {
-      error_match: "抱歉，您填写的内容包含敏感词而无法提交",
-      popup_text: "抱歉，您填写的内容包含敏感词而无法提交",
+  const ErrorCodeMapList = [
+    {
+      match: "抱歉，您填写的内容包含敏感词而无法提交",
+      msg: "{$0}",
     },
-    2: {
-      error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+    {
+      match: /抱歉，管理员设置了本版块发表于 (.+?) 天以前的主题自动关闭，不再接受新回复/,
+      msg: "抱歉，管理员设置了本版块发表于 {$1} 天以前的主题自动关闭，不再接受新回复",
     },
-    3: {
-      error_match: "抱歉，本主题已关闭，不再接受新内容",
-      popup_text: "抱歉，本主题已关闭，不再接受新内容",
+    {
+      match: "抱歉，本主题已关闭，不再接受新内容",
+      msg: "{$0}",
     },
-    4: {
-      error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-      popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+    {
+      match: /抱歉，您的帖子小于 (.+?) 个字符的限制/,
+      msg: "抱歉，您的帖子小于 {$1} 个字符的限制",
     },
-    5: {
-      error_match: "抱歉，您的帖子小于 10 个字符的限制",
-      popup_text: "抱歉，您的帖子小于 10 个字符的限制",
-    },
-  };
+  ];
   let tempReplyBtnNode = null;
   const MTEditorOptimizationNormal = {
     $data: {
@@ -4488,101 +4495,100 @@
       domUtils.after(
         $footMenu,
         `
-            <div id="comiis_foot_menu_beautify" class="bg_f b_t">
-                <div class="reply_area">
-                    <ul>
-                        <li data-attr="回帖"><input type="text" class="bg_e f_c" placeholder="发帖千百度，文明第一步" readonly="readonly"></li>
-                        <li data-attr="评论数量">${$old_commentIcon.innerHTML}</li>
-                        <li data-attr="点赞">${$old_linkIcon.innerHTML}</li>
-                        <li data-attr="收藏">${$old_collectIcon.innerHTML}</li>
-                    </ul>
-                </div>
-            </div>
-            <div id="comiis_foot_menu_beautify_big" data-model="comment" class="bg_f b_t" style="display:none;">
-                <div class="reply_area">
-                    <div class="reply_user_content" style="display:none;"></div>
-                    <ul>
-                        <li data-attr="回帖"><textarea id="needmessage" placeholder="发帖千百度，文明第一步"></textarea></li>
-                        <li data-attr="发表">
-                            <div class="fastpostform_new"><a href="${forum_url}" data-comment-url="${forum_url}" target="_blank"><i class="comiis_font f_d"></i></a></div>
-                            <div id="fastpostsubmitline"><input data-comment-url="${forum_url}" data-comment-action="${this.$data.forum_action}" data-comment-serialize="${forum_serialize}" data-text="false" type="button" value="发表" name="replysubmit" id="fastpostsubmit" comiis="handle"></div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="other_area">
-                    <div class="menu_icon">
-                        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"></i></a>
-                        <a href="javascript:;" class="comiis_smile"><i class="comiis_font"></i></a>
-                        <a href="javascript:;" class="commis_insert_bbs"><i class="comiis_font"></i></a>
-                    </div>
-                    <div class="menu_body">
-                        <div id="comiis_pictitle_tab">
-                            <!-- 列表项 -->
-                            <div class="comiis_upbox bg_f cl">
-                                <ul id="imglist" class="comiis_post_imglist cl">
-                                    <li class="up_btn">
-                                        <a href="javascript:;" class="bg_e b_ok f_d">
-                                            <i class="comiis_font"></i>
-                                        </a>
-                                        <input type="file" name="Filedata" id="filedata" accept="image/*" multiple>
-                                    </li>				
-                                </ul>
-                             </div>
-                             <!-- 菜单项 -->
-                             <div class="bqbox_t">
-                                <ul id="comiis_pictitle_key">
-                                    <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
-                                </ul>
-                            </div>
+      <div id="comiis_foot_menu_beautify" class="bg_f b_t">
+          <div class="reply_area">
+              <ul>
+                  <li data-attr="回帖"><input type="text" class="bg_e f_c" placeholder="发帖千百度，文明第一步" readonly="readonly"></li>
+                  <li data-attr="评论数量">${$old_commentIcon.innerHTML}</li>
+                  <li data-attr="点赞">${$old_linkIcon.innerHTML}</li>
+                  <li data-attr="收藏">${$old_collectIcon.innerHTML}</li>
+              </ul>
+          </div>
+      </div>`,
+        `
+      <div id="comiis_foot_menu_beautify_big" data-model="comment" class="bg_f b_t" style="display:none;">
+          <div class="reply_area">
+              <div class="reply_user_content" style="display:none;"></div>
+              <ul>
+                  <li data-attr="回帖"><textarea id="needmessage" placeholder="发帖千百度，文明第一步"></textarea></li>
+                  <li data-attr="发表">
+                      <div class="fastpostform_new"><a href="${forum_url}" data-comment-url="${forum_url}" target="_blank"><i class="comiis_font f_d"></i></a></div>
+                      <div id="fastpostsubmitline"><input data-comment-url="${forum_url}" data-comment-action="${this.$data.forum_action}" data-comment-serialize="${forum_serialize}" data-text="false" type="button" value="发表" name="replysubmit" id="fastpostsubmit" comiis="handle"></div>
+                  </li>
+              </ul>
+          </div>
+          <div class="other_area">
+              <div class="menu_icon">
+                  <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"></i></a>
+                  <a href="javascript:;" class="comiis_smile"><i class="comiis_font"></i></a>
+                  <a href="javascript:;" class="commis_insert_bbs"><i class="comiis_font"></i></a>
+              </div>
+              <div class="menu_body">
+                  <div id="comiis_pictitle_tab">
+                      <!-- 列表项 -->
+                      <div class="comiis_upbox bg_f cl">
+                          <ul id="imglist" class="comiis_post_imglist cl">
+                              <li class="up_btn">
+                                  <a href="javascript:;" class="bg_e b_ok f_d">
+                                      <i class="comiis_font"></i>
+                                  </a>
+                                  <input type="file" name="Filedata" id="filedata" accept="image/*" multiple>
+                              </li>				
+                          </ul>
                         </div>
-                        <div id="comiis_post_tab" class="comiis_bqbox">
-                            <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
-                                <div class="swiper-wrapper bqbox_c comiis_optimization">
-                                    <div class="swiper-slide">
-                                        ${first_smilies.join("\n")}
-                                    </div>
-    
-                                    <div class="swiper-slide" style="display: none;">
-                                        ${second_smilies.join("\n")}
-                                    </div>
-                                    
-                                    <div class="swiper-slide" style="display: none;">
-                                        ${third_smilies.join("\n")}    
-                                    </div>
-                                </div>
-                                <div class="bqbox_t">
-                                    <ul id="comiis_smilies_key">
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="comiis_insert_ubb_tab" style="display: none;">
-                            <div class="bg_f comiis_input_style">
-                                <div class="comiis_post_urlico b_b">
-                                    <ul id="comiis_insert_ubb_tab_list">
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
+                        <!-- 菜单项 -->
+                        <div class="bqbox_t">
+                          <ul id="comiis_pictitle_key">
+                              <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
+                          </ul>
+                      </div>
+                  </div>
+                  <div id="comiis_post_tab" class="comiis_bqbox">
+                      <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
+                          <div class="swiper-wrapper bqbox_c comiis_optimization">
+                              <div class="swiper-slide">
+                                  ${first_smilies.join("\n")}
+                              </div>
+                              <div class="swiper-slide" style="display: none;">
+                                  ${second_smilies.join("\n")}
+                              </div>
+                              <div class="swiper-slide" style="display: none;">
+                                  ${third_smilies.join("\n")}    
+                              </div>
+                          </div>
+                          <div class="bqbox_t">
+                              <ul id="comiis_smilies_key">
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
+                                      </a>
+                                  </li>
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
+                                      </a>
+                                  </li>
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
+                                      </a>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="comiis_insert_ubb_tab" style="display: none;">
+                      <div class="bg_f comiis_input_style">
+                          <div class="comiis_post_urlico b_b">
+                              <ul id="comiis_insert_ubb_tab_list">
+                                  
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      `
       );
       $("#comiis_foot_menu_beautify .comiis_position_key");
       this.$el.$like = $("#comiis_foot_menu_beautify .comiis_recommend_addkey");
@@ -4634,22 +4640,27 @@
       });
     },
     handle_error(text) {
-      let return_status = false;
-      let messagetext = domUtils.text(domUtils.toElement(text, false, false).querySelector("#messagetext"));
+      let flag = false;
+      const messagetext = domUtils.text(domUtils.toElement(text, false, false).querySelector("#messagetext"));
       if (!messagetext || (typeof messagetext === "string" && messagetext.trim() == "")) {
-        return return_status;
+        return flag;
       }
-      Object.keys(error_code).forEach((item) => {
-        let value = error_code[item];
-        if (messagetext.indexOf(value.error_match) != -1) {
-          if (messagetext.indexOf(`typeof errorhandle_=='function'`) != -1) {
-            Qmsg.error(value.popup_text);
+      ErrorCodeMapList.forEach((item) => {
+        const pattern = item.match instanceof RegExp ? item.match : new RegExp(item.match);
+        const matcher = messagetext.match(pattern);
+        if (matcher) {
+          if (messagetext.includes(`typeof errorhandle_=='function'`)) {
+            let msg = item.msg;
+            matcher.forEach((matchText, index) => {
+              msg = msg.replace(`{$${index}}`, matchText);
+            });
+            Qmsg.error(msg);
           }
-          return_status = true;
+          flag = true;
           return;
         }
       });
-      return return_status;
+      return flag;
     },
     setInputChangeEvent() {
       const that = this;
@@ -7436,7 +7447,8 @@
     description,
     afterAddToUListCallBack,
     disabled,
-    valueChangeCallBack
+    valueChangeCallBack,
+    shortCutOption
   ) {
     const result = {
       text,
@@ -7456,7 +7468,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack,
+      afterAddToUListCallBack: (...args) => {},
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -7700,117 +7712,97 @@
       };
     }
   }
-  class RuleFilterView {
-    option;
-    $data = {
-      isFilteredData: [],
-    };
-    constructor(option) {
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops__.alert({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="filter-container"></div>
-                `,
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default",
-          },
-        },
-        drag: true,
-        mask: {
-          enable: true,
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = domUtils.createElement(
-          "button",
-          {
-            innerText: filterOption.name,
-          },
-          {
-            type: "button",
-          }
-        );
-        let execFilterAndCloseDialog = async () => {
-          this.$data.isFilteredData = [];
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (filterResult) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
-              domUtils.hide(ruleInfo.$el, false);
-              this.$data.isFilteredData.push(ruleInfo.data);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domUtils.on($button, "click", async (event) => {
-          domUtils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(event, execFilterAndCloseDialog);
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-    getFilteredData() {
-      return this.$data.isFilteredData;
-    }
-  }
   class RuleView {
     option;
     constructor(option) {
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops__.confirm({
+      const $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <div class="rule-view-container">
-                    </div>
-                    `,
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
           html: true,
         },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: 40px;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
         btn: {
           merge: true,
           reverse: false,
@@ -7830,56 +7822,7 @@
             },
           },
           cancel: {
-            enable: this.option?.bottomControls?.filter?.enable || false,
-            type: "default",
-            text: "过滤",
-            callback: async (details, event) => {
-              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                let result = await this.option.bottomControls.filter.callback();
-                if (typeof result === "boolean" && !result) {
-                  return;
-                }
-              }
-              let getAllRuleElement = () => {
-                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
-              };
-              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
-              if (domUtils.text($button).includes("取消")) {
-                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
-                  $button,
-                  getAllRuleElement,
-                });
-                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-                  return;
-                }
-                getAllRuleElement().forEach(($el) => {
-                  domUtils.show($el, false);
-                });
-                domUtils.text($button, "过滤");
-              } else {
-                let ruleFilterView = new RuleFilterView({
-                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
-                  filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack: async () => {
-                    domUtils.text($button, "取消过滤");
-                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
-                    const isFilteredData = ruleFilterView.getFilteredData();
-                    if (isFilteredData.length) {
-                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
-                    }
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleItemElement($el).data,
-                        $el,
-                      };
-                    });
-                  },
-                });
-                ruleFilterView.showView();
-              }
-            },
+            enable: false,
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -7932,72 +7875,126 @@
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: `
-            ${__pops__.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `,
       });
-      let allData = await this.option.data();
-      let changeButtonText = false;
-      let isFilteredDataLength = 0;
-      for (let index = 0; index < allData.length; index++) {
-        let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
-        let isNotFilterFlag = true;
-        if (typeof filterCallBack === "function") {
-          isNotFilterFlag = filterCallBack(item);
-        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag =
-            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
+      const $searchContainer = $popsConfirm.$shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
+      let externalSelectInfo = null;
+      let ruleValueSelectInfo = null;
+      if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+        domUtils.append(
+          $externalSelect,
+          this.option.bottomControls?.filter?.option.map((option) => {
+            const $option = domUtils.createElement("option", {
+              innerText: option.name,
+            });
+            Reflect.set($option, "data-value", option);
+            return $option;
+          })
+        );
+      }
+      if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+        domUtils.append(
+          $ruleValueSelect,
+          this.option.bottomControls?.filter?.inputOption.map((option) => {
+            const $option = domUtils.createElement("option", {
+              innerText: option.name,
+            });
+            Reflect.set($option, "data-value", option);
+            return $option;
+          })
+        );
+      }
+      domUtils.on($externalSelect, "change", async (evt) => {
+        const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+        const selectInfo = Reflect.get($isSelectedElement, "data-value");
+        if (typeof selectInfo?.selectedCallBack === "function") {
+          selectInfo.selectedCallBack(selectInfo);
         }
-        if (!isNotFilterFlag) {
-          changeButtonText = true;
-          domUtils.hide($ruleItemList, false);
-          isFilteredDataLength++;
+        externalSelectInfo = selectInfo;
+        await execFilter(false);
+      });
+      domUtils.on($ruleValueSelect, "change", async (evt) => {
+        const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+        const selectInfo = Reflect.get($isSelectedElement, "data-value");
+        if (typeof selectInfo?.selectedCallBack === "function") {
+          selectInfo.selectedCallBack(selectInfo);
+        }
+        ruleValueSelectInfo = selectInfo;
+        await execFilter(false);
+      });
+      domUtils.onInput(
+        $searchInput,
+        utils.debounce(async () => {
+          await execFilter(false);
+        })
+      );
+      const updateSelectData = () => {
+        const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+        externalSelectInfo = Reflect.get($externalSelected, "data-value");
+        const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+        ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+      };
+      const execFilter = async (isUpdateSelectData) => {
+        this.clearContent($popsConfirm.$shadowRoot);
+        isUpdateSelectData && updateSelectData();
+        const allData = await this.option.data();
+        const filteredData = [];
+        const searchText = domUtils.val($searchInput);
+        for (let index = 0; index < allData.length; index++) {
+          const item = allData[index];
+          if (externalSelectInfo) {
+            const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+            if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+              continue;
+            }
+          }
+          if (ruleValueSelectInfo) {
+            let flag = true;
+            if (searchText === "") {
+              flag = true;
+            } else {
+              flag = false;
+            }
+            if (!flag) {
+              flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+            }
+            if (!flag) {
+              continue;
+            }
+          }
+          filteredData.push(item);
+        }
+        await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+      };
+      if (typeof filterCallBack === "object" && filterCallBack != null) {
+        let externalIndex;
+        if (typeof filterCallBack.external === "number") {
+          externalIndex = filterCallBack.external;
+        } else {
+          externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+            const data = Reflect.get(option, "data-value");
+            return data.value === filterCallBack.external;
+          });
+        }
+        if (externalIndex !== -1) {
+          $externalSelect.selectedIndex = externalIndex;
+        }
+        let ruleIndex;
+        if (typeof filterCallBack.rule === "number") {
+          ruleIndex = filterCallBack.rule;
+        } else {
+          ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+            const data = Reflect.get(option, "data-value");
+            return data.value === filterCallBack.rule;
+          });
+        }
+        if (ruleIndex !== -1) {
+          $ruleValueSelect.selectedIndex = ruleIndex;
         }
       }
-      if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
-      }
+      await execFilter(true);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
@@ -8067,20 +8064,20 @@
       editView.showView();
     }
     parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $container = $shadowRoot.querySelector(".rule-view-container");
+      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       return {
         $container,
         $deleteBtn,
       };
     }
     parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(".rule-controls-enable");
-      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(".rule-controls-delete");
+      const $enable = $ruleElement.querySelector(".rule-controls-enable");
+      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
+      const $edit = $ruleElement.querySelector(".rule-controls-edit");
+      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
         $enableSwitch,
@@ -8092,8 +8089,8 @@
       };
     }
     async createRuleItemElement(data, $shadowRoot) {
-      let name = await this.option.getDataItemName(data);
-      let $ruleItem = domUtils.createElement("div", {
+      const name = await this.option.getDataItemName(data);
+      const $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: `
 			<div class="rule-name">${name}</div>
@@ -8117,7 +8114,7 @@
 			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
-      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const switchCheckedClassName = "pops-panel-switch-is-checked";
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
@@ -8153,7 +8150,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops__.confirm({
+          const $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -8196,27 +8193,27 @@
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data) {
-      let { $container } = this.parseViewElement($shadowRoot);
-      let $ruleItem = [];
-      let iteratorData = Array.isArray(data) ? data : [data];
+      const { $container } = this.parseViewElement($shadowRoot);
+      const $ruleItem = [];
+      const iteratorData = Array.isArray(data) ? data : [data];
       for (let index = 0; index < iteratorData.length; index++) {
-        let item = iteratorData[index];
-        let $item = await this.createRuleItemElement(item, $shadowRoot);
-        $container.appendChild($item);
+        const item = iteratorData[index];
+        const $item = await this.createRuleItemElement(item, $shadowRoot);
         $ruleItem.push($item);
       }
+      domUtils.append($container, $ruleItem);
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
-      let data = await this.option.data();
+      const data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
     async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }

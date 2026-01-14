@@ -1,15 +1,15 @@
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import optimizationCSS from "./css/editor-optimization.css?raw";
-import { MTEditorSmilies } from "./MTEditorSmilies";
-import { unsafeWindow } from "ViteGM";
-import Qmsg from "qmsg";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { MTUtils } from "@/utils/MTUtils";
-import { MTEditorImageBed_Hello } from "./MTEditorImageBed_Hello";
 import { Panel } from "@components/setting/panel";
+import { unsafeWindow } from "ViteGM";
+import optimizationCSS from "./css/editor-optimization.css?raw";
+import { MTEditorImageBed_Hello } from "./MTEditorImageBed_Hello";
 import { MTEditorImageBed_MT } from "./MTEditorImageBed_MT";
+import { MTEditorSmilies } from "./MTEditorSmilies";
 import { MTQuickUBB, MTUBB_Rainbow } from "./MTQuickUBB";
 import Utils from "@whitesev/utils";
+import Qmsg from "qmsg";
 
 export type EditorNormalStorageOption = {
   /** 帖子id */
@@ -22,28 +22,24 @@ export type EditorNormalStorageOption = {
   url: string;
 };
 
-let error_code = {
-  1: {
-    error_match: "抱歉，您填写的内容包含敏感词而无法提交",
-    popup_text: "抱歉，您填写的内容包含敏感词而无法提交",
+const ErrorCodeMapList = [
+  {
+    match: "抱歉，您填写的内容包含敏感词而无法提交",
+    msg: "{$0}",
   },
-  2: {
-    error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-    popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+  {
+    match: /抱歉，管理员设置了本版块发表于 (.+?) 天以前的主题自动关闭，不再接受新回复/,
+    msg: "抱歉，管理员设置了本版块发表于 {$1} 天以前的主题自动关闭，不再接受新回复",
   },
-  3: {
-    error_match: "抱歉，本主题已关闭，不再接受新内容",
-    popup_text: "抱歉，本主题已关闭，不再接受新内容",
+  {
+    match: "抱歉，本主题已关闭，不再接受新内容",
+    msg: "{$0}",
   },
-  4: {
-    error_match: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
-    popup_text: "抱歉，管理员设置了本版块发表于 30 天以前的主题自动关闭，不再接受新回复",
+  {
+    match: /抱歉，您的帖子小于 (.+?) 个字符的限制/,
+    msg: "抱歉，您的帖子小于 {$1} 个字符的限制",
   },
-  5: {
-    error_match: "抱歉，您的帖子小于 10 个字符的限制",
-    popup_text: "抱歉，您的帖子小于 10 个字符的限制",
-  },
-};
+];
 
 let tempReplyBtnNode: HTMLElement | null = null;
 
@@ -122,103 +118,102 @@ export const MTEditorOptimizationNormal = {
     DOMUtils.after(
       $footMenu,
       /*html*/ `
-            <div id="comiis_foot_menu_beautify" class="bg_f b_t">
-                <div class="reply_area">
-                    <ul>
-                        <li data-attr="回帖"><input type="text" class="bg_e f_c" placeholder="发帖千百度，文明第一步" readonly="readonly"></li>
-                        <li data-attr="评论数量">${$old_commentIcon.innerHTML}</li>
-                        <li data-attr="点赞">${$old_linkIcon.innerHTML}</li>
-                        <li data-attr="收藏">${$old_collectIcon.innerHTML}</li>
-                    </ul>
-                </div>
-            </div>
-            <div id="comiis_foot_menu_beautify_big" data-model="comment" class="bg_f b_t" style="display:none;">
-                <div class="reply_area">
-                    <div class="reply_user_content" style="display:none;"></div>
-                    <ul>
-                        <li data-attr="回帖"><textarea id="needmessage" placeholder="发帖千百度，文明第一步"></textarea></li>
-                        <li data-attr="发表">
-                            <div class="fastpostform_new"><a href="${forum_url}" data-comment-url="${forum_url}" target="_blank"><i class="comiis_font f_d"></i></a></div>
-                            <div id="fastpostsubmitline"><input data-comment-url="${forum_url}" data-comment-action="${
-                              this.$data.forum_action
-                            }" data-comment-serialize="${forum_serialize}" data-text="false" type="button" value="发表" name="replysubmit" id="fastpostsubmit" comiis="handle"></div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="other_area">
-                    <div class="menu_icon">
-                        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"></i></a>
-                        <a href="javascript:;" class="comiis_smile"><i class="comiis_font"></i></a>
-                        <a href="javascript:;" class="commis_insert_bbs"><i class="comiis_font"></i></a>
-                    </div>
-                    <div class="menu_body">
-                        <div id="comiis_pictitle_tab">
-                            <!-- 列表项 -->
-                            <div class="comiis_upbox bg_f cl">
-                                <ul id="imglist" class="comiis_post_imglist cl">
-                                    <li class="up_btn">
-                                        <a href="javascript:;" class="bg_e b_ok f_d">
-                                            <i class="comiis_font"></i>
-                                        </a>
-                                        <input type="file" name="Filedata" id="filedata" accept="image/*" multiple>
-                                    </li>				
-                                </ul>
-                             </div>
-                             <!-- 菜单项 -->
-                             <div class="bqbox_t">
-                                <ul id="comiis_pictitle_key">
-                                    <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
-                                </ul>
-                            </div>
+      <div id="comiis_foot_menu_beautify" class="bg_f b_t">
+          <div class="reply_area">
+              <ul>
+                  <li data-attr="回帖"><input type="text" class="bg_e f_c" placeholder="发帖千百度，文明第一步" readonly="readonly"></li>
+                  <li data-attr="评论数量">${$old_commentIcon.innerHTML}</li>
+                  <li data-attr="点赞">${$old_linkIcon.innerHTML}</li>
+                  <li data-attr="收藏">${$old_collectIcon.innerHTML}</li>
+              </ul>
+          </div>
+      </div>`,
+      /*html*/ `
+      <div id="comiis_foot_menu_beautify_big" data-model="comment" class="bg_f b_t" style="display:none;">
+          <div class="reply_area">
+              <div class="reply_user_content" style="display:none;"></div>
+              <ul>
+                  <li data-attr="回帖"><textarea id="needmessage" placeholder="发帖千百度，文明第一步"></textarea></li>
+                  <li data-attr="发表">
+                      <div class="fastpostform_new"><a href="${forum_url}" data-comment-url="${forum_url}" target="_blank"><i class="comiis_font f_d"></i></a></div>
+                      <div id="fastpostsubmitline"><input data-comment-url="${forum_url}" data-comment-action="${
+                        this.$data.forum_action
+                      }" data-comment-serialize="${forum_serialize}" data-text="false" type="button" value="发表" name="replysubmit" id="fastpostsubmit" comiis="handle"></div>
+                  </li>
+              </ul>
+          </div>
+          <div class="other_area">
+              <div class="menu_icon">
+                  <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"></i></a>
+                  <a href="javascript:;" class="comiis_smile"><i class="comiis_font"></i></a>
+                  <a href="javascript:;" class="commis_insert_bbs"><i class="comiis_font"></i></a>
+              </div>
+              <div class="menu_body">
+                  <div id="comiis_pictitle_tab">
+                      <!-- 列表项 -->
+                      <div class="comiis_upbox bg_f cl">
+                          <ul id="imglist" class="comiis_post_imglist cl">
+                              <li class="up_btn">
+                                  <a href="javascript:;" class="bg_e b_ok f_d">
+                                      <i class="comiis_font"></i>
+                                  </a>
+                                  <input type="file" name="Filedata" id="filedata" accept="image/*" multiple>
+                              </li>				
+                          </ul>
                         </div>
-                        <div id="comiis_post_tab" class="comiis_bqbox">
-                            <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
-                                <div class="swiper-wrapper bqbox_c comiis_optimization">
-                                    <div class="swiper-slide">
-                                        ${first_smilies.join("\n")}
-                                    </div>
-    
-                                    <div class="swiper-slide" style="display: none;">
-                                        ${second_smilies.join("\n")}
-                                    </div>
-                                    
-                                    <div class="swiper-slide" style="display: none;">
-                                        ${third_smilies.join("\n")}    
-                                    </div>
-                                </div>
-                                <div class="bqbox_t">
-                                    <ul id="comiis_smilies_key">
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
-                                                <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="comiis_insert_ubb_tab" style="display: none;">
-                            <div class="bg_f comiis_input_style">
-                                <div class="comiis_post_urlico b_b">
-                                    <ul id="comiis_insert_ubb_tab_list">
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
+                        <!-- 菜单项 -->
+                        <div class="bqbox_t">
+                          <ul id="comiis_pictitle_key">
+                              <li class="bg_f" id="comiis_pictitle_tab_n_1"><a href="javascript:;" class="">论坛</a></li>
+                          </ul>
+                      </div>
+                  </div>
+                  <div id="comiis_post_tab" class="comiis_bqbox">
+                      <div class="comiis_smiley_box swiper-container-horizontal swiper-container-android">
+                          <div class="swiper-wrapper bqbox_c comiis_optimization">
+                              <div class="swiper-slide">
+                                  ${first_smilies.join("\n")}
+                              </div>
+                              <div class="swiper-slide" style="display: none;">
+                                  ${second_smilies.join("\n")}
+                              </div>
+                              <div class="swiper-slide" style="display: none;">
+                                  ${third_smilies.join("\n")}    
+                              </div>
+                          </div>
+                          <div class="bqbox_t">
+                              <ul id="comiis_smilies_key">
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_1" class="bg_f b_l b_r">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq063.gif" class="vm">
+                                      </a>
+                                  </li>
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_2" class="">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/comiis_tb/tb_10.png" class="vm">
+                                      </a>
+                                  </li>
+                                  <li>
+                                      <a href="javascript:;" id="comiis_smilies_tab_n_3" class="">
+                                          <img loading="lazy" data-src="https://cdn-bbs.mt2.cn/static/image/smiley/doge/21.png" class="vm">
+                                      </a>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="comiis_insert_ubb_tab" style="display: none;">
+                      <div class="bg_f comiis_input_style">
+                          <div class="comiis_post_urlico b_b">
+                              <ul id="comiis_insert_ubb_tab_list">
+                                  
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      `
     );
     // 新-评论按钮
     let $comment = $<HTMLAnchorElement>("#comiis_foot_menu_beautify .comiis_position_key")!;
@@ -287,25 +282,30 @@ export const MTEditorOptimizationNormal = {
    * @param text
    */
   handle_error(text: string) {
-    let return_status = false;
-    let messagetext: string = DOMUtils.text(
+    let flag = false;
+    const messagetext: string = DOMUtils.text(
       DOMUtils.toElement(text, false, false).querySelector<HTMLElement>("#messagetext")!
     );
     if (!messagetext || (typeof messagetext === "string" && messagetext.trim() == "")) {
-      return return_status;
+      return flag;
     }
-    Object.keys(error_code).forEach((item) => {
-      let value = error_code[item as any as keyof typeof error_code];
-      if (messagetext.indexOf(value.error_match) != -1) {
-        if (messagetext.indexOf(`typeof errorhandle_=='function'`) != -1) {
+    ErrorCodeMapList.forEach((item) => {
+      const pattern = item.match instanceof RegExp ? item.match : new RegExp(item.match);
+      const matcher = messagetext.match(pattern);
+      if (matcher) {
+        if (messagetext.includes(`typeof errorhandle_=='function'`)) {
           /* 奇怪的返回值，在该帖子是关闭状态，点击回复会出现抱歉，本主题已关闭，不再接受新内容，正常是errorhandle_fastpost */
-          Qmsg.error(value.popup_text);
+          let msg = item.msg;
+          matcher.forEach((matchText, index) => {
+            msg = msg.replace(`{$${index}}`, matchText);
+          });
+          Qmsg.error(msg);
         }
-        return_status = true;
+        flag = true;
         return;
       }
     });
-    return return_status;
+    return flag;
   },
   /**
    * 监听输入框内容改变

@@ -2,6 +2,7 @@ import { addStyle, httpx, pops, SCRIPT_NAME } from "@components/base.env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 import { HttpxCookieManager } from "@components/utils/HttpxCookieManager";
+import Qmsg from "qmsg";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】MT论坛优化";
 
@@ -37,6 +38,11 @@ pops.GlobalConfig.setGlobalConfig({
     enable: true,
   },
   drag: true,
+});
+
+Qmsg.config({
+  isLimitWidth: true,
+  limitWidthWrap: "wrap",
 });
 
 export {

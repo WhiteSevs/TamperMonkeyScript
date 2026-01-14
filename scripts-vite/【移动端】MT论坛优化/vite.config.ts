@@ -33,7 +33,6 @@ const userConfig = await GenerateUserConfig({
     build: {
       // import库的文件映射
       externalGlobals: {
-        viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
         "highlight.js": [
           "hljs",
           (version, name) => `https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@${version}/highlight.min.js`,
@@ -41,7 +40,6 @@ const userConfig = await GenerateUserConfig({
       },
       // import资源文件的映射
       externalResource: {
-        "viewerjs/dist/viewer.css": cdn.jsdelivrFastly("ViewerCSS", "dist/viewer.min.css"),
         "highlight.js/styles/github-dark.min.css": cdn.jsdelivrFastly("HljsCSS", "styles/github-dark.min.css"),
       },
     },

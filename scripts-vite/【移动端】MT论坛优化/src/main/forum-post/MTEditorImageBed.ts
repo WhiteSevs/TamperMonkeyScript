@@ -225,15 +225,15 @@ export class MTEditorImageBed<T> {
    * 添加图床标签
    */
   addTab() {
-    let $picture_key = $<HTMLElement>("#comiis_pictitle_key")!;
+    const $picture_key = $<HTMLElement>("#comiis_pictitle_key");
+    if (!$picture_key) return;
 
     // 历史图片
     let $history = $picture_key.querySelector<HTMLAnchorElement>("a[data-type='history']");
     let tabHTML = /*html*/ `
-            <li>
-                <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
-            </li>
-        `;
+    <li>
+        <a href="javascript:;" class="comiis-picture-tab" data-type="image-bed">${this.option.name}</a>
+    </li>`;
 
     // 添加底部标签
     if (!$history) {
@@ -265,10 +265,7 @@ export class MTEditorImageBed<T> {
         "div",
         {
           className: "comiis_upbox bg_f cl",
-          innerHTML: /*html*/ `
-					<ul class="comiis_post_imglist cl" id="imglist_history">	
-                    </ul>
-				`,
+          innerHTML: /*html*/ `<ul class="comiis_post_imglist cl" id="imglist_history"></ul>`,
         },
         {
           style: "display: none;",
@@ -282,17 +279,16 @@ export class MTEditorImageBed<T> {
     DOMUtils.before(
       $historyBox!,
       /*html*/ `
-            <div class="comiis_upbox bg_f cl" style="display: none;">
-                <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
-                    <li class="up_btn">
-                        <a href="javascript:;" class="bg_e b_ok f_d">
-                            <i class="comiis_font"></i>
-                            
-                        </a>
-                        <input type="file" name="Filedata" accept="image/*" multiple="" style="display: none;">
-                    </li>				
-                </ul>
-            </div>
+      <div class="comiis_upbox bg_f cl" style="display: none;">
+          <ul class="comiis_post_imglist cl" data-chartbed="${this.option.name}">
+              <li class="up_btn">
+                  <a href="javascript:;" class="bg_e b_ok f_d">
+                      <i class="comiis_font"></i>
+                  </a>
+                  <input type="file" name="Filedata" accept="image/*" multiple="" style="display: none;">
+              </li>				
+          </ul>
+      </div>
             `
     );
   }
@@ -302,22 +298,21 @@ export class MTEditorImageBed<T> {
   createImageBtnElement(labelName: string, url: string) {
     let $li = DOMUtils.createElement("li", {
       innerHTML: /*html*/ `
-            <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
-                <a href="javascript:;">
-                    <i class="comiis_font f_g"></i>
-                </a>
-            </span>
-            <span class="charu f_f">${labelName}</span>
-            <span class="p_img">
-                <a href="javascript:;"
-                onclick="comiis_addsmilies('[img]${url}[/img]')">
-                    <img style="height:54px;width:54px;" 
-                        title="${url}" 
-                        src="${url}" 
-                        loading="lazy"
-                        class="vm b_ok"></a>
-            </span>
-            `,
+      <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
+          <a href="javascript:;">
+              <i class="comiis_font f_g"></i>
+          </a>
+      </span>
+      <span class="charu f_f">${labelName}</span>
+      <span class="p_img">
+          <a href="javascript:;"
+          onclick="comiis_addsmilies('[img]${url}[/img]')">
+              <img style="height:54px;width:54px;" 
+                  title="${url}" 
+                  src="${url}" 
+                  loading="lazy"
+                  class="vm b_ok"></a>
+      </span>`,
     });
     return $li;
   }
