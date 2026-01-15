@@ -2,11 +2,19 @@ import Qmsg from "qmsg";
 import { DOMUtils, log, pops, utils } from "../base.env";
 import { RuleEditView } from "./RuleEditView";
 
-type RuleViewSearchExternalOption<T> = {
-  /** 显示的名称 */
+export type RuleViewSearchExternalOption<T> = {
+  /**
+   * 显示的名称
+   */
   name: string;
-  /** 值，用于初始化时按照对应的value进行执行过滤 */
+  /**
+   * 值，用于初始化时按照对应的value进行执行过滤
+   */
   value: any;
+  /**
+   * 是否是默认选中的选项
+   */
+  isDefaultSelected?: boolean;
   /**
    * 选项选中触发的回调
    * @param config
@@ -21,11 +29,24 @@ type RuleViewSearchExternalOption<T> = {
    */
   filterCallBack?(data: T): boolean;
 };
-type RuleViewSearchRuleValueOption<T> = {
-  /** 显示的名称 */
+export type RuleViewSearchRuleValueOption<T> = {
+  /**
+   * 显示的名称
+   */
   name: string;
-  /** 值，用于初始化时按照对应的value进行执行过滤 */
+  /**
+   * 值，用于初始化时按照对应的value进行执行过滤
+   */
   value: any;
+  /**
+   * 是否是默认选中的选项
+   */
+  isDefaultSelected?: boolean;
+  /**
+   * 选项选中触发的回调
+   * @param config
+   */
+  selectedCallBack?(config: RuleViewSearchRuleValueOption<T>): void;
   /**
    * 对input输入的字符串进行匹配
    * @param data
@@ -36,11 +57,6 @@ type RuleViewSearchRuleValueOption<T> = {
    * + `false`: 不需要该数据
    */
   filterCallBack(data: T, searchText: string): boolean;
-  /**
-   * 选项选中触发的回调
-   * @param config
-   */
-  selectedCallBack?(config: RuleViewSearchRuleValueOption<T>): void;
 };
 /**
  * 规则视图配置
@@ -227,7 +243,7 @@ class RuleView<T> {
         padding: 4px 8px;
       }
       .rule-view-search-container .pops-panel-select{
-        min-width: 40px;
+        min-width: fit-content;
         max-width: 60px;
       }
       .rule-view-search-container .pops-panel-select select{
@@ -237,6 +253,8 @@ class RuleView<T> {
       .rule-view-search-container .pops-panel-input{
         width: 100%;
       }
+
+
       .rule-item{
           display: flex;
           align-items: center;

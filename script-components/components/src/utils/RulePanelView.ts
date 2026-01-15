@@ -3,7 +3,7 @@ import Qmsg from "qmsg";
 import { DOMUtils, log, pops, utils } from "../base.env";
 import { PanelUISize } from "../setting/panel-ui-size";
 import { RuleEditView } from "./RuleEditView";
-import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
+import type { RuleViewSearchExternalOption, RuleViewSearchRuleValueOption } from "./RuleView";
 
 /**
  * 规则订阅配置
@@ -65,30 +65,16 @@ type RulePanelBtnControlsOption<T> = {
    * 过滤按钮
    */
   filter?: {
+    /** @default false */
     enable: boolean;
+    /** 搜索配置项1 */
+    option: RuleViewSearchExternalOption<T>[];
+    /** 输入框的前置选项 */
+    inputOption: RuleViewSearchRuleValueOption<T>[];
     /**
-     * 标题
+     * 执行过滤完毕后的回调
      */
-    title?: RulePanelOption<T>["title"];
-    /**
-     * 自定义的过滤类型
-     */
-    option: RuleFilterViewOption<T>["filterOption"];
-    /**
-     * 点击回调
-     * @returns
-     * + false 阻止默认行为
-     */
-    callback?: () => IPromise<void | boolean>;
-    /**
-     * 取消过滤的回调
-     * @returns
-     * + false 阻止默认行为
-     */
-    cancelFilterCallback?: (config: {
-      $button: HTMLElement;
-      getAllRuleElement: () => HTMLElement[];
-    }) => IPromise<void | boolean>;
+    execFilterCallBack?: () => IPromise<void>;
   };
   /**
    * 清空所有按钮
@@ -411,7 +397,7 @@ class RulePanelView<T> {
    */
   async showView(filterCallBack?: (data: T | RuleSubscribeOption<T>) => boolean) {
     const that = this;
-    let contentConfigList = this.option.contentConfig;
+    const contentConfigList = this.option.contentConfig;
     contentConfigList.forEach((config) => {
       (config as any as PopsPanelContentConfig).views = [];
       config.headerTitle = config.headerTitle || config.title;
@@ -439,7 +425,7 @@ class RulePanelView<T> {
             DOMUtils.preventEvent(event);
             // 订阅
             await subscribeOption?.callback?.();
-            let deepMenuElementInfo = await this.enterDeepMenu(
+            const deepMenuElementInfo = await this.enterDeepMenu(
               $panelRightContainer,
               subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
               () => {
@@ -448,8 +434,8 @@ class RulePanelView<T> {
               }
             );
             /** 订阅容器 */
-            let $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
-            let subscribeCreateViewElementInfo = this.createButtonControls(
+            const $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
+            const subscribeCreateViewElementInfo = await this.createButtonControls(
               $subscribeRightContainer,
               $subscribeRightContainer,
               subscribeOption,
@@ -704,12 +690,11 @@ class RulePanelView<T> {
             );
 
             // 渲染订阅列表
-            let allSubscribeData = await subscribeOption.data();
-            await this.addRuleElement(subscribeOption, subscribeOption, deepMenuElementInfo.$section, allSubscribeData);
+            subscribeCreateViewElementInfo.execFilter(true);
           });
         }
 
-        let ruleCreateViewElementInfo = this.createButtonControls(
+        const ruleCreateViewElementInfo = await this.createButtonControls(
           $panelRightContainer,
           $panelRightContainer,
           config.ruleOption,
@@ -723,34 +708,21 @@ class RulePanelView<T> {
             );
           }
         );
-        // 渲染规则列表
-        let allData = await config.ruleOption.data();
-        let changeButtonText = false;
-        await this.addRuleElement(config.ruleOption, void 0, $panelRightContainer, allData, (ruleItemData, $rule) => {
-          let flag = typeof filterCallBack === "function" ? filterCallBack(ruleItemData) : true;
-          if (!flag) {
-            // 隐藏元素
-            changeButtonText = true;
-            DOMUtils.hide($rule, false);
-          }
-        });
-        if (changeButtonText && ruleCreateViewElementInfo.$ruleControlFilter) {
-          DOMUtils.text(ruleCreateViewElementInfo.$ruleControlFilter, "取消过滤");
-        }
+        await ruleCreateViewElementInfo.execFilter(true);
       };
     });
-    let $panel = pops.panel({
+    const $panel = pops.panel({
       title: {
         text: typeof this.option.title === "function" ? this.option.title() : this.option.title,
         position: "center",
       },
-      // @ts-ignore
+      // @ts-expect-error
       content: contentConfigList,
       btn: {
         close: {
           enable: true,
-          callback(details, event) {
-            details.close();
+          callback(evtConfig, event) {
+            evtConfig.close();
           },
         },
       },
@@ -765,92 +737,126 @@ class RulePanelView<T> {
       width: PanelUISize.settingBig.width,
       height: PanelUISize.settingBig.height,
       style: /*css*/ `
-                ${this.option.style || ""}
-                .pops button[data-type="subscribe"]{
-                    --button-color: #ffffff;
-                    --button-bd-color: #67b279;
-                    --button-bg-color: #67b279;
-                }
-                .pops button[data-type="subscribe"]:hover{
-                    --button-color: #ffffff;
-                    --button-bd-color:rgb(91, 159, 107);;
-                    --button-bg-color:rgb(91, 159, 107);;
-                }
-                section.pops-panel-container .pops-panel-container-header-ul li:has(.subscribe-btn){
-                    justify-content: space-between !important;
-                }
-				section.pops-panel-container ul li.rule-controls{
-					justify-content: flex-start;
-					overflow-x: auto;
-				}
+      ${this.option.style || ""}
 
-				section.pops-panel-container ul:has(>.rule-view-container){
-					overflow: hidden;
-					display: flex;
-					flex-direction: column;
-					margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);
-					gap: var(--pops-panel-forms-container-item-margin-top-bottom);
-				}
+      .pops button[data-type="subscribe"]{
+          --button-color: #ffffff;
+          --button-bd-color: #67b279;
+          --button-bg-color: #67b279;
+      }
+      .pops button[data-type="subscribe"]:hover{
+          --button-color: #ffffff;
+          --button-bd-color:rgb(91, 159, 107);;
+          --button-bg-color:rgb(91, 159, 107);;
+      }
+      section.pops-panel-container .pops-panel-container-header-ul li:has(.subscribe-btn){
+          justify-content: space-between !important;
+      }
+      section.pops-panel-container ul li.rule-controls{
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
 
-				.rule-view-container{
-					margin: 0;
-					margin-top: 0;
-					overflow: auto;
-					background: #ffffff;
-					border-radius: var(--pops-panel-forms-container-item-border-radius);
-					padding: 5px 10px;
-					position: relative;
-					flex: 1;
-				}
-				.rule-view-container:empty{
-					display: none;
-				}
-				.rule-item{
-					display: flex;
-					align-items: center;
-					line-height: normal;
-					font-size: 16px;
-					padding: 4px 8px;
-					gap: 8px;
-				}
-				.rule-name{
-					flex: 1;
-					white-space: nowrap;
-					text-overflow: ellipsis;
-					overflow: hidden;
-				}
-				.rule-controls{
-					display: flex;
-					align-items: center;
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
-					gap: 8px;
-					padding: 0px;
-				}
-				.rule-controls button{
-					margin: 0;
-				}
-				.rule-controls-enable{
-					
-				}
-				.rule-controls-edit{
-					
-				}
-				.rule-controls-delete{
-					
-				}
-				.rule-controls-edit,
-				.rule-controls-delete{
-					width: 16px;
-					height: 16px;
-					cursor: pointer;
-				}
+      section.pops-panel-container ul:has(>.rule-view-container){
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);
+        gap: var(--pops-panel-forms-container-item-margin-top-bottom);
+      }
 
-				section.pops-panel-container > ul li:not(.pops-panel-forms-container-item){
-					margin: 0;
-				}
-            `,
+      .rule-view-container{
+        margin: 0;
+        margin-top: 0;
+        overflow: auto;
+        background: #ffffff;
+        border-radius: var(--pops-panel-forms-container-item-border-radius);
+        padding: 5px 10px;
+        position: relative;
+        flex: 1;
+      }
+      .rule-view-container:empty{
+        display: none;
+      }
+      .rule-item{
+        display: flex;
+        align-items: center;
+        line-height: normal;
+        font-size: 16px;
+        padding: 4px 8px;
+        gap: 8px;
+      }
+      .rule-name{
+        flex: 1;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .rule-controls{
+        display: flex;
+        align-items: center;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        gap: 8px;
+        padding: 0px;
+      }
+      .rule-controls button{
+        margin: 0;
+      }
+      .rule-controls-enable{
+        
+      }
+      .rule-controls-edit{
+        
+      }
+      .rule-controls-delete{
+        
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      section.pops-panel-container > ul li:not(.pops-panel-forms-container-item){
+        margin: 0;
+      }
+        
+        
+        
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: fit-content;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        flex: 0;
+      }
+      .rule-view-search-container  .pops-panel-input{
+        flex: 1;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+
+      @media screen and (max-width: 600px) {
+        .pops[type-value="panel"] section.pops-panel-container .rule-view-search-container .pops-panel-select select{
+          min-width: auto !important;
+          max-width: 50px !important;
+        }
+      }
+      `,
     });
   }
   /**
@@ -983,13 +989,13 @@ class RulePanelView<T> {
    * @param $controlsParent 控制按钮的父元素
    * @param $rightContainer 右侧容器
    * @param option 配置
-   * @param addButtonCallBack 添加按钮的回调
+   * @param addButtonOnClickCallBack 点击添加按钮的回调
    */
-  createButtonControls(
+  async createButtonControls(
     $controlsParent: HTMLElement,
     $rightContainer: HTMLElement,
     option: RulePanelAnyOption<T>,
-    addButtonCallBack?: () => IPromise<void>
+    addButtonOnClickCallBack?: () => IPromise<void>
   ) {
     const btnControlsOption = option.btnControls;
     /** 控制按钮 */
@@ -1017,112 +1023,16 @@ class RulePanelView<T> {
       DOMUtils.on($ruleControlAdd, "click", async (event) => {
         DOMUtils.preventEvent(event);
         // 添加
-        let result = await option.btnControls?.add?.callback?.call(this, {
+        const result = await option.btnControls?.add?.callback?.call(this, {
           event,
           $section: $rightContainer,
         });
         if (typeof result === "boolean" && !result) {
           return;
         }
-        await addButtonCallBack?.();
+        await addButtonOnClickCallBack?.();
       });
       DOMUtils.append($ruleControls, $ruleControlAdd);
-    }
-    /** 过滤按钮 */
-    let $ruleControlFilter: HTMLElement | null = null;
-    if (btnControlsOption?.filter?.enable) {
-      $ruleControlFilter = DOMUtils.createElement(
-        "button",
-        {
-          className: "rule-control-filter",
-          innerHTML: /*html*/ `<span>过滤</span>`,
-        },
-        {
-          type: "button",
-          "data-type": "default",
-          "data-has-icon": "false",
-          "data-righticon": "false",
-        }
-      );
-      DOMUtils.on($ruleControlFilter, "click", async (event) => {
-        DOMUtils.preventEvent(event);
-        // 过滤
-
-        let result = await btnControlsOption?.filter?.callback?.();
-        if (typeof result === "boolean" && !result) {
-          return;
-        }
-        /**
-         * 获取所有的规则元素
-         */
-        let getAllRuleElement = () => {
-          return Array.from($rightContainer.querySelectorAll<HTMLElement>(".rule-view-container .rule-item"));
-        };
-        let $button = $ruleControlFilter;
-        if ($button) {
-          if (DOMUtils.text($button).includes("取消")) {
-            let cancelFilterResult = await btnControlsOption?.filter?.cancelFilterCallback?.({
-              $button,
-              getAllRuleElement,
-            });
-            if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-              return;
-            }
-            getAllRuleElement().forEach(($el) => {
-              DOMUtils.show($el, false);
-            });
-            DOMUtils.text($button, "过滤");
-          } else {
-            let filterTitle = "过滤规则";
-            if (typeof btnControlsOption?.filter?.title === "function") {
-              filterTitle = btnControlsOption?.filter?.title();
-            } else if (typeof btnControlsOption?.filter?.title === "string") {
-              filterTitle = btnControlsOption?.filter?.title;
-            }
-            let ruleFilterView = new RuleFilterView<T | RuleSubscribeOption<T>>({
-              title: filterTitle,
-              // @ts-expect-error
-              filterOption: btnControlsOption?.filter?.option || [],
-              execFilterCallBack() {
-                DOMUtils.text($button, "取消过滤");
-              },
-              getAllRuleInfo: () => {
-                return getAllRuleElement().map(($el) => {
-                  return {
-                    data: this.parseRuleElement<T | RuleSubscribeOption<T>>($el).data,
-                    $el: $el,
-                  };
-                });
-              },
-            });
-            ruleFilterView.showView();
-          }
-        }
-      });
-      DOMUtils.append($ruleControls, $ruleControlFilter);
-
-      // new filter => search start
-      const $ruleControlsFilter = DOMUtils.createElement("li", {
-        className: "rule-controls",
-        innerHTML: /*html*/ `
-          <div class="rule-control-filter">
-            <div class="pops-panel-select pops-user-select-none" data-mode="native" style="width: 200px;">
-              <select>
-                ${btnControlsOption.filter.option.map((it) => {
-                  return `<option data-value="${it.name}">${it.name}</option>`;
-                })}
-              </select>
-          </div>
-          </div>
-          <div class="rule-control-search-values">
-            
-          </div>
-          <div class="rule-control-search">
-            <input type="text" name="rule-control-search-input" />
-          </div>
-        `,
-      });
-      DOMUtils.after($ruleControls, $ruleControlsFilter);
     }
 
     /** 清空所有按钮 */
@@ -1254,21 +1164,180 @@ class RulePanelView<T> {
       className: "rule-view-container",
       innerHTML: /*html*/ ``,
     });
+
     // 搜索容器
     const $searchContainer = DOMUtils.createElement("div", {
       className: "rule-view-search-container",
-      innerHTML: /*html*/ ``,
+      innerHTML: /*html*/ `
+      <div class="pops-panel-select pops-user-select-none" data-mode="native">
+        <select class="select-rule-status">
+        </select>
+      </div>
+      <div class="pops-panel-select pops-user-select-none" data-mode="native">
+        <select class="select-rule-value">
+        </select>
+      </div>
+      <div class="pops-panel-input pops-user-select-none">
+        <div class="pops-panel-input_inner">
+            <input type="text" placeholder="">
+        </div>
+      </div>`,
     });
-    DOMUtils.append($rightContainer, $searchContainer, $ruleContainer);
 
+    const $externalSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-status"
+    )!;
+    const $ruleValueSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-value"
+    )!;
+    const $searchInput = $searchContainer.querySelector<HTMLInputElement>(".pops-panel-input input")!;
+
+    // 规则前置条件选项
+    let externalSelectInfo: RuleViewSearchExternalOption<T> | null = null;
+    // 规则搜索条件选项
+    let ruleValueSelectInfo: RuleViewSearchRuleValueOption<T> | null = null;
+
+    if (Array.isArray(option.btnControls?.filter?.option)) {
+      let defaultSelectedIndex = 0;
+      DOMUtils.append(
+        $externalSelect,
+        option?.btnControls?.filter?.option.map((option, index) => {
+          const $option = DOMUtils.createElement("option", {
+            innerText: option.name,
+          });
+          if (option.isDefaultSelected) {
+            defaultSelectedIndex = index;
+          }
+          Reflect.set($option, "data-value", option);
+          return $option;
+        })
+      );
+      $externalSelect.selectedIndex = defaultSelectedIndex;
+    }
+    if (Array.isArray(option.btnControls?.filter?.inputOption)) {
+      let defaultSelectedIndex = 0;
+      DOMUtils.append(
+        $ruleValueSelect,
+        option.btnControls?.filter?.inputOption.map((option, index) => {
+          const $option = DOMUtils.createElement("option", {
+            innerText: option.name,
+          });
+          if (option.isDefaultSelected) {
+            defaultSelectedIndex = index;
+          }
+          Reflect.set($option, "data-value", option);
+          return $option;
+        })
+      );
+      $ruleValueSelect.selectedIndex = defaultSelectedIndex;
+    }
+
+    DOMUtils.on($externalSelect, "change", async (evt) => {
+      const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
+      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchExternalOption<T>;
+      if (typeof selectInfo?.selectedCallBack === "function") {
+        selectInfo.selectedCallBack(selectInfo);
+      }
+      externalSelectInfo = selectInfo;
+      await execFilter(true);
+    });
+    DOMUtils.on($ruleValueSelect, "change", async (evt) => {
+      const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
+      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchRuleValueOption<T>;
+      if (typeof selectInfo?.selectedCallBack === "function") {
+        selectInfo.selectedCallBack(selectInfo);
+      }
+      ruleValueSelectInfo = selectInfo;
+      await execFilter(true);
+    });
+    DOMUtils.onInput(
+      $searchInput,
+      utils.debounce(async () => {
+        await execFilter(false);
+      })
+    );
+    /**
+     * 更新前置条件：选中的选项数据
+     */
+    const updateSelectData = () => {
+      // 规则的启用、未启用状态选项
+      const $externalSelected = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement | null;
+      if ($externalSelected) {
+        externalSelectInfo = Reflect.get($externalSelected, "data-value");
+      }
+      // 搜索条件选项
+      const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement | null;
+      if ($ruleValueSelected) {
+        ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+      }
+      // 更新placeholder
+      let conditionPlaceHolder: string[] = [];
+      // if (typeof externalSelectInfo?.name === "string" && externalSelectInfo.name.trim() !== "") {
+      //   if (typeof externalSelectInfo.value === "string" && externalSelectInfo.value.trim() === "") {
+      //     // 选项值为空
+      //   } else {
+      //     conditionPlaceHolder.push(externalSelectInfo.name);
+      //   }
+      // }
+      if (typeof ruleValueSelectInfo?.name === "string" && ruleValueSelectInfo.name.trim() !== "") {
+        conditionPlaceHolder.push(ruleValueSelectInfo.name);
+      }
+      $searchInput.placeholder = `请输入 ${conditionPlaceHolder.join("/")} 进行搜索`;
+    };
+    /**
+     * @param isUpdateSelectData 更新选中的选项数据
+     */
+    const execFilter = async (isUpdateSelectData: boolean) => {
+      // 清空旧的
+      this.clearContent($rightContainer);
+      // 更新选项
+      isUpdateSelectData && updateSelectData();
+      const allData = await option.data();
+      const filteredData: T[] = [];
+      const searchText = DOMUtils.val($searchInput);
+      for (let index = 0; index < allData.length; index++) {
+        const item: any = allData[index];
+        // 先进行前置条件过滤
+        if (externalSelectInfo) {
+          const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+          if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+            // 不需要
+            continue;
+          }
+        }
+        if (ruleValueSelectInfo) {
+          let flag = true;
+          if (searchText === "") {
+            // 空，需要，不过滤
+            flag = true;
+          } else {
+            flag = false;
+          }
+          if (!flag) {
+            flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+          }
+          if (!flag) {
+            // 不需要
+            continue;
+          }
+        }
+        filteredData.push(item);
+      }
+      // 添加已被过滤的
+      await this.addRuleElement(option, void 0, $rightContainer, filteredData);
+    };
+    DOMUtils.append($rightContainer, $searchContainer, $ruleContainer);
+    // 更新选项选中
+    updateSelectData();
     return {
-      $ruleContainer: $ruleContainer,
-      $ruleControls: $ruleControls,
-      $ruleControlAdd: $ruleControlAdd,
-      $ruleControlFilter: $ruleControlFilter,
-      $ruleControlClearAll: $ruleControlClearAll,
-      $ruleControlImport: $ruleControlImport,
-      $ruleControlExport: $ruleControlExport,
+      $ruleContainer,
+      $ruleControls,
+      $ruleControlAdd,
+      $ruleControlClearAll,
+      $ruleControlImport,
+      $ruleControlExport,
+      execFilter,
+      updateSelectData,
     };
   }
   /**
@@ -1426,7 +1495,7 @@ class RulePanelView<T> {
             $section: $el as HTMLElement,
             $ruleItem: $ruleItem,
             enterDeepMenu: async (deepMenuOption) => {
-              let deepMenuElementInfo = await this.enterDeepMenu(
+              const deepMenuElementInfo = await this.enterDeepMenu(
                 $el as HTMLElement,
                 deepMenuOption.headerTitle || "",
                 () => {
@@ -1434,9 +1503,9 @@ class RulePanelView<T> {
                   this.updateRuleContaienrElement(option, subscribeOption, $el);
                 }
               );
-              /** 二级菜单容器 */
-              let $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
-              let deepMenuCreateViewElementInfo = this.createButtonControls(
+              // 二级菜单容器
+              const $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
+              const deepMenuCreateViewElementInfo = await this.createButtonControls(
                 $deepMenuRightContainer,
                 deepMenuElementInfo.$rightRuleContainer,
                 // @ts-expect-error
@@ -1444,15 +1513,8 @@ class RulePanelView<T> {
                 void 0
               );
 
-              /** 渲染规则列表 */
-              let allRuleData = await deepMenuOption.data();
-              await this.addRuleElement(
-                // @ts-ignore
-                deepMenuOption,
-                void 0,
-                deepMenuElementInfo.$section,
-                allRuleData
-              );
+              // 渲染规则列表
+              await deepMenuCreateViewElementInfo.execFilter(true);
             },
           });
           if (typeof result === "boolean" && !result) {
@@ -1521,7 +1583,7 @@ class RulePanelView<T> {
   /**
    * 添加一个规则元素
    * @param option 配置
-   * @param subscribeOption 订阅的配置
+   * @param subscribeOption 订阅的配置，如果有那么这就是渲染订阅的数据页面
    * @param $el 弹窗的元素
    * @param data 规则的数据
    * @param addCallBack 添加元素后的回调
@@ -1534,21 +1596,19 @@ class RulePanelView<T> {
     data: T | T[] | RuleSubscribeOption<T> | RuleSubscribeOption<T>[],
     addCallBack?: (data: T | RuleSubscribeOption<T>, $rule: HTMLElement) => void
   ) {
-    let { $container } = this.parseViewElement($el);
-    let $ruleItem: HTMLElement[] = [];
+    const { $container } = this.parseViewElement($el);
+    const $ruleItemList: HTMLElement[] = [];
     // 添加到页面中
-    let iteratorData = Array.isArray(data) ? data : [data];
-    let documentFragment = document.createDocumentFragment();
+    const iteratorData = Array.isArray(data) ? data : [data];
     for (let index = 0; index < iteratorData.length; index++) {
-      let item = iteratorData[index];
-      let $item = await this.createRuleElement(option, subscribeOption, item, $el);
-      documentFragment.appendChild($item);
+      const item = iteratorData[index];
+      const $item = await this.createRuleElement(option, subscribeOption, item, $el);
       addCallBack?.(item, $item);
-      $ruleItem.push($item);
+      $ruleItemList.push($item);
     }
-    $container.appendChild(documentFragment);
+    DOMUtils.append($container, $ruleItemList);
     await this.updateDeleteAllBtnText(option, $el);
-    return $ruleItem;
+    return $ruleItemList;
   }
   /**
    * 更新弹窗内容的元素
@@ -1563,7 +1623,7 @@ class RulePanelView<T> {
   ) {
     this.clearContent($el);
     const { $container } = this.parseViewElement($el);
-    let data = await option.data();
+    const data = await option.data();
     await this.addRuleElement(option, subscribeOption, $el, data);
     await this.updateDeleteAllBtnText(option, $el);
   }
@@ -1582,7 +1642,7 @@ class RulePanelView<T> {
     $oldRule: HTMLElement,
     $el: ShadowRoot | HTMLElement
   ) {
-    let $newRule = await this.createRuleElement(option, subscribeOption, data, $el);
+    const $newRule = await this.createRuleElement(option, subscribeOption, data, $el);
     $oldRule.after($newRule);
     $oldRule.remove();
     return $newRule;
