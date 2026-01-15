@@ -223,7 +223,7 @@ export const NetDiskCheckLinkValidity = {
    */
   setViewAgainCheckClickEvent($el: HTMLElement, checkInfo: NetDiskCheckLinkValidityOption) {
     DOMUtils.off($el, "click", void 0, void 0, void 0, (value) => {
-      return Boolean(value.option.once) && value.originCallBack.toString().includes("this.checkLinkValidity");
+      return Boolean(value.option.once) && value.callback.toString().includes("this.checkLinkValidity");
     });
     DOMUtils.on(
       $el,
@@ -233,7 +233,7 @@ export const NetDiskCheckLinkValidity = {
         // 解析出元素上的数据
         const ruleInfo = NetDiskLinkView.parseBoxAttrRuleInfo($link);
         // 设置新的检测数据
-        let newCheckInfo: NetDiskCheckLinkValidityOption = {
+        const newCheckInfo: NetDiskCheckLinkValidityOption = {
           $urlBox: $urlBox,
           ruleKeyName: ruleInfo.ruleKeyName,
           ruleIndex: ruleInfo.ruleIndex,

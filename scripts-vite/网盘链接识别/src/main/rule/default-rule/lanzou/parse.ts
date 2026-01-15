@@ -952,14 +952,14 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       ls?: number;
     }
   ) {
-    let postData = utils.toFormData({
+    const postData = utils.toFormData({
       rep: 0,
       up: 1,
       ls: 1,
       ...config,
     });
-    let url = this.router.root("filemoreajax.php");
-    let fileMoreAjaxResponse = await httpx.post({
+    const url = this.router.root("filemoreajax.php");
+    const fileMoreAjaxResponse = await httpx.post({
       url: this.router.root("filemoreajax.php"),
       responseType: "json",
       headers: {
@@ -972,9 +972,9 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     if (!fileMoreAjaxResponse.status) {
       return;
     }
-    let fileMoreAjaxResponseData = fileMoreAjaxResponse.data;
+    const fileMoreAjaxResponseData = fileMoreAjaxResponse.data;
     log.info(fileMoreAjaxResponseData);
-    let json_data = utils.toJSON<FileMoreAjaxJSON>(fileMoreAjaxResponseData.responseText);
+    const json_data = utils.toJSON<FileMoreAjaxJSON>(fileMoreAjaxResponseData.responseText);
     return json_data;
   }
 }

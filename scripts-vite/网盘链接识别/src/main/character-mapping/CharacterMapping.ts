@@ -341,6 +341,146 @@ export const CharacterMapping = {
       id: "netdisk-rule",
       title: "字符映射",
       headerTitle: "字符映射规则",
+      ruleOption: {
+        btnControls: {
+          add: {
+            enable: true,
+          },
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+              {
+                name: "在当前网址生效",
+                value: "workInCurrentUrl",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return that.checkRuleMatch(data);
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  const name = data.name;
+                  if (typeof name === "string") {
+                    return Boolean(name.match(searchText));
+                  } else {
+                    return false;
+                  }
+                },
+              },
+              {
+                name: "网址",
+                value: "url",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.url.match(searchText));
+                },
+              },
+            ],
+          },
+          clearAll: {
+            enable: true,
+            callback: () => {
+              this.clearData();
+            },
+          },
+          import: {
+            enable: true,
+            callback: (updateView) => {
+              this.importRule(() => {
+                updateView();
+              });
+            },
+          },
+          export: {
+            enable: true,
+            callback: () => {
+              this.exportRule(SCRIPT_NAME + "-字符映射.json", SCRIPT_NAME + "-字符映射-订阅模式.json");
+            },
+          },
+          ruleEnable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              this.updateData(data);
+            },
+          },
+          ruleEdit: {
+            enable: true,
+            getView: ruleEditHandler,
+            onsubmit: ruleEditSubmitHandler,
+          },
+          ruleDelete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return that.deleteData(data);
+            },
+          },
+        },
+        data: () => {
+          return this.getData();
+        },
+        getAddData: () => {
+          return addData();
+        },
+        getData: (data) => {
+          const allData = this.getData();
+          const findValue = allData.find((item) => item.uuid === data.uuid);
+          return findValue ?? data;
+        },
+        getDataItemName: (data) => {
+          return data.name ?? data.data.url;
+        },
+        updateData: (data) => {
+          return this.updateData(data);
+        },
+        deleteData: (data) => {
+          return this.deleteData(data);
+        },
+      },
       subscribe: {
         enable: true,
         data() {
@@ -414,18 +554,64 @@ export const CharacterMapping = {
           },
           filter: {
             enable: true,
-            title: "过滤订阅",
             option: [
               {
-                name: "过滤【已启用】的订阅",
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return data.data.enable;
                 },
               },
               {
-                name: "过滤【未启用】的订阅",
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return !data.data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "标题",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  let flag = false;
+                  if (typeof data.data.title === "string") {
+                    flag = Boolean(data.data.title.match(searchText));
+                  }
+                  if (!flag && typeof data.subscribeData.title === "string") {
+                    flag = Boolean(data.subscribeData.title.match(searchText));
+                  }
+                  return flag;
+                },
+              },
+              {
+                name: "订阅地址",
+                value: "url",
+                selectedCallBack(config) {
+                  // GM_setValue("characterMapping-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.url.match(searchText));
                 },
               },
             ],
@@ -482,24 +668,72 @@ export const CharacterMapping = {
                 btnControls: {
                   filter: {
                     enable: true,
-                    title: "规则过滤",
                     option: [
                       {
-                        name: "仅显示【已启用】的规则",
+                        name: "无",
+                        value: "",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data) {
+                          return true;
+                        },
+                      },
+                      {
+                        name: "已启用",
+                        value: "enable",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return data.enable;
                         },
                       },
                       {
-                        name: "仅显示【未启用】的规则",
+                        name: "未启用",
+                        value: "notEnable",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return !data.enable;
                         },
                       },
                       {
-                        name: "仅显示【在当前网址生效】的规则",
+                        name: "在当前网址生效",
+                        value: "workInCurrentUrl",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
-                          return CharacterMapping.checkRuleMatch(data);
+                          return that.checkRuleMatch(data);
+                        },
+                      },
+                    ],
+                    inputOption: [
+                      {
+                        name: "规则名",
+                        value: "name",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          const name = data.name;
+                          if (typeof name === "string") {
+                            return Boolean(name.match(searchText));
+                          } else {
+                            return false;
+                          }
+                        },
+                      },
+                      {
+                        name: "网址",
+                        value: "url",
+                        selectedCallBack(config) {
+                          // GM_setValue("characterMapping-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          return Boolean(data.data.url.match(searchText));
                         },
                       },
                     ],
@@ -558,98 +792,6 @@ export const CharacterMapping = {
           },
         },
         getSubscribeInfo: CharacterMappingSubscribe.getSubscribeInfo.bind(CharacterMappingSubscribe),
-      },
-      ruleOption: {
-        btnControls: {
-          add: {
-            enable: true,
-          },
-          filter: {
-            enable: true,
-            title: "规则过滤",
-            option: [
-              {
-                name: "仅显示【已启用】的规则",
-                filterCallBack(data) {
-                  return data.enable;
-                },
-              },
-              {
-                name: "仅显示【未启用】的规则",
-                filterCallBack(data) {
-                  return !data.enable;
-                },
-              },
-              {
-                name: "仅显示【在当前网址生效】的规则",
-                filterCallBack(data) {
-                  return that.checkRuleMatch(data);
-                },
-              },
-            ],
-          },
-          clearAll: {
-            enable: true,
-            callback: () => {
-              that.clearData();
-            },
-          },
-          import: {
-            enable: true,
-            callback: (updateView) => {
-              that.importRule(() => {
-                updateView();
-              });
-            },
-          },
-          export: {
-            enable: true,
-            callback: () => {
-              that.exportRule(SCRIPT_NAME + "-字符映射.json", SCRIPT_NAME + "-字符映射-订阅模式.json");
-            },
-          },
-          ruleEnable: {
-            enable: true,
-            getEnable(data) {
-              return data.enable;
-            },
-            callback: (data, enable) => {
-              data.enable = enable;
-              that.updateData(data);
-            },
-          },
-          ruleEdit: {
-            enable: true,
-            getView: ruleEditHandler,
-            onsubmit: ruleEditSubmitHandler,
-          },
-          ruleDelete: {
-            enable: true,
-            deleteCallBack: (data) => {
-              return that.deleteData(data);
-            },
-          },
-        },
-        data: () => {
-          return this.getData();
-        },
-        getAddData: () => {
-          return addData();
-        },
-        getData: (data) => {
-          const allData = this.getData();
-          const findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
-        },
-        getDataItemName: (data) => {
-          return data["name"] ?? data.data.url;
-        },
-        updateData: (data) => {
-          return this.updateData(data);
-        },
-        deleteData: (data) => {
-          return this.deleteData(data);
-        },
       },
     };
 

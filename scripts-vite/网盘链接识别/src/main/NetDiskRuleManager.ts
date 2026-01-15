@@ -18,7 +18,7 @@ export const NetDiskRuleManager = {
    * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
    */
   getPanelView(defaultTab: number | string = 0) {
-    let option: RulePanelOption<any> = {
+    const option: RulePanelOption<any> = {
       title: "规则管理器",
       contentConfig: [
         NetDiskUserRule.getRulePanelViewOption(),
@@ -37,7 +37,7 @@ export const NetDiskRuleManager = {
       }
       return it;
     });
-    let rulePanelView = new RulePanelView<NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption>(option);
+    const rulePanelView = new RulePanelView<NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption>(option);
     return rulePanelView;
   },
   /**
@@ -45,7 +45,7 @@ export const NetDiskRuleManager = {
    * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
    */
   showView(defaultTab?: number | string) {
-    let rulePanelView = this.getPanelView(defaultTab);
+    const rulePanelView = this.getPanelView(defaultTab);
     rulePanelView.showView();
   },
   /**

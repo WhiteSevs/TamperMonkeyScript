@@ -21,6 +21,7 @@ import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { StorageUtils } from "@components/utils/StorageUtils";
 import { PanelContent } from "@components/setting/panel-content";
+import { GM_setValue } from "ViteGM";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -364,9 +365,150 @@ export const WebsiteRule = {
       }
     };
 
-    let rulePanelViewOption: RulePanelContentOption<WebsiteRuleOption> = {
+    const rulePanelViewOption: RulePanelContentOption<WebsiteRuleOption> = {
       id: "website-rule",
       title: "网站规则",
+      ruleOption: {
+        btnControls: {
+          add: {
+            enable: true,
+          },
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return data.data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return !data.data.enable;
+                },
+              },
+              {
+                name: "在当前网址生效",
+                value: "workInCurrentUrl",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return that.checkRuleMatch(data);
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  const name = data.name;
+                  if (typeof name === "string") {
+                    return Boolean(name.match(searchText));
+                  } else {
+                    return false;
+                  }
+                },
+              },
+              {
+                name: "网址",
+                value: "url",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.url.match(searchText));
+                },
+              },
+            ],
+          },
+          clearAll: {
+            enable: true,
+            callback: () => {
+              that.deleteAllRule();
+            },
+          },
+          import: {
+            enable: true,
+            callback: (updateView) => {
+              that.importRule(() => {
+                updateView();
+              });
+            },
+          },
+          export: {
+            enable: true,
+            callback: () => {
+              that.exportRule(SCRIPT_NAME + "-网站规则.json", SCRIPT_NAME + "-网站规则-订阅模式.json");
+            },
+          },
+          ruleEnable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              that.updateRule(data);
+            },
+          },
+          ruleEdit: {
+            enable: true,
+            getView: ruleEditHandler,
+            onsubmit: ruleEditSubmitHandler,
+          },
+          ruleDelete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return that.deleteRule(data.uuid);
+            },
+          },
+        },
+        data: () => {
+          return this.getAllRule();
+        },
+        getAddData: () => {
+          return addData();
+        },
+        getData: (data) => {
+          let allData = this.getAllRule();
+          let findValue = allData.find((item) => item.uuid === data.uuid);
+          return findValue ?? data;
+        },
+        getDataItemName: (data) => {
+          return data["name"] ?? data.url;
+        },
+        updateData: (data) => {
+          return this.updateRule(data);
+        },
+        deleteData: (data) => {
+          that.$data.isShowEditView = false;
+          return this.deleteRule(data.uuid);
+        },
+      },
       subscribe: {
         enable: true,
         data() {
@@ -440,18 +582,64 @@ export const WebsiteRule = {
           },
           filter: {
             enable: true,
-            title: "过滤订阅",
             option: [
               {
-                name: "过滤【已启用】的订阅",
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return data.data.enable;
                 },
               },
               {
-                name: "过滤【未启用】的订阅",
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return !data.data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "标题",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  let flag = false;
+                  if (typeof data.data.title === "string") {
+                    flag = Boolean(data.data.title.match(searchText));
+                  }
+                  if (!flag && typeof data.subscribeData.title === "string") {
+                    flag = Boolean(data.subscribeData.title.match(searchText));
+                  }
+                  return flag;
+                },
+              },
+              {
+                name: "订阅地址",
+                value: "url",
+                selectedCallBack(config) {
+                  // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.url.match(searchText));
                 },
               },
             ],
@@ -508,18 +696,62 @@ export const WebsiteRule = {
                 btnControls: {
                   filter: {
                     enable: true,
-                    title: "规则过滤",
                     option: [
                       {
-                        name: "仅显示【已启用】的规则",
+                        name: "无",
+                        value: "",
+                        selectedCallBack(config) {
+                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data) {
+                          return true;
+                        },
+                      },
+                      {
+                        name: "已启用",
+                        value: "enable",
+                        selectedCallBack(config) {
+                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return data.data.enable;
                         },
                       },
                       {
-                        name: "仅显示【未启用】的规则",
+                        name: "未启用",
+                        value: "notEnable",
+                        selectedCallBack(config) {
+                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return !data.data.enable;
+                        },
+                      },
+                    ],
+                    inputOption: [
+                      {
+                        name: "规则名",
+                        value: "name",
+                        selectedCallBack(config) {
+                          // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          const name = data.name;
+                          if (typeof name === "string") {
+                            return Boolean(name.match(searchText));
+                          } else {
+                            return false;
+                          }
+                        },
+                      },
+                      {
+                        name: "网址",
+                        value: "url",
+                        selectedCallBack(config) {
+                          // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          return Boolean(data.url.match(searchText));
                         },
                       },
                     ],
@@ -580,99 +812,6 @@ export const WebsiteRule = {
           },
         },
         getSubscribeInfo: WebsiteSubscribeRule.getSubscribeInfo.bind(WebsiteSubscribeRule),
-      },
-      ruleOption: {
-        btnControls: {
-          add: {
-            enable: true,
-          },
-          filter: {
-            enable: true,
-            title: "规则过滤",
-            option: [
-              {
-                name: "仅显示【已启用】的规则",
-                filterCallBack(data) {
-                  return data.enable;
-                },
-              },
-              {
-                name: "仅显示【未启用】的规则",
-                filterCallBack(data) {
-                  return !data.enable;
-                },
-              },
-              {
-                name: "仅显示【在当前网址生效】的规则",
-                filterCallBack(data) {
-                  return that.checkRuleMatch(data);
-                },
-              },
-            ],
-          },
-          clearAll: {
-            enable: true,
-            callback: () => {
-              that.deleteAllRule();
-            },
-          },
-          import: {
-            enable: true,
-            callback: (updateView) => {
-              that.importRule(() => {
-                updateView();
-              });
-            },
-          },
-          export: {
-            enable: true,
-            callback: () => {
-              that.exportRule(SCRIPT_NAME + "-网站规则.json", SCRIPT_NAME + "-网站规则-订阅模式.json");
-            },
-          },
-          ruleEnable: {
-            enable: true,
-            getEnable(data) {
-              return data.enable;
-            },
-            callback: (data, enable) => {
-              data.enable = enable;
-              that.updateRule(data);
-            },
-          },
-          ruleEdit: {
-            enable: true,
-            getView: ruleEditHandler,
-            onsubmit: ruleEditSubmitHandler,
-          },
-          ruleDelete: {
-            enable: true,
-            deleteCallBack: (data) => {
-              return that.deleteRule(data.uuid);
-            },
-          },
-        },
-        data: () => {
-          return this.getAllRule();
-        },
-        getAddData: () => {
-          return addData();
-        },
-        getData: (data) => {
-          let allData = this.getAllRule();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
-        },
-        getDataItemName: (data) => {
-          return data["name"] ?? data.url;
-        },
-        updateData: (data) => {
-          return this.updateRule(data);
-        },
-        deleteData: (data) => {
-          that.$data.isShowEditView = false;
-          return this.deleteRule(data.uuid);
-        },
       },
     };
     return rulePanelViewOption;

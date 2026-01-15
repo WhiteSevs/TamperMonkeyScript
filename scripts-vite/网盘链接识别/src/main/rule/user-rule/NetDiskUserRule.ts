@@ -1,28 +1,28 @@
 import { Cryptojs, DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { UIInput } from "@components/setting/components/ui-input";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
+import { StorageUtils } from "@components/utils/StorageUtils";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAutoFillAccessCode";
 import { NetDiskAuthorization } from "../../authorization/NetDiskAuthorization";
+import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAutoFillAccessCode";
 import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskParse } from "../../parse/NetDiskParse";
-import { NetDiskRequire } from "./NetDiskRequire";
 import { NetDiskView } from "../../view/NetDiskView";
-import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
-import { StorageUtils } from "@components/utils/StorageUtils";
 import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
+import { NetDiskRequire } from "./NetDiskRequire";
 import {
   NetDiskUserRuleReplaceParam_matchRange_html,
   NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./NetDiskUserRuleReplaceParam";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
-import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
-import { PanelUISize } from "@components/setting/panel-ui-size";
-import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { PROPS_STORAGE_API } from "@components/setting/panel-config";
-import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
 
 const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
 
@@ -47,7 +47,7 @@ export const NetDiskUserRule = {
    */
   init() {
     // 把旧的数据转换
-    let oldUserRule = GM_getValue("userRule");
+    const oldUserRule = GM_getValue("userRule");
     if (Array.isArray(oldUserRule)) {
       GM_deleteValue("userRule");
       this.setRule(oldUserRule);
@@ -55,7 +55,7 @@ export const NetDiskUserRule = {
     // 先把本地规则进行转换
     let userRule = this.parseRule(this.getAllRule());
     // 再把订阅规则进行转换
-    let subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
+    const subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
     userRule = userRule.concat(subscribeRule);
     userRule.forEach((item) => {
       this.$data.userRule.set(item.setting.key, item);
@@ -700,14 +700,146 @@ export const NetDiskUserRule = {
    */
   getRulePanelViewOption(quickAddData?: NetDiskUserCustomRule) {
     const that = this;
-    let addData = () => {
+    const addData = () => {
       return quickAddData ?? this.getTemplateRule();
     };
 
-    let rulePanelViewOption: RulePanelContentOption<NetDiskUserCustomRule> = {
+    const rulePanelViewOption: RulePanelContentOption<NetDiskUserCustomRule> = {
       id: "user-rule",
       title: "链接识别",
       headerTitle: "链接识别规则",
+      ruleOption: {
+        btnControls: {
+          add: {
+            enable: true,
+            callback(option) {
+              NetDiskUserRuleUI.show(false, void 0, (rule) => {
+                this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
+              });
+              return false;
+            },
+          },
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return data.setting.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return !data.setting.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.setting.name.match(searchText));
+                },
+              },
+              {
+                name: "键",
+                value: "key",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.key.match(searchText));
+                },
+              },
+            ],
+          },
+          clearAll: {
+            enable: true,
+            callback: () => {
+              this.clearRule();
+            },
+          },
+          import: {
+            enable: true,
+            callback: (updateView) => {
+              this.importRule(() => {
+                updateView();
+              });
+            },
+          },
+          export: {
+            enable: true,
+            callback: () => {
+              this.exportRule(SCRIPT_NAME + "-链接识别规则.json", SCRIPT_NAME + "-链接识别规则-订阅模式.json");
+            },
+          },
+          ruleEdit: {
+            enable: true,
+            callback(option) {
+              NetDiskUserRuleUI.show(true, option.ruleData.key, async (rule) => {
+                let $ruleItem = await option.context.updateRuleItemElement(
+                  option.option,
+                  option.subscribeOption,
+                  rule,
+                  option.$ruleItem,
+                  option.$section
+                );
+                option.$ruleItem = $ruleItem;
+              });
+              return false;
+            },
+          },
+          ruleDelete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return that.deleteRule(data.key);
+            },
+          },
+        },
+        data: () => {
+          return this.getAllRule();
+        },
+        getAddData: () => {
+          return addData();
+        },
+        getData: (data) => {
+          let allData = this.getAllRule();
+          let findValue = allData.find((item) => item.key === data.key);
+          return findValue ?? data;
+        },
+        getDataItemName: (data) => {
+          return data.setting.name;
+        },
+        updateData: (data) => {
+          return this.updateRule(data.key, data);
+        },
+        deleteData: (data) => {
+          return this.deleteRule(data.key);
+        },
+      },
       subscribe: {
         enable: true,
         data() {
@@ -781,18 +913,64 @@ export const NetDiskUserRule = {
           },
           filter: {
             enable: true,
-            title: "过滤订阅",
             option: [
               {
-                name: "过滤【已启用】的订阅",
+                name: "无",
+                value: "",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "enable",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return data.data.enable;
                 },
               },
               {
-                name: "过滤【未启用】的订阅",
+                name: "未启用",
+                value: "notEnable",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
+                },
                 filterCallBack(data) {
                   return !data.data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "标题",
+                value: "name",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  let flag = false;
+                  if (typeof data.data.title === "string") {
+                    flag = Boolean(data.data.title.match(searchText));
+                  }
+                  if (!flag && typeof data.subscribeData.title === "string") {
+                    flag = Boolean(data.subscribeData.title.match(searchText));
+                  }
+                  return flag;
+                },
+              },
+              {
+                name: "订阅地址",
+                value: "url",
+                selectedCallBack(config) {
+                  // GM_setValue("customRule-subscribe-search-selectedOptionValue", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.url.match(searchText));
                 },
               },
             ],
@@ -849,18 +1027,57 @@ export const NetDiskUserRule = {
                 btnControls: {
                   filter: {
                     enable: true,
-                    title: "规则过滤",
                     option: [
                       {
-                        name: "仅显示【已启用】的规则",
+                        name: "无",
+                        value: "",
+                        selectedCallBack(config) {
+                          // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data) {
+                          return true;
+                        },
+                      },
+                      {
+                        name: "已启用",
+                        value: "enable",
+                        selectedCallBack(config) {
+                          // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return data.setting.enable;
                         },
                       },
                       {
-                        name: "仅显示【未启用】的规则",
+                        name: "未启用",
+                        value: "notEnable",
+                        selectedCallBack(config) {
+                          // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
+                        },
                         filterCallBack(data) {
                           return !data.setting.enable;
+                        },
+                      },
+                    ],
+                    inputOption: [
+                      {
+                        name: "规则名",
+                        value: "name",
+                        selectedCallBack(config) {
+                          // GM_setValue("customRule-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          return Boolean(data.setting.name.match(searchText));
+                        },
+                      },
+                      {
+                        name: "键",
+                        value: "key",
+                        selectedCallBack(config) {
+                          // GM_setValue("customRule-subscribeData-search-selectedOptionValue", config.value);
+                        },
+                        filterCallBack(data, searchText) {
+                          return Boolean(data.key.match(searchText));
                         },
                       },
                     ],
@@ -876,7 +1093,7 @@ export const NetDiskUserRule = {
                     callback(option) {
                       NetDiskUserRuleUI.showSubscribe(subscribeUUID, option.ruleData.key, async (subscribeRule) => {
                         // 更新视图
-                        let $ruleItem = await option.context.updateRuleItemElement(
+                        const $ruleItem = await option.context.updateRuleItemElement(
                           option.option,
                           option.subscribeOption,
                           subscribeRule,
@@ -922,99 +1139,6 @@ export const NetDiskUserRule = {
         },
         getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(NetDiskUserRuleSubscribeRule),
       },
-      ruleOption: {
-        btnControls: {
-          add: {
-            enable: true,
-            callback(option) {
-              NetDiskUserRuleUI.show(false, void 0, (rule) => {
-                this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
-              });
-              return false;
-            },
-          },
-          filter: {
-            enable: true,
-            title: "规则过滤",
-            option: [
-              {
-                name: "仅显示【已启用】的规则",
-                filterCallBack(data) {
-                  return data.setting.enable;
-                },
-              },
-              {
-                name: "仅显示【未启用】的规则",
-                filterCallBack(data) {
-                  return !data.setting.enable;
-                },
-              },
-            ],
-          },
-          clearAll: {
-            enable: true,
-            callback: () => {
-              that.clearRule();
-            },
-          },
-          import: {
-            enable: true,
-            callback: (updateView) => {
-              that.importRule(() => {
-                updateView();
-              });
-            },
-          },
-          export: {
-            enable: true,
-            callback: () => {
-              that.exportRule(SCRIPT_NAME + "-链接识别规则.json", SCRIPT_NAME + "-链接识别规则-订阅模式.json");
-            },
-          },
-          ruleEdit: {
-            enable: true,
-            callback(option) {
-              NetDiskUserRuleUI.show(true, option.ruleData.key, async (rule) => {
-                let $ruleItem = await option.context.updateRuleItemElement(
-                  option.option,
-                  option.subscribeOption,
-                  rule,
-                  option.$ruleItem,
-                  option.$section
-                );
-                option.$ruleItem = $ruleItem;
-              });
-              return false;
-            },
-          },
-          ruleDelete: {
-            enable: true,
-            deleteCallBack: (data) => {
-              return that.deleteRule(data.key);
-            },
-          },
-        },
-        data: () => {
-          return this.getAllRule();
-        },
-        getAddData: () => {
-          return addData();
-        },
-        getData: (data) => {
-          let allData = this.getAllRule();
-          let findValue = allData.find((item) => item.key === data.key);
-          return findValue ?? data;
-        },
-        getDataItemName: (data) => {
-          return data.setting.name;
-        },
-        updateData: (data) => {
-          return this.updateRule(data.key, data);
-        },
-        deleteData: (data) => {
-          return this.deleteRule(data.key);
-        },
-      },
     };
     return rulePanelViewOption;
   },
@@ -1023,7 +1147,7 @@ export const NetDiskUserRule = {
    * @param userRule
    */
   addRule(userRule: NetDiskUserCustomRule) {
-    let localRule = this.getAllRule();
+    const localRule = this.getAllRule();
     localRule.push(userRule);
     this.setRule(localRule);
   },
@@ -1040,8 +1164,8 @@ export const NetDiskUserRule = {
    * 更新规则
    */
   updateRule(key: string, rule: NetDiskUserCustomRule) {
-    let localRule = this.getAllRule();
-    let findRuleIndex = localRule.findIndex((item) => item.key === key);
+    const localRule = this.getAllRule();
+    const findRuleIndex = localRule.findIndex((item) => item.key === key);
     if (findRuleIndex !== -1) {
       localRule.splice(findRuleIndex, 1, rule);
       this.setRule(localRule);
@@ -1055,8 +1179,8 @@ export const NetDiskUserRule = {
    * @param ruleKey 规则的key名
    */
   deleteRule(ruleKey: string) {
-    let localRule = this.getAllRule();
-    let findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
+    const localRule = this.getAllRule();
+    const findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
     if (findIndex !== -1) {
       localRule.splice(findIndex, 1);
       this.setRule(localRule);
@@ -1075,14 +1199,14 @@ export const NetDiskUserRule = {
    * 获取本地所有的规则
    */
   getAllRule() {
-    let result = NetDiskUserRuleStorageApi.get<NetDiskUserCustomRule[]>(this.$data.STORAGE_KEY, []);
+    const result = NetDiskUserRuleStorageApi.get<NetDiskUserCustomRule[]>(this.$data.STORAGE_KEY, []);
     return result;
   },
   /**
    * 获取规则
    */
   getRule(key: string) {
-    let localRule = this.getAllRule();
+    const localRule = this.getAllRule();
     return localRule.find((item) => item.key === key);
   },
   /**
@@ -1096,7 +1220,7 @@ export const NetDiskUserRule = {
    * 导出规则
    */
   exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
-    let $alert = NetDiskPops.alert({
+    const $alert = NetDiskPops.alert({
       title: {
         text: "请选择导出方式",
         position: "center",
@@ -1137,20 +1261,20 @@ export const NetDiskUserRule = {
 				}`,
     });
     /** 仅导出规则 */
-    let $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(
+    const $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(
       ".btn-control[data-mode='only-export-rule-list']"
     )!;
     /** 导出为订阅规则 */
-    let $exportToSubscribe = $alert.$shadowRoot.querySelector<HTMLElement>(
+    const $exportToSubscribe = $alert.$shadowRoot.querySelector<HTMLElement>(
       ".btn-control[data-mode='export-to-subscribe']"
     )!;
     /**
      * 导出文件
      */
-    let exportFile = (__fileName__: string, __data__: any) => {
-      let blob = new Blob([JSON.stringify(__data__, null, 4)]);
-      let blobUrl = window.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
+    const exportFile = (__fileName__: string, __data__: any) => {
+      const blob = new Blob([JSON.stringify(__data__, null, 4)]);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
       $a.href = blobUrl;
       $a.download = __fileName__;
       $a.click();
@@ -1162,7 +1286,7 @@ export const NetDiskUserRule = {
     DOMUtils.on($onlyExportRuleList, "click", (event) => {
       DOMUtils.preventEvent(event);
       try {
-        let allRule = this.getAllRule();
+        const allRule = this.getAllRule();
         if (allRule.length === 0) {
           Qmsg.warning("规则为空，无需导出");
           return;
@@ -1179,17 +1303,17 @@ export const NetDiskUserRule = {
       const that = this;
       $alert.close();
       try {
-        let allRule = this.getAllRule();
+        const allRule = this.getAllRule();
         if (allRule.length === 0) {
           Qmsg.warning("规则为空，无需导出");
           return;
         }
-        let panelHandlerComponents = pops.config.PanelHandlerComponents();
+        const panelHandlerComponents = pops.config.PanelHandlerComponents();
         /**
          * 自定义存储api的配置
          * @param uuid
          */
-        let generateStorageApi = function (data: any) {
+        const generateStorageApi = function (data: any) {
           return {
             get(key: string, defaultValue: any) {
               return data[key] ?? defaultValue;
@@ -1203,8 +1327,8 @@ export const NetDiskUserRule = {
         /**
          * 按下导出的按钮的回调
          */
-        let exportCallBack = () => {
-          let configData = NetDiskUserRuleStorageApi.get<
+        const exportCallBack = () => {
+          const configData = NetDiskUserRuleStorageApi.get<
             Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
           >(this.$data.EXPORT_CONFIG_KEY, {});
           if (configData?.title === "" || configData.title == null) {
@@ -1226,7 +1350,7 @@ export const NetDiskUserRule = {
           exportFile(subscribeFileName, configData);
           $exportSubscribeDialog.close();
         };
-        let $exportSubscribeDialog = NetDiskPops.alert({
+        const $exportSubscribeDialog = NetDiskPops.alert({
           title: {
             text: "请填写导出配置",
             position: "center",
@@ -1270,24 +1394,24 @@ export const NetDiskUserRule = {
 						}
 					`,
         });
-        let $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
-        let configData = NetDiskUserRuleStorageApi.get<
+        const $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
+        const configData = NetDiskUserRuleStorageApi.get<
           Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
         >(this.$data.EXPORT_CONFIG_KEY, {});
         // 订阅名称
-        let title_template = UIInput("订阅标题", "title", "");
+        const title_template = UIInput("订阅标题", "title", "");
         Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
+        const $title = panelHandlerComponents.createSectionContainerItem_input(title_template).$el;
 
         // 版本号
-        let version_template = UIInput("版本号", "version", "");
+        const version_template = UIInput("版本号", "version", "");
         Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
+        const $version = panelHandlerComponents.createSectionContainerItem_input(version_template).$el;
 
         // 主页地址
-        let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+        const homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
         Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
-        let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
+        const $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template).$el;
 
         DOMUtils.append($content, $title);
         DOMUtils.append($content, $version);
@@ -1302,7 +1426,7 @@ export const NetDiskUserRule = {
    * @param importEndCallBack 导入完毕后的回调
    */
   importRule(importEndCallBack?: () => void) {
-    let $alert = NetDiskPops.alert({
+    const $alert = NetDiskPops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
@@ -1345,17 +1469,17 @@ export const NetDiskUserRule = {
             `,
     });
     /** 本地导入 */
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
     /** 网络导入 */
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
     /** 剪贴板导入 */
-    let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
+    const $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
     /**
      * 将获取到的规则更新至存储
      */
-    let updateRuleToStorage = (data: NetDiskUserCustomRule[]) => {
+    const updateRuleToStorage = (data: NetDiskUserCustomRule[]) => {
       let allData = this.getAllRule();
-      let addNewData: typeof allData = [];
+      const addNewData: typeof allData = [];
       for (let index = 0; index < data.length; index++) {
         const dataItem = data[index];
         let findIndex = allData.findIndex((it) => it.key === dataItem.key);
@@ -1379,7 +1503,7 @@ export const NetDiskUserRule = {
     /**
      * @param subscribeText 订阅文件文本
      */
-    let importFile = (subscribeText: string) => {
+    const importFile = (subscribeText: string) => {
       return new Promise<boolean>((resolve) => {
         let data: NetDiskUserCustomRule[] | NetDiskUserCustomRule = utils.toJSON(subscribeText);
         if (Array.isArray(data)) {
@@ -1394,10 +1518,10 @@ export const NetDiskUserRule = {
           // 单个规则
           data = [data];
         }
-        let checkedData: NetDiskUserCustomRule[] = [];
+        const checkedData: NetDiskUserCustomRule[] = [];
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
-          let parseResult = this.parseRuleStrToRule(dataItem);
+          const parseResult = this.parseRuleStrToRule(dataItem);
           if (!parseResult.success) {
             if (data.length === 1) {
               Qmsg.error(parseResult.msg, { timeout: 4000 });
@@ -1407,7 +1531,7 @@ export const NetDiskUserRule = {
           }
           parseResult.data && checkedData.push(parseResult.data);
         }
-        let notCheckedRuleCount = data.length - checkedData.length;
+        const notCheckedRuleCount = data.length - checkedData.length;
         if (notCheckedRuleCount > 0) {
           if (notCheckedRuleCount === data.length) {
             Qmsg.error("所有规则均未通过规则检查，请检查规则", {
@@ -1428,7 +1552,7 @@ export const NetDiskUserRule = {
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
@@ -1436,8 +1560,8 @@ export const NetDiskUserRule = {
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
           importFile(fileReader.result as string);
         };
@@ -1449,7 +1573,7 @@ export const NetDiskUserRule = {
     DOMUtils.on($network, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $prompt = NetDiskPops.prompt({
+      const $prompt = NetDiskPops.prompt({
         title: {
           text: "网络导入",
           position: "center",
@@ -1469,13 +1593,13 @@ export const NetDiskUserRule = {
           ok: {
             text: "导入",
             callback: async (eventDetails, event) => {
-              let url = eventDetails.text;
+              const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
                 return;
               }
-              let $loading = Qmsg.loading("正在获取配置...");
-              let response = await httpx.get(url, {
+              const $loading = Qmsg.loading("正在获取配置...");
+              const response = await httpx.get(url, {
                 allowInterceptConfig: false,
               });
               $loading.close();
@@ -1484,7 +1608,7 @@ export const NetDiskUserRule = {
                 Qmsg.error("获取配置失败", { consoleLogContent: true });
                 return;
               }
-              let flag = await importFile(response.data.responseText);
+              const flag = await importFile(response.data.responseText);
               if (!flag) {
                 return;
               }
@@ -1500,10 +1624,10 @@ export const NetDiskUserRule = {
         width: PanelUISize.info.width,
         height: "auto",
       });
-      let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-      let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+      const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+      const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
       DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
-        let value = DOMUtils.val($promptInput);
+        const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
         } else {
@@ -1512,7 +1636,7 @@ export const NetDiskUserRule = {
       });
       DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
-          let value = DOMUtils.val($promptInput);
+          const value = DOMUtils.val($promptInput);
           if (value !== "") {
             DOMUtils.emit($promptOk, "click");
           }
@@ -1524,7 +1648,7 @@ export const NetDiskUserRule = {
     DOMUtils.on($clipboard, "click", async (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let clipboardInfo = await utils.getClipboardInfo();
+      const clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {
         Qmsg.error(clipboardInfo.error.toString());
         return;
@@ -1533,7 +1657,7 @@ export const NetDiskUserRule = {
         Qmsg.warning("获取到的剪贴板内容为空");
         return;
       }
-      let flag = await importFile(clipboardInfo.content);
+      const flag = await importFile(clipboardInfo.content);
       if (!flag) {
         return;
       }

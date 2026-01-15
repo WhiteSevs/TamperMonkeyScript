@@ -378,13 +378,13 @@ export const NetDiskLinkView = {
           style: /*css*/ `
                     ${indexCSS}
 
-                    .pops {
-                        max-height: 60vh;
-                    }
+          .pops {
+              max-height: 60vh;
+          }
 					@media screen and (max-width: 600px) {
 						.pops {
-                       		max-height: 50vh;
-                    	}
+                max-height: 50vh;
+            }
 					}
                     `,
         },
