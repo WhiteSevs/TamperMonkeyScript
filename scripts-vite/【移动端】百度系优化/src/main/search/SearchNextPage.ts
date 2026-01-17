@@ -133,7 +133,7 @@ const SearchNextPage = {
           capture: true,
         },
         (value) => {
-          return value.originCallBack.toString().includes("isLoadingNextPage");
+          return value.callback.toString().includes("isLoadingNextPage");
         }
       );
       loadingView.destory();
@@ -563,7 +563,7 @@ const SearchNextPage_SearchCraft = {
           capture: true,
         },
         (value) => {
-          return value.originCallBack.toString().includes("isLoadingNextPage");
+          return value.callback.toString().includes("isLoadingNextPage");
         }
       );
       log.info("SearchCraft取消监听滚动: scroll", "#f400ff");

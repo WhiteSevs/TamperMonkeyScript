@@ -250,10 +250,10 @@ export const TiebaUniAppCommentFilter = {
             }
           },
           style: /*css*/ `
-                    .pops-panel-textarea textarea{
-                        height: 150px;
-                    }
-                    `,
+          .pops-panel-textarea textarea{
+              height: 150px;
+          }
+          `,
         },
         delete: {
           enable: true,
@@ -267,15 +267,33 @@ export const TiebaUniAppCommentFilter = {
           enable: true,
           option: [
             {
-              name: "过滤已启用",
+              name: "无",
+              value: "",
+              filterCallBack(data) {
+                return true;
+              },
+            },
+            {
+              name: "启用",
+              value: "enable",
               filterCallBack(data) {
                 return data.enable;
               },
             },
             {
-              name: "过滤未启用",
+              name: "未启用",
+              value: "notEnable",
               filterCallBack(data) {
                 return !data.enable;
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名",
+              value: "name",
+              filterCallBack(data, matchText) {
+                return Boolean(data.name.match(matchText));
               },
             },
           ],

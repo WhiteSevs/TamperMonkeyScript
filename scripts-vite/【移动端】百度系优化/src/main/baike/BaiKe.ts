@@ -1,6 +1,6 @@
-import { unsafeWindow } from "ViteGM";
-import { OriginPrototype, addStyle, log } from "@/env";
+import { $$, OriginPrototype, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
+import { unsafeWindow } from "ViteGM";
 import BaiKeShieldCSS from "./shield.css?raw";
 
 export const BaiduBaiKe = {
@@ -25,22 +25,42 @@ export const BaiduBaiKe = {
         }
         return new Proxy(old_Box, {
           get(target, prop, receiver) {
-            if ((prop === "isBox" || prop === "$isBox") && Panel.getValue("baidu-baike-Box-isBox")) {
+            if (["isBox", "$isBox", "isLiteBox", "$isLiteBox", "isInfoBox", "$isInfoBox"].includes(String(prop))) {
+              // fix #323
+              Panel.onceExec("baidu-baike-Box-isBox-fix-image", () => {
+                utils.mutationObserver(document.body, {
+                  config: {
+                    subtree: true,
+                    childList: true,
+                  },
+                  callback: () => {
+                    const $lazyImg = $$(".photo-item .album-lazy-img[data-url]");
+                    $lazyImg.forEach(($el) => {
+                      const imgSrc = $el.getAttribute("data-url");
+                      if (typeof imgSrc !== "string") return;
+                      $el.outerHTML = `<img src="${imgSrc}" loading="lazy">`;
+                    });
+                  },
+                });
+              });
+              return false;
+            }
+            if (["isBox", "$isBox"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isBox")) {
               return true;
             }
-            if ((prop === "isLiteBox" || prop === "$isLiteBox") && Panel.getValue("baidu-baike-Box-isLiteBox")) {
+            if (["isLiteBox", "$isLiteBox"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isLiteBox")) {
               return true;
             }
-            if ((prop === "isInfoBox" || prop === "$isInfoBox") && Panel.getValue("baidu-baike-Box-isInfoBox")) {
+            if (["isInfoBox", "$isInfoBox"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isInfoBox")) {
               return true;
             }
-            if ((prop === "isIOS" || prop === "$isIOS") && Panel.getValue("baidu-baike-Box-isIOS")) {
+            if (["isIOS", "$isIOS"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isIOS")) {
               return true;
             }
-            if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
+            if (["isAndroid", "$isAndroid"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isAndroid")) {
               return true;
             }
-            if ((prop === "isAndroid" || prop === "$isAndroid") && Panel.getValue("baidu-baike-Box-isAndroid")) {
+            if (["isAndroid", "$isAndroid"].includes(String(prop)) && Panel.getValue("baidu-baike-Box-isAndroid")) {
               return true;
             }
             if (prop === "android") {
