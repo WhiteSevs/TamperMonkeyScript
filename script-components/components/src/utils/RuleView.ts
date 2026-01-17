@@ -368,144 +368,142 @@ class RuleView<T> {
       height: window.innerHeight > 500 ? "500px" : "80vh",
     });
     // 搜索容器
-    const $searchContainer = $popsConfirm.$shadowRoot.querySelector<HTMLElement>(".rule-view-search-container")!;
-    const $externalSelect = $searchContainer.querySelector<HTMLSelectElement>(
-      ".pops-panel-select .select-rule-status"
-    )!;
-    const $ruleValueSelect = $searchContainer.querySelector<HTMLSelectElement>(
-      ".pops-panel-select .select-rule-value"
-    )!;
-    const $searchInput = $searchContainer.querySelector<HTMLInputElement>(".pops-panel-input input")!;
-
-    let externalSelectInfo: RuleViewSearchExternalOption<T> | null = null;
-    let ruleValueSelectInfo: RuleViewSearchRuleValueOption<T> | null = null;
-
-    if (Array.isArray(this.option.bottomControls?.filter?.option)) {
-      DOMUtils.append(
-        $externalSelect,
-        this.option.bottomControls?.filter?.option.map((option) => {
-          const $option = DOMUtils.createElement("option", {
-            innerText: option.name,
-          });
-          Reflect.set($option, "data-value", option);
-          return $option;
-        })
-      );
-    }
-    if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
-      DOMUtils.append(
-        $ruleValueSelect,
-        this.option.bottomControls?.filter?.inputOption.map((option) => {
-          const $option = DOMUtils.createElement("option", {
-            innerText: option.name,
-          });
-          Reflect.set($option, "data-value", option);
-          return $option;
-        })
-      );
-    }
-
-    DOMUtils.on($externalSelect, "change", async (evt) => {
-      const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
-      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchExternalOption<T>;
-      if (typeof selectInfo?.selectedCallBack === "function") {
-        selectInfo.selectedCallBack(selectInfo);
-      }
-      externalSelectInfo = selectInfo;
-      await execFilter(false);
-    });
-    DOMUtils.on($ruleValueSelect, "change", async (evt) => {
-      const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
-      const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchRuleValueOption<T>;
-      if (typeof selectInfo?.selectedCallBack === "function") {
-        selectInfo.selectedCallBack(selectInfo);
-      }
-      ruleValueSelectInfo = selectInfo;
-      await execFilter(false);
-    });
-    DOMUtils.onInput(
-      $searchInput,
-      utils.debounce(async () => {
-        await execFilter(false);
-      })
+    const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+      $popsConfirm.$shadowRoot
     );
-    const updateSelectData = () => {
-      // 更新选中的选项数据
-      const $externalSelected = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
-      externalSelectInfo = Reflect.get($externalSelected, "data-value") as RuleViewSearchExternalOption<T>;
-      const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
-      ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value") as RuleViewSearchRuleValueOption<T>;
-    };
-    const execFilter = async (isUpdateSelectData: boolean) => {
-      // 清空旧的
-      this.clearContent($popsConfirm.$shadowRoot);
-      // 更新选项
-      isUpdateSelectData && updateSelectData();
-      const allData = await this.option.data();
-      const filteredData: T[] = [];
-      const searchText = DOMUtils.val($searchInput);
-      for (let index = 0; index < allData.length; index++) {
-        const item = allData[index];
-        // 先进行前置条件过滤
-        if (externalSelectInfo) {
-          const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-          if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-            // 不需要
-            continue;
-          }
+    if (this.option.bottomControls?.filter?.enable) {
+      let externalSelectInfo: RuleViewSearchExternalOption<T> | null = null;
+      let ruleValueSelectInfo: RuleViewSearchRuleValueOption<T> | null = null;
+
+      if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+        DOMUtils.append(
+          $externalSelect,
+          this.option.bottomControls?.filter?.option.map((option) => {
+            const $option = DOMUtils.createElement("option", {
+              innerText: option.name,
+            });
+            Reflect.set($option, "data-value", option);
+            return $option;
+          })
+        );
+      }
+      if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+        DOMUtils.append(
+          $ruleValueSelect,
+          this.option.bottomControls?.filter?.inputOption.map((option) => {
+            const $option = DOMUtils.createElement("option", {
+              innerText: option.name,
+            });
+            Reflect.set($option, "data-value", option);
+            return $option;
+          })
+        );
+      }
+
+      DOMUtils.on($externalSelect, "change", async (evt) => {
+        const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
+        const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchExternalOption<T>;
+        if (typeof selectInfo?.selectedCallBack === "function") {
+          selectInfo.selectedCallBack(selectInfo);
         }
-        if (ruleValueSelectInfo) {
-          let flag = true;
-          if (searchText === "") {
-            // 空，需要，不过滤
-            flag = true;
-          } else {
-            flag = false;
-          }
-          if (!flag) {
-            flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-          }
-          if (!flag) {
-            // 不需要
-            continue;
-          }
+        externalSelectInfo = selectInfo;
+        await execFilter(false);
+      });
+      DOMUtils.on($ruleValueSelect, "change", async (evt) => {
+        const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
+        const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchRuleValueOption<T>;
+        if (typeof selectInfo?.selectedCallBack === "function") {
+          selectInfo.selectedCallBack(selectInfo);
         }
-        filteredData.push(item);
+        ruleValueSelectInfo = selectInfo;
+        await execFilter(false);
+      });
+      DOMUtils.onInput(
+        $searchInput,
+        utils.debounce(async () => {
+          await execFilter(false);
+        })
+      );
+      const updateSelectData = () => {
+        // 更新选中的选项数据
+        const $externalSelected = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
+        externalSelectInfo = Reflect.get($externalSelected, "data-value") as RuleViewSearchExternalOption<T>;
+        const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
+        ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value") as RuleViewSearchRuleValueOption<T>;
+      };
+      const execFilter = async (isUpdateSelectData: boolean) => {
+        // 清空旧的
+        this.clearContent($popsConfirm.$shadowRoot);
+        // 更新选项
+        isUpdateSelectData && updateSelectData();
+        const allData = await this.option.data();
+        const filteredData: T[] = [];
+        const searchText = DOMUtils.val($searchInput);
+        for (let index = 0; index < allData.length; index++) {
+          const item = allData[index];
+          // 先进行前置条件过滤
+          if (externalSelectInfo) {
+            const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+            if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+              // 不需要
+              continue;
+            }
+          }
+          if (ruleValueSelectInfo) {
+            let flag = true;
+            if (searchText === "") {
+              // 空，需要，不过滤
+              flag = true;
+            } else {
+              flag = false;
+            }
+            if (!flag) {
+              flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+            }
+            if (!flag) {
+              // 不需要
+              continue;
+            }
+          }
+          filteredData.push(item);
+        }
+        // 添加新的
+        await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+      };
+      if (typeof filterCallBack === "object" && filterCallBack != null) {
+        let externalIndex: number;
+        if (typeof filterCallBack.external === "number") {
+          // index
+          externalIndex = filterCallBack.external;
+        } else {
+          // value
+          externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+            const data = Reflect.get(option, "data-value") as RuleViewSearchExternalOption<T>;
+            return data.value === filterCallBack.external;
+          });
+        }
+        if (externalIndex !== -1) {
+          $externalSelect.selectedIndex = externalIndex;
+        }
+        let ruleIndex: number;
+        if (typeof filterCallBack.rule === "number") {
+          // index
+          ruleIndex = filterCallBack.rule;
+        } else {
+          // value
+          ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+            const data = Reflect.get(option, "data-value") as RuleViewSearchRuleValueOption<T>;
+            return data.value === filterCallBack.rule;
+          });
+        }
+        if (ruleIndex !== -1) {
+          $ruleValueSelect.selectedIndex = ruleIndex;
+        }
       }
-      // 添加新的
-      await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
-    };
-    if (typeof filterCallBack === "object" && filterCallBack != null) {
-      let externalIndex: number;
-      if (typeof filterCallBack.external === "number") {
-        // index
-        externalIndex = filterCallBack.external;
-      } else {
-        // value
-        externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-          const data = Reflect.get(option, "data-value") as RuleViewSearchExternalOption<T>;
-          return data.value === filterCallBack.external;
-        });
-      }
-      if (externalIndex !== -1) {
-        $externalSelect.selectedIndex = externalIndex;
-      }
-      let ruleIndex: number;
-      if (typeof filterCallBack.rule === "number") {
-        // index
-        ruleIndex = filterCallBack.rule;
-      } else {
-        // value
-        ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-          const data = Reflect.get(option, "data-value") as RuleViewSearchRuleValueOption<T>;
-          return data.value === filterCallBack.rule;
-        });
-      }
-      if (ruleIndex !== -1) {
-        $ruleValueSelect.selectedIndex = ruleIndex;
-      }
+      await execFilter(true);
+    } else {
+      DOMUtils.hide($searchContainer, false);
     }
-    await execFilter(true);
   }
   /**
    * 显示编辑视图
@@ -604,11 +602,27 @@ class RuleView<T> {
   parseViewElement($shadowRoot: ShadowRoot | HTMLElement) {
     const $container = $shadowRoot.querySelector<HTMLElement>(".rule-view-container")!;
     const $deleteBtn = $shadowRoot.querySelector<HTMLButtonElement>(".pops-confirm-btn button.pops-confirm-btn-other")!;
+    const $searchContainer = $shadowRoot.querySelector<HTMLElement>(".rule-view-search-container")!;
+    const $externalSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-status"
+    )!;
+    const $ruleValueSelect = $searchContainer.querySelector<HTMLSelectElement>(
+      ".pops-panel-select .select-rule-value"
+    )!;
+    const $searchInput = $searchContainer.querySelector<HTMLInputElement>(".pops-panel-input input")!;
     return {
       /** 容器 */
       $container: $container,
       /** 左下角的清空按钮 */
       $deleteBtn: $deleteBtn,
+      /** 搜索容器 */
+      $searchContainer: $searchContainer,
+      /** 搜索前置条件 */
+      $externalSelect: $externalSelect,
+      /** 搜索的目标内容 */
+      $ruleValueSelect: $ruleValueSelect,
+      /** 搜索输入框 */
+      $searchInput: $searchInput,
     };
   }
   /**
