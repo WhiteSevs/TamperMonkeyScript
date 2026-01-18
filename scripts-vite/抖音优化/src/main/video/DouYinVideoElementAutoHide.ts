@@ -1,5 +1,4 @@
 import { $, addStyle, DOMUtils, utils } from "@/env";
-import { DouYinElement } from "@/utils/DouYinElement";
 import { Panel } from "@components/setting/panel";
 
 /**
@@ -43,8 +42,12 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
     }
   };
   const $style = addStyle(hideStyle());
+  result.push($style);
   const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, newValue, oldValue) => {
     DOMUtils.html($style, hideStyle(newValue));
+  });
+  result.push(() => {
+    Panel.removeValueChangeListener(listenerId);
   });
   const lockFn = new utils.LockFunction(() => {
     /** 视频信息列表 */
@@ -146,8 +149,8 @@ export const DouYinVideoElementAutoHide = (delayTimeKey: string, selectors: stri
   });
 
   result.push(() => {
-    Panel.removeValueChangeListener(listenerId);
     observer?.disconnect();
-  }, $style);
+  });
+
   return result;
 };

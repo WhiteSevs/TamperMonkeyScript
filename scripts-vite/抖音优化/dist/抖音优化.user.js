@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.10
+// @version      2026.1.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @connect      *
@@ -3923,7 +3923,9 @@
     },
     shieldVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
-      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+      return [
+        CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),
+      ];
     },
     blockAIIdentifyTheScreen() {
       log.info(`【屏蔽】识别画面`);
@@ -4579,8 +4581,12 @@
       }
     };
     const $style = addStyle(hideStyle());
+    result.push($style);
     const listenerId = Panel.addValueChangeListener(delayTimeKey, (key, newValue, oldValue) => {
       domUtils.html($style, hideStyle(newValue));
+    });
+    result.push(() => {
+      Panel.removeValueChangeListener(listenerId);
     });
     const lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
@@ -4665,9 +4671,8 @@
       },
     });
     result.push(() => {
-      Panel.removeValueChangeListener(listenerId);
       observer?.disconnect();
-    }, $style);
+    });
     return result;
   };
   class DouYinVideoFilterBase {
@@ -5598,12 +5603,14 @@
         },
         "dy-video-shortcut-immersionMode": {
           callback() {
-            log.info("触发快捷键 ==> 沉浸模式");
-            const value = Panel.getValue("fullScreen");
-            Panel.setValue("fullScreen", !value);
-            Panel.execMenuOnce("fullScreen", () => {
-              return DouYinVideoPlayer.fullScreen();
-            });
+            let value = Panel.getValue("fullScreen");
+            if (typeof value === "boolean") {
+              value = !value;
+            } else {
+              value = false;
+            }
+            log.info("触发快捷键 ==> 沉浸模式：" + value);
+            Panel.setValue("fullScreen", value);
           },
         },
         "dy-video-shortcut-changeVideoMuted": {
@@ -5661,8 +5668,8 @@
       Panel.execMenuOnce("changeCommentToBottom", () => {
         return this.changeCommentToBottom();
       });
-      Panel.execMenuOnce("fullScreen", () => {
-        return this.fullScreen();
+      Panel.execMenuOnce("fullScreen", (config) => {
+        return this.fullScreen(config.value);
       });
       Panel.execMenuOnce("parseVideo", () => {
         return this.hookDownloadButtonToParseVideo();
@@ -5746,18 +5753,19 @@
         });
       });
     },
-    fullScreen() {
-      log.info("沉浸模式");
+    fullScreen(mode) {
+      log.info("沉浸模式：" + mode);
       const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(".slider-video .positionBox", "#video-info-wrap", "xg-controls.xgplayer-controls")
-      );
-      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
-      result.push(DouYinVideoBlock.shieldSearchFloatingBar());
-      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
-      result.push(
-        addStyle(
-          `
+      if (typeof mode === "boolean" && mode) {
+        result.push(
+          CommonUtil.addBlockCSS(".slider-video .positionBox", "#video-info-wrap", "xg-controls.xgplayer-controls")
+        );
+        result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
+        result.push(...DouYinVideoBlock.shieldSearchFloatingBar());
+        result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
+        result.push(
+          addStyle(
+            `
 			/* 视频全屏 */
 			xg-video-container.xg-video-container{
 				bottom: 0px !important;
@@ -5775,8 +5783,47 @@
         height: calc(100% - 2px) !important;
       }
       `
-        )
-      );
+          )
+        );
+      } else if (mode === "mouseEnterShow") {
+        result.push(
+          addStyle(
+            `
+        ${[
+          ...[
+            "#video-info-wrap",
+            ".basePlayerContainer .player-position-box-bottom",
+            '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
+          ],
+          ...[`xg-controls.xgplayer-controls`, `[data-e2e="feed-live"] .douyin-player-controls`],
+          ...[
+            ".positionBox",
+            '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
+          ],
+        ].join(",")}{
+          opacity: 0 !important;
+        }
+        ${[
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
+            '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          ],
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
+            '[data-e2e="feed-live"]:hover .douyin-player-controls',
+          ],
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
+            '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
+          ],
+        ].join(",")}{
+          opacity: 1 !important;
+        }
+      `
+          )
+        );
+      }
       return result;
     },
     autoEnterElementFullScreen(userKeyBoard = false) {
@@ -6476,28 +6523,23 @@
     titleInfoAutoHide() {
       log.info(`自动隐藏视频信息`);
       return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        "#sliderVideo #video-info-wrap",
-        '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-        "#slideMode #video-info-wrap",
-        'div[data-e2e="video-detail"] #video-info-wrap',
+        "#video-info-wrap",
+        ".basePlayerContainer .player-position-box-bottom",
+        '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
       ]);
     },
     videoControlsAutoHide() {
       log.info(`自动隐藏视频控件`);
       return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
-        `#sliderVideo xg-controls.xgplayer-controls`,
-        `[data-e2e="feed-item"] [data-e2e="feed-live"] xg-controls.xgplayer-controls`,
-        "#slideMode xg-controls.xgplayer-controls",
-        'div[data-e2e="video-detail"] xg-controls.xgplayer-controls',
+        `xg-controls.xgplayer-controls`,
+        `[data-e2e="feed-live"] .douyin-player-controls`,
       ]);
     },
     rightToolBarAutoHide() {
       log.info(`自动隐藏右侧工具栏`);
       const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        "#sliderVideo .positionBox",
-        '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-        "#slideMode .positionBox",
-        'div[data-e2e="video-detail"] .positionBox',
+        ".positionBox",
+        '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
       ]);
       result.push(
         addStyle(
@@ -8219,13 +8261,13 @@
         const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
         loadingQmsg.close();
         if (status) {
-          log.success("成功录入快捷键", option);
-          Qmsg.success("成功录入");
+          log.success("录入快捷键", option);
+          Qmsg.success("录入成功");
         } else {
           Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
         }
       }
-      $btn.innerHTML = getButtonText();
+      domUtils.html($btn, getButtonText());
     });
     result.attributes = {};
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
@@ -9030,7 +9072,7 @@
         padding: 4px 8px;
       }
       .rule-view-search-container .pops-panel-select{
-        min-width: 40px;
+        min-width: fit-content;
         max-width: 60px;
       }
       .rule-view-search-container .pops-panel-select select{
@@ -9040,6 +9082,8 @@
       .rule-view-search-container .pops-panel-input{
         width: 100%;
       }
+
+
       .rule-item{
           display: flex;
           align-items: center;
@@ -9152,125 +9196,128 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
       });
-      const $searchContainer = $popsConfirm.$shadowRoot.querySelector(".rule-view-search-container");
-      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
-      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
-      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
-      let externalSelectInfo = null;
-      let ruleValueSelectInfo = null;
-      if (Array.isArray(this.option.bottomControls?.filter?.option)) {
-        domUtils.append(
-          $externalSelect,
-          this.option.bottomControls?.filter?.option.map((option) => {
-            const $option = domUtils.createElement("option", {
-              innerText: option.name,
-            });
-            Reflect.set($option, "data-value", option);
-            return $option;
-          })
-        );
-      }
-      if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
-        domUtils.append(
-          $ruleValueSelect,
-          this.option.bottomControls?.filter?.inputOption.map((option) => {
-            const $option = domUtils.createElement("option", {
-              innerText: option.name,
-            });
-            Reflect.set($option, "data-value", option);
-            return $option;
-          })
-        );
-      }
-      domUtils.on($externalSelect, "change", async (evt) => {
-        const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
-        const selectInfo = Reflect.get($isSelectedElement, "data-value");
-        if (typeof selectInfo?.selectedCallBack === "function") {
-          selectInfo.selectedCallBack(selectInfo);
-        }
-        externalSelectInfo = selectInfo;
-        await execFilter(false);
-      });
-      domUtils.on($ruleValueSelect, "change", async (evt) => {
-        const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-        const selectInfo = Reflect.get($isSelectedElement, "data-value");
-        if (typeof selectInfo?.selectedCallBack === "function") {
-          selectInfo.selectedCallBack(selectInfo);
-        }
-        ruleValueSelectInfo = selectInfo;
-        await execFilter(false);
-      });
-      domUtils.onInput(
-        $searchInput,
-        utils.debounce(async () => {
-          await execFilter(false);
-        })
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
       );
-      const updateSelectData = () => {
-        const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
-        externalSelectInfo = Reflect.get($externalSelected, "data-value");
-        const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-        ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
-      };
-      const execFilter = async (isUpdateSelectData) => {
-        this.clearContent($popsConfirm.$shadowRoot);
-        isUpdateSelectData && updateSelectData();
-        const allData = await this.option.data();
-        const filteredData = [];
-        const searchText = domUtils.val($searchInput);
-        for (let index = 0; index < allData.length; index++) {
-          const item = allData[index];
-          if (externalSelectInfo) {
-            const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-            if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-              continue;
-            }
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        }
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        }
+        domUtils.on($externalSelect, "change", async (evt) => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
           }
-          if (ruleValueSelectInfo) {
-            let flag = true;
-            if (searchText === "") {
-              flag = true;
-            } else {
-              flag = false;
-            }
-            if (!flag) {
-              flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-            }
-            if (!flag) {
-              continue;
-            }
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async (evt) => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
           }
-          filteredData.push(item);
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          isUpdateSelectData && updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+                continue;
+              }
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") {
+                flag = true;
+              } else {
+                flag = false;
+              }
+              if (!flag) {
+                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              }
+              if (!flag) {
+                continue;
+              }
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") {
+            externalIndex = filterCallBack.external;
+          } else {
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.external;
+            });
+          }
+          if (externalIndex !== -1) {
+            $externalSelect.selectedIndex = externalIndex;
+          }
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") {
+            ruleIndex = filterCallBack.rule;
+          } else {
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.rule;
+            });
+          }
+          if (ruleIndex !== -1) {
+            $ruleValueSelect.selectedIndex = ruleIndex;
+          }
         }
-        await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
-      };
-      if (typeof filterCallBack === "object" && filterCallBack != null) {
-        let externalIndex;
-        if (typeof filterCallBack.external === "number") {
-          externalIndex = filterCallBack.external;
-        } else {
-          externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-            const data = Reflect.get(option, "data-value");
-            return data.value === filterCallBack.external;
-          });
-        }
-        if (externalIndex !== -1) {
-          $externalSelect.selectedIndex = externalIndex;
-        }
-        let ruleIndex;
-        if (typeof filterCallBack.rule === "number") {
-          ruleIndex = filterCallBack.rule;
-        } else {
-          ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-            const data = Reflect.get(option, "data-value");
-            return data.value === filterCallBack.rule;
-          });
-        }
-        if (ruleIndex !== -1) {
-          $ruleValueSelect.selectedIndex = ruleIndex;
-        }
+        await execFilter(true);
+      } else {
+        domUtils.hide($searchContainer, false);
       }
-      await execFilter(true);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
@@ -9342,9 +9389,17 @@
     parseViewElement($shadowRoot) {
       const $container = $shadowRoot.querySelector(".rule-view-container");
       const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
+        $searchContainer,
+        $externalSelect,
+        $ruleValueSelect,
+        $searchInput,
       };
     }
     parseRuleItemElement($ruleElement) {
@@ -11760,7 +11815,27 @@
                     void 0,
                     "自行选择清晰度"
                   ),
-                  UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
+                  UISelect(
+                    "沉浸模式",
+                    "fullScreen",
+                    false,
+                    [
+                      {
+                        text: "无",
+                        value: false,
+                      },
+                      {
+                        text: "全部",
+                        value: true,
+                      },
+                      {
+                        text: "鼠标进入显示",
+                        value: "mouseEnterShow",
+                      },
+                    ],
+                    void 0,
+                    "隐藏右侧工具栏、底部信息栏等"
+                  ),
                   UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
                   UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
                   UISwitch(
@@ -12047,8 +12122,8 @@
                     DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
-                    "沉浸模式",
-                    "移除右侧工具栏、底部信息栏等",
+                    "沉浸模式（全部）",
+                    "隐藏右侧工具栏、底部信息栏等",
                     "dy-video-shortcut-immersionMode",
                     void 0,
                     "点击录入快捷键",
@@ -12215,7 +12290,7 @@
                     "dy-video-bottom-shieldVideoUnderTitleTag",
                     false,
                     void 0,
-                    "例如：相关搜索、AI搜索、合集...等"
+                    "例如：相关搜索、AI搜索、合集、汽水音乐...等"
                   ),
                   UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false),
                   UISwitch(

@@ -65,7 +65,9 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    */
   shieldVideoUnderTitleTag() {
     log.info(`【屏蔽】视频标题下的标签`);
-    return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+    return [
+      CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),
+    ];
   },
   /**
    * 【屏蔽】识别画面

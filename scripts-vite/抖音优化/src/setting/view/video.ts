@@ -11,6 +11,7 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { AutoOpenOrClose } from "../all-open-or-close";
+import Qmsg from "qmsg";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
@@ -66,7 +67,27 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "自行选择清晰度"
                 ),
-                UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
+                UISelect(
+                  "沉浸模式",
+                  "fullScreen",
+                  false as string | boolean,
+                  [
+                    {
+                      text: "无",
+                      value: false,
+                    },
+                    {
+                      text: "全部",
+                      value: true,
+                    },
+                    {
+                      text: "鼠标进入显示",
+                      value: "mouseEnterShow",
+                    },
+                  ],
+                  void 0,
+                  "隐藏右侧工具栏、底部信息栏等"
+                ),
                 UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
                 UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
                 UISwitch(
@@ -354,8 +375,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   DouYinVideoPlayerShortCut.shortCut
                 ),
                 UIButtonShortCut(
-                  "沉浸模式",
-                  "移除右侧工具栏、底部信息栏等",
+                  "沉浸模式（全部）",
+                  "隐藏右侧工具栏、底部信息栏等",
                   "dy-video-shortcut-immersionMode",
                   void 0,
                   "点击录入快捷键",
@@ -522,7 +543,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-video-bottom-shieldVideoUnderTitleTag",
                   false,
                   void 0,
-                  "例如：相关搜索、AI搜索、合集...等"
+                  "例如：相关搜索、AI搜索、合集、汽水音乐...等"
                 ),
                 UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false, void 0),
                 UISwitch(

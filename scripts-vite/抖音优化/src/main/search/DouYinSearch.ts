@@ -143,7 +143,7 @@ export const DouYinSearch = {
           return;
         }
         DOMUtils.preventEvent(event);
-        const $video = selectorTarget as HTMLVideoElement;
+        const $video = selectorTarget as any as HTMLVideoElement;
         if ($video.paused) {
           $video.play();
           log.info("#sliderVideo video：播放视频");

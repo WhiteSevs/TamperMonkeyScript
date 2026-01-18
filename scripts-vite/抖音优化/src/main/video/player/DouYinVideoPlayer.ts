@@ -36,8 +36,8 @@ export const DouYinVideoPlayer = {
     Panel.execMenuOnce("changeCommentToBottom", () => {
       return this.changeCommentToBottom();
     });
-    Panel.execMenuOnce("fullScreen", () => {
-      return this.fullScreen();
+    Panel.execMenuOnce("fullScreen", (config) => {
+      return this.fullScreen(config.value);
     });
     Panel.execMenuOnce("parseVideo", () => {
       return this.hookDownloadButtonToParseVideo();
@@ -128,24 +128,25 @@ export const DouYinVideoPlayer = {
   /**
    * 全屏（沉浸模式）
    */
-  fullScreen() {
-    log.info("沉浸模式");
+  fullScreen(mode: boolean | "mouseEnterShow") {
+    log.info("沉浸模式：" + mode);
     const result = [];
-    result.push(
-      CommonUtil.addBlockCSS(
-        /* 右侧工具栏 */
-        ".slider-video .positionBox",
-        /* 中间底部的视频信息（描述、作者、话题等） */
-        "#video-info-wrap",
-        /* 中间底部的视频控制工具栏 */
-        "xg-controls.xgplayer-controls"
-      )
-    );
-    result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
-    result.push(DouYinVideoBlock.shieldSearchFloatingBar());
-    result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
-    result.push(
-      addStyle(/*css*/ `
+    if (typeof mode === "boolean" && mode) {
+      result.push(
+        CommonUtil.addBlockCSS(
+          /* 右侧工具栏 */
+          ".slider-video .positionBox",
+          /* 中间底部的视频信息（描述、作者、话题等） */
+          "#video-info-wrap",
+          /* 中间底部的视频控制工具栏 */
+          "xg-controls.xgplayer-controls"
+        )
+      );
+      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
+      result.push(...DouYinVideoBlock.shieldSearchFloatingBar());
+      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
+      result.push(
+        addStyle(/*css*/ `
 			/* 视频全屏 */
 			xg-video-container.xg-video-container{
 				bottom: 0px !important;
@@ -163,7 +164,57 @@ export const DouYinVideoPlayer = {
         height: calc(100% - 2px) !important;
       }
       `)
-    );
+      );
+    } else if (mode === "mouseEnterShow") {
+      result.push(
+        addStyle(/*css*/ `
+        ${[
+          // 自动隐藏视频信息
+          ...[
+            "#video-info-wrap",
+            // 播放器底部的信息，如：点击推荐
+            ".basePlayerContainer .player-position-box-bottom",
+            // 直播
+            '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
+          ],
+          // 自动隐藏视频控件
+          ...[
+            `xg-controls.xgplayer-controls`,
+            // 直播
+            `[data-e2e="feed-live"] .douyin-player-controls`,
+          ],
+          // 自动隐藏右侧工具栏
+          ...[
+            ".positionBox",
+            // 直播
+            '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
+          ],
+        ].join(",")}{
+          opacity: 0 !important;
+        }
+        ${[
+          // 自动隐藏视频信息
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
+            '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          ],
+          // 自动隐藏视频控件
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
+            '[data-e2e="feed-live"]:hover .douyin-player-controls',
+          ],
+          // 自动隐藏右侧工具栏
+          ...[
+            ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
+            '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
+          ],
+        ].join(",")}{
+          opacity: 1 !important;
+        }
+      `)
+      );
+    }
     return result;
   },
   /**
@@ -1074,14 +1125,11 @@ export const DouYinVideoPlayer = {
   titleInfoAutoHide() {
     log.info(`自动隐藏视频信息`);
     return DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-      // 一般的推荐视频|单个视频的当前观看的视频
-      "#sliderVideo #video-info-wrap",
+      "#video-info-wrap",
+      // 播放器底部的信息，如：点击推荐
+      ".basePlayerContainer .player-position-box-bottom",
       // 直播
-      '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-      // 进入作者主页后的当前观看的视频
-      "#slideMode #video-info-wrap",
-      // 单个视频
-      'div[data-e2e="video-detail"] #video-info-wrap',
+      '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
     ]);
   },
   /**
@@ -1090,14 +1138,9 @@ export const DouYinVideoPlayer = {
   videoControlsAutoHide() {
     log.info(`自动隐藏视频控件`);
     return DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
-      // 一般的推荐视频|单个视频的当前观看的视频
-      `#sliderVideo xg-controls.xgplayer-controls`,
+      `xg-controls.xgplayer-controls`,
       // 直播
-      `[data-e2e="feed-item"] [data-e2e="feed-live"] xg-controls.xgplayer-controls`,
-      // 进入作者主页后的当前观看的视频
-      "#slideMode xg-controls.xgplayer-controls",
-      // 单个视频
-      'div[data-e2e="video-detail"] xg-controls.xgplayer-controls',
+      `[data-e2e="feed-live"] .douyin-player-controls`,
     ]);
   },
   /**
@@ -1106,14 +1149,9 @@ export const DouYinVideoPlayer = {
   rightToolBarAutoHide() {
     log.info(`自动隐藏右侧工具栏`);
     const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-      // 一般的推荐视频|单个视频的当前观看的视频
-      "#sliderVideo .positionBox",
+      ".positionBox",
       // 直播
-      '[data-e2e="feed-item"] [data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-      // 进入作者主页后的当前观看的视频
-      "#slideMode .positionBox",
-      // 单个视频
-      'div[data-e2e="video-detail"] .positionBox',
+      '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
     ]);
     result.push(
       addStyle(/*css*/ `

@@ -55,12 +55,14 @@ export const DouYinVideoPlayerShortCut = {
       },
       "dy-video-shortcut-immersionMode": {
         callback() {
-          log.info("触发快捷键 ==> 沉浸模式");
-          const value = Panel.getValue<boolean>("fullScreen");
-          Panel.setValue("fullScreen", !value);
-          Panel.execMenuOnce("fullScreen", () => {
-            return DouYinVideoPlayer.fullScreen();
-          });
+          let value = Panel.getValue<string | boolean>("fullScreen");
+          if (typeof value === "boolean") {
+            value = !value;
+          } else {
+            value = false;
+          }
+          log.info("触发快捷键 ==> 沉浸模式：" + value);
+          Panel.setValue("fullScreen", value);
         },
       },
       "dy-video-shortcut-changeVideoMuted": {
