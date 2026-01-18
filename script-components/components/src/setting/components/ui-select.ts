@@ -21,7 +21,7 @@ export const UISelect = function <T extends any>(
   text: string,
   key: string,
   defaultValue: T,
-  data: PopsPanelSelectConfig<T>["data"],
+  data: PopsPanelSelectDataOption<T>[] | (() => PopsPanelSelectDataOption<T>[]),
   selectCallBack?: (isSelectedInfo: PopsPanelSelectDataOption<T>) => void | boolean,
   description?: string,
   valueChangeCallBack?: (isSelectedInfo: PopsPanelSelectDataOption<T>) => void | boolean
