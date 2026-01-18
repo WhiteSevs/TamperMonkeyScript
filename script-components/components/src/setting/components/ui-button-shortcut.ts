@@ -2,7 +2,7 @@ import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/bu
 import { UIButton } from "./ui-button";
 import { ATTRIBUTE_INIT } from "../panel-config";
 import { ShortCut, ShortCutKeyboardOption } from "./../../utils/ShortCut";
-import { log } from "../../base.env";
+import { DOMUtils, log } from "../../base.env";
 import Qmsg from "qmsg";
 
 /**
@@ -66,13 +66,14 @@ export const UIButtonShortCut = function (
       const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
       loadingQmsg.close();
       if (status) {
-        log.success("成功录入快捷键", option);
-        Qmsg.success("成功录入");
+        log.success("录入快捷键", option);
+        Qmsg.success("录入成功");
       } else {
         Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
       }
     }
-    $btn.innerHTML = getButtonText();
+    // 更新按钮文字
+    DOMUtils.html($btn, getButtonText());
   });
   result.attributes = {};
   Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
