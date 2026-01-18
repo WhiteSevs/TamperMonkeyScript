@@ -345,7 +345,7 @@ class ShortCut {
    */
   getShowText(key: string, defaultShowText: string) {
     if (this.hasOption(key)) {
-      /* 获取到，转需要显示的文字 */
+      // 存在配置，转为需要显示的文字
       const localOption = this.getOption(key)!;
       if (localOption.value == null) {
         return defaultShowText;
@@ -353,7 +353,7 @@ class ShortCut {
         return this.translateKeyboardValueToButtonText(localOption.value);
       }
     } else {
-      /* 没有录入配置，显示为默认的文字 */
+      // 没有录入配置，显示为默认的文字
       return defaultShowText;
     }
   }
