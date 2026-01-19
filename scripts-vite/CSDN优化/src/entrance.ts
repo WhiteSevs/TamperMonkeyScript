@@ -1,24 +1,24 @@
 import { Panel } from "@components/setting/panel";
-import { CSDN } from "./main/CSDN";
-import { log, MenuRegister, utils } from "./env";
-import { M_CSDN } from "./m-main/m-CSDN";
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import Qmsg from "qmsg";
 import { PanelContent } from "@components/setting/panel-content";
 import { PanelMenu } from "@components/setting/panel-menu";
-import { SettingUICommon } from "./setting/view/PanelCommon";
-import { SettingUIBlog } from "./setting/view/PanelBlog";
-import { SettingUILink } from "./setting/view/PanelLink";
-import { SettingUIHuaWeiCloud } from "./setting/view/PanelHuaWeiCloud";
-import { SettingUIWenKu } from "./setting/view/PanelWenKu";
-import { SettingUISo } from "./setting/view/PanelSo";
-import { MSettingUICommon } from "./setting/m-view/MPanelCommon";
-import { MSettingUIBlog } from "./setting/m-view/MPanelBlog";
-import { MSettingUILink } from "./setting/m-view/MPanelLink";
-import { MSettingUIHuaWeiCloud } from "./setting/m-view/MPanelHuaWeiCloud";
-import { MSettingUIWenKu } from "./setting/m-view/MPanelWenKu";
-import { MSettingUISo } from "./setting/m-view/MPanelSo";
-import { MSettingUIDownload } from "./setting/m-view/MPanelDownload";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import Qmsg from "qmsg";
+import { log, MenuRegister, utils } from "./env";
+import { M_CSDN } from "./m-main/m-CSDN";
+import { CSDN } from "./main/CSDN";
+import { MSettingUIBlog } from "./setting/m-view/m-blog";
+import { MSettingUIGeneral } from "./setting/m-view/m-general";
+import { MSettingUIDownload } from "./setting/m-view/m-download";
+import { MSettingUIHuaWeiCloud } from "./setting/m-view/m-huawei-cloud";
+import { MSettingUILink } from "./setting/m-view/m-link";
+import { MSettingUISo } from "./setting/m-view/m-so";
+import { MSettingUIWenKu } from "./setting/m-view/m-wenku";
+import { SettingUIBlog } from "./setting/view/blog";
+import { SettingUICommon } from "./setting/view/general";
+import { SettingUIHuaWeiCloud } from "./setting/view/huawei-cloud";
+import { SettingUILink } from "./setting/view/link";
+import { SettingUISo } from "./setting/view/so";
+import { SettingUIWenKu } from "./setting/view/wenku";
 
 PanelMenu.deleteMenuOption(0);
 PanelMenu.addMenuOption([
@@ -68,7 +68,7 @@ PanelContent.addContentConfig([
   SettingUISo,
 ]);
 PanelContent.addContentConfig([
-  MSettingUICommon,
+  MSettingUIGeneral,
   MSettingUIBlog,
   MSettingUILink,
   MSettingUIHuaWeiCloud,

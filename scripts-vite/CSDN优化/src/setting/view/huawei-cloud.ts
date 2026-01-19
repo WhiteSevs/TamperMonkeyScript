@@ -2,7 +2,7 @@ import { CSDNRouter } from "@/router/CSDNRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
-const SettingUIHuaWeiCloud: PopsPanelContentConfig = {
+export const SettingUIHuaWeiCloud: PopsPanelContentConfig = {
   id: "panel-hua-wei-cloud",
   title: "华为云开发者联盟",
   isDefault() {
@@ -40,5 +40,3 @@ const SettingUIHuaWeiCloud: PopsPanelContentConfig = {
     },
   ],
 };
-
-export { SettingUIHuaWeiCloud };

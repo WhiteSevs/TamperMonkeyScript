@@ -1,36 +1,13 @@
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
+import { CSDNBlogArticleRightToolBarBlock } from "./CSDNBlogArticleRightToolBarBlock";
 
-const CSDNBlogArticleRightToolBar = {
+export const CSDNBlogArticleRightToolBar = {
   init() {
-    Panel.exec(
-      "csdn-blog-rightToolbarEnable",
-      () => {
-        return this.shieldRightToolbar();
-      },
-      (keyList) => !Panel.getValue(keyList[0]),
-      true
-    );
-    Panel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
-      return this.shieldCreativeCenter();
+    CSDNBlogArticleRightToolBarBlock.init();
+    Panel.onceExec("csdn-blog-initRightToolbarOffset", () => {
+      return this.initRightToolbarOffset();
     });
-    Panel.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar", () => {
-      return this.shieldShowOrSidebar();
-    });
-    Panel.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance", () => {
-      return this.shieldBeginnerGuidance();
-    });
-    Panel.execMenuOnce("csdn-blog-rightToolbarCustomerService", () => {
-      return this.shieldCustomerService();
-    });
-    Panel.execMenuOnce("csdn-blog-rightToolbarReport", () => {
-      return this.shieldReport();
-    });
-    Panel.execMenuOnce("csdn-blog-rightToolbarBackToTop", () => {
-      return this.shieldBackToTop();
-    });
-    this.initRightToolbarOffset();
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
         this.addGotoRecommandButton();
@@ -85,10 +62,10 @@ const CSDNBlogArticleRightToolBar = {
   initRightToolbarOffset() {
     log.info("初始化右侧工具栏的偏移（top、right）");
     addStyle(/*css*/ `
-        .csdn-side-toolbar{
-          left: unset !important;
-        }
-        `);
+    .csdn-side-toolbar{
+      left: unset !important;
+    }
+    `);
     DOMUtils.waitNode<HTMLDivElement>(".csdn-side-toolbar").then(($sideToolbar) => {
       DOMUtils.css($sideToolbar, {
         top: parseInt(Panel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
@@ -96,55 +73,4 @@ const CSDNBlogArticleRightToolBar = {
       });
     });
   },
-  /**
-   * 屏蔽右侧工具栏
-   */
-  shieldRightToolbar() {
-    log.info("屏蔽右侧工具栏");
-    return CommonUtil.addBlockCSS(`div.csdn-side-toolbar`);
-  },
-  /**
-   * 【屏蔽】创作中心
-   */
-  shieldCreativeCenter() {
-    log.info("【屏蔽】创作中心");
-    return CommonUtil.addBlockCSS(".csdn-side-toolbar .sidetool-writeguide-box");
-  },
-  /**
-   * 【屏蔽】显示/隐藏侧栏
-   */
-  shieldShowOrSidebar() {
-    log.info("【屏蔽】显示/隐藏侧栏");
-    return CommonUtil.addBlockCSS(".csdn-side-toolbar a.sidecolumn");
-  },
-  /**
-   * 【屏蔽】新手引导
-   */
-  shieldBeginnerGuidance() {
-    log.info("【屏蔽】新手引导");
-    return CommonUtil.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="guide"]');
-  },
-  /**
-   * 【屏蔽】客服
-   */
-  shieldCustomerService() {
-    log.info("【屏蔽】客服");
-    return CommonUtil.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="cs"]');
-  },
-  /**
-   * 【屏蔽】举报
-   */
-  shieldReport() {
-    log.info("【屏蔽】举报");
-    return CommonUtil.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="report"]');
-  },
-  /**
-   * 【屏蔽】返回顶部
-   */
-  shieldBackToTop() {
-    log.info("【屏蔽】返回顶部");
-    return CommonUtil.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="gotop"]');
-  },
 };
-
-export { CSDNBlogArticleRightToolBar as CSDNBlogRightToolBar };

@@ -4,7 +4,7 @@ import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
-const SettingUIBlog: PopsPanelContentConfig = {
+export const SettingUIBlog: PopsPanelContentConfig = {
   id: "panel-blog",
   title: "博客",
   isDefault() {
@@ -44,7 +44,7 @@ const SettingUIBlog: PopsPanelContentConfig = {
     },
     {
       type: "container",
-      text: "功能",
+      text: "文章",
       views: [
         {
           text: "布局屏蔽",
@@ -171,6 +171,7 @@ const SettingUIBlog: PopsPanelContentConfig = {
                   void 0,
                   "选中文字弹出的，例如：搜索、评论、笔记"
                 ),
+                UISwitch("【屏蔽】gitcode链接卡片", "csdn-blog-blockGitCodeLinkCard", false),
               ],
             },
           ],
@@ -183,7 +184,13 @@ const SettingUIBlog: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
-                UISwitch("启用", "csdn-blog-blockComment", true, void 0, "关闭是屏蔽评论区"),
+                UISwitch(
+                  "启用",
+                  "csdn-blog-blockComment",
+                  true,
+                  void 0,
+                  "<code>开启</code>是允许出现评论，<code>关闭</code>是屏蔽评论区"
+                ),
                 UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
               ],
             },
@@ -220,5 +227,3 @@ const SettingUIBlog: PopsPanelContentConfig = {
     },
   ],
 };
-
-export { SettingUIBlog };

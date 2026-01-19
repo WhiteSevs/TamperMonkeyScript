@@ -1,10 +1,10 @@
 import { log } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
-import { CSDNHuaWeiCloud } from "./huaWeiCloud/CSDNHuaWeiCloud";
-import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
-import { CSDNWenKu } from "./wenku/CSDNWenKu";
-import { CSDNLink } from "./link/CSDNLink";
 import { CSDNBlog } from "./blog/CSDNBlog";
+import { CSDNHuaWeiCloud } from "./huaWeiCloud/CSDNHuaWeiCloud";
+import { CSDNLink } from "./link/CSDNLink";
+import { CSDNWenKu } from "./wenku/CSDNWenKu";
+import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
 
 export const CSDN = {
   init() {

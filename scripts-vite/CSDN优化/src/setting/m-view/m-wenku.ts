@@ -2,19 +2,17 @@ import { CSDNRouter } from "@/router/CSDNRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
-const MSettingUISo: PopsPanelContentConfig = {
-  id: "panel-so",
-  title: "搜索",
+export const MSettingUIWenKu: PopsPanelContentConfig = {
+  id: "m-panel-wenku",
+  title: "文库",
   isDefault() {
-    return CSDNRouter.isSo();
+    return CSDNRouter.isWenKu();
   },
   views: [
     {
-      text: "C知道-功能",
+      text: "屏蔽",
       type: "container",
-      views: [UISwitch("去除水印", "m-csdn-so-cknow-removeMaskCover", true)],
+      views: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
     },
   ],
 };
-
-export { MSettingUISo };

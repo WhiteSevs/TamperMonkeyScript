@@ -1,15 +1,7 @@
-import ShieldCSS from "./css/shield.css?raw";
-import MBlogCSS from "./css/blog.css?raw";
-import { addStyle } from "@/env";
+import { M_CSDNBlogBlock } from "./m-CSDNBlogBlock";
 
 export const M_CSDNBlog = {
   init() {
-    this.addCSS();
-  },
-  /**
-   * 添加屏蔽CSS
-   */
-  addCSS() {
-    return [addStyle(ShieldCSS), addStyle(MBlogCSS)];
+    M_CSDNBlogBlock.init();
   },
 };

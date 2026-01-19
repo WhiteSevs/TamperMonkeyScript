@@ -2,7 +2,7 @@ import { CSDNRouter } from "@/router/CSDNRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
-const SettingUIWenKu: PopsPanelContentConfig = {
+export const SettingUIWenKu: PopsPanelContentConfig = {
   id: "panel-wenku",
   title: "资源",
   isDefault() {
@@ -20,5 +20,3 @@ const SettingUIWenKu: PopsPanelContentConfig = {
     },
   ],
 };
-
-export { SettingUIWenKu };

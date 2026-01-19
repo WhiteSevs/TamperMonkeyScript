@@ -1,10 +1,9 @@
 import { log } from "@/env";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { UITextArea } from "@components/setting/components/ui-textarea";
 import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
-export const MSettingUICommon: PopsPanelContentConfig = {
+export const SettingUICommon: PopsPanelContentConfig = {
   id: "component-common",
   title: "通用",
   views: [
