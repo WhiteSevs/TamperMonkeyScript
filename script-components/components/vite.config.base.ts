@@ -574,7 +574,9 @@ const GenerateUserConfig = async (option: {
   const ScriptManagerTransformPlugin: Plugin = {
     name: "hook:vite-plugin-monkey:script-manager-transform-api",
     enforce: "pre",
-    apply: "build",
+    apply(config, mode) {
+      return mode.command === "build" || mode.command === "serve";
+    },
     resolveId(source) {
       if (LibName.includes(source)) {
         return "\0" + source;
