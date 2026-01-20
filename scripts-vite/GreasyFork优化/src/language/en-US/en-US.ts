@@ -326,4 +326,5 @@ export const en_US_language = {
   获取用户ID失败: "Failed to obtain user ID",
   "查询中...": "Querying...",
   查询失败: "Query failed",
+  获取收藏集id失败: "Failed to obtain collection id",
 };

@@ -64,24 +64,26 @@ export const GreasyforkUrlUtils = {
    * @param text
    * @default window.location.pathname
    */
-  getScriptId(text?: string) {
-    return (text || window.location.pathname)?.match(/\/scripts\/([\d]+)/i)?.[1];
+  getScriptId(text: string = window.location.pathname) {
+    return text.match(/\/scripts\/([\d]+)/i)?.[1];
   },
   /**
    * 从字符串中提取用户id
    * @param text
    * @default window.location.pathname
    */
-  getUserId(text?: string) {
-    return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
+  getUserId(text: string = window.location.pathname) {
+    return text.match(/\/users\/([\d]+)/i)?.[1];
   },
   /**
    * 从字符串中提取收藏集的id
    * @param text
    * @default window.location.pathname
    */
-  getSetsId(text?: string) {
-    return (text || window.location.pathname).match(/\/sets\/([\d]+)\//)?.[1];
+  getSetsId(text: string = window.location.pathname) {
+    const pathMatches = text.match(/\/sets\/([\d]+)\//)?.[1];
+    const searchMatches = text.match(/\?set=([\d]+)/)?.[1];
+    return pathMatches ?? searchMatches;
   },
   /**
    * 获取举报地址

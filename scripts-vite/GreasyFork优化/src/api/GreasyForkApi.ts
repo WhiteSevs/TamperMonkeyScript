@@ -363,6 +363,7 @@ export const GreasyforkApi = {
     const scriptSetsIdList: {
       id: string;
       name: string;
+      url: string;
     }[] = [];
     userScriptSets.querySelectorAll("li").forEach(($li) => {
       const $el = $li.querySelector<HTMLAnchorElement>("a:last-child");
@@ -375,10 +376,11 @@ export const GreasyforkApi = {
         return;
       }
       const setsName = $li.querySelector<HTMLAnchorElement>("a")!.innerText;
-      const setsId = GreasyforkUrlUtils.getSetsId()!;
+      const setsId = GreasyforkUrlUtils.getSetsId(setsUrl)!;
       scriptSetsIdList.push({
         id: setsId,
         name: setsName,
+        url: `/scripts?set=${setsId}`,
       });
     });
 

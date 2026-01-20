@@ -11,10 +11,7 @@ import { unsafeWindow } from "ViteGM";
 import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
 
-let userCollection: {
-  id: string;
-  name: string;
-}[] = [];
+let userCollection: NonNullable<Awaited<ReturnType<typeof GreasyforkApi.getUserCollection>>> = [];
 export const GreasyforkScriptsCollectEvent = async function (scriptId: string | number) {
   log.info("当前脚本id：" + scriptId);
   if (!GreasyforkMenu.isLogin) {
@@ -56,7 +53,7 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
   userCollection.forEach((userCollectInfo) => {
     alertHTML += /*html*/ `
 		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
-			<div class="user-collect-name">${userCollectInfo.name}</div>
+			<a class="user-collect-name" href="${userCollectInfo.url}" target="_blank">${userCollectInfo.name}</a>
 			<div class="user-collect-btn-container">
 			<div class="pops-panel-button collect-add-script-id">
 				<button type="button" data-type="primary" data-icon="" data-righticon="">
@@ -133,6 +130,10 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
     async function (event) {
       const $userCollectItem = (event.target as HTMLLIElement).closest(".user-collect-item") as HTMLElement;
       const setsId = $userCollectItem.dataset.id as string;
+      if (utils.isNull(setsId)) {
+        Qmsg.error(i18next.t("获取收藏集id失败"));
+        return;
+      }
       const setsName = $userCollectItem.dataset.name;
       const loading = Qmsg.loading(i18next.t("添加中..."));
       try {
@@ -245,6 +246,10 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
     async function (event) {
       const $collectItem = (event.target as HTMLElement).closest(".user-collect-item") as HTMLLIElement;
       const setsId = $collectItem.dataset.id as string;
+      if (utils.isNull(setsId)) {
+        Qmsg.error(i18next.t("获取收藏集id失败"));
+        return;
+      }
       const setsName = $collectItem.dataset.name;
       const loading = Qmsg.loading(i18next.t("删除中..."));
       try {

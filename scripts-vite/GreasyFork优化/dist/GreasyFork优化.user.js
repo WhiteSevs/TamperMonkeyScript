@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.1.7
+// @version            2026.1.21
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -14,8 +14,8 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.9/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.7.3/i18next.min.js
@@ -332,8 +332,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -1257,7 +1257,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
@@ -1584,15 +1584,15 @@
     ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig =
+      const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
           return isBottom && it.id === "script-version";
         }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops__.panel({
+      const $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1625,6 +1625,15 @@
           height: PanelUISize.setting.height,
           drag: true,
           only: true,
+          style: `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
         },
         ...this.$data.panelConfig,
       });
@@ -2619,6 +2628,7 @@
     获取用户ID失败: "Failed to obtain user ID",
     "查询中...": "Querying...",
     查询失败: "Query failed",
+    获取收藏集id失败: "Failed to obtain collection id",
   };
   const LanguageInit = function () {
     let settingPanel = _GM_getValue(KEY, {});
@@ -2784,14 +2794,16 @@
     getAdminUrl(url) {
       return url + "/admin";
     },
-    getScriptId(text) {
-      return (text || window.location.pathname)?.match(/\/scripts\/([\d]+)/i)?.[1];
+    getScriptId(text = window.location.pathname) {
+      return text.match(/\/scripts\/([\d]+)/i)?.[1];
     },
-    getUserId(text) {
-      return (text || window.location.pathname).match(/\/users\/([\d]+)/i)?.[1];
+    getUserId(text = window.location.pathname) {
+      return text.match(/\/users\/([\d]+)/i)?.[1];
     },
-    getSetsId(text) {
-      return (text || window.location.pathname).match(/\/sets\/([\d]+)\//)?.[1];
+    getSetsId(text = window.location.pathname) {
+      const pathMatches = text.match(/\/sets\/([\d]+)\//)?.[1];
+      const searchMatches = text.match(/\?set=([\d]+)/)?.[1];
+      return pathMatches ?? searchMatches;
     },
     getReportUrl(item_class, item_id) {
       return `${window.location.origin}/reports/new?item_class=${item_class}&item_id=${item_id}`;
@@ -3146,10 +3158,11 @@
           return;
         }
         const setsName = $li.querySelector("a").innerText;
-        const setsId = GreasyforkUrlUtils.getSetsId();
+        const setsId = GreasyforkUrlUtils.getSetsId(setsUrl);
         scriptSetsIdList.push({
           id: setsId,
           name: setsName,
+          url: `/scripts?set=${setsId}`,
         });
       });
       return scriptSetsIdList;
@@ -5246,7 +5259,7 @@
     userCollection.forEach((userCollectInfo) => {
       alertHTML += `
 		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
-			<div class="user-collect-name">${userCollectInfo.name}</div>
+			<a class="user-collect-name" href="${userCollectInfo.url}" target="_blank">${userCollectInfo.name}</a>
 			<div class="user-collect-btn-container">
 			<div class="pops-panel-button collect-add-script-id">
 				<button type="button" data-type="primary" data-icon="" data-righticon="">
@@ -5318,6 +5331,10 @@
     domUtils.on(collectionDialog.$shadowRoot, "click", ".collect-add-script-id", async function (event) {
       const $userCollectItem = event.target.closest(".user-collect-item");
       const setsId = $userCollectItem.dataset.id;
+      if (utils.isNull(setsId)) {
+        Qmsg.error(i18next.t("获取收藏集id失败"));
+        return;
+      }
       $userCollectItem.dataset.name;
       const loading = Qmsg.loading(i18next.t("添加中..."));
       try {
@@ -5418,6 +5435,10 @@
     domUtils.on(collectionDialog.$shadowRoot, "click", ".collect-delete-script-id", async function (event) {
       const $collectItem = event.target.closest(".user-collect-item");
       const setsId = $collectItem.dataset.id;
+      if (utils.isNull(setsId)) {
+        Qmsg.error(i18next.t("获取收藏集id失败"));
+        return;
+      }
       $collectItem.dataset.name;
       const loading = Qmsg.loading(i18next.t("删除中..."));
       try {
@@ -7450,7 +7471,7 @@
     shortCut
   ) {
     const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
-    if (typeof defaultValue === "object") {
+    if (typeof defaultValue === "object" && defaultValue != null) {
       shortCut.initConfig(key, defaultValue);
     }
     const getButtonText = () => {
@@ -7476,13 +7497,13 @@
         const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
         loadingQmsg.close();
         if (status) {
-          log.success(["成功录入快捷键", option]);
-          Qmsg.success("成功录入");
+          log.success("录入快捷键", option);
+          Qmsg.success("录入成功");
         } else {
           Qmsg.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
         }
       }
-      $btn.innerHTML = getButtonText();
+      domUtils.html($btn, getButtonText());
     });
     result.attributes = {};
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
@@ -7596,7 +7617,8 @@
     description,
     afterAddToUListCallBack,
     disabled,
-    valueChangeCallBack
+    valueChangeCallBack,
+    shortCutOption
   ) {
     const result = {
       text,
@@ -7616,7 +7638,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack,
+      afterAddToUListCallBack: (...args) => {},
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
