@@ -325,6 +325,10 @@ const CommonUtil = {
    * @param [timeout=5000] 循环超时时间
    */
   interval(
+    /**
+     * @returns
+     * + true：退出循环
+     */
     fn: (
       /**
        * 是否是超时的调用
@@ -344,8 +348,8 @@ const CommonUtil = {
      */
     let intervalTimeCount = intervalTime;
     let loop = async (isTimeout: boolean) => {
-      let result = await fn(isTimeout);
-      if ((typeof result === "boolean" && !result) || isTimeout) {
+      const result = await fn(isTimeout);
+      if ((typeof result === "boolean" && result) || isTimeout) {
         utils.workerClearTimeout(timeId);
         return;
       }
