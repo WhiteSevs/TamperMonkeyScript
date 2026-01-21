@@ -95,11 +95,11 @@ export const vConsole = async () => {
   }
   if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(
-        GM_getResourceText(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource)
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource),
+        "vueVconsoleDevtools"
       );
-      const Devtools = unsafeWin.vueVconsoleDevtools;
-      Devtools.initPlugin(vConsole);
+      plugin.initPlugin(vConsole);
     } catch (error) {
       console.error("插件【vconsole-vue-devtools-plugin】加载失败，原因：", error);
     }

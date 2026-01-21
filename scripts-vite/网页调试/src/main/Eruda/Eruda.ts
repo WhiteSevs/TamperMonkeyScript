@@ -53,96 +53,121 @@ export const Eruda = async () => {
   console.log("eruda的全局变量名: Eruda");
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource));
-      Eruda.add(erudaMonitor);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource),
+        "erudaMonitor"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-monitor】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource));
-      Eruda.add(erudaFeatures);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource),
+        "erudaFeatures"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-features】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource));
-      Eruda.add(erudaTiming);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource),
+        "erudaTiming"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-timing】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource));
-      Eruda.add(erudaCode);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource),
+        "erudaCode"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-code】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(
-        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource)
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource),
+        "erudaBenchmark"
       );
-      Eruda.add(erudaBenchmark);
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-benchmark】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(
-        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource)
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource),
+        "erudaGeolocation"
       );
-      Eruda.add(erudaGeolocation);
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-geolocation】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(
-        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource)
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource),
+        "erudaOrientation"
       );
-      Eruda.add(erudaOrientation);
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-orientation】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource));
-      Eruda.add(erudaTouches);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource),
+        "erudaTouches"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-touches】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(
-        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource)
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource),
+        "erudaOutlinePlugin"
       );
-      Eruda.add(erudaOutlinePlugin);
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource));
-      Eruda.add(erudaPixel);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource),
+        "erudaPixel"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-pixel】加载失败，原因：", error);
     }
   }
   if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
     try {
-      WebSiteDebugUtil.evalPlugin(GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource));
-      Eruda.add(erudaVue);
+      const plugin = await WebSiteDebugUtil.evalPlugin(
+        GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource),
+        "erudaVue"
+      );
+      Eruda.add(plugin);
     } catch (error) {
       console.error("插件【eruda-vue】加载失败，原因：", error);
     }

@@ -24,10 +24,16 @@ const Network = {
   network: "网络",
   Name: "名称",
   Method: "请求方法",
-  Status: "状态",
-  Type: "类型",
+  Status: "状态代码",
+  Type: "响应类型",
   Size: "大小",
   Time: "时间",
+  "Request Payload": "请求负载",
+  "View source": "查看源",
+  "View parsed": "视图已分析",
+  "Response Content": "响应内容",
+  "Response Headers": "响应标头",
+  "Request Headers": "请求标头",
 };
 
 const Resources = {
@@ -65,8 +71,8 @@ const Info = {
 };
 
 const Snippets = {
-  Snippets: "片段",
-  snippets: "片段",
+  Snippets: "代码片段",
+  snippets: "代码片段",
   "Border All": "全部显示边框",
   "Add color borders to all elements": "为所有元素添加带颜色的边框",
   "Refresh Page": "刷新页面",

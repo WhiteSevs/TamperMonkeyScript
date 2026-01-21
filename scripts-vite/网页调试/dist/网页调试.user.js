@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.21
+// @version      2026.1.21.21
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@d5e1cf028d10253d863ac708916c9845c0fba80a/lib/Eruda/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
@@ -2347,35 +2347,49 @@
     },
   };
   const WebSiteDebugUtil = {
-    evalPlugin: (...args) => {
-      if (args.length === 0) {
-        return;
+    evalPlugin: async (codeText, exportName) => {
+      const tempExportName = `${exportName}_${Math.random().toString(36).substring(2)}`;
+      let addElement = _GM_addElement;
+      if (typeof addElement !== "function") {
+        addElement = (tagName, attrs) => {
+          const $el = domUtils.createElement(tagName, attrs);
+          if (["meta", "link", "script", "style"].indexOf(tagName.toLowerCase()) !== -1) {
+            (document.head || document.documentElement).appendChild($el);
+          } else {
+            (document.body || document.documentElement).appendChild($el);
+          }
+          return $el;
+        };
       }
-      const codeText = args.join("\n");
-      return unsafeWin.eval(`
-(()=>{
-	try{
-		var exports=void 0;
-	}catch(error){
-		console.warn(error);
-	}
+      await addElement("script", {
+        textContent: `window["${tempExportName}"] = (() => { 
+		try{
+			var exports=void 0;
+		}catch(error){
+			console.warn(error);
+		}
 
-	try{
-		var module=void 0;
-	}catch(error){
-		console.warn(error);
-	}
+		try{
+			var module=void 0;
+		}catch(error){
+			console.warn(error);
+		}
 
-	try{
-		var define=void 0;
-	}catch(error){
-		console.warn(error);
-	}
-		
-	${codeText}
-		
-})()
-`);
+		try{
+			var define=void 0;
+		}catch(error){
+			console.warn(error);
+		}
+
+		${codeText}
+
+		return ${exportName}; 
+	})()`,
+      });
+      const result = unsafeWin[tempExportName];
+      delete unsafeWin[tempExportName];
+      delete unsafeWin[exportName];
+      return result;
     },
   };
   const Console = {
@@ -2402,10 +2416,16 @@
     network: "网络",
     Name: "名称",
     Method: "请求方法",
-    Status: "状态",
-    Type: "类型",
+    Status: "状态代码",
+    Type: "响应类型",
     Size: "大小",
     Time: "时间",
+    "Request Payload": "请求负载",
+    "View source": "查看源",
+    "View parsed": "视图已分析",
+    "Response Content": "响应内容",
+    "Response Headers": "响应标头",
+    "Request Headers": "请求标头",
   };
   const Resources = {
     Resources: "资源",
@@ -2439,8 +2459,8 @@
     About: "关于",
   };
   const Snippets = {
-    Snippets: "片段",
-    snippets: "片段",
+    Snippets: "代码片段",
+    snippets: "代码片段",
     "Border All": "全部显示边框",
     "Add color borders to all elements": "为所有元素添加带颜色的边框",
     "Refresh Page": "刷新页面",
@@ -2589,104 +2609,121 @@
     console.log("eruda的全局变量名: Eruda");
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource),
+          "erudaMonitor"
         );
-        Eruda2.add(erudaMonitor);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-monitor】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource),
+          "erudaFeatures"
         );
-        Eruda2.add(erudaFeatures);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-features】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource),
+          "erudaTiming"
         );
-        Eruda2.add(erudaTiming);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-timing】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource));
-        Eruda2.add(erudaCode);
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource),
+          "erudaCode"
+        );
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-code】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource),
+          "erudaBenchmark"
         );
-        Eruda2.add(erudaBenchmark);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-benchmark】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource),
+          "erudaGeolocation"
         );
-        Eruda2.add(erudaGeolocation);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-geolocation】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource),
+          "erudaOrientation"
         );
-        Eruda2.add(erudaOrientation);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-orientation】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource),
+          "erudaTouches"
         );
-        Eruda2.add(erudaTouches);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-touches】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource),
+          "erudaOutlinePlugin"
         );
-        Eruda2.add(erudaOutlinePlugin);
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource));
-        Eruda2.add(erudaPixel);
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource),
+          "erudaPixel"
+        );
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-pixel】加载失败，原因：", error);
       }
     }
     if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(_GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource));
-        Eruda2.add(erudaVue);
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource),
+          "erudaVue"
+        );
+        Eruda2.add(plugin);
       } catch (error) {
         console.error("插件【eruda-vue】加载失败，原因：", error);
       }
@@ -3130,11 +3167,11 @@
     }
     if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key)) {
       try {
-        WebSiteDebugUtil.evalPlugin(
-          _GM_getResourceText(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource)
+        const plugin = await WebSiteDebugUtil.evalPlugin(
+          _GM_getResourceText(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource),
+          "vueVconsoleDevtools"
         );
-        const Devtools = unsafeWin.vueVconsoleDevtools;
-        Devtools.initPlugin(vConsole2);
+        plugin.initPlugin(vConsole2);
       } catch (error) {
         console.error("插件【vconsole-vue-devtools-plugin】加载失败，原因：", error);
       }
