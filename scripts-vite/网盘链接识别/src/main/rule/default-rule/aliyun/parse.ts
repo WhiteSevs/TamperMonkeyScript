@@ -240,15 +240,22 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
   }
   /**
    * 处理请求的错误
-   * @param postResp
+   * @param response
    */
-  handle_request_error(postResp: HttpxResponse<any>) {
-    log.error(postResp);
-    let errData = utils.toJSON(postResp.data.responseText);
-    if (errData["message"] == "") {
-      Qmsg.error(postResp.msg);
+  handle_request_error(response: HttpxResponse<any>) {
+    log.error(response);
+    const data = utils.toJSON(response.data.responseText);
+    const message = data["message"];
+    if (typeof message === "string" && message.trim() !== "") {
+      Qmsg.error(message);
+      return true;
+    } else if (typeof data.code === "string" && data.code.trim() !== "") {
+      Qmsg.error(data.code);
+    } else if (typeof response.msg === "string" && response.msg.trim() !== "") {
+      Qmsg.error(response.msg);
+      return true;
     } else {
-      Qmsg.error(errData["message"]);
+      return false;
     }
   }
   /**
@@ -263,7 +270,6 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
       log.success("获取阿里云盘的access_token：", access_token);
       return access_token as string;
     } else {
-      log.error("获取access_token失败，请先登录账号！");
       Qmsg.error("获取access_token失败，请先登录账号！");
     }
   }
