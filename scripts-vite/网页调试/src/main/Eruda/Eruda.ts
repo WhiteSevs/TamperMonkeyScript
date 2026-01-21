@@ -1,19 +1,27 @@
+import { console, unsafeWin } from "@/env";
+import { GlobalSettingConfig } from "@/setting/config";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
+import { Panel } from "@components/setting/panel";
 import { GM_getResourceText } from "ViteGM";
 import { DebugToolConfig } from "../DebugToolConfig";
-import { unsafeWin, console } from "@/env";
-import { Panel } from "@components/setting/panel";
-import { GlobalSettingConfig } from "@/setting/config";
+import { zh_CN_language } from "./language/zh-CN/zh-CN";
+import { ErudaLanguage } from "./language/ErudaLanguage";
 
-export const Eruda = () => {
+export const Eruda = async () => {
+  if (import.meta.env.DEV) {
+    const jsCode = await import("@lib/Eruda/index?raw");
+    window.initEruda = new Function(`return (() => { ${jsCode.default} ;return initEruda; })()`)();
+  }
   initEruda("Eruda", unsafeWin);
-  // @ts-ignore
-  let Eruda = unsafeWin.Eruda || globalThis.Eruda;
+  const Eruda =
+    unsafeWin.Eruda ||
+    // @ts-expect-error
+    globalThis.Eruda;
   if (!Eruda) {
     alert("调试工具【eruda】注册全局失败，请反馈开发者");
     return;
   }
-  let inintPanelList = [];
+  const inintPanelList: string[] = [];
   if (Panel.getValue(GlobalSettingConfig.eruda_panel_console.key)) {
     inintPanelList.push("console");
   }
@@ -36,6 +44,7 @@ export const Eruda = () => {
     inintPanelList.push("snippets");
   }
   DebugToolConfig.eruda.version = Eruda.version;
+  ErudaLanguage.init();
   Eruda.init({
     tool: inintPanelList,
   });

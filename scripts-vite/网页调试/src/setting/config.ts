@@ -21,6 +21,10 @@ export const GlobalSettingConfig = {
     key: "eruda-auto-open-panel",
     defaultValue: false,
   },
+  eruda_language: {
+    key: "eruda-language",
+    defaultValue: "en-US",
+  },
   eruda_default_show_panel_name: {
     key: "eruda-default-show-panel-name",
     defaultValue: "console",

@@ -8,6 +8,7 @@ import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
 import { GlobalSettingConfig } from "../config";
 import { Panel } from "@components/setting/panel";
 import { UIOwn } from "@components/setting/components/ui-own";
+import { ErudaLanguage } from "@/main/Eruda/language/ErudaLanguage";
 
 export const PanelUI_eruda: PopsPanelContentConfig = {
   id: "debug-panel-config-eruda",
@@ -53,6 +54,23 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
           GlobalSettingConfig.eruda_auto_open_panel.defaultValue,
           void 0,
           "加载完毕后自动显示面板内容"
+        ),
+        UISelect<string>(
+          "语言",
+          GlobalSettingConfig.eruda_language.key,
+          GlobalSettingConfig.eruda_language.defaultValue,
+          ErudaLanguage.data.map((it) => {
+            return {
+              text: it.text,
+              value: it.lng,
+            };
+          }),
+          void 0,
+          void 0,
+          () => {
+            ErudaLanguage.init();
+            window.location.reload();
+          }
         ),
         UISelect(
           "默认展示的面板元素",

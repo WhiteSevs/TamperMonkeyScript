@@ -1,4 +1,4 @@
-import { addStyle, AnyTouch, cookieManager, DOMUtils, httpx, MenuRegister, pops, unsafeWin, utils } from "@/env";
+import { AnyTouch, cookieManager, DOMUtils, httpx, MenuRegister, pops, unsafeWin, utils, console, $, $$ } from "@/env";
 import { GlobalSettingConfig } from "@/setting/config";
 import { OriginPrototype } from "@components/base.env";
 import { Panel } from "@components/setting/panel";
@@ -140,7 +140,8 @@ export const DebugBridge = {
      */
     const otherApi = {
       OriginPrototype: OriginPrototype,
-      addStyle: addStyle,
+      $: $,
+      $$: $$,
       AnyTouch: AnyTouch,
       cookieManager: cookieManager,
       log: new utils.Log(GM_info, unsafeWindow.console || console),

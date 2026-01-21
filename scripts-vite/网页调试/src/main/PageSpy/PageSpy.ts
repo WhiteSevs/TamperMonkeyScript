@@ -1,10 +1,14 @@
-import { DOMUtils, unsafeWin, utils, console, $ } from "@/env";
-import { DebugToolConfig } from "../DebugToolConfig";
-import { Panel } from "@components/setting/panel";
+import { console, unsafeWin } from "@/env";
 import { GlobalSettingConfig } from "@/setting/config";
+import { Panel } from "@components/setting/panel";
+import { DebugToolConfig } from "../DebugToolConfig";
 
-export const PageSpy = () => {
-  let api = Panel.getValue(GlobalSettingConfig.pagespy_api.key, GlobalSettingConfig.pagespy_api.defaultValue);
+export const PageSpy = async () => {
+  if (import.meta.env.DEV) {
+    const jsCode = await import("@lib/PageSpy/index?raw");
+    window.initPageSpy = new Function(`return (() => { ${jsCode.default} ;return initPageSpy; })()`)();
+  }
+  const api = Panel.getValue(GlobalSettingConfig.pagespy_api.key, GlobalSettingConfig.pagespy_api.defaultValue);
   let clientOrigin = Panel.getValue(
     GlobalSettingConfig.pagespy_clientOrigin.key,
     GlobalSettingConfig.pagespy_clientOrigin.defaultValue
@@ -19,12 +23,12 @@ export const PageSpy = () => {
       return;
     }
   }
-  let __pageSpy__ = new initPageSpy(unsafeWin);
+  const __pageSpy__ = new initPageSpy(unsafeWin);
   if (!__pageSpy__) {
     alert("调试工具【PageSpy】获取失败，请反馈开发者");
     return;
   }
-  let $pageSpy = new __pageSpy__({
+  const $pageSpy = new __pageSpy__({
     // SDK 会从引入的路径自动分析并决定 Server 的地址（api）和调试端的地址（clientOrigin）
     // 假设你从 https://example.com/page-spy/index.min.js 引入，那么 SDK 会在内部设置：
     //   - api: "example.com"

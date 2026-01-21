@@ -4,7 +4,7 @@ import { GlobalSettingConfig } from "@/setting/config";
 import { Panel } from "@components/setting/panel";
 
 export const Chii = () => {
-  let debugUrl = Panel.getValue(
+  const debugUrl = Panel.getValue(
     GlobalSettingConfig.chii_debug_url.key,
     GlobalSettingConfig.chii_debug_url.defaultValue
   );
@@ -23,7 +23,7 @@ export const Chii = () => {
   });
   if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
     function checkChiiScriptLoad(event: any) {
-      if (event.target === scriptNode) {
+      if (event.target === $script) {
         globalThis.alert(
           `调试工具【Chii】脚本加载失败
       可能原因1：CSP策略阻止了加载第三方域的js文件
@@ -38,19 +38,19 @@ export const Chii = () => {
       capture: true,
     });
   }
-  let scriptJsUrl = Panel.getValue(
+  const scriptJsUrl = Panel.getValue(
     GlobalSettingConfig.chii_target_js.key,
     GlobalSettingConfig.chii_target_js.defaultValue
   );
-  let scriptEmbedded = Panel.getValue(
+  const scriptEmbedded = Panel.getValue(
     GlobalSettingConfig.chii_script_embedded.key,
     GlobalSettingConfig.chii_script_embedded.defaultValue
   );
-  let scriptNode = document.createElement("script");
-  scriptNode.src = scriptJsUrl;
-  scriptNode.setAttribute("type", "application/javascript");
+  const $script = document.createElement("script");
+  $script.src = scriptJsUrl;
+  $script.setAttribute("type", "application/javascript");
   if (scriptEmbedded) {
-    scriptNode.setAttribute("embedded", "true");
+    $script.setAttribute("embedded", "true");
   }
-  (document.head || document.body || document.documentElement).appendChild(scriptNode);
+  (document.head || document.body || document.documentElement).appendChild($script);
 };

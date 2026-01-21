@@ -1,10 +1,10 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { GlobalSettingConfig } from "../config";
 import { UIInput } from "@components/setting/panel-components";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { GlobalSettingConfig } from "../config";
 
-export const PanelUI_globalSetting: PopsPanelContentConfig = {
+export const PanelUI_general: PopsPanelContentConfig = {
   id: "debug-panel-config-all",
   title: "总设置",
   headerTitle: "总设置",
@@ -19,44 +19,42 @@ export const PanelUI_globalSetting: PopsPanelContentConfig = {
           GlobalSettingConfig.debugTool.defaultValue,
           [
             {
-              value: "eruda",
               text: "Eruda",
+              value: "eruda",
             },
             {
-              value: "vconsole",
               text: "VConsole",
+              value: "vconsole",
             },
             {
-              value: "pagespy",
               text: "PageSpy",
+              value: "pagespy",
             },
             {
-              value: "chii",
               text: "Chii",
+              value: "chii",
             },
           ],
           void 0,
           void 0
         ),
         UISwitch(
-          "允许在iframe内加载",
-          GlobalSettingConfig.allowRunInIframe.key,
-          GlobalSettingConfig.allowRunInIframe.defaultValue,
-          void 0,
-          "如果指定本脚本的容器并没有在iframe内执行本脚本，那么该功能将不会生效"
-        ),
-        UISwitch(
-          "主动加载调试工具",
+          "自动执行",
           GlobalSettingConfig.autoLoadDebugTool.key,
           GlobalSettingConfig.autoLoadDebugTool.defaultValue,
           void 0,
-          "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
+          "关闭后将会在脚本菜单注册按钮，有3种状态【☯ 加载并显示】、【🌑 隐藏】、【🌕 显示】"
+        ),
+        UISwitch(
+          "允许在iframe内加载",
+          GlobalSettingConfig.allowRunInIframe.key,
+          GlobalSettingConfig.allowRunInIframe.defaultValue
         ),
         UIInput(
-          "注册调试Api",
+          "全局挂载调试Api",
           GlobalSettingConfig.registerDebugBridgeApi.key,
           GlobalSettingConfig.registerDebugBridgeApi.defaultValue,
-          "自定义调试Api名，留空则为不注册"
+          "自定义全局挂载的Api的名称，留空则为不挂载"
         ),
       ],
     },

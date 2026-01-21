@@ -7,7 +7,11 @@ import { vConsolePluginExportLog } from "./plugin/vConsolePluginExportLog";
 import { Panel } from "@components/setting/panel";
 import { GlobalSettingConfig } from "@/setting/config";
 
-export const vConsole = () => {
+export const vConsole = async () => {
+  if (import.meta.env.DEV) {
+    const jsCode = await import("@lib/VConsole/index?raw");
+    window.initVConsole = new Function(`return (() => { ${jsCode.default} ;return initVConsole; })()`)();
+  }
   initVConsole("VConsole", unsafeWin);
   // @ts-ignore
   let VConsole = unsafeWin.VConsole || globalThis.VConsole;

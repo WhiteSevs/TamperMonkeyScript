@@ -41,10 +41,7 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
                 ok: {
                   text: "前往了解更多",
                   callback() {
-                    window.open(
-                      "https://github.com/HuolalaTech/page-spy-web/wiki/%F0%9F%90%9E-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94#user-content-testjikejishucom-%E6%98%AF%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%9F%9F%E5%90%8D%E5%90%97%E4%B8%80%E7%9B%B4%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%90%97",
-                      "_blank"
-                    );
+                    window.open("https://www.pagespy.org/#/docs/faq#test-domain", "_blank");
                   },
                 },
               },

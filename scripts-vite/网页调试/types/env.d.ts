@@ -28,7 +28,8 @@ declare type ToolVersionInfo = {
 
 declare const initEruda: Function;
 declare const initPageSpy: any;
-declare const initVConsole: any;
+declare const initVConsole: Function;
+
 declare const erudaMonitor: any;
 declare const erudaFeatures: any;
 declare const erudaTiming: any;
@@ -46,4 +47,7 @@ declare interface Window {
   vConsole: any;
   vueVconsoleDevtools: any;
   $pageSpy: any;
+  initEruda: Function;
+  initPageSpy: Function;
+  initVConsole: Function;
 }

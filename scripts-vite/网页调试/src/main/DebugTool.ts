@@ -54,7 +54,7 @@ export const DebugTool = {
   /**
    * 执行当前的调试工具
    */
-  execDebugTool() {
+  async execDebugTool() {
     /* 当前的调试工具，默认为eruda */
     let debugTool = Panel.getValue<string>(GlobalSettingConfig.debugTool.key);
     debugTool = debugTool.toString().toLowerCase();
@@ -63,22 +63,22 @@ export const DebugTool = {
       /* vConsole */
       this.$data.isLoadDebugTool = true;
       this.$data.loadDebugToolName = "vconsole";
-      vConsole();
+      await vConsole();
     } else if (debugTool === "pagespy") {
       /* PageSpy */
       this.$data.isLoadDebugTool = true;
       this.$data.loadDebugToolName = "pagespy";
-      PageSpy();
+      await PageSpy();
     } else if (debugTool === "eruda") {
       /* eruda */
       this.$data.isLoadDebugTool = true;
       this.$data.loadDebugToolName = "eruda";
-      Eruda();
+      await Eruda();
     } else if (debugTool === "chii") {
       /* chii */
       this.$data.isLoadDebugTool = true;
       this.$data.loadDebugToolName = "chii";
-      Chii();
+      await Chii();
     } else {
       console.error("当前未配置该调试工具的运行");
     }
@@ -93,7 +93,7 @@ export const DebugTool = {
     }
     let menuData: UtilsGMMenuOption = {
       key: "debug_tool_show_hide_control",
-      text: "☯ 加载并显示调试工具",
+      text: "☯ 加载并显示",
       autoReload: false,
       isStoreValue: false,
       showText(text) {
@@ -115,14 +115,14 @@ export const DebugTool = {
           /* 进行移除隐藏CSS */
           /* 菜单状态：【隐藏调试工具】 */
           this.showCurrentDebugTool();
-          menuData.text = "🌑 隐藏调试工具";
+          menuData.text = "🌑 隐藏";
           MenuRegister.update(menuData);
         } else {
           /* 状态：已加载且未添加隐藏CSS */
           /* 进行添加隐藏CSS */
           /* 菜单状态：【显示调试工具】 */
           this.hideCurrentDebugTool();
-          menuData.text = "🌕 显示调试工具";
+          menuData.text = "🌕 显示";
           MenuRegister.update(menuData);
         }
       } else {
@@ -130,7 +130,7 @@ export const DebugTool = {
         /* 进行执行调试工具 */
         /* 菜单状态：【隐藏调试工具】 */
         this.showCurrentDebugTool();
-        menuData.text = "🌑 隐藏调试工具";
+        menuData.text = "🌑 隐藏";
         MenuRegister.update(menuData);
       }
     };
