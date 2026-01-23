@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.18
+// @version      2026.1.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -266,8 +266,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -7109,107 +7109,6 @@
       return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
     },
   };
-  const DouYinLivePlayerInstance = {
-    $data: {
-      playerInstance: null,
-    },
-    $el: {
-      $playerIns: null,
-    },
-    initMenu() {
-      MenuRegister.add({
-        key: "live-parsePlayerInstance",
-        text: "⚙ PlayerInstance",
-        autoReload: false,
-        showText(text, enable) {
-          return text;
-        },
-        callback: () => {
-          const $playerIns = $(`[id^="living_room_player_container"]`);
-          if (!$playerIns) {
-            log.error("获取playerInstance所在的元素失败");
-            Qmsg.error("获取playerInstance所在的元素失败");
-            return;
-          }
-          this.$el.$playerIns = $playerIns;
-          const playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
-          if (playerInstance == null) {
-            log.error("获取playerInstance失败");
-            log.error("获取playerInstance失败");
-            return;
-          }
-          this.$data.playerInstance = playerInstance;
-          this.showParseDialog();
-        },
-      });
-    },
-    parseElementPlayerIns($ele) {
-      const react = utils.getReactInstance($ele);
-      return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance;
-    },
-    showParseDialog() {
-      log.info("解析的信息：", this.$data.playerInstance);
-      const blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
-      const pushSrc = this.$data.playerInstance?.config.url;
-      __pops__.alert({
-        title: {
-          text: "解析信息",
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="live-dy-parse-container">
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">推流地址：</div>
-                        <a class="live-dy-parse-item-value" href="${pushSrc}" target="_blank">${pushSrc}
-                        </a>
-                    </div>
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">blob地址：</div>
-                        <a class="live-dy-parse-item-value" href="${blobSrc}" target="_blank">${blobSrc}
-                        </a>
-                    </div>
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">播放器版本：</div>
-                        <div class="live-dy-parse-item-value">${this.$data.playerInstance?.version}
-                        </div>
-                    </div>
-                </div>
-                `,
-          html: true,
-        },
-        mask: {
-          clickEvent: {
-            toClose: true,
-          },
-        },
-        btn: {
-          ok: {
-            enable: false,
-          },
-        },
-        width: window.innerWidth > 550 ? "550px" : "88wv",
-        height: window.innerHeight > 550 ? "550px" : "70vh",
-        style: `
-            .live-dy-parse-container{
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            .live-dy-parse-item{
-                display: flex;
-                flex-wrap: wrap;
-                border: 1px solid #919191;
-                border-left: 0px;
-                border-right: 0px;
-                width: 100%;
-                background: #0af9ee;
-                padding: 5px 5px;
-            }
-            `,
-      });
-    },
-  };
   const DouYinLiveShortCut = {
     shortCut: new ShortCut("live-short-cut"),
     $data: {
@@ -7292,9 +7191,6 @@
       });
       Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
         return this.changeBackgroundColor();
-      });
-      Panel.onceExec("live-parsePlayerInstance", () => {
-        DouYinLivePlayerInstance.initMenu();
       });
       Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
         const result = domUtils.on(
@@ -10582,49 +10478,54 @@
         });
       });
     },
-    pauseVideo() {
+    async pauseVideo() {
       log.info(`禁止自动播放`);
-      domUtils.waitAnyNode(['.page-recommend-container [data-e2e="feed-active-video"] video'], 1e4).then(($video) => {
-        if (!$video) {
-          return;
-        }
+      const selector = ['.page-recommend-container [data-e2e="feed-active-video"] video'];
+      const $video = await domUtils.waitAnyNode(selector, 1e4);
+      if (!$video) {
+        return;
+      }
+      $video.autoplay = false;
+      $video.pause();
+      const timeout = 3e3;
+      const playCallback = (evt) => {
+        domUtils.preventEvent(evt);
         $video.autoplay = false;
         $video.pause();
-        const timeout = 3e3;
-        const playCallback = (evt) => {
-          domUtils.preventEvent(evt);
-          $video.autoplay = false;
-          $video.pause();
-          log.success("成功禁止自动播放视频(直播)");
-        };
-        domUtils.off(
-          $video,
-          "play",
-          void 0,
-          {
-            capture: true,
-          },
-          (value) => {
-            return value.callback.toString().includes("listener remove tag");
-          }
-        );
-        const playListener = domUtils.on($video, "play", playCallback, {
+        log.success("成功禁止自动播放视频");
+      };
+      domUtils.off(
+        $video,
+        "play",
+        void 0,
+        {
           capture: true,
-        });
-        const cb = () => {
-          log.info(`已移除监听自动播放`);
-          playListener.off();
-        };
-        setTimeout(cb, timeout);
+        },
+        (value) => {
+          return value.callback.toString().includes("listener remove tag");
+        }
+      );
+      const playListener = domUtils.on($video, "play", playCallback, {
+        capture: true,
       });
+      const offAllListener = () => {
+        clearTimeout(timeId);
+        log.info(`已移除监听自动播放`);
+        playListener.off();
+      };
+      const timeId = setTimeout(offAllListener, timeout);
+      return [
+        () => {
+          offAllListener();
+        },
+      ];
     },
     automaticContinuousPlayback() {
       log.info(`自动连播`);
       const attrFlagName = "data-automaticContinuousPlayback";
-      const queryActiveVideo = (withAttr = false) => {
-        return $(
-          `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`
-        );
+      const queryActiveVideo = (withAttr = false, isAll = false) => {
+        const selector = `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`;
+        return isAll ? $$(selector) : $(selector);
       };
       const switchActiveVideo = () => {
         const $next = $(".xgplayer-playswitch-next");
@@ -10646,6 +10547,24 @@
           document.body.dispatchEvent(keydownEvent);
         }
       };
+      const queryRelatedModeInfo = () => {
+        const $relatedList = $$("#related-card-list-container .related-list-item-in-small-card");
+        const currentRelatedPlayIndex = $relatedList.findIndex(($el) => {
+          return Boolean($el.querySelector(".video-playing-item"));
+        });
+        const $exit = $(
+          '.slider-video span:has(svg path[d="M16.7071 3.29289C16.3166 2.90237 15.6834 2.90237 15.2929 3.29289L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071L15.2929 20.7071C15.6834 21.0976 16.3166 21.0976 16.7071 20.7071C17.0976 20.3166 17.0976 19.6834 16.7071 19.2929L9.41421 12L16.7071 4.70711C17.0976 4.31658 17.0976 3.68342 16.7071 3.29289Z"])'
+        );
+        return {
+          listLength: $relatedList.length,
+          currentIndex: currentRelatedPlayIndex,
+          maxIndex: $relatedList.length - 1,
+          isEnded: currentRelatedPlayIndex === $relatedList.length - 1,
+          $exit,
+          $relatedList,
+          $currentRelated: $relatedList[currentRelatedPlayIndex],
+        };
+      };
       const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isRecommend()) {
           return;
@@ -10662,28 +10581,64 @@
         domUtils.on(
           $activeVideo,
           "ended",
-          (evt) => {
-            log.success(`视频播放完毕，切换至下一个视频`);
+          async (evt) => {
+            log.success(`视频播放完毕，准备切换至下一个视频`);
             domUtils.preventEvent(evt);
             currentVideoSrc = $activeVideo.src;
-            const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+            const $recommend = $activeVideo.closest(".page-recommend-container");
+            if ($recommend) {
+              const $collectionNextEpisode = $(
+                `xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,
+                $recommend
+              );
+              if ($collectionNextEpisode) {
+                const key = utils.getReactInstance($collectionNextEpisode)?.reactFiber?.return?.key;
+                const isSeries =
+                  key === "series" || key === "mix" || $collectionNextEpisode.textContent.trim().startsWith("合集：");
+                if (isSeries) {
+                  const isLatestSeries = $collectionNextEpisode.parentElement?.parentElement?.textContent
+                    .trim()
+                    .includes("已是最新集");
+                  if (!isLatestSeries) {
+                    log.success(`点击 合集`);
+                    $collectionNextEpisode.click();
+                    await domUtils.waitNode("#slideMode", 3e3);
+                    log.success(`合集容器加载完成`);
+                    await utils.sleep(1500);
+                  }
+                }
+              }
+            }
             CommonUtil.interval(
-              (isTimeout) => {
+              async (isTimeout) => {
+                const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
                 if (isTimeout) {
-                  log.error(`切换视频超时，切换失败`);
-                  return false;
+                  const { $exit } = queryRelatedModeInfo();
+                  if (isSlideMode) {
+                    log.success(`当前视频为合集中的最后一个视频，退出合集并播放下一个视频`);
+                    if ($exit) {
+                      $exit.click();
+                      log.info(`点击退出合集按钮`);
+                      await utils.sleep(1500);
+                    } else {
+                      log.error(`退出合集失败，未找到退出合集按钮`);
+                    }
+                  } else {
+                    log.error(`切换视频超时，切换失败`);
+                  }
+                  return true;
                 }
                 const $playingVideo = queryActiveVideo();
                 const playingSrc = $playingVideo?.src;
                 if (isSlideMode) {
                   if (playingSrc && $activeVideo === $playingVideo && currentVideoSrc !== playingSrc) {
                     log.success("合集-切换视频成功");
-                    return false;
+                    return true;
                   }
                 } else {
                   if ($activeVideo !== $playingVideo) {
                     log.success("切换视频成功");
-                    return false;
+                    return true;
                   }
                 }
                 switchActiveVideo();
@@ -10708,6 +10663,8 @@
       return [
         () => {
           observer?.disconnect();
+          const $videos = queryActiveVideo(void 0, true);
+          domUtils.off($videos, "ended");
         },
       ];
     },

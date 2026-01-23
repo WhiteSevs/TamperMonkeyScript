@@ -70,9 +70,9 @@ export const DouYinLive = {
     Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
       return this.changeBackgroundColor();
     });
-    Panel.onceExec("live-parsePlayerInstance", () => {
-      DouYinLivePlayerInstance.initMenu();
-    });
+    // Panel.onceExec("live-parsePlayerInstance", () => {
+    //   DouYinLivePlayerInstance.initMenu();
+    // });
     Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
       const result = DOMUtils.on(
         document,
