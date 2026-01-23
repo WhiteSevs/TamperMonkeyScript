@@ -34,7 +34,7 @@ export const XHSArticle = {
       (keyList) => {
         const execFlag = keyList.some((__key__) => {
           let flag = !!Panel.getValue(__key__);
-          let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+          const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
           if (disabled) {
             // 被禁用
             flag = false;
@@ -53,12 +53,12 @@ export const XHSArticle = {
    * 优化搜索
    */
   optimizationSearch() {
-    function blankSearchText(searchText?: string, isBlank: boolean = true) {
+    const blankSearchText = function (searchText?: string, isBlank: boolean = true) {
       if (searchText == null) {
-        let $searchText = $<HTMLInputElement>("#search-input");
+        const $searchText = $<HTMLInputElement>("#search-input");
         if ($searchText) {
-          let searchText = $searchText.value;
-          let searchUrl = XHSUrlApi.getSearchUrl(searchText);
+          const searchText = $searchText.value;
+          const searchUrl = XHSUrlApi.getSearchUrl(searchText);
           log.info("搜索内容: " + searchText);
           window.open(searchUrl, isBlank ? "_blank" : "_self");
         } else {
@@ -68,7 +68,7 @@ export const XHSArticle = {
         log.info("搜索内容: " + searchText);
         window.open(searchText, isBlank ? "_blank" : "_self");
       }
-    }
+    };
     DOMUtils.waitNode<HTMLInputElement>("#search-input").then(($searchInput) => {
       /* 搜索输入框 */
       $searchInput.placeholder = "搜索小红书";
@@ -106,8 +106,8 @@ export const XHSArticle = {
    */
   fullWidth() {
     log.info("笔记宽屏");
-    let noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
-    let imageSize = Panel.getValue("pc-xhs-article-fullWidth-imageSize", 80);
+    const noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
+    const imageSize = Panel.getValue("pc-xhs-article-fullWidth-imageSize", 80);
     return addStyle(/*css*/ `
 		.main-container .main-content{
 			padding-left: 0 !important;
@@ -141,21 +141,21 @@ export const XHSArticle = {
    */
   transformPublishTime() {
     log.info(`转换笔记发布时间`);
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       $$<HTMLElement>(".note-content:not([data-edit-date])").forEach(($noteContent) => {
-        let vueInstance = VueUtils.getVue($noteContent);
-        if (!vueInstance) {
+        const vueInst = VueUtils.getVue($noteContent);
+        if (!vueInst) {
           return;
         }
-        let note = vueInstance?._?.props?.note;
+        const note = vueInst?._?.props?.note;
         if (note == null) {
           return;
         }
-        let publishTime = note.time;
-        let lastUpdateTime = note.lastUpdateTime;
-        let ipLocation = note.ipLocation;
+        const publishTime = note.time;
+        const lastUpdateTime = note.lastUpdateTime;
+        const ipLocation = note.ipLocation;
         if (typeof publishTime === "number") {
-          let detailTimeLocationInfo = [];
+          const detailTimeLocationInfo = [];
           detailTimeLocationInfo.push(`发布：${utils.formatTime(publishTime)}`);
           if (typeof lastUpdateTime === "number") {
             detailTimeLocationInfo.push(`修改：${utils.formatTime(lastUpdateTime)}`);
@@ -163,7 +163,7 @@ export const XHSArticle = {
           if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
             detailTimeLocationInfo.push(ipLocation);
           }
-          let $date = $noteContent.querySelector<HTMLElement>(".date")!;
+          const $date = $noteContent.querySelector<HTMLElement>(".date")!;
           DOMUtils.html($date, detailTimeLocationInfo.join("<br>"));
           $noteContent.setAttribute("data-edit-date", "");
         }

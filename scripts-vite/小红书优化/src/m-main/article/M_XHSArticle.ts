@@ -1,14 +1,14 @@
 import { XHSApi } from "@/api/XHSApi";
 import { $, DOMUtils, Viewer, addStyle, log, utils } from "@/env";
 import { XHSHook } from "@/hook/XHSHook";
+import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
+import blockCSS from "./css/block.css?raw";
 import { M_XHSArticleBlock } from "./M_XHSArticleBlock";
 import { M_XHSArticleVideo } from "./M_XHSArticleVideo";
-import Qmsg from "qmsg";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
-import blockCSS from "./css/block.css?raw";
-import { Panel } from "@components/setting/panel";
 
 interface CommentDataInfo {
   user_id: string;
@@ -315,9 +315,9 @@ export const M_XHSArticle = {
     /* 等待内容元素出现 */
     DOMUtils.waitNode<HTMLDivElement>(".narmal-note-container").then(async () => {
       log.info("优化评论浏览-笔记元素出现");
-      let noteViewContainer = $(".note-view-container")!;
+      const $noteViewContainer = $(".note-view-container")!;
       // let loading = Qmsg.loading("获取评论中，请稍后...");
-      let commentContainer = DOMUtils.createElement("div", {
+      const $commentContainer = DOMUtils.createElement("div", {
         className: "little-red-book-comments-container",
         innerHTML: /*html*/ `
           <style>
@@ -426,13 +426,13 @@ export const M_XHSArticle = {
           </style>
         `,
       });
-      Comments.commentContainer = commentContainer;
+      Comments.commentContainer = $commentContainer;
       Comments.init();
-      let totalElement = DOMUtils.createElement("div", {
+      const $commentsTotal = DOMUtils.createElement("div", {
         className: "little-red-book-comments-total",
         innerHTML: `共 ${Comments.commentData["commentCount"] ?? Comments.noteData["comments"]} 条评论`,
       });
-      commentContainer.appendChild(totalElement);
+      $commentContainer.appendChild($commentsTotal);
       // 因为现在获取评论数据需要各种参数，目前暂不支持更多
       // if (utils.isNull(Comments.noteId)) {
       // 	Qmsg.error("获取笔记id为空");
@@ -452,7 +452,7 @@ export const M_XHSArticle = {
         // @ts-ignore
         pageInfo.comments.forEach((commentItem) => {
           let commentItemElement = Comments.getCommentElement(commentItem);
-          commentContainer.appendChild(commentItemElement);
+          $commentContainer.appendChild(commentItemElement);
         });
         /* 评论尚未加载完 */
         // @ts-ignore
@@ -464,11 +464,11 @@ export const M_XHSArticle = {
         log.info("从固定的评论中加载");
         Comments.commentData["comments"].forEach((commentItem: any) => {
           let commentItemElement = Comments.getCommentElement(commentItem);
-          commentContainer.appendChild(commentItemElement);
+          $commentContainer.appendChild(commentItemElement);
         });
       }
       // loading.close();
-      DOMUtils.append(noteViewContainer, commentContainer);
+      DOMUtils.append($noteViewContainer, $commentContainer);
     });
   },
   /**
@@ -481,15 +481,15 @@ export const M_XHSArticle = {
      * @param imgSrcList
      * @param index
      */
-    function viewIMG(imgSrcList: string[] = [], index = 0) {
+    const viewIMG = function (imgSrcList: string[] = [], index = 0) {
       let viewerULNodeHTML = "";
       imgSrcList.forEach((item) => {
         viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
       });
-      let viewerULNode = DOMUtils.createElement("ul", {
+      const $viewerUL = DOMUtils.createElement("ul", {
         innerHTML: viewerULNodeHTML,
       });
-      let viewer = new Viewer(viewerULNode, {
+      const viewer = new Viewer($viewerUL, {
         inline: false,
         url: "data-src",
         zIndex: utils.getMaxZIndex() + 100,
@@ -501,7 +501,7 @@ export const M_XHSArticle = {
       viewer.view(index);
       viewer.zoomTo(1);
       viewer.show();
-    }
+    };
     const callback = (event: MouseEvent, $click: HTMLElement) => {
       let imgElement = $click.querySelector("img") as HTMLImageElement;
       let imgList: string[] = [];
@@ -525,11 +525,11 @@ export const M_XHSArticle = {
       log.success(["点击浏览图片👉", imgList[index]]);
       viewIMG(imgList, index);
     };
-    DOMUtils.on(document, "click", ".note-image-box", callback);
+    const listener = DOMUtils.on(document, "click", ".note-image-box", callback);
     return [
       CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer),
       () => {
-        DOMUtils.off(document, "click", ".note-image-box", callback);
+        listener.off();
       },
     ];
   },

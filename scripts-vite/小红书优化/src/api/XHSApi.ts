@@ -1,5 +1,4 @@
 import { httpx, log, utils } from "@/env";
-import { XHS_Sign } from "@/sign/xhs_sign";
 import Qmsg from "qmsg";
 
 interface PageInfo {

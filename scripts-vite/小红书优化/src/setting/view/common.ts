@@ -1,9 +1,9 @@
 import { log, SCRIPT_NAME } from "@/env";
+import { XHSArticleFilter } from "@/main/article/XHSArticleFilter";
+import { UIButton } from "@components/setting/components/ui-button";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { UIButton } from "@components/setting/components/ui-button";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { XHSArticleFilter } from "@/main/article/XHSArticleFilter";
 
 export const SettingUI_Common: PopsPanelContentConfig = {
   id: "xhs-panel-config-common",

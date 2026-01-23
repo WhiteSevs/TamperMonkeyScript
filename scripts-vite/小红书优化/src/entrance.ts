@@ -1,16 +1,16 @@
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { M_XHS } from "./m-main/M_XHS";
-import { addStyle, log, MenuRegister, SCRIPT_NAME, utils } from "./env";
-import { XHS } from "./main/XHS";
-import Qmsg from "qmsg";
 import { Panel } from "@components/setting/panel";
 import { PanelContent } from "@components/setting/panel-content";
-import { SettingUI_Common } from "./setting/view/common";
-import { SettingUI_Article } from "./setting/view/article";
+import { PanelMenu } from "@components/setting/panel-menu";
+import Qmsg from "qmsg";
+import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import { addStyle, log, MenuRegister, SCRIPT_NAME, utils } from "./env";
+import { M_XHS } from "./m-main/M_XHS";
+import { XHS } from "./main/XHS";
 import { MSettingUI_Common } from "./setting/m-view/m-common";
 import { MSettingUI_Home } from "./setting/m-view/m-home";
 import { MSettingUI_Notes } from "./setting/m-view/m-note";
-import { PanelMenu } from "@components/setting/panel-menu";
+import { SettingUI_Article } from "./setting/view/article";
+import { SettingUI_Common } from "./setting/view/common";
 
 /* 修复一下Qmsg的loading图标问题 */
 addStyle(/*css*/ `

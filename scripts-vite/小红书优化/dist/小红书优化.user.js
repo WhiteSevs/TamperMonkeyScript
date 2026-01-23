@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.24
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -10,9 +10,11 @@
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
+// @require      Viewer
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -30,7 +32,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, Utils, Qmsg, Viewer) {
+(function (Qmsg, DOMUtils, pops, Utils, Viewer) {
   "use strict";
 
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -47,32 +49,24 @@
   var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
-  const blockCSS$2 =
-    "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n  display: none !important;\r\n}\r\n";
-  const XHSRouter = {
-    isArticle() {
-      return (
-        globalThis.location.pathname.startsWith("/discovery/item/") ||
-        globalThis.location.pathname.startsWith("/explore/")
-      );
-    },
-    isUserHome() {
-      return globalThis.location.pathname.startsWith("/user/profile/");
-    },
-    isHome() {
-      return (
-        globalThis.location.href === "https://www.xiaohongshu.com/" ||
-        globalThis.location.href === "https://www.xiaohongshu.com"
-      );
-    },
-    isSearch() {
-      return globalThis.location.pathname.startsWith("/search_result/");
-    },
-  };
   const GM_RESOURCE_MAPPING = {
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
+    },
+  };
+  const PanelSettingConfig = {
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom",
+    },
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3,
+    },
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false,
     },
   };
   const CommonUtil = {
@@ -292,8 +286,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -335,6 +329,130 @@
       return dataStr;
     },
   };
+  const utils = Utils.noConflict();
+  const domUtils = DOMUtils.noConflict();
+  const __pops__ = pops;
+  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  const AnyTouch = pops.config.Utils.AnyTouch();
+  const DEBUG = false;
+  log.config({
+    debug: false,
+    logMaxCount: 250,
+    autoClearConsole: true,
+    tag: true,
+  });
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.setting.type;
+      if (qmsgType === "loading") {
+        return false;
+      }
+      const content = qmsgInst.setting.content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+  });
+  __pops__.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      enable: true,
+      clickEvent: {
+        toClose: false,
+        toHide: false,
+      },
+    },
+    drag: true,
+  });
+  const MenuRegister = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG,
+  });
+  httpx.interceptors.request.use((data) => {
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
+  });
+  ({
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty,
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call,
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild,
+    },
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
+  });
+  const addStyle = domUtils.addStyle.bind(domUtils);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
+  new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -1082,7 +1200,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
@@ -1409,15 +1527,15 @@
     ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig =
+      const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
           return isBottom && it.id === "script-version";
         }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops__.panel({
+      const $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1450,6 +1568,15 @@
           height: PanelUISize.setting.height,
           drag: true,
           only: true,
+          style: `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
         },
         ...this.$data.panelConfig,
       });
@@ -1879,143 +2006,28 @@
       }
     },
   };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom",
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3,
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false,
-    },
-  };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
-  const DEBUG = false;
-  log.config({
-    debug: false,
-    logMaxCount: 250,
-    autoClearConsole: true,
-    tag: true,
-  });
-  Qmsg.config({
-    isHTML: true,
-    autoClose: true,
-    showClose: false,
-    consoleLogContent(qmsgInst) {
-      const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
-      const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
-      return true;
-    },
-    get position() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_position.key,
-        PanelSettingConfig.qmsg_config_position.defaultValue
-      );
-    },
-    get maxNums() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_maxnums.key,
-        PanelSettingConfig.qmsg_config_maxnums.defaultValue
-      );
-    },
-    get showReverse() {
-      return Panel.getValue(
-        PanelSettingConfig.qmsg_config_showreverse.key,
-        PanelSettingConfig.qmsg_config_showreverse.defaultValue
-      );
-    },
-    get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    },
-  });
-  __pops__.GlobalConfig.setGlobalConfig({
-    zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    },
-    mask: {
-      enable: true,
-      clickEvent: {
-        toClose: false,
-        toHide: false,
-      },
-    },
-    drag: true,
-  });
-  const MenuRegister = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
-  });
-  const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
-  });
-  httpx.interceptors.request.use((data) => {
-    return data;
-  });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
-    }
-    return data;
-  });
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty,
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call,
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
-    setTimeout: _unsafeWindow.setTimeout,
-  });
-  const addStyle = domUtils.addStyle.bind(domUtils);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
   const __viewer = Viewer;
+  const XHSRouter = {
+    isArticle() {
+      return (
+        globalThis.location.pathname.startsWith("/discovery/item/") ||
+        globalThis.location.pathname.startsWith("/explore/")
+      );
+    },
+    isUserHome() {
+      return globalThis.location.pathname.startsWith("/user/profile/");
+    },
+    isHome() {
+      return (
+        globalThis.location.href === "https://www.xiaohongshu.com/" ||
+        globalThis.location.href === "https://www.xiaohongshu.com"
+      );
+    },
+    isSearch() {
+      return globalThis.location.pathname.startsWith("/search_result/");
+    },
+  };
   const XHS_BASE_URL = "https://edith.xiaohongshu.com";
   const XHSApi = {
     async getPageInfo(note_id, cursor = "", xsec_token = "", top_comment_id = "", image_formats = "jpg,webp") {
@@ -2578,6 +2590,8 @@
       });
     },
   };
+  const blockCSS$2 =
+    "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box {\r\n  display: none !important;\r\n}\r\n";
   const M_XHSArticleBlock = {
     allowCopy() {
       log.info("允许复制");
@@ -2623,11 +2637,9 @@
       );
     },
   };
-  const blockCSS$1 =
-    "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box {\r\n  display: none !important;\r\n}\r\n";
   const M_XHSArticle = {
     init() {
-      addStyle(blockCSS$1);
+      addStyle(blockCSS$2);
       if (
         Panel.getValue("little-red-book-hijack-webpack-mask") ||
         Panel.getValue("little-red-book-hijack-webpack-scheme")
@@ -2856,8 +2868,8 @@
       };
       domUtils.waitNode(".narmal-note-container").then(async () => {
         log.info("优化评论浏览-笔记元素出现");
-        let noteViewContainer = $(".note-view-container");
-        let commentContainer = domUtils.createElement("div", {
+        const $noteViewContainer = $(".note-view-container");
+        const $commentContainer = domUtils.createElement("div", {
           className: "little-red-book-comments-container",
           innerHTML: `
           <style>
@@ -2966,34 +2978,34 @@
           </style>
         `,
         });
-        Comments.commentContainer = commentContainer;
+        Comments.commentContainer = $commentContainer;
         Comments.init();
-        let totalElement = domUtils.createElement("div", {
+        const $commentsTotal = domUtils.createElement("div", {
           className: "little-red-book-comments-total",
           innerHTML: `共 ${Comments.commentData["commentCount"] ?? Comments.noteData["comments"]} 条评论`,
         });
-        commentContainer.appendChild(totalElement);
+        $commentContainer.appendChild($commentsTotal);
         if (Comments.commentData && Comments.commentData["comments"]) {
           log.info("从固定的评论中加载");
           Comments.commentData["comments"].forEach((commentItem) => {
             let commentItemElement = Comments.getCommentElement(commentItem);
-            commentContainer.appendChild(commentItemElement);
+            $commentContainer.appendChild(commentItemElement);
           });
         }
-        domUtils.append(noteViewContainer, commentContainer);
+        domUtils.append($noteViewContainer, $commentContainer);
       });
     },
     optimizeImageBrowsing() {
       log.info("优化图片浏览");
-      function viewIMG(imgSrcList = [], index = 0) {
+      const viewIMG = function (imgSrcList = [], index = 0) {
         let viewerULNodeHTML = "";
         imgSrcList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
         });
-        let viewerULNode = domUtils.createElement("ul", {
+        const $viewerUL = domUtils.createElement("ul", {
           innerHTML: viewerULNodeHTML,
         });
-        let viewer = new __viewer(viewerULNode, {
+        const viewer = new __viewer($viewerUL, {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -3005,7 +3017,7 @@
         viewer.view(index);
         viewer.zoomTo(1);
         viewer.show();
-      }
+      };
       const callback = (event, $click) => {
         let imgElement = $click.querySelector("img");
         let imgList = [];
@@ -3027,15 +3039,17 @@
         log.success(["点击浏览图片👉", imgList[index]]);
         viewIMG(imgList, index);
       };
-      domUtils.on(document, "click", ".note-image-box", callback);
+      const listener = domUtils.on(document, "click", ".note-image-box", callback);
       return [
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer),
         () => {
-          domUtils.off(document, "click", ".note-image-box", callback);
+          listener.off();
         },
       ];
     },
   };
+  const blockCSS$1 =
+    "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n  display: none !important;\r\n}\r\n";
   const M_XHSHome = {
     init() {
       domUtils.onReady(() => {
@@ -3047,7 +3061,7 @@
     repariClick() {
       log.info("修复正确的点击跳转");
       const callback = (event) => {
-        let $click = event.target;
+        const $click = event.target;
         log.info(["点击的按钮元素", $click]);
         if ($click?.className?.includes("follow-btn")) {
           log.success("点击-关注按钮");
@@ -3057,15 +3071,12 @@
           log.success("点击-笔记/收藏按钮");
         } else if ($click?.closest("section.reds-note-card")) {
           log.success("点击-笔记卡片");
-          let sectionElement = $click?.closest("section.reds-note-card");
-          let note_id =
-            sectionElement.getAttribute("id") ||
-            utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
+          const $section = $click?.closest("section.reds-note-card");
+          const note_id =
+            $section.getAttribute("id") ||
+            utils.toJSON($section.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
           if (note_id) {
-            window.open(
-              `https://www.xiaohongshu.com/discovery/item/${$click?.closest("section.reds-note-card")?.getAttribute("id")}`,
-              "_blank"
-            );
+            window.open(`https://www.xiaohongshu.com/discovery/item/${note_id}`, "_blank");
           } else {
             Qmsg.error("获取笔记note_id失败");
           }
@@ -3073,12 +3084,12 @@
         domUtils.preventEvent(event);
         return false;
       };
-      domUtils.on(document, "click", callback, {
+      const listener = domUtils.on(document, "click", callback, {
         capture: true,
       });
       return [
         () => {
-          domUtils.off(document, "click", callback, { capture: true });
+          listener.off();
         },
       ];
     },
@@ -3087,7 +3098,7 @@
     init() {
       Panel.execMenuOnce("little-red-book-shieldAd", () => {
         log.info("注入默认屏蔽CSS");
-        return addStyle(blockCSS$2);
+        return addStyle(blockCSS$1);
       });
       Panel.execMenuOnce("little-red-book-allowCopy", () => {
         return M_XHS.allowCopy();
@@ -3108,74 +3119,6 @@
         }
         `
       );
-    },
-  };
-  const blockCSS = "";
-  const XHSBlock = {
-    init() {
-      Panel.execMenuOnce("pc-xhs-shieldAd", () => {
-        return addStyle(blockCSS);
-      });
-      Panel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
-        return this.blockSelectTextVisibleSearchPosition();
-      });
-      Panel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
-        return this.blockTopToolbar();
-      });
-      domUtils.onReady(() => {
-        Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
-          return this.blockLoginContainer();
-        });
-      });
-    },
-    blockLoginContainer() {
-      log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
-      const observer = utils.mutationObserver(document.body, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          let $close = $(".login-container .icon-btn-wrapper");
-          if ($close) {
-            $close.click();
-            log.success("登录弹窗出现，自动点击关闭按钮");
-          }
-        },
-      });
-      return [
-        CommonUtil.addBlockCSS(".login-container"),
-        () => {
-          observer?.disconnect();
-        },
-      ];
-    },
-    blockSelectTextVisibleSearchPosition() {
-      log.info("屏蔽选择文字弹出的搜索提示");
-      return CommonUtil.addBlockCSS(".search-position");
-    },
-    blockTopToolbar() {
-      log.info("【屏蔽】顶部工具栏");
-      return [
-        CommonUtil.addBlockCSS("#headerContainer", ".header-container"),
-        addStyle(
-          `
-			/* 主内容去除padding */
-			#mfContainer{
-				padding-top: 0 !important;
-			}
-			.outer-link-container{
-				margin-top: 0 !important;
-				height: 100vh !important;
-				padding: 30px 0;
-			}
-			#noteContainer{
-				height: 100%;
-			}
-			`
-        ),
-      ];
     },
   };
   const XHSUrlApi = {
@@ -3387,7 +3330,7 @@
         (keyList) => {
           const execFlag = keyList.some((__key__) => {
             let flag = !!Panel.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
               flag = false;
               log.warn(`.exec ${__key__} 被禁用`);
@@ -3402,19 +3345,19 @@
       });
     },
     optimizationSearch() {
-      function blankSearchText(searchText, isBlank = true) {
+      const blankSearchText = function (searchText, isBlank = true) {
         {
-          let $searchText = $("#search-input");
+          const $searchText = $("#search-input");
           if ($searchText) {
-            let searchText2 = $searchText.value;
-            let searchUrl = XHSUrlApi.getSearchUrl(searchText2);
+            const searchText2 = $searchText.value;
+            const searchUrl = XHSUrlApi.getSearchUrl(searchText2);
             log.info("搜索内容: " + searchText2);
             window.open(searchUrl, isBlank ? "_blank" : "_self");
           } else {
             Qmsg.error("未找到搜索的输入框");
           }
         }
-      }
+      };
       domUtils.waitNode("#search-input").then(($searchInput) => {
         $searchInput.placeholder = "搜索小红书";
         Panel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
@@ -3447,7 +3390,8 @@
     },
     fullWidth() {
       log.info("笔记宽屏");
-      let noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
+      const noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
+      const imageSize = Panel.getValue("pc-xhs-article-fullWidth-imageSize", 80);
       return addStyle(
         `
 		.main-container .main-content{
@@ -3463,26 +3407,38 @@
 		#noteContainer{
 			width: ${noteContainerWidth}vw;
 		}
+		@media (min-width: 960px) {
+			#noteContainer .media-container{
+				width: ${imageSize}% !important;
+				height: auto !important;
+			}
+		}
+		@media (max-width: 959px) {
+			#noteContainer .media-container{
+				height: ${imageSize}% !important;
+				width: auto !important;
+			}
+		}
 		`
       );
     },
     transformPublishTime() {
       log.info(`转换笔记发布时间`);
-      let lockFn = new utils.LockFunction(() => {
+      const lockFn = new utils.LockFunction(() => {
         $$(".note-content:not([data-edit-date])").forEach(($noteContent) => {
-          let vueInstance = VueUtils.getVue($noteContent);
-          if (!vueInstance) {
+          const vueInst = VueUtils.getVue($noteContent);
+          if (!vueInst) {
             return;
           }
-          let note = vueInstance?._?.props?.note;
+          const note = vueInst?._?.props?.note;
           if (note == null) {
             return;
           }
-          let publishTime = note.time;
-          let lastUpdateTime = note.lastUpdateTime;
-          let ipLocation = note.ipLocation;
+          const publishTime = note.time;
+          const lastUpdateTime = note.lastUpdateTime;
+          const ipLocation = note.ipLocation;
           if (typeof publishTime === "number") {
-            let detailTimeLocationInfo = [];
+            const detailTimeLocationInfo = [];
             detailTimeLocationInfo.push(`发布：${utils.formatTime(publishTime)}`);
             if (typeof lastUpdateTime === "number") {
               detailTimeLocationInfo.push(`修改：${utils.formatTime(lastUpdateTime)}`);
@@ -3490,7 +3446,7 @@
             if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
               detailTimeLocationInfo.push(ipLocation);
             }
-            let $date = $noteContent.querySelector(".date");
+            const $date = $noteContent.querySelector(".date");
             domUtils.html($date, detailTimeLocationInfo.join("<br>"));
             $noteContent.setAttribute("data-edit-date", "");
           }
@@ -3511,6 +3467,15 @@
           observer?.disconnect();
         },
       ];
+    },
+  };
+  const XHSNetworkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
     },
   };
   const UIButton = function (
@@ -3703,7 +3668,8 @@
     description,
     afterAddToUListCallBack,
     disabled,
-    valueChangeCallBack
+    valueChangeCallBack,
+    shortCutOption
   ) {
     const result = {
       text,
@@ -3723,7 +3689,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack,
+      afterAddToUListCallBack: (...args) => {},
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -4287,117 +4253,99 @@
       };
     }
   }
-  class RuleFilterView {
-    option;
-    $data = {
-      isFilteredData: [],
-    };
-    constructor(option) {
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops__.alert({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="filter-container"></div>
-                `,
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default",
-          },
-        },
-        drag: true,
-        mask: {
-          enable: true,
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = domUtils.createElement(
-          "button",
-          {
-            innerText: filterOption.name,
-          },
-          {
-            type: "button",
-          }
-        );
-        let execFilterAndCloseDialog = async () => {
-          this.$data.isFilteredData = [];
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (filterResult) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
-              domUtils.hide(ruleInfo.$el, false);
-              this.$data.isFilteredData.push(ruleInfo.data);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domUtils.on($button, "click", async (event) => {
-          domUtils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(event, execFilterAndCloseDialog);
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-    getFilteredData() {
-      return this.$data.isFilteredData;
-    }
-  }
   class RuleView {
     option;
     constructor(option) {
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops__.confirm({
+      const $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <div class="rule-view-container">
-                    </div>
-                    `,
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
           html: true,
         },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: fit-content;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+
+
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
         btn: {
           merge: true,
           reverse: false,
@@ -4417,56 +4365,7 @@
             },
           },
           cancel: {
-            enable: this.option?.bottomControls?.filter?.enable || false,
-            type: "default",
-            text: "过滤",
-            callback: async (details, event) => {
-              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                let result = await this.option.bottomControls.filter.callback();
-                if (typeof result === "boolean" && !result) {
-                  return;
-                }
-              }
-              let getAllRuleElement = () => {
-                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
-              };
-              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
-              if (domUtils.text($button).includes("取消")) {
-                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
-                  $button,
-                  getAllRuleElement,
-                });
-                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-                  return;
-                }
-                getAllRuleElement().forEach(($el) => {
-                  domUtils.show($el, false);
-                });
-                domUtils.text($button, "过滤");
-              } else {
-                let ruleFilterView = new RuleFilterView({
-                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
-                  filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack: async () => {
-                    domUtils.text($button, "取消过滤");
-                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
-                    const isFilteredData = ruleFilterView.getFilteredData();
-                    if (isFilteredData.length) {
-                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
-                    }
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleItemElement($el).data,
-                        $el,
-                      };
-                    });
-                  },
-                });
-                ruleFilterView.showView();
-              }
-            },
+            enable: false,
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -4519,71 +4418,128 @@
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: `
-            ${__pops__.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `,
       });
-      let allData = await this.option.data();
-      let changeButtonText = false;
-      let isFilteredDataLength = 0;
-      for (let index = 0; index < allData.length; index++) {
-        let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
-        let isNotFilterFlag = true;
-        if (typeof filterCallBack === "function") {
-          isNotFilterFlag = filterCallBack(item);
-        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag =
-            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
+      );
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-        if (!isNotFilterFlag) {
-          changeButtonText = true;
-          domUtils.hide($ruleItemList, false);
-          isFilteredDataLength++;
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-      }
-      if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
+        domUtils.on($externalSelect, "change", async (evt) => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async (evt) => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          isUpdateSelectData && updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+                continue;
+              }
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") {
+                flag = true;
+              } else {
+                flag = false;
+              }
+              if (!flag) {
+                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              }
+              if (!flag) {
+                continue;
+              }
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") {
+            externalIndex = filterCallBack.external;
+          } else {
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.external;
+            });
+          }
+          if (externalIndex !== -1) {
+            $externalSelect.selectedIndex = externalIndex;
+          }
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") {
+            ruleIndex = filterCallBack.rule;
+          } else {
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.rule;
+            });
+          }
+          if (ruleIndex !== -1) {
+            $ruleValueSelect.selectedIndex = ruleIndex;
+          }
+        }
+        await execFilter(true);
+      } else {
+        domUtils.hide($searchContainer, false);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -4654,20 +4610,28 @@
       editView.showView();
     }
     parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $container = $shadowRoot.querySelector(".rule-view-container");
+      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
+        $searchContainer,
+        $externalSelect,
+        $ruleValueSelect,
+        $searchInput,
       };
     }
     parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(".rule-controls-enable");
-      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(".rule-controls-delete");
+      const $enable = $ruleElement.querySelector(".rule-controls-enable");
+      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
+      const $edit = $ruleElement.querySelector(".rule-controls-edit");
+      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
         $enableSwitch,
@@ -4679,8 +4643,8 @@
       };
     }
     async createRuleItemElement(data, $shadowRoot) {
-      let name = await this.option.getDataItemName(data);
-      let $ruleItem = domUtils.createElement("div", {
+      const name = await this.option.getDataItemName(data);
+      const $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: `
 			<div class="rule-name">${name}</div>
@@ -4704,7 +4668,7 @@
 			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
-      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const switchCheckedClassName = "pops-panel-switch-is-checked";
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
@@ -4740,7 +4704,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops__.confirm({
+          const $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -4783,27 +4747,27 @@
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data) {
-      let { $container } = this.parseViewElement($shadowRoot);
-      let $ruleItem = [];
-      let iteratorData = Array.isArray(data) ? data : [data];
+      const { $container } = this.parseViewElement($shadowRoot);
+      const $ruleItem = [];
+      const iteratorData = Array.isArray(data) ? data : [data];
       for (let index = 0; index < iteratorData.length; index++) {
-        let item = iteratorData[index];
-        let $item = await this.createRuleItemElement(item, $shadowRoot);
-        $container.appendChild($item);
+        const item = iteratorData[index];
+        const $item = await this.createRuleItemElement(item, $shadowRoot);
         $ruleItem.push($item);
       }
+      domUtils.append($container, $ruleItem);
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
-      let data = await this.option.data();
+      const data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
     async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
@@ -4824,18 +4788,9 @@
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
-  const XHSNetworkHook = {
-    __ajaxHooker: null,
-    get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
-      return this.__ajaxHooker;
-    },
-  };
   class XHSArticleFilterBase {
     parseInfoDictData(info, showLog = false) {
-      let note_card = info?.note_card;
+      const note_card = info?.note_card;
       let articleId = info.id;
       let display_title = note_card.display_title;
       let isLike = Boolean(note_card?.interact_info?.liked);
@@ -5265,7 +5220,7 @@
 
 							</div>
 							<div class="pops-panel-button pops-panel-button-no-icon">
-								<button class="pops-panel-button_inner" type="default">
+								<button class="pops-panel-button_inner" data-type="default">
 									<i class="pops-bottom-icon" is-loading="false"></i>
 									<span class="pops-panel-button-text">添加额外属性</span>
 								</button>
@@ -5286,7 +5241,7 @@
                   innerHTML: `
 									<div class="dynamic-control-delete">
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="danger">
+											<button class="pops-panel-button_inner" data-type="danger">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">×</span>
 											</button>
@@ -5475,15 +5430,39 @@
             enable: true,
             option: [
               {
-                name: "过滤-已启用",
+                name: "启用",
+                value: "enable",
                 filterCallBack(data) {
                   return data.enable;
                 },
               },
               {
-                name: "过滤-未启用",
+                name: "未启用",
+                value: "notEnable",
                 filterCallBack(data) {
                   return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名称",
+                value: "name",
+                filterCallBack(data, value) {
+                  return !!data.name.match(value);
+                },
+              },
+              {
+                name: "备注",
+                value: "remarks",
+                filterCallBack(data, value) {
+                  let flag = !!data.data.remarks.match(value);
+                  if (!flag) {
+                    flag = !!data.dynamicData?.find((it) => {
+                      return !!it.remarks.match(value);
+                    });
+                  }
+                  return flag;
                 },
               },
             ],
@@ -5497,6 +5476,74 @@
         },
       });
       return ruleView;
+    },
+  };
+  const blockCSS = "";
+  const XHSBlock = {
+    init() {
+      Panel.execMenuOnce("pc-xhs-shieldAd", () => {
+        return addStyle(blockCSS);
+      });
+      Panel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
+        return this.blockSelectTextVisibleSearchPosition();
+      });
+      Panel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
+        return this.blockTopToolbar();
+      });
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
+          return this.blockLoginContainer();
+        });
+      });
+    },
+    blockLoginContainer() {
+      log.info("添加屏蔽登录弹窗CSS，监听登录弹窗出现");
+      const observer = utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          const $close = $(".login-container .icon-btn-wrapper");
+          if ($close) {
+            $close.click();
+            log.success("登录弹窗出现，自动点击关闭按钮");
+          }
+        },
+      });
+      return [
+        CommonUtil.addBlockCSS(".login-container"),
+        () => {
+          observer?.disconnect();
+        },
+      ];
+    },
+    blockSelectTextVisibleSearchPosition() {
+      log.info("屏蔽选择文字弹出的搜索提示");
+      return CommonUtil.addBlockCSS(".search-position");
+    },
+    blockTopToolbar() {
+      log.info("【屏蔽】顶部工具栏");
+      return [
+        CommonUtil.addBlockCSS("#headerContainer", ".header-container"),
+        addStyle(
+          `
+			/* 主内容去除padding */
+			#mfContainer{
+				padding-top: 0 !important;
+			}
+			.outer-link-container{
+				margin-top: 0 !important;
+				height: 100vh !important;
+				padding: 30px 0;
+			}
+			#noteContainer{
+				height: 100%;
+			}
+			`
+        ),
+      ];
     },
   };
   const XHS = {
@@ -5532,313 +5579,41 @@
         }
         return false;
       };
-      domUtils.on(_unsafeWindow, "copy", callback, {
+      const listener = domUtils.on(_unsafeWindow, "copy", callback, {
         capture: true,
       });
-      return {
-        destory() {
-          domUtils.off(_unsafeWindow, "copy", callback, { capture: true });
+      return [
+        () => {
+          listener.off();
         },
-      };
+      ];
     },
     openBlankArticle() {
       log.success("新标签页打开文章");
-      let callback = (event, $click) => {
+      const callback = (event, $click) => {
         if (!Panel.getValue("pc-xhs-open-blank-article")) return;
         domUtils.preventEvent(event);
-        let $url = $click.querySelector("a.cover[href]");
+        const $url = $click.querySelector("a.cover[href]");
         let url = $url?.href;
         if (url) {
           log.info("跳转文章: " + url);
-          let urlInstance = new URL(url);
-          urlInstance.pathname = urlInstance.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
-          url = urlInstance.toString();
+          const urlInst = new URL(url);
+          urlInst.pathname = urlInst.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
+          url = urlInst.toString();
           window.open(url, "_blank");
         } else {
           Qmsg.error("未找到文章链接");
         }
       };
-      domUtils.on(document, "click", ".feeds-container .note-item", callback, {
+      const listener = domUtils.on(document, "click", ".feeds-container .note-item", callback, {
         capture: true,
       });
-      return {
-        destory() {
-          domUtils.off(document, "click", ".feeds-container .note-item", callback, { capture: true });
+      return [
+        () => {
+          listener.off();
         },
-      };
+      ];
     },
-  };
-  const SettingUI_Common = {
-    id: "xhs-panel-config-common",
-    title: "通用",
-    views: [
-      {
-        type: "container",
-        text: "",
-        views: [
-          {
-            text: "Toast配置",
-            type: "deepMenu",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  UISelect(
-                    "Toast位置",
-                    "qmsg-config-position",
-                    "bottom",
-                    [
-                      {
-                        value: "topleft",
-                        text: "左上角",
-                      },
-                      {
-                        value: "top",
-                        text: "顶部",
-                      },
-                      {
-                        value: "topright",
-                        text: "右上角",
-                      },
-                      {
-                        value: "left",
-                        text: "左边",
-                      },
-                      {
-                        value: "center",
-                        text: "中间",
-                      },
-                      {
-                        value: "right",
-                        text: "右边",
-                      },
-                      {
-                        value: "bottomleft",
-                        text: "左下角",
-                      },
-                      {
-                        value: "bottom",
-                        text: "底部",
-                      },
-                      {
-                        value: "bottomright",
-                        text: "右下角",
-                      },
-                    ],
-                    (isSelectedInfo) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
-                    },
-                    "Toast显示在页面九宫格的位置"
-                  ),
-                  UISelect(
-                    "最多显示的数量",
-                    "qmsg-config-maxnums",
-                    3,
-                    [
-                      {
-                        value: 1,
-                        text: "1",
-                      },
-                      {
-                        value: 2,
-                        text: "2",
-                      },
-                      {
-                        value: 3,
-                        text: "3",
-                      },
-                      {
-                        value: 4,
-                        text: "4",
-                      },
-                      {
-                        value: 5,
-                        text: "5",
-                      },
-                    ],
-                    void 0,
-                    "限制Toast显示的数量"
-                  ),
-                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: "",
-        type: "container",
-        views: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  UISwitch("允许复制", "pc-xhs-allowCopy", true, void 0, "可以选择文字并复制"),
-                  UISwitch(
-                    "新标签页打开文章",
-                    "pc-xhs-open-blank-article",
-                    false,
-                    void 0,
-                    "点击文章不会在本页展开，会打开新标签页"
-                  ),
-                ],
-              },
-            ],
-          },
-          {
-            text: "搜索",
-            type: "deepMenu",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  UISwitch(
-                    "新标签页打开-搜索按钮",
-                    "pc-xhs-search-open-blank-btn",
-                    false,
-                    void 0,
-                    "点击右边的搜索按钮直接新标签页打开搜索内容"
-                  ),
-                  UISwitch(
-                    "新标签页打开-回车键",
-                    "pc-xhs-search-open-blank-keyboard-enter",
-                    false,
-                    void 0,
-                    "按下回车键直接新标签页打开搜索内容"
-                  ),
-                ],
-              },
-            ],
-          },
-          {
-            text: "屏蔽",
-            type: "deepMenu",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
-                  UISwitch("【屏蔽】登录弹窗", "pc-xhs-shield-login-dialog", true, void 0, "屏蔽会自动弹出的登录弹窗"),
-                  UISwitch(
-                    "【屏蔽】选择文字弹出的搜索提示",
-                    "pc-xhs-shield-select-text-search-position",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch("【屏蔽】顶部工具栏", "pc-xhs-shield-topToolbar", false, void 0, "屏蔽元素"),
-                ],
-              },
-            ],
-          },
-          {
-            type: "deepMenu",
-            text: "笔记过滤器",
-            views: [
-              {
-                text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
-                type: "container",
-                views: [
-                  UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
-                  UISwitch(
-                    "仅显示被过滤的笔记",
-                    "xhs-article-filter-only-show-filtered-video",
-                    false,
-                    void 0,
-                    "只会显示过滤规则命中的笔记"
-                  ),
-                  UIButton("笔记过滤规则", "可过滤笔记", "自定义", void 0, false, false, "primary", () => {
-                    XHSArticleFilter.showView();
-                  }),
-                ],
-              },
-              {
-                type: "container",
-                text: "",
-                views: [
-                  UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
-                    XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
-                  }),
-                  UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
-                    XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(_SCRIPT_NAME_ + "-视频过滤规则.json");
-                  }),
-                ],
-              },
-            ],
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-  const SettingUI_Article = {
-    id: "xhs-panel-config-article",
-    title: "笔记",
-    views: [
-      {
-        type: "container",
-        text: "功能",
-        views: [
-          UISwitch(
-            "显示发布、修改的绝对时间",
-            "pc-xhs-article-showPubsliushTime",
-            false,
-            void 0,
-            "注：需要开启<code>通用</code>-<code>劫持/拦截</code>-<code>劫持Vue</code>"
-          ),
-        ],
-      },
-      {
-        text: "笔记宽屏",
-        type: "container",
-        views: [
-          UISwitch(
-            "启用",
-            "pc-xhs-article-fullWidth",
-            false,
-            void 0,
-            `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
-          ),
-          UISlider(
-            "占据范围",
-            "pc-xhs-article-fullWidth-widthSize",
-            90,
-            30,
-            100,
-            (event, value) => {
-              let $noteContainer = $("#noteContainer");
-              if (!$noteContainer) {
-                log.error("未找到笔记容器");
-                return;
-              }
-              $noteContainer.style.width = `${value}vw`;
-            },
-            (value) => {
-              return `${value}%，默认：90%`;
-            },
-            "调整笔记页面占据的页面范围"
-          ),
-        ],
-      },
-    ],
   };
   const MSettingUI_Common = {
     id: "little-red-book-panel-config-common",
@@ -6073,6 +5848,308 @@
       },
     ],
   };
+  const SettingUI_Article = {
+    id: "xhs-panel-config-article",
+    title: "笔记",
+    views: [
+      {
+        type: "container",
+        text: "功能",
+        views: [
+          UISwitch(
+            "显示发布、修改的绝对时间",
+            "pc-xhs-article-showPubsliushTime",
+            false,
+            void 0,
+            "注：需要开启<code>通用</code>-<code>劫持/拦截</code>-<code>劫持Vue</code>"
+          ),
+        ],
+      },
+      {
+        text: "笔记宽屏",
+        type: "container",
+        views: [
+          UISwitch(
+            "启用",
+            "pc-xhs-article-fullWidth",
+            false,
+            void 0,
+            `让笔记占据宽屏，当页面可视宽度>=960px时才会触发该功能，当前页面可视宽度: ${window.innerWidth}px`
+          ),
+          UISlider(
+            "占据范围",
+            "pc-xhs-article-fullWidth-widthSize",
+            90,
+            30,
+            100,
+            (event, value) => {
+              let $noteContainer = $("#noteContainer");
+              if (!$noteContainer) {
+                log.error("未找到笔记容器");
+                return;
+              }
+              $noteContainer.style.width = `${value}vw`;
+            },
+            (value) => {
+              return `${value}%，默认：90%`;
+            },
+            "调整笔记页面占据的页面范围"
+          ),
+          UISlider(
+            "图片尺寸",
+            "pc-xhs-article-fullWidth-imageSize",
+            80,
+            30,
+            100,
+            (event, value) => {
+              let $noteContainer = $("#noteContainer");
+              if (!$noteContainer) {
+                log.error("未找到笔记容器");
+                return;
+              }
+              let $mediaContainer = $noteContainer.querySelector(".media-container");
+              if (!$mediaContainer) {
+                log.error("未找到媒体容器");
+                return;
+              }
+              if (window.innerWidth >= 960) {
+                $mediaContainer.style.width = `${value}%`;
+                $mediaContainer.style.height = "";
+              } else {
+                $mediaContainer.style.height = `${value}%`;
+                $mediaContainer.style.width = "";
+              }
+            },
+            (value) => {
+              return `${value}%，默认：80%`;
+            },
+            "横向布局时调整宽度，竖向布局时调整高度"
+          ),
+        ],
+      },
+    ],
+  };
+  const SettingUI_Common = {
+    id: "xhs-panel-config-common",
+    title: "通用",
+    views: [
+      {
+        type: "container",
+        text: "",
+        views: [
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角",
+                      },
+                      {
+                        value: "top",
+                        text: "顶部",
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角",
+                      },
+                      {
+                        value: "left",
+                        text: "左边",
+                      },
+                      {
+                        value: "center",
+                        text: "中间",
+                      },
+                      {
+                        value: "right",
+                        text: "右边",
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角",
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部",
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角",
+                      },
+                    ],
+                    (isSelectedInfo) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectedInfo.text);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1",
+                      },
+                      {
+                        value: 2,
+                        text: "2",
+                      },
+                      {
+                        value: 3,
+                        text: "3",
+                      },
+                      {
+                        value: 4,
+                        text: "4",
+                      },
+                      {
+                        value: 5,
+                        text: "5",
+                      },
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: "",
+        type: "container",
+        views: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("允许复制", "pc-xhs-allowCopy", true, void 0, "可以选择文字并复制"),
+                  UISwitch(
+                    "新标签页打开文章",
+                    "pc-xhs-open-blank-article",
+                    false,
+                    void 0,
+                    "点击文章不会在本页展开，会打开新标签页"
+                  ),
+                ],
+              },
+            ],
+          },
+          {
+            text: "搜索",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch(
+                    "新标签页打开-搜索按钮",
+                    "pc-xhs-search-open-blank-btn",
+                    false,
+                    void 0,
+                    "点击右边的搜索按钮直接新标签页打开搜索内容"
+                  ),
+                  UISwitch(
+                    "新标签页打开-回车键",
+                    "pc-xhs-search-open-blank-keyboard-enter",
+                    false,
+                    void 0,
+                    "按下回车键直接新标签页打开搜索内容"
+                  ),
+                ],
+              },
+            ],
+          },
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("【屏蔽】广告", "pc-xhs-shieldAd", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】登录弹窗", "pc-xhs-shield-login-dialog", true, void 0, "屏蔽会自动弹出的登录弹窗"),
+                  UISwitch(
+                    "【屏蔽】选择文字弹出的搜索提示",
+                    "pc-xhs-shield-select-text-search-position",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch("【屏蔽】顶部工具栏", "pc-xhs-shield-topToolbar", false, void 0, "屏蔽元素"),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "笔记过滤器",
+            views: [
+              {
+                text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+                type: "container",
+                views: [
+                  UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
+                  UISwitch(
+                    "仅显示被过滤的笔记",
+                    "xhs-article-filter-only-show-filtered-video",
+                    false,
+                    void 0,
+                    "只会显示过滤规则命中的笔记"
+                  ),
+                  UIButton("笔记过滤规则", "可过滤笔记", "自定义", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.showView();
+                  }),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
+                  }),
+                  UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+                    XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(_SCRIPT_NAME_ + "-视频过滤规则.json");
+                  }),
+                ],
+              },
+            ],
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [UISwitch("劫持Vue", "pc-xhs-hook-vue", true, void 0, "恢复__vue__属性")],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
   addStyle(
     `
 .qmsg svg.animate-turn {
@@ -6153,4 +6230,4 @@
       XHS.init();
     }
   }
-})(DOMUtils, pops, Utils, Qmsg, Viewer);
+})(Qmsg, DOMUtils, pops, Utils, Viewer);

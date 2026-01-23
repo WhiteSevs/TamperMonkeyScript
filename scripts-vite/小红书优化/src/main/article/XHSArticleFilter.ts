@@ -1,18 +1,18 @@
 import { DOMUtils, log, pops, utils } from "@/env";
+import { XHSNetworkHook } from "@/hook/XHSNetWorkHook";
 import { UIInput } from "@components/setting/components/ui-input";
-import { UISwitch } from "@components/setting/components/ui-switch";
 import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
 import { Panel } from "@components/setting/panel";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { RuleStorage } from "@components/utils/RuleStorage";
 import { RuleView } from "@components/utils/RuleView";
-import Utils from "@whitesev/utils";
 import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
-import Qmsg from "qmsg";
-import { XHSNetworkHook } from "@/hook/XHSNetWorkHook";
-import { CommonUtil } from "@components/utils/CommonUtil";
+import Utils from "@whitesev/utils";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import Qmsg from "qmsg";
 import { XHSArticleFilterBase } from "./XHSArticleFilterBase";
 
 type XHSArticleFilterOptionScope = "all" | "xhr-explore";
@@ -367,7 +367,7 @@ export const XHSArticleFilter = {
 
 							</div>
 							<div class="pops-panel-button pops-panel-button-no-icon">
-								<button class="pops-panel-button_inner" type="default">
+								<button class="pops-panel-button_inner" data-type="default">
 									<i class="pops-bottom-icon" is-loading="false"></i>
 									<span class="pops-panel-button-text">添加额外属性</span>
 								</button>
@@ -392,7 +392,7 @@ export const XHSArticleFilter = {
                 innerHTML: /*html*/ `
 									<div class="dynamic-control-delete">
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="danger">
+											<button class="pops-panel-button_inner" data-type="danger">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">×</span>
 											</button>
@@ -599,15 +599,39 @@ export const XHSArticleFilter = {
           enable: true,
           option: [
             {
-              name: "过滤-已启用",
+              name: "启用",
+              value: "enable",
               filterCallBack(data) {
                 return data.enable;
               },
             },
             {
-              name: "过滤-未启用",
+              name: "未启用",
+              value: "notEnable",
               filterCallBack(data) {
                 return !data.enable;
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名称",
+              value: "name",
+              filterCallBack(data, value) {
+                return !!data.name.match(value);
+              },
+            },
+            {
+              name: "备注",
+              value: "remarks",
+              filterCallBack(data, value) {
+                let flag = !!data.data.remarks.match(value);
+                if (!flag) {
+                  flag = !!data.dynamicData?.find((it) => {
+                    return !!it.remarks.match(value);
+                  });
+                }
+                return flag;
               },
             },
           ],

@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { log } from "@/env";
 import type { XHSArticleFilterOption } from "./XHSArticleFilter";
 
 type CheckRuleDetail = {
@@ -18,7 +18,7 @@ export class XHSArticleFilterBase {
    * @param showLog 是否显示日志输出
    */
   parseInfoDictData(info: XHSArticleInfo, showLog: boolean = false): XHSArticleHandlerInfo {
-    let note_card = info?.note_card;
+    const note_card = info?.note_card;
     /** 笔记id */
     let articleId = info.id;
     /**

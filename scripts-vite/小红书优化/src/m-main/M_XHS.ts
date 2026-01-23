@@ -1,9 +1,9 @@
-import blockCSS from "./css/block.css?raw";
-import { XHSRouter } from "@/router/XHSRouter";
-import { M_XHSArticle } from "./article/M_XHSArticle";
-import { M_XHSHome } from "./home/M_XHSHome";
 import { addStyle, log } from "@/env";
+import { XHSRouter } from "@/router/XHSRouter";
 import { Panel } from "@components/setting/panel";
+import { M_XHSArticle } from "./article/M_XHSArticle";
+import blockCSS from "./css/block.css?raw";
+import { M_XHSHome } from "./home/M_XHSHome";
 
 export const M_XHS = {
   init() {

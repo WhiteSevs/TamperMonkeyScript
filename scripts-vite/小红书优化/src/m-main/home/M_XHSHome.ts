@@ -17,7 +17,7 @@ export const M_XHSHome = {
   repariClick() {
     log.info("修复正确的点击跳转");
     const callback = (event: MouseEvent | PointerEvent) => {
-      let $click = event.target as HTMLElement;
+      const $click = event.target as HTMLElement;
       log.info(["点击的按钮元素", $click]);
       if ($click?.className?.includes("follow-btn")) {
         /* 关注按钮 */
@@ -33,17 +33,12 @@ export const M_XHSHome = {
       } else if ($click?.closest("section.reds-note-card")) {
         /* 笔记卡片 */
         log.success("点击-笔记卡片");
-        let sectionElement = $click?.closest("section.reds-note-card") as HTMLElement;
-        let note_id =
-          sectionElement.getAttribute("id") ||
-          utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
+        const $section = $click?.closest("section.reds-note-card") as HTMLElement;
+        const note_id =
+          $section.getAttribute("id") ||
+          utils.toJSON($section.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
         if (note_id) {
-          window.open(
-            `https://www.xiaohongshu.com/discovery/item/${
-              $click?.closest("section.reds-note-card")?.getAttribute("id") as string
-            }`,
-            "_blank"
-          );
+          window.open(`https://www.xiaohongshu.com/discovery/item/${note_id}`, "_blank");
         } else {
           Qmsg.error("获取笔记note_id失败");
         }
@@ -51,12 +46,12 @@ export const M_XHSHome = {
       DOMUtils.preventEvent(event);
       return false;
     };
-    DOMUtils.on(document, "click", callback, {
+    const listener = DOMUtils.on(document, "click", callback, {
       capture: true,
     });
     return [
       () => {
-        DOMUtils.off(document, "click", callback, { capture: true });
+        listener.off();
       },
     ];
   },

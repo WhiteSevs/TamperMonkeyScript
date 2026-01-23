@@ -1,7 +1,7 @@
-import blockCSS from "./css/block.css?raw";
 import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import blockCSS from "./css/block.css?raw";
 
 export const XHSBlock = {
   init() {
@@ -33,7 +33,7 @@ export const XHSBlock = {
       },
       immediate: true,
       callback: () => {
-        let $close = $(".login-container .icon-btn-wrapper");
+        const $close = $(".login-container .icon-btn-wrapper");
         if ($close) {
           $close.click();
           log.success("登录弹窗出现，自动点击关闭按钮");

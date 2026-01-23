@@ -1,7 +1,7 @@
 import { log } from "@/env";
-import { unsafeWindow } from "ViteGM";
 import { Hook } from "@components/hook/Hook";
 import { Panel } from "@components/setting/panel";
+import { unsafeWindow } from "ViteGM";
 
 /* 小红书劫持函数 */
 export const XHSHook = {
