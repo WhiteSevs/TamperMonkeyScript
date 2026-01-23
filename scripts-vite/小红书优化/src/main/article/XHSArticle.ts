@@ -107,6 +107,7 @@ export const XHSArticle = {
   fullWidth() {
     log.info("笔记宽屏");
     let noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
+    let imageSize = Panel.getValue("pc-xhs-article-fullWidth-imageSize", 80);
     return addStyle(/*css*/ `
 		.main-container .main-content{
 			padding-left: 0 !important;
@@ -120,6 +121,18 @@ export const XHSArticle = {
 		}
 		#noteContainer{
 			width: ${noteContainerWidth}vw;
+		}
+		@media (min-width: 960px) {
+			#noteContainer .media-container{
+				width: ${imageSize}% !important;
+				height: auto !important;
+			}
+		}
+		@media (max-width: 959px) {
+			#noteContainer .media-container{
+				height: ${imageSize}% !important;
+				width: auto !important;
+			}
 		}
 		`);
   },

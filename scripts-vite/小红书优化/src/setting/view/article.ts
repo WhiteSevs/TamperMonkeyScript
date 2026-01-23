@@ -50,6 +50,36 @@ const SettingUI_Article: PopsPanelContentConfig = {
           },
           "调整笔记页面占据的页面范围"
         ),
+        UISlider(
+          "图片尺寸",
+          "pc-xhs-article-fullWidth-imageSize",
+          80,
+          30,
+          100,
+          (event, value) => {
+            let $noteContainer = $<HTMLDivElement>("#noteContainer");
+            if (!$noteContainer) {
+              log.error("未找到笔记容器");
+              return;
+            }
+            let $mediaContainer = $noteContainer.querySelector<HTMLDivElement>(".media-container");
+            if (!$mediaContainer) {
+              log.error("未找到媒体容器");
+              return;
+            }
+            if (window.innerWidth >= 960) {
+              $mediaContainer.style.width = `${value}%`;
+              $mediaContainer.style.height = "";
+            } else {
+              $mediaContainer.style.height = `${value}%`;
+              $mediaContainer.style.width = "";
+            }
+          },
+          (value) => {
+            return `${value}%，默认：80%`;
+          },
+          "横向布局时调整宽度，竖向布局时调整高度"
+        ),
       ],
     },
   ],
