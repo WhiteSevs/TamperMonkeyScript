@@ -234,6 +234,7 @@ const TiebaHomeData = {
         "Sec-Fetch-Mode": "navigate",
         "Sec-Fetch-Site": "none",
         "User-Agent": utils.getRandomPCUA(),
+        Cookie: "TIEBA_NEW_PC=0",
       },
     });
     if (!response.status) {
@@ -250,7 +251,7 @@ const TiebaHomeData = {
     // 用户名
     let userName = "";
     // 显示的用户名
-    let showUserName = $doc.querySelector<HTMLSpanElement>(".userinfo_username")!.textContent!;
+    let showUserName = $doc.querySelector<HTMLSpanElement>(".userinfo_username")?.textContent ?? "";
 
     // 他的主页|他的成就 按钮
     let $navIcon = $doc.querySelector<HTMLAnchorElement>("a.nav_icon");

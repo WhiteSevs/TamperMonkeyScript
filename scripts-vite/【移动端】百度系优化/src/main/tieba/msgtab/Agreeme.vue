@@ -7,24 +7,27 @@
         </div>
         <div class="user-info-text">
           <div class="user-name">{{ item.agreeer.show_nickname || item.agreeer.name_show || item.agreeer.name }}</div>
-          <div class="user-time">{{ utils.formatTime(Number(item.time || item.op_time) * 1000) }}</div>
+          <div class="user-time">赞了你的回复 {{ utils.formatTime(Number(item.time || item.op_time) * 1000) }}</div>
         </div>
       </div>
-      <div class="user-content">赞了你的回复</div>
-      <div class="reply-content" v-if="item.post_info">
-        {{ item.post_info.author.name_show || item.post_info.author.name }}：{{
-          item.post_info.content.map((it) => it.text).join("")
+      <div class="reply-content" v-if="item.post_info != null">
+        {{
+          Array.isArray(item?.post_info?.content)
+            ? item?.post_info?.content.map((it) => it.text).join("")
+            : formatHTMLToText(item?.post_info?.content)
         }}
       </div>
       <div class="post-info" @click="gotoPost(item.thread_info.id)">
         <div class="post-info__inner">
-          <div class="post-image" v-if="item?.thread_info?.media?.[0]?.type == 3">
-            <img :src="item?.thread_info?.media?.[0]?.small_pic" alt="" />
+          <div class="post-image">
+            <img :src="item?.thread_info?.media?.[0]?.small_pic || TiebaIcon.nopc" alt="" />
           </div>
-          <div class="post-content">{{ item.thread_content.title }}</div>
+          <div class="post-content">
+            <p>{{ item.thread_content.title }}</p>
+            <p class="forum-name">{{ item.thread_info.fname }}吧</p>
+          </div>
         </div>
       </div>
-      <div class="fname-text" @click="gotoForum(item.thread_info.fname)">{{ item.thread_info.fname }}</div>
     </div>
     <el-empty description="暂无更多数据" v-if="postList.length === 0" />
     <div id="load-more" class="bottom-msg" v-show="hasMore && postList.length != 0">正在加载...</div>
@@ -33,9 +36,10 @@
 </template>
 
 <script lang="ts" setup>
-  import { $, log, utils } from "@/env";
+  import { $, DOMUtils, log, utils } from "@/env";
   import { TiebaSmallAppApi } from "../api/TiebaSmallAppApi";
   import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+  import { TiebaIcon } from "../data/Icon";
   let id = ref("");
   let isFirstLoad = ref(false);
   let isLoading = ref(false);
@@ -43,6 +47,15 @@
   let postList = ref<
     Required<Exclude<Awaited<ReturnType<typeof TiebaSmallAppApi.agreeme>>, undefined>>["agree_list"][0][]
   >([]);
+
+  const formatHTMLToText = (html: string | string[] | null | undefined) => {
+    if (html == null) return "";
+    if (Array.isArray(html)) {
+      return formatHTMLToText(html.join(""));
+    }
+    const $el = DOMUtils.toElement(html, false, true);
+    return DOMUtils.text($el);
+  };
 
   let observe = new IntersectionObserver(
     (entries) => {
@@ -116,6 +129,7 @@
     gap: 10px;
     padding: 10px 15px;
     border-bottom: 5px solid #efefef;
+    --forum-icon-size: 56px;
   }
 
   .post-list-item:last-child {
@@ -155,8 +169,8 @@
   .post-info__inner {
     display: flex;
     align-items: center;
-    height: 100px;
     width: 100%;
+    padding: 8px;
   }
 
   .post-content {
@@ -170,8 +184,8 @@
   }
 
   .post-image {
-    width: 100px;
-    height: 100px;
+    width: var(--forum-icon-size);
+    height: var(--forum-icon-size);
   }
 
   .post-image img {
@@ -188,5 +202,13 @@
     text-align: center;
     color: #999;
     padding: 10px 0;
+  }
+
+  .forum-name {
+    color: #848691;
+    font-size: 14px;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
   }
 </style>

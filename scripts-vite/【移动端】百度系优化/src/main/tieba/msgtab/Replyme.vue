@@ -10,28 +10,31 @@
             {{ item.replyer.name_show || item.replyer.name }}
           </div>
           <div class="user-time">
-            评论了你的{{ item.is_floor === 1 ? "回复" : "帖子" }} {{ utils.formatTime(Number(item.time) * 1000) }}
+            回复了你的{{ item.is_floor === 1 ? "评论" : "帖子" }} {{ utils.formatTime(Number(item.time) * 1000) }}
           </div>
         </div>
       </div>
       <div class="reply-content">
-        {{ item.content }}
-      </div>
-      <div class="post-info">
+        <p>{{ item.content }}</p>
         <div
           class="quote-user"
           v-if="item.quote_pid"
           @click="gotoLzlPost(item.thread_id, item.post_id, item.quote_pid)">
-          {{ item.quote_user.name_show || item.quote_user.name }}：{{ item.quote_content }}
-        </div>
-        <div class="post-info__inner" @click="gotoPost(item.thread_id)">
-          <div class="post-image" v-if="item?.thread_img_url || item?.thread_content?.img">
-            <img :src="item?.thread_img_url || item?.thread_content?.img" alt="" />
-          </div>
-          <div class="post-content">{{ item.title || item.thread_content.title }}</div>
+          <span class="biao"></span>
+          <span>{{ item.quote_user.name_show || item.quote_user.name }}：{{ item.quote_content }}</span>
         </div>
       </div>
-      <div class="fname-text" @click="gotoForum(item.fname)">{{ item.fname }}</div>
+      <div class="post-info">
+        <div class="post-info__inner" @click="gotoPost(item.thread_id)">
+          <div class="post-image">
+            <img :src="item?.thread_img_url || item?.thread_content?.img || TiebaIcon.nopc" alt="" />
+          </div>
+          <div class="post-content">
+            <p>{{ item.title || item.thread_content.title }}</p>
+            <p class="forum-name">{{ item.fname }}吧</p>
+          </div>
+        </div>
+      </div>
     </div>
     <el-empty description="暂无更多数据" v-if="postList.length === 0" />
     <div id="load-more" class="bottom-msg" v-show="hasMore && postList.length != 0">正在加载...</div>
@@ -43,6 +46,7 @@
   import { $, log, utils } from "@/env";
   import { TiebaSmallAppApi } from "../api/TiebaSmallAppApi";
   import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+  import { TiebaIcon } from "../data/Icon";
 
   let pn = ref(1);
   let isFirstLoad = ref(false);
@@ -132,6 +136,19 @@
     gap: 10px;
     padding: 10px 15px;
     border-bottom: 5px solid #efefef;
+    --forum-icon-size: 56px;
+  }
+
+  .post-list-item .biao {
+    display: inline-block;
+    vertical-align: -10%;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    background: #eee;
+    width: 4px;
+    height: 16px;
+    margin-right: 5px;
+    border-radius: 4px;
   }
 
   .post-list-item:last-child {
@@ -155,9 +172,14 @@
     border-radius: 50%;
   }
 
-  .reply-content {
+  .reply-content p {
     font-size: 0.9em;
-    color: #4a4a4a;
+  }
+
+  .reply-content .quote-user {
+    padding-left: 4px;
+    color: #848691;
+    margin-top: 2px;
   }
 
   .post-info {
@@ -171,8 +193,8 @@
   .post-info__inner {
     display: flex;
     align-items: center;
-    height: 100px;
     width: 100%;
+    padding: 8px;
   }
 
   .post-content {
@@ -185,25 +207,9 @@
     margin-left: 5px;
   }
 
-  .post-info:has(.quote-user) {
-    flex-direction: column;
-    align-items: start;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .post-info:has(.quote-user) .post-content {
-    flex: 1;
-    align-content: center;
-    padding: 0px 10px;
-    margin-left: 0px;
-    background: #fff;
-    height: inherit;
-  }
-
   .post-image {
-    width: 100px;
-    height: 100px;
+    width: var(--forum-icon-size);
+    height: var(--forum-icon-size);
   }
 
   .post-image img {
@@ -220,5 +226,13 @@
     text-align: center;
     color: #999;
     padding: 10px 0;
+  }
+
+  .forum-name {
+    color: #848691;
+    font-size: 14px;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
   }
 </style>
