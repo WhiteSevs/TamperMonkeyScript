@@ -213,7 +213,7 @@ export const MTCommentFilter = {
      * 自定义存储api的配置
      * @param uuid
      */
-    function generateStorageApi(data: any) {
+    const generateStorageApi = function (data: any) {
       return {
         get(key: string, defaultValue: any) {
           let localData = that.getData();
@@ -233,68 +233,68 @@ export const MTCommentFilter = {
           that.setData(data);
         },
       };
-    }
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
-    let view = new RuleEditView({
+    };
+    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const view = new RuleEditView({
       title: "评论过滤器",
       data: () => {
         return this.getData();
       },
       getView: (data) => {
-        let $fragment = document.createDocumentFragment();
+        const $fragment = document.createDocumentFragment();
 
         // 启用
-        let enable_template = UISwitch("启用", "enable", true);
+        const enable_template = UISwitch("启用", "enable", true);
         Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+        const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
         // 是否处理回复引用
-        let replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
+        const replyFlag_template = UISwitch("处理回复引用", "replyFlag", false, void 0, "移除引用");
         Reflect.set(replyFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template).$el;
+        const $replyFlag = panelHandlerComponents.createSectionContainerItem_switch(replyFlag_template).$el;
 
         // 是否处理作者评论
-        let avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
+        const avatarFlag_template = UISwitch("处理作者评论", "avatarFlag", false);
         Reflect.set(avatarFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template).$el;
+        const $avatarFlag = panelHandlerComponents.createSectionContainerItem_switch(avatarFlag_template).$el;
         // 是否处理从"搜索页面"或"我的帖子提醒页面"进入的网站
-        let viewthreadFlag_template = UISwitch(
+        const viewthreadFlag_template = UISwitch(
           '处理从"搜索页面"或"我的帖子提醒页面"进入的网站',
           "viewthreadFlag",
           false
         );
         Reflect.set(viewthreadFlag_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template).$el;
+        const $viewthreadFlag = panelHandlerComponents.createSectionContainerItem_switch(viewthreadFlag_template).$el;
 
-        let minLength_template = UIInputNumber(
+        const minLength_template = UIInputNumber(
           "匹配的评论内容长度最小值",
           "minLength",
           5,
           "小于此长度的评论就算关键字匹配成功了也不会被排除"
         );
         Reflect.set(minLength_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template).$el;
+        const $minLength = panelHandlerComponents.createSectionContainerItem_input(minLength_template).$el;
 
-        let keywordLength = UIInputNumber(
+        const keywordLength = UIInputNumber(
           "匹配的评论内容长度最大值",
           "keywordLength",
           8,
           "大于此长度的评论就算关键字匹配成功了也不会被排除"
         );
         Reflect.set(keywordLength.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength).$el;
+        const $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength).$el;
 
-        let keywords_template = UITextArea("评论关键字", "keywords", "", "多个评论关键字换行分割", void 0);
+        const keywords_template = UITextArea("评论关键字", "keywords", "", "多个评论关键字换行分割", void 0);
 
         Reflect.set(keywords_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
+        const $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
 
-        let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割", void 0);
+        const userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割", void 0);
         Reflect.set(userBlackList_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template).$el;
-        let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割", void 0);
+        const $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template).$el;
+        const userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割", void 0);
         Reflect.set(userWhiteList_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-        let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template).$el;
+        const $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template).$el;
 
         $fragment.append(
           $enable,
@@ -325,19 +325,20 @@ export const MTCommentFilter = {
           text: `查看已过滤（${this.$el.isFilterElementHTML.length}）`,
           type: "primary",
           callback: (details, event) => {
-            let $alert = pops.alert({
+            pops.alert({
               title: {
                 text: "评论过滤器-已过滤",
                 position: "center",
               },
               content: {
+                // 收集页面上的样式链接并插入到shadowRoot中
                 text: /*html*/ `
-                                ${Array.from($$('link[rel="stylesheet"]'))
-                                  .map((item) => item.outerHTML)
-                                  .join("\n")}
+                ${Array.from($$('link[rel="stylesheet"]'))
+                  .map((item) => item.outerHTML)
+                  .join("\n")}
 
-                                ${this.$el.isFilterElementHTML.join("\n")}
-                                `,
+                ${this.$el.isFilterElementHTML.join("\n")}
+                `,
                 html: true,
               },
               style: /*css*/ `
@@ -362,19 +363,19 @@ export const MTCommentFilter = {
         };
       },
       style: /*css*/ `
-            .pops-panel-item-left-desc-text{
-                line-height: normal;
-                margin-top: 6px;
-                font-size: 0.8em;
-                color: rgb(108, 108, 108);
-            }
-            .pops-panel-item-left-main-text{
-                max-width: unset;
-            }
-            .pops-panel-textarea textarea{
-                height: 150px;
-            }
-            `,
+      .pops-panel-item-left-desc-text{
+          line-height: normal;
+          margin-top: 6px;
+          font-size: 0.8em;
+          color: rgb(108, 108, 108);
+      }
+      .pops-panel-item-left-main-text{
+          max-width: unset;
+      }
+      .pops-panel-textarea textarea{
+          height: 150px;
+      }
+      `,
     });
     view.showView();
   },
