@@ -119,7 +119,7 @@ export const CookieRule = {
      * 当前网站匹配的规则
      */
     const matchedRuleList = this.getMatchedRuleList();
-    let ruleView = new RuleView({
+    const ruleView = new RuleView({
       title: "Cookie规则",
       data: () => {
         return this.getData();
@@ -137,8 +137,8 @@ export const CookieRule = {
         return this.deleteData(data);
       },
       getData: (data) => {
-        let allData = this.getData();
-        let findValue = allData.find((item) => item.uuid === data.uuid);
+        const allData = this.getData();
+        const findValue = allData.find((item) => item.uuid === data.uuid);
         return findValue ?? data;
       },
       itemControls: {
@@ -155,24 +155,24 @@ export const CookieRule = {
         edit: {
           enable: true,
           getView: (data, isEdit) => {
-            let $fragment = document.createDocumentFragment();
-            let templateData = this.getTemplateData();
+            const $fragment = document.createDocumentFragment();
+            const templateData = this.getTemplateData();
             if (!isEdit) {
               data = templateData;
             }
 
             // 启用
-            let enable_template = UISwitch("启用", "enable", templateData.enable);
+            const enable_template = UISwitch("启用", "enable", templateData.enable);
             Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+            const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
             // 规则名称
-            let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
+            const name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
             Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-            let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+            const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
             // 执行的Api
-            let apiName_template = UISelect<NonNullable<CookieRuleData["data"]["execApiName"]>>(
+            const apiName_template = UISelect<NonNullable<CookieRuleData["data"]["execApiName"]>>(
               "Cookie管理Api",
               "execApiName",
               templateData.data.execApiName!,
@@ -192,26 +192,26 @@ export const CookieRule = {
               "操作Cookie的Api函数"
             );
             Reflect.set(apiName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
+            const $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
 
             // 匹配的网址
-            let url_template = UIInput("网址", "url", templateData.data.url, "用于执行该规则的网址", void 0, "必填");
+            const url_template = UIInput("网址", "url", templateData.data.url, "用于执行该规则的网址", void 0, "必填");
             Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
+            const $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
             // 使用正则来匹配网址
-            let enableRegExpToMatchUrl_template = UISwitch(
+            const enableRegExpToMatchUrl_template = UISwitch(
               "启用正则匹配网址",
               "enableRegExpToMatchUrl",
               templateData.data.enableRegExpToMatchUrl
             );
             Reflect.set(enableRegExpToMatchUrl_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
+            const $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
               enableRegExpToMatchUrl_template
             ).$el;
 
             // Cookie名称
-            let cookieName_template = UIInput(
+            const cookieName_template = UIInput(
               "Cookie名称",
               "cookieName",
               templateData.data.cookieName,
@@ -220,10 +220,10 @@ export const CookieRule = {
               "必填"
             );
             Reflect.set(cookieName_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
+            const $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
 
             // 显示的标签图标
-            let enableRegExpToMatchCookieName_template = UISwitch(
+            const enableRegExpToMatchCookieName_template = UISwitch(
               "启用正则匹配Cookie名称",
               "enableRegExpToMatchCookieName",
               templateData.data.enableRegExpToMatchCookieName
@@ -233,11 +233,11 @@ export const CookieRule = {
               PROPS_STORAGE_API,
               generateStorageApi(data.data)
             );
-            let $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
+            const $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
               enableRegExpToMatchCookieName_template
             ).$el;
 
-            let operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
+            const operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
               {
                 value: "delete",
                 text: "删除Cookie",
@@ -260,11 +260,11 @@ export const CookieRule = {
               },
             ]);
             Reflect.set(operationMode_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
+            const $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
 
-            let remark_template = UITextArea("备注", "remark", templateData.data.remark);
+            const remark_template = UITextArea("备注", "remark", templateData.data.remark);
             Reflect.set(remark_template.props!, PROPS_STORAGE_API, generateStorageApi(data.data));
-            let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
+            const $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
 
             $fragment.append(
               $enable,
@@ -281,19 +281,19 @@ export const CookieRule = {
           },
           onsubmit: ($form, isEdit, editData) => {
             // 提交表单
-            let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-            let data: CookieRuleData = this.getTemplateData();
+            const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+            const data: CookieRuleData = this.getTemplateData();
             if (isEdit) {
               data.uuid = editData!.uuid;
             }
             try {
               $ulist_li.forEach(($li) => {
-                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                let attrs = Reflect.get(viewConfig, "attributes");
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
+                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                const attrs = Reflect.get(viewConfig, "attributes");
+                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                const value = storageApi.get(key, defaultValue);
                 if (Reflect.has(data, key)) {
                   Reflect.set(data, key, value);
                 } else if (Reflect.has(data.data, key)) {
@@ -345,9 +345,9 @@ export const CookieRule = {
             }
           },
           style: /*css*/ `
-                    .pops-panel-textarea textarea{
-                        height: 150px;
-                    }
+          .pops-panel-textarea textarea{
+              height: 150px;
+          }
 					.pops-panel-item-left-desc-text{
 						line-height: normal;
 						margin-top: 6px;
@@ -355,7 +355,7 @@ export const CookieRule = {
 						color: rgb(108, 108, 108);
 						max-width: 100px;
 					}
-                    `,
+          `,
         },
         delete: {
           enable: true,
@@ -369,21 +369,54 @@ export const CookieRule = {
           enable: true,
           option: [
             {
-              name: "过滤-已启用",
+              name: "启用",
+              value: "enable",
               filterCallBack(data) {
                 return data.enable;
               },
             },
             {
-              name: "过滤-未启用",
+              name: "未启用",
+              value: "notEnable",
               filterCallBack(data) {
                 return !data.enable;
               },
             },
             {
-              name: "过滤-当前网站执行",
+              name: "当前网站执行",
+              value: "currentSite",
               filterCallBack(data) {
                 return matchedRuleList.some((it) => it.uuid === data.uuid);
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名称",
+              value: "url",
+              filterCallBack(data, searchText) {
+                return Boolean(data.name.match(searchText));
+              },
+            },
+            {
+              name: "网址",
+              value: "url",
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.url.match(searchText));
+              },
+            },
+            {
+              name: "Cookie名称",
+              value: "cookieName",
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.cookieName.match(searchText));
+              },
+            },
+            {
+              name: "备注",
+              value: "remark",
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.remark.match(searchText));
               },
             },
           ],
@@ -429,8 +462,8 @@ export const CookieRule = {
    * @param data
    */
   addData(data: CookieRuleData) {
-    let localData = this.getData();
-    let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
+    const localData = this.getData();
+    const findIndex = localData.findIndex((item) => item.uuid == data.uuid);
     if (findIndex === -1) {
       localData.push(data);
       GM_setValue(this.$key.STORAGE_KEY, localData);
@@ -444,8 +477,8 @@ export const CookieRule = {
    * @param data
    */
   updateData(data: CookieRuleData) {
-    let localData = this.getData();
-    let index = localData.findIndex((item) => item.uuid == data.uuid);
+    const localData = this.getData();
+    const index = localData.findIndex((item) => item.uuid == data.uuid);
     let updateFlag = false;
     if (index !== -1) {
       updateFlag = true;
@@ -459,8 +492,8 @@ export const CookieRule = {
    * @param data
    */
   deleteData(data: CookieRuleData) {
-    let localData = this.getData();
-    let index = localData.findIndex((item) => item.uuid == data.uuid);
+    const localData = this.getData();
+    const index = localData.findIndex((item) => item.uuid == data.uuid);
     let deleteFlag = false;
     if (index !== -1) {
       deleteFlag = true;
@@ -479,10 +512,10 @@ export const CookieRule = {
    * 导出规则
    */
   exportRule(fileName = "rule.json") {
-    let allRule = this.getData();
-    let blob = new Blob([JSON.stringify(allRule, null, 4)]);
-    let blobUrl = window.URL.createObjectURL(blob);
-    let $a = DOMUtils.createElement("a");
+    const allRule = this.getData();
+    const blob = new Blob([JSON.stringify(allRule, null, 4)]);
+    const blobUrl = window.URL.createObjectURL(blob);
+    const $a = DOMUtils.createElement("a");
     $a.href = blobUrl;
     $a.download = fileName;
     $a.click();
@@ -494,7 +527,7 @@ export const CookieRule = {
    * 导入规则
    */
   importRule() {
-    let $alert = pops.alert({
+    const $alert = pops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
@@ -519,12 +552,12 @@ export const CookieRule = {
                 }
             `,
     });
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='local']")!;
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='network']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='local']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".import-mode[data-mode='network']")!;
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
@@ -532,10 +565,10 @@ export const CookieRule = {
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
-          let data = utils.toJSON(fileReader.result as string);
+          const data = utils.toJSON(fileReader.result as string);
           if (!Array.isArray(data)) {
             log.error("不是正确的规则文件", data);
             Qmsg.error("不是正确的规则文件");
@@ -564,16 +597,16 @@ export const CookieRule = {
         btn: {
           ok: {
             callback: async (eventDetails, event) => {
-              let url = eventDetails.text;
+              const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
                 return;
               }
-              let response = await httpx.get(url);
+              const response = await httpx.get(url);
               if (!response.status) {
                 return;
               }
-              let data = utils.toJSON(response.data.responseText);
+              const data = utils.toJSON(response.data.responseText);
               if (!Array.isArray(data)) {
                 log.error("不是正确的规则文件", response, data);
                 Qmsg.error("不是正确的规则文件");

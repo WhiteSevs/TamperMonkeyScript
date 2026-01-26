@@ -11,8 +11,8 @@ import { CookieManager } from "./CookieManager";
 /**
  * 编辑UI-输入框
  */
-let edit_ui_input = (text: string, getValue: () => string, setValue: (value: string) => void, disabled?: boolean) => {
-  let config: PopsPanelInputConfig = {
+const edit_ui_input = (text: string, getValue: () => string, setValue: (value: string) => void, disabled?: boolean) => {
+  const config: PopsPanelInputConfig = {
     text: text,
     type: "input",
     props: {},
@@ -32,13 +32,13 @@ let edit_ui_input = (text: string, getValue: () => string, setValue: (value: str
 /**
  * 编辑UI-多行文本框
  */
-let edit_ui_textarea = (
+const edit_ui_textarea = (
   text: string,
   getValue: () => string,
   setValue: (value: string) => void,
   disabled?: boolean
 ) => {
-  let config: PopsPanelTextAreaConfig = {
+  const config: PopsPanelTextAreaConfig = {
     text: text,
     type: "textarea",
     props: {},
@@ -59,14 +59,14 @@ let edit_ui_textarea = (
 /**
  * 编辑UI-选择框
  */
-let edit_ui_select = <T>(
+const edit_ui_select = <T>(
   text: string,
   data: PopsPanelSelectConfig<T>["data"] | (() => PopsPanelSelectConfig<T>["data"]),
   getValue: () => T,
   setValue: (selectedValue: T) => void,
   disabled?: boolean
 ) => {
-  let config: PopsPanelSelectConfig<T> = {
+  const config: PopsPanelSelectConfig<T> = {
     text: text,
     type: "select",
     description: "",
@@ -81,6 +81,7 @@ let edit_ui_select = <T>(
     },
     data: typeof data === "function" ? data() : data,
     disabled: Boolean(disabled),
+    width: "100%",
   };
   return config;
 };
@@ -132,8 +133,11 @@ export const CookieManagerEditView = {
         ok: {
           text: isEdit ? "编辑" : "添加",
           async callback(eventDetails, event) {
-            let valid = CookieManagerEditView.validCookieInfo(cookieInfo);
-            if (!valid) {
+            const valid = CookieManagerEditView.validCookieInfo(cookieInfo);
+            if (!valid.status) {
+              if (typeof valid.msg === "string") {
+                Qmsg.error(valid.msg);
+              }
               return;
             }
             // 把值进行编码
@@ -141,7 +145,7 @@ export const CookieManagerEditView = {
             cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
             if (isEdit) {
               // 编辑
-              let result = await CookieManager.updateCookie(cookieInfo);
+              const result = await CookieManager.updateCookie(cookieInfo);
               if (result) {
                 Qmsg.error(result.toString());
               } else {
@@ -150,7 +154,7 @@ export const CookieManagerEditView = {
               }
             } else {
               // 添加
-              let result = await CookieManager.addCookie(cookieInfo);
+              const result = await CookieManager.addCookie(cookieInfo);
               if (result) {
                 Qmsg.error(result.toString());
               } else {
@@ -173,47 +177,50 @@ export const CookieManagerEditView = {
       width: PanelUISize.settingMiddle.width,
       height: "auto",
       style: /*css*/ `
-                ${pops.config.cssText.panelCSS}
+      ${pops.config.cssText.panelCSS}
 
-                .pops-panel-input input:disabled{
-                    color: #b4b4b4;
-                }
-                .pops-confirm-content{
-                    padding: 10px;
-                }
-                .pops-confirm-content li{
-                    display: flex;
-                    flex-direction: column;
-                }
-                .pops-panel-item-left-text{
-                    margin-bottom: 5px;
-                }
-                .pops-panel-input.pops-input-disabled{
-                    border: 1px solid #dcdfe6;
-                }
-				.pops-panel-textarea textarea{
-					resize: auto;
-					border-radius: 4px;
-				}
-				#cookie-item-property-expires{
-					border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
-					border-radius: 4px;
-					background-color: #ffffff;
-					width: 100%;
-					height: 32px;
-					padding: 0px 8px;
-				}
-				#cookie-item-property-expires:hover{
-					border: 1px solid #c0c4cc
-				}
-				#cookie-item-property-expires:focus,
-				#cookie-item-property-expires:focus-within{
-					outline: 0;
-					border: 1px solid #409eff;
-					border-radius: 4px;
-					box-shadow: none;
-				}
-            `,
+      .pops-panel-input input:disabled{
+          color: #b4b4b4;
+      }
+      .pops-confirm-content{
+          padding: 10px;
+      }
+      .pops-confirm-content li{
+          display: flex;
+          flex-direction: column;
+      }
+      .pops-panel-item-left-text{
+          margin-bottom: 5px;
+      }
+      .pops-panel-input.pops-input-disabled{
+          border: 1px solid #dcdfe6;
+      }
+      .pops-panel-textarea textarea{
+        resize: auto;
+        border-radius: 4px;
+      }
+      .pops-panel-input{
+        width: 100%;
+      }
+      #cookie-item-property-expires{
+        border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
+        border-radius: 4px;
+        background-color: #ffffff;
+        width: 100%;
+        height: 32px;
+        padding: 0px 8px;
+      }
+      #cookie-item-property-expires:hover{
+        border: 1px solid #c0c4cc
+      }
+      #cookie-item-property-expires:focus,
+      #cookie-item-property-expires:focus-within{
+        outline: 0;
+        border: 1px solid #409eff;
+        border-radius: 4px;
+        box-shadow: none;
+      }
+      `,
     });
     const $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-content")!;
 
@@ -367,19 +374,30 @@ export const CookieManagerEditView = {
   /**
    * Cookie信息校验
    */
-  validCookieInfo(cookieInfo: GMCookieInstance): boolean {
+  validCookieInfo(cookieInfo: GMCookieInstance): {
+    status: boolean;
+    msg?: string;
+  } {
     if (cookieInfo.name == null || cookieInfo.name == "") {
-      Qmsg.error("name不能为空");
-      return false;
+      return {
+        status: false,
+        msg: "name不能为空",
+      };
     }
     if (cookieInfo.domain == null || cookieInfo.domain == "") {
-      Qmsg.error("domain不能为空");
-      return false;
+      return {
+        status: false,
+        msg: "domain不能为空",
+      };
     }
     if (cookieInfo.path == null || cookieInfo.path == "") {
-      Qmsg.error("path不能为空");
-      return false;
+      return {
+        status: false,
+        msg: "path不能为空",
+      };
     }
-    return true;
+    return {
+      status: true,
+    };
   },
 };

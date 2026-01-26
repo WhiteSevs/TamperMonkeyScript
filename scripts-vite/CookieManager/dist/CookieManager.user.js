@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.26
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -10,8 +10,8 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -267,8 +267,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -634,7 +634,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
@@ -961,15 +961,15 @@
     ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig =
+      const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
           return isBottom && it.id === "script-version";
         }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops__.panel({
+      const $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1002,6 +1002,15 @@
           height: PanelUISize.setting.height,
           drag: true,
           only: true,
+          style: `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
         },
         ...this.$data.panelConfig,
       });
@@ -1560,7 +1569,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
   DOMUtils.selector.bind(DOMUtils);
@@ -2423,7 +2435,8 @@
     description,
     afterAddToUListCallBack,
     disabled,
-    valueChangeCallBack
+    valueChangeCallBack,
+    shortCutOption
   ) {
     const result = {
       text,
@@ -2449,7 +2462,9 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack,
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -2495,8 +2510,8 @@
       return cookieInfo;
     },
   };
-  let edit_ui_input = (text, getValue, setValue, disabled) => {
-    let config = {
+  const edit_ui_input = (text, getValue, setValue, disabled) => {
+    const config = {
       text,
       type: "input",
       props: {},
@@ -2513,8 +2528,8 @@
     };
     return config;
   };
-  let edit_ui_textarea = (text, getValue, setValue, disabled) => {
-    let config = {
+  const edit_ui_textarea = (text, getValue, setValue, disabled) => {
+    const config = {
       text,
       type: "textarea",
       props: {},
@@ -2531,8 +2546,8 @@
     };
     return config;
   };
-  let edit_ui_select = (text, data, getValue, setValue, disabled) => {
-    let config = {
+  const edit_ui_select = (text, data, getValue, setValue, disabled) => {
+    const config = {
       text,
       type: "select",
       description: "",
@@ -2547,6 +2562,7 @@
       },
       data: typeof data === "function" ? data() : data,
       disabled: Boolean(disabled),
+      width: "100%",
     };
     return config;
   };
@@ -2585,14 +2601,17 @@
           ok: {
             text: isEdit ? "编辑" : "添加",
             async callback(eventDetails, event) {
-              let valid = CookieManagerEditView.validCookieInfo(cookieInfo);
-              if (!valid) {
+              const valid = CookieManagerEditView.validCookieInfo(cookieInfo);
+              if (!valid.status) {
+                if (typeof valid.msg === "string") {
+                  Qmsg.error(valid.msg);
+                }
                 return;
               }
               cookieInfo.value = encodeURIComponent(cookieInfo.value);
               cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
               if (isEdit) {
-                let result = await CookieManager.updateCookie(cookieInfo);
+                const result = await CookieManager.updateCookie(cookieInfo);
                 if (result) {
                   Qmsg.error(result.toString());
                 } else {
@@ -2600,7 +2619,7 @@
                   eventDetails.close();
                 }
               } else {
-                let result = await CookieManager.addCookie(cookieInfo);
+                const result = await CookieManager.addCookie(cookieInfo);
                 if (result) {
                   Qmsg.error(result.toString());
                 } else {
@@ -2623,47 +2642,50 @@
         width: PanelUISize.settingMiddle.width,
         height: "auto",
         style: `
-                ${__pops__.config.cssText.panelCSS}
+      ${__pops__.config.cssText.panelCSS}
 
-                .pops-panel-input input:disabled{
-                    color: #b4b4b4;
-                }
-                .pops-confirm-content{
-                    padding: 10px;
-                }
-                .pops-confirm-content li{
-                    display: flex;
-                    flex-direction: column;
-                }
-                .pops-panel-item-left-text{
-                    margin-bottom: 5px;
-                }
-                .pops-panel-input.pops-input-disabled{
-                    border: 1px solid #dcdfe6;
-                }
-				.pops-panel-textarea textarea{
-					resize: auto;
-					border-radius: 4px;
-				}
-				#cookie-item-property-expires{
-					border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
-					border-radius: 4px;
-					background-color: #ffffff;
-					width: 100%;
-					height: 32px;
-					padding: 0px 8px;
-				}
-				#cookie-item-property-expires:hover{
-					border: 1px solid #c0c4cc
-				}
-				#cookie-item-property-expires:focus,
-				#cookie-item-property-expires:focus-within{
-					outline: 0;
-					border: 1px solid #409eff;
-					border-radius: 4px;
-					box-shadow: none;
-				}
-            `,
+      .pops-panel-input input:disabled{
+          color: #b4b4b4;
+      }
+      .pops-confirm-content{
+          padding: 10px;
+      }
+      .pops-confirm-content li{
+          display: flex;
+          flex-direction: column;
+      }
+      .pops-panel-item-left-text{
+          margin-bottom: 5px;
+      }
+      .pops-panel-input.pops-input-disabled{
+          border: 1px solid #dcdfe6;
+      }
+      .pops-panel-textarea textarea{
+        resize: auto;
+        border-radius: 4px;
+      }
+      .pops-panel-input{
+        width: 100%;
+      }
+      #cookie-item-property-expires{
+        border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
+        border-radius: 4px;
+        background-color: #ffffff;
+        width: 100%;
+        height: 32px;
+        padding: 0px 8px;
+      }
+      #cookie-item-property-expires:hover{
+        border: 1px solid #c0c4cc
+      }
+      #cookie-item-property-expires:focus,
+      #cookie-item-property-expires:focus-within{
+        outline: 0;
+        border: 1px solid #409eff;
+        border-radius: 4px;
+        box-shadow: none;
+      }
+      `,
       });
       const $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
       const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
@@ -2813,18 +2835,26 @@
     },
     validCookieInfo(cookieInfo) {
       if (cookieInfo.name == null || cookieInfo.name == "") {
-        Qmsg.error("name不能为空");
-        return false;
+        return {
+          status: false,
+          msg: "name不能为空",
+        };
       }
       if (cookieInfo.domain == null || cookieInfo.domain == "") {
-        Qmsg.error("domain不能为空");
-        return false;
+        return {
+          status: false,
+          msg: "domain不能为空",
+        };
       }
       if (cookieInfo.path == null || cookieInfo.path == "") {
-        Qmsg.error("path不能为空");
-        return false;
+        return {
+          status: false,
+          msg: "path不能为空",
+        };
       }
-      return true;
+      return {
+        status: true,
+      };
     },
   };
   class RuleEditView {
@@ -2833,18 +2863,18 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops__.confirm({
+      const $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist"></ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `,
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
           html: true,
         },
         btn: utils.assign(
@@ -2863,170 +2893,80 @@
           enable: true,
         },
         style: `
-                ${__pops__.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5px 20px;
+          gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+          max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+          padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
 
-                ${this.option?.style ?? ""}
-            `,
+      ${this.option?.style ?? ""}
+      `,
         width:
           typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height:
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
-      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
-      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = await this.option.getView(await this.option.data());
-      $ulist.appendChild(view);
+      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      const view = await this.option.getView(await this.option.data());
+      domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        let result = await this.option.onsubmit($form, await this.option.data());
+        const result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        await this.option.dialogCloseCallBack(true);
+        if (typeof this.option.dialogCloseCallBack === "function") {
+          await this.option.dialogCloseCallBack(true);
+        }
       };
-    }
-  }
-  class RuleFilterView {
-    option;
-    $data = {
-      isFilteredData: [],
-    };
-    constructor(option) {
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops__.alert({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="filter-container"></div>
-                `,
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default",
-          },
-        },
-        drag: true,
-        mask: {
-          enable: true,
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = domUtils.createElement(
-          "button",
-          {
-            innerText: filterOption.name,
-          },
-          {
-            type: "button",
-          }
-        );
-        let execFilterAndCloseDialog = async () => {
-          this.$data.isFilteredData = [];
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (filterResult) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
-              domUtils.hide(ruleInfo.$el, false);
-              this.$data.isFilteredData.push(ruleInfo.data);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domUtils.on($button, "click", async (event) => {
-          domUtils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(event, execFilterAndCloseDialog);
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-    getFilteredData() {
-      return this.$data.isFilteredData;
+      return $dialog;
     }
   }
   class RuleView {
@@ -3035,18 +2975,93 @@
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops__.confirm({
+      const $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <div class="rule-view-container">
-                    </div>
-                    `,
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
           html: true,
         },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: fit-content;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+
+
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
         btn: {
           merge: true,
           reverse: false,
@@ -3066,56 +3081,7 @@
             },
           },
           cancel: {
-            enable: this.option?.bottomControls?.filter?.enable || false,
-            type: "default",
-            text: "过滤",
-            callback: async (details, event) => {
-              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                let result = await this.option.bottomControls.filter.callback();
-                if (typeof result === "boolean" && !result) {
-                  return;
-                }
-              }
-              let getAllRuleElement = () => {
-                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
-              };
-              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
-              if (domUtils.text($button).includes("取消")) {
-                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
-                  $button,
-                  getAllRuleElement,
-                });
-                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-                  return;
-                }
-                getAllRuleElement().forEach(($el) => {
-                  domUtils.show($el, false);
-                });
-                domUtils.text($button, "过滤");
-              } else {
-                let ruleFilterView = new RuleFilterView({
-                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
-                  filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack: async () => {
-                    domUtils.text($button, "取消过滤");
-                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
-                    const isFilteredData = ruleFilterView.getFilteredData();
-                    if (isFilteredData.length) {
-                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
-                    }
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleItemElement($el).data,
-                        $el,
-                      };
-                    });
-                  },
-                });
-                ruleFilterView.showView();
-              }
-            },
+            enable: false,
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -3168,71 +3134,128 @@
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: `
-            ${__pops__.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `,
       });
-      let allData = await this.option.data();
-      let changeButtonText = false;
-      let isFilteredDataLength = 0;
-      for (let index = 0; index < allData.length; index++) {
-        let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
-        let isNotFilterFlag = true;
-        if (typeof filterCallBack === "function") {
-          isNotFilterFlag = filterCallBack(item);
-        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag =
-            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
+      );
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-        if (!isNotFilterFlag) {
-          changeButtonText = true;
-          domUtils.hide($ruleItemList, false);
-          isFilteredDataLength++;
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-      }
-      if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
+        domUtils.on($externalSelect, "change", async (evt) => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async (evt) => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          isUpdateSelectData && updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+                continue;
+              }
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") {
+                flag = true;
+              } else {
+                flag = false;
+              }
+              if (!flag) {
+                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              }
+              if (!flag) {
+                continue;
+              }
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") {
+            externalIndex = filterCallBack.external;
+          } else {
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.external;
+            });
+          }
+          if (externalIndex !== -1) {
+            $externalSelect.selectedIndex = externalIndex;
+          }
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") {
+            ruleIndex = filterCallBack.rule;
+          } else {
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.rule;
+            });
+          }
+          if (ruleIndex !== -1) {
+            $ruleValueSelect.selectedIndex = ruleIndex;
+          }
+        }
+        await execFilter(true);
+      } else {
+        domUtils.hide($searchContainer, false);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -3303,20 +3326,28 @@
       editView.showView();
     }
     parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $container = $shadowRoot.querySelector(".rule-view-container");
+      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
+        $searchContainer,
+        $externalSelect,
+        $ruleValueSelect,
+        $searchInput,
       };
     }
     parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(".rule-controls-enable");
-      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(".rule-controls-delete");
+      const $enable = $ruleElement.querySelector(".rule-controls-enable");
+      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
+      const $edit = $ruleElement.querySelector(".rule-controls-edit");
+      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
         $enableSwitch,
@@ -3328,8 +3359,8 @@
       };
     }
     async createRuleItemElement(data, $shadowRoot) {
-      let name = await this.option.getDataItemName(data);
-      let $ruleItem = domUtils.createElement("div", {
+      const name = await this.option.getDataItemName(data);
+      const $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: `
 			<div class="rule-name">${name}</div>
@@ -3353,7 +3384,7 @@
 			`,
       });
       Reflect.set($ruleItem, "data-rule", data);
-      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const switchCheckedClassName = "pops-panel-switch-is-checked";
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
@@ -3389,7 +3420,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops__.confirm({
+          const $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -3432,27 +3463,27 @@
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data) {
-      let { $container } = this.parseViewElement($shadowRoot);
-      let $ruleItem = [];
-      let iteratorData = Array.isArray(data) ? data : [data];
+      const { $container } = this.parseViewElement($shadowRoot);
+      const $ruleItem = [];
+      const iteratorData = Array.isArray(data) ? data : [data];
       for (let index = 0; index < iteratorData.length; index++) {
-        let item = iteratorData[index];
-        let $item = await this.createRuleItemElement(item, $shadowRoot);
-        $container.appendChild($item);
+        const item = iteratorData[index];
+        const $item = await this.createRuleItemElement(item, $shadowRoot);
         $ruleItem.push($item);
       }
+      domUtils.append($container, $ruleItem);
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
-      let data = await this.option.data();
+      const data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
     async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
@@ -3536,7 +3567,7 @@
         };
       }
       const matchedRuleList = this.getMatchedRuleList();
-      let ruleView = new RuleView({
+      const ruleView = new RuleView({
         title: "Cookie规则",
         data: () => {
           return this.getData();
@@ -3554,8 +3585,8 @@
           return this.deleteData(data);
         },
         getData: (data) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
+          const allData = this.getData();
+          const findValue = allData.find((item) => item.uuid === data.uuid);
           return findValue ?? data;
         },
         itemControls: {
@@ -3572,18 +3603,18 @@
           edit: {
             enable: true,
             getView: (data, isEdit) => {
-              let $fragment = document.createDocumentFragment();
-              let templateData = this.getTemplateData();
+              const $fragment = document.createDocumentFragment();
+              const templateData = this.getTemplateData();
               if (!isEdit) {
                 data = templateData;
               }
-              let enable_template = UISwitch("启用", "enable", templateData.enable);
+              const enable_template = UISwitch("启用", "enable", templateData.enable);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
-              let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
+              const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+              const name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
-              let apiName_template = UISelect(
+              const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+              const apiName_template = UISelect(
                 "Cookie管理Api",
                 "execApiName",
                 templateData.data.execApiName,
@@ -3603,20 +3634,27 @@
                 "操作Cookie的Api函数"
               );
               Reflect.set(apiName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
-              let url_template = UIInput("网址", "url", templateData.data.url, "用于执行该规则的网址", void 0, "必填");
+              const $apiName = panelHandlerComponents.createSectionContainerItem_select(apiName_template).$el;
+              const url_template = UIInput(
+                "网址",
+                "url",
+                templateData.data.url,
+                "用于执行该规则的网址",
+                void 0,
+                "必填"
+              );
               Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
-              let enableRegExpToMatchUrl_template = UISwitch(
+              const $url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
+              const enableRegExpToMatchUrl_template = UISwitch(
                 "启用正则匹配网址",
                 "enableRegExpToMatchUrl",
                 templateData.data.enableRegExpToMatchUrl
               );
               Reflect.set(enableRegExpToMatchUrl_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
+              const $enableRegExpToMatchUrl = panelHandlerComponents.createSectionContainerItem_switch(
                 enableRegExpToMatchUrl_template
               ).$el;
-              let cookieName_template = UIInput(
+              const cookieName_template = UIInput(
                 "Cookie名称",
                 "cookieName",
                 templateData.data.cookieName,
@@ -3625,8 +3663,8 @@
                 "必填"
               );
               Reflect.set(cookieName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
-              let enableRegExpToMatchCookieName_template = UISwitch(
+              const $cookieName = panelHandlerComponents.createSectionContainerItem_input(cookieName_template).$el;
+              const enableRegExpToMatchCookieName_template = UISwitch(
                 "启用正则匹配Cookie名称",
                 "enableRegExpToMatchCookieName",
                 templateData.data.enableRegExpToMatchCookieName
@@ -3636,10 +3674,10 @@
                 PROPS_STORAGE_API,
                 generateStorageApi(data.data)
               );
-              let $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
+              const $enableRegExpToMatchCookieName = panelHandlerComponents.createSectionContainerItem_switch(
                 enableRegExpToMatchCookieName_template
               ).$el;
-              let operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
+              const operationMode_template = UISelect("操作模式", "operationMode", templateData.data.operationMode, [
                 {
                   value: "delete",
                   text: "删除Cookie",
@@ -3662,10 +3700,11 @@
                 },
               ]);
               Reflect.set(operationMode_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $operationMode = panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
-              let remark_template = UITextArea("备注", "remark", templateData.data.remark);
+              const $operationMode =
+                panelHandlerComponents.createSectionContainerItem_select(operationMode_template).$el;
+              const remark_template = UITextArea("备注", "remark", templateData.data.remark);
               Reflect.set(remark_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
+              const $remark = panelHandlerComponents.createSectionContainerItem_textarea(remark_template).$el;
               $fragment.append(
                 $enable,
                 $name,
@@ -3680,19 +3719,19 @@
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-              let data = this.getTemplateData();
+              const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+              const data = this.getTemplateData();
               if (isEdit) {
                 data.uuid = editData.uuid;
               }
               try {
                 $ulist_li.forEach(($li) => {
-                  let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                  let attrs = Reflect.get(viewConfig, "attributes");
-                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  let value = storageApi.get(key, defaultValue);
+                  const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  const attrs = Reflect.get(viewConfig, "attributes");
+                  const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  const value = storageApi.get(key, defaultValue);
                   if (Reflect.has(data, key)) {
                     Reflect.set(data, key, value);
                   } else if (Reflect.has(data.data, key)) {
@@ -3744,9 +3783,9 @@
               }
             },
             style: `
-                    .pops-panel-textarea textarea{
-                        height: 150px;
-                    }
+          .pops-panel-textarea textarea{
+              height: 150px;
+          }
 					.pops-panel-item-left-desc-text{
 						line-height: normal;
 						margin-top: 6px;
@@ -3754,7 +3793,7 @@
 						color: rgb(108, 108, 108);
 						max-width: 100px;
 					}
-                    `,
+          `,
           },
           delete: {
             enable: true,
@@ -3768,21 +3807,54 @@
             enable: true,
             option: [
               {
-                name: "过滤-已启用",
+                name: "启用",
+                value: "enable",
                 filterCallBack(data) {
                   return data.enable;
                 },
               },
               {
-                name: "过滤-未启用",
+                name: "未启用",
+                value: "notEnable",
                 filterCallBack(data) {
                   return !data.enable;
                 },
               },
               {
-                name: "过滤-当前网站执行",
+                name: "当前网站执行",
+                value: "currentSite",
                 filterCallBack(data) {
                   return matchedRuleList.some((it) => it.uuid === data.uuid);
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名称",
+                value: "url",
+                filterCallBack(data, searchText) {
+                  return Boolean(data.name.match(searchText));
+                },
+              },
+              {
+                name: "网址",
+                value: "url",
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.url.match(searchText));
+                },
+              },
+              {
+                name: "Cookie名称",
+                value: "cookieName",
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.cookieName.match(searchText));
+                },
+              },
+              {
+                name: "备注",
+                value: "remark",
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.remark.match(searchText));
                 },
               },
             ],
@@ -3814,8 +3886,8 @@
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
     addData(data) {
-      let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
+      const localData = this.getData();
+      const findIndex = localData.findIndex((item) => item.uuid == data.uuid);
       if (findIndex === -1) {
         localData.push(data);
         _GM_setValue(this.$key.STORAGE_KEY, localData);
@@ -3825,8 +3897,8 @@
       }
     },
     updateData(data) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      const localData = this.getData();
+      const index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
       if (index !== -1) {
         updateFlag = true;
@@ -3836,8 +3908,8 @@
       return updateFlag;
     },
     deleteData(data) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      const localData = this.getData();
+      const index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
       if (index !== -1) {
         deleteFlag = true;
@@ -3850,10 +3922,10 @@
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
     exportRule(fileName = "rule.json") {
-      let allRule = this.getData();
-      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
-      let blobUrl = window.URL.createObjectURL(blob);
-      let $a = domUtils.createElement("a");
+      const allRule = this.getData();
+      const blob = new Blob([JSON.stringify(allRule, null, 4)]);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const $a = domUtils.createElement("a");
       $a.href = blobUrl;
       $a.download = fileName;
       $a.click();
@@ -3862,7 +3934,7 @@
       }, 1500);
     },
     importRule() {
-      let $alert = __pops__.alert({
+      const $alert = __pops__.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -3887,12 +3959,12 @@
                 }
             `,
       });
-      let $local = $alert.$shadowRoot.querySelector(".import-mode[data-mode='local']");
-      let $network = $alert.$shadowRoot.querySelector(".import-mode[data-mode='network']");
+      const $local = $alert.$shadowRoot.querySelector(".import-mode[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".import-mode[data-mode='network']");
       domUtils.on($local, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $input = domUtils.createElement("input", {
+        const $input = domUtils.createElement("input", {
           type: "file",
           accept: ".json",
         });
@@ -3900,10 +3972,10 @@
           if (!$input.files?.length) {
             return;
           }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
           fileReader.onload = () => {
-            let data = utils.toJSON(fileReader.result);
+            const data = utils.toJSON(fileReader.result);
             if (!Array.isArray(data)) {
               log.error("不是正确的规则文件", data);
               Qmsg.error("不是正确的规则文件");
@@ -3932,16 +4004,16 @@
           btn: {
             ok: {
               callback: async (eventDetails, event2) => {
-                let url = eventDetails.text;
+                const url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
                   return;
                 }
-                let response = await httpx.get(url);
+                const response = await httpx.get(url);
                 if (!response.status) {
                   return;
                 }
-                let data = utils.toJSON(response.data.responseText);
+                const data = utils.toJSON(response.data.responseText);
                 if (!Array.isArray(data)) {
                   log.error("不是正确的规则文件", response, data);
                   Qmsg.error("不是正确的规则文件");
@@ -4537,34 +4609,33 @@
         },
         content: {
           text: `
-                    <div class="cookie-wrapper">
-                        <div class="cookie-search-wrapper">
-                            <div class="cookie-search-inner">
-                                <input type="text" placeholder="搜索Cookie名称">
-                            </div>
-                            <div class="cookie-search-setting">
-                                <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
-                                    <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="cookie-control-wrapper">
-                            <button class="cookie-control-refresh" type="button" data-type="default">刷新</button>
-                            <button class="cookie-control-add" type="button" data-type="default">添加</button>
-                            <button class="cookie-control-export" type="button" data-type="default">导出</button>
-                            <button class="cookie-control-import" type="button" data-type="default">导入</button>
-                            <button class="cookie-control-clear-all" type="button" data-type="default">删除</button>
-                            <button class="cookie-control-rule-manager" type="button" data-type="default">规则管理</button>
-                            <div class="cookie-setting"> 
-                                <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
-                                    <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="cookie-list-wrapper">
-                        </div>
-                    </div>
-                `,
+        <div class="cookie-wrapper">
+            <div class="cookie-search-wrapper">
+                <div class="cookie-search-inner">
+                    <input type="text" placeholder="搜索Cookie名称">
+                </div>
+                <div class="cookie-search-setting">
+                    <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
+                        <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="cookie-control-wrapper">
+                <button class="cookie-control-refresh" type="button" data-type="default">刷新</button>
+                <button class="cookie-control-add" type="button" data-type="default">添加</button>
+                <button class="cookie-control-export" type="button" data-type="default">导出</button>
+                <button class="cookie-control-import" type="button" data-type="default">导入</button>
+                <button class="cookie-control-clear-all" type="button" data-type="default">删除</button>
+                <button class="cookie-control-rule-manager" type="button" data-type="default">规则管理</button>
+                <div class="cookie-setting"> 
+                    <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
+                        <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="cookie-list-wrapper">
+            </div>
+        </div>`,
           html: true,
         },
         btn: {
@@ -4579,95 +4650,94 @@
         width: PanelUISize.setting.width,
         height: PanelUISize.setting.height,
         style: `
-                ${__pops__.config.cssText.panelCSS}
-                .cookie-wrapper{
-                    display: flex;
-                    flex-direction: column;
-                    padding: 10px;
-                    gap: 10px;
-                }
-                .cookie-control-wrapper{
-                    display: flex;
-					flex-wrap: wrap;
-                    padding: 0px 10px;
-                    gap: 5px;
-                    --button-margin-left: 0px;
-                }
-                .cookie-search-wrapper{
-                    display: flex;
-                    align-items: center;
-                }
-                .cookie-search-inner{
-                    width: 100%;
-                    padding: 0px 10px;
-                }
-                .cookie-search-inner input{
-                    height: 30px;
-                    padding: 5px 8px;
-                    width: 100%;
-					border-radius: 6px;
-                }
-				.cookie-search-inner input::placeholder{
-					display: flex;
-					align-items: baseline;
-				}
-                .cookie-search-inner input:focus-visible{
-                    outline: none;
-                }
-                .cookie-setting,
-                .cookie-search-setting{
-                    display: flex;
-                    align-items: center;
-                }
-                .cookie-setting svg,
-                .cookie-search-setting svg{
-                    cursor: pointer;
-                }
-                .cookie-list-wrapper{
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 10px;
-                }
-                .cookie-item{
-                    display: flex;
-                    flex-direction: column;
-                    padding: 10px 10px;
-                    margin: 0px 10px;
-                    background: #f1efef;
-                    border-radius: 10px;
-                    gap: 5px;
-                    box-sizing: border-box;
-                    width: 100%;
-                }
-                .cookie-item-group{
-                    display: flex;
-                    align-items: center;
-                }
-                .cookie-item-group-left{
-                    width: 100px;
-                    min-width: 100px;
-                    max-width: 100px;
-                    text-transform: capitalize
-                }
-                .cookie-item-group-control .cookie-item-group-right{
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .cookie-item-group-control .cookie-item-group-control-copy,
-                .cookie-item-group-control .cookie-item-group-control-edit,
-                .cookie-item-group-control .cookie-item-group-control-delete{
-                    display: flex;
-                    align-items: center;
-                }
-                .cookie-item-group-control .cookie-item-group-control-delete svg{
-                    width: 16px;
-                    height: 16px;
-                }
-                .cookie-item-group-control svg{
-                    cursor: pointer;
-                }
-            `,
+      ${__pops__.config.cssText.panelCSS}
+      .cookie-wrapper{
+          display: flex;
+          flex-direction: column;
+          padding: 10px;
+          gap: 10px;
+      }
+      .cookie-control-wrapper{
+          display: flex;
+          flex-wrap: wrap;
+          padding: 0px 10px;
+          gap: 5px;
+          --button-margin-left: 0px;
+      }
+      .cookie-search-wrapper{
+          display: flex;
+          align-items: center;
+      }
+      .cookie-search-inner{
+          width: 100%;
+          padding: 0px 10px;
+      }
+      .cookie-search-inner input{
+          height: 30px;
+          padding: 5px 8px;
+          width: 100%;
+          border-radius: 6px;
+      }
+      .cookie-search-inner input::placeholder{
+        display: flex;
+        align-items: baseline;
+      }
+      .cookie-search-inner input:focus-visible{
+          outline: none;
+      }
+      .cookie-setting,
+      .cookie-search-setting{
+          display: flex;
+          align-items: center;
+      }
+      .cookie-setting svg,
+      .cookie-search-setting svg{
+          cursor: pointer;
+      }
+      .cookie-list-wrapper{
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+      }
+      .cookie-item{
+          display: flex;
+          flex-direction: column;
+          padding: 10px 10px;
+          margin: 0px 10px;
+          background: #f1efef;
+          border-radius: 10px;
+          gap: 5px;
+          box-sizing: border-box;
+          width: 100%;
+      }
+      .cookie-item-group{
+          display: flex;
+          align-items: center;
+      }
+      .cookie-item-group-left{
+          width: 100px;
+          min-width: 100px;
+          max-width: 100px;
+          text-transform: capitalize
+      }
+      .cookie-item-group-control .cookie-item-group-right{
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+      .cookie-item-group-control .cookie-item-group-control-copy,
+      .cookie-item-group-control .cookie-item-group-control-edit,
+      .cookie-item-group-control .cookie-item-group-control-delete{
+          display: flex;
+          align-items: center;
+      }
+      .cookie-item-group-control .cookie-item-group-control-delete svg{
+          width: 16px;
+          height: 16px;
+      }
+      .cookie-item-group-control svg{
+          cursor: pointer;
+      }`,
       });
       const $search = $alert.$shadowRoot.querySelector(".cookie-search-inner input");
       const $searchSetting = $alert.$shadowRoot.querySelector(".cookie-search-setting");
@@ -4679,7 +4749,7 @@
       const $ruleManager = $alert.$shadowRoot.querySelector(".cookie-control-rule-manager");
       const $setting = $alert.$shadowRoot.querySelector(".cookie-setting");
       const $cookieListWrapper = $alert.$shadowRoot.querySelector(".cookie-list-wrapper");
-      let createCookieItemElement = (cookieInfo) => {
+      const createCookieItemElement = (cookieInfo) => {
         const $cookieItem = domUtils.createElement("div", {
           className: "cookie-item",
           innerHTML: `
@@ -4777,33 +4847,32 @@
           });
           domUtils.append($cookieItem, $cookieItemGroup);
         });
-        let $cookieItemGroupControl = domUtils.createElement("div", {
+        const $cookieItemGroupControl = domUtils.createElement("div", {
           className: "cookie-item-group cookie-item-group-control",
           innerHTML: `
-                    <div class="cookie-item-group-left">操作</div>
-                    <div class="cookie-item-group-right">
-                        <div class="cookie-item-group-control-copy">
-                            <svg t="1742795616339" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                <path d="M880 247.008l-162.016-166.016Q700.992 64 677.984 64h-316.992q-26.016 0-46.016 18.016-16.992 15.008-23.008 36.992H231.968q-43.008 0-73.504 31.008t-30.496 76v627.008q0 44 30.496 75.488T231.968 960h508q43.008 0 73.504-31.488t30.496-75.488v-63.008q23.008-6.016 37.504-25.504t14.496-44.512V287.008q0-24-16-40z m-168-160.992l-3.008-3.008z m98.016 177.984L744 196z m-126.016-116.992l108 110.016h-108V147.008zM676.992 128zM204.992 948q4 0.992 4.992 2.016-2.016-0.992-4.992-2.016z m27.008 4q-6.016 0-12-0.992 4.992 0.992 12 0.992z m543.008-99.008q0 15.008-10.016 25.504t-24.992 10.496H232q-14.016 0-24.512-10.496t-10.496-25.504V225.984q0-15.008 10.496-25.504t24.512-10.496h58.016v531.008q0 30.016 20.992 51.008t50.016 20.992H775.04v60z m52-132.992q0 2.016-2.016 2.016h-464q-2.016 0-2.016-2.016V136.992q0-2.016 2.016-2.016h251.008v156.992q0 15.008 10.016 24.992t24 10.016h180.992v392.992z m9.984 64q4-0.992 8.992-2.016-4.992 0.992-8.992 2.016z m-244-168.992h-107.008q-15.008 0-24.992 10.496t-10.016 24.992 10.016 24.992 24.992 10.496h107.008q14.016 0 24.512-10.496t10.496-24.992-10.496-24.992-24.512-10.496z m107.008-111.008h-214.016q-14.016 0-24.512 10.496t-10.496 24.992 10.496 24.992 24.512 10.496h214.016q14.016 0 24-10.496t10.016-24.992-10.016-24.992-24-10.496z m-240.992 36q0 4 0.992 8-0.992-4-0.992-8zM700 512z m12 52l4-2.016z m-260.992-135.488q0 14.496 10.496 24.992t24.512 10.496h214.016q14.016 0 24-10.496t10.016-24.992-10.016-24.992-24-10.496h-214.016q-14.016 0-24.512 10.496t-10.496 24.992z m8 1.504z"></path>
-                            </svg>
-                        </div>
-                        <div class="cookie-item-group-control-edit">
-                            <svg t="1742795710451" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                <path d="M800 960 224 960c-52.928 0-96-43.072-96-96L128 224c0-52.928 43.072-96 96-96l448 0c17.696 0 32 14.336 32 32s-14.304 32-32 32L224 192C206.368 192 192 206.368 192 224l0 640c0 17.664 14.368 32 32 32l576 0c17.664 0 32-14.336 32-32L832 352c0-17.664 14.304-32 32-32s32 14.336 32 32l0 512C896 916.928 852.928 960 800 960zM612 448c-8.192 0-16.384-3.136-22.624-9.376-12.512-12.512-12.512-32.736 0-45.248l318.016-318.016c12.512-12.512 32.736-12.512 45.248 0s12.512 32.736 0 45.248l-318.016 318.016C628.384 444.896 620.192 448 612 448zM480 448 288 448c-17.664 0-32-14.336-32-32s14.336-32 32-32l192 0c17.664 0 32 14.336 32 32S497.664 448 480 448zM672 640 288 640c-17.664 0-32-14.304-32-32s14.336-32 32-32l384 0c17.696 0 32 14.304 32 32S689.696 640 672 640z"></path>
-                            </svg>
-                        </div>
-                        <div class="cookie-item-group-control-delete">
-                            ${__pops__.config.iconSVG.delete}
-                        </div>
-                    </div>
-                `,
+        <div class="cookie-item-group-left">操作</div>
+        <div class="cookie-item-group-right">
+          <div class="cookie-item-group-control-copy">
+              <svg t="1742795616339" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                  <path d="M880 247.008l-162.016-166.016Q700.992 64 677.984 64h-316.992q-26.016 0-46.016 18.016-16.992 15.008-23.008 36.992H231.968q-43.008 0-73.504 31.008t-30.496 76v627.008q0 44 30.496 75.488T231.968 960h508q43.008 0 73.504-31.488t30.496-75.488v-63.008q23.008-6.016 37.504-25.504t14.496-44.512V287.008q0-24-16-40z m-168-160.992l-3.008-3.008z m98.016 177.984L744 196z m-126.016-116.992l108 110.016h-108V147.008zM676.992 128zM204.992 948q4 0.992 4.992 2.016-2.016-0.992-4.992-2.016z m27.008 4q-6.016 0-12-0.992 4.992 0.992 12 0.992z m543.008-99.008q0 15.008-10.016 25.504t-24.992 10.496H232q-14.016 0-24.512-10.496t-10.496-25.504V225.984q0-15.008 10.496-25.504t24.512-10.496h58.016v531.008q0 30.016 20.992 51.008t50.016 20.992H775.04v60z m52-132.992q0 2.016-2.016 2.016h-464q-2.016 0-2.016-2.016V136.992q0-2.016 2.016-2.016h251.008v156.992q0 15.008 10.016 24.992t24 10.016h180.992v392.992z m9.984 64q4-0.992 8.992-2.016-4.992 0.992-8.992 2.016z m-244-168.992h-107.008q-15.008 0-24.992 10.496t-10.016 24.992 10.016 24.992 24.992 10.496h107.008q14.016 0 24.512-10.496t10.496-24.992-10.496-24.992-24.512-10.496z m107.008-111.008h-214.016q-14.016 0-24.512 10.496t-10.496 24.992 10.496 24.992 24.512 10.496h214.016q14.016 0 24-10.496t10.016-24.992-10.016-24.992-24-10.496z m-240.992 36q0 4 0.992 8-0.992-4-0.992-8zM700 512z m12 52l4-2.016z m-260.992-135.488q0 14.496 10.496 24.992t24.512 10.496h214.016q14.016 0 24-10.496t10.016-24.992-10.016-24.992-24-10.496h-214.016q-14.016 0-24.512 10.496t-10.496 24.992z m8 1.504z"></path>
+              </svg>
+          </div>
+          <div class="cookie-item-group-control-edit">
+              <svg t="1742795710451" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                  <path d="M800 960 224 960c-52.928 0-96-43.072-96-96L128 224c0-52.928 43.072-96 96-96l448 0c17.696 0 32 14.336 32 32s-14.304 32-32 32L224 192C206.368 192 192 206.368 192 224l0 640c0 17.664 14.368 32 32 32l576 0c17.664 0 32-14.336 32-32L832 352c0-17.664 14.304-32 32-32s32 14.336 32 32l0 512C896 916.928 852.928 960 800 960zM612 448c-8.192 0-16.384-3.136-22.624-9.376-12.512-12.512-12.512-32.736 0-45.248l318.016-318.016c12.512-12.512 32.736-12.512 45.248 0s12.512 32.736 0 45.248l-318.016 318.016C628.384 444.896 620.192 448 612 448zM480 448 288 448c-17.664 0-32-14.336-32-32s14.336-32 32-32l192 0c17.664 0 32 14.336 32 32S497.664 448 480 448zM672 640 288 640c-17.664 0-32-14.304-32-32s14.336-32 32-32l384 0c17.696 0 32 14.304 32 32S689.696 640 672 640z"></path>
+              </svg>
+          </div>
+          <div class="cookie-item-group-control-delete">
+              ${__pops__.config.iconSVG.delete}
+          </div>
+        </div>`,
         });
-        let $cookieItemCopy = $cookieItemGroupControl.querySelector(".cookie-item-group-control-copy");
-        let $cookieItemEdit = $cookieItemGroupControl.querySelector(".cookie-item-group-control-edit");
-        let $cookieItemDelete = $cookieItemGroupControl.querySelector(".cookie-item-group-control-delete");
+        const $cookieItemCopy = $cookieItemGroupControl.querySelector(".cookie-item-group-control-copy");
+        const $cookieItemEdit = $cookieItemGroupControl.querySelector(".cookie-item-group-control-edit");
+        const $cookieItemDelete = $cookieItemGroupControl.querySelector(".cookie-item-group-control-delete");
         domUtils.on($cookieItemCopy, "click", (event) => {
           domUtils.preventEvent(event);
-          let cookieText = cookieInfo.value;
+          const cookieText = cookieInfo.value;
           utils.copy(cookieText).then((status) => {
             if (status) {
               Qmsg.success("复制成功");
@@ -4815,14 +4884,14 @@
         domUtils.on($cookieItemEdit, "click", (event) => {
           domUtils.preventEvent(event);
           CookieManagerEditView.showView(cookieInfo, (__cookieInfo__) => {
-            let $newCookieItem = createCookieItemElement(__cookieInfo__);
+            const $newCookieItem = createCookieItemElement(__cookieInfo__);
             domUtils.after($cookieItem, $newCookieItem);
             $cookieItem.parentElement?.removeChild($cookieItem);
           });
         });
         domUtils.on($cookieItemDelete, "click", (event) => {
           domUtils.preventEvent(event);
-          let result = confirm("确定删除该Cookie？");
+          const result = confirm("确定删除该Cookie？");
           if (!result) {
             return;
           }
@@ -4839,11 +4908,11 @@
         domUtils.append($cookieItem, [$cookieItemGroupControl]);
         return $cookieItem;
       };
-      let updateCookieListGroup = async (filterCallBack) => {
-        let cookieList = await CookieManager.queryAllCookie();
+      const updateCookieListGroup = async (filterCallBack) => {
+        const cookieList = await CookieManager.queryAllCookie();
         domUtils.empty($cookieListWrapper);
-        let $fragment = document.createDocumentFragment();
-        let excludeSessionCookie = Panel.getValue("exclude-session-cookie");
+        const $fragment = document.createDocumentFragment();
+        const excludeSessionCookie = Panel.getValue("exclude-session-cookie");
         cookieList.forEach((cookieInfo) => {
           if (excludeSessionCookie) {
             if (cookieInfo.session) {
@@ -4854,7 +4923,7 @@
             }
           }
           if (typeof filterCallBack === "function") {
-            let filterResult = filterCallBack(cookieInfo);
+            const filterResult = filterCallBack(cookieInfo);
             if (!filterResult) {
               return;
             }
@@ -4869,9 +4938,9 @@
         $search,
         ["input", "propertychange"],
         utils.debounce((event) => {
-          let searchText = domUtils.val($search);
-          let isNotFilter = searchText.trim() === "";
-          let enableRegExp = Panel.getValue("search-config-use-regexp");
+          const searchText = domUtils.val($search);
+          const isNotFilter = searchText.trim() === "";
+          const enableRegExp = Panel.getValue("search-config-use-regexp");
           updateCookieListGroup((cookieItem) => {
             if (isNotFilter) {
               return true;
@@ -4889,7 +4958,7 @@
       });
       domUtils.on($searchSetting, "click", (event) => {
         domUtils.preventEvent(event);
-        let $settingAlert = __pops__.alert({
+        const $settingAlert = __pops__.alert({
           title: {
             text: "搜索配置",
             position: "center",
@@ -4912,25 +4981,25 @@
           width: PanelUISize.info.width,
           height: PanelUISize.info.height,
           style: `
-                    ${__pops__.config.cssText.panelCSS}
+        ${__pops__.config.cssText.panelCSS}
 
-                    .pops-alert-content li{
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 10px;
-                    }
-                    .pops-panel-item-left-desc-text{
-                        line-height: normal;
-                        margin-top: 6px;
-                        font-size: 0.8em;
-                        color: rgb(108, 108, 108);
-                    }
-                `,
+        .pops-alert-content li{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .pops-panel-item-left-desc-text{
+            line-height: normal;
+            margin-top: 6px;
+            font-size: 0.8em;
+            color: rgb(108, 108, 108);
+        }
+        `,
         });
-        let $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
-        let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-        let $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
+        const $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
+        const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+        const $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
             emitUpdateCookieListGroupWithSearchFilter();
           })
@@ -4957,7 +5026,7 @@
       });
       domUtils.on($clearAll, "click", async (event) => {
         domUtils.preventEvent(event);
-        let result = window.confirm("确定清除全部Cookie？");
+        const result = window.confirm("确定清除全部Cookie？");
         if (!result) {
           return;
         }
@@ -4975,7 +5044,7 @@
       });
       domUtils.on($setting, "click", (event) => {
         domUtils.preventEvent(event);
-        let $settingAlert = __pops__.alert({
+        const $settingAlert = __pops__.alert({
           title: {
             text: "设置",
             position: "center",
@@ -4998,25 +5067,24 @@
           width: PanelUISize.settingMiddle.width,
           height: PanelUISize.settingMiddle.height,
           style: `
-                    ${__pops__.config.cssText.panelCSS}
+        ${__pops__.config.cssText.panelCSS}
 
-                    .pops-alert-content li{
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 10px;
-                    }
-                    .pops-panel-item-left-desc-text{
-                        line-height: normal;
-                        margin-top: 6px;
-                        font-size: 0.8em;
-                        color: rgb(108, 108, 108);
-                    }
-                `,
+        .pops-alert-content li{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .pops-panel-item-left-desc-text{
+            line-height: normal;
+            margin-top: 6px;
+            font-size: 0.8em;
+            color: rgb(108, 108, 108);
+        }`,
         });
-        let $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
-        let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-        let $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
+        const $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
+        const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+        const $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
           UISelect(
             "CookieManager Api",
             "cookie-manager-api",
@@ -5034,7 +5102,7 @@
             }
           )
         ).$el;
-        let $decodeValue = panelHandlerComponents.createSectionContainerItem_switch(
+        const $decodeValue = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch(
             "解码Cookie值",
             "decode-cookie-value",
@@ -5045,7 +5113,7 @@
             "对Cookie值进行解码"
           )
         ).$el;
-        let $excludeSessionCookie = panelHandlerComponents.createSectionContainerItem_switch(
+        const $excludeSessionCookie = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch(
             "排除Session Cookie",
             "exclude-session-cookie",
@@ -5058,7 +5126,7 @@
         ).$el;
         domUtils.append($content, [$useGM_cookie, $decodeValue, $excludeSessionCookie]);
       });
-      let emitUpdateCookieListGroupWithSearchFilter = () => {
+      const emitUpdateCookieListGroupWithSearchFilter = () => {
         domUtils.emit($search, "input");
       };
       emitUpdateCookieListGroupWithSearchFilter();
