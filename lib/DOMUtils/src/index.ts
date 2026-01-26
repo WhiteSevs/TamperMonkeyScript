@@ -794,7 +794,14 @@ class DOMUtils extends ElementHandler {
    * */
   append(
     $el: DOMUtilsTargetElementType | DocumentFragment,
-    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+    ...args: (
+      | HTMLElement
+      | string
+      | Element
+      | DocumentFragment
+      | (HTMLElement | string | Element | DocumentFragment)[]
+      | NodeList
+    )[]
   ) {
     if (typeof $el === "string") {
       $el = this.selectorAll($el);
@@ -852,7 +859,14 @@ class DOMUtils extends ElementHandler {
    * */
   prepend(
     $el: DOMUtilsTargetElementType | DocumentFragment,
-    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+    ...args: (
+      | HTMLElement
+      | string
+      | Element
+      | DocumentFragment
+      | (HTMLElement | string | Element | DocumentFragment)[]
+      | NodeList
+    )[]
   ) {
     if (typeof $el === "string") {
       $el = this.selectorAll($el);
@@ -915,7 +929,14 @@ class DOMUtils extends ElementHandler {
    * */
   after(
     $el: DOMUtilsTargetElementType,
-    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+    ...args: (
+      | HTMLElement
+      | string
+      | Element
+      | DocumentFragment
+      | (HTMLElement | string | Element | DocumentFragment)[]
+      | NodeList
+    )[]
   ) {
     if (typeof $el === "string") {
       $el = this.selectorAll($el);
@@ -980,7 +1001,14 @@ class DOMUtils extends ElementHandler {
    * */
   before(
     $el: DOMUtilsTargetElementType,
-    ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]
+    ...args: (
+      | HTMLElement
+      | string
+      | Element
+      | DocumentFragment
+      | (HTMLElement | string | Element | DocumentFragment)[]
+      | NodeList
+    )[]
   ) {
     if (typeof $el === "string") {
       $el = this.selectorAll($el);

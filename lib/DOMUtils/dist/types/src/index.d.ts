@@ -312,7 +312,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.append(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
      * DOMUtils.append(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    append($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
+    append($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | Element | DocumentFragment | (HTMLElement | string | Element | DocumentFragment)[] | NodeList)[]): void;
     /**
      * 函数 在元素内部开头添加子元素或HTML字符串
      * @param $el 目标元素
@@ -324,7 +324,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.prepend(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
      * DOMUtils.prepend(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    prepend($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
+    prepend($el: DOMUtilsTargetElementType | DocumentFragment, ...args: (HTMLElement | string | Element | DocumentFragment | (HTMLElement | string | Element | DocumentFragment)[] | NodeList)[]): void;
     /**
      * 在元素后面添加兄弟元素或HTML字符串
      * @param $el 目标元素
@@ -336,7 +336,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.after(document, [document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx")])
      * DOMUtils.after(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      * */
-    after($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
+    after($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | Element | DocumentFragment | (HTMLElement | string | Element | DocumentFragment)[] | NodeList)[]): void;
     /**
      * 在元素前面添加兄弟元素或HTML字符串
      * @param $el 目标元素
@@ -349,7 +349,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.before(document, document.querySelector("b.xx"), document.querySelector("c.xx"), document.querySelector("d.xx"))
      *
      * */
-    before($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | (HTMLElement | string | Element)[] | NodeList)[]): void;
+    before($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | Element | DocumentFragment | (HTMLElement | string | Element | DocumentFragment)[] | NodeList)[]): void;
     /**
      * 移除元素
      * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
