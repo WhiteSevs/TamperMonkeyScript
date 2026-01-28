@@ -3,21 +3,23 @@ export declare class GMMenu {
     private GM_Api;
     private MenuHandle;
     /**
-     * @param details 菜单配置
+     * @param constructOptions 菜单配置
      */
-    constructor(details: UtilsGMMenuConstructorOptions);
+    constructor(constructOptions: UtilsGMMenuConstructorOptions);
     /**
      * 新增菜单数据
-     * @param menuOption
+     * @param options
      */
     private __add;
     /**
      * 新增菜单数据
      *
      * 自动调用.update()
-     * @param menuOption
+     * @param options
      */
-    add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
+    add(options: UtilsGMMenuOption[] | UtilsGMMenuOption): {
+        destory: () => void;
+    };
     /**
      * 更新菜单数据
      *
@@ -31,9 +33,9 @@ export declare class GMMenu {
     update(options?: UtilsGMMenuOption[] | UtilsGMMenuOption): void;
     /**
      * 卸载菜单
-     * @param menuId 已注册的菜单id
+     * @param menuId 已注册的菜单id或者键名
      */
-    delete(menuId: number): void;
+    delete(menuId: number | string): void;
     /**
      * 根据键值获取enable值
      * @param menuKey 菜单-键key

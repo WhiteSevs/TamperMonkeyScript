@@ -223,29 +223,30 @@ export class GMMenu {
     },
   };
   /**
-   * @param details 菜单配置
+   * @param constructOptions 菜单配置
    */
-  constructor(details: UtilsGMMenuConstructorOptions) {
-    this.GM_Api.getValue = details.GM_getValue;
-    this.GM_Api.setValue = details.GM_setValue;
-    this.GM_Api.registerMenuCommand = details.GM_registerMenuCommand;
-    this.GM_Api.unregisterMenuCommand = details.GM_unregisterMenuCommand;
-    this.MenuHandle.$default.autoReload = typeof details.autoReload === "boolean" ? details.autoReload : true;
+  constructor(constructOptions: UtilsGMMenuConstructorOptions) {
+    this.GM_Api.getValue = constructOptions.GM_getValue;
+    this.GM_Api.setValue = constructOptions.GM_setValue;
+    this.GM_Api.registerMenuCommand = constructOptions.GM_registerMenuCommand;
+    this.GM_Api.unregisterMenuCommand = constructOptions.GM_unregisterMenuCommand;
+    this.MenuHandle.$default.autoReload =
+      typeof constructOptions.autoReload === "boolean" ? constructOptions.autoReload : true;
     for (const keyName of Object.keys(this.GM_Api)) {
       if (typeof (this.GM_Api as any)[keyName] !== "function") {
         throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
       }
     }
-    this.add(details?.data || []);
+    this.add(constructOptions?.data || []);
   }
   /**
    * 新增菜单数据
-   * @param menuOption
+   * @param options
    */
-  private __add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption) {
-    if (Array.isArray(menuOption)) {
-      for (let index = 0; index < menuOption.length; index++) {
-        const option = menuOption[index];
+  private __add(options: UtilsGMMenuOption[] | UtilsGMMenuOption) {
+    if (Array.isArray(options)) {
+      for (let index = 0; index < options.length; index++) {
+        const option = options[index];
         this.MenuHandle.$data.data.push({
           data: option,
           id: void 0,
@@ -253,7 +254,7 @@ export class GMMenu {
       }
     } else {
       this.MenuHandle.$data.data.push({
-        data: menuOption,
+        data: options,
         id: void 0,
       });
     }
@@ -262,11 +263,21 @@ export class GMMenu {
    * 新增菜单数据
    *
    * 自动调用.update()
-   * @param menuOption
+   * @param options
    */
-  add(menuOption: UtilsGMMenuOption[] | UtilsGMMenuOption) {
-    this.__add(menuOption);
+  add(options: UtilsGMMenuOption[] | UtilsGMMenuOption) {
+    this.__add(options);
     this.update();
+    return {
+      destory: () => {
+        if (!Array.isArray(options)) {
+          options = [options];
+        }
+        options.forEach((option) => {
+          this.delete(option.key);
+        });
+      },
+    };
   }
   /**
    * 更新菜单数据
@@ -285,13 +296,13 @@ export class GMMenu {
     } else if (options != null) {
       menuOptionList = [...menuOptionList, options];
     }
-    menuOptionList.forEach((menuOption) => {
-      const oldMenuOption = this.MenuHandle.getMenuOption(menuOption.key);
+    menuOptionList.forEach((option) => {
+      const oldMenuOption = this.MenuHandle.getMenuOption(option.key);
       if (oldMenuOption) {
         // 覆盖
-        Object.assign(oldMenuOption, menuOption);
+        Object.assign(oldMenuOption, option);
       } else {
-        this.__add(menuOption);
+        this.__add(option);
       }
     });
     this.MenuHandle.$data.data.forEach((value) => {
@@ -304,9 +315,15 @@ export class GMMenu {
   }
   /**
    * 卸载菜单
-   * @param menuId 已注册的菜单id
+   * @param menuId 已注册的菜单id或者键名
    */
-  delete(menuId: number) {
+  delete(menuId: number | string) {
+    if (typeof menuId === "string") {
+      const __menuId = this.getMenuId(menuId);
+      if (__menuId != null) {
+        menuId = __menuId;
+      }
+    }
     this.GM_Api.unregisterMenuCommand(menuId);
   }
   /**
@@ -328,18 +345,20 @@ export class GMMenu {
    * @param menuKey 菜单-键key
    */
   getShowTextValue(menuKey: string): string {
-    return this.MenuHandle.getMenuHandledOption(menuKey)!.showText(this.getText(menuKey), this.getEnable(menuKey));
+    const text = this.getText(menuKey);
+    const enable = this.getEnable(menuKey);
+    return this.MenuHandle.getMenuHandledOption(menuKey)!.showText(text, enable);
   }
   /**
    * 获取当前已注册菜单的id
    * @param menuKey
    */
   getMenuId(menuKey: string): number | undefined | null {
-    let result = null;
+    let result: number | undefined | null = null;
     for (let index = 0; index < this.MenuHandle.$data.data.length; index++) {
-      const optionData = this.MenuHandle.$data.data[index];
-      if (optionData!.handleData!.key === menuKey) {
-        result = optionData.id;
+      const option = this.MenuHandle.$data.data[index];
+      if (option.handleData?.key === menuKey) {
+        result = option.id;
         break;
       }
     }
