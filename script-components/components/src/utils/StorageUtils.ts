@@ -183,31 +183,31 @@ class StorageUtils {
   /**
    * 主动触发监听器
    * @param key 键
-   * @param newValue （可选）新值
-   * @param oldValue （可选）旧值
+   * @param newValue 新值
+   * @param oldValue 旧值
    */
-  emitValueChangeListener(key: string, newValue?: any, oldValue?: any): Promise<void>;
+  emitValueChangeListener(key: string, newValue: any, oldValue: any): Promise<void>;
   async emitValueChangeListener(...args: any[]) {
     const [key, newValue, oldValue] = args;
     if (!this.listenerData.has(key)) {
       return;
     }
-    let listenerData = this.listenerData.get(key)!;
+    const listenerData = this.listenerData.get(key)!;
     for (let index = 0; index < listenerData.length; index++) {
       const data = listenerData[index];
       if (typeof data.callback === "function") {
-        let value = this.get<any>(key);
+        // let value = this.get<any>(key);
         let __newValue;
         let __oldValue;
-        if (typeof oldValue !== "undefined" && args.length >= 2) {
-          __oldValue = oldValue;
-        } else {
-          __oldValue = value;
-        }
-        if (typeof newValue !== "undefined" && args.length > 2) {
+        if (args.length === 1) {
+          // [key]
+        } else if (args.length === 2) {
+          // [key, newValue]
           __newValue = newValue;
-        } else {
-          __newValue = value;
+        } else if (args.length === 3) {
+          // [key, newValue, oldValue]
+          __newValue = newValue;
+          __oldValue = oldValue;
         }
         await data.callback(key, __newValue, __oldValue);
       }
