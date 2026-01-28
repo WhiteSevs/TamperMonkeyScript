@@ -535,22 +535,21 @@ const Panel = {
         }
         if (typeof it === "function") {
           // 函数（判断为卸载函数）
-          destoryFnList.push(it);
+          dynamicDestoryFnList.push(it);
           continue;
         }
       }
+      // 先执行旧的卸载函数和移除添加的元素
+      // 清理之前存储的元素列表
+      execClearStoreStyleElements();
+      // 执行卸载函数
+      execDestory();
       if (enableValue) {
         // 执行
         // 追加存储的元素列表
         // 追加卸载函数
         storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
         destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-      } else {
-        // 不执行
-        // 清理之前存储的元素列表
-        execClearStoreStyleElements();
-        // 执行卸载函数
-        execDestory();
       }
     };
     /**
@@ -604,19 +603,19 @@ const Panel = {
       valueOption?: { key: string; newValue: any; oldValue: any }
     ) => {
       const execFlag = checkMenuExec();
+      let callbackResult: ExecMenuResult = [];
       if (execFlag) {
-        // 开启，执行回调
+        // 开启
+        // 获取回调函数的返回值
         const valueList = keyList.map((key) => this.getValue<T>(key));
-        const callbackResult: ExecMenuResult = await callback({
+        callbackResult = await callback({
           value: (isArrayKey ? valueList : valueList[0]) as T,
           addStoreValue: (...args: any[]) => {
-            return addStoreValueCallback(true, args);
+            return addStoreValueCallback(execFlag, args);
           },
         });
-        addStoreValueCallback(true, callbackResult);
-      } else {
-        addStoreValueCallback(false, []);
       }
+      addStoreValueCallback(execFlag, callbackResult);
     };
     // 仅执行一次
     // 那么需要添加值改变监听
