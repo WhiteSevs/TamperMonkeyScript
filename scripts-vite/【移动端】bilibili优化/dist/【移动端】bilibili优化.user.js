@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.12.26
+// @version      2026.1.29
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -14,9 +14,11 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.8.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
+// @require      Viewer
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -376,8 +378,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -1059,22 +1061,18 @@
       if (!this.listenerData.has(key)) {
         return;
       }
-      let listenerData = this.listenerData.get(key);
+      const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data2 = listenerData[index];
         if (typeof data2.callback === "function") {
-          let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
+          if (args.length === 1);
+          else if (args.length === 2) {
             __newValue = newValue;
-          } else {
-            __newValue = value;
+          } else if (args.length === 3) {
+            __newValue = newValue;
+            __oldValue = oldValue;
           }
           await data2.callback(key, __newValue, __oldValue);
         }
@@ -1166,7 +1164,7 @@
           });
         }
         if (!menuDefaultConfig.size) {
-          log.warn(["请先配置键", config]);
+          log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
@@ -1316,16 +1314,15 @@
             continue;
           }
           if (typeof it === "function") {
-            destoryFnList.push(it);
+            dynamicDestoryFnList.push(it);
             continue;
           }
         }
+        execClearStoreStyleElements();
+        execDestory();
         if (enableValue) {
           storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
           destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        } else {
-          execClearStoreStyleElements();
-          execDestory();
         }
       };
       const getMenuValue = (key) => {
@@ -1359,18 +1356,17 @@
       };
       const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
+        let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = await callback({
+          callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(true, args);
+              return addStoreValueCallback(execFlag, args);
             },
           });
-          addStoreValueCallback(true, callbackResult);
-        } else {
-          addStoreValueCallback(false, []);
         }
+        addStoreValueCallback(execFlag, callbackResult);
       };
       once &&
         keyList.forEach((key) => {
@@ -1493,15 +1489,15 @@
     ) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
-      let checkHasBottomVersionContentConfig =
+      const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
           return isBottom && it.id === "script-version";
         }) !== -1;
       if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
-      let $panel = __pops__.panel({
+      const $panel = __pops__.panel({
         ...{
           title: {
             text: title,
@@ -1534,6 +1530,15 @@
           height: PanelUISize.setting.height,
           drag: true,
           only: true,
+          style: `
+        .pops-switch-shortcut-wrapper{
+          margin-right: 5px;
+          display: inline-flex;
+        }
+        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+          cursor: pointer;
+        }
+        `,
         },
         ...this.$data.panelConfig,
       });
@@ -2092,7 +2097,10 @@
     Element: {
       appendChild: _unsafeWindow.Element.prototype.appendChild,
     },
-    setTimeout: _unsafeWindow.setTimeout,
+    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
+    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
@@ -10442,10 +10450,10 @@
   };
   const BilibiliRecommendCSS =
     '#app .m-head .m-recommend-view {\r\n  display: none;\r\n}\r\n\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) .v-switcher__header__anchor {\r\n  display: none !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.v-switcher__header__tabs__item {\r\n  color: #505050 !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag {\r\n  color: var(--bili-color) !important;\r\n}\r\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag span:after {\r\n  content: " ";\r\n  position: relative;\r\n  background: var(--bili-color);\r\n  width: 30.4375px;\r\n  height: 0.53333vmin;\r\n  display: block;\r\n  bottom: 3px;\r\n}\r\n\r\n#app .m-head:has(.recommend-tag.is-avtive) .suspension + div {\r\n  display: none;\r\n}\r\n#app .m-head:has(.recommend-tag.is-avtive) .m-recommend-view {\r\n  display: unset;\r\n}\r\n\r\n#app .m-head .m-recommend-view {\r\n  background-color: #f0f1f3;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list {\r\n  padding: 0 1.33333vmin;\r\n  margin-bottom: 5.33333vmin;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box {\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -ms-flex-wrap: wrap;\r\n  flex-wrap: wrap;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card {\r\n  position: relative;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .bfs-img-wrap {\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img {\r\n  position: relative;\r\n  width: 100%;\r\n  height: 100%;\r\n  overflow: hidden;\r\n  background: transparent;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner {\r\n  display: block;\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .card\r\n  .bfs-img-wrap\r\n  .bfs-img.b-img\r\n  picture.b-img__inner\r\n  img {\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: cover;\r\n  object-fit: cover;\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .count {\r\n  position: absolute;\r\n  bottom: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  font-size: 3.2vmin;\r\n  padding: 1.33333vmin 1.6vmin;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  -webkit-box-pack: justify;\r\n  -ms-flex-pack: justify;\r\n  justify-content: space-between;\r\n  color: #fff;\r\n  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent);\r\n}\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .title {\r\n  font-size: 3.2vmin;\r\n  color: #212121;\r\n  margin-top: 1.6vmin;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 2;\r\n  -webkit-box-orient: vertical;\r\n}\r\n#app\r\n  .m-head\r\n  .m-recommend-view\r\n  .list-view\r\n  .video-list-box\r\n  .video-list\r\n  .card-box\r\n  .v-card\r\n  .gm-up-info\r\n  .gm-up-name\r\n  .gm-picture-text {\r\n  padding: 1px 4px;\r\n  border: 1px solid var(--bili-color);\r\n  color: var(--bili-color);\r\n  border-radius: 2px;\r\n  margin-right: 4px;\r\n  font-size: 2vmin;\r\n}\r\n\r\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .count > span {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 1.33333vmin;\r\n}\r\n';
-  var XOR_CODE = 23442827791579n;
-  var MAX_AID = 1n << 51n;
-  var BASE = 58n;
-  var data = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf";
+  const XOR_CODE = 23442827791579n;
+  const MAX_AID = 1n << 51n;
+  const BASE = 58n;
+  const data = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf";
   function av2bv(aid) {
     const bytes = ["B", "V", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
     let bvIndex = bytes.length - 1;
@@ -11470,7 +11478,8 @@
     description,
     afterAddToUListCallBack,
     disabled,
-    valueChangeCallBack
+    valueChangeCallBack,
+    shortCutOption
   ) {
     const result = {
       text,
@@ -11490,7 +11499,7 @@
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
-      afterAddToUListCallBack,
+      afterAddToUListCallBack: (...args) => {},
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -11631,18 +11640,18 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops__.confirm({
+      const $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist"></ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `,
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
           html: true,
         },
         btn: utils.assign(
@@ -11661,170 +11670,80 @@
           enable: true,
         },
         style: `
-                ${__pops__.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5px 20px;
+          gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+          max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+          padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
 
-                ${this.option?.style ?? ""}
-            `,
+      ${this.option?.style ?? ""}
+      `,
         width:
           typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height:
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
-      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
-      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = await this.option.getView(await this.option.data());
-      $ulist.appendChild(view);
+      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      const view = await this.option.getView(await this.option.data());
+      domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        let result = await this.option.onsubmit($form, await this.option.data());
+        const result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        await this.option.dialogCloseCallBack(true);
+        if (typeof this.option.dialogCloseCallBack === "function") {
+          await this.option.dialogCloseCallBack(true);
+        }
       };
-    }
-  }
-  class RuleFilterView {
-    option;
-    $data = {
-      isFilteredData: [],
-    };
-    constructor(option) {
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops__.alert({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-                <div class="filter-container"></div>
-                `,
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default",
-          },
-        },
-        drag: true,
-        mask: {
-          enable: true,
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = domUtils.createElement(
-          "button",
-          {
-            innerText: filterOption.name,
-          },
-          {
-            type: "button",
-          }
-        );
-        let execFilterAndCloseDialog = async () => {
-          this.$data.isFilteredData = [];
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (filterResult) {
-              domUtils.show(ruleInfo.$el, false);
-            } else {
-              domUtils.hide(ruleInfo.$el, false);
-              this.$data.isFilteredData.push(ruleInfo.data);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domUtils.on($button, "click", async (event) => {
-          domUtils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(event, execFilterAndCloseDialog);
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-    getFilteredData() {
-      return this.$data.isFilteredData;
+      return $dialog;
     }
   }
   class RuleView {
@@ -11833,18 +11752,93 @@
       this.option = option;
     }
     async showView(filterCallBack) {
-      let $popsConfirm = __pops__.confirm({
+      const $popsConfirm = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <div class="rule-view-container">
-                    </div>
-                    `,
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
           html: true,
         },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: fit-content;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+
+
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
         btn: {
           merge: true,
           reverse: false,
@@ -11864,56 +11858,7 @@
             },
           },
           cancel: {
-            enable: this.option?.bottomControls?.filter?.enable || false,
-            type: "default",
-            text: "过滤",
-            callback: async (details, event) => {
-              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
-                let result = await this.option.bottomControls.filter.callback();
-                if (typeof result === "boolean" && !result) {
-                  return;
-                }
-              }
-              let getAllRuleElement = () => {
-                return Array.from($popsConfirm.$shadowRoot.querySelectorAll(".rule-view-container .rule-item"));
-              };
-              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
-              if (domUtils.text($button).includes("取消")) {
-                let cancelFilterResult = await this.option?.bottomControls?.filter?.cancelFilterCallback?.({
-                  $button,
-                  getAllRuleElement,
-                });
-                if (typeof cancelFilterResult === "boolean" && !cancelFilterResult) {
-                  return;
-                }
-                getAllRuleElement().forEach(($el) => {
-                  domUtils.show($el, false);
-                });
-                domUtils.text($button, "过滤");
-              } else {
-                let ruleFilterView = new RuleFilterView({
-                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
-                  filterOption: this.option.bottomControls?.filter?.option || [],
-                  execFilterCallBack: async () => {
-                    domUtils.text($button, "取消过滤");
-                    await this.option.bottomControls?.filter?.execFilterCallBack?.();
-                    const isFilteredData = ruleFilterView.getFilteredData();
-                    if (isFilteredData.length) {
-                      domUtils.text($button, `取消过滤(${isFilteredData.length})`);
-                    }
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleItemElement($el).data,
-                        $el,
-                      };
-                    });
-                  },
-                });
-                ruleFilterView.showView();
-              }
-            },
+            enable: false,
           },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
@@ -11966,71 +11911,128 @@
         },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: `
-            ${__pops__.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `,
       });
-      let allData = await this.option.data();
-      let changeButtonText = false;
-      let isFilteredDataLength = 0;
-      for (let index = 0; index < allData.length; index++) {
-        let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement($popsConfirm.$shadowRoot, item);
-        let isNotFilterFlag = true;
-        if (typeof filterCallBack === "function") {
-          isNotFilterFlag = filterCallBack(item);
-        } else if (typeof filterCallBack === "number" && !isNaN(filterCallBack)) {
-          isNotFilterFlag =
-            (await this.option.bottomControls?.filter?.option[filterCallBack]?.filterCallBack(item)) ?? isNotFilterFlag;
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
+      );
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-        if (!isNotFilterFlag) {
-          changeButtonText = true;
-          domUtils.hide($ruleItemList, false);
-          isFilteredDataLength++;
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
         }
-      }
-      if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(".pops-confirm-btn-cancel span");
-        domUtils.text($button, `取消过滤${isFilteredDataLength ? `(${isFilteredDataLength})` : ""}`);
+        domUtils.on($externalSelect, "change", async (evt) => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async (evt) => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
+          }
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          isUpdateSelectData && updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+                continue;
+              }
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") {
+                flag = true;
+              } else {
+                flag = false;
+              }
+              if (!flag) {
+                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              }
+              if (!flag) {
+                continue;
+              }
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") {
+            externalIndex = filterCallBack.external;
+          } else {
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              const data2 = Reflect.get(option, "data-value");
+              return data2.value === filterCallBack.external;
+            });
+          }
+          if (externalIndex !== -1) {
+            $externalSelect.selectedIndex = externalIndex;
+          }
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") {
+            ruleIndex = filterCallBack.rule;
+          } else {
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              const data2 = Reflect.get(option, "data-value");
+              return data2.value === filterCallBack.rule;
+            });
+          }
+          if (ruleIndex !== -1) {
+            $ruleValueSelect.selectedIndex = ruleIndex;
+          }
+        }
+        await execFilter(true);
+      } else {
+        domUtils.hide($searchContainer, false);
       }
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
@@ -12101,20 +12103,28 @@
       editView.showView();
     }
     parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(".rule-view-container");
-      let $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $container = $shadowRoot.querySelector(".rule-view-container");
+      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
+        $searchContainer,
+        $externalSelect,
+        $ruleValueSelect,
+        $searchInput,
       };
     }
     parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(".rule-controls-enable");
-      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      let $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(".rule-controls-delete");
+      const $enable = $ruleElement.querySelector(".rule-controls-enable");
+      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
+      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
+      const $edit = $ruleElement.querySelector(".rule-controls-edit");
+      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
         $enableSwitch,
@@ -12126,8 +12136,8 @@
       };
     }
     async createRuleItemElement(data2, $shadowRoot) {
-      let name = await this.option.getDataItemName(data2);
-      let $ruleItem = domUtils.createElement("div", {
+      const name = await this.option.getDataItemName(data2);
+      const $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: `
 			<div class="rule-name">${name}</div>
@@ -12151,7 +12161,7 @@
 			`,
       });
       Reflect.set($ruleItem, "data-rule", data2);
-      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const switchCheckedClassName = "pops-panel-switch-is-checked";
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
@@ -12187,7 +12197,7 @@
       if (this.option.itemControls.delete.enable) {
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
-          let $askDialog = __pops__.confirm({
+          const $askDialog = __pops__.confirm({
             title: {
               text: "提示",
               position: "center",
@@ -12230,27 +12240,27 @@
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data2) {
-      let { $container } = this.parseViewElement($shadowRoot);
-      let $ruleItem = [];
-      let iteratorData = Array.isArray(data2) ? data2 : [data2];
+      const { $container } = this.parseViewElement($shadowRoot);
+      const $ruleItem = [];
+      const iteratorData = Array.isArray(data2) ? data2 : [data2];
       for (let index = 0; index < iteratorData.length; index++) {
-        let item = iteratorData[index];
-        let $item = await this.createRuleItemElement(item, $shadowRoot);
-        $container.appendChild($item);
+        const item = iteratorData[index];
+        const $item = await this.createRuleItemElement(item, $shadowRoot);
         $ruleItem.push($item);
       }
+      domUtils.append($container, $ruleItem);
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
-      let data2 = await this.option.data();
+      const data2 = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data2);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
     async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
+      const $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }

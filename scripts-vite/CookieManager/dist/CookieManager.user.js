@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.26
+// @version      2026.1.29
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -481,22 +481,18 @@
       if (!this.listenerData.has(key)) {
         return;
       }
-      let listenerData = this.listenerData.get(key);
+      const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
-          let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
+          if (args.length === 1);
+          else if (args.length === 2) {
             __newValue = newValue;
-          } else {
-            __newValue = value;
+          } else if (args.length === 3) {
+            __newValue = newValue;
+            __oldValue = oldValue;
           }
           await data.callback(key, __newValue, __oldValue);
         }
@@ -784,16 +780,15 @@
             continue;
           }
           if (typeof it === "function") {
-            destoryFnList.push(it);
+            dynamicDestoryFnList.push(it);
             continue;
           }
         }
+        execClearStoreStyleElements();
+        execDestory();
         if (enableValue) {
           storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
           destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        } else {
-          execClearStoreStyleElements();
-          execDestory();
         }
       };
       const getMenuValue = (key) => {
@@ -827,18 +822,17 @@
       };
       const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
+        let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = await callback({
+          callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(true, args);
+              return addStoreValueCallback(execFlag, args);
             },
           });
-          addStoreValueCallback(true, callbackResult);
-        } else {
-          addStoreValueCallback(false, []);
         }
+        addStoreValueCallback(execFlag, callbackResult);
       };
       once &&
         keyList.forEach((key) => {

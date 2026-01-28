@@ -333,25 +333,44 @@ export const M3U8Rule = {
           enable: true,
           option: [
             {
-              name: "过滤【启用】",
+              name: "启用",
+              value: "enable",
               filterCallBack(data) {
                 return data.enable;
               },
             },
             {
-              name: "过滤【未启用】",
+              name: "未启用",
+              value: "notEnable",
               filterCallBack(data) {
                 return !data.enable;
               },
             },
             {
-              name: "过滤【当前网址运行的规则】",
+              name: "当前网址运行的规则",
+              value: "currentUrl",
               filterCallBack(data) {
                 try {
                   return Boolean(window.location.href.match(new RegExp(data.data.url)));
                 } catch (error) {
                   return false;
                 }
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名称",
+              value: "name",
+              filterCallBack(data, searchText) {
+                return Boolean(data.name.match(searchText));
+              },
+            },
+            {
+              name: "网址",
+              value: "url",
+              filterCallBack(data, searchText) {
+                return Boolean(data.data.url.match(searchText));
               },
             },
           ],

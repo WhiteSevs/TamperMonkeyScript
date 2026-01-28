@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.14
+// @version      2026.1.29
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -12,8 +12,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -306,8 +306,8 @@
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
       let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if ((typeof result === "boolean" && !result) || isTimeout) {
+        const result = await fn(isTimeout);
+        if ((typeof result === "boolean" && result) || isTimeout) {
           utils.workerClearTimeout(timeId);
           return;
         }
@@ -1113,22 +1113,18 @@
       if (!this.listenerData.has(key)) {
         return;
       }
-      let listenerData = this.listenerData.get(key);
+      const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
-          let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
+          if (args.length === 1);
+          else if (args.length === 2) {
             __newValue = newValue;
-          } else {
-            __newValue = value;
+          } else if (args.length === 3) {
+            __newValue = newValue;
+            __oldValue = oldValue;
           }
           await data.callback(key, __newValue, __oldValue);
         }
@@ -1370,16 +1366,15 @@
             continue;
           }
           if (typeof it === "function") {
-            destoryFnList.push(it);
+            dynamicDestoryFnList.push(it);
             continue;
           }
         }
+        execClearStoreStyleElements();
+        execDestory();
         if (enableValue) {
           storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
           destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        } else {
-          execClearStoreStyleElements();
-          execDestory();
         }
       };
       const getMenuValue = (key) => {
@@ -1413,18 +1408,17 @@
       };
       const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
+        let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = await callback({
+          callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(true, args);
+              return addStoreValueCallback(execFlag, args);
             },
           });
-          addStoreValueCallback(true, callbackResult);
-        } else {
-          addStoreValueCallback(false, []);
         }
+        addStoreValueCallback(execFlag, callbackResult);
       };
       once &&
         keyList.forEach((key) => {
@@ -7609,18 +7603,18 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops__.confirm({
+      const $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist"></ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `,
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
           html: true,
         },
         btn: utils.assign(
@@ -7639,77 +7633,80 @@
           enable: true,
         },
         style: `
-                ${__pops__.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5px 20px;
+          gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+          max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+          padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
 
-                ${this.option?.style ?? ""}
-            `,
+      ${this.option?.style ?? ""}
+      `,
         width:
           typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height:
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
-      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
-      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = await this.option.getView(await this.option.data());
-      $ulist.appendChild(view);
+      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      const view = await this.option.getView(await this.option.data());
+      domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        let result = await this.option.onsubmit($form, await this.option.data());
+        const result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        await this.option.dialogCloseCallBack(true);
+        if (typeof this.option.dialogCloseCallBack === "function") {
+          await this.option.dialogCloseCallBack(true);
+        }
       };
+      return $dialog;
     }
   }
   class RuleView {
@@ -7754,7 +7751,7 @@
         padding: 4px 8px;
       }
       .rule-view-search-container .pops-panel-select{
-        min-width: 40px;
+        min-width: fit-content;
         max-width: 60px;
       }
       .rule-view-search-container .pops-panel-select select{
@@ -7764,6 +7761,8 @@
       .rule-view-search-container .pops-panel-input{
         width: 100%;
       }
+
+
       .rule-item{
           display: flex;
           align-items: center;
@@ -7876,125 +7875,128 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
       });
-      const $searchContainer = $popsConfirm.$shadowRoot.querySelector(".rule-view-search-container");
-      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
-      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
-      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
-      let externalSelectInfo = null;
-      let ruleValueSelectInfo = null;
-      if (Array.isArray(this.option.bottomControls?.filter?.option)) {
-        domUtils.append(
-          $externalSelect,
-          this.option.bottomControls?.filter?.option.map((option) => {
-            const $option = domUtils.createElement("option", {
-              innerText: option.name,
-            });
-            Reflect.set($option, "data-value", option);
-            return $option;
-          })
-        );
-      }
-      if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
-        domUtils.append(
-          $ruleValueSelect,
-          this.option.bottomControls?.filter?.inputOption.map((option) => {
-            const $option = domUtils.createElement("option", {
-              innerText: option.name,
-            });
-            Reflect.set($option, "data-value", option);
-            return $option;
-          })
-        );
-      }
-      domUtils.on($externalSelect, "change", async (evt) => {
-        const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
-        const selectInfo = Reflect.get($isSelectedElement, "data-value");
-        if (typeof selectInfo?.selectedCallBack === "function") {
-          selectInfo.selectedCallBack(selectInfo);
-        }
-        externalSelectInfo = selectInfo;
-        await execFilter(false);
-      });
-      domUtils.on($ruleValueSelect, "change", async (evt) => {
-        const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-        const selectInfo = Reflect.get($isSelectedElement, "data-value");
-        if (typeof selectInfo?.selectedCallBack === "function") {
-          selectInfo.selectedCallBack(selectInfo);
-        }
-        ruleValueSelectInfo = selectInfo;
-        await execFilter(false);
-      });
-      domUtils.onInput(
-        $searchInput,
-        utils.debounce(async () => {
-          await execFilter(false);
-        })
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
       );
-      const updateSelectData = () => {
-        const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
-        externalSelectInfo = Reflect.get($externalSelected, "data-value");
-        const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-        ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
-      };
-      const execFilter = async (isUpdateSelectData) => {
-        this.clearContent($popsConfirm.$shadowRoot);
-        isUpdateSelectData && updateSelectData();
-        const allData = await this.option.data();
-        const filteredData = [];
-        const searchText = domUtils.val($searchInput);
-        for (let index = 0; index < allData.length; index++) {
-          const item = allData[index];
-          if (externalSelectInfo) {
-            const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-            if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-              continue;
-            }
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        }
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", {
+                innerText: option.name,
+              });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        }
+        domUtils.on($externalSelect, "change", async (evt) => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
           }
-          if (ruleValueSelectInfo) {
-            let flag = true;
-            if (searchText === "") {
-              flag = true;
-            } else {
-              flag = false;
-            }
-            if (!flag) {
-              flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-            }
-            if (!flag) {
-              continue;
-            }
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async (evt) => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") {
+            selectInfo.selectedCallBack(selectInfo);
           }
-          filteredData.push(item);
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          isUpdateSelectData && updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
+                continue;
+              }
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") {
+                flag = true;
+              } else {
+                flag = false;
+              }
+              if (!flag) {
+                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              }
+              if (!flag) {
+                continue;
+              }
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") {
+            externalIndex = filterCallBack.external;
+          } else {
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.external;
+            });
+          }
+          if (externalIndex !== -1) {
+            $externalSelect.selectedIndex = externalIndex;
+          }
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") {
+            ruleIndex = filterCallBack.rule;
+          } else {
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              const data = Reflect.get(option, "data-value");
+              return data.value === filterCallBack.rule;
+            });
+          }
+          if (ruleIndex !== -1) {
+            $ruleValueSelect.selectedIndex = ruleIndex;
+          }
         }
-        await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
-      };
-      if (typeof filterCallBack === "object" && filterCallBack != null) {
-        let externalIndex;
-        if (typeof filterCallBack.external === "number") {
-          externalIndex = filterCallBack.external;
-        } else {
-          externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-            const data = Reflect.get(option, "data-value");
-            return data.value === filterCallBack.external;
-          });
-        }
-        if (externalIndex !== -1) {
-          $externalSelect.selectedIndex = externalIndex;
-        }
-        let ruleIndex;
-        if (typeof filterCallBack.rule === "number") {
-          ruleIndex = filterCallBack.rule;
-        } else {
-          ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-            const data = Reflect.get(option, "data-value");
-            return data.value === filterCallBack.rule;
-          });
-        }
-        if (ruleIndex !== -1) {
-          $ruleValueSelect.selectedIndex = ruleIndex;
-        }
+        await execFilter(true);
+      } else {
+        domUtils.hide($searchContainer, false);
       }
-      await execFilter(true);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
@@ -8066,9 +8068,17 @@
     parseViewElement($shadowRoot) {
       const $container = $shadowRoot.querySelector(".rule-view-container");
       const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
+      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
+      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
+        $searchContainer,
+        $externalSelect,
+        $ruleValueSelect,
+        $searchInput,
       };
     }
     parseRuleItemElement($ruleElement) {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.25
+// @version      2026.1.29
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,8 +14,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.26/dist/vue.global.prod.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-CIcWUWJa.js"(exports$1, module) {
+    "entrance-DM3DLRjf.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1170,22 +1170,18 @@
           if (!this.listenerData.has(key)) {
             return;
           }
-          let listenerData = this.listenerData.get(key);
+          const listenerData = this.listenerData.get(key);
           for (let index = 0; index < listenerData.length; index++) {
             const data = listenerData[index];
             if (typeof data.callback === "function") {
-              let value = this.get(key);
               let __newValue;
               let __oldValue;
-              if (typeof oldValue !== "undefined" && args.length >= 2) {
-                __oldValue = oldValue;
-              } else {
-                __oldValue = value;
-              }
-              if (typeof newValue !== "undefined" && args.length > 2) {
+              if (args.length === 1);
+              else if (args.length === 2) {
                 __newValue = newValue;
-              } else {
-                __newValue = value;
+              } else if (args.length === 3) {
+                __newValue = newValue;
+                __oldValue = oldValue;
               }
               await data.callback(key, __newValue, __oldValue);
             }
@@ -1427,16 +1423,15 @@
                 continue;
               }
               if (typeof it === "function") {
-                destoryFnList.push(it);
+                dynamicDestoryFnList.push(it);
                 continue;
               }
             }
+            execClearStoreStyleElements();
+            execDestory();
             if (enableValue) {
               storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
               destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-            } else {
-              execClearStoreStyleElements();
-              execDestory();
             }
           };
           const getMenuValue = (key) => {
@@ -1470,18 +1465,17 @@
           };
           const valueChangeCallback = async (valueOption) => {
             const execFlag = checkMenuExec();
+            let callbackResult = [];
             if (execFlag) {
               const valueList = keyList.map((key) => this.getValue(key));
-              const callbackResult = await callback({
+              callbackResult = await callback({
                 value: isArrayKey ? valueList : valueList[0],
                 addStoreValue: (...args) => {
-                  return addStoreValueCallback(true, args);
+                  return addStoreValueCallback(execFlag, args);
                 },
               });
-              addStoreValueCallback(true, callbackResult);
-            } else {
-              addStoreValueCallback(false, []);
             }
+            addStoreValueCallback(execFlag, callbackResult);
           };
           once &&
             keyList.forEach((key) => {
@@ -11178,18 +11172,18 @@ div[class^="new-summary-container_"] {\r
           this.option = option;
         }
         async showView() {
-          let $dialog = __pops__.confirm({
+          const $dialog = __pops__.confirm({
             title: {
               text: this.option.title,
               position: "center",
             },
             content: {
               text: `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist"></ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `,
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
               html: true,
             },
             btn: utils.assign(
@@ -11208,59 +11202,59 @@ div[class^="new-summary-container_"] {\r
               enable: true,
             },
             style: `
-                ${__pops__.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5px 20px;
+          gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+          max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+          padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
 
-                ${this.option?.style ?? ""}
-            `,
+      ${this.option?.style ?? ""}
+      `,
             width:
               typeof this.option.width === "function"
                 ? this.option.width()
@@ -11274,19 +11268,22 @@ div[class^="new-summary-container_"] {\r
                   ? "500px"
                   : "80vh",
           });
-          let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+          const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
           $dialog.$shadowRoot.querySelector("input[type=submit]");
-          let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-          let view = await this.option.getView(await this.option.data());
-          $ulist.appendChild(view);
+          const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+          const view = await this.option.getView(await this.option.data());
+          domUtils.append($ulist, view);
           const submitSaveOption = async () => {
-            let result = await this.option.onsubmit($form, await this.option.data());
+            const result = await this.option.onsubmit($form, await this.option.data());
             if (!result.success) {
               return;
             }
             $dialog.close();
-            await this.option.dialogCloseCallBack(true);
+            if (typeof this.option.dialogCloseCallBack === "function") {
+              await this.option.dialogCloseCallBack(true);
+            }
           };
+          return $dialog;
         }
       }
       class RuleView {
