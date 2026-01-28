@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.24
+// @version      2026.1.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -949,22 +949,18 @@
       if (!this.listenerData.has(key)) {
         return;
       }
-      let listenerData = this.listenerData.get(key);
+      const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
-          let value = this.get(key);
           let __newValue;
           let __oldValue;
-          if (typeof oldValue !== "undefined" && args.length >= 2) {
-            __oldValue = oldValue;
-          } else {
-            __oldValue = value;
-          }
-          if (typeof newValue !== "undefined" && args.length > 2) {
+          if (args.length === 1);
+          else if (args.length === 2) {
             __newValue = newValue;
-          } else {
-            __newValue = value;
+          } else if (args.length === 3) {
+            __newValue = newValue;
+            __oldValue = oldValue;
           }
           await data.callback(key, __newValue, __oldValue);
         }
@@ -1206,16 +1202,15 @@
             continue;
           }
           if (typeof it === "function") {
-            destoryFnList.push(it);
+            dynamicDestoryFnList.push(it);
             continue;
           }
         }
+        execClearStoreStyleElements();
+        execDestory();
         if (enableValue) {
           storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
           destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        } else {
-          execClearStoreStyleElements();
-          execDestory();
         }
       };
       const getMenuValue = (key) => {
@@ -1249,18 +1244,17 @@
       };
       const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
+        let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
-          const callbackResult = await callback({
+          callbackResult = await callback({
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(true, args);
+              return addStoreValueCallback(execFlag, args);
             },
           });
-          addStoreValueCallback(true, callbackResult);
-        } else {
-          addStoreValueCallback(false, []);
         }
+        addStoreValueCallback(execFlag, callbackResult);
       };
       once &&
         keyList.forEach((key) => {
@@ -2913,15 +2907,16 @@
       Panel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
       });
-      if (DouYinRouter.isIndex()) {
-        Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      } else if (DouYinRouter.isLive()) {
-        Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      }
+      Panel.onceExec("dy-video-or-live-doubleClickAction", () => {
+        if (DouYinRouter.isIndex()) {
+          const videoAction = Panel.getValue("dy-video-doubleClickAction");
+          if (videoAction === "") return;
+        } else if (DouYinRouter.isLive()) {
+          const liveAction = Panel.getValue("dy-live-doubleClickAction");
+          if (liveAction === "") return;
+        }
+        this.disableDoubleClickLike();
+      });
     },
     removeEnvCheck() {
       log.info("移除环境检测");
@@ -3216,16 +3211,37 @@
       });
     },
     disableDoubleClickLike() {
-      let latestClickTime = Date.now();
+      let latestClickTime = null;
+      let preventFlag = true;
+      const check = () => {
+        preventFlag = false;
+        if (DouYinRouter.isIndex()) {
+          const videoAction = Panel.getValue("dy-video-doubleClickAction");
+          if (videoAction === "") return;
+        } else if (DouYinRouter.isLive()) {
+          const liveAction = Panel.getValue("dy-live-doubleClickAction");
+          if (liveAction === "") return;
+        }
+        preventFlag = true;
+      };
+      Panel.addValueChangeListener("dy-video-doubleClickAction", check);
+      Panel.addValueChangeListener("dy-live-doubleClickAction", check);
       Hook.element_addEventListener((target, eventName, listener, option) => {
         const listenerStr = listener.toString();
         if (
           eventName === "click" &&
           target instanceof HTMLElement &&
-          target?.classList?.contains("xgplayer") &&
-          listenerStr.match(/video|innerContainer|video.__canvas|mouse/)
+          ((DouYinRouter.isIndex() &&
+            target?.classList?.contains("xgplayer") &&
+            listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
+            (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
         ) {
+          log.success(`success click double event listener`);
           return function (...eventArgs) {
+            if (!preventFlag) return;
+            if (latestClickTime == null) {
+              latestClickTime = Date.now();
+            }
             const currentClickTime = Date.now();
             const [event] = eventArgs;
             if (currentClickTime - latestClickTime <= 288) {
@@ -4315,13 +4331,16 @@
     },
     blockAIDouYin() {
       log.info(`【屏蔽】AI抖音`);
-      return CommonUtil.addBlockCSS(
-        '.immersive-player-switch-on-hide-interaction-area > div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
-        '.immersive-player-switch-on-hide-interaction-area > div:has(>svg g[filter*="entryIcon_svg__filter"])',
-        '.immersive-player-switch-on-hide-interaction-area > div > div:has(>svg g[filter*="entryIcon_svg__filter"])',
-        '.xgplayer div:has(>svg path[d="M22.94 21.309l.58 1.364a45.819 45.819 0 0 0 2.125 4.34l.528.947-.108.056-1.077.543-.102.052-.054-.102-.576-1.087a44.077 44.077 0 0 1-.22-.423 7.704 7.704 0 0 0-3.902.001c-.087.169-.154.3-.219.422l-.576 1.087-.054.102-.102-.052-1.077-.543-.108-.056.059-.106.468-.841a45.902 45.902 0 0 0 2.125-4.34l.58-1.364.038-.086.091.017c.482.086.97.086 1.451 0l.093-.017.037.086zm6.011-.019a3.731 3.731 0 0 0-.173.9c-.022.342-.034.69-.034 1.035v3.067c0 .345.012.694.034 1.035l.022.227c.029.226.08.452.151.673l.05.153h-1.92l.049-.153c.095-.295.153-.597.173-.9.022-.345.033-.694.033-1.035v-3.067c0-.34-.01-.689-.033-1.034a3.753 3.753 0 0 0-.173-.9l-.05-.154h1.921l-.05.153zM17.161 5.395l.123.008a4.527 4.527 0 0 1 3.14 1.602 4.367 4.367 0 0 1 1.033 2.978l-.005.109c-.015.284-.063.56-.13.828l-.117.447 1.964-.504.113-.027c2.38-.549 4.824.818 5.465 3.136l.05.184a4.368 4.368 0 0 1-.534 3.265l-.06.097a4.495 4.495 0 0 1-1.965 1.674c-3.71 1.444-5.893-1.51-6.663-3.187l.134-.034 2.236-.575c.033.329.136.661.333.984a2.5 2.5 0 0 0 2.51 1.157l.113-.021a2.456 2.456 0 0 0 1.384-.825l.297-.448a2.37 2.37 0 0 0 .209-1.637l-.018-.075c-.334-1.268-1.63-2.035-2.914-1.753h-.01l-7.51 1.916h-.022a.056.056 0 0 1-.02-.01.048.048 0 0 1-.017-.037l.014-.205.136-2.238c.327.071.682.079 1.054-.008.973-.227 1.74-1.006 1.894-1.992a2.371 2.371 0 0 0-.303-1.578l-.055-.09a2.46 2.46 0 0 0-1.855-1.118l-.076-.006c-1.323-.076-2.469.897-2.596 2.188v.009l-.47 7.62a.047.047 0 0 1-.053.04l-.013-.002-.166-.065-2.15-.83c.169-.284.285-.612.316-.987l.007-.092a2.443 2.443 0 0 0-1.263-2.256l-.084-.043-.105-.048a2.482 2.482 0 0 0-1.508-.155l-.104.024a2.443 2.443 0 0 0-1.683 1.46c-.487 1.219.104 2.59 1.31 3.109l.008.003 7.22 2.797c.03.012.036.048.02.068l-.114.136-1.467 1.759a2.335 2.335 0 0 0-.79-.573l-.068-.03-.086-.034c-.873-.321-1.878-.147-2.566.484l-.069.065a2.407 2.407 0 0 0 .188 3.584 2.49 2.49 0 0 0 3.404-.268l.006-.006 3.485-4.165v3.166l-.5.607v-.004l-1.29 1.543c-1.559 1.868-4.346 2.229-6.28.782l-.092-.07a4.41 4.41 0 0 1-1.668-3.076l-.009-.113a4.384 4.384 0 0 1 1.619-3.688l.357-.297-1.892-.729c-2.323-.895-3.535-3.457-2.656-5.739a4.475 4.475 0 0 1 2.565-2.555 4.577 4.577 0 0 1 4.068.373l.393.244.12-1.995h-.001c.146-2.447 2.248-4.375 4.728-4.258zm4.679 17.909a45.987 45.987 0 0 1-.964 2.191 9.16 9.16 0 0 1 2.417 0 45.878 45.878 0 0 1-.963-2.191l-.245-.6-.245.6z"])',
-        '.immersive-player-switch-on-hide-interaction-area > div:has(> div >svg >defs+ g[clip-path*="__lottie_element_"])'
-      );
+      window.localStorage.setItem("aiEntryClose", "1");
+      return [
+        CommonUtil.addBlockCSS(
+          '.immersive-player-switch-on-hide-interaction-area > div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
+          '.immersive-player-switch-on-hide-interaction-area > div:has(>svg g[filter*="entryIcon_svg__filter"])',
+          '.immersive-player-switch-on-hide-interaction-area > div > div:has(>svg g[filter*="entryIcon_svg__filter"])',
+          '.xgplayer div:has(>svg path[d="M22.94 21.309l.58 1.364a45.819 45.819 0 0 0 2.125 4.34l.528.947-.108.056-1.077.543-.102.052-.054-.102-.576-1.087a44.077 44.077 0 0 1-.22-.423 7.704 7.704 0 0 0-3.902.001c-.087.169-.154.3-.219.422l-.576 1.087-.054.102-.102-.052-1.077-.543-.108-.056.059-.106.468-.841a45.902 45.902 0 0 0 2.125-4.34l.58-1.364.038-.086.091.017c.482.086.97.086 1.451 0l.093-.017.037.086zm6.011-.019a3.731 3.731 0 0 0-.173.9c-.022.342-.034.69-.034 1.035v3.067c0 .345.012.694.034 1.035l.022.227c.029.226.08.452.151.673l.05.153h-1.92l.049-.153c.095-.295.153-.597.173-.9.022-.345.033-.694.033-1.035v-3.067c0-.34-.01-.689-.033-1.034a3.753 3.753 0 0 0-.173-.9l-.05-.154h1.921l-.05.153zM17.161 5.395l.123.008a4.527 4.527 0 0 1 3.14 1.602 4.367 4.367 0 0 1 1.033 2.978l-.005.109c-.015.284-.063.56-.13.828l-.117.447 1.964-.504.113-.027c2.38-.549 4.824.818 5.465 3.136l.05.184a4.368 4.368 0 0 1-.534 3.265l-.06.097a4.495 4.495 0 0 1-1.965 1.674c-3.71 1.444-5.893-1.51-6.663-3.187l.134-.034 2.236-.575c.033.329.136.661.333.984a2.5 2.5 0 0 0 2.51 1.157l.113-.021a2.456 2.456 0 0 0 1.384-.825l.297-.448a2.37 2.37 0 0 0 .209-1.637l-.018-.075c-.334-1.268-1.63-2.035-2.914-1.753h-.01l-7.51 1.916h-.022a.056.056 0 0 1-.02-.01.048.048 0 0 1-.017-.037l.014-.205.136-2.238c.327.071.682.079 1.054-.008.973-.227 1.74-1.006 1.894-1.992a2.371 2.371 0 0 0-.303-1.578l-.055-.09a2.46 2.46 0 0 0-1.855-1.118l-.076-.006c-1.323-.076-2.469.897-2.596 2.188v.009l-.47 7.62a.047.047 0 0 1-.053.04l-.013-.002-.166-.065-2.15-.83c.169-.284.285-.612.316-.987l.007-.092a2.443 2.443 0 0 0-1.263-2.256l-.084-.043-.105-.048a2.482 2.482 0 0 0-1.508-.155l-.104.024a2.443 2.443 0 0 0-1.683 1.46c-.487 1.219.104 2.59 1.31 3.109l.008.003 7.22 2.797c.03.012.036.048.02.068l-.114.136-1.467 1.759a2.335 2.335 0 0 0-.79-.573l-.068-.03-.086-.034c-.873-.321-1.878-.147-2.566.484l-.069.065a2.407 2.407 0 0 0 .188 3.584 2.49 2.49 0 0 0 3.404-.268l.006-.006 3.485-4.165v3.166l-.5.607v-.004l-1.29 1.543c-1.559 1.868-4.346 2.229-6.28.782l-.092-.07a4.41 4.41 0 0 1-1.668-3.076l-.009-.113a4.384 4.384 0 0 1 1.619-3.688l.357-.297-1.892-.729c-2.323-.895-3.535-3.457-2.656-5.739a4.475 4.475 0 0 1 2.565-2.555 4.577 4.577 0 0 1 4.068.373l.393.244.12-1.995h-.001c.146-2.447 2.248-4.375 4.728-4.258zm4.679 17.909a45.987 45.987 0 0 1-.964 2.191 9.16 9.16 0 0 1 2.417 0 45.878 45.878 0 0 1-.963-2.191l-.245-.6-.245.6z"])',
+          '.immersive-player-switch-on-hide-interaction-area > div:has(> div >svg >defs+ g[clip-path*="__lottie_element_"])'
+        ),
+      ];
     },
     shieldAuthorAvatar() {
       log.info("【屏蔽】作者头像");
@@ -5699,8 +5718,9 @@
         },
         false
       );
-      Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
-        return this.doubleClickEnterElementFullScreen();
+      Panel.execMenuOnce("dy-video-doubleClickAction", (option) => {
+        if (option.value === "") return;
+        return this.doubleClickAction(option.value);
       });
       Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
         return this.changeBackgroundColor(option.value[1]);
@@ -5826,7 +5846,7 @@
       }
       return result;
     },
-    autoEnterElementFullScreen(userKeyBoard = false) {
+    autoEnterElementFullScreen(userKeyBoard = false, isWebSiteFullScreen = true) {
       if (this.$flag.isWaitEnterFullScreen) {
         log.warn(`已存在等待进入全屏...`);
         return;
@@ -5834,26 +5854,53 @@
       this.$flag.isWaitEnterFullScreen = true;
       if (userKeyBoard) {
         domUtils.onReady(() => {
-          const keydownEvent = new KeyboardEvent("keydown", {
-            bubbles: true,
-            cancelable: true,
-            key: "Y",
-            code: "KeyY",
-            keyCode: 89,
-            which: 89,
-          });
+          const keyboardEventDict = isWebSiteFullScreen
+            ? {
+                bubbles: true,
+                cancelable: true,
+                key: "Y",
+                code: "KeyY",
+              }
+            : {
+                bubbles: true,
+                cancelable: true,
+                key: "H",
+                code: "KeyH",
+              };
+          const keydownEvent = new KeyboardEvent("keydown", keyboardEventDict);
           document.body.dispatchEvent(keydownEvent);
           this.$flag.isWaitEnterFullScreen = false;
-          log.success("成功自动进入网页全屏-快捷键");
+          log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏:使用快捷键触发的方式`);
         });
       } else {
         domUtils.onReady(() => {
           ReactUtils.waitReactPropsToSet(
             () => {
-              return (
-                $('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
-                $('[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon')
-              );
+              if (isWebSiteFullScreen) {
+                if (DouYinRouter.isLive()) {
+                  return $(
+                    '[id^="living_player_container"] .douyin-player .douyin-player-controls-right div:has(>svg path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])'
+                  );
+                } else {
+                  return (
+                    $('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
+                    $('[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon')
+                  );
+                }
+              } else {
+                if (DouYinRouter.isLive()) {
+                  return (
+                    $(
+                      '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M9.5 8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-13zm10 11h-1.501v2H20.5a1 1 0 0 0 1-1v-2.5h-2V19zm-7 0v-1.5h-2V20a1 1 0 0 0 1 1h2.499v-2H12.5zm0-6h1.499v-2H11.5a1 1 0 0 0-1 1v2.5h2V13zm7 0h-1.501v-2H20.5a1 1 0 0 1 1 1v2.5h-2V13z"])'
+                    ) ||
+                    $(
+                      '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])'
+                    )
+                  );
+                } else {
+                  return $('[data-e2e="feed-active-video"] .xgplayer-fullscreen');
+                }
+              }
             },
             "reactProps",
             {
@@ -5862,7 +5909,7 @@
               },
               set: (reactInstance, $target) => {
                 this.$flag.isWaitEnterFullScreen = false;
-                log.success("成功自动进入网页全屏-点击按钮");
+                log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏：通过点击按钮触发的方式`);
                 $target.click();
               },
             }
@@ -5870,13 +5917,14 @@
         });
       }
     },
-    doubleClickEnterElementFullScreen() {
+    doubleClickAction(action) {
       let isDouble = false;
-      log.info("注册双击进入网页全屏事件");
-      const result = domUtils.on(document, "click", [".newVideoPlayer", "#sliderVideo"], (event) => {
+      const isWebSiteFullScreen = action === "website-fullscreen";
+      log.info("双击video动作：" + action);
+      const listener = domUtils.on(document, "click", [".newVideoPlayer", "#sliderVideo"], (event) => {
         if (isDouble) {
           isDouble = false;
-          DouYinVideoPlayer.autoEnterElementFullScreen(true);
+          DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
         } else {
           isDouble = true;
           setTimeout(() => {
@@ -5884,7 +5932,11 @@
           }, 250);
         }
       });
-      return [result.off];
+      return [
+        () => {
+          listener.off();
+        },
+      ];
     },
     changeCommentToBottom() {
       log.info("评论区移到中间");
@@ -7109,6 +7161,119 @@
       return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
     },
   };
+  const DouYinLivePlayerInstance = {
+    $data: {
+      playerInstance: null,
+    },
+    $el: {
+      $player: null,
+    },
+    registerMenu() {
+      MenuRegister.add({
+        key: "live-parsePlayerInstance",
+        text: "⚙ PlayerInstance",
+        autoReload: false,
+        showText(text, enable) {
+          return text;
+        },
+        callback: () => {
+          const $player = $(`[id^="living_player_container"] .douyin-player`);
+          if (!$player) {
+            Qmsg.error("获取playerInstance元素失败");
+            return;
+          }
+          this.$el.$player = $player;
+          const playerInst = this.parseElementPlayerIns(this.$el.$player);
+          if (playerInst == null) {
+            Qmsg.error("获取playerInstance失败");
+            return;
+          }
+          this.$data.playerInstance = playerInst;
+          this.showParseDialog();
+        },
+      });
+    },
+    parseElementPlayerIns($ele) {
+      const react = utils.getReactInstance($ele);
+      return react?.reactFiber?.return?.memoizedProps?.playerInstance || Reflect.get(react, "_player")?.proxy;
+    },
+    showParseDialog() {
+      log.info("playerInstance：", this.$data.playerInstance);
+      const currentPlayerSrc = this.$data.playerInstance?.src;
+      const urlList = this.$data.playerInstance?.baseConfig?.abr?.urls ?? {};
+      __pops__.alert({
+        title: {
+          text: "解析信息",
+          position: "center",
+        },
+        content: {
+          text: `
+        <div class="live-dy-parse-container">
+            <div class="live-dy-parse-item">
+                <div class="live-dy-parse-item-name">播放器版本：</div>
+                <div class="live-dy-parse-item-value">${this.$data.playerInstance?.version}</div>
+            </div>
+            <div class="live-dy-parse-item">
+                <div class="live-dy-parse-item-name">BitRate：</div>
+                <div class="live-dy-parse-item-value">${this.$data.playerInstance?.baseConfig?.abr?.bitrate}</div>
+            </div>
+            <div class="live-dy-parse-item">
+                <div class="live-dy-parse-item-name">当前播放的源：</div>
+                <a class="live-dy-parse-item-value" href="${currentPlayerSrc}" target="_blank">${currentPlayerSrc}</a>
+            </div>
+            ${Object.keys(urlList)
+              .sort((a, b) => Number(a) - Number(b))
+              .map((bitRate) => {
+                const src = urlList[bitRate];
+                let qualityName = String(bitRate);
+                if (bitRate === this.$data.playerInstance?.baseConfig?.abr?.bitrate?.toString()) {
+                  qualityName = "原画";
+                }
+                return `
+                <div class="live-dy-parse-item">
+                    <div class="live-dy-parse-item-name">${qualityName}：</div>
+                    <a class="live-dy-parse-item-value" href="${src}" target="_blank">${src}</a>
+                </div>
+                `;
+              })
+              .filter((it) => it != null)
+              .join("\n")}
+        </div>
+        `,
+          html: true,
+        },
+        mask: {
+          clickEvent: {
+            toClose: true,
+          },
+        },
+        btn: {
+          ok: {
+            enable: false,
+          },
+        },
+        width: window.innerWidth > 550 ? "550px" : "88wv",
+        height: window.innerHeight > 550 ? "550px" : "70vh",
+        style: `
+      .live-dy-parse-container{
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+      }
+      .live-dy-parse-item{
+          display: flex;
+          flex-wrap: wrap;
+          border: 1px solid #919191;
+          border-left: 0px;
+          border-right: 0px;
+          width: 100%;
+          background: #0af9ee;
+          padding: 5px 5px;
+      }
+      `,
+      });
+    },
+  };
   const DouYinLiveShortCut = {
     shortCut: new ShortCut("live-short-cut"),
     $data: {
@@ -7192,6 +7357,9 @@
       Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
         return this.changeBackgroundColor();
       });
+      Panel.onceExec("live-parsePlayerInstance", () => {
+        return DouYinLivePlayerInstance.registerMenu();
+      });
       Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
         const result = domUtils.on(
           document,
@@ -7213,6 +7381,10 @@
       });
       Panel.execMenu("dy-live-quickGift", () => {
         return this.disableQuickGift();
+      });
+      Panel.execMenuOnce("dy-live-doubleClickAction", (option) => {
+        if (option.value === "") return;
+        return this.doubleClickAction(option.value);
       });
       domUtils.onReady(() => {
         Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
@@ -7587,6 +7759,27 @@
     disableQuickGift() {
       log.info(`禁用快捷键送礼 - localStorage处理`);
       window.localStorage.setItem("disable_shortcut_key_v2", "false");
+    },
+    doubleClickAction(action) {
+      let isDouble = false;
+      const isWebSiteFullScreen = action === "website-fullscreen";
+      log.info("双击video动作：" + action);
+      const listener = domUtils.on(document, "click", ['[id^="living_player_container"] .douyin-player'], (event) => {
+        if (isDouble) {
+          isDouble = false;
+          DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+        } else {
+          isDouble = true;
+          setTimeout(() => {
+            isDouble = false;
+          }, 250);
+        }
+      });
+      return [
+        () => {
+          listener.off();
+        },
+      ];
     },
   };
   const DouYinRedirect = {
@@ -8823,18 +9016,18 @@
       this.option = option;
     }
     async showView() {
-      let $dialog = __pops__.confirm({
+      const $dialog = __pops__.confirm({
         title: {
           text: this.option.title,
           position: "center",
         },
         content: {
           text: `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist"></ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `,
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
           html: true,
         },
         btn: utils.assign(
@@ -8853,77 +9046,80 @@
           enable: true,
         },
         style: `
-                ${__pops__.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5px 20px;
+          gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+          max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+          padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
 
-                ${this.option?.style ?? ""}
-            `,
+      ${this.option?.style ?? ""}
+      `,
         width:
           typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
         height:
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
-      let $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
       $dialog.$shadowRoot.querySelector("input[type=submit]");
-      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = await this.option.getView(await this.option.data());
-      $ulist.appendChild(view);
+      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      const view = await this.option.getView(await this.option.data());
+      domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        let result = await this.option.onsubmit($form, await this.option.data());
+        const result = await this.option.onsubmit($form, await this.option.data());
         if (!result.success) {
           return;
         }
         $dialog.close();
-        await this.option.dialogCloseCallBack(true);
+        if (typeof this.option.dialogCloseCallBack === "function") {
+          await this.option.dialogCloseCallBack(true);
+        }
       };
+      return $dialog;
     }
   }
   class RuleView {
@@ -10473,8 +10669,9 @@
         this.disableVideoSatisfaction();
       });
       domUtils.onReady(() => {
-        Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
-          return this.automaticContinuousPlayback();
+        Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", (option) => {
+          const isPlayCollection = option.value === "Sequence+Collection";
+          return this.automaticContinuousPlayback(isPlayCollection);
         });
       });
     },
@@ -10520,7 +10717,7 @@
         },
       ];
     },
-    automaticContinuousPlayback() {
+    automaticContinuousPlayback(isPlayCollection) {
       log.info(`自动连播`);
       const attrFlagName = "data-automaticContinuousPlayback";
       const queryActiveVideo = (withAttr = false, isAll = false) => {
@@ -10586,7 +10783,7 @@
             domUtils.preventEvent(evt);
             currentVideoSrc = $activeVideo.src;
             const $recommend = $activeVideo.closest(".page-recommend-container");
-            if ($recommend) {
+            if (isPlayCollection && $recommend) {
               const $collectionNextEpisode = $(
                 `xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,
                 $recommend
@@ -10611,7 +10808,7 @@
             }
             CommonUtil.interval(
               async (isTimeout) => {
-                const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+                const isSlideMode = isPlayCollection && Boolean($activeVideo.closest("#slideMode"));
                 if (isTimeout) {
                   const { $exit } = queryRelatedModeInfo();
                   if (isSlideMode) {
@@ -11802,7 +11999,6 @@
                     void 0,
                     "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
-                  UISwitch("禁用鼠标双击点赞", "dy-video-disableDoubleClickLike", false),
                   UISwitch(
                     "手势返回关闭评论区",
                     "dy-video-gestureBackCloseComment",
@@ -11831,13 +12027,20 @@
                     void 0,
                     "网页加载完毕后自动点击网页全屏按钮进入全屏"
                   ),
-                  UISwitch(
-                    "双击进入网页全屏",
-                    "dy-video-doubleClickEnterElementFullScreen",
-                    false,
-                    void 0,
-                    "双击视频自动进入网页全屏，检测间隔250ms"
-                  ),
+                  UISelect("双击video动作", "dy-video-doubleClickAction", "", [
+                    {
+                      text: "点赞",
+                      value: "",
+                    },
+                    {
+                      text: "网页全屏",
+                      value: "website-fullscreen",
+                    },
+                    {
+                      text: "全屏",
+                      value: "fullscreen",
+                    },
+                  ]),
                   UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false),
                   UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false),
                   UISelect(
@@ -12634,9 +12837,22 @@
                     "自动监听并检测弹窗"
                   ),
                   UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
-                  UISwitch("禁用双击点赞", "dy-live-disableDoubleClickLike", false, void 0, "禁止直播视频区域双击点赞"),
                   UISwitch("自动关闭聊天室", "dy-live-autoCloseChatRoom", false, void 0, "自动点击关闭聊天室按钮"),
                   UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
+                  UISelect("双击video动作", "dy-live-doubleClickAction", "", [
+                    {
+                      text: "点赞",
+                      value: "",
+                    },
+                    {
+                      text: "网页全屏",
+                      value: "website-fullscreen",
+                    },
+                    {
+                      text: "全屏",
+                      value: "fullscreen",
+                    },
+                  ]),
                 ],
               },
               {
@@ -12677,68 +12893,6 @@
                       desc: "自定义视频背景颜色",
                     }
                   ),
-                ],
-              },
-            ],
-          },
-          {
-            text: "消息过滤器",
-            type: "deepMenu",
-            description: "包括：弹幕、聊天室",
-            views: [
-              {
-                text: "",
-                type: "container",
-                views: [
-                  UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
-                  UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
-                  UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
-                ],
-              },
-              {
-                type: "container",
-                text: "聊天室",
-                views: [
-                  UISwitch(
-                    "【屏蔽】xxx 为主播加了 xx分",
-                    "live-message-shield-biz_scene-common_text_game_score",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, ""),
-                ],
-              },
-              {
-                type: "container",
-                text: "",
-                views: [
-                  UIOwn(($li) => {
-                    const $textareaWrapper = domUtils.createElement(
-                      "div",
-                      {
-                        className: "pops-panel-textarea",
-                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个
-例如：屏蔽包含'主播'的消息
-主播" style="height:350px;"></textarea>`,
-                      },
-                      {
-                        style: "width: 100%;",
-                      }
-                    );
-                    const textarea = $textareaWrapper.querySelector("textarea");
-                    textarea.value = DouYinMessageFilter.get();
-                    domUtils.on(
-                      textarea,
-                      ["input", "propertychange"],
-                      utils.debounce(function () {
-                        DouYinMessageFilter.set(textarea.value);
-                        DouYinMessageFilter.init();
-                      }, 1e3)
-                    );
-                    $li.appendChild($textareaWrapper);
-                    return $li;
-                  }),
                 ],
               },
             ],
@@ -12806,6 +12960,68 @@
                   UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
                   UISwitch("切换直播间", "dy-live-switchLiveRoom", false, void 0, "↑↓"),
                   UISwitch("快捷键送礼", "dy-live-quickGift", false, void 0, "E"),
+                ],
+              },
+            ],
+          },
+          {
+            text: "消息过滤器",
+            type: "deepMenu",
+            description: "包括：弹幕、聊天室",
+            views: [
+              {
+                text: "",
+                type: "container",
+                views: [
+                  UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
+                  UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
+                  UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
+                ],
+              },
+              {
+                type: "container",
+                text: "聊天室",
+                views: [
+                  UISwitch(
+                    "【屏蔽】xxx 为主播加了 xx分",
+                    "live-message-shield-biz_scene-common_text_game_score",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, ""),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UIOwn(($li) => {
+                    const $textareaWrapper = domUtils.createElement(
+                      "div",
+                      {
+                        className: "pops-panel-textarea",
+                        innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个
+例如：屏蔽包含'主播'的消息
+主播" style="height:350px;"></textarea>`,
+                      },
+                      {
+                        style: "width: 100%;",
+                      }
+                    );
+                    const textarea = $textareaWrapper.querySelector("textarea");
+                    textarea.value = DouYinMessageFilter.get();
+                    domUtils.on(
+                      textarea,
+                      ["input", "propertychange"],
+                      utils.debounce(function () {
+                        DouYinMessageFilter.set(textarea.value);
+                        DouYinMessageFilter.init();
+                      }, 1e3)
+                    );
+                    $li.appendChild($textareaWrapper);
+                    return $li;
+                  }),
                 ],
               },
             ],
@@ -13064,10 +13280,24 @@
         type: "container",
         views: [
           UISwitch("禁止自动播放", "dy-recommend-pauseVideo", false, void 0, "3秒内禁止任何形式的播放（仅第一个视频）"),
-          UISwitch(
+          UISelect(
             "自动连播",
             "dy-recommend-automaticContinuousPlayback",
             false,
+            [
+              {
+                text: "无",
+                value: false,
+              },
+              {
+                text: "顺序",
+                value: true,
+              },
+              {
+                text: "顺序+合集",
+                value: "Sequence+Collection",
+              },
+            ],
             void 0,
             "注意：请勿和推荐页面自带的<code>连播</code>功能同时使用"
           ),

@@ -71,8 +71,9 @@ export const DouYinVideoPlayer = {
       },
       false
     );
-    Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
-      return this.doubleClickEnterElementFullScreen();
+    Panel.execMenuOnce("dy-video-doubleClickAction", (option) => {
+      if (option.value === "") return;
+      return this.doubleClickAction(option.value);
     });
     Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
       return this.changeBackgroundColor(option.value[1]);
@@ -218,10 +219,11 @@ export const DouYinVideoPlayer = {
     return result;
   },
   /**
-   * 自动进入网页全屏
+   * 自动进入全屏
    * @param [userKeyBoard=false] 是否使用键盘触发
+   * @param [isWebSiteFullScreen=true] 是否是网页全屏，默认（true），否则是全屏
    */
-  autoEnterElementFullScreen(userKeyBoard = false) {
+  autoEnterElementFullScreen(userKeyBoard = false, isWebSiteFullScreen = true) {
     if (this.$flag.isWaitEnterFullScreen) {
       log.warn(`已存在等待进入全屏...`);
       return;
@@ -231,31 +233,62 @@ export const DouYinVideoPlayer = {
       // 使用键盘事件触发全屏
       // 优点：只要抖音不修改触发全屏的快捷键，则此方案可以一直使用
       DOMUtils.onReady(() => {
-        const keydownEvent = new KeyboardEvent("keydown", {
-          bubbles: true,
-          cancelable: true,
-          key: "Y",
-          code: "KeyY",
-          keyCode: 89,
-          which: 89,
-        });
+        const keyboardEventDict: KeyboardEventInit = isWebSiteFullScreen
+          ? {
+              bubbles: true,
+              cancelable: true,
+              key: "Y",
+              code: "KeyY",
+            }
+          : {
+              bubbles: true,
+              cancelable: true,
+              key: "H",
+              code: "KeyH",
+            };
+        const keydownEvent = new KeyboardEvent("keydown", keyboardEventDict);
         document.body.dispatchEvent(keydownEvent);
         this.$flag.isWaitEnterFullScreen = false;
-        log.success("成功自动进入网页全屏-快捷键");
+        log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏:使用快捷键触发的方式`);
       });
     } else {
       // 点击全屏按钮来触发全屏
       DOMUtils.onReady(() => {
         ReactUtils.waitReactPropsToSet(
           () => {
-            return (
-              // 普通视频的网页全屏按钮
-              $<HTMLElement>('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
-              // 搜索页面的网页全屏按钮↓
-              $<HTMLElement>(
-                '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
-              )
-            );
+            if (isWebSiteFullScreen) {
+              if (DouYinRouter.isLive()) {
+                // 直播的网页全屏按钮
+                return $<HTMLElement>(
+                  '[id^="living_player_container"] .douyin-player .douyin-player-controls-right div:has(>svg path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])'
+                );
+              } else {
+                return (
+                  // 普通视频的网页全屏按钮
+                  $<HTMLElement>('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
+                  // 搜索页面的网页全屏按钮↓
+                  $<HTMLElement>(
+                    '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
+                  )
+                );
+              }
+            } else {
+              if (DouYinRouter.isLive()) {
+                // 直播的进入全屏按钮
+                return (
+                  $<HTMLElement>(
+                    '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M9.5 8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-13zm10 11h-1.501v2H20.5a1 1 0 0 0 1-1v-2.5h-2V19zm-7 0v-1.5h-2V20a1 1 0 0 0 1 1h2.499v-2H12.5zm0-6h1.499v-2H11.5a1 1 0 0 0-1 1v2.5h2V13zm7 0h-1.501v-2H20.5a1 1 0 0 1 1 1v2.5h-2V13z"])'
+                  ) ||
+                  // 直播的退出全屏按钮
+                  $<HTMLElement>(
+                    '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])'
+                  )
+                );
+              } else {
+                // 普通视频的全屏按钮
+                return $<HTMLElement>('[data-e2e="feed-active-video"] .xgplayer-fullscreen');
+              }
+            }
           },
           "reactProps",
           {
@@ -264,7 +297,7 @@ export const DouYinVideoPlayer = {
             },
             set: (reactInstance, $target) => {
               this.$flag.isWaitEnterFullScreen = false;
-              log.success("成功自动进入网页全屏-点击按钮");
+              log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏：通过点击按钮触发的方式`);
               $target.click();
             },
           }
@@ -273,19 +306,21 @@ export const DouYinVideoPlayer = {
     }
   },
   /**
-   * 双击进入网页全屏
+   * 双击video动作
+   * @param action 动作
    */
-  doubleClickEnterElementFullScreen() {
+  doubleClickAction(action: "website-fullscreen" | "fullscreen") {
     let isDouble = false;
-    log.info("注册双击进入网页全屏事件");
-    const result = DOMUtils.on<MouseEvent | PointerEvent>(
+    const isWebSiteFullScreen = action === "website-fullscreen";
+    log.info("双击video动作：" + action);
+    const listener = DOMUtils.on<MouseEvent | PointerEvent>(
       document,
       "click",
       [".newVideoPlayer", "#sliderVideo"],
       (event) => {
         if (isDouble) {
           isDouble = false;
-          DouYinVideoPlayer.autoEnterElementFullScreen(true);
+          DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
         } else {
           isDouble = true;
           setTimeout(() => {
@@ -294,7 +329,11 @@ export const DouYinVideoPlayer = {
         }
       }
     );
-    return [result.off];
+    return [
+      () => {
+        listener.off();
+      },
+    ];
   },
   /**
    * 评论区移到中间

@@ -7,6 +7,7 @@ import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -70,9 +71,9 @@ export const DouYinLive = {
     Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
       return this.changeBackgroundColor();
     });
-    // Panel.onceExec("live-parsePlayerInstance", () => {
-    //   DouYinLivePlayerInstance.initMenu();
-    // });
+    Panel.onceExec("live-parsePlayerInstance", () => {
+      return DouYinLivePlayerInstance.registerMenu();
+    });
     Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
       const result = DOMUtils.on(
         document,
@@ -94,6 +95,10 @@ export const DouYinLive = {
     });
     Panel.execMenu("dy-live-quickGift", () => {
       return this.disableQuickGift();
+    });
+    Panel.execMenuOnce("dy-live-doubleClickAction", (option) => {
+      if (option.value === "") return;
+      return this.doubleClickAction(option.value);
     });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
@@ -521,5 +526,36 @@ export const DouYinLive = {
   disableQuickGift() {
     log.info(`禁用快捷键送礼 - localStorage处理`);
     window.localStorage.setItem("disable_shortcut_key_v2", "false");
+  },
+
+  /**
+   * 双击video动作
+   * @param action 动作
+   */
+  doubleClickAction(action: "website-fullscreen" | "fullscreen") {
+    let isDouble = false;
+    const isWebSiteFullScreen = action === "website-fullscreen";
+    log.info("双击video动作：" + action);
+    const listener = DOMUtils.on<MouseEvent | PointerEvent>(
+      document,
+      "click",
+      ['[id^="living_player_container"] .douyin-player'],
+      (event) => {
+        if (isDouble) {
+          isDouble = false;
+          DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+        } else {
+          isDouble = true;
+          setTimeout(() => {
+            isDouble = false;
+          }, 250);
+        }
+      }
+    );
+    return [
+      () => {
+        listener.off();
+      },
+    ];
   },
 };

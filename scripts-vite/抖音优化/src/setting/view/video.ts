@@ -97,7 +97,6 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                 ),
-                UISwitch("禁用鼠标双击点赞", "dy-video-disableDoubleClickLike", false),
                 UISwitch(
                   "手势返回关闭评论区",
                   "dy-video-gestureBackCloseComment",
@@ -126,13 +125,20 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "网页加载完毕后自动点击网页全屏按钮进入全屏"
                 ),
-                UISwitch(
-                  "双击进入网页全屏",
-                  "dy-video-doubleClickEnterElementFullScreen",
-                  false,
-                  void 0,
-                  "双击视频自动进入网页全屏，检测间隔250ms"
-                ),
+                UISelect("双击video动作", "dy-video-doubleClickAction", "", [
+                  {
+                    text: "点赞",
+                    value: "",
+                  },
+                  {
+                    text: "网页全屏",
+                    value: "website-fullscreen",
+                  },
+                  {
+                    text: "全屏",
+                    value: "fullscreen",
+                  },
+                ]),
                 UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false),
                 UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false),
                 UISelect(

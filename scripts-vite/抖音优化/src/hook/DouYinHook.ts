@@ -23,15 +23,16 @@ export const DouYinHook = {
     Panel.execMenu("dy-cookie-remove__ac__", () => {
       this.removeCookie();
     });
-    if (DouYinRouter.isIndex()) {
-      Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
-        DouYinHook.disableDoubleClickLike();
-      });
-    } else if (DouYinRouter.isLive()) {
-      Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
-        DouYinHook.disableDoubleClickLike();
-      });
-    }
+    Panel.onceExec("dy-video-or-live-doubleClickAction", () => {
+      if (DouYinRouter.isIndex()) {
+        const videoAction = Panel.getValue<string>("dy-video-doubleClickAction");
+        if (videoAction === "") return;
+      } else if (DouYinRouter.isLive()) {
+        const liveAction = Panel.getValue<string>("dy-live-doubleClickAction");
+        if (liveAction === "") return;
+      }
+      this.disableDoubleClickLike();
+    });
   },
   /**
    * 移除环境检测
@@ -362,16 +363,37 @@ export const DouYinHook = {
    * 禁用双击点赞
    */
   disableDoubleClickLike() {
-    let latestClickTime = Date.now();
+    let latestClickTime: number | null = null;
+    let preventFlag = true;
+    const check = () => {
+      preventFlag = false;
+      if (DouYinRouter.isIndex()) {
+        const videoAction = Panel.getValue<string>("dy-video-doubleClickAction");
+        if (videoAction === "") return;
+      } else if (DouYinRouter.isLive()) {
+        const liveAction = Panel.getValue<string>("dy-live-doubleClickAction");
+        if (liveAction === "") return;
+      }
+      preventFlag = true;
+    };
+    Panel.addValueChangeListener("dy-video-doubleClickAction", check);
+    Panel.addValueChangeListener("dy-live-doubleClickAction", check);
     Hook.element_addEventListener((target, eventName, listener, option) => {
       const listenerStr = listener.toString();
       if (
         eventName === "click" &&
         target instanceof HTMLElement &&
-        target?.classList?.contains("xgplayer") &&
-        listenerStr.match(/video|innerContainer|video.__canvas|mouse/)
+        ((DouYinRouter.isIndex() &&
+          target?.classList?.contains("xgplayer") &&
+          listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
+          (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
       ) {
+        log.success(`success click double event listener`);
         return function (this: any, ...eventArgs: any[]) {
+          if (!preventFlag) return;
+          if (latestClickTime == null) {
+            latestClickTime = Date.now();
+          }
           const currentClickTime = Date.now();
           const [event] = eventArgs;
           if (currentClickTime - latestClickTime <= 288) {

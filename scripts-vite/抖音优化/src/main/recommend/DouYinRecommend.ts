@@ -14,8 +14,9 @@ export const DouYinRecommend = {
       this.disableVideoSatisfaction();
     });
     DOMUtils.onReady(() => {
-      Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", () => {
-        return this.automaticContinuousPlayback();
+      Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", (option) => {
+        const isPlayCollection = option.value === "Sequence+Collection";
+        return this.automaticContinuousPlayback(isPlayCollection);
       });
     });
   },
@@ -68,8 +69,9 @@ export const DouYinRecommend = {
   },
   /**
    * 自动连播
+   * @param isPlayCollection 是否播放合集内容
    */
-  automaticContinuousPlayback() {
+  automaticContinuousPlayback(isPlayCollection: boolean) {
     log.info(`自动连播`);
     const attrFlagName = "data-automaticContinuousPlayback";
     /**
@@ -153,8 +155,7 @@ export const DouYinRecommend = {
           DOMUtils.preventEvent(evt);
           currentVideoSrc = $activeVideo.src;
           const $recommend = $activeVideo.closest<HTMLElement>(".page-recommend-container");
-          let isFirstEnterRecommend = false;
-          if ($recommend) {
+          if (isPlayCollection && $recommend) {
             // 是否存在合集
             const $collectionNextEpisode = $(
               `xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,
@@ -175,7 +176,6 @@ export const DouYinRecommend = {
                   await DOMUtils.waitNode("#slideMode", 3000);
                   log.success(`合集容器加载完成`);
                   await utils.sleep(1500);
-                  isFirstEnterRecommend = true;
                 }
               }
             }
@@ -185,7 +185,7 @@ export const DouYinRecommend = {
               /**
                * 当前是否是合集播放
                */
-              const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+              const isSlideMode = isPlayCollection && Boolean($activeVideo.closest("#slideMode"));
               if (isTimeout) {
                 // 用超时来处理合集内播放到最后一个视频
                 const { $exit } = queryRelatedModeInfo();
