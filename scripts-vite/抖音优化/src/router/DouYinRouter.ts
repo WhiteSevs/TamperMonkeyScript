@@ -125,4 +125,10 @@ export const DouYinRouter = {
   isChat() {
     return this.isIndex() && window.location.pathname.startsWith("/chat");
   },
+  /**
+   * 创作者中心
+   */
+  isCreator() {
+    return window.location.hostname === "creator.douyin.com";
+  },
 };

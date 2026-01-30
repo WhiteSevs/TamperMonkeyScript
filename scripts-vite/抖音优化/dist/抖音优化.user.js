@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.1.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2045,6 +2045,9 @@
     isChat() {
       return this.isIndex() && window.location.pathname.startsWith("/chat");
     },
+    isCreator() {
+      return window.location.hostname === "creator.douyin.com";
+    },
   };
   const BlockTopNavigator = {
     init() {
@@ -3236,7 +3239,7 @@
             listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
             (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
         ) {
-          log.success(`success click double event listener`);
+          log.success(`hook：success click double event listener`);
           return function (...eventArgs) {
             if (!preventFlag) return;
             if (latestClickTime == null) {
@@ -3244,9 +3247,10 @@
             }
             const currentClickTime = Date.now();
             const [event] = eventArgs;
-            if (currentClickTime - latestClickTime <= 288) {
+            const calcValue = currentClickTime - latestClickTime;
+            if (calcValue > 50 && calcValue <= 288) {
               latestClickTime = currentClickTime;
-              log.success("阻止触发双击点赞");
+              log.success("阻止触发双击点赞：" + calcValue);
               if (event instanceof Event) {
                 const $target = event.target;
                 if ($target && $target instanceof HTMLVideoElement) {
@@ -4051,6 +4055,10 @@
     $data: {
       menuSelector:
         '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
+      menuSelector_sliderVideo:
+        '#sliderVideo .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
+      menuSelector_slideMode: `#slideMode .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])`,
+      menuSelector_onlyVideo: `.video-detail-container .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])`,
     },
     $el: {
       hideMenuStyle: null,
@@ -4146,10 +4154,15 @@
         }
       };
       ExecMenu.forEach((item) => {
-        Panel.execMenuOnce(item.key, () => {
-          item.enable = true;
-          return item.callback();
-        });
+        Panel.execMenuOnce(
+          item.key,
+          () => {
+            item.enable = true;
+            return item.callback();
+          },
+          false,
+          true
+        );
         Panel.addValueChangeListener(item.key, (key, newValue, oldValue) => {
           const findValue = ExecMenu.find((it) => it.key === key);
           if (findValue) {
@@ -4178,27 +4191,56 @@
     },
     recommendToFriends() {
       log.info(`【屏蔽】右键菜单-推荐给朋友`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(5):not([data-danmu-id]):not(:empty)`);
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector_slideMode} > *:nth-child(5):not([data-danmu-id]):not(:empty)`,
+        `${this.$data.menuSelector_sliderVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
+      );
     },
     share() {
       log.info(`【屏蔽】右键菜单-分享`);
+      if (DouYinRouter.isVideo()) {
+        return CommonUtil.addBlockCSS(
+          `${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
+        );
+      }
       return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
     },
     notInterested() {
       log.info(`【屏蔽】右键菜单-不感兴趣`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(7):not([data-danmu-id]):not(:empty)`);
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`
+      );
     },
     feedback() {
       log.info(`【屏蔽】右键菜单-意见反馈`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(8):not([data-danmu-id]):not(:empty)`);
+      if (DouYinRouter.isVideo()) {
+        return CommonUtil.addBlockCSS(
+          `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
+        );
+      }
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`
+      );
     },
     report() {
       log.info(`【屏蔽】右键菜单-举报`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(9):not([data-danmu-id]):not(:empty)`);
+      if (DouYinRouter.isVideo()) {
+        return CommonUtil.addBlockCSS(
+          `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
+        );
+      }
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
+      );
     },
     enterDetailsPage() {
       log.info(`【屏蔽】右键菜单-进入详情页`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(10):not([data-danmu-id]):not(:empty)`);
+      if (DouYinRouter.isVideo()) {
+        return;
+      }
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
+      );
     },
   };
   const DouYinVideoBlock_RightMenu_Live = {
@@ -6845,25 +6887,9 @@
     },
     change() {
       this.execMessageFilter(
-        [
-          ...Array.from($$("xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])")),
-          ...Array.from($$("#DanmakuLayout .danmu > div > div:not([data-is-filter])")),
-        ],
-        "弹幕"
-      );
-      this.execMessageFilter(
         Array.from($$("#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])")),
         "聊天室"
       );
-      if (Panel.getValue("live-message-shield-emoji-chat")) {
-        domUtils.hide(
-          [
-            ...Array.from($$("xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])")),
-            ...Array.from($$("#DanmakuLayout .danmu > div > div:has(>img):not([data-is-filter])")),
-          ],
-          false
-        );
-      }
     },
     execMessageFilter(messageQueue, from) {
       for (let index = 0; index < messageQueue.length; index++) {
@@ -6896,11 +6922,6 @@
           } else if (method === "WebcastRoomMessage") {
             messageIns?.payload?.system_top_msg;
             messageIns?.payload?.biz_scene;
-          } else if (method === "WebcastFansclubMessage");
-          else if (method === "WebcastEmojiChatMessage") {
-            if (Panel.getValue("live-message-shield-emoji-chat")) {
-              flag = true;
-            }
           } else;
         }
         if (!flag && typeof biz_scene === "string") {
@@ -6935,7 +6956,7 @@
   };
   const DouYinLiveMessage = {
     filterMessage() {
-      log.success("消息过滤");
+      log.info("消息过滤");
       const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isLive()) return;
         DouYinMessageFilter.change();
@@ -7321,6 +7342,108 @@
       };
     },
   };
+  const DouYinDanmaku = {
+    init() {
+      Panel.execMenu("dy-live-danmaku-block-gift", () => {
+        return this.blockGift();
+      });
+      Panel.execMenu("dy-live-danmaku-block-lucky-bag", () => {
+        return this.blockLuckyBag();
+      });
+    },
+    blockGift() {
+      log.info(`【屏蔽】送礼信息`);
+      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
+        },
+        set(reactPropInst, $el) {
+          log.info(`【屏蔽】送礼信息-弹出弹幕设置面板`);
+          const onMouseEnter = reactPropInst.onMouseEnter;
+          const onMouseLeave = reactPropInst.onMouseLeave;
+          onMouseEnter();
+          domUtils
+            .waitNode(
+              () =>
+                domUtils.selector(
+                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"送礼信息")]'
+                ),
+              2e3
+            )
+            .then(($el2) => {
+              try {
+                if (!$el2) {
+                  log.error(`【屏蔽】送礼信息-未找到送礼信息按钮`);
+                  return;
+                }
+                const $next = domUtils.next($el2);
+                if (!$next) {
+                  log.error(`【屏蔽】送礼信息-未找到送礼信息的Checkbox按钮`);
+                  return;
+                }
+                const rect = utils.getReactInstance($next);
+                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
+                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
+                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
+                  log.success(`点击关闭 送礼信息`);
+                  onClick();
+                }
+              } catch (error) {
+                log.error(error);
+              } finally {
+                onMouseLeave();
+              }
+            });
+        },
+      });
+    },
+    blockLuckyBag() {
+      log.info(`【屏蔽】福袋口令`);
+      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
+        },
+        set(reactPropInst, $el) {
+          log.info(`【屏蔽】福袋口令-弹出弹幕设置面板`);
+          const onMouseEnter = reactPropInst.onMouseEnter;
+          const onMouseLeave = reactPropInst.onMouseLeave;
+          onMouseEnter();
+          domUtils
+            .waitNode(
+              () =>
+                domUtils.selector(
+                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"福袋口令")]'
+                ),
+              2e3
+            )
+            .then(($el2) => {
+              try {
+                if (!$el2) {
+                  log.error(`【屏蔽】福袋口令-未找到福袋口令按钮`);
+                  return;
+                }
+                const $next = domUtils.next($el2);
+                if (!$next) {
+                  log.error(`【屏蔽】福袋口令-未找到福袋口令的Checkbox按钮`);
+                  return;
+                }
+                const rect = utils.getReactInstance($next);
+                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
+                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
+                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
+                  log.success(`福袋口令：点击关闭`);
+                  onClick();
+                }
+              } catch (error) {
+                log.error(error);
+              } finally {
+                onMouseLeave();
+              }
+            });
+        },
+      });
+    },
+  };
   const VideoQualityMap = {
     auto: {
       label: "自动",
@@ -7351,14 +7474,15 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
+      DouYinDanmaku.init();
+      Panel.onceExec("live-parsePlayerInstance", () => {
+        return DouYinLivePlayerInstance.registerMenu();
+      });
       Panel.execMenu("live-pauseVideo", () => {
         this.disableVideoAutoPlay();
       });
       Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
         return this.changeBackgroundColor();
-      });
-      Panel.onceExec("live-parsePlayerInstance", () => {
-        return DouYinLivePlayerInstance.registerMenu();
       });
       Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
         const result = domUtils.on(
@@ -7428,6 +7552,12 @@
     },
     chooseQuality(quality = "origin") {
       const qualityName = VideoQualityMap[quality].label;
+      window.localStorage.setItem("webcast_local_quality", quality);
+      cookieManager.set({
+        name: "webcast_local_quality",
+        value: quality,
+        domain: ".douyin.com",
+      });
       ReactUtils.waitReactPropsToSet(
         'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
         "reactProps",
@@ -10886,6 +11016,9 @@
   };
   const DouYin = {
     init() {
+      if (DouYinRouter.isCreator()) {
+        return;
+      }
       Panel.onceExec("dy-global-block-css", () => {
         return this.removeAds();
       });
@@ -12965,23 +13098,16 @@
             ],
           },
           {
-            text: "消息过滤器",
+            text: "聊天室消息过滤器",
             type: "deepMenu",
-            description: "包括：弹幕、聊天室",
             views: [
               {
-                text: "",
                 type: "container",
+                text: "",
                 views: [
-                  UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
+                  UISwitch("启用", "live-danmu-shield-rule-enable", false),
                   UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                   UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
-                ],
-              },
-              {
-                type: "container",
-                text: "聊天室",
-                views: [
                   UISwitch(
                     "【屏蔽】xxx 为主播加了 xx分",
                     "live-message-shield-biz_scene-common_text_game_score",
@@ -13051,7 +13177,6 @@
                   UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false),
                   UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false),
                   UISwitch("【屏蔽】福袋", "live-shieldLucky", false),
-                  UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
                   UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false),
                   UISwitch(
                     "【屏蔽】点亮展馆帮主播集星",
@@ -13060,6 +13185,15 @@
                     void 0,
                     "礼物展馆下面的悬浮提示"
                   ),
+                ],
+              },
+              {
+                type: "container",
+                text: "弹幕",
+                views: [
+                  UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
+                  UISwitch("【屏蔽】送礼信息", "dy-live-danmaku-block-gift", false),
+                  UISwitch("【屏蔽】福袋口令", "dy-live-danmaku-block-lucky-bag", false),
                 ],
               },
               {

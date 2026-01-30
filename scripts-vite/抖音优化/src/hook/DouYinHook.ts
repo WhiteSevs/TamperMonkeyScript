@@ -388,17 +388,19 @@ export const DouYinHook = {
           listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
           (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
       ) {
-        log.success(`success click double event listener`);
+        log.success(`hook：success click double event listener`);
         return function (this: any, ...eventArgs: any[]) {
           if (!preventFlag) return;
           if (latestClickTime == null) {
+            // first click
             latestClickTime = Date.now();
           }
           const currentClickTime = Date.now();
           const [event] = eventArgs;
-          if (currentClickTime - latestClickTime <= 288) {
+          const calcValue = currentClickTime - latestClickTime;
+          if (calcValue > 50 && calcValue <= 288) {
             latestClickTime = currentClickTime;
-            log.success("阻止触发双击点赞");
+            log.success("阻止触发双击点赞：" + calcValue);
             if (event instanceof Event) {
               const $target = event.target;
               if ($target && $target instanceof HTMLVideoElement) {
@@ -428,6 +430,7 @@ export const DouYinHook = {
             }
             return;
           }
+          // 更新最后点击的时间
           latestClickTime = currentClickTime;
           const ret = Reflect.apply(listener, this, eventArgs);
           return ret;

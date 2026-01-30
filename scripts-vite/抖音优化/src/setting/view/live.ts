@@ -193,23 +193,16 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "消息过滤器",
+          text: "聊天室消息过滤器",
           type: "deepMenu",
-          description: "包括：弹幕、聊天室",
           views: [
             {
-              text: "",
               type: "container",
+              text: "",
               views: [
-                UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
+                UISwitch("启用", "live-danmu-shield-rule-enable", false),
                 UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                 UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
-              ],
-            },
-            {
-              type: "container",
-              text: "聊天室",
-              views: [
                 UISwitch(
                   "【屏蔽】xxx 为主播加了 xx分",
                   "live-message-shield-biz_scene-common_text_game_score",
@@ -277,7 +270,6 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false),
                 UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false),
                 UISwitch("【屏蔽】福袋", "live-shieldLucky", false),
-                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
                 UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false),
                 UISwitch(
                   "【屏蔽】点亮展馆帮主播集星",
@@ -286,6 +278,15 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   void 0,
                   "礼物展馆下面的悬浮提示"
                 ),
+              ],
+            },
+            {
+              type: "container",
+              text: "弹幕",
+              views: [
+                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
+                UISwitch("【屏蔽】送礼信息", "dy-live-danmaku-block-gift", false),
+                UISwitch("【屏蔽】福袋口令", "dy-live-danmaku-block-lucky-bag", false),
               ],
             },
             {

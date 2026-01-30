@@ -1,4 +1,4 @@
-import { $, $$, DOMUtils, addStyle, log, utils } from "@/env";
+import { $, $$, DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
@@ -8,6 +8,7 @@ import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
+import { DouYinDanmaku } from "./DouYinDanmaku";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -62,17 +63,18 @@ export const DouYinLive = {
   init() {
     DouYinLiveBlock.init();
     DouYinLiveShortCut.init();
+    DouYinDanmaku.init();
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });
+    Panel.onceExec("live-parsePlayerInstance", () => {
+      return DouYinLivePlayerInstance.registerMenu();
+    });
     Panel.execMenu("live-pauseVideo", () => {
       this.disableVideoAutoPlay();
     });
     Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
       return this.changeBackgroundColor();
-    });
-    Panel.onceExec("live-parsePlayerInstance", () => {
-      return DouYinLivePlayerInstance.registerMenu();
     });
     Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
       const result = DOMUtils.on(
@@ -149,6 +151,12 @@ export const DouYinLive = {
    */
   chooseQuality(quality = "origin") {
     const qualityName = VideoQualityMap[quality].label;
+    window.localStorage.setItem("webcast_local_quality", quality);
+    cookieManager.set({
+      name: "webcast_local_quality",
+      value: quality,
+      domain: ".douyin.com",
+    });
     ReactUtils.waitReactPropsToSet(
       'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
       "reactProps",

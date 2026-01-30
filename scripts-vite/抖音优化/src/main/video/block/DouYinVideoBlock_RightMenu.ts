@@ -1,4 +1,5 @@
 import { log } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
@@ -8,6 +9,19 @@ export const DouYinVideoBlock_RightMenu = {
      * 右键菜单的通用选择器
      */
     menuSelector: '.basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
+    /**
+     * 右键菜单的通用选择器（仅推荐/搜索）
+     */
+    menuSelector_sliderVideo:
+      '#sliderVideo .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])',
+    /**
+     * 右键菜单的通用选择器（仅合集/详情）
+     */
+    menuSelector_slideMode: `#slideMode .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])`,
+    /**
+     * 右键菜单的通用选择器（仅单个视频）
+     */
+    menuSelector_onlyVideo: `.video-detail-container .basePlayerContainer div:not(.danmu) div[style*="top:"][style*="left:"]:not([style*="transform:"])`,
   },
   $el: {
     hideMenuStyle: null as null | HTMLStyleElement,
@@ -112,10 +126,15 @@ export const DouYinVideoBlock_RightMenu = {
       }
     };
     ExecMenu.forEach((item) => {
-      Panel.execMenuOnce(item.key, () => {
-        item.enable = true;
-        return item.callback();
-      });
+      Panel.execMenuOnce(
+        item.key,
+        () => {
+          item.enable = true;
+          return item.callback();
+        },
+        false,
+        true
+      );
       Panel.addValueChangeListener(item.key, (key, newValue, oldValue) => {
         const findValue = ExecMenu.find((it) => it.key === key);
         if (findValue) {
@@ -159,13 +178,21 @@ export const DouYinVideoBlock_RightMenu = {
    */
   recommendToFriends() {
     log.info(`【屏蔽】右键菜单-推荐给朋友`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(5):not([data-danmu-id]):not(:empty)`);
+    return CommonUtil.addBlockCSS(
+      `${this.$data.menuSelector_slideMode} > *:nth-child(5):not([data-danmu-id]):not(:empty)`,
+      `${this.$data.menuSelector_sliderVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
+    );
   },
   /**
    * 【屏蔽】分享
    */
   share() {
     log.info(`【屏蔽】右键菜单-分享`);
+    if (DouYinRouter.isVideo()) {
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
+      );
+    }
     return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
   },
   /**
@@ -173,28 +200,44 @@ export const DouYinVideoBlock_RightMenu = {
    */
   notInterested() {
     log.info(`【屏蔽】右键菜单-不感兴趣`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(7):not([data-danmu-id]):not(:empty)`);
+    // 在进入详情页时，此选项没有
+    return CommonUtil.addBlockCSS(
+      `${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`
+    );
   },
   /**
    * 【屏蔽】意见反馈
    */
   feedback() {
     log.info(`【屏蔽】右键菜单-意见反馈`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(8):not([data-danmu-id]):not(:empty)`);
+    if (DouYinRouter.isVideo()) {
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
+      );
+    }
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】举报
    */
   report() {
     log.info(`【屏蔽】右键菜单-举报`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(9):not([data-danmu-id]):not(:empty)`);
+    if (DouYinRouter.isVideo()) {
+      return CommonUtil.addBlockCSS(
+        `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
+      );
+    }
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】进入详情页
    */
   enterDetailsPage() {
     log.info(`【屏蔽】右键菜单-进入详情页`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(10):not([data-danmu-id]):not(:empty)`);
+    if (DouYinRouter.isVideo()) {
+      return;
+    }
+    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`);
   },
 };
 

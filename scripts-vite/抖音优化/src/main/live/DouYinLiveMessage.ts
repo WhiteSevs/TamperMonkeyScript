@@ -26,31 +26,13 @@ export const DouYinMessageFilter = {
     });
   },
   /**
-   * 通知弹幕改变(可能是新增)
+   * 通知消息改变(可能是新增)
    */
   change() {
-    this.execMessageFilter(
-      [
-        ...Array.from($$<HTMLElement>("xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])")),
-        ...Array.from($$<HTMLElement>("#DanmakuLayout .danmu > div > div:not([data-is-filter])")),
-      ],
-      "弹幕"
-    );
     this.execMessageFilter(
       Array.from($$<HTMLElement>("#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])")),
       "聊天室"
     );
-    if (Panel.getValue("live-message-shield-emoji-chat")) {
-      // 弹幕 - 表情包|emoji
-      // 它们的元素上没有message实例
-      DOMUtils.hide(
-        [
-          ...Array.from($$<HTMLElement>("xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])")),
-          ...Array.from($$<HTMLElement>("#DanmakuLayout .danmu > div > div:has(>img):not([data-is-filter])")),
-        ],
-        false
-      );
-    }
   },
   /**
    * 执行过滤
@@ -128,9 +110,6 @@ export const DouYinMessageFilter = {
           // 恭喜 xxx 成为第xxx名xxx成员
         } else if (method === "WebcastEmojiChatMessage") {
           // 表情包|图片|emoji
-          if (Panel.getValue("live-message-shield-emoji-chat")) {
-            flag = true;
-          }
         } else if (method === "WebcastExhibitionChatMessage") {
           //
         } else if (method === "WebcastScreenChatMessage") {
@@ -185,7 +164,7 @@ export const DouYinLiveMessage = {
    * 消息过滤
    */
   filterMessage() {
-    log.success("消息过滤");
+    log.info("消息过滤");
     const lockFn = new utils.LockFunction(() => {
       if (!DouYinRouter.isLive()) return;
       DouYinMessageFilter.change();

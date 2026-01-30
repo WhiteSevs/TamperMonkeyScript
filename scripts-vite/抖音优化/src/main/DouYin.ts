@@ -24,6 +24,9 @@ import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
 
 export const DouYin = {
   init() {
+    if (DouYinRouter.isCreator()) {
+      return;
+    }
     Panel.onceExec("dy-global-block-css", () => {
       return this.removeAds();
     });
