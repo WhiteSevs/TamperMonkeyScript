@@ -706,7 +706,7 @@ const Panel = {
    * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
    * @param callback 回调
    * @param isReverse 逆反判断菜单启用，默认false
-   * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果用此函数执行了监听Router改变，请设置该值false，否则会反复触发
+   * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果该回调为监听Router改变，请设置该值false，否则会反复触发此回调进行多次监听Router
    */
   async execMenuOnce<T = any>(
     key: string | string[],
