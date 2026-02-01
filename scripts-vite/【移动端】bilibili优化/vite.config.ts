@@ -43,7 +43,7 @@ const userConfig = await GenerateUserConfig({
     build: {
       // import库的文件映射
       externalGlobals: {
-        viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+        // viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
         md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
         "flv.js": cdn.jsdelivrFastly("MD5", "dist/flv.js"),
         artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
