@@ -1444,7 +1444,8 @@ export const DouYinVideoPlayer = {
   playerCollectShowScroll() {
     log.info(`收藏夹显示滚动条`);
     return addStyle(/*css*/ `
-      [data-e2e="video-player-collect"] + div div:has(>.semi-radioGroup){
+      [data-e2e="video-player-collect"] + div div:has(>.semi-radioGroup),
+      [data-e2e="video-player-collect"] + div div:has(>div>.semi-checkbox){
         scrollbar-width: thin !important;
       }
     `);

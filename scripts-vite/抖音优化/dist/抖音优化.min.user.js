@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.30
+// @version      2026.2.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -578,7 +578,8 @@
         pointer-events: auto !important;
       }
       `),()=>{t.off();}]},playerCollectShowScroll(){return a.info("收藏夹显示滚动条"),A(`
-      [data-e2e="video-player-collect"] + div div:has(>.semi-radioGroup){
+      [data-e2e="video-player-collect"] + div div:has(>.semi-radioGroup),
+      [data-e2e="video-player-collect"] + div div:has(>div>.semi-checkbox){
         scrollbar-width: thin !important;
       }
     `)}},Re={key:"douyin-live-danmu-rule",$data:{rule:[]},init(){this.initRule();},initRule(){this.$data.rule.length=0,this.get().trim().split(`
