@@ -94,15 +94,19 @@ Tampermonkey 为了顺应 Chrome 的 Manifest V3 要求，在 v5.0.0 版本中�
 
 如果想要局域网其它设备信任该证书，需要把`%USERPROFILE%\.vite-plugin-mkcert`下的`rootCA.pem`安装到该设备中
 
-## 贡献
+## 🤝 参与贡献
 
 请将你的修改提交到[dev](https://github.com/WhiteSevs/TamperMonkeyScript/tree/dev)分支
 
-## 赞赏支持
+### 🙏 鸣谢
+
+[![Contributors](https://contrib.rocks/image?repo=WhiteSevs/TamperMonkeyScript&max=1000)](https://github.com/WhiteSevs/TamperMonkeyScript/graphs/contributors)
+
+## 🪙 赞赏支持
 
 <img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/wx_zsm.png" alt="微信赞赏" width="250" height="250">
 <img src="https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript/asset/img/zfb_skm.png" alt="支付宝赞赏" width="250" height="250">
 
-## License
+## 📄 开源许可
 
-本项目使用 GPLv3 协议开源, 请遵守协议规定.
+本项目基于 [GPLv3](./LICENSE) 协议开源，请遵守相关协议条款。
