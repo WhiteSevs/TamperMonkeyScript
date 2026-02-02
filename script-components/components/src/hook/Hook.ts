@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { log } from "../base.env";
+import { log, OriginPrototype } from "../base.env";
 
 /**
  * @returns
@@ -513,41 +513,59 @@ const Hook = {
   /**
    * 劫持webpack
    * @param webpackName 当前全局变量的webpack名
-   * @param mainCoreData 需要劫持的webpack的顶部core
+   * @param mainCoreData 需要劫持的webpack的顶部core，或者自定义函数判断是否是需要处理的core
    * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
    * 此时mainCoreData是["core:0"]
    * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
    */
-  window_webpack(webpackName = "webpackJsonp", mainCoreData: string[] | number[], handler: (exports: any) => any) {
-    let originWebPack: {
-      push: (this: any, ...args: any[][]) => any;
-    } = void 0 as any;
-    unsafeWindow.Object.defineProperty(unsafeWindow, webpackName, {
+  window_webpack(
+    webpackName = "webpackJsonp",
+    mainCoreData: (string | number)[] | ((coreId: (string | number)[]) => boolean),
+    handler: (exports: any) => any
+  ) {
+    let webpackList: [] | undefined = void 0 as any;
+    OriginPrototype.Object.defineProperty(unsafeWindow, webpackName, {
       get() {
-        return originWebPack;
+        return webpackList;
       },
-      set(newValue) {
-        log.success("成功劫持webpack，当前webpack名：" + webpackName);
-        originWebPack = newValue;
-        const originWebPackPush = originWebPack.push;
-        originWebPack.push = function (...args) {
-          let _mainCoreData = args[0][0];
-          if (
-            mainCoreData == _mainCoreData ||
-            (Array.isArray(mainCoreData) &&
-              Array.isArray(_mainCoreData) &&
-              JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
-          ) {
-            Object.keys(args[0][1]).forEach((keyName) => {
-              let originSwitchFunc = args[0][1][keyName];
-              args[0][1][keyName] = function (..._args: any[]) {
-                let result = originSwitchFunc.call(this, ..._args);
-                _args[0] = handler(_args[0]);
-                return result;
-              };
+      set(value) {
+        // log.success("成功劫持webpack，当前webpack名：" + webpackName);
+        webpackList = value;
+        const originPush = value.push;
+        value.push = function (this: any, ...args: { [x: string]: (..._args: any[]) => any }[][]) {
+          const __mainCoreData = args[0][0];
+          let isCoreIdMatched = false;
+          if (typeof mainCoreData === "function") {
+            // @ts-expect-error
+            const ret = mainCoreData(__mainCoreData);
+            if (typeof ret === "boolean") {
+              isCoreIdMatched = ret;
+            }
+          } else {
+            // @ts-expect-error
+            isCoreIdMatched = mainCoreData == __mainCoreData;
+            if (!isCoreIdMatched) {
+              if (Array.isArray(mainCoreData) && Array.isArray(__mainCoreData)) {
+                isCoreIdMatched = JSON.stringify(mainCoreData) === JSON.stringify(__mainCoreData);
+              }
+            }
+          }
+          if (isCoreIdMatched) {
+            const exportObj = args[0][1];
+            const keys = OriginPrototype.Object.keys(exportObj);
+            keys.forEach((keyName) => {
+              const fn = exportObj[keyName];
+              if (typeof fn === "function") {
+                args[0][1][keyName] = function (this: any, ...args2: any[]) {
+                  const result = fn.call(this, ...args2);
+                  const exports = args2[0];
+                  args2[0] = handler(exports);
+                  return result;
+                };
+              }
             });
           }
-          return Reflect.apply(originWebPackPush, this, args);
+          return originPush.call(this, ...args);
         };
       },
     });
