@@ -157,6 +157,8 @@ httpx.interceptors.response.use(void 0, (data) => {
 const OriginPrototype = {
   Object: {
     defineProperty: unsafeWindow.Object.defineProperty,
+    keys: unsafeWindow.Object.keys,
+    values: unsafeWindow.Object.values,
   },
   Function: {
     apply: unsafeWindow.Function.prototype.apply,
