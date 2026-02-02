@@ -100,12 +100,12 @@ export const TiebaSmallAppApi = {
     });
     log.info(`获取用户信息：`, response);
     if (!response.status) {
-      toastInfo && Qmsg.error("获取当前登录的用户信息失败", { consoleLogContent: true });
+      toastInfo && Qmsg.error("获取当前登录的用户信息失败");
       return;
     }
     let data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
-      toastInfo && Qmsg.error(data["error"], { consoleLogContent: true });
+      toastInfo && Qmsg.error(data["error"]);
       return;
     }
     return data["data"] as {

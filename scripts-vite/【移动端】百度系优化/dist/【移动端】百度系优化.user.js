@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-DM3DLRjf.js"(exports$1, module) {
+    "entrance-CKQBYC83.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -13898,50 +13898,57 @@ div[class^="new-summary-container_"] {\r
             document,
             "click",
             (event) => {
-              let $click = event.composedPath()[0];
+              const $click = event.composedPath()[0];
               if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
                 if ($click.classList.contains("pb-link")) {
                   domUtils.preventEvent(event);
-                  let vue3Ins = VueUtils.getVue3($click);
-                  let vue2Ins = VueUtils.getVue($click);
-                  let link = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
+                  const vue3Ins = VueUtils.getVue3($click);
+                  const vue2Ins = VueUtils.getVue($click);
+                  const link = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
                   if (typeof link === "string") {
                     log.info(`点击超链接：` + link);
                     window.open(link, "_blank");
                     return;
                   } else {
-                    let $uniText = $click.closest("uni-text.pb-content-item");
-                    let vueIns = VueUtils.getVue($uniText);
-                    let section = vueIns?.$vnode?.context?.sectionData?.[vueIns?.$vnode?.context?.sectionIdx];
+                    const $uniText = $click.closest("uni-text.pb-content-item");
+                    const vueIns = VueUtils.getVue($uniText);
+                    const section = vueIns?.$vnode?.context?.sectionData?.[vueIns?.$vnode?.context?.sectionIdx];
                     if (section != null) {
-                      let findValue = section["content"].find(
+                      const findValue = section["content"].find(
                         (item) => item.type == 1 && item.text == ($click.textContent || $click.innerText)
                       );
                       if (findValue) {
-                        let link2 = findValue["link"];
+                        const link2 = findValue["link"];
                         log.info(`点击超链接：` + link2);
                         window.open(link2, "_blank");
                         return;
                       }
                     }
-                    let $wakeUpLink = $click.closest(".wake-app-link");
-                    let wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+                    const $wakeUpLink = $click.closest(".wake-app-link");
+                    const $normalLink = $click.closest(".normal-link");
+                    const wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+                    const normalVueInst = VueUtils.getVue($normalLink);
                     if (wakeUpVueInst) {
-                      let url = wakeUpVueInst?.config?.param?.smartapp?.url;
+                      const url = wakeUpVueInst?.config?.param?.smartapp?.url;
                       if (typeof url === "string") {
                         log.info(`点击超链接：` + url);
                         window.open(url, "_blank");
                         return;
                       } else {
-                        Qmsg.error("获取链接失败，.wake-app-link上的链接未找到", {
-                          consoleLogContent: true,
-                        });
+                        Qmsg.error("获取链接失败，.wake-app-link上的链接未找到");
+                      }
+                    } else if (normalVueInst) {
+                      const url = normalVueInst?.itemurl;
+                      if (typeof url === "string") {
+                        log.info(`点击超链接：` + url);
+                        window.open(url, "_blank");
+                        return;
+                      } else {
+                        Qmsg.error("获取链接失败，.normal-link上的链接未找到");
                       }
                     } else {
                       log.error($click, vue3Ins);
-                      Qmsg.error("获取链接失败，section不存在", {
-                        consoleLogContent: true,
-                      });
+                      Qmsg.error("获取链接失败，section不存在");
                     }
                   }
                 } else if ($click.classList.contains("pb-at")) {
@@ -27969,7 +27976,7 @@ div[class^="new-summary-container_"] {\r
               let vueIns = VueUtils.getVue($cardWrapper);
               if (!vueIns) {
                 log.info($cardWrapper);
-                Qmsg.error("未找到vue实例", { consoleLogContent: true });
+                Qmsg.error("未找到vue实例");
                 return;
               }
               let cardType = vueIns.cardType;
@@ -27977,7 +27984,7 @@ div[class^="new-summary-container_"] {\r
                 domUtils.preventEvent(event);
                 let id = vueIns?.cardData?.id;
                 if (typeof id !== "number") {
-                  Qmsg.error("获取帖子id失败", { consoleLogContent: true });
+                  Qmsg.error("获取帖子id失败");
                   return;
                 }
                 let url = TiebaUrlHandler.getPost(id);
@@ -28499,12 +28506,12 @@ div[class^="new-summary-container_"] {\r
           });
           log.info(`获取用户信息：`, response);
           if (!response.status) {
-            toastInfo && Qmsg.error("获取当前登录的用户信息失败", { consoleLogContent: true });
+            toastInfo && Qmsg.error("获取当前登录的用户信息失败");
             return;
           }
           let data = utils.toJSON(response.data.responseText);
           if (data["no"] !== 0) {
-            toastInfo && Qmsg.error(data["error"], { consoleLogContent: true });
+            toastInfo && Qmsg.error(data["error"]);
             return;
           }
           return data["data"];
@@ -29350,12 +29357,12 @@ div[class^="new-summary-container_"] {\r
               DOMUtils.preventEvent(event);
               let vueInstance = VueUtils.getVue(selectorTarget);
               if (!vueInstance) {
-                Qmsg.error("获取vue实例失败", { consoleLogContent: true });
+                Qmsg.error("获取vue实例失败");
                 return;
               }
               let tid = vueInstance?.item?.tid;
               if (tid == null) {
-                Qmsg.error("获取tid失败", { consoleLogContent: true });
+                Qmsg.error("获取tid失败");
                 return;
               }
               let url = TiebaUrlHandler.getPost(tid);

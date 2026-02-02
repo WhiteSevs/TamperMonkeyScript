@@ -98,7 +98,7 @@ export const TiebaHotTopic = {
         let vueIns = VueUtils.getVue($cardWrapper);
         if (!vueIns) {
           log.info($cardWrapper);
-          Qmsg.error("未找到vue实例", { consoleLogContent: true });
+          Qmsg.error("未找到vue实例");
           return;
         }
         let cardType = vueIns.cardType;
@@ -106,7 +106,7 @@ export const TiebaHotTopic = {
           DOMUtils.preventEvent(event);
           let id = vueIns?.cardData?.id;
           if (typeof id !== "number") {
-            Qmsg.error("获取帖子id失败", { consoleLogContent: true });
+            Qmsg.error("获取帖子id失败");
             return;
           }
           let url = TiebaUrlHandler.getPost(id);

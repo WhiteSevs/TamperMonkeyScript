@@ -24,13 +24,13 @@ export const TiebaCollectionCenter = {
         DOMUtils.preventEvent(event);
         let vueInstance = VueUtils.getVue(selectorTarget);
         if (!vueInstance) {
-          Qmsg.error("获取vue实例失败", { consoleLogContent: true });
+          Qmsg.error("获取vue实例失败");
           return;
         }
         /** 帖子的id */
         let tid = vueInstance?.item?.tid;
         if (tid == null) {
-          Qmsg.error("获取tid失败", { consoleLogContent: true });
+          Qmsg.error("获取tid失败");
           return;
         }
         /** 帖子的链接 */

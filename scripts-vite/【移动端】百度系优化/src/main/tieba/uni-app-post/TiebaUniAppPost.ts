@@ -602,50 +602,59 @@ export const TiebaUniAppPost = {
       document,
       "click",
       (event) => {
-        let $click = event.composedPath()[0] as HTMLElement;
+        const $click = event.composedPath()[0] as HTMLElement;
         if ($click.nodeType === Node.ELEMENT_NODE && $click.classList) {
           if ($click.classList.contains("pb-link")) {
             DOMUtils.preventEvent(event);
-            let vue3Ins = VueUtils.getVue3($click);
-            let vue2Ins = VueUtils.getVue($click)!;
-            let link: string | null = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
+            const vue3Ins = VueUtils.getVue3($click);
+            const vue2Ins = VueUtils.getVue($click)!;
+            const link: string | null = vue3Ins?.props?.content?.link || vue2Ins?.content?.link;
             if (typeof link === "string") {
               log.info(`点击超链接：` + link);
               window.open(link, "_blank");
               return;
             } else {
-              let $uniText = $click.closest("uni-text.pb-content-item");
-              let vueIns = VueUtils.getVue($uniText);
-              let section = vueIns?.$vnode?.context?.sectionData?.[vueIns?.$vnode?.context?.sectionIdx];
+              const $uniText = $click.closest("uni-text.pb-content-item");
+              const vueIns = VueUtils.getVue($uniText);
+              const section = vueIns?.$vnode?.context?.sectionData?.[vueIns?.$vnode?.context?.sectionIdx];
               if (section != null) {
-                let findValue = section["content"].find(
+                const findValue = section["content"].find(
                   (item: any) => item.type == 1 && item.text == ($click.textContent || $click.innerText)
                 );
                 if (findValue) {
-                  let link = findValue["link"];
+                  const link = findValue["link"];
                   log.info(`点击超链接：` + link);
                   window.open(link, "_blank");
                   return;
                 }
               }
-              let $wakeUpLink = $click.closest<HTMLElement>(".wake-app-link");
-              let wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+              const $wakeUpLink = $click.closest<HTMLElement>(".wake-app-link");
+              const $normalLink = $click.closest<HTMLElement>(".normal-link");
+              const wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+              const normalVueInst = VueUtils.getVue($normalLink);
               if (wakeUpVueInst) {
-                let url = wakeUpVueInst?.config?.param?.smartapp?.url;
+                const url = wakeUpVueInst?.config?.param?.smartapp?.url;
                 if (typeof url === "string") {
                   log.info(`点击超链接：` + url);
                   window.open(url, "_blank");
                   return;
                 } else {
-                  Qmsg.error("获取链接失败，.wake-app-link上的链接未找到", {
-                    consoleLogContent: true,
-                  });
+                  log.error($click, wakeUpVueInst);
+                  Qmsg.error("获取链接失败，.wake-app-link上的链接未找到");
+                }
+              } else if (normalVueInst) {
+                const url = normalVueInst?.itemurl;
+                if (typeof url === "string") {
+                  log.info(`点击超链接：` + url);
+                  window.open(url, "_blank");
+                  return;
+                } else {
+                  log.error($click, normalVueInst);
+                  Qmsg.error("获取链接失败，.normal-link上的链接未找到");
                 }
               } else {
                 log.error($click, vue3Ins);
-                Qmsg.error("获取链接失败，section不存在", {
-                  consoleLogContent: true,
-                });
+                Qmsg.error("获取链接失败，section不存在");
               }
             }
           } else if ($click.classList.contains("pb-at")) {
