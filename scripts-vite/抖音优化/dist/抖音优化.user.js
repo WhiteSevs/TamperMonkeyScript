@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.1
+// @version      2026.2.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1116,8 +1116,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1974,9 +1982,11 @@
     }
     return data;
   });
-  ({
+  const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -1989,7 +1999,7 @@
     clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
     setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
+  };
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
@@ -2445,6 +2455,164 @@
       );
     },
   };
+  const DouYinMessageFilter = {
+    key: "douyin-live-danmu-rule",
+    $data: {
+      rule: [],
+      block_gift: false,
+      block_lucky_bag: false,
+      block_biz_scene: false,
+    },
+    init() {
+      this.initRule();
+      const block_gift = "live-danmu-shield-gift";
+      const block_lucky_bag = "live-danmu-shield-lucky-bag";
+      const block_biz_scene = "live-message-shield-biz_scene-common_text_game_score";
+      Panel.addValueChangeListener(
+        block_gift,
+        (_, value) => {
+          this.$data.block_gift = value;
+        },
+        {
+          immediate: true,
+        }
+      );
+      Panel.addValueChangeListener(
+        block_lucky_bag,
+        (_, value) => {
+          this.$data.block_lucky_bag = value;
+        },
+        {
+          immediate: true,
+        }
+      );
+      Panel.addValueChangeListener(
+        block_biz_scene,
+        (_, value) => {
+          this.$data.block_biz_scene = value;
+        },
+        {
+          immediate: true,
+        }
+      );
+    },
+    initRule() {
+      this.$data.rule.length = 0;
+      const localRule = this.get().trim();
+      const localRuleSplit = localRule.split("\n");
+      localRuleSplit.forEach((item) => {
+        if (item.trim() == "") return;
+        item = item.trim();
+        const itemRegExp = new RegExp(item.trim());
+        this.$data.rule.push(itemRegExp);
+      });
+    },
+    change() {
+      this.execMessageFilterWithNode(
+        Array.from($$("#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])"))
+      );
+    },
+    execMessageFilterWithNode(messageQueue) {
+      for (let index = 0; index < messageQueue.length; index++) {
+        const $danmu = messageQueue[index];
+        const react = utils.getReactInstance($danmu);
+        const messageIns =
+          react?.reactFiber?.return?.memoizedProps?.message ||
+          react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message ||
+          react?.reactContainer?.memoizedState?.element?.props?.message;
+        if (typeof messageIns !== "object" || messageIns == null) {
+          continue;
+        }
+        const flag = this.checkMessageFilter(messageIns);
+        if (flag) {
+          $danmu.setAttribute("data-is-filter", "true");
+          domUtils.remove($danmu);
+        }
+      }
+    },
+    checkMessageFilter(messageInst, method) {
+      const message = messageInst?.payload?.content || messageInst?.payload?.common?.describe;
+      method = method ?? messageInst?.method;
+      const chat_by = messageInst?.payload?.chat_by;
+      const biz_scene = messageInst?.payload?.biz_scene;
+      let flag = false;
+      if (!flag) {
+        if (method === "WebcastGiftMessage") {
+          if (this.$data.block_gift) {
+            flag = true;
+          }
+        } else if (method === "WebcastChatMessage") {
+          if (chat_by === "0");
+          else if (chat_by === "9" || chat_by === "10") {
+            if (this.$data.block_lucky_bag) {
+              flag = true;
+            }
+          } else;
+        } else if (method === "WebcastRoomMessage") {
+          messageInst?.payload?.system_top_msg;
+          messageInst?.payload?.biz_scene;
+        } else;
+      }
+      if (!flag && typeof biz_scene === "string") {
+        if (biz_scene === "common_text_game_score") {
+          if (this.$data.block_biz_scene) {
+            flag = true;
+          }
+        }
+      }
+      if (!flag) {
+        flag =
+          typeof message === "string" &&
+          this.$data.rule.some((ruleText) => {
+            if (message.match(ruleText)) {
+              log.info("自定义规则成功过滤消息: " + message);
+              return true;
+            }
+          });
+      }
+      return flag;
+    },
+    set(value) {
+      _GM_setValue(this.key, value);
+    },
+    get() {
+      return _GM_getValue(this.key, "");
+    },
+  };
+  const DouYinLiveMessage = {
+    filterMessage() {
+      log.info("消息过滤");
+      const lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isLive()) return;
+        DouYinMessageFilter.change();
+      });
+      DouYinMessageFilter.init();
+      const observer = utils.mutationObserver(document.body, {
+        config: {
+          childList: true,
+          subtree: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        addStyle(
+          `
+				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
+				.webcast-chatroom___list > div{
+					height: 100% !important;
+				}
+			`
+        ),
+        () => observer.disconnect(),
+      ];
+    },
+    execFilter(messageInst, method) {
+      return DouYinMessageFilter.checkMessageFilter(messageInst, method);
+    },
+  };
   const DouYinElement = {
     watchFeedVideoListChange(callback) {
       let $os = null;
@@ -2867,33 +3035,46 @@
       };
     },
     window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
-      let originWebPack = void 0;
-      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
+      let webpackList = void 0;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
-          return originWebPack;
+          return webpackList;
         },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originWebPack = newValue;
-          const originWebPackPush = originWebPack.push;
-          originWebPack.push = function (...args) {
-            let _mainCoreData = args[0][0];
-            if (
-              mainCoreData == _mainCoreData ||
-              (Array.isArray(mainCoreData) &&
-                Array.isArray(_mainCoreData) &&
-                JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
-            ) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function (..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = handler(_args[0]);
-                  return result;
-                };
+        set(value) {
+          webpackList = value;
+          const originPush = value.push;
+          value.push = function (...args) {
+            const __mainCoreData = args[0][0];
+            let isCoreIdMatched = false;
+            if (typeof mainCoreData === "function") {
+              const ret = mainCoreData(__mainCoreData);
+              if (typeof ret === "boolean") {
+                isCoreIdMatched = ret;
+              }
+            } else {
+              isCoreIdMatched = mainCoreData == __mainCoreData;
+              if (!isCoreIdMatched) {
+                if (Array.isArray(mainCoreData) && Array.isArray(__mainCoreData)) {
+                  isCoreIdMatched = JSON.stringify(mainCoreData) === JSON.stringify(__mainCoreData);
+                }
+              }
+            }
+            if (isCoreIdMatched) {
+              const exportObj = args[0][1];
+              const keys = OriginPrototype.Object.keys(exportObj);
+              keys.forEach((keyName) => {
+                const fn = exportObj[keyName];
+                if (typeof fn === "function") {
+                  args[0][1][keyName] = function (...args2) {
+                    const result = fn.call(this, ...args2);
+                    const exports$1 = args2[0];
+                    args2[0] = handler(exports$1);
+                    return result;
+                  };
+                }
               });
             }
-            return Reflect.apply(originWebPackPush, this, args);
+            return originPush.call(this, ...args);
           };
         },
       });
@@ -3285,6 +3466,74 @@
           };
         }
       });
+    },
+    liveMessage() {
+      log.info(`对直播消息过滤的劫持`);
+      Hook.window_webpack(
+        "webpackChunkdouyin_live_v2",
+        () => {
+          return true;
+        },
+        (webpackExports) => {
+          if (
+            webpackExports == null ||
+            typeof webpackExports?.exports !== "object" ||
+            webpackExports?.exports == null
+          ) {
+            return webpackExports;
+          }
+          if (webpackExports.loaded) return webpackExports;
+          const values = OriginPrototype.Object.values(webpackExports?.exports);
+          values.forEach((value) => {
+            if (typeof value !== "function") {
+              return;
+            }
+            if (
+              typeof value.prototype?.start === "function" &&
+              typeof value.prototype?.pause === "function" &&
+              typeof value.prototype?.stop === "function" &&
+              typeof value.prototype?.registerPublisher === "function" &&
+              typeof value.prototype?.unregisterPublisher === "function" &&
+              typeof value.prototype?.destroy === "function" &&
+              typeof value.prototype?.getPlugin === "function" &&
+              typeof value.prototype?.registerPlugin === "function" &&
+              typeof value.prototype?.unregisterPlugin === "function"
+            ) {
+              log.success(`success hook live webpack：${webpackExports.id}`);
+              const version = value?.VERSION;
+              log.success(`version：${version}`);
+              const start = value.prototype.start;
+              value.prototype.start = function (...args) {
+                const decoder = this?.decoder;
+                if (typeof decoder?.decode === "function") {
+                  log.success(`hook live message decode success`);
+                  const decode = decoder?.decode;
+                  this.decoder.decode = async function (...args2) {
+                    const [data, method] = args2;
+                    const payload = await Reflect.apply(decode, this, args2);
+                    const flag = await DouYinLiveMessage.execFilter(
+                      {
+                        payload,
+                      },
+                      method
+                    );
+                    if (typeof flag === "boolean" && flag) {
+                      log.success(`过滤：`, payload);
+                      return;
+                    }
+                    return payload;
+                  };
+                }
+                if (typeof start === "function") {
+                  const startResult = Reflect.apply(start, this, args);
+                  return startResult;
+                }
+              };
+            }
+          });
+          return webpackExports;
+        }
+      );
     },
   };
   const DouYinAccount = {
@@ -6118,7 +6367,7 @@
 					</div>
 					<div class="dy-link-item-size">
 						<span>视频大小：</span>
-						<span>${utils.formatByteToSize(downloadInfo.dataSize)}</span>
+						<span>${downloadInfo.dataSize ? utils.formatByteToSize(downloadInfo.dataSize) : "未知大小"}</span>
 					</div>
 					<div class="dy-link-item-download-uri">
 						<span>下载地址：</span>
@@ -6379,7 +6628,7 @@
                   height: item.height,
                   format: item.format,
                   fps: 0,
-                  dataSize: item.dataSize,
+                  dataSize: item.dataSize ?? 0,
                   backUrl: [],
                 };
                 if (typeof item.fps === "number") {
@@ -6865,125 +7114,6 @@
       }
     `
       );
-    },
-  };
-  const DouYinMessageFilter = {
-    key: "douyin-live-danmu-rule",
-    $data: {
-      rule: [],
-    },
-    init() {
-      this.initRule();
-    },
-    initRule() {
-      this.$data.rule.length = 0;
-      const localRule = this.get().trim();
-      const localRuleSplit = localRule.split("\n");
-      localRuleSplit.forEach((item) => {
-        if (item.trim() == "") return;
-        item = item.trim();
-        const itemRegExp = new RegExp(item.trim());
-        this.$data.rule.push(itemRegExp);
-      });
-    },
-    change() {
-      this.execMessageFilter(
-        Array.from($$("#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])")),
-        "聊天室"
-      );
-    },
-    execMessageFilter(messageQueue, from) {
-      for (let index = 0; index < messageQueue.length; index++) {
-        const $danmu = messageQueue[index];
-        const react = utils.getReactInstance($danmu);
-        const messageIns =
-          react?.reactFiber?.return?.memoizedProps?.message ||
-          react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message ||
-          react?.reactContainer?.memoizedState?.element?.props?.message;
-        if (typeof messageIns !== "object" || messageIns == null) {
-          continue;
-        }
-        const message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
-        const method = messageIns.method;
-        const chat_by = messageIns?.payload?.chat_by;
-        const biz_scene = messageIns?.payload?.biz_scene;
-        let flag = false;
-        if (!flag) {
-          if (method === "WebcastGiftMessage") {
-            if (Panel.getValue("live-danmu-shield-gift")) {
-              flag = true;
-            }
-          } else if (method === "WebcastChatMessage") {
-            if (chat_by === "0");
-            else if (chat_by === "9" || chat_by === "10") {
-              if (Panel.getValue("live-danmu-shield-lucky-bag")) {
-                flag = true;
-              }
-            } else;
-          } else if (method === "WebcastRoomMessage") {
-            messageIns?.payload?.system_top_msg;
-            messageIns?.payload?.biz_scene;
-          } else;
-        }
-        if (!flag && typeof biz_scene === "string") {
-          if (biz_scene === "common_text_game_score") {
-            if (Panel.getValue("live-message-shield-biz_scene-common_text_game_score")) {
-              flag = true;
-            }
-          }
-        }
-        if (!flag) {
-          flag =
-            typeof message === "string" &&
-            this.$data.rule.some((ruleText) => {
-              if (message.match(ruleText)) {
-                log.info("自定义规则过滤 " + from + " 消息: " + message);
-                return true;
-              }
-            });
-        }
-        if (flag) {
-          $danmu.setAttribute("data-is-filter", "true");
-          domUtils.hide($danmu, false);
-        }
-      }
-    },
-    set(value) {
-      _GM_setValue(this.key, value);
-    },
-    get() {
-      return _GM_getValue(this.key, "");
-    },
-  };
-  const DouYinLiveMessage = {
-    filterMessage() {
-      log.info("消息过滤");
-      const lockFn = new utils.LockFunction(() => {
-        if (!DouYinRouter.isLive()) return;
-        DouYinMessageFilter.change();
-      });
-      DouYinMessageFilter.init();
-      const observer = utils.mutationObserver(document.body, {
-        config: {
-          childList: true,
-          subtree: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
-      return [
-        addStyle(
-          `
-				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
-				.webcast-chatroom___list > div{
-					height: 100% !important;
-				}
-			`
-        ),
-        () => observer.disconnect(),
-      ];
     },
   };
   const DouYinLiveBlock_ChatRoom = {
@@ -10939,7 +11069,7 @@
             }
             CommonUtil.interval(
               async (isTimeout) => {
-                const isSlideMode = isPlayCollection && Boolean($activeVideo.closest("#slideMode"));
+                const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
                 if (isTimeout) {
                   const { $exit } = queryRelatedModeInfo();
                   if (isSlideMode) {

@@ -185,7 +185,7 @@ export const DouYinRecommend = {
               /**
                * 当前是否是合集播放
                */
-              const isSlideMode = isPlayCollection && Boolean($activeVideo.closest("#slideMode"));
+              const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
               if (isTimeout) {
                 // 用超时来处理合集内播放到最后一个视频
                 const { $exit } = queryRelatedModeInfo();

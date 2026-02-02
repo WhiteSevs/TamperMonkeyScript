@@ -588,7 +588,7 @@ export const DouYinVideoPlayer = {
 					</div>
 					<div class="dy-link-item-size">
 						<span>视频大小：</span>
-						<span>${utils.formatByteToSize(downloadInfo.dataSize)}</span>
+						<span>${downloadInfo.dataSize ? utils.formatByteToSize(downloadInfo.dataSize) : "未知大小"}</span>
 					</div>
 					<div class="dy-link-item-download-uri">
 						<span>下载地址：</span>
@@ -898,7 +898,7 @@ export const DouYinVideoPlayer = {
                 height: item.height,
                 format: item.format,
                 fps: 0,
-                dataSize: item.dataSize,
+                dataSize: item.dataSize ?? 0,
                 backUrl: [],
               } as ParseVideoDownloadInfo;
               if (typeof item.fps === "number") {

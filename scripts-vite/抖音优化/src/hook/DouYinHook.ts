@@ -1,9 +1,10 @@
-import { DOMUtils, log, utils, cookieManager } from "@/env";
+import { cookieManager, DOMUtils, log, utils } from "@/env";
+import { DouYinLiveMessage } from "@/main/live/DouYinLiveMessage";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElement } from "@/utils/DouYinElement";
+import { OriginPrototype } from "@components/base.env";
 import { Hook } from "@components/hook/Hook";
 import { Panel } from "@components/setting/panel";
-import Qmsg from "qmsg";
 
 export const DouYinHook = {
   $data: {
@@ -33,6 +34,11 @@ export const DouYinHook = {
       }
       this.disableDoubleClickLike();
     });
+    // if (DouYinRouter.isLive()) {
+    //   Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+    //     this.liveMessage();
+    //   });
+    // }
   },
   /**
    * 移除环境检测
@@ -437,5 +443,78 @@ export const DouYinHook = {
         };
       }
     });
+  },
+  /**
+   * 对直播消息过滤的劫持
+   */
+  liveMessage() {
+    log.info(`对直播消息过滤的劫持`);
+    Hook.window_webpack(
+      "webpackChunkdouyin_live_v2",
+      () => {
+        return true;
+      },
+      (webpackExports) => {
+        if (webpackExports == null || typeof webpackExports?.exports !== "object" || webpackExports?.exports == null) {
+          return webpackExports;
+        }
+        if (webpackExports.loaded) return webpackExports;
+        const values = OriginPrototype.Object.values(webpackExports?.exports);
+        values.forEach((value) => {
+          if (typeof value !== "function") {
+            return;
+          }
+          if (
+            typeof value.prototype?.start === "function" &&
+            typeof value.prototype?.pause === "function" &&
+            typeof value.prototype?.stop === "function" &&
+            typeof value.prototype?.registerPublisher === "function" &&
+            typeof value.prototype?.unregisterPublisher === "function" &&
+            typeof value.prototype?.destroy === "function" &&
+            typeof value.prototype?.getPlugin === "function" &&
+            typeof value.prototype?.registerPlugin === "function" &&
+            typeof value.prototype?.unregisterPlugin === "function"
+          ) {
+            log.success(`success hook live webpack：${webpackExports.id}`);
+            // @ts-expect-error
+            const version: string = value?.VERSION;
+            log.success(`version：${version}`);
+            const start = value.prototype.start;
+            value.prototype.start = function (...args: any[]) {
+              // const _onMessage = this?._onMessage;
+              const decoder: {
+                decode: (data: Uint8Array, method: string) => any;
+                encode: Function;
+                loadSchema: Function;
+              } = this?.decoder;
+              if (typeof decoder?.decode === "function") {
+                log.success(`hook live message decode success`);
+                const decode = decoder?.decode;
+                this.decoder.decode = async function (...args2: any[]) {
+                  const [data, method] = args2;
+                  const payload = await Reflect.apply(decode, this, args2);
+                  const flag = await DouYinLiveMessage.execFilter(
+                    {
+                      payload: payload,
+                    },
+                    method
+                  );
+                  if (typeof flag === "boolean" && flag) {
+                    log.success(`过滤：`, payload);
+                    return;
+                  }
+                  return payload;
+                };
+              }
+              if (typeof start === "function") {
+                const startResult = Reflect.apply(start, this, args);
+                return startResult;
+              }
+            };
+          }
+        });
+        return webpackExports;
+      }
+    );
   },
 };
