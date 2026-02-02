@@ -378,10 +378,36 @@ const Panel = {
   /**
    * 监听调用setValue、deleteValue
    * @param key 需要监听的键
-   * @param callback
+   * @param callback 值改变时触发的回调
+   * @param option 其它配置
    */
-  addValueChangeListener(key: string, callback: (key: string, newValue: any, oldValue: any) => void) {
+  addValueChangeListener(
+    key: string,
+    callback: (key: string, newValue: any, oldValue: any) => void,
+    option?: {
+      /**
+       * 是否立即触发此回调，此配置不会触发其它对该键的监听回调
+       *
+       * 如果同时设置了immediateAll，则该配置优先级最高
+       */
+      immediate?: boolean;
+      /**
+       * 是否立即触发所有监听此键的回调
+       *
+       * 如果同时设置了immediate，则该配置优先级最低
+       */
+      immediateAll?: boolean;
+    }
+  ) {
     const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+    if (option?.immediate || option?.immediateAll) {
+      const value = this.getValue(key);
+      if (option?.immediate) {
+        callback(key, value, value);
+      } else if (option?.immediateAll) {
+        Panel.emitMenuValueChange(key, value, value);
+      }
+    }
     return listenerId;
   },
   /**
