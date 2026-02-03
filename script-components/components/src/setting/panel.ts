@@ -25,6 +25,7 @@ import { PopsPanelStorageApi } from "./panel-storage";
 import { PanelUISize } from "./panel-ui-size";
 
 type ExecMenuCallBackOption<T = any> = {
+  key: string[];
   /**
    * 当前菜单项的值
    *
@@ -635,6 +636,7 @@ const Panel = {
         // 获取回调函数的返回值
         const valueList = keyList.map((key) => this.getValue<T>(key));
         callbackResult = await callback({
+          key: keyList,
           value: (isArrayKey ? valueList : valueList[0]) as T,
           addStoreValue: (...args: any[]) => {
             return addStoreValueCallback(execFlag, args);
@@ -1416,6 +1418,23 @@ const Panel = {
     } else {
       return key;
     }
+  },
+  /**
+   * 通过.value获取动态值，即该值在其它地方进行.setValue时，此地方也能获取到最新值
+   */
+  getDynamicValue<T extends any = boolean | undefined>(key: string, defaultValue?: T) {
+    let __value = this.getValue<T>(key, defaultValue);
+    const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+      __value = newValue;
+    });
+    return {
+      get value() {
+        return __value;
+      },
+      destory: () => {
+        this.removeValueChangeListener(listenerId);
+      },
+    };
   },
 };
 
