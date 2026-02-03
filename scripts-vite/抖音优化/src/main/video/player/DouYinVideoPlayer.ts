@@ -1074,7 +1074,7 @@ export const DouYinVideoPlayer = {
    */
   repairVideoProgressBar() {
     log.info("修复进度条按钮");
-    const result: HTMLStyleElement[] = [
+    const result: any[] = [
       addStyle(/*css*/ `
 			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
       @media screen and (max-width: 600px) and (orientation: portrait),
@@ -1086,11 +1086,14 @@ export const DouYinVideoPlayer = {
       }
 			`),
     ];
+    const mobileMode = Panel.getDynamicValue("mobileMode");
+    const repairProgressBar = Panel.getDynamicValue("repairProgressBar");
+    result.push(mobileMode.destory, repairProgressBar.destory);
     /**
      * 检测是否启用
      */
     const checkEnable = () => {
-      return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+      return mobileMode.value || repairProgressBar.value;
     };
     const isMobile = () => {
       if (DouYinUtils.isVerticalScreen()) {
@@ -1312,8 +1315,9 @@ export const DouYinVideoPlayer = {
         }
       }
     };
+    const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
     const lockFn = new utils.LockFunction(() => {
-      if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
+      if (!waitToRemovePauseDialog.value) {
         return;
       }
       [
@@ -1337,6 +1341,7 @@ export const DouYinVideoPlayer = {
       () => {
         observer?.disconnect();
       },
+      waitToRemovePauseDialog.destory,
     ];
   },
   /**

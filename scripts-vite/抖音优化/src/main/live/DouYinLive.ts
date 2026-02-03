@@ -76,12 +76,13 @@ export const DouYinLive = {
     Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
       return this.changeBackgroundColor();
     });
-    Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
+    Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", (option) => {
+      const switchLiveRoom = Panel.getDynamicValue(option.key[0]);
       const result = DOMUtils.on(
         document,
         ["wheel", "mousewheel"],
         (evt) => {
-          if (!Panel.getValue("live-prevent-wheel-switchLiveRoom")) {
+          if (!switchLiveRoom.value) {
             return;
           }
           if (!DouYinRouter.isLive()) {
@@ -93,7 +94,7 @@ export const DouYinLive = {
           capture: true,
         }
       );
-      return [result.off];
+      return [result.off, switchLiveRoom.destory];
     });
     Panel.execMenu("dy-live-quickGift", () => {
       return this.disableQuickGift();
@@ -361,8 +362,9 @@ export const DouYinLive = {
         }
       }
     };
+    const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
     const lockFn = new utils.LockFunction(() => {
-      if (!Panel.getValue("live-waitToRemovePauseDialog")) {
+      if (!waitToRemovePauseDialog.value) {
         return;
       }
       $$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
@@ -387,6 +389,7 @@ export const DouYinLive = {
       () => {
         observer?.disconnect();
       },
+      waitToRemovePauseDialog.destory,
     ];
   },
   /**

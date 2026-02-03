@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.3
+// @version      2026.2.3.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1256,6 +1256,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1862,6 +1863,20 @@
       } else {
         return key;
       }
+    },
+    getDynamicValue(key, defaultValue) {
+      let __value = this.getValue(key, defaultValue);
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          return __value;
+        },
+        destory: () => {
+          this.removeValueChangeListener(listenerId);
+        },
+      };
     },
   };
   const PanelSettingConfig = {
@@ -3135,11 +3150,17 @@
       });
     },
     disableShortCut() {
-      const isInPopsComponentsRequireInputNode = ($el) => {
+      const isDisableTriggerKeyboard = ($el) => {
         if ($el == null) return false;
         const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
+        if (isInputNode) return true;
+        const isCommentEditor = Boolean(
+          $el?.closest(".DraftEditor-editorContainer") || $el?.closest(".im-richtext-container")
+        );
+        if (isCommentEditor) return true;
         const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
-        return isInputNode && isInPops;
+        if (isInPops) return true;
+        return false;
       };
       let timeId;
       Hook.document_addEventListener((target, eventName, listener, option) => {
@@ -3162,7 +3183,7 @@
             }
             const $active = document.activeElement;
             const $shadowRootActive = $active?.shadowRoot?.activeElement;
-            if (isInPopsComponentsRequireInputNode($shadowRootActive ?? $active)) {
+            if (isDisableTriggerKeyboard($shadowRootActive ?? $active)) {
               return;
             }
             let keyboardConfigList = [
@@ -3172,16 +3193,6 @@
                 callback(evt) {
                   if (evt.code !== "Space") return;
                   if (DouYinRouter.isChat()) return;
-                  const $active2 = document.activeElement;
-                  const tagName = $active2?.tagName?.toLowerCase();
-                  const isInputNode = typeof tagName === "string" ? ["input", "textarea"].includes(tagName) : false;
-                  if (
-                    $active2?.closest(".DraftEditor-editorContainer") ||
-                    $active2?.closest(".im-richtext-container") ||
-                    isInputNode
-                  ) {
-                    return;
-                  }
                   utils.workerClearTimeout(timeId);
                   timeId = utils.workerSetTimeout(() => {
                     const videosInViewVideoList = DouYinElement.getInViewVideo();
@@ -3741,8 +3752,10 @@
     },
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
+      const watchLoginDialogToClose = Panel.getDynamicValue("watchLoginDialogToClose");
+      const disguiseLogin = Panel.getDynamicValue("disguiseLogin");
       const lockFn = new utils.LockFunction(() => {
-        if (!Panel.getValue("watchLoginDialogToClose") && !Panel.getValue("disguiseLogin")) {
+        if (!watchLoginDialogToClose.value && !disguiseLogin.value) {
           return;
         }
         domUtils.remove(".douyin_login_iframe:has(iframe)");
@@ -3798,6 +3811,8 @@
         () => {
           observer.disconnect();
         },
+        watchLoginDialogToClose.destory,
+        disguiseLogin.destory,
       ];
     },
     watchCommentDialogToClose() {
@@ -6801,8 +6816,11 @@
 			`
         ),
       ];
+      const mobileMode = Panel.getDynamicValue("mobileMode");
+      const repairProgressBar = Panel.getDynamicValue("repairProgressBar");
+      result.push(mobileMode.destory, repairProgressBar.destory);
       const checkEnable = () => {
-        return Panel.getValue("mobileMode") || Panel.getValue("repairProgressBar");
+        return mobileMode.value || repairProgressBar.value;
       };
       const isMobile = () => {
         if (DouYinUtils.isVerticalScreen()) {
@@ -6988,8 +7006,9 @@
           }
         }
       };
+      const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
       const lockFn = new utils.LockFunction(() => {
-        if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
+        if (!waitToRemovePauseDialog.value) {
           return;
         }
         [
@@ -7013,6 +7032,7 @@
         () => {
           observer?.disconnect();
         },
+        waitToRemovePauseDialog.destory,
       ];
     },
     removeStyleBottom() {
@@ -7615,12 +7635,13 @@
       Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
         return this.changeBackgroundColor();
       });
-      Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", () => {
+      Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", (option) => {
+        const switchLiveRoom = Panel.getDynamicValue(option.key[0]);
         const result = domUtils.on(
           document,
           ["wheel", "mousewheel"],
           (evt) => {
-            if (!Panel.getValue("live-prevent-wheel-switchLiveRoom")) {
+            if (!switchLiveRoom.value) {
               return;
             }
             if (!DouYinRouter.isLive()) {
@@ -7632,7 +7653,7 @@
             capture: true,
           }
         );
-        return [result.off];
+        return [result.off, switchLiveRoom.destory];
       });
       Panel.execMenu("dy-live-quickGift", () => {
         return this.disableQuickGift();
@@ -7870,8 +7891,9 @@
           }
         }
       };
+      const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
       const lockFn = new utils.LockFunction(() => {
-        if (!Panel.getValue("live-waitToRemovePauseDialog")) {
+        if (!waitToRemovePauseDialog.value) {
           return;
         }
         $$("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
@@ -7895,6 +7917,7 @@
         () => {
           observer?.disconnect();
         },
+        waitToRemovePauseDialog.destory,
       ];
     },
     disableVideoAutoPlay() {
@@ -9923,6 +9946,8 @@
       ENABLE_KEY: "shieldVideo-exec-network-enable",
     },
     $data: {
+      enable: void 0,
+      onlyShowFilteredVideo: void 0,
       isFilterAwemeInfoListWithOnlyShowFilteredVideo: new Utils.Dictionary(),
       networkAwemeInfoMap: new Utils.Dictionary(),
       __videoFilterRuleStorage: null,
@@ -9934,15 +9959,21 @@
         }
         return this.__videoFilterRuleStorage;
       },
-      get onlyShowFilteredVideo() {
-        return Panel.getValue("shieldVideo-only-show-filtered-video");
-      },
       videoFilterRules: [],
     },
     init() {
       if (DouYinRouter.isLive()) {
         Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+        if (this.$data.enable != null) {
+          this.$data.enable.destory();
+        }
         return;
+      }
+      if (this.$data.enable == null) {
+        this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
+      }
+      if (this.$data.onlyShowFilteredVideo == null) {
+        this.$data.onlyShowFilteredVideo = Panel.getDynamicValue("shieldVideo-only-show-filtered-video");
       }
       this.execFilter();
       domUtils.onReady(() => {
@@ -9952,7 +9983,7 @@
       });
     },
     getFilterRules(scopeName, useEnableRule = true) {
-      if (!Panel.getValue(this.$key.ENABLE_KEY)) {
+      if (!this.$data.enable) {
         return [];
       }
       const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
@@ -9999,7 +10030,7 @@
         log.info(`执行视频过滤器`);
         const filterBase = new DouYinVideoFilterBase();
         const checkFilterCallBack = (awemeFilterInfoResult) => {
-          if (this.$data.onlyShowFilteredVideo) {
+          if (this.$data.onlyShowFilteredVideo.value) {
             awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
             if (
               typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
@@ -10217,7 +10248,7 @@
         let targetFilterOption = [];
         let isHasMatchedRules = false;
         if (
-          this.$data.onlyShowFilteredVideo &&
+          this.$data.onlyShowFilteredVideo.value &&
           this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.has(transformAwemeInfo.awemeId)
         ) {
           isHasMatchedRules = true;
@@ -10985,12 +11016,13 @@
         const selector = `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`;
         return isAll ? $$(selector) : $(selector);
       };
+      const keyboardHookPageUpAndDown = Panel.getDynamicValue("dy-keyboard-hook-pageUpAndDown");
       const switchActiveVideo = () => {
         const $next = $(".xgplayer-playswitch-next");
         if ($next) {
           $next.click();
         } else {
-          if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+          if (keyboardHookPageUpAndDown.value) {
             Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
             return;
           }
@@ -11124,6 +11156,7 @@
           const $videos = queryActiveVideo(void 0, true);
           domUtils.off($videos, "ended");
         },
+        keyboardHookPageUpAndDown.destory,
       ];
     },
     disableVideoSatisfaction() {

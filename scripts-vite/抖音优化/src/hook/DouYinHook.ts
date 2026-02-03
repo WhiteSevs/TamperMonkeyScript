@@ -84,13 +84,21 @@ export const DouYinHook = {
   disableShortCut() {
     type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
     /**
-     * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者其它内容
+     * 是否禁止触发快捷键
+     *
+     * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者评论区输入框等...
      */
-    const isInPopsComponentsRequireInputNode = ($el: Element | null | undefined) => {
+    const isDisableTriggerKeyboard = ($el: Element | null | undefined) => {
       if ($el == null) return false;
       const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
+      if (isInputNode) return true;
+      const isCommentEditor = Boolean(
+        $el?.closest(".DraftEditor-editorContainer") || $el?.closest(".im-richtext-container")
+      );
+      if (isCommentEditor) return true;
       const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
-      return isInputNode && isInPops;
+      if (isInPops) return true;
+      return false;
     };
     let timeId: number;
     Hook.document_addEventListener((target, eventName, listener, option) => {
@@ -116,7 +124,7 @@ export const DouYinHook = {
 
           const $active = document.activeElement;
           const $shadowRootActive = $active?.shadowRoot?.activeElement;
-          if (isInPopsComponentsRequireInputNode($shadowRootActive ?? $active)) {
+          if (isDisableTriggerKeyboard($shadowRootActive ?? $active)) {
             // 在输入框内时，禁止触发快捷键
             return;
           }
@@ -133,18 +141,6 @@ export const DouYinHook = {
               callback(evt) {
                 if (evt.code !== "Space") return;
                 if (DouYinRouter.isChat()) return;
-                // must space
-                const $active = document.activeElement;
-                const tagName = $active?.tagName?.toLowerCase();
-                const isInputNode = typeof tagName === "string" ? ["input", "textarea"].includes(tagName) : false;
-                if (
-                  $active?.closest(".DraftEditor-editorContainer") ||
-                  $active?.closest(".im-richtext-container") ||
-                  isInputNode
-                ) {
-                  // 如果在输入框内，则不阻止触发快捷键
-                  return;
-                }
                 utils.workerClearTimeout(timeId);
                 timeId = utils.workerSetTimeout(() => {
                   const videosInViewVideoList = DouYinElement.getInViewVideo();

@@ -236,9 +236,10 @@ export const DouYinAccount = {
    */
   watchLoginDialogToClose() {
     log.info("监听登录弹窗并关闭");
-
+    const watchLoginDialogToClose = Panel.getDynamicValue("watchLoginDialogToClose");
+    const disguiseLogin = Panel.getDynamicValue("disguiseLogin");
     const lockFn = new utils.LockFunction(() => {
-      if (!Panel.getValue("watchLoginDialogToClose") && !Panel.getValue("disguiseLogin")) {
+      if (!watchLoginDialogToClose.value && !disguiseLogin.value) {
         // 当伪装登录和屏蔽登录弹窗都关闭时，则取消监听
         return;
       }
@@ -296,6 +297,8 @@ export const DouYinAccount = {
       () => {
         observer.disconnect();
       },
+      watchLoginDialogToClose.destory,
+      disguiseLogin.destory,
     ];
   },
   /**

@@ -68,6 +68,14 @@ export const DouYinVideoFilter = {
   },
   $data: {
     /**
+     * 是否启用
+     */
+    enable: void 0 as ReturnType<typeof Panel.getDynamicValue> | undefined,
+    /**
+     * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+     */
+    onlyShowFilteredVideo: void 0 as ReturnType<typeof Panel.getDynamicValue> | undefined,
+    /**
      * 已过滤的视频信息（仅显示被过滤的视频）
      */
     isFilterAwemeInfoListWithOnlyShowFilteredVideo: new Utils.Dictionary<string, DouYinVideoFilterRule[]>(),
@@ -93,12 +101,6 @@ export const DouYinVideoFilter = {
       return this.__videoFilterRuleStorage;
     },
     /**
-     * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
-     */
-    get onlyShowFilteredVideo() {
-      return Panel.getValue<boolean>("shieldVideo-only-show-filtered-video");
-    },
-    /**
      * 视频过滤规则
      */
     videoFilterRules: <DouYinVideoFilterRule[]>[],
@@ -106,7 +108,16 @@ export const DouYinVideoFilter = {
   init() {
     if (DouYinRouter.isLive()) {
       Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+      if (this.$data.enable != null) {
+        this.$data.enable.destory();
+      }
       return;
+    }
+    if (this.$data.enable == null) {
+      this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
+    }
+    if (this.$data.onlyShowFilteredVideo == null) {
+      this.$data.onlyShowFilteredVideo = Panel.getDynamicValue("shieldVideo-only-show-filtered-video");
     }
     this.execFilter();
     DOMUtils.onReady(() => {
@@ -121,7 +132,7 @@ export const DouYinVideoFilter = {
    * @param [useEnableRule=true] 是否使用启用状态的规则，true：启用状态的规则，false：所有规则
    */
   getFilterRules(scopeName?: DouYinVideoFilterRuleOptionScope, useEnableRule: boolean = true) {
-    if (!Panel.getValue(this.$key.ENABLE_KEY)) {
+    if (!this.$data.enable) {
       return [];
     }
     const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
@@ -179,7 +190,7 @@ export const DouYinVideoFilter = {
       ) => {
         // 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
         // 并添加记录
-        if (this.$data.onlyShowFilteredVideo) {
+        if (this.$data.onlyShowFilteredVideo!.value) {
           // 这时候需要过滤掉非命中规则的视频
           awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
           // 添加过滤信息记录
@@ -478,7 +489,7 @@ export const DouYinVideoFilter = {
       let targetFilterOption: DouYinVideoFilterRule[] = [];
       let isHasMatchedRules = false;
       if (
-        this.$data.onlyShowFilteredVideo &&
+        this.$data.onlyShowFilteredVideo!.value &&
         this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.has(transformAwemeInfo.awemeId!)
       ) {
         // 已开启 仅显示被过滤的视频

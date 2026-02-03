@@ -89,6 +89,7 @@ export const DouYinRecommend = {
       }`;
       return isAll ? ($$<HTMLVideoElement>(selector) as any) : ($<HTMLVideoElement>(selector) as any);
     };
+    const keyboardHookPageUpAndDown = Panel.getDynamicValue("dy-keyboard-hook-pageUpAndDown");
     /**
      * 切换视频
      */
@@ -97,7 +98,7 @@ export const DouYinRecommend = {
       if ($next) {
         $next.click();
       } else {
-        if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+        if (keyboardHookPageUpAndDown.value) {
           Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
           return;
         }
@@ -250,6 +251,7 @@ export const DouYinRecommend = {
         const $videos = queryActiveVideo(void 0, true);
         DOMUtils.off($videos, "ended");
       },
+      keyboardHookPageUpAndDown.destory,
     ];
   },
   /**
