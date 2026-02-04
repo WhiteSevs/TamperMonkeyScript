@@ -1423,23 +1423,35 @@ const Panel = {
    * 通过.value获取动态值，即该值在其它地方进行.setValue时，此地方也能获取到最新值
    */
   getDynamicValue<T extends any = boolean | undefined>(key: string, defaultValue?: T) {
-    let __value = this.getValue<T>(key, defaultValue);
-    const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+    const that = this;
+    let isInit = false;
+    let __value = defaultValue;
+    const listenerId = that.addValueChangeListener(key, (_, newValue) => {
       __value = newValue;
     });
     return {
+      /**
+       * 值
+       */
       get value() {
+        if (!isInit) {
+          isInit = true;
+          __value = that.getValue<T>(key, defaultValue);
+        }
         return __value;
       },
-      destory: () => {
-        this.removeValueChangeListener(listenerId);
+      /**
+       * 销毁监听
+       */
+      destory() {
+        that.removeValueChangeListener(listenerId);
       },
     };
   },
 };
 
 if (import.meta.hot) {
-  Reflect.set(unsafeWindow, "PopsPanel", Panel);
+  Reflect.set(unsafeWindow, "Panel", Panel);
 }
 export {
   Panel,
