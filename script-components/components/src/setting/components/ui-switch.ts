@@ -180,8 +180,8 @@ export const UISwitch = function (
                   $loading.close();
                   if (status) {
                     // 清除旧的图标
-                    log.success("成功录入快捷键", option);
-                    Qmsg.success("成功录入");
+                    log.success("录入快捷键", option);
+                    Qmsg.success("录入成功");
                     // 添加快捷键图标
                     renderKeyboard();
                   } else {
