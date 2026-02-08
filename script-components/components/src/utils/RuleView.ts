@@ -197,7 +197,7 @@ class RuleView<T> {
   }
   /**
    * 显示视图
-   * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理），如果值为number，则使用自定义的过滤规则内的配置项
+   * @param filterCallBack 返回值为true则是需要的、不隐藏（不处理），false则是不需要的、进行隐藏，如果值为number，则使用自定义的过滤规则内的配置项
    */
   async showView(
     filterCallBack?:
@@ -441,7 +441,14 @@ class RuleView<T> {
         const searchText = DOMUtils.val($searchInput);
         for (let index = 0; index < allData.length; index++) {
           const item = allData[index];
-          // 先进行前置条件过滤
+          // 进行自定义条件过滤（优先级最高）
+          if (typeof filterCallBack === "function") {
+            const flag = await filterCallBack(item);
+            if (typeof flag === "boolean" && !flag) {
+              continue;
+            }
+          }
+          // 进行前置条件过滤
           if (externalSelectInfo) {
             const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
             if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
@@ -449,6 +456,7 @@ class RuleView<T> {
               continue;
             }
           }
+          // 进行搜索条件过滤
           if (ruleValueSelectInfo) {
             let flag = true;
             if (searchText === "") {
