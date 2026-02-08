@@ -28,7 +28,7 @@ type ShortCutOptionWindow = {
   /**
    * 触发该快捷键的回调
    */
-  callback(): void;
+  callback(): void | Promise<void>;
 };
 
 type ShortCutOptionElement = {
@@ -38,11 +38,11 @@ type ShortCutOptionElement = {
    * target不能为document，因为会先触发window的事件
    * @default "window"
    */
-  target?: string | Element | (() => IPromise<Element | void>);
+  target?: string | Element | (() => IPromise<Element | void | Promise<void>>);
   /**
    * 触发该快捷键的回调
    */
-  callback(): void;
+  callback(): void | Promise<void>;
 };
 
 /** 监听全局的快捷键配置 */
@@ -120,6 +120,8 @@ class ShortCut {
       isPrevent?: boolean;
       /** 是否使用捕获 */
       capture?: boolean;
+      /** 在调用配置的快捷键之前触发的回调，如果返回false则不触配置的快捷键的回调 */
+      beforeCallBack?: () => void | boolean | Promise<void | boolean>;
     }
   ) {
     if (!this.#data.localOptions.length) {
@@ -136,7 +138,7 @@ class ShortCut {
       DOMUtils.onKeyboard(
         $target,
         "keydown",
-        (keyName, keyValue, ohterCodeList, event) => {
+        async (keyName, keyValue, ohterCodeList, event) => {
           if (that.#flag.isWaitPress) {
             return;
           }
@@ -160,7 +162,14 @@ class ShortCut {
           if (findShortcut) {
             if (findShortcut.key in option) {
               log.info("调用快捷键", findShortcut);
-              option[findShortcut.key].callback();
+              if (typeof config?.beforeCallBack === "function") {
+                const flag = await config.beforeCallBack();
+                if (typeof flag === "boolean" && !flag) {
+                  return;
+                }
+              }
+              const callback = option[findShortcut.key].callback;
+              await callback();
             }
           }
         },
@@ -335,7 +344,12 @@ class ShortCut {
     keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
       result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
     });
-    result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+    if (keyboardValue.keyName === " ") {
+      // 空格
+      result += utils.stringTitleToUpperCase("space");
+    } else {
+      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+    }
     return result;
   }
   /**
@@ -369,8 +383,8 @@ class ShortCut {
     /** 快捷键配置 */
     option: ShortCutKeyboardOption;
   }> {
+    this.#flag.isWaitPress = true;
     return new Promise((resolve) => {
-      this.#flag.isWaitPress = true;
       const keyboardListener = DOMUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
         const currentOption: ShortCutKeyboardOption = {
           keyName: keyName,
@@ -423,8 +437,9 @@ class ShortCut {
             option: currentOption,
           };
         } finally {
-          this.#flag.isWaitPress = false;
-          keyboardListener.removeListen();
+          if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+            this.#data.currentWaitEnterPressInstanceHandler();
+          }
           this.#data.currentWaitEnterPressInstanceHandler = null;
           resolve(result);
         }
@@ -433,6 +448,7 @@ class ShortCut {
       this.#data.currentWaitEnterPressInstanceHandler = () => {
         this.#flag.isWaitPress = false;
         keyboardListener.removeListen();
+        this.#data.currentWaitEnterPressInstanceHandler = null;
       };
     });
   }
