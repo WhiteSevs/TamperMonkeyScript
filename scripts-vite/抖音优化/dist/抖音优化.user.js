@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.3.23
+// @version      2026.2.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -1865,16 +1865,22 @@
       }
     },
     getDynamicValue(key, defaultValue) {
-      let __value = this.getValue(key, defaultValue);
-      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = that.addValueChangeListener(key, (_, newValue) => {
         __value = newValue;
       });
       return {
         get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
           return __value;
         },
-        destory: () => {
-          this.removeValueChangeListener(listenerId);
+        destory() {
+          that.removeValueChangeListener(listenerId);
         },
       };
     },
@@ -3858,6 +3864,33 @@
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
+    parseDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
   };
   class GestureBack {
     isBacking = false;
@@ -5004,44 +5037,36 @@
     $data = {
       dislike_request_queue: [],
     };
-    parseAwemeInfoDictData(awemeInfo, showLog = false) {
-      let authorInfo = awemeInfo?.["authorInfo"] || awemeInfo?.["author"];
-      let nickname = authorInfo?.["nickname"]?.toString();
-      let uid = authorInfo?.["uid"]?.toString();
-      let desc = awemeInfo?.["desc"]?.toString();
-      let musicAlbum = awemeInfo?.["music"]?.["album"];
-      let musicAuthor = awemeInfo?.["music"]?.["author"];
-      let musicTitle = awemeInfo?.["music"]?.["title"];
-      let collectCount = awemeInfo?.["stats"]?.["collectCount"] || awemeInfo?.["statistics"]?.["collect_count"];
-      let commentCount = awemeInfo?.["stats"]?.["commentCount"] || awemeInfo?.["statistics"]?.["comment_count"];
-      let diggCount = awemeInfo?.["stats"]?.["diggCount"] || awemeInfo?.["statistics"]?.["digg_count"];
-      let shareCount = awemeInfo?.["stats"]?.["shareCount"] || awemeInfo?.["statistics"]?.["share_count"];
-      let duration = awemeInfo?.["video"]?.["duration"];
-      let textExtraInstance = awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"];
+    parseAwemeInfoDictData(awemeInfo, from, showLog = false) {
+      let nickname;
+      let uid;
+      let desc;
+      let musicAlbum;
+      let musicAuthor;
+      let musicDuration;
+      let musicTitle;
+      let musicUrl;
+      let musicBackUrlList = [];
+      let collectCount;
+      let commentCount;
+      let diggCount;
+      let shareCount;
+      let duration;
       let textExtra = [];
       let isLive = false;
       let isAds = false;
       let isSeriesInfo = false;
       let isMixInfo = false;
-      let riskInfoContent = awemeInfo?.["riskInfos"]?.content || awemeInfo?.["risk_infos"]?.content;
+      let riskInfoContent;
       let seriesInfoName = void 0;
       let seriesInfoContentTypes = [];
-      let isPicture = awemeInfo?.awemeType === 68 || awemeInfo?.["aweme_type"] === 68;
+      let isPicture;
       let pictureList = [];
-      if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
-        textExtraInstance?.forEach((item) => {
-          let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            textExtra.push(tagName);
-          }
-        });
-      }
       let mixInfoName = void 0;
       let mixInfoDesc = void 0;
-      let videoTagInstance = awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"];
       let videoTag = [];
       let videoTagId = [];
-      let awemeId = awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"];
+      let awemeId;
       let liveStreamRoomId = void 0;
       let liveStreamRoomTitle = void 0;
       let liveStreamNickName = void 0;
@@ -5052,236 +5077,592 @@
       let productId = void 0;
       let productTitle = void 0;
       let isFollow = false;
-      if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
-        videoTagInstance.forEach((item) => {
-          let tagName = item?.["tagName"] || item?.["tag_name"];
-          let tagId = item?.["tagId"] || item?.["tag_id"];
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            videoTag.push(tagName);
+      let authorAccountCertInfo = "";
+      let authorCustomVerify;
+      let authorEnterpriseVerifyReason;
+      let suggestWord = [];
+      if (from === "network") {
+        const awemeInfoWithNetWork = awemeInfo;
+        const authorInfo = awemeInfoWithNetWork?.author;
+        nickname = String(authorInfo?.nickname ?? "");
+        uid = String(authorInfo?.uid ?? "");
+        desc = String(awemeInfoWithNetWork.desc ?? "");
+        musicAlbum = awemeInfoWithNetWork?.music?.album;
+        musicAuthor = awemeInfoWithNetWork?.music?.author;
+        musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
+        musicTitle = awemeInfoWithNetWork?.music?.title;
+        collectCount = awemeInfoWithNetWork.statistics.collect_count;
+        commentCount = awemeInfoWithNetWork.statistics.comment_count;
+        diggCount = awemeInfoWithNetWork.statistics.digg_count;
+        shareCount = awemeInfoWithNetWork.statistics.share_count;
+        duration = awemeInfoWithNetWork.video.duration;
+        awemeId = awemeInfoWithNetWork.aweme_id;
+        authorCustomVerify = authorInfo?.custom_verify || "";
+        authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
+        isPicture = awemeInfoWithNetWork.aweme_type === 68;
+        isFollow = Boolean(authorInfo?.follow_status);
+        if (Array.isArray(awemeInfoWithNetWork.text_extra)) {
+          awemeInfoWithNetWork.text_extra.forEach((item) => {
+            const tagName = item?.hashtag_name;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              textExtra.push(tagName);
+            }
+          });
+        }
+        if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
+          awemeInfoWithNetWork.video_tag.forEach((item) => {
+            const tagName = item?.tag_name;
+            const tagId = item?.tag_id;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              videoTag.push(tagName);
+            }
+            if (typeof tagId === "number" || typeof tagId === "string") {
+              const tagTdStr = tagId.toString();
+              if (tagTdStr.trim() != "" && tagTdStr != "0") {
+                videoTagId.push(tagTdStr);
+              }
+            }
+          });
+        }
+        if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
+          isLive = true;
+          showLog && log.success("直播间: cell_room is not null");
+          let rawdata;
+          if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
+            rawdata = utils.toJSON(awemeInfoWithNetWork.cell_room.rawdata);
           }
-          if (typeof tagId === "number" || typeof tagId === "string") {
-            let tagTdStr = tagId.toString();
-            if (tagTdStr.trim() != "" && tagTdStr != "0") {
-              videoTagId.push(tagTdStr);
+          if (typeof rawdata == "object" && rawdata != null) {
+            liveStreamRoomId = rawdata?.owner?.web_rid;
+            liveStreamRoomTitle = rawdata?.title;
+            liveStreamNickName = rawdata?.owner?.nickname;
+            liveStreamRoomUserCount = rawdata?.user_count;
+            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+            if (typeof liveStreamRoomId !== "string") {
+              liveStreamRoomId = void 0;
+            }
+            if (typeof liveStreamRoomTitle !== "string") {
+              liveStreamRoomTitle = void 0;
+            }
+            if (typeof liveStreamNickName !== "string") {
+              liveStreamNickName = void 0;
+            }
+            if (typeof liveStreamRoomUserCount !== "number") {
+              liveStreamRoomUserCount = void 0;
+            }
+            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+              liveStreamRoomDynamicSpliceLabel = void 0;
             }
           }
-        });
-      }
-      const cell_room = awemeInfo?.["cellRoom"] || awemeInfo?.["cell_room"];
-      if (typeof cell_room === "object" && cell_room != null) {
-        isLive = true;
-        if (showLog) {
-          log.success("直播间：cellRoom is not null");
         }
-        let rawDataJSON = cell_room["rawdata"];
-        if (typeof rawDataJSON === "string") {
-          rawDataJSON = utils.toJSON(rawDataJSON);
+        isAds = [
+          () => {
+            if (awemeInfoWithNetWork.is_ads) {
+              showLog && log.success("广告: is_ads is true");
+              return true;
+            }
+          },
+          () => {
+            if (
+              typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
+              utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
+            ) {
+              showLog && log.success("广告: raw_ad_data is not null");
+              return true;
+            }
+          },
+          () => {
+            if (typeof awemeInfoWithNetWork?.web_raw_data === "string") {
+              const web_raw_data = utils.toJSON(awemeInfoWithNetWork?.web_raw_data);
+              if (typeof web_raw_data?.brand_ad === "string") {
+                const brand_ad = utils.toJSON(web_raw_data.brand_ad);
+                const is_ad = brand_ad?.is_ad;
+                if (is_ad) {
+                  showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                  return true;
+                }
+              }
+            }
+          },
+        ].some((it) => it());
+        const risk_infos = awemeInfoWithNetWork?.risk_infos;
+        if (
+          (typeof risk_infos?.content === "string" && risk_infos?.content.trim() === "") ||
+          typeof risk_infos?.content !== "string"
+        ) {
+          riskInfoContent = void 0;
+        } else {
+          riskInfoContent = risk_infos?.content;
         }
-        if (typeof rawDataJSON === "object" && rawDataJSON != null) {
-          liveStreamRoomId = rawDataJSON?.["owner"]?.["web_rid"];
-          liveStreamRoomTitle = rawDataJSON?.["title"];
-          liveStreamNickName = rawDataJSON?.["owner"]?.["nickname"];
-          liveStreamRoomUserCount = rawDataJSON?.["user_count"];
-          liveStreamRoomDynamicSpliceLabel = rawDataJSON?.["dynamic_label"]?.["splice_label"]?.["text"];
-          if (typeof liveStreamRoomId !== "string") {
-            liveStreamRoomId = void 0;
+        let series_info = awemeInfoWithNetWork?.series_info;
+        if (typeof series_info === "object" && series_info != null) {
+          if (typeof series_info?.series_name === "string") {
+            seriesInfoName = series_info?.series_name;
           }
-          if (typeof liveStreamRoomTitle !== "string") {
-            liveStreamRoomTitle = void 0;
+          const series_content_types = series_info?.series_content_types;
+          if (Array.isArray(series_content_types)) {
+            series_content_types.forEach((it) => {
+              const __seriesInfoName = it.name;
+              seriesInfoContentTypes.push(__seriesInfoName);
+            });
           }
-          if (typeof liveStreamNickName !== "string") {
-            liveStreamNickName = void 0;
-          }
-          if (typeof liveStreamRoomUserCount !== "number") {
-            liveStreamRoomUserCount = void 0;
-          }
-          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-            liveStreamRoomDynamicSpliceLabel = void 0;
+          if (seriesInfoName != null && series_content_types != null) {
+            isSeriesInfo = true;
           }
         }
-      }
-      isAds = [
-        () => {
-          if (awemeInfo["isAds"] || awemeInfo["is_ads"]) {
-            showLog && log.success("广告：isAds is true");
-            return true;
+        let mixInfo = awemeInfoWithNetWork?.mix_info;
+        if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+          mixInfoName = mixInfo?.mix_name;
+          mixInfoDesc = mixInfo?.desc;
+        }
+        const parseVideoBitRateList = (bitRateList, cover2) => {
+          let data = [];
+          if (!Array.isArray(bitRateList)) return data;
+          bitRateList.forEach((item) => {
+            let url = "";
+            const backUrl = [];
+            const url_list = item?.play_addr?.url_list;
+            if (
+              Array.isArray(url_list) &&
+              url_list.length > 0 &&
+              typeof url_list[0] === "string" &&
+              utils.isNotNull(url_list[0])
+            ) {
+              url = url_list[0];
+            }
+            if (
+              Array.isArray(url_list) &&
+              url_list.length > 0 &&
+              typeof url_list[0] === "string" &&
+              utils.isNotNull(url_list[0])
+            ) {
+              backUrl.push(
+                ...url_list
+                  .map((it) => {
+                    if (typeof it !== "string") return;
+                    if (it === url) return;
+                    return it;
+                  })
+                  .filter((it) => it != null)
+              );
+            } else {
+              backUrl.length = 0;
+            }
+            const videoBitRateListItem = {
+              cover: cover2,
+              bitRate: item.bit_rate,
+              dataSize: item?.play_addr?.data_size ?? 0,
+              format: item.format,
+              isH265: item.is_h265,
+              fps: item.FPS,
+              gearName: item.gear_name,
+              qualityType: item.quality_type,
+              width: item?.play_addr?.width,
+              height: item?.play_addr?.height,
+              url,
+              backUrl,
+            };
+            data.push(videoBitRateListItem);
+          });
+          for (let index = 0; index < data.length; index++) {
+            const item = data[index];
+            for (let index2 = 0; index2 < data.length; index2++) {
+              const item2 = data[index2];
+              if (item === item2) {
+                continue;
+              }
+              if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
+                if (item.dataSize > item2.dataSize) {
+                  data.splice(index2, 1);
+                  index2--;
+                  if (index > index2) {
+                    index--;
+                  }
+                }
+              }
+            }
           }
-        },
-        () => {
+          data = data.map((item) => {
+            if (item.url.startsWith("http:")) {
+              item.url = item.url.replace("http:", "");
+            }
+            return item;
+          });
+          utils.sortListByProperty(data, (it) => it.width);
+          return data;
+        };
+        if (isPicture) {
+          duration = void 0;
+          const images = awemeInfoWithNetWork?.images;
+          if (Array.isArray(images)) {
+            pictureList = images.map((it) => {
+              let url;
+              if (Array.isArray(it.url_list) && it.url_list.length) {
+                url = it.url_list[0];
+              } else if (Array.isArray(it.download_url_list) && it.download_url_list.length) {
+                url = it.download_url_list[0];
+              }
+              const coverUrlList2 = it?.video?.cover?.url_list;
+              let cover2 = url;
+              if (
+                coverUrlList2 != null &&
+                Array.isArray(coverUrlList2) &&
+                typeof coverUrlList2[0] === "string" &&
+                utils.isNotNull(coverUrlList2[0])
+              ) {
+                cover2 = coverUrlList2[0];
+              }
+              const videoBitRateListData2 = it?.video?.bit_rate;
+              const videoBitRateList2 = parseVideoBitRateList(videoBitRateListData2, cover2);
+              return {
+                width: it.width,
+                height: it.height,
+                url,
+                videoBitRateList: videoBitRateList2,
+              };
+            });
+          }
+        }
+        let suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
+        if (Array.isArray(suggestWords)) {
+          suggestWords.forEach((item) => {
+            let words = item?.words;
+            if (Array.isArray(words)) {
+              words.forEach((wordItem) => {
+                let word = wordItem?.word;
+                if (typeof word === "string" && word.trim() !== "") {
+                  suggestWord.push(word);
+                }
+              });
+            }
+          });
+        }
+        suggestWord = [...new Set(suggestWord)];
+        let authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
+        if (typeof authorAccountCertInfoInsStr === "string") {
+          let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
+          if (typeof authorAccountCertInfoJSON.label_text === "string") {
+            authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
+          }
+        }
+        const entertainmentProductInfo = awemeInfoWithNetWork?.entertainment_product_info;
+        if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+          if (typeof entertainmentProductInfo.product_id === "number") {
+            productId = entertainmentProductInfo.product_id.toString();
+          } else if (typeof entertainmentProductInfo.product_id_str === "string") {
+            productId = entertainmentProductInfo.product_id_str;
+          }
+          if (typeof entertainmentProductInfo.title === "string") {
+            productTitle = entertainmentProductInfo.title;
+          }
           if (
-            (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) ||
-            (typeof awemeInfo["raw_ad_data"] === "string" && utils.isNotNull(awemeInfo["raw_ad_data"]))
+            typeof entertainmentProductInfo?.buy_schema === "string" ||
+            typeof entertainmentProductInfo?.buy_panel_schema === "string"
           ) {
-            showLog && log.success("广告：rawAdData is not null");
-            return true;
+            isProduct = true;
           }
-        },
-        () => {
-          if (awemeInfo["webRawData"]) {
-            if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
-              showLog && log.success("广告：webRawData.brandAd.is_ad is 1");
+        }
+        let cover = "";
+        const coverUrlList = awemeInfoWithNetWork?.video?.cover?.url_list;
+        if (typeof cover !== "string" || utils.isNull(cover)) {
+          if (Array.isArray(coverUrlList) && typeof coverUrlList[0] === "string" && utils.isNotNull(coverUrlList[0])) {
+            cover = coverUrlList[0];
+          }
+        }
+        const videoBitRateListData = awemeInfoWithNetWork?.video?.bit_rate;
+        if (Array.isArray(videoBitRateListData)) {
+          videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+        }
+        const musicPlayData = awemeInfoWithNetWork?.music?.play_url;
+        musicUrl = musicPlayData?.uri;
+        if (Array.isArray(musicPlayData?.url_list)) {
+          musicPlayData.url_list.forEach((it) => {
+            if (it === musicUrl) return;
+            musicBackUrlList.push(it);
+          });
+        }
+      } else if (from === "dom") {
+        const awemeInfoWithDOM = awemeInfo;
+        const authorInfo = awemeInfoWithDOM.authorInfo;
+        nickname = String(authorInfo?.nickname ?? "");
+        uid = String(authorInfo?.uid ?? "");
+        desc = String(awemeInfoWithDOM.desc ?? "");
+        musicAlbum = awemeInfoWithDOM?.music?.album;
+        musicAuthor = awemeInfoWithDOM?.music?.author;
+        musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
+        musicTitle = awemeInfoWithDOM?.music?.title;
+        collectCount = awemeInfoWithDOM.stats.collectCount;
+        commentCount = awemeInfoWithDOM.stats.commentCount;
+        diggCount = awemeInfoWithDOM.stats.diggCount;
+        shareCount = awemeInfoWithDOM.stats.shareCount;
+        duration = awemeInfoWithDOM.video.duration;
+        awemeId = awemeInfoWithDOM.awemeId;
+        authorCustomVerify = authorInfo?.customVerify || "";
+        authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
+        isPicture = awemeInfoWithDOM.awemeType === 68;
+        isFollow = Boolean(authorInfo?.followStatus);
+        if (Array.isArray(awemeInfoWithDOM.textExtra)) {
+          awemeInfoWithDOM.textExtra.forEach((item) => {
+            const tagName = item?.hashtagName;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              textExtra.push(tagName);
+            }
+          });
+        }
+        if (Array.isArray(awemeInfoWithDOM.videoTag)) {
+          awemeInfoWithDOM.videoTag.forEach((item) => {
+            const tagName = item?.tagName;
+            const tagId = item?.tagId;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              videoTag.push(tagName);
+            }
+            if (typeof tagId === "number" || typeof tagId === "string") {
+              const tagTdStr = tagId.toString();
+              if (tagTdStr.trim() != "" && tagTdStr != "0") {
+                videoTagId.push(tagTdStr);
+              }
+            }
+          });
+        }
+        if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
+          isLive = true;
+          showLog && log.success("直播间: cellRoom is not null");
+          let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
+          if (typeof rawdata == "object" && rawdata != null) {
+            liveStreamRoomId = rawdata?.owner?.web_rid;
+            liveStreamRoomTitle = rawdata?.title;
+            liveStreamNickName = rawdata?.owner?.nickname;
+            liveStreamRoomUserCount = rawdata?.user_count;
+            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+            if (typeof liveStreamRoomId !== "string") {
+              liveStreamRoomId = void 0;
+            }
+            if (typeof liveStreamRoomTitle !== "string") {
+              liveStreamRoomTitle = void 0;
+            }
+            if (typeof liveStreamNickName !== "string") {
+              liveStreamNickName = void 0;
+            }
+            if (typeof liveStreamRoomUserCount !== "number") {
+              liveStreamRoomUserCount = void 0;
+            }
+            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+              liveStreamRoomDynamicSpliceLabel = void 0;
+            }
+          }
+        }
+        isAds = [
+          () => {
+            if (awemeInfoWithDOM.isAds) {
+              showLog && log.success("广告: isAds is true");
               return true;
             }
-            if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
-              showLog && log.success("广告：webRawData.insertInfo.is_ad is true");
+          },
+          () => {
+            if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
+              showLog && log.success("广告: rawAdData is not null");
               return true;
             }
-          }
-        },
-        () => {
-          if (typeof awemeInfo?.["web_raw_data"] === "string") {
-            const webRawData = utils.toJSON(awemeInfo["web_raw_data"]);
-            if (typeof webRawData?.["brand_ad"] === "string") {
-              const brandAd = utils.toJSON(webRawData["brand_ad"]);
-              if (brandAd?.["is_ad"]) {
-                showLog && log.success("广告：web_raw_data.brand_ad.is_ad is 1");
+          },
+          () => {
+            if (awemeInfoWithDOM?.webRawData) {
+              if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
+                showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+                return true;
+              }
+              if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
+                showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
                 return true;
               }
             }
+          },
+        ].some((it) => it());
+        const riskInfos = awemeInfoWithDOM?.riskInfos;
+        if (
+          (typeof riskInfos?.content === "string" && riskInfos?.content.trim() === "") ||
+          typeof riskInfos?.content !== "string"
+        ) {
+          riskInfoContent = void 0;
+        } else {
+          riskInfoContent = riskInfos?.content;
+        }
+        let seriesInfo = awemeInfoWithDOM?.seriesInfo;
+        if (typeof seriesInfo === "object" && seriesInfo != null) {
+          if (typeof seriesInfo?.seriesName === "string") {
+            seriesInfoName = seriesInfo?.seriesName;
           }
-        },
-      ].some((it) => it());
-      if (
-        (typeof riskInfoContent === "string" && riskInfoContent.trim() === "") ||
-        typeof riskInfoContent !== "string"
-      ) {
-        riskInfoContent = void 0;
-      }
-      let series_info = awemeInfo?.["seriesInfo"] || awemeInfo?.["series_info"];
-      if (typeof series_info === "object" && series_info != null) {
-        seriesInfoName = series_info?.["seriesName"] || series_info?.["series_name"];
-        let series_content_types = series_info?.["seriesContentTypes"] || series_info?.["series_content_types"];
-        if (Array.isArray(series_content_types)) {
-          series_content_types.forEach((it) => {
-            let seriesInfoName2 = it["name"];
-            seriesInfoContentTypes.push(seriesInfoName2);
-          });
-        }
-        if (seriesInfoName != null && series_content_types != null) {
-          isSeriesInfo = true;
-        }
-      }
-      let mixInfo = awemeInfo?.["mixInfo"] || awemeInfo?.["mix_info"];
-      if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-        mixInfoName = mixInfo?.["mixName"] || mixInfo?.["mix_name"];
-        mixInfoDesc = mixInfo?.["desc"];
-      }
-      if (isPicture) {
-        duration = void 0;
-        const images = awemeInfo?.["images"];
-        if (Array.isArray(images)) {
-          pictureList = images.map((it) => {
-            let url;
-            if (Array.isArray(it.urlList) && it.urlList.length) {
-              url = it.urlList[0];
-            } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
-              url = it.downloadUrlList[0];
-            }
-            return {
-              width: it.width,
-              height: it.height,
-              url,
-            };
-          });
-        }
-      }
-      let suggestWord = [];
-      let suggestWords =
-        awemeInfo?.["suggest_words"] || awemeInfo?.["suggest_words"]?.["suggest_words"] || awemeInfo?.["suggestWords"];
-      if (Array.isArray(suggestWords)) {
-        suggestWords.forEach((suggestWordItem) => {
-          let words = suggestWordItem?.["words"];
-          if (Array.isArray(words)) {
-            words.forEach((wordItem) => {
-              let word = wordItem?.["word"];
-              if (typeof word === "string" && word.trim() !== "") {
-                suggestWord.push(word);
-              }
+          const seriesContentTypes = seriesInfo?.seriesContentTypes;
+          if (Array.isArray(seriesContentTypes)) {
+            seriesContentTypes.forEach((it) => {
+              const __seriesInfoName = it.name;
+              seriesInfoContentTypes.push(__seriesInfoName);
             });
           }
-        });
-      }
-      suggestWord = [...new Set(suggestWord)];
-      let authorAccountCertInfo = "";
-      let authorAccountCertInfoInsStr = awemeInfo?.["author"]?.["account_cert_info"];
-      if (typeof authorAccountCertInfoInsStr === "string") {
-        let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
-        if (typeof authorAccountCertInfoJSON["label_text"] === "string") {
-          authorAccountCertInfo = authorAccountCertInfoJSON["label_text"];
+          if (seriesInfoName != null && seriesContentTypes != null) {
+            isSeriesInfo = true;
+          }
+        }
+        let mixInfo = awemeInfoWithDOM?.mixInfo;
+        if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+          mixInfoName = mixInfo?.mixName;
+          mixInfoDesc = mixInfo?.desc;
+        }
+        const parseVideoBitRateList = (bitRateList, cover2) => {
+          let data = [];
+          if (!Array.isArray(bitRateList)) return data;
+          bitRateList.forEach((item) => {
+            const url = item.playApi;
+            const backUrl = [];
+            const url_list = item?.playAddr;
+            if (
+              Array.isArray(item) &&
+              url_list.length > 0 &&
+              typeof url_list[0] === "string" &&
+              utils.isNotNull(url_list[0])
+            ) {
+              backUrl.push(
+                ...url_list
+                  .map((it) => {
+                    if (typeof it.src !== "string") return;
+                    if (it.src === url) return;
+                    return it.src;
+                  })
+                  .filter((it) => it != null)
+              );
+            } else {
+              backUrl.length = 0;
+            }
+            const videoBitRateListItem = {
+              cover: cover2,
+              bitRate: item.bitRate,
+              dataSize: item.dataSize ?? 0,
+              format: item.format,
+              isH265: item.isH265,
+              fps: item.fps,
+              gearName: item.gearName,
+              qualityType: item.qualityType,
+              width: item.width,
+              height: item.height,
+              url,
+              backUrl,
+            };
+            data.push(videoBitRateListItem);
+          });
+          for (let index = 0; index < data.length; index++) {
+            const item = data[index];
+            for (let index2 = 0; index2 < data.length; index2++) {
+              const item2 = data[index2];
+              if (item === item2) {
+                continue;
+              }
+              if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
+                if (item.dataSize > item2.dataSize) {
+                  data.splice(index2, 1);
+                  index2--;
+                  if (index > index2) {
+                    index--;
+                  }
+                }
+              }
+            }
+          }
+          data = data.map((item) => {
+            if (item.url.startsWith("http:")) {
+              item.url = item.url.replace("http:", "");
+            }
+            return item;
+          });
+          utils.sortListByProperty(data, (it) => it.width);
+          return data;
+        };
+        if (isPicture) {
+          duration = void 0;
+          const images = awemeInfoWithDOM?.images;
+          if (Array.isArray(images)) {
+            pictureList = images.map((it) => {
+              let url;
+              if (Array.isArray(it.urlList) && it.urlList.length) {
+                url = it.urlList[0];
+              } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
+                url = it.downloadUrlList[0];
+              }
+              const coverUrlList2 = it?.video?.coverUrlList;
+              let cover2 = url;
+              if (
+                coverUrlList2 != null &&
+                Array.isArray(coverUrlList2) &&
+                typeof coverUrlList2[0] === "string" &&
+                utils.isNotNull(coverUrlList2[0])
+              ) {
+                cover2 = coverUrlList2[0];
+              }
+              const videoBitRateListData2 = it?.video?.bitRateList;
+              const videoBitRateList2 = parseVideoBitRateList(videoBitRateListData2, cover2);
+              return {
+                width: it.width,
+                height: it.height,
+                url,
+                videoBitRateList: videoBitRateList2,
+              };
+            });
+          }
+        }
+        let suggestWords = awemeInfoWithDOM?.suggestWords;
+        if (Array.isArray(suggestWords)) {
+          suggestWords.forEach((item) => {
+            let words = item?.words;
+            if (Array.isArray(words)) {
+              words.forEach((wordItem) => {
+                let word = wordItem?.word;
+                if (typeof word === "string" && word.trim() !== "") {
+                  suggestWord.push(word);
+                }
+              });
+            }
+          });
+        }
+        suggestWord = [...new Set(suggestWord)];
+        if (typeof authorInfo?.accountCertInfo?.labelText === "string") {
+          authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
+        }
+        const entertainmentProductInfo = awemeInfoWithDOM?.entertainmentProductInfo;
+        if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+          if (typeof entertainmentProductInfo.product_id === "number") {
+            productId = entertainmentProductInfo.product_id.toString();
+          } else if (typeof entertainmentProductInfo.product_id_str === "string") {
+            productId = entertainmentProductInfo.product_id_str;
+          }
+          if (typeof entertainmentProductInfo.title === "string") {
+            productTitle = entertainmentProductInfo.title;
+          }
+          if (
+            typeof entertainmentProductInfo?.buy_schema === "string" ||
+            typeof entertainmentProductInfo?.buy_panel_schema === "string"
+          ) {
+            isProduct = true;
+          }
+        }
+        let cover = "";
+        const coverUrlList = awemeInfoWithDOM?.video?.coverUrlList;
+        if (typeof cover !== "string" || utils.isNull(cover)) {
+          if (Array.isArray(coverUrlList) && typeof coverUrlList[0] === "string" && utils.isNotNull(coverUrlList[0])) {
+            cover = coverUrlList[0];
+          }
+        }
+        const videoBitRateListData = awemeInfoWithDOM?.video?.bitRateList;
+        if (Array.isArray(videoBitRateListData)) {
+          videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+        }
+        const musicPlayData = awemeInfoWithDOM?.music?.playUrl;
+        musicUrl = musicPlayData?.uri;
+        if (Array.isArray(musicPlayData?.urlList)) {
+          musicPlayData.urlList.forEach((it) => {
+            if (it === musicUrl) return;
+            musicBackUrlList.push(it);
+          });
         }
       } else {
-        if (typeof awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"] === "string") {
-          authorAccountCertInfo = awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"];
-        }
+        throw new Error("from参数错误");
       }
-      let authorCustomVerify =
-        awemeInfo?.["author"]?.["custom_verify"] || awemeInfo?.["authorInfo"]?.["customVerify"] || "";
-      let authorEnterpriseVerifyReason =
-        awemeInfo?.["author"]?.["enterprise_verify_reason"] ||
-        awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] ||
-        "";
-      const entertainmentProductInfo =
-        awemeInfo?.["entertainmentProductInfo"] || awemeInfo?.["entertainment_product_info"];
-      if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
-        if (typeof entertainmentProductInfo.product_id === "number") {
-          productId = entertainmentProductInfo.product_id.toString();
-        }
-        if (typeof entertainmentProductInfo.title === "string") {
-          productTitle = entertainmentProductInfo.title;
-        }
-        if (
-          typeof entertainmentProductInfo?.["buy_schema"] === "string" ||
-          typeof entertainmentProductInfo?.["buy_panel_schema"] === "string"
-        ) {
-          isProduct = true;
-        }
-      }
-      const videoBitRateListData = awemeInfo?.["video"]?.["bitRateList"] || awemeInfo?.["video"]?.["bit_rate"];
-      if (Array.isArray(videoBitRateListData)) {
-        videoBitRateListData.forEach((item) => {
-          const videoBitRateListItem = {};
-          const bitRate = item?.["bitRate"] || item?.["bit_rate"];
-          if (typeof bitRate === "number") {
-            videoBitRateListItem["bitRate"] = bitRate;
-          }
-          const dataSize = item?.["dataSize"] || item?.["play_addr"]?.["data_size"];
-          if (typeof dataSize === "number") {
-            videoBitRateListItem["dataSize"] = dataSize;
-          }
-          const format = item?.["format"];
-          if (typeof format === "string") {
-            videoBitRateListItem["format"] = format;
-          }
-          const isH265 = item?.["isH265"] || item?.["is_h265"];
-          if (typeof isH265 === "number") {
-            videoBitRateListItem["isH265"] = isH265;
-          }
-          const fps = item?.["fps"] || item?.["FPS"];
-          if (typeof fps === "number") {
-            videoBitRateListItem["fps"] = fps;
-          }
-          const gearName = item?.["gearName"] || item?.["gear_name"];
-          if (typeof gearName === "string") {
-            videoBitRateListItem["gearName"] = gearName;
-          }
-          const qualityType = item?.["qualityType"] || item?.["quality_type"];
-          if (typeof qualityType === "number") {
-            videoBitRateListItem["qualityType"] = qualityType;
-          }
-          const width = item?.["width"] || item?.["play_addr"]?.["width"];
-          if (typeof width === "number") {
-            videoBitRateListItem["width"] = width;
-          }
-          const height = item?.["height"] || item?.["play_addr"]?.["height"];
-          if (typeof height === "number") {
-            videoBitRateListItem["height"] = height;
-          }
-          videoBitRateList.push(videoBitRateListItem);
-        });
-        videoBitRateList = [...new Set(videoBitRateList)];
-      }
-      const followStatus = awemeInfo?.["authorInfo"]?.["followStatus"] || awemeInfo?.["author"]?.["follow_status"];
-      isFollow = Boolean(followStatus);
       return {
         awemeId,
         nickname,
@@ -5293,7 +5674,10 @@
         suggestWord,
         musicAlbum,
         musicAuthor,
+        musicDuration,
         musicTitle,
+        musicUrl,
+        musicBackUrlList,
         authorAccountCertInfo,
         authorCustomVerify,
         authorEnterpriseVerifyReason,
@@ -5417,8 +5801,8 @@
       }
       return false;
     }
-    async checkAwemeInfoIsFilter(rules, awemeInfo, isQueryAllMatchedFilterRules) {
-      const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
+    async checkAwemeInfoIsFilter(rules, awemeInfo, from, isQueryAllMatchedFilterRules) {
+      const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo, from, false);
       let flag = false;
       let matchedFilterOption = null;
       const matchedFilterOptionList = [];
@@ -6227,7 +6611,7 @@
       let isDouble = false;
       const isWebSiteFullScreen = action === "website-fullscreen";
       log.info("双击video动作：" + action);
-      const listener = domUtils.on(document, "click", [".newVideoPlayer", "#sliderVideo"], (event) => {
+      const listener = domUtils.on(document, "click", [".newVideoPlayer", ".slider-video"], (event) => {
         if (isDouble) {
           isDouble = false;
           DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
@@ -6362,92 +6746,171 @@
     },
     hookDownloadButtonToParseVideo($parseNode) {
       log.info("修改页面的分享-下载按钮变成解析视频");
-      const showParseInfoDialog = (info) => {
-        let showParseInfoHTML = "";
-        info.downloadInfo.video.urlInfoList.forEach((downloadInfo) => {
-          const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
-          let downloadFileName = info.downloadInfo.video.fileName;
-          downloadFileName = transformDownloadFileName(
-            {
-              quality: videoQualityInfo,
-            },
-            downloadFileName
-          );
-          downloadFileName = downloadFileName + "." + downloadInfo.format;
-          showParseInfoHTML += `
-        <div class="dy-link-item">
-					<div class="dy-link-item-name">
-						<span>清晰度信息：</span>
-						<span>${videoQualityInfo}</span>
-					</div>
-					<div class="dy-link-item-size">
-						<span>视频大小：</span>
-						<span>${downloadInfo.dataSize ? utils.formatByteToSize(downloadInfo.dataSize) : "未知大小"}</span>
-					</div>
-					<div class="dy-link-item-download-uri">
-						<span>下载地址：</span>
-						<a href="${downloadInfo.url}" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
-					</div>
-					${
-            downloadInfo.backUrl.length
-              ? `
-						<div class="dy-link-item-back-uri">
-							<span>备用地址：</span>
-							${downloadInfo.backUrl
-                .map((url, index) => {
-                  return `
-									<a href="${url}" data-file-name="${downloadFileName}">地址${index + 1}</a>
-								`;
-                })
-                .join("，")}
-						</div>
-					`
-              : ""
+      const showParseInfoDialog = (data) => {
+        let showHTML = "";
+        let showParseVideoInfoHTML = "";
+        let showParseMusicInfoHTML = "";
+        let showParsePictureInfoHTML = "";
+        if (data.videoInfo) {
+          showHTML += `
+        <div class="dy-link-info-wrapper dy-link-item">
+          <div class="dy-info-name">
+            <span>作者：</span>
+            <span>${data.videoInfo.author}</span>
+          </div>
+          <div class="dy-info-desc">
+            <span>文案：</span>
+            <span>${data.videoInfo.desc}</span>
+          </div>
+        </div>
+        `;
+        }
+        if (data.videoDownloadInfo) {
+          data.videoDownloadInfo.urlInfoList.forEach((downloadInfo) => {
+            const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+            let downloadFileName = data.videoDownloadInfo.fileName;
+            downloadFileName = transformDownloadFileName(
+              {
+                quality: videoQualityInfo,
+              },
+              downloadFileName
+            );
+            downloadFileName = downloadFileName + "." + downloadInfo.format;
+            showParseVideoInfoHTML += `
+          <div class="dy-link-item">
+            <div class="dy-link-item-name">
+              <span>清晰度信息：</span>
+              <span>${videoQualityInfo}</span>
+            </div>
+            <div class="dy-link-item-size">
+              <span>视频大小：</span>
+              <span>${downloadInfo.dataSize ? utils.formatByteToSize(downloadInfo.dataSize) : "未知大小"}</span>
+            </div>
+            <div class="dy-link-item-download-uri">
+              <span>下载地址：</span>
+              <a href="${downloadInfo.url}" data-format="mp4" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+            </div>
+            ${
+              downloadInfo.backUrl.length
+                ? `
+              <div class="dy-link-item-back-uri">
+                <span>备用地址：</span>
+                ${downloadInfo.backUrl
+                  .map((url, index) => {
+                    return `
+                    <a href="${url}" data-format="mp4" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                  `;
+                  })
+                  .join("，")}
+              </div>
+            `
+                : ""
+            }
+          </div>`;
+          });
+          if (utils.isNotNull(showParseVideoInfoHTML)) {
+            showHTML += `<div class="dy-link-download-wrapper">${showParseVideoInfoHTML}</div>`;
           }
-				</div>`;
-        });
-        info.downloadInfo.picture.urlInfoList.forEach((downloadInfo) => {
-          const pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
-          let downloadFileName = info.downloadInfo.picture.fileName;
-          downloadFileName = transformDownloadFileName(
-            {
-              quality: pictureSizeInfo,
-            },
-            downloadFileName
-          );
-          downloadFileName = downloadFileName + ".png";
-          showParseInfoHTML += `
-        <div class="dy-link-item">
-					<div class="dy-link-item-name">
-						<span>图片信息：</span>
-						<span>${pictureSizeInfo}</span>
-					</div>
-					<div class="dy-link-item-download-uri">
-						<span>下载地址：</span>
-						<a href="${downloadInfo.url}" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
-					</div>
-        </div>`;
-        });
-        showParseInfoHTML = `
-      <div class="dy-link-info-wrapper dy-link-item">
-        <div class="dy-info-name">
-          <span>作者：</span>
-          <span>${info.author}</span>
-        </div>
-        <div class="dy-info-desc">
-          <span>文案：</span>
-          <span>${info.desc}</span>
-        </div>
-      </div>
-      <div class="dy-link-download-wrapper">${showParseInfoHTML}</div>
-      `;
+        }
+        if (data.musicDownloadInfo) {
+          data.musicDownloadInfo.urlInfoList.forEach((downloadInfo) => {
+            let downloadFileName = data.musicDownloadInfo.fileName;
+            downloadFileName = transformDownloadFileName({}, downloadFileName);
+            downloadFileName = downloadFileName + ".mp3";
+            showParseMusicInfoHTML += `
+          <div class="dy-link-item">
+            ${
+              utils.isNotNull(downloadInfo.album)
+                ? `
+            <div class="dy-link-item-name">
+              <span>专辑：</span><span>${downloadInfo.album}</span>
+            </div>`
+                : ""
+            }
+            <div class="dy-link-item-name">
+              <span>音乐人：</span>
+              <span>${downloadInfo.author}</span>
+            </div>
+            <div class="dy-link-item-title">
+              <span>音乐名称：</span>
+              <span>${downloadInfo.title}</span>
+            </div>
+            <div class="dy-link-item-title">
+              <span>播放时长：</span>
+              <span>${downloadInfo.duration ? DouYinUtils.parseDuration(downloadInfo.duration) : "未知时长"}</span>
+            </div>
+            <div class="dy-link-item-download-uri">
+              <span>下载地址：</span>
+              <a href="${downloadInfo.url}" data-format="mp3" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+            </div>
+            ${
+              downloadInfo.backUrl.length
+                ? `
+              <div class="dy-link-item-back-uri">
+                <span>备用地址：</span>
+                ${downloadInfo.backUrl
+                  .map((url, index) => {
+                    return `
+                    <a href="${url}" data-format="mp3" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                  `;
+                  })
+                  .join("，")}
+              </div>
+            `
+                : ""
+            }
+          </div>
+          `;
+          });
+          if (utils.isNotNull(showParseMusicInfoHTML)) {
+            showHTML += `<div class="dy-link-download-wrapper">${showParseMusicInfoHTML}</div>`;
+          }
+        }
+        if (data.pictureDownloadInfo) {
+          data.pictureDownloadInfo?.urlInfoList.forEach((downloadInfo, index) => {
+            const pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
+            let downloadFileName = data.pictureDownloadInfo.fileName;
+            downloadFileName = transformDownloadFileName(
+              {
+                quality: pictureSizeInfo,
+              },
+              downloadFileName
+            );
+            downloadFileName = downloadFileName + ".png";
+            showParsePictureInfoHTML += `
+          <div class="dy-link-item">
+            <div class="dy-card-wrapper">
+              <div class="dy-img-wrapper">
+                <a href="${downloadInfo.url}" data-format="png" data-file-name="${downloadFileName}" class="dy-cover-link">
+                  <img src="${downloadInfo.url}" loading="lazy" />
+                </a>
+              </div>
+              <div class="dy-card_stats" data-size-info>
+                <span>${pictureSizeInfo}</span>
+              </div>
+              ${
+                downloadInfo.video?.length
+                  ? `
+              <div class="dy-card_stats" data-video="true" data-index="${index}">
+                <span>视频</span>
+              </div>  
+              `
+                  : ""
+              }
+            </div>
+          </div>`;
+          });
+          if (utils.isNotNull(showParsePictureInfoHTML)) {
+            showHTML += `<div class="dy-link-download-wrapper">${showParsePictureInfoHTML}</div>`;
+          }
+        }
         const $dialog = __pops__.alert({
           title: {
             text: "视频解析",
             position: "center",
           },
           content: {
-            text: showParseInfoHTML,
+            text: showHTML,
             html: true,
           },
           mask: {
@@ -6491,16 +6954,98 @@
           .dy-link-download-wrapper > div{
             margin: 10px;
           }
+          .dy-link-download-wrapper:has(.dy-img-wrapper){
+            display: flex;
+            flex-wrap: wrap;
+          }
+          .dy-card-wrapper{
+            position: relative;
+            overflow: hidden;
+            width: 220px;
+            height: 220px;
+          }
+          .dy-img-wrapper{
+            width: 100%;
+            height: 100%;
+          }
+          .dy-card_stats{
+            position: absolute;
+            z-index: 2;
+            width: 100%;
+            font-size: .8em;
+            color: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-direction: row;
+            cursor: pointer;
+          }
+          .dy-card_stats[data-video]{
+            background: linear-gradient(180deg, rgba(0, 0, 0, .85), transparent);
+            top: 0px;
+            padding-top: 2px;
+          }
+          .dy-card_stats[data-size-info]{ 
+            background: linear-gradient(0deg, rgba(0, 0, 0, .85), transparent);
+            bottom: 0px;
+            padding-bottom: 2px;
+          }
+          .dy-card_stats span{
+
+          }
+          .dy-cover-link{
+
+          }
+          .dy-cover-link img{
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+          }
           `,
         });
         domUtils.on(
           $dialog.$pops,
           "click",
+          `.dy-card-wrapper:has(.dy-card_stats[data-video][data-index])`,
+          (evt, $click) => {
+            domUtils.preventEvent(evt);
+            const $cardStats = $click.querySelector(".dy-card_stats[data-video][data-index]");
+            const index = Number($cardStats.getAttribute("data-index"));
+            if (isNaN(index)) {
+              Qmsg.error("未获取到index");
+              return;
+            }
+            const pictureInfo = data.pictureDownloadInfo.urlInfoList[index];
+            if (pictureInfo == null) {
+              Qmsg.error("未获取到图片信息");
+              return;
+            }
+            const clonePictureInfo = structuredClone(pictureInfo);
+            const video = clonePictureInfo.video;
+            clonePictureInfo.video = [];
+            showParseInfoDialog({
+              videoInfo: data.videoInfo,
+              videoDownloadInfo: {
+                fileName: data.videoDownloadInfo?.fileName,
+                urlInfoList: video,
+              },
+              pictureDownloadInfo: {
+                fileName: data.pictureDownloadInfo?.fileName,
+                urlInfoList: [clonePictureInfo],
+              },
+            });
+          },
+          { capture: true }
+        );
+        domUtils.on(
+          $dialog.$pops,
+          "click",
           "a",
-          (event, selectorTarget) => {
-            domUtils.preventEvent(event);
-            const url = selectorTarget.getAttribute("href");
-            let fileName = selectorTarget.getAttribute("data-file-name");
+          (evt, $click) => {
+            domUtils.preventEvent(evt);
+            const url = $click.getAttribute("href");
+            $click.getAttribute("data-format");
+            let fileName = $click.getAttribute("data-file-name");
             const isSupport_GM_download = function () {
               try {
                 return typeof _GM_download === "function";
@@ -6622,102 +7167,92 @@
             Qmsg.error("获取awemeInfo属性失败");
             return;
           }
-          log.info(`解析的awemeInfo: `, awemeInfo);
+          log.info("DOM上的的awemeInfo：", awemeInfo);
           const filterBase = new DouYinVideoFilterBase();
-          const transformAwemeInfo = filterBase.parseAwemeInfoDictData(awemeInfo);
-          if (transformAwemeInfo.nickname == null) {
-            transformAwemeInfo.nickname = "未知作者";
+          const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", true);
+          log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
+          if (transformAwemeInfoWithPage.nickname == null) {
+            transformAwemeInfoWithPage.nickname = "未知作者";
           }
-          if (transformAwemeInfo.desc == null) {
-            transformAwemeInfo.desc = "未知视频文案";
+          if (transformAwemeInfoWithPage.desc == null) {
+            transformAwemeInfoWithPage.desc = "未知视频文案";
           }
           let videoDownloadUrlList = [];
+          let musicDownloadUrlList = [];
           let pictureDownloadUrlList = [];
-          const bitRateList = awemeInfo?.video?.bitRateList;
-          if (bitRateList != null && Array.isArray(bitRateList)) {
-            videoDownloadUrlList = bitRateList
-              .map((item) => {
-                let result = {
-                  url: item.playApi,
+          videoDownloadUrlList = videoDownloadUrlList.concat(
+            transformAwemeInfoWithPage.videoBitRateList.map((it) => {
+              return it;
+            })
+          );
+          if (
+            typeof transformAwemeInfoWithPage.musicUrl === "string" &&
+            utils.isNotNull(transformAwemeInfoWithPage.musicUrl)
+          ) {
+            musicDownloadUrlList.push({
+              url: transformAwemeInfoWithPage.musicUrl,
+              author: transformAwemeInfoWithPage.musicAuthor,
+              album: transformAwemeInfoWithPage.musicAlbum,
+              title: transformAwemeInfoWithPage.musicTitle,
+              duration: transformAwemeInfoWithPage.musicDuration,
+              backUrl: transformAwemeInfoWithPage.musicBackUrlList,
+            });
+          }
+          if (Array.isArray(transformAwemeInfoWithPage?.pictureList) && transformAwemeInfoWithPage.pictureList.length) {
+            pictureDownloadUrlList = pictureDownloadUrlList.concat(
+              transformAwemeInfoWithPage.pictureList.map((item) => {
+                return {
+                  url: item.url,
                   width: item.width,
                   height: item.height,
-                  format: item.format,
-                  fps: 0,
-                  dataSize: item.dataSize ?? 0,
-                  backUrl: [],
+                  video: item.videoBitRateList,
                 };
-                if (typeof item.fps === "number") {
-                  result.fps = item.fps;
-                }
-                if (Array.isArray(item.playAddr)) {
-                  result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
-                }
-                return result;
               })
-              .filter((it) => it != null);
-            for (let index = 0; index < videoDownloadUrlList.length; index++) {
-              const item = videoDownloadUrlList[index];
-              for (let index2 = 0; index2 < videoDownloadUrlList.length; index2++) {
-                const item2 = videoDownloadUrlList[index2];
-                if (item === item2) {
-                  continue;
-                }
-                if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
-                  if (item.dataSize > item2.dataSize) {
-                    videoDownloadUrlList.splice(index2, 1);
-                    index2--;
-                    if (index > index2) {
-                      index--;
-                    }
-                  }
-                }
-              }
-            }
-            videoDownloadUrlList = videoDownloadUrlList.map((item) => {
-              if (item.url.startsWith("http:")) {
-                item.url = item.url.replace("http:", "");
-              }
-              return item;
-            });
-            utils.sortListByProperty(videoDownloadUrlList, (it) => it.width);
-          }
-          if (transformAwemeInfo.pictureList.length) {
-            pictureDownloadUrlList = transformAwemeInfo.pictureList.map((item) => {
-              return {
-                url: item.url,
-                width: item.width,
-                height: item.height,
-              };
-            });
+            );
           }
           if (!videoDownloadUrlList.length && !pictureDownloadUrlList.length) {
             Qmsg.error("未解析出有效的资源信息");
             return;
           }
+          const downloadTime = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss");
           const videoDownloadFileName = transformDownloadFileName({
-            uid: transformAwemeInfo.uid,
-            nickname: transformAwemeInfo.nickname,
-            desc: transformAwemeInfo.desc,
-            downloadTime: utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss"),
+            downloadTime,
+            uid: transformAwemeInfoWithPage.uid,
+            nickname: transformAwemeInfoWithPage.nickname,
+            desc: transformAwemeInfoWithPage.desc,
           });
+          const musicDownloadFileName = transformDownloadFileName(
+            {
+              downloadTime,
+              album: transformAwemeInfoWithPage.musicAlbum,
+              author: transformAwemeInfoWithPage.musicAuthor,
+              title: transformAwemeInfoWithPage.musicTitle,
+              duration: transformAwemeInfoWithPage.musicDuration,
+            },
+            Panel.getValue("dy-video-parseVideoMusic-downloadFileName")
+          );
           const pictureDownloadFileName = transformDownloadFileName({
-            uid: transformAwemeInfo.uid,
-            nickname: transformAwemeInfo.nickname,
-            desc: transformAwemeInfo.desc,
-            downloadTime: utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss"),
+            downloadTime,
+            uid: transformAwemeInfoWithPage.uid,
+            nickname: transformAwemeInfoWithPage.nickname,
+            desc: transformAwemeInfoWithPage.desc,
           });
           showParseInfoDialog({
-            author: transformAwemeInfo.nickname,
-            desc: transformAwemeInfo.desc,
-            downloadInfo: {
-              video: {
-                fileName: videoDownloadFileName,
-                urlInfoList: videoDownloadUrlList,
-              },
-              picture: {
-                fileName: pictureDownloadFileName,
-                urlInfoList: pictureDownloadUrlList,
-              },
+            videoInfo: {
+              author: transformAwemeInfoWithPage.nickname,
+              desc: transformAwemeInfoWithPage.desc,
+            },
+            videoDownloadInfo: {
+              fileName: videoDownloadFileName,
+              urlInfoList: videoDownloadUrlList,
+            },
+            musicDownloadInfo: {
+              fileName: musicDownloadFileName,
+              urlInfoList: musicDownloadUrlList,
+            },
+            pictureDownloadInfo: {
+              fileName: pictureDownloadFileName,
+              urlInfoList: pictureDownloadUrlList,
             },
           });
         } catch (error) {
@@ -6732,9 +7267,9 @@
           document,
           "click",
           'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
-          (evt, selectorTarget) => {
+          (evt, $click) => {
             domUtils.preventEvent(evt);
-            callback(selectorTarget);
+            callback($click);
           },
           {
             capture: true,
@@ -9640,6 +10175,12 @@
           const searchText = domUtils.val($searchInput);
           for (let index = 0; index < allData.length; index++) {
             const item = allData[index];
+            if (typeof filterCallBack === "function") {
+              const flag = await filterCallBack(item);
+              if (typeof flag === "boolean" && !flag) {
+                continue;
+              }
+            }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
               if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
@@ -10061,11 +10602,11 @@
               return;
             }
             const data = utils.toJSON(response.responseText);
-            const aweme_list = data["aweme_list"];
+            const aweme_list = data.aweme_list;
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
                 const awemeInfo = aweme_list[index] || {};
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
@@ -10083,7 +10624,7 @@
               return;
             }
             const data = utils.toJSON(response.responseText);
-            const aweme_list = data["data"];
+            const aweme_list = data.data;
             if (Array.isArray(aweme_list)) {
               for (let index = 0; index < aweme_list.length; index++) {
                 const awemeItem = aweme_list[index];
@@ -10091,7 +10632,7 @@
                 if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                   awemeInfo["cell_room"] = awemeItem?.["cell_room"];
                 }
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
@@ -10114,7 +10655,7 @@
               for (let index = 0; index < cards.length; index++) {
                 const awemeItem = cards[index];
                 const awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
@@ -10143,7 +10684,7 @@
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                       const mixItem = awemeMixInfoItems[mixIndex];
-                      const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
+                      const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
                         filterBase.sendDislikeVideo(filterResult.matchedFilterRule, mixItem);
@@ -10155,7 +10696,7 @@
                     }
                   }
                 } else {
-                  const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+                  const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
                     filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
@@ -10176,7 +10717,7 @@
             const data = utils.toJSON(response.responseText);
             const awemeInfo = data["aweme_detail"];
             if (typeof awemeInfo === "object" && awemeInfo != null) {
-              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
@@ -10202,6 +10743,8 @@
             xhr_hook_callback_2("xhr-familiar", request);
           } else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) {
             xhr_hook_callback_3("xhr-module", request);
+          } else if (urlInst.pathname.startsWith("/aweme/v2/web/module/feed")) {
+            xhr_hook_callback_1("xhr-module", request);
           } else if (
             urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
             urlInst.pathname.startsWith("/aweme/v1/web/search/item/")
@@ -10215,7 +10758,7 @@
     },
     addParseButton() {
       const filterBase = new DouYinVideoFilterBase();
-      const awemeInfoClickCallBack = async ($container) => {
+      const onClick = async ($container) => {
         const that = this;
         const reactFiber = utils.getReactInstance($container)?.reactFiber;
         const awemeInfo =
@@ -10231,8 +10774,8 @@
           return;
         }
         let transformAwemeInfo;
-        const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
         log.info("DOM上的的awemeInfo：", awemeInfo);
+        const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
         log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
         if (
           typeof transformAwemeInfoWithPage.awemeId === "string" &&
@@ -10258,7 +10801,7 @@
           targetFilterOption = targetFilterOption.concat(matchedFilterOption);
         } else {
           const filterRules = this.getFilterRules();
-          const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, true);
+          const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "dom", true);
           if (filterResult.matchedFilterRule.length) {
             isHasMatchedRules = true;
             targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
@@ -10328,28 +10871,28 @@
         return domUtils.createElement("xg-icon", {
           className: "gm-video-filter-parse-btn",
           innerHTML: `
-						<div class="xgplayer-icon">
-							<span role="img" class="semi-icon semi-icon-default">
-								<svg
-									viewBox="0 0 32 32"
-									width="1em"
-									height="1em"
-									style="font-size: 32px"
-									xmlns="http://www.w3.org/2000/svg"
-									focusable="false"
-									fill="none">
-									<g>
-										<path
-											stroke="null"
-											fill="currentColor"
-											d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
-											clip-rule="evenodd"
-											fill-rule="evenodd" />
-									</g>
-								</svg>
-							</span>
-						</div>
-						<div class="xg-tips">解析信息</div>
+        <div class="xgplayer-icon">
+          <span role="img" class="semi-icon semi-icon-default">
+            <svg
+              viewBox="0 0 32 32"
+              width="1em"
+              height="1em"
+              style="font-size: 32px"
+              xmlns="http://www.w3.org/2000/svg"
+              focusable="false"
+              fill="none">
+              <g>
+                <path
+                  stroke="null"
+                  fill="currentColor"
+                  d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
+                  clip-rule="evenodd"
+                  fill-rule="evenodd" />
+              </g>
+            </svg>
+          </span>
+        </div>
+        <div class="xg-tips">解析信息</div>
 				`,
         });
       };
@@ -10362,7 +10905,7 @@
           domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
-            await awemeInfoClickCallBack($basePlayerContainer);
+            await onClick($basePlayerContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         });
@@ -10379,7 +10922,7 @@
           domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
-            await awemeInfoClickCallBack($liveContainer);
+            await onClick($liveContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         });
@@ -10553,7 +11096,10 @@
                 "suggestWord",
                 "musicAlbum",
                 "musicAuthor",
+                "musicDuration",
                 "musicTitle",
+                "musicBackUrlList",
+                "musicUrl",
                 "authorAccountCertInfo",
                 "authorCustomVerify",
                 "authorEnterpriseVerifyReason",
@@ -12396,9 +12942,14 @@
                     "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
                   ),
                   UIInput(
-                    "自定义下载文件名",
+                    "自定义视频/图片下载文件名",
                     "dy-video-parseVideo-downloadFileName",
                     "{uid}-{nickname}-{desc}-{quality}-{downloadTime}"
+                  ),
+                  UIInput(
+                    "自定义音乐下载文件名",
+                    "dy-video-parseVideoMusic-downloadFileName",
+                    "{author}-{title}-{duration}-{downloadTime}"
                   ),
                 ],
               },

@@ -197,9 +197,14 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
                 ),
                 UIInput(
-                  "自定义下载文件名",
+                  "自定义视频/图片下载文件名",
                   "dy-video-parseVideo-downloadFileName",
                   "{uid}-{nickname}-{desc}-{quality}-{downloadTime}"
+                ),
+                UIInput(
+                  "自定义音乐下载文件名",
+                  "dy-video-parseVideoMusic-downloadFileName",
+                  "{author}-{title}-{duration}-{downloadTime}"
                 ),
               ],
             },

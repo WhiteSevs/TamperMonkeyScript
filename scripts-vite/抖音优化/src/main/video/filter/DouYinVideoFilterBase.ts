@@ -2,7 +2,11 @@ import { httpx, log, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import type {
+  DouYinVideoAwemeInfoWithDOM,
+  DouYinVideoAwemeInfoWithNetWork,
+  DouYinVideoHandlerInfo,
+} from "../../../../types/DouYinVideoType";
 import type { DouYinVideoFilterRule, DouYinVideoFilterRuleDynamicOption } from "./DouYinVideoFilter";
 
 type FilterRuleCheckConfig = {
@@ -26,52 +30,43 @@ export class DouYinVideoFilterBase {
   };
   /**
    * 解析awemeInfo转为规则过滤的字典
-   * @param awemeInfo
+   * @param awemeInfo 视频信息结构
+   * @param from awemeInfo是否来自页面上的，否则就是来自网络的
    * @param showLog 是否显示日志输出
    */
-  parseAwemeInfoDictData(awemeInfo: DouYinVideoAwemeInfo, showLog: boolean = false): DouYinVideoHandlerInfo {
-    /** 视频作者信息 */
-    let authorInfo =
-      awemeInfo?.["authorInfo"] ||
-      // @ts-ignore
-      awemeInfo?.["author"];
+  parseAwemeInfoDictData(
+    awemeInfo: DouYinVideoAwemeInfoWithDOM | DouYinVideoAwemeInfoWithNetWork,
+    from: "dom" | "network",
+    showLog: boolean = false
+  ): DouYinVideoHandlerInfo {
     /** 视频作者名字 */
-    let nickname: string = authorInfo?.["nickname"]?.toString();
+    let nickname: string;
     /** 视频作者uid */
-    let uid: string = authorInfo?.["uid"]?.toString();
+    let uid: string;
     /** 视频描述 */
-    let desc: string = awemeInfo?.["desc"]?.toString();
+    let desc: string;
     /** 音乐专辑 */
-    let musicAlbum: string = awemeInfo?.["music"]?.["album"];
+    let musicAlbum: string | undefined;
     /** 音乐作者 */
-    let musicAuthor: string = awemeInfo?.["music"]?.["author"];
+    let musicAuthor: string | undefined;
+    /** 音乐播放时长 */
+    let musicDuration: number | undefined;
     /** 音乐标题 */
-    let musicTitle: string = awemeInfo?.["music"]?.["title"];
+    let musicTitle: string | undefined;
+    /** 视频的背景音乐的信息 */
+    let musicUrl: string | undefined;
+    /** 视频的背景音乐的播放地址（备用） */
+    let musicBackUrlList: string[] = [];
     /** 收藏数量 */
-    let collectCount: number =
-      awemeInfo?.["stats"]?.["collectCount"] ||
-      // @ts-ignore
-      awemeInfo?.["statistics"]?.["collect_count"];
+    let collectCount: number;
     /** 评论数量 */
-    let commentCount: number =
-      awemeInfo?.["stats"]?.["commentCount"] ||
-      // @ts-ignore
-      awemeInfo?.["statistics"]?.["comment_count"];
+    let commentCount: number;
     /** 点赞数量 */
-    let diggCount: number =
-      awemeInfo?.["stats"]?.["diggCount"] ||
-      // @ts-ignore
-      awemeInfo?.["statistics"]?.["digg_count"];
+    let diggCount: number;
     /** 分享数量 */
-    let shareCount: number =
-      awemeInfo?.["stats"]?.["shareCount"] ||
-      // @ts-ignore
-      awemeInfo?.["statistics"]?.["share_count"];
+    let shareCount: number;
     /** 视频时长 */
-    let duration: number | undefined = awemeInfo?.["video"]?.["duration"];
-    let textExtraInstance: any[] =
-      // @ts-ignore
-      awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"];
+    let duration: number | undefined;
     /** 视频标签 */
     let textExtra: string[] = [];
     /** 是否是直播间 */
@@ -83,45 +78,25 @@ export class DouYinVideoFilterBase {
     /** 是否是混合信息-合集、短剧 */
     let isMixInfo: boolean = false;
     /** 风险提示内容 */
-    let riskInfoContent: string | undefined =
-      awemeInfo?.["riskInfos"]?.content ||
-      // @ts-ignore
-      awemeInfo?.["risk_infos"]?.content;
+    let riskInfoContent: string | undefined;
     /** 系列名称 */
     let seriesInfoName: string | undefined = void 0;
     /** 系列内容类型 */
     let seriesInfoContentTypes: string[] = [];
     /** 是否是图文 */
-    let isPicture: boolean =
-      awemeInfo?.awemeType === 68 ||
-      // @ts-ignore
-      awemeInfo?.["aweme_type"] === 68;
+    let isPicture: boolean;
     /** 图文列表信息 */
     let pictureList: DouYinVideoHandlerInfo["pictureList"] = [];
-    if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
-      textExtraInstance?.forEach((item) => {
-        let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
-        if (typeof tagName === "string" && tagName.trim() != "") {
-          textExtra.push(tagName);
-        }
-      });
-    }
     /** 混合信息名称 */
     let mixInfoName: string | undefined = void 0;
     /** 混合信息描述 */
     let mixInfoDesc: string | undefined = void 0;
-    /** 视频标签对象 */
-    let videoTagInstance: any[] =
-      // @ts-ignore
-      awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"];
     /** 视频标签 */
     let videoTag: string[] = [];
     /** 视频标签的id */
     let videoTagId: string[] = [];
     /** 视频id */
-    let awemeId =
-      // @ts-ignore
-      awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"];
+    let awemeId: string;
     /** 直播间房间号 */
     let liveStreamRoomId: string | undefined = void 0;
     /** 直播间标题 */
@@ -142,331 +117,725 @@ export class DouYinVideoFilterBase {
     let productTitle: string | undefined = void 0;
     /** 是否已关注该用户 */
     let isFollow: boolean = false;
+    /** 作者的认证信息 */
+    let authorAccountCertInfo: string = "";
+    let authorCustomVerify: string;
+    /** 作者的企业认证信息 */
+    let authorEnterpriseVerifyReason: string;
+    /** 搜索建议关键词 */
+    let suggestWord: string[] = [];
 
-    if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
-      videoTagInstance.forEach((item) => {
-        let tagName = item?.["tagName"] || item?.["tag_name"];
-        let tagId = item?.["tagId"] || item?.["tag_id"];
-        if (typeof tagName === "string" && tagName.trim() != "") {
-          videoTag.push(tagName);
+    if (from === "network") {
+      // 从网络上获取的（主要）
+      const awemeInfoWithNetWork = awemeInfo as DouYinVideoAwemeInfoWithNetWork;
+      const authorInfo = awemeInfoWithNetWork?.author;
+      nickname = String(authorInfo?.nickname ?? "");
+      uid = String(authorInfo?.uid ?? "");
+      desc = String(awemeInfoWithNetWork.desc ?? "");
+      musicAlbum = awemeInfoWithNetWork?.music?.album;
+      musicAuthor = awemeInfoWithNetWork?.music?.author;
+      musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
+      musicTitle = awemeInfoWithNetWork?.music?.title;
+      collectCount = awemeInfoWithNetWork.statistics.collect_count;
+      commentCount = awemeInfoWithNetWork.statistics.comment_count;
+      diggCount = awemeInfoWithNetWork.statistics.digg_count;
+      shareCount = awemeInfoWithNetWork.statistics.share_count;
+      duration = awemeInfoWithNetWork.video.duration;
+      awemeId = awemeInfoWithNetWork.aweme_id;
+      authorCustomVerify = authorInfo?.custom_verify || "";
+      authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
+      isPicture = awemeInfoWithNetWork.aweme_type === 68;
+      isFollow = Boolean(authorInfo?.follow_status);
+
+      // 文案标签
+      if (Array.isArray(awemeInfoWithNetWork.text_extra)) {
+        awemeInfoWithNetWork.text_extra.forEach((item) => {
+          const tagName = item?.hashtag_name;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            textExtra.push(tagName);
+          }
+        });
+      }
+      // 视频标签
+      if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
+        awemeInfoWithNetWork.video_tag.forEach((item) => {
+          const tagName = item?.tag_name;
+          const tagId = item?.tag_id;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            videoTag.push(tagName);
+          }
+          if (typeof tagId === "number" || typeof tagId === "string") {
+            const tagTdStr = tagId.toString();
+            if (tagTdStr.trim() != "" && tagTdStr != "0") {
+              videoTagId.push(tagTdStr);
+            }
+          }
+        });
+      }
+      // 直播间
+      if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
+        isLive = true;
+        showLog && log.success("直播间: cell_room is not null");
+        let rawdata;
+        if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
+          rawdata = utils.toJSON<{
+            // "id": number;
+            id_str: string;
+            // "status": number;
+            title: string;
+            user_count: number;
+            owner: {
+              // 头像信息
+              avatar_thumb: {
+                // 头像链接，但是这个链接参数有问题，需补充路径，即/aweme/
+                uri: string;
+                // 头像链接数组，建议这个，包含完整的https:...
+                url_list: string[];
+              };
+              // 用户id？可能是
+              id_str: string;
+              sec_uid: string;
+              // 直播间id（房间号）
+              web_rid: string;
+              // 用户名
+              nickname: string;
+            };
+            dynamic_label: {
+              splice_label: {
+                text: string;
+              };
+            };
+          }>(awemeInfoWithNetWork.cell_room.rawdata);
         }
-        if (typeof tagId === "number" || typeof tagId === "string") {
-          let tagTdStr = tagId.toString();
-          if (tagTdStr.trim() != "" && tagTdStr != "0") {
-            videoTagId.push(tagTdStr);
+        if (typeof rawdata == "object" && rawdata != null) {
+          liveStreamRoomId = rawdata?.owner?.web_rid;
+          liveStreamRoomTitle = rawdata?.title;
+          liveStreamNickName = rawdata?.owner?.nickname;
+          liveStreamRoomUserCount = rawdata?.user_count;
+          liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+
+          if (typeof liveStreamRoomId !== "string") {
+            liveStreamRoomId = void 0;
+          }
+          if (typeof liveStreamRoomTitle !== "string") {
+            liveStreamRoomTitle = void 0;
+          }
+          if (typeof liveStreamNickName !== "string") {
+            liveStreamNickName = void 0;
+          }
+          if (typeof liveStreamRoomUserCount !== "number") {
+            liveStreamRoomUserCount = void 0;
+          }
+          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+            liveStreamRoomDynamicSpliceLabel = void 0;
           }
         }
-      });
-    }
-
-    const cell_room =
-      awemeInfo?.["cellRoom"] ||
-      // @ts-ignore
-      awemeInfo?.["cell_room"];
-    if (typeof cell_room === "object" && cell_room != null) {
-      isLive = true;
-      if (showLog) {
-        log.success("直播间：cellRoom is not null");
       }
-      let rawDataJSON = cell_room["rawdata"];
-      if (typeof rawDataJSON === "string") {
-        rawDataJSON = utils.toJSON(rawDataJSON);
-      }
-      if (typeof rawDataJSON === "object" && rawDataJSON != null) {
-        liveStreamRoomId = rawDataJSON?.["owner"]?.["web_rid"];
-        liveStreamRoomTitle = rawDataJSON?.["title"];
-        liveStreamNickName = rawDataJSON?.["owner"]?.["nickname"];
-        liveStreamRoomUserCount = rawDataJSON?.["user_count"];
-        liveStreamRoomDynamicSpliceLabel = rawDataJSON?.["dynamic_label"]?.["splice_label"]?.["text"];
-
-        if (typeof liveStreamRoomId !== "string") {
-          liveStreamRoomId = void 0;
-        }
-        if (typeof liveStreamRoomTitle !== "string") {
-          liveStreamRoomTitle = void 0;
-        }
-        if (typeof liveStreamNickName !== "string") {
-          liveStreamNickName = void 0;
-        }
-        if (typeof liveStreamRoomUserCount !== "number") {
-          liveStreamRoomUserCount = void 0;
-        }
-        if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-          liveStreamRoomDynamicSpliceLabel = void 0;
-        }
-      }
-    }
-    // 判断是否是广告
-    isAds = [
-      () => {
-        if (
-          awemeInfo["isAds"] ||
-          // @ts-ignore
-          awemeInfo["is_ads"]
-        ) {
-          showLog && log.success("广告：isAds is true");
-          return true;
-        }
-      },
-      () => {
-        if (
-          (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"])) ||
-          // @ts-ignore
-          (typeof awemeInfo["raw_ad_data"] === "string" &&
-            // @ts-ignore
-            utils.isNotNull(awemeInfo["raw_ad_data"]))
-        ) {
-          showLog && log.success("广告：rawAdData is not null");
-          return true;
-        }
-      },
-      () => {
-        if (awemeInfo["webRawData"]) {
-          if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
-            showLog && log.success("广告：webRawData.brandAd.is_ad is 1");
+      // 判断是否是广告
+      isAds = [
+        () => {
+          if (awemeInfoWithNetWork.is_ads) {
+            showLog && log.success("广告: is_ads is true");
             return true;
           }
-          if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
-            showLog && log.success("广告：webRawData.insertInfo.is_ad is true");
+        },
+        () => {
+          if (
+            typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
+            utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
+          ) {
+            showLog && log.success("广告: raw_ad_data is not null");
             return true;
           }
+        },
+        () => {
+          if (typeof awemeInfoWithNetWork?.web_raw_data === "string") {
+            const web_raw_data = utils.toJSON<{
+              brand_ad: string;
+              recommend_score: {
+                is_ad: number;
+              };
+            }>(awemeInfoWithNetWork?.web_raw_data);
+            if (typeof web_raw_data?.brand_ad === "string") {
+              const brand_ad = utils.toJSON<{
+                is_ad: number;
+              }>(web_raw_data.brand_ad);
+              const is_ad = brand_ad?.is_ad;
+              if (is_ad) {
+                showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                return true;
+              }
+            }
+          }
+        },
+      ].some((it) => it());
+
+      // 如果风险提示内容是空的，赋值为undefined
+      const risk_infos = awemeInfoWithNetWork?.risk_infos;
+      if (
+        (typeof risk_infos?.content === "string" && risk_infos?.content.trim() === "") ||
+        typeof risk_infos?.content !== "string"
+      ) {
+        riskInfoContent = void 0;
+      } else {
+        riskInfoContent = risk_infos?.content;
+      }
+
+      /** 短剧信息 */
+      let series_info = awemeInfoWithNetWork?.series_info;
+      if (typeof series_info === "object" && series_info != null) {
+        if (typeof series_info?.series_name === "string") {
+          seriesInfoName = series_info?.series_name;
         }
-      },
-      () => {
-        //  @ts-ignore
-        if (typeof awemeInfo?.["web_raw_data"] === "string") {
-          //  @ts-ignore
-          const webRawData = utils.toJSON(awemeInfo["web_raw_data"]);
-          if (typeof webRawData?.["brand_ad"] === "string") {
-            const brandAd = utils.toJSON(webRawData["brand_ad"]);
-            if (brandAd?.["is_ad"]) {
-              showLog && log.success("广告：web_raw_data.brand_ad.is_ad is 1");
+        const series_content_types = series_info?.series_content_types;
+        if (Array.isArray(series_content_types)) {
+          series_content_types.forEach((it) => {
+            const __seriesInfoName = it.name;
+            seriesInfoContentTypes.push(__seriesInfoName);
+          });
+        }
+        if (seriesInfoName != null && series_content_types != null) {
+          isSeriesInfo = true;
+        }
+      }
+
+      /** 混合信息 */
+      let mixInfo = awemeInfoWithNetWork?.mix_info;
+      if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+        mixInfoName = mixInfo?.mix_name;
+        mixInfoDesc = mixInfo?.desc;
+      }
+
+      /**
+       * 解析bitRateList
+       */
+      const parseVideoBitRateList = (
+        bitRateList: DouYinVideoAwemeInfoWithNetWork["video"]["bit_rate"],
+        cover: string
+      ) => {
+        let data: DouYinVideoHandlerInfo["videoBitRateList"] = [];
+        if (!Array.isArray(bitRateList)) return data;
+        bitRateList.forEach((item) => {
+          let url = "";
+          const backUrl: string[] = [];
+          const url_list = item?.play_addr?.url_list;
+          if (
+            Array.isArray(url_list) &&
+            url_list.length > 0 &&
+            typeof url_list[0] === "string" &&
+            utils.isNotNull(url_list[0])
+          ) {
+            url = url_list[0];
+          }
+          if (
+            Array.isArray(url_list) &&
+            url_list.length > 0 &&
+            typeof url_list[0] === "string" &&
+            utils.isNotNull(url_list[0])
+          ) {
+            backUrl.push(
+              ...url_list
+                .map((it) => {
+                  if (typeof it !== "string") return;
+                  if (it === url) return;
+                  return it;
+                })
+                .filter((it) => it != null)
+            );
+          } else {
+            backUrl.length = 0;
+          }
+
+          const videoBitRateListItem: (typeof data)[0] = {
+            cover,
+            bitRate: item.bit_rate,
+            dataSize: item?.play_addr?.data_size ?? 0,
+            format: item.format,
+            isH265: item.is_h265,
+            fps: item.FPS,
+            gearName: item.gear_name,
+            qualityType: item.quality_type,
+            width: item?.play_addr?.width,
+            height: item?.play_addr?.height,
+            url: url!,
+            backUrl,
+          };
+          data.push(videoBitRateListItem);
+        });
+        // 去重
+        for (let index = 0; index < data.length; index++) {
+          const item = data[index];
+          for (let index2 = 0; index2 < data.length; index2++) {
+            // 去除后面重复的
+            const item2 = data[index2];
+            if (item === item2) {
+              continue;
+            }
+            if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
+              // 宽度、高度、帧率相同
+              // 这时候去掉码率小的
+              if (item.dataSize > item2.dataSize) {
+                data.splice(index2, 1);
+                index2--;
+                if (index > index2) {
+                  index--;
+                }
+              }
+            }
+          }
+        }
+        // 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
+        data = data.map((item) => {
+          if (item.url.startsWith("http:")) {
+            item.url = item.url.replace("http:", "");
+          }
+          return item;
+        });
+        // 按视频大小排序（降序）
+        utils.sortListByProperty(data, (it) => it.width!);
+        return data;
+      };
+
+      // 判断是否是图文
+      if (isPicture) {
+        // 视频时长则需设置为空
+        duration = void 0;
+        const images = awemeInfoWithNetWork?.images;
+        if (Array.isArray(images)) {
+          pictureList = images.map((it) => {
+            let url;
+            if (Array.isArray(it.url_list) && it.url_list.length) {
+              // 无水印图片（默认）
+              url = it.url_list[0];
+            } else if (Array.isArray(it.download_url_list) && it.download_url_list.length) {
+              // 有水印图片
+              url = it.download_url_list[0];
+            }
+            const coverUrlList: string[] | undefined = it?.video?.cover?.url_list;
+            let cover = url;
+            if (
+              coverUrlList != null &&
+              Array.isArray(coverUrlList) &&
+              typeof coverUrlList[0] === "string" &&
+              utils.isNotNull(coverUrlList[0])
+            ) {
+              cover = coverUrlList[0];
+            }
+            const videoBitRateListData = it?.video?.bit_rate;
+            const videoBitRateList: (typeof pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
+              videoBitRateListData!,
+              cover!
+            );
+
+            return {
+              width: it.width,
+              height: it.height,
+              url: url,
+              videoBitRateList: videoBitRateList,
+            } as (typeof pictureList)[0];
+          });
+        }
+      }
+
+      let suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
+      if (Array.isArray(suggestWords)) {
+        suggestWords.forEach((item) => {
+          let words = item?.words;
+          if (Array.isArray(words)) {
+            words.forEach((wordItem) => {
+              let word = wordItem?.word;
+              if (typeof word === "string" && word.trim() !== "") {
+                suggestWord.push(word);
+              }
+            });
+          }
+        });
+      }
+      // 去重
+      suggestWord = [...new Set(suggestWord)];
+
+      let authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
+      if (typeof authorAccountCertInfoInsStr === "string") {
+        let authorAccountCertInfoJSON = utils.toJSON<{
+          label_text: string;
+          label_style: number;
+          is_biz_account: number;
+        }>(authorAccountCertInfoInsStr);
+        if (typeof authorAccountCertInfoJSON.label_text === "string") {
+          authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
+        }
+      }
+
+      /** 产品信息 */
+      const entertainmentProductInfo = awemeInfoWithNetWork?.entertainment_product_info;
+      if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+        if (typeof entertainmentProductInfo.product_id === "number") {
+          productId = entertainmentProductInfo.product_id.toString();
+        } else if (typeof entertainmentProductInfo.product_id_str === "string") {
+          productId = entertainmentProductInfo.product_id_str;
+        }
+        if (typeof entertainmentProductInfo.title === "string") {
+          productTitle = entertainmentProductInfo.title;
+        }
+        if (
+          typeof entertainmentProductInfo?.buy_schema === "string" ||
+          typeof entertainmentProductInfo?.buy_panel_schema === "string"
+        ) {
+          isProduct = true;
+        }
+      }
+
+      /** 封面 */
+      let cover = "";
+      const coverUrlList = awemeInfoWithNetWork?.video?.cover?.url_list;
+      if (typeof cover !== "string" || utils.isNull(cover)) {
+        if (Array.isArray(coverUrlList) && typeof coverUrlList[0] === "string" && utils.isNotNull(coverUrlList[0])) {
+          cover = coverUrlList[0];
+        }
+      }
+      /** 视频数据 */
+      const videoBitRateListData = awemeInfoWithNetWork?.video?.bit_rate;
+      if (Array.isArray(videoBitRateListData)) {
+        videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+      }
+
+      /** 背景音乐播放信息 */
+      const musicPlayData = awemeInfoWithNetWork?.music?.play_url;
+      musicUrl = musicPlayData?.uri;
+      if (Array.isArray(musicPlayData?.url_list)) {
+        musicPlayData.url_list.forEach((it) => {
+          if (it === musicUrl) return;
+          musicBackUrlList.push(it);
+        });
+      }
+    } else if (from === "dom") {
+      // 从页面上获取的awemeInfo，该对象是已经进行过处理的，字段什么的命名存在差异
+      const awemeInfoWithDOM = awemeInfo as DouYinVideoAwemeInfoWithDOM;
+      // 如果是直播间，那么没有该信息
+      const authorInfo = awemeInfoWithDOM.authorInfo;
+      nickname = String(authorInfo?.nickname ?? "");
+      uid = String(authorInfo?.uid ?? "");
+      desc = String(awemeInfoWithDOM.desc ?? "");
+      musicAlbum = awemeInfoWithDOM?.music?.album;
+      musicAuthor = awemeInfoWithDOM?.music?.author;
+      musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
+      musicTitle = awemeInfoWithDOM?.music?.title;
+      collectCount = awemeInfoWithDOM.stats.collectCount;
+      commentCount = awemeInfoWithDOM.stats.commentCount;
+      diggCount = awemeInfoWithDOM.stats.diggCount;
+      shareCount = awemeInfoWithDOM.stats.shareCount;
+      duration = awemeInfoWithDOM.video.duration;
+      awemeId = awemeInfoWithDOM.awemeId;
+      authorCustomVerify = authorInfo?.customVerify || "";
+      authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
+      isPicture = awemeInfoWithDOM.awemeType === 68;
+      isFollow = Boolean(authorInfo?.followStatus);
+
+      // 文案标签
+      if (Array.isArray(awemeInfoWithDOM.textExtra)) {
+        awemeInfoWithDOM.textExtra.forEach((item) => {
+          const tagName = item?.hashtagName;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            textExtra.push(tagName);
+          }
+        });
+      }
+      // 视频标签
+      if (Array.isArray(awemeInfoWithDOM.videoTag)) {
+        awemeInfoWithDOM.videoTag.forEach((item) => {
+          const tagName = item?.tagName;
+          const tagId = item?.tagId;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            videoTag.push(tagName);
+          }
+          if (typeof tagId === "number" || typeof tagId === "string") {
+            const tagTdStr = tagId.toString();
+            if (tagTdStr.trim() != "" && tagTdStr != "0") {
+              videoTagId.push(tagTdStr);
+            }
+          }
+        });
+      }
+      // 直播间
+      if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
+        isLive = true;
+        showLog && log.success("直播间: cellRoom is not null");
+        let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
+        if (typeof rawdata == "object" && rawdata != null) {
+          liveStreamRoomId = rawdata?.owner?.web_rid;
+          liveStreamRoomTitle = rawdata?.title;
+          liveStreamNickName = rawdata?.owner?.nickname;
+          liveStreamRoomUserCount = rawdata?.user_count;
+          liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+
+          if (typeof liveStreamRoomId !== "string") {
+            liveStreamRoomId = void 0;
+          }
+          if (typeof liveStreamRoomTitle !== "string") {
+            liveStreamRoomTitle = void 0;
+          }
+          if (typeof liveStreamNickName !== "string") {
+            liveStreamNickName = void 0;
+          }
+          if (typeof liveStreamRoomUserCount !== "number") {
+            liveStreamRoomUserCount = void 0;
+          }
+          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+            liveStreamRoomDynamicSpliceLabel = void 0;
+          }
+        }
+      }
+      // 判断是否是广告
+      isAds = [
+        () => {
+          if (awemeInfoWithDOM.isAds) {
+            showLog && log.success("广告: isAds is true");
+            return true;
+          }
+        },
+        () => {
+          if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
+            showLog && log.success("广告: rawAdData is not null");
+            return true;
+          }
+        },
+        () => {
+          if (awemeInfoWithDOM?.webRawData) {
+            if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
+              showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+              return true;
+            }
+            if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
+              showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
               return true;
             }
           }
+        },
+      ].some((it) => it());
+
+      // 如果风险提示内容是空的，赋值为undefined
+      const riskInfos = awemeInfoWithDOM?.riskInfos;
+      if (
+        (typeof riskInfos?.content === "string" && riskInfos?.content.trim() === "") ||
+        typeof riskInfos?.content !== "string"
+      ) {
+        riskInfoContent = void 0;
+      } else {
+        riskInfoContent = riskInfos?.content;
+      }
+
+      /** 短剧信息 */
+      let seriesInfo = awemeInfoWithDOM?.seriesInfo;
+      if (typeof seriesInfo === "object" && seriesInfo != null) {
+        if (typeof seriesInfo?.seriesName === "string") {
+          seriesInfoName = seriesInfo?.seriesName;
         }
-      },
-    ].some((it) => it());
-
-    // 如果风险提示内容是空的，赋值为undefined
-    if ((typeof riskInfoContent === "string" && riskInfoContent.trim() === "") || typeof riskInfoContent !== "string") {
-      riskInfoContent = void 0;
-    }
-    /** 短剧信息 */
-    let series_info =
-      awemeInfo?.["seriesInfo"] ||
-      // @ts-ignore
-      awemeInfo?.["series_info"];
-    if (typeof series_info === "object" && series_info != null) {
-      seriesInfoName =
-        series_info?.["seriesName"] ||
-        // @ts-ignore
-        series_info?.["series_name"];
-      let series_content_types =
-        series_info?.["seriesContentTypes"] ||
-        // @ts-ignore
-        series_info?.["series_content_types"];
-      if (Array.isArray(series_content_types)) {
-        series_content_types.forEach((it) => {
-          let seriesInfoName = it["name"];
-          seriesInfoContentTypes.push(seriesInfoName);
-        });
-      }
-      if (seriesInfoName != null && series_content_types != null) {
-        isSeriesInfo = true;
-      }
-    }
-    /** 混合信息 */
-    let mixInfo =
-      awemeInfo?.["mixInfo"] ||
-      // @ts-ignore
-      awemeInfo?.["mix_info"];
-    if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-      mixInfoName = mixInfo?.["mixName"] || mixInfo?.["mix_name"];
-      mixInfoDesc = mixInfo?.["desc"];
-    }
-    // 判断是否是图文
-    // 如果是图文，那视频时长则需设置为空
-    if (isPicture) {
-      duration = void 0;
-      // @ts-ignore
-      const images: any[] = awemeInfo?.["images"];
-      if (Array.isArray(images)) {
-        pictureList = images.map((it) => {
-          let url;
-          if (Array.isArray(it.urlList) && it.urlList.length) {
-            // 无水印图片（默认）
-            url = it.urlList[0];
-          } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
-            // 有水印图片
-            url = it.downloadUrlList[0];
-          }
-          return {
-            width: it.width,
-            height: it.height,
-            url: url,
-          };
-        });
-      }
-    }
-
-    /** 建议关键词 */
-    let suggestWord: string[] = [];
-
-    let suggestWords =
-      // @ts-ignore
-      awemeInfo?.["suggest_words"] ||
-      // @ts-ignore
-      awemeInfo?.["suggest_words"]?.["suggest_words"] ||
-      awemeInfo?.["suggestWords"];
-    if (Array.isArray(suggestWords)) {
-      suggestWords.forEach((suggestWordItem) => {
-        let words = suggestWordItem?.["words"];
-        if (Array.isArray(words)) {
-          words.forEach((wordItem) => {
-            let word = wordItem?.["word"];
-            if (typeof word === "string" && word.trim() !== "") {
-              suggestWord.push(word);
-            }
+        const seriesContentTypes = seriesInfo?.seriesContentTypes;
+        if (Array.isArray(seriesContentTypes)) {
+          seriesContentTypes.forEach((it) => {
+            const __seriesInfoName = it.name;
+            seriesInfoContentTypes.push(__seriesInfoName);
           });
         }
-      });
-    }
-    // 去重
-    suggestWord = [...new Set(suggestWord)];
+        if (seriesInfoName != null && seriesContentTypes != null) {
+          isSeriesInfo = true;
+        }
+      }
 
-    /** 作者的认证信息 */
-    let authorAccountCertInfo = "";
-    let authorAccountCertInfoInsStr =
-      // @ts-ignore
-      awemeInfo?.["author"]?.["account_cert_info"];
-    if (typeof authorAccountCertInfoInsStr === "string") {
-      let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
-      if (typeof authorAccountCertInfoJSON["label_text"] === "string") {
-        authorAccountCertInfo = authorAccountCertInfoJSON["label_text"];
+      /** 混合信息 */
+      let mixInfo = awemeInfoWithDOM?.mixInfo;
+      if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
+        mixInfoName = mixInfo?.mixName;
+        mixInfoDesc = mixInfo?.desc;
+      }
+
+      /**
+       * 解析bitRateList
+       */
+      const parseVideoBitRateList = (
+        bitRateList: DouYinVideoAwemeInfoWithDOM["video"]["bitRateList"],
+        cover: string
+      ) => {
+        let data: DouYinVideoHandlerInfo["videoBitRateList"] = [];
+        if (!Array.isArray(bitRateList)) return data;
+        bitRateList.forEach((item) => {
+          const url = item.playApi;
+          const backUrl: string[] = [];
+          const url_list = item?.playAddr;
+          if (
+            Array.isArray(item) &&
+            url_list.length > 0 &&
+            typeof url_list[0] === "string" &&
+            utils.isNotNull(url_list[0])
+          ) {
+            backUrl.push(
+              ...url_list
+                .map((it) => {
+                  if (typeof it.src !== "string") return;
+                  if (it.src === url) return;
+                  return it.src;
+                })
+                .filter((it) => it != null)
+            );
+          } else {
+            backUrl.length = 0;
+          }
+          const videoBitRateListItem: (typeof data)[0] = {
+            cover,
+            bitRate: item.bitRate,
+            dataSize: item.dataSize ?? 0,
+            format: item.format,
+            isH265: item.isH265,
+            fps: item.fps,
+            gearName: item.gearName,
+            qualityType: item.qualityType,
+            width: item.width,
+            height: item.height,
+            url,
+            backUrl,
+          };
+          data.push(videoBitRateListItem);
+        });
+        // 去重
+        for (let index = 0; index < data.length; index++) {
+          const item = data[index];
+          for (let index2 = 0; index2 < data.length; index2++) {
+            // 去除后面重复的
+            const item2 = data[index2];
+            if (item === item2) {
+              continue;
+            }
+            if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
+              // 宽度、高度、帧率相同
+              // 这时候去掉码率小的
+              if (item.dataSize > item2.dataSize) {
+                data.splice(index2, 1);
+                index2--;
+                if (index > index2) {
+                  index--;
+                }
+              }
+            }
+          }
+        }
+        // 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
+        data = data.map((item) => {
+          if (item.url.startsWith("http:")) {
+            item.url = item.url.replace("http:", "");
+          }
+          return item;
+        });
+        // 按视频大小排序（降序）
+        utils.sortListByProperty(data, (it) => it.width!);
+        return data;
+      };
+
+      // 判断是否是图文
+      if (isPicture) {
+        // 视频时长则需设置为空
+        duration = void 0;
+        const images = awemeInfoWithDOM?.images;
+        if (Array.isArray(images)) {
+          pictureList = images.map((it) => {
+            let url;
+            if (Array.isArray(it.urlList) && it.urlList.length) {
+              // 无水印图片（默认）
+              url = it.urlList[0];
+            } else if (Array.isArray(it.downloadUrlList) && it.downloadUrlList.length) {
+              // 有水印图片
+              url = it.downloadUrlList[0];
+            }
+            const coverUrlList: string[] | undefined = it?.video?.coverUrlList;
+            let cover = url;
+            if (
+              coverUrlList != null &&
+              Array.isArray(coverUrlList) &&
+              typeof coverUrlList[0] === "string" &&
+              utils.isNotNull(coverUrlList[0])
+            ) {
+              cover = coverUrlList[0];
+            }
+            const videoBitRateListData = it?.video?.bitRateList;
+            const videoBitRateList: (typeof pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
+              videoBitRateListData!,
+              cover!
+            );
+
+            return {
+              width: it.width,
+              height: it.height,
+              url: url,
+              videoBitRateList: videoBitRateList,
+            } as (typeof pictureList)[0];
+          });
+        }
+      }
+
+      let suggestWords = awemeInfoWithDOM?.suggestWords;
+      if (Array.isArray(suggestWords)) {
+        suggestWords.forEach((item) => {
+          let words = item?.words;
+          if (Array.isArray(words)) {
+            words.forEach((wordItem) => {
+              let word = wordItem?.word;
+              if (typeof word === "string" && word.trim() !== "") {
+                suggestWord.push(word);
+              }
+            });
+          }
+        });
+      }
+      // 去重
+      suggestWord = [...new Set(suggestWord)];
+
+      if (typeof authorInfo?.accountCertInfo?.labelText === "string") {
+        authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
+      }
+
+      /** 产品信息 */
+      const entertainmentProductInfo = awemeInfoWithDOM?.entertainmentProductInfo;
+      if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
+        if (typeof entertainmentProductInfo.product_id === "number") {
+          productId = entertainmentProductInfo.product_id.toString();
+        } else if (typeof entertainmentProductInfo.product_id_str === "string") {
+          productId = entertainmentProductInfo.product_id_str;
+        }
+        if (typeof entertainmentProductInfo.title === "string") {
+          productTitle = entertainmentProductInfo.title;
+        }
+        if (
+          typeof entertainmentProductInfo?.buy_schema === "string" ||
+          typeof entertainmentProductInfo?.buy_panel_schema === "string"
+        ) {
+          isProduct = true;
+        }
+      }
+
+      /** 封面 */
+      let cover = "";
+      const coverUrlList = awemeInfoWithDOM?.video?.coverUrlList;
+      if (typeof cover !== "string" || utils.isNull(cover)) {
+        if (Array.isArray(coverUrlList) && typeof coverUrlList[0] === "string" && utils.isNotNull(coverUrlList[0])) {
+          cover = coverUrlList[0];
+        }
+      }
+      /** 视频数据 */
+      const videoBitRateListData = awemeInfoWithDOM?.video?.bitRateList;
+      if (Array.isArray(videoBitRateListData)) {
+        videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+      }
+
+      const musicPlayData = awemeInfoWithDOM?.music?.playUrl;
+      musicUrl = musicPlayData?.uri;
+      if (Array.isArray(musicPlayData?.urlList)) {
+        musicPlayData.urlList.forEach((it) => {
+          if (it === musicUrl) return;
+          musicBackUrlList.push(it);
+        });
       }
     } else {
-      if (typeof awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"] === "string") {
-        authorAccountCertInfo = awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"];
-      }
+      throw new Error("from参数错误");
     }
-
-    let authorCustomVerify =
-      // @ts-ignore
-      awemeInfo?.["author"]?.["custom_verify"] ||
-      // @ts-ignore
-      awemeInfo?.["authorInfo"]?.["customVerify"] ||
-      "";
-
-    /** 作者的企业认证信息 */
-    let authorEnterpriseVerifyReason =
-      // @ts-ignore
-      awemeInfo?.["author"]?.["enterprise_verify_reason"] ||
-      // @ts-ignore
-      awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] ||
-      "";
-
-    /** 产品信息 */
-    const entertainmentProductInfo =
-      awemeInfo?.["entertainmentProductInfo"] ||
-      // @ts-ignore
-      awemeInfo?.["entertainment_product_info"];
-    if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
-      if (typeof entertainmentProductInfo.product_id === "number") {
-        productId = entertainmentProductInfo.product_id.toString();
-      }
-      if (typeof entertainmentProductInfo.title === "string") {
-        productTitle = entertainmentProductInfo.title;
-      }
-      if (
-        typeof entertainmentProductInfo?.["buy_schema"] === "string" ||
-        typeof entertainmentProductInfo?.["buy_panel_schema"] === "string"
-      ) {
-        isProduct = true;
-      }
-    }
-
-    const videoBitRateListData =
-      awemeInfo?.["video"]?.["bitRateList"] ||
-      // @ts-ignore
-      awemeInfo?.["video"]?.["bit_rate"];
-    if (Array.isArray(videoBitRateListData)) {
-      videoBitRateListData.forEach((item) => {
-        const videoBitRateListItem = {} as { [key: string]: any };
-        const bitRate =
-          item?.["bitRate"] ||
-          // @ts-ignore
-          item?.["bit_rate"];
-        if (typeof bitRate === "number") {
-          videoBitRateListItem["bitRate"] = bitRate;
-        }
-        const dataSize =
-          item?.["dataSize"] ||
-          // @ts-ignore
-          item?.["play_addr"]?.["data_size"];
-        if (typeof dataSize === "number") {
-          videoBitRateListItem["dataSize"] = dataSize;
-        }
-        const format = item?.["format"];
-        if (typeof format === "string") {
-          videoBitRateListItem["format"] = format;
-        }
-        const isH265 =
-          item?.["isH265"] ||
-          // @ts-ignore
-          item?.["is_h265"];
-        if (typeof isH265 === "number") {
-          videoBitRateListItem["isH265"] = isH265;
-        }
-        const fps =
-          item?.["fps"] ||
-          // @ts-ignore
-          item?.["FPS"];
-        if (typeof fps === "number") {
-          videoBitRateListItem["fps"] = fps;
-        }
-        const gearName =
-          item?.["gearName"] ||
-          // @ts-ignore
-          item?.["gear_name"];
-        if (typeof gearName === "string") {
-          videoBitRateListItem["gearName"] = gearName;
-        }
-        const qualityType =
-          item?.["qualityType"] ||
-          // @ts-ignore
-          item?.["quality_type"];
-        if (typeof qualityType === "number") {
-          videoBitRateListItem["qualityType"] = qualityType;
-        }
-        const width =
-          item?.["width"] ||
-          // @ts-ignore
-          item?.["play_addr"]?.["width"];
-        if (typeof width === "number") {
-          videoBitRateListItem["width"] = width;
-        }
-        const height =
-          item?.["height"] ||
-          // @ts-ignore
-          item?.["play_addr"]?.["height"];
-        if (typeof height === "number") {
-          videoBitRateListItem["height"] = height;
-        }
-
-        // 添加
-        videoBitRateList.push(videoBitRateListItem);
-      });
-
-      // 去重
-      videoBitRateList = [...new Set(videoBitRateList)];
-    }
-
-    // 判断是否已关注该用户
-    const followStatus =
-      // @ts-ignore
-      awemeInfo?.["authorInfo"]?.["followStatus"] || awemeInfo?.["author"]?.["follow_status"];
-    isFollow = Boolean(followStatus);
 
     return {
       awemeId,
@@ -479,7 +848,10 @@ export class DouYinVideoFilterBase {
       suggestWord,
       musicAlbum,
       musicAuthor,
+      musicDuration,
       musicTitle,
+      musicUrl,
+      musicBackUrlList,
       authorAccountCertInfo,
       authorCustomVerify,
       authorEnterpriseVerifyReason,
@@ -632,11 +1004,13 @@ export class DouYinVideoFilterBase {
    * 检测视频是否可以屏蔽，可以屏蔽返回true
    * @param rules 规则
    * @param awemeInfo 视频信息结构
+   * @param from awemeInfo是否来自页面上的，否则就是来自网络的
    * @param isQueryAllMatchedFilterRules 是否获取所有命中的规则，默认false
    */
   async checkAwemeInfoIsFilter<T extends boolean = false>(
     rules: DouYinVideoFilterRule[],
-    awemeInfo: DouYinVideoAwemeInfo,
+    awemeInfo: DouYinVideoAwemeInfoWithDOM,
+    from: "dom" | "network",
     isQueryAllMatchedFilterRules?: T
   ): Promise<{
     /** 是否允许过滤 */
@@ -648,9 +1022,9 @@ export class DouYinVideoFilterBase {
     /** 解析出的视频信息 */
     transformAwemeInfo: DouYinVideoHandlerInfo;
     /** 原始视频信息 */
-    awemeInfo: DouYinVideoAwemeInfo;
+    awemeInfo: DouYinVideoAwemeInfoWithDOM;
   }> {
-    const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
+    const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo, from, false);
     let flag = false;
     let matchedFilterOption: DouYinVideoFilterRule | null = null;
     const matchedFilterOptionList: DouYinVideoFilterRule[] = [];
@@ -753,7 +1127,7 @@ export class DouYinVideoFilterBase {
    * @param rule 命中的规则
    * @param awemeInfo 视频信息结构
    */
-  async sendDislikeVideo(rule: DouYinVideoFilterRule, awemeInfo: DouYinVideoAwemeInfo) {
+  async sendDislikeVideo(rule: DouYinVideoFilterRule, awemeInfo: DouYinVideoAwemeInfoWithDOM) {
     // if (!matchedFilterOption) {
     // 	return;
     // }

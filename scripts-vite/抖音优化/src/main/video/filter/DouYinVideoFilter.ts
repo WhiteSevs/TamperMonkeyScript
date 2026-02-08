@@ -15,7 +15,7 @@ import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/sr
 import Utils from "@whitesev/utils";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 import Qmsg from "qmsg";
-import type { DouYinVideoAwemeInfo, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
 import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
 
 type DouYinVideoFilterRuleOptionScope =
@@ -86,7 +86,7 @@ export const DouYinVideoFilter = {
       string,
       {
         /** 网络接口的原始视频信息 */
-        awemeInfo: DouYinVideoAwemeInfo;
+        awemeInfo: DouYinVideoAwemeInfoWithDOM;
         /** 解析出的所需的信息 */
         transformAwemeInfo: DouYinVideoHandlerInfo;
       }
@@ -230,11 +230,11 @@ export const DouYinVideoFilter = {
             return;
           }
           const data = utils.toJSON(response.responseText);
-          const aweme_list = data["aweme_list"];
+          const aweme_list = data.aweme_list;
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
-              const awemeInfo: DouYinVideoAwemeInfo = aweme_list[index] || {};
-              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+              const awemeInfo: DouYinVideoAwemeInfoWithDOM = aweme_list[index] || {};
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
@@ -262,16 +262,16 @@ export const DouYinVideoFilter = {
             return;
           }
           const data = utils.toJSON(response.responseText);
-          const aweme_list = data["data"];
+          const aweme_list = data.data;
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
               const awemeItem = aweme_list[index];
-              const awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme"] || {};
+              const awemeInfo: DouYinVideoAwemeInfoWithDOM = awemeItem["aweme"] || {};
               // 如果cell_room不为空，这时候aweme是空的
               if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
                 (awemeInfo as any)["cell_room"] = awemeItem?.["cell_room"];
               }
-              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
@@ -303,8 +303,8 @@ export const DouYinVideoFilter = {
           if (Array.isArray(cards)) {
             for (let index = 0; index < cards.length; index++) {
               const awemeItem = cards[index];
-              const awemeInfo: DouYinVideoAwemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+              const awemeInfo: DouYinVideoAwemeInfoWithDOM = utils.toJSON(awemeItem?.["aweme"] || "{}");
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
@@ -336,15 +336,15 @@ export const DouYinVideoFilter = {
           if (Array.isArray(aweme_list)) {
             for (let index = 0; index < aweme_list.length; index++) {
               const awemeItem = aweme_list[index];
-              const awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme_info"] || {};
+              const awemeInfo: DouYinVideoAwemeInfoWithDOM = awemeItem["aweme_info"] || {};
               const awemeMixInfo = awemeItem?.["aweme_mix_info"];
               if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
                 // 对混合的信息进行过滤
                 const awemeMixInfoItems = awemeMixInfo?.["mix_items"];
                 if (Array.isArray(awemeMixInfoItems)) {
                   for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
-                    const mixItem: DouYinVideoAwemeInfo = awemeMixInfoItems[mixIndex];
-                    const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem);
+                    const mixItem: DouYinVideoAwemeInfoWithDOM = awemeMixInfoItems[mixIndex];
+                    const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
                     checkFilterCallBack(filterResult);
                     if (filterResult.isFilter) {
                       filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, mixItem);
@@ -358,7 +358,7 @@ export const DouYinVideoFilter = {
                   }
                 }
               } else {
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
@@ -389,9 +389,9 @@ export const DouYinVideoFilter = {
           }
           const data = utils.toJSON(response.responseText);
           // 单个记录
-          const awemeInfo: DouYinVideoAwemeInfo = data["aweme_detail"];
+          const awemeInfo: DouYinVideoAwemeInfoWithDOM = data["aweme_detail"];
           if (typeof awemeInfo === "object" && awemeInfo != null) {
-            const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo);
+            const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
             checkFilterCallBack(filterResult);
             if (filterResult.isFilter) {
               // 只记录，不移除
@@ -430,6 +430,9 @@ export const DouYinVideoFilter = {
           // 精选
           // 游戏、二次元、音乐、美食、知识、体育从左侧边栏迁移到了这里面
           xhr_hook_callback_3("xhr-module", request);
+        } else if (urlInst.pathname.startsWith("/aweme/v2/web/module/feed")) {
+          // 精选（2代接口）
+          xhr_hook_callback_1("xhr-module", request);
         } else if (
           // 搜索-综合
           urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
@@ -453,7 +456,7 @@ export const DouYinVideoFilter = {
     const filterBase = new DouYinVideoFilterBase();
 
     // 按钮的点击回调
-    const awemeInfoClickCallBack = async ($container: HTMLElement) => {
+    const onClick = async ($container: HTMLElement) => {
       const that = this;
       const reactFiber = utils.getReactInstance($container)?.reactFiber;
       const awemeInfo =
@@ -469,8 +472,8 @@ export const DouYinVideoFilter = {
         return;
       }
       let transformAwemeInfo: DouYinVideoHandlerInfo;
-      const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, false);
       log.info("DOM上的的awemeInfo：", awemeInfo);
+      const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
       log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
       if (
         typeof transformAwemeInfoWithPage.awemeId === "string" &&
@@ -501,7 +504,7 @@ export const DouYinVideoFilter = {
         targetFilterOption = targetFilterOption.concat(matchedFilterOption);
       } else {
         const filterRules = this.getFilterRules();
-        const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, true);
+        const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "dom", true);
         if (filterResult.matchedFilterRule.length) {
           isHasMatchedRules = true;
           targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
@@ -571,34 +574,33 @@ export const DouYinVideoFilter = {
      * 创建解析按钮
      */
     const createFilterParseButton = () => {
-      // @ts-ignore
       return DOMUtils.createElement("xg-icon", {
         className: "gm-video-filter-parse-btn",
         innerHTML: /*html*/ `
-						<div class="xgplayer-icon">
-							<span role="img" class="semi-icon semi-icon-default">
-								<svg
-									viewBox="0 0 32 32"
-									width="1em"
-									height="1em"
-									style="font-size: 32px"
-									xmlns="http://www.w3.org/2000/svg"
-									focusable="false"
-									fill="none">
-									<g>
-										<path
-											stroke="null"
-											fill="currentColor"
-											d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
-											clip-rule="evenodd"
-											fill-rule="evenodd" />
-									</g>
-								</svg>
-							</span>
-						</div>
-						<div class="xg-tips">解析信息</div>
+        <div class="xgplayer-icon">
+          <span role="img" class="semi-icon semi-icon-default">
+            <svg
+              viewBox="0 0 32 32"
+              width="1em"
+              height="1em"
+              style="font-size: 32px"
+              xmlns="http://www.w3.org/2000/svg"
+              focusable="false"
+              fill="none">
+              <g>
+                <path
+                  stroke="null"
+                  fill="currentColor"
+                  d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
+                  clip-rule="evenodd"
+                  fill-rule="evenodd" />
+              </g>
+            </svg>
+          </span>
+        </div>
+        <div class="xg-tips">解析信息</div>
 				`,
-      }) as HTMLElement;
+      });
     };
     const lockFn = new utils.LockFunction(() => {
       if (DouYinRouter.isLive()) {
@@ -611,7 +613,7 @@ export const DouYinVideoFilter = {
           DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
             DOMUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
-            await awemeInfoClickCallBack($basePlayerContainer);
+            await onClick($basePlayerContainer);
           });
           DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         }
@@ -630,7 +632,7 @@ export const DouYinVideoFilter = {
         DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
           DOMUtils.preventEvent(event);
           const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
-          await awemeInfoClickCallBack($liveContainer);
+          await onClick($liveContainer);
         });
         DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
       });
@@ -857,7 +859,10 @@ export const DouYinVideoFilter = {
               "suggestWord",
               "musicAlbum",
               "musicAuthor",
+              "musicDuration",
               "musicTitle",
+              "musicBackUrlList",
+              "musicUrl",
               "authorAccountCertInfo",
               "authorCustomVerify",
               "authorEnterpriseVerifyReason",

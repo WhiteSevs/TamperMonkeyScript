@@ -51,7 +51,10 @@
 | suggestWord                      | string   | 建议关键词                                     |                                      |
 | musicAlbum                       | string   | 视频的背景音乐专辑名                           |                                      |
 | musicAuthor                      | string   | 视频的背景音乐作者                             |                                      |
-| musicTitle                       | string   | 视频的背景音乐标题名称                         |                                      |
+| musicDuration                    | string   | 视频的背景音乐的播放时长                       |                                      |
+| musicTitle                       | string   | 视频的背景音乐标题名称                         | 例如：`@xxx创作的原声`               |
+| musicUrl                         | string   | 视频的背景音乐的播放地址                       |                                      |
+| musicBackUrlList                 | string[] | 视频的背景音乐的播放地址（备用）               |                                      |
 | authorAccountCertInfo            | string   | 作者的认证信息                                 | 例如：`剧情创作者、娱乐视频自媒体`   |
 | authorCustomVerify               | string   |                                                |                                      |
 | authorEnterpriseVerifyReason     | string   | 作者的企业认证信息                             | 例如：`腾讯视频动漫官方账号`         |
