@@ -66,7 +66,7 @@ Qmsg.config({
     } else {
       log.info(content);
     }
-    return true;
+    return false;
   },
   get position() {
     return Panel.getValue<QmsgPosition>(
