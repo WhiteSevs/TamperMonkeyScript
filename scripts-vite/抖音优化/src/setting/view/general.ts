@@ -188,9 +188,14 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
         },
         {
           type: "deepMenu",
-          text: "禁用抖音快捷键",
+          text: "禁用快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
+            {
+              type: "container",
+              text: "",
+              views: [UISwitch("启用", "hookKeyboard", true, void 0, "开启后全局的<code>禁用快捷键<code>才会生效")],
+            },
             {
               type: "container",
               text: AutoOpenOrClose.text,

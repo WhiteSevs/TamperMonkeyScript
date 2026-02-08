@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.8
+// @version      2026.2.9
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1929,7 +1929,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -2708,7 +2708,7 @@
     getInViewVideo() {
       const $videos = Array.from($$("video"))
         .map(($video) => {
-          if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
+          if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && $video.srcObject == null) return;
           return $video;
         })
         .filter((it) => it != null);
@@ -3106,8 +3106,8 @@
       hookElementAddEventListener: [],
     },
     init() {
-      Panel.onceExec("hookKeyboard", () => {
-        DouYinHook.disableShortCut();
+      Panel.execMenuOnce("hookKeyboard", () => {
+        DouYinHook.hookKeyboard();
       });
       Panel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
@@ -3155,7 +3155,7 @@
         );
       });
     },
-    disableShortCut() {
+    hookKeyboard() {
       const isDisableTriggerKeyboard = ($el) => {
         if ($el == null) return false;
         const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
@@ -3195,7 +3195,7 @@
             let keyboardConfigList = [
               {
                 enableKey: "dy-keyboard-hook-likeOrDislike",
-                code: ["KeyZ", "Space"],
+                code: ["KeyZ"],
                 callback(evt) {
                   if (evt.code !== "Space") return;
                   if (DouYinRouter.isChat()) return;
@@ -5084,6 +5084,8 @@
       if (from === "network") {
         const awemeInfoWithNetWork = awemeInfo;
         const authorInfo = awemeInfoWithNetWork?.author;
+        const statistics = awemeInfoWithNetWork?.statistics;
+        const video = awemeInfoWithNetWork?.video;
         nickname = String(authorInfo?.nickname ?? "");
         uid = String(authorInfo?.uid ?? "");
         desc = String(awemeInfoWithNetWork.desc ?? "");
@@ -5091,17 +5093,17 @@
         musicAuthor = awemeInfoWithNetWork?.music?.author;
         musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
         musicTitle = awemeInfoWithNetWork?.music?.title;
-        collectCount = awemeInfoWithNetWork.statistics.collect_count;
-        commentCount = awemeInfoWithNetWork.statistics.comment_count;
-        diggCount = awemeInfoWithNetWork.statistics.digg_count;
-        shareCount = awemeInfoWithNetWork.statistics.share_count;
-        duration = awemeInfoWithNetWork.video.duration;
+        collectCount = statistics?.collect_count ?? 0;
+        commentCount = statistics?.comment_count ?? 0;
+        diggCount = statistics?.digg_count ?? 0;
+        shareCount = statistics?.share_count ?? 0;
+        duration = video?.duration;
         awemeId = awemeInfoWithNetWork.aweme_id;
         authorCustomVerify = authorInfo?.custom_verify || "";
         authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
         isPicture = awemeInfoWithNetWork.aweme_type === 68;
         isFollow = Boolean(authorInfo?.follow_status);
-        if (Array.isArray(awemeInfoWithNetWork.text_extra)) {
+        if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
           awemeInfoWithNetWork.text_extra.forEach((item) => {
             const tagName = item?.hashtag_name;
             if (typeof tagName === "string" && tagName.trim() != "") {
@@ -5851,17 +5853,16 @@
                 }
               }
               if (flag) {
-                log.success(
-                  `视频过滤器-多组 ==> ${filterRule.name}`,
+                log.success(`视频过滤器-多组 ==> ${filterRule.name}`, {
+                  dynamicDetailsList,
                   transformAwemeInfo,
                   details,
-                  dynamicDetailsList,
                   awemeInfo,
-                  filterRule
-                );
+                  filterRule,
+                });
               }
             } else {
-              log.success(`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule);
+              log.success(`视频过滤器 ==> ${filterRule.name}`, { transformAwemeInfo, details, awemeInfo, filterRule });
             }
           }
           if (flag) {
@@ -6047,7 +6048,7 @@
         domUtils.onKeyboard(
           $target,
           "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
+          async (keyName, keyValue, ohterCodeList, event) => {
             if (that.#flag.isWaitPress) {
               return;
             }
@@ -6070,7 +6071,14 @@
             if (findShortcut) {
               if (findShortcut.key in option) {
                 log.info("调用快捷键", findShortcut);
-                option[findShortcut.key].callback();
+                if (typeof config?.beforeCallBack === "function") {
+                  const flag = await config.beforeCallBack();
+                  if (typeof flag === "boolean" && !flag) {
+                    return;
+                  }
+                }
+                const callback = option[findShortcut.key].callback;
+                await callback();
               }
             }
           },
@@ -6183,7 +6191,11 @@
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
       });
-      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      if (keyboardValue.keyName === " ") {
+        result += utils.stringTitleToUpperCase("space");
+      } else {
+        result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      }
       return result;
     }
     getShowText(key, defaultShowText) {
@@ -6199,8 +6211,8 @@
       }
     }
     async enterShortcutKeys(key) {
+      this.#flag.isWaitPress = true;
       return new Promise((resolve) => {
-        this.#flag.isWaitPress = true;
         const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
@@ -6247,8 +6259,9 @@
               option: currentOption,
             };
           } finally {
-            this.#flag.isWaitPress = false;
-            keyboardListener.removeListen();
+            if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+              this.#data.currentWaitEnterPressInstanceHandler();
+            }
             this.#data.currentWaitEnterPressInstanceHandler = null;
             resolve(result);
           }
@@ -6257,6 +6270,7 @@
         this.#data.currentWaitEnterPressInstanceHandler = () => {
           this.#flag.isWaitPress = false;
           keyboardListener.removeListen();
+          this.#data.currentWaitEnterPressInstanceHandler = null;
         };
       });
     }
@@ -6274,6 +6288,11 @@
     init() {
       this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
         capture: true,
+        beforeCallBack() {
+          if (DouYinRouter.isLive()) {
+            return;
+          }
+        },
       });
     },
     shorCutMapOption() {
@@ -7987,7 +8006,13 @@
       blockChatRoom: false,
     },
     init() {
-      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap(), {
+        beforeCallBack() {
+          if (!DouYinRouter.isLive()) {
+            return false;
+          }
+        },
+      });
     },
     getShortCutMap() {
       return {
@@ -8023,6 +8048,25 @@
               $video.muted = muted;
               log.success(`成功切换video标签的静音状态为 ${muted}`);
             });
+          },
+        },
+        "dy-live-shortcut-switchPlayState": {
+          callback() {
+            log.info(`触发快捷键 ==> 播放/暂停`);
+            const videosInViewVideoList = DouYinElement.getInViewVideo();
+            if (!videosInViewVideoList.length) {
+              Qmsg.error("未找到直播的video标签");
+              return;
+            }
+            const $liveVideo = videosInViewVideoList[0];
+            const isPaused = $liveVideo.$el.paused;
+            if (isPaused) {
+              $liveVideo.$el.play();
+              log.info(`当前为暂停，切换至播放`);
+            } else {
+              $liveVideo.$el.pause();
+              log.info(`当前为播放，切换至暂停`);
+            }
           },
         },
       };
@@ -9143,13 +9187,17 @@
     defaultValue,
     defaultButtonText,
     buttonType = "default",
-    shortCut
+    shortCut,
+    afterEnterShortCutCallBack
   ) {
     const __defaultButtonText = defaultButtonText;
     const getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
     const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      if (event instanceof PointerEvent && event.x === 0 && event.y === 0) {
+        return;
+      }
       const $click = event.target;
       const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
       if (shortCut.isWaitKeyboardPress()) {
@@ -9160,14 +9208,14 @@
         shortCut.emptyOption(key);
         Qmsg.success("清空快捷键");
       } else {
-        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
+        const $loading = Qmsg.loading("请按下快捷键...", {
           showClose: true,
           onClose() {
             shortCut.cancelEnterShortcutKeys();
           },
         });
         const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
-        loadingQmsg.close();
+        $loading.close();
         if (status) {
           log.success("录入快捷键", option);
           Qmsg.success("录入成功");
@@ -12547,9 +12595,14 @@
           },
           {
             type: "deepMenu",
-            text: "禁用抖音快捷键",
+            text: "禁用快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
+              {
+                type: "container",
+                text: "",
+                views: [UISwitch("启用", "hookKeyboard", true, void 0, "开启后全局的<code>禁用快捷键<code>才会生效")],
+              },
               {
                 type: "container",
                 text: AutoOpenOrClose.text,
@@ -13171,7 +13224,7 @@
           },
           {
             type: "deepMenu",
-            text: "禁用抖音快捷键",
+            text: "禁用快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
               {
@@ -13789,13 +13842,22 @@
                     void 0,
                     DouYinLiveShortCut.shortCut
                   ),
+                  UIButtonShortCut(
+                    "切换播放状态",
+                    "可快捷进行<code>播放</code>/<code>暂停</code>",
+                    "dy-live-shortcut-switchPlayState",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
                 ],
               },
             ],
           },
           {
             type: "deepMenu",
-            text: "禁用抖音快捷键",
+            text: "禁用快捷键",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
               {

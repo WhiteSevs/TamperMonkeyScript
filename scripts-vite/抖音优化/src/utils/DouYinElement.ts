@@ -126,12 +126,15 @@ export const DouYinElement = {
   },
   /**
    * 获取当前在视图内的video元素
+   *
+   * 视图内占据范围最大的排在最前面
    */
   getInViewVideo() {
     const $videos = Array.from($$<HTMLVideoElement>("video"))
       .map(($video) => {
         // 忽略没有媒体资源的video标签
-        if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && utils.isNull($video.srcObject)) return;
+        // src、currentSrc、srcObject都为空才排除掉
+        if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && $video.srcObject == null) return;
         return $video;
       })
       .filter((it) => it != null);

@@ -1,14 +1,14 @@
 import { DOMUtils, log, utils } from "@/env";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
-import { Panel } from "@components/setting/panel";
-import { UISelect } from "@components/setting/components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
+import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
+import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
+import { UIOwn } from "@components/setting/components/ui-own";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { AutoOpenOrClose } from "../all-open-or-close";
-import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
-import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
-import { UIOwn } from "@components/setting/components/ui-own";
 
 export const PanelLiveConfig: PopsPanelContentConfig = {
   id: "panel-config-live",
@@ -169,13 +169,22 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   void 0,
                   DouYinLiveShortCut.shortCut
                 ),
+                UIButtonShortCut(
+                  "切换播放状态",
+                  "可快捷进行<code>播放</code>/<code>暂停</code>",
+                  "dy-live-shortcut-switchPlayState",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinLiveShortCut.shortCut
+                ),
               ],
             },
           ],
         },
         {
           type: "deepMenu",
-          text: "禁用抖音快捷键",
+          text: "禁用快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
             {

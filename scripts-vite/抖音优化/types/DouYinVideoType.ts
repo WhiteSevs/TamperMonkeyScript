@@ -572,7 +572,7 @@ export type DouYinVideoAwemeInfoWithNetWork = {
   /** 视频描述 */
   desc: string;
   /** 产品信息（付费视频） */
-  entertainment_product_info?: {
+  entertainment_product_info?: null | {
     sub_title?: string | null;
     market_info: {
       limit_free: {
@@ -616,6 +616,7 @@ export type DouYinVideoAwemeInfoWithNetWork = {
    * 图片
    */
   images:
+    | null
     | {
         width: number;
         height: number;
@@ -628,8 +629,7 @@ export type DouYinVideoAwemeInfoWithNetWork = {
         download_url_list: string[];
         /** 实况图才会有的实况视频 */
         video?: DouYinVideoAwemeInfoWithNetWork["video"];
-      }[]
-    | null;
+      }[];
   /** 是否是广告 */
   is_ads: boolean;
   /**
@@ -663,14 +663,14 @@ export type DouYinVideoAwemeInfoWithNetWork = {
     }[];
   };
   /** 分享信息 */
-  share_info: {
+  share_info: null | {
     /** 视频分享链接的描述 */
     share_link_desc: string;
     /** 视频分享链接 */
     share_url: string;
   };
   /** 作品状态 */
-  statistics: {
+  statistics: null | {
     /** 评论数量 */
     comment_count: number;
     /** 点赞数量 */
@@ -681,7 +681,7 @@ export type DouYinVideoAwemeInfoWithNetWork = {
     /** 收藏数量 */
     collect_count: number;
   };
-  suggest_words: {
+  suggest_words?: {
     suggest_words: {
       scene: string;
       words: {
@@ -694,13 +694,15 @@ export type DouYinVideoAwemeInfoWithNetWork = {
     }[];
   };
   /**话题 */
-  text_extra: {
-    start: number;
-    end: number;
-    type: number;
-    hashtag_name?: string;
-  }[];
-  video: {
+  text_extra?:
+    | null
+    | {
+        start: number;
+        end: number;
+        type: number;
+        hashtag_name?: string;
+      }[];
+  video?: null | {
     /** 视频宽度 */
     width: number;
     /** 视频高度 */
@@ -757,11 +759,13 @@ export type DouYinVideoAwemeInfoWithNetWork = {
     };
   };
   /** 视频标签 */
-  video_tag: {
-    level: number;
-    tag_id: number;
-    tag_name: string;
-  }[];
+  video_tag:
+    | null
+    | {
+        level: number;
+        tag_id: number;
+        tag_name: string;
+      }[];
   /**
    * 需转换为JSON
    *

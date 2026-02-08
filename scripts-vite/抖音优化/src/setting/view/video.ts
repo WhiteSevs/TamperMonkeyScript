@@ -427,7 +427,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
         },
         {
           type: "deepMenu",
-          text: "禁用抖音快捷键",
+          text: "禁用快捷键",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
             {

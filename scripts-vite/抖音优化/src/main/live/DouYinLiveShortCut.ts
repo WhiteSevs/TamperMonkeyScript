@@ -1,6 +1,9 @@
 import { $$, log } from "@/env";
 import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import { Panel } from "@components/setting/panel";
+import { DouYinElement } from "@/utils/DouYinElement";
+import Qmsg from "qmsg";
+import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinLiveShortCut = {
   shortCut: new ShortCut("live-short-cut"),
@@ -8,7 +11,14 @@ export const DouYinLiveShortCut = {
     blockChatRoom: false,
   },
   init() {
-    this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+    this.shortCut.initGlobalKeyboardListener(this.getShortCutMap(), {
+      beforeCallBack() {
+        if (!DouYinRouter.isLive()) {
+          // 仅允许在直播页面下生效
+          return false;
+        }
+      },
+    });
   },
   getShortCutMap(): ShortCutOption {
     return {
@@ -44,6 +54,25 @@ export const DouYinLiveShortCut = {
             $video.muted = muted;
             log.success(`成功切换video标签的静音状态为 ${muted}`);
           });
+        },
+      },
+      "dy-live-shortcut-switchPlayState": {
+        callback() {
+          log.info(`触发快捷键 ==> 播放/暂停`);
+          const videosInViewVideoList = DouYinElement.getInViewVideo();
+          if (!videosInViewVideoList.length) {
+            Qmsg.error("未找到直播的video标签");
+            return;
+          }
+          const $liveVideo = videosInViewVideoList[0];
+          const isPaused = $liveVideo.$el.paused;
+          if (isPaused) {
+            $liveVideo.$el.play();
+            log.info(`当前为暂停，切换至播放`);
+          } else {
+            $liveVideo.$el.pause();
+            log.info(`当前为播放，切换至暂停`);
+          }
         },
       },
     };

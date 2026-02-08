@@ -18,8 +18,8 @@ export const DouYinHook = {
     >[],
   },
   init() {
-    Panel.onceExec("hookKeyboard", () => {
-      DouYinHook.disableShortCut();
+    Panel.execMenuOnce("hookKeyboard", () => {
+      DouYinHook.hookKeyboard();
     });
     Panel.execMenu("dy-cookie-remove__ac__", () => {
       this.removeCookie();
@@ -79,9 +79,9 @@ export const DouYinHook = {
     });
   },
   /**
-   * 禁用快捷键
+   * 劫持按键监听
    */
-  disableShortCut() {
+  hookKeyboard() {
     type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
     /**
      * 是否禁止触发快捷键
@@ -136,9 +136,11 @@ export const DouYinHook = {
             callback?: (event: { code: string; otherCodeList: KeyboardOtherCodeName[] }) => void;
           }[] = [
             {
+              // 取消赞|空格
               enableKey: "dy-keyboard-hook-likeOrDislike",
-              code: ["KeyZ", "Space"],
+              code: ["KeyZ"],
               callback(evt) {
+                // 必须是空格时才执行下面的
                 if (evt.code !== "Space") return;
                 if (DouYinRouter.isChat()) return;
                 utils.workerClearTimeout(timeId);

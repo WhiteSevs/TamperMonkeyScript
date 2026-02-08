@@ -129,6 +129,8 @@ export class DouYinVideoFilterBase {
       // 从网络上获取的（主要）
       const awemeInfoWithNetWork = awemeInfo as DouYinVideoAwemeInfoWithNetWork;
       const authorInfo = awemeInfoWithNetWork?.author;
+      const statistics = awemeInfoWithNetWork?.statistics;
+      const video = awemeInfoWithNetWork?.video;
       nickname = String(authorInfo?.nickname ?? "");
       uid = String(authorInfo?.uid ?? "");
       desc = String(awemeInfoWithNetWork.desc ?? "");
@@ -136,11 +138,11 @@ export class DouYinVideoFilterBase {
       musicAuthor = awemeInfoWithNetWork?.music?.author;
       musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
       musicTitle = awemeInfoWithNetWork?.music?.title;
-      collectCount = awemeInfoWithNetWork.statistics.collect_count;
-      commentCount = awemeInfoWithNetWork.statistics.comment_count;
-      diggCount = awemeInfoWithNetWork.statistics.digg_count;
-      shareCount = awemeInfoWithNetWork.statistics.share_count;
-      duration = awemeInfoWithNetWork.video.duration;
+      collectCount = statistics?.collect_count ?? 0;
+      commentCount = statistics?.comment_count ?? 0;
+      diggCount = statistics?.digg_count ?? 0;
+      shareCount = statistics?.share_count ?? 0;
+      duration = video?.duration;
       awemeId = awemeInfoWithNetWork.aweme_id;
       authorCustomVerify = authorInfo?.custom_verify || "";
       authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
@@ -148,7 +150,7 @@ export class DouYinVideoFilterBase {
       isFollow = Boolean(authorInfo?.follow_status);
 
       // 文案标签
-      if (Array.isArray(awemeInfoWithNetWork.text_extra)) {
+      if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
         awemeInfoWithNetWork.text_extra.forEach((item) => {
           const tagName = item?.hashtag_name;
           if (typeof tagName === "string" && tagName.trim() != "") {
@@ -310,7 +312,7 @@ export class DouYinVideoFilterBase {
        * 解析bitRateList
        */
       const parseVideoBitRateList = (
-        bitRateList: DouYinVideoAwemeInfoWithNetWork["video"]["bit_rate"],
+        bitRateList: NonNullable<DouYinVideoAwemeInfoWithNetWork["video"]>["bit_rate"],
         cover: string
       ) => {
         let data: DouYinVideoHandlerInfo["videoBitRateList"] = [];
@@ -1082,17 +1084,16 @@ export class DouYinVideoFilterBase {
               }
             }
             if (flag) {
-              log.success(
-                `视频过滤器-多组 ==> ${filterRule.name}`,
+              log.success(`视频过滤器-多组 ==> ${filterRule.name}`, {
+                dynamicDetailsList,
                 transformAwemeInfo,
                 details,
-                dynamicDetailsList,
                 awemeInfo,
-                filterRule
-              );
+                filterRule,
+              });
             }
           } else {
-            log.success(`视频过滤器 ==> ${filterRule.name}`, transformAwemeInfo, details, awemeInfo, filterRule);
+            log.success(`视频过滤器 ==> ${filterRule.name}`, { transformAwemeInfo, details, awemeInfo, filterRule });
           }
         }
         if (flag) {

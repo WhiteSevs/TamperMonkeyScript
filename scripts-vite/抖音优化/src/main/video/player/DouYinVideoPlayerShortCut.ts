@@ -1,10 +1,11 @@
-import { unsafeWindow } from "ViteGM";
-import { $$, DOMUtils, log, utils } from "@/env";
-import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
-import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
-import { Panel } from "@components/setting/panel";
-import Qmsg from "qmsg";
+import { $$, log, utils } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElement } from "@/utils/DouYinElement";
+import { Panel } from "@components/setting/panel";
+import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
+import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
+import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
 
 export const DouYinVideoPlayerShortCut = {
   shortCut: new ShortCut("video-short-cut"),
@@ -14,6 +15,12 @@ export const DouYinVideoPlayerShortCut = {
   init() {
     this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
       capture: true,
+      beforeCallBack() {
+        if (DouYinRouter.isLive()) {
+          // 不允许在直播下执行
+          return;
+        }
+      },
     });
   },
   /**
