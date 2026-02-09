@@ -125,38 +125,54 @@ class CommonUtil {
   isNull(...args: any[]): boolean {
     let result = true;
     const checkList = [...args];
-    for (const objItem of checkList) {
-      let itemResult = false;
-      if (objItem === null || objItem === undefined) {
-        itemResult = true;
+    for (const obj of checkList) {
+      let flag = false;
+      if (obj === null || obj === undefined) {
+        // null undefined
+        flag = true;
       } else {
-        switch (typeof objItem) {
+        switch (typeof obj) {
           case "object":
-            if (typeof objItem[Symbol.iterator] === "function") {
-              /* 可迭代 */
-              itemResult = objItem.length === 0;
+            if (typeof obj[Symbol.iterator] === "function") {
+              // 可迭代
+              // Map Array NodeList HTMLCollection
+              if (obj instanceof Map) {
+                flag = obj.size === 0;
+              } else {
+                const length = obj.length;
+                if (typeof length === "number") {
+                  flag = length === 0;
+                } else {
+                  // 其它的不处理
+                }
+              }
             } else {
-              itemResult = Object.keys(objItem).length === 0;
+              if (obj?.toString() === "[object Object]") {
+                // {}
+                flag = Object.keys(obj).length === 0;
+              }
             }
             break;
           case "number":
-            itemResult = objItem === 0;
+            flag = isNaN(obj) ? true : obj === 0;
             break;
-          case "string":
-            itemResult = objItem.trim() === "" || objItem === "null" || objItem === "undefined";
+          case "string": {
+            const trimStr = obj.trim();
+            flag = trimStr.trim() === "" || trimStr === "null" || trimStr === "undefined";
             break;
+          }
           case "boolean":
-            itemResult = !objItem;
+            flag = !obj;
             break;
           case "function": {
-            const funcStr = objItem.toString().replace(/\s/g, "");
+            const funcStr = obj.toString().replace(/\s/g, "");
             /* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){} */
-            itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
+            flag = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
             break;
           }
         }
       }
-      result = result && itemResult;
+      result = result && flag;
     }
 
     return result;
