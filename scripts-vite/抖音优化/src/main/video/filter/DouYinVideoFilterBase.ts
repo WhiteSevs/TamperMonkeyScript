@@ -149,31 +149,45 @@ export class DouYinVideoFilterBase {
       isPicture = awemeInfoWithNetWork.aweme_type === 68;
       isFollow = Boolean(authorInfo?.follow_status);
 
-      // 文案标签
-      if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
-        awemeInfoWithNetWork.text_extra.forEach((item) => {
-          const tagName = item?.hashtag_name;
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            textExtra.push(tagName);
+      // 判断是否是广告
+      isAds = [
+        () => {
+          if (awemeInfoWithNetWork.is_ads) {
+            showLog && log.success("广告: is_ads is true");
+            return true;
           }
-        });
-      }
-      // 视频标签
-      if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
-        awemeInfoWithNetWork.video_tag.forEach((item) => {
-          const tagName = item?.tag_name;
-          const tagId = item?.tag_id;
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            videoTag.push(tagName);
+        },
+        () => {
+          if (
+            typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
+            utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
+          ) {
+            showLog && log.success("广告: raw_ad_data is not null");
+            return true;
           }
-          if (typeof tagId === "number" || typeof tagId === "string") {
-            const tagTdStr = tagId.toString();
-            if (tagTdStr.trim() != "" && tagTdStr != "0") {
-              videoTagId.push(tagTdStr);
+        },
+        () => {
+          if (typeof awemeInfoWithNetWork?.web_raw_data === "string") {
+            const web_raw_data = utils.toJSON<{
+              brand_ad: string;
+              recommend_score: {
+                is_ad: number;
+              };
+            }>(awemeInfoWithNetWork?.web_raw_data);
+            if (typeof web_raw_data?.brand_ad === "string") {
+              const brand_ad = utils.toJSON<{
+                is_ad: number;
+              }>(web_raw_data.brand_ad);
+              const is_ad = brand_ad?.is_ad;
+              if (is_ad) {
+                showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                return true;
+              }
             }
           }
-        });
-      }
+        },
+      ].some((it) => it());
+
       // 直播间
       if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
         isLive = true;
@@ -233,44 +247,33 @@ export class DouYinVideoFilterBase {
           }
         }
       }
-      // 判断是否是广告
-      isAds = [
-        () => {
-          if (awemeInfoWithNetWork.is_ads) {
-            showLog && log.success("广告: is_ads is true");
-            return true;
+
+      // 文案标签
+      if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
+        awemeInfoWithNetWork.text_extra.forEach((item) => {
+          const tagName = item?.hashtag_name;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            textExtra.push(tagName);
           }
-        },
-        () => {
-          if (
-            typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
-            utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
-          ) {
-            showLog && log.success("广告: raw_ad_data is not null");
-            return true;
+        });
+      }
+
+      // 视频标签
+      if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
+        awemeInfoWithNetWork.video_tag.forEach((item) => {
+          const tagName = item?.tag_name;
+          const tagId = item?.tag_id;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            videoTag.push(tagName);
           }
-        },
-        () => {
-          if (typeof awemeInfoWithNetWork?.web_raw_data === "string") {
-            const web_raw_data = utils.toJSON<{
-              brand_ad: string;
-              recommend_score: {
-                is_ad: number;
-              };
-            }>(awemeInfoWithNetWork?.web_raw_data);
-            if (typeof web_raw_data?.brand_ad === "string") {
-              const brand_ad = utils.toJSON<{
-                is_ad: number;
-              }>(web_raw_data.brand_ad);
-              const is_ad = brand_ad?.is_ad;
-              if (is_ad) {
-                showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
-                return true;
-              }
+          if (typeof tagId === "number" || typeof tagId === "string") {
+            const tagTdStr = tagId.toString();
+            if (tagTdStr.trim() != "" && tagTdStr != "0") {
+              videoTagId.push(tagTdStr);
             }
           }
-        },
-      ].some((it) => it());
+        });
+      }
 
       // 如果风险提示内容是空的，赋值为undefined
       const risk_infos = awemeInfoWithNetWork?.risk_infos;
@@ -284,7 +287,7 @@ export class DouYinVideoFilterBase {
       }
 
       /** 短剧信息 */
-      let series_info = awemeInfoWithNetWork?.series_info;
+      const series_info = awemeInfoWithNetWork?.series_info;
       if (typeof series_info === "object" && series_info != null) {
         if (typeof series_info?.series_name === "string") {
           seriesInfoName = series_info?.series_name;
@@ -302,7 +305,7 @@ export class DouYinVideoFilterBase {
       }
 
       /** 混合信息 */
-      let mixInfo = awemeInfoWithNetWork?.mix_info;
+      const mixInfo = awemeInfoWithNetWork?.mix_info;
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
         mixInfoName = mixInfo?.mix_name;
         mixInfoDesc = mixInfo?.desc;
@@ -439,7 +442,7 @@ export class DouYinVideoFilterBase {
         }
       }
 
-      let suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
+      const suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
       if (Array.isArray(suggestWords)) {
         suggestWords.forEach((item) => {
           let words = item?.words;
@@ -456,9 +459,9 @@ export class DouYinVideoFilterBase {
       // 去重
       suggestWord = [...new Set(suggestWord)];
 
-      let authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
+      const authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
       if (typeof authorAccountCertInfoInsStr === "string") {
-        let authorAccountCertInfoJSON = utils.toJSON<{
+        const authorAccountCertInfoJSON = utils.toJSON<{
           label_text: string;
           label_style: number;
           is_biz_account: number;
@@ -533,31 +536,34 @@ export class DouYinVideoFilterBase {
       isPicture = awemeInfoWithDOM.awemeType === 68;
       isFollow = Boolean(authorInfo?.followStatus);
 
-      // 文案标签
-      if (Array.isArray(awemeInfoWithDOM.textExtra)) {
-        awemeInfoWithDOM.textExtra.forEach((item) => {
-          const tagName = item?.hashtagName;
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            textExtra.push(tagName);
+      // 判断是否是广告
+      isAds = [
+        () => {
+          if (awemeInfoWithDOM.isAds) {
+            showLog && log.success("广告: isAds is true");
+            return true;
           }
-        });
-      }
-      // 视频标签
-      if (Array.isArray(awemeInfoWithDOM.videoTag)) {
-        awemeInfoWithDOM.videoTag.forEach((item) => {
-          const tagName = item?.tagName;
-          const tagId = item?.tagId;
-          if (typeof tagName === "string" && tagName.trim() != "") {
-            videoTag.push(tagName);
+        },
+        () => {
+          if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
+            showLog && log.success("广告: rawAdData is not null");
+            return true;
           }
-          if (typeof tagId === "number" || typeof tagId === "string") {
-            const tagTdStr = tagId.toString();
-            if (tagTdStr.trim() != "" && tagTdStr != "0") {
-              videoTagId.push(tagTdStr);
+        },
+        () => {
+          if (awemeInfoWithDOM?.webRawData) {
+            if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
+              showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+              return true;
+            }
+            if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
+              showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
+              return true;
             }
           }
-        });
-      }
+        },
+      ].some((it) => it());
+
       // 直播间
       if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
         isLive = true;
@@ -587,33 +593,33 @@ export class DouYinVideoFilterBase {
           }
         }
       }
-      // 判断是否是广告
-      isAds = [
-        () => {
-          if (awemeInfoWithDOM.isAds) {
-            showLog && log.success("广告: isAds is true");
-            return true;
+
+      // 文案标签
+      if (Array.isArray(awemeInfoWithDOM.textExtra)) {
+        awemeInfoWithDOM.textExtra.forEach((item) => {
+          const tagName = item?.hashtagName;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            textExtra.push(tagName);
           }
-        },
-        () => {
-          if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
-            showLog && log.success("广告: rawAdData is not null");
-            return true;
+        });
+      }
+
+      // 视频标签
+      if (Array.isArray(awemeInfoWithDOM.videoTag)) {
+        awemeInfoWithDOM.videoTag.forEach((item) => {
+          const tagName = item?.tagName;
+          const tagId = item?.tagId;
+          if (typeof tagName === "string" && tagName.trim() != "") {
+            videoTag.push(tagName);
           }
-        },
-        () => {
-          if (awemeInfoWithDOM?.webRawData) {
-            if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
-              showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
-              return true;
+          if (typeof tagId === "number" || typeof tagId === "string") {
+            const tagTdStr = tagId.toString();
+            if (tagTdStr.trim() != "" && tagTdStr != "0") {
+              videoTagId.push(tagTdStr);
             }
-            if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
-              showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
-              return true;
-            }
           }
-        },
-      ].some((it) => it());
+        });
+      }
 
       // 如果风险提示内容是空的，赋值为undefined
       const riskInfos = awemeInfoWithDOM?.riskInfos;

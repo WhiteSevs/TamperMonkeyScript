@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.9
+// @version      2026.2.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -5103,59 +5103,6 @@
         authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
         isPicture = awemeInfoWithNetWork.aweme_type === 68;
         isFollow = Boolean(authorInfo?.follow_status);
-        if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
-          awemeInfoWithNetWork.text_extra.forEach((item) => {
-            const tagName = item?.hashtag_name;
-            if (typeof tagName === "string" && tagName.trim() != "") {
-              textExtra.push(tagName);
-            }
-          });
-        }
-        if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
-          awemeInfoWithNetWork.video_tag.forEach((item) => {
-            const tagName = item?.tag_name;
-            const tagId = item?.tag_id;
-            if (typeof tagName === "string" && tagName.trim() != "") {
-              videoTag.push(tagName);
-            }
-            if (typeof tagId === "number" || typeof tagId === "string") {
-              const tagTdStr = tagId.toString();
-              if (tagTdStr.trim() != "" && tagTdStr != "0") {
-                videoTagId.push(tagTdStr);
-              }
-            }
-          });
-        }
-        if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
-          isLive = true;
-          showLog && log.success("直播间: cell_room is not null");
-          let rawdata;
-          if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
-            rawdata = utils.toJSON(awemeInfoWithNetWork.cell_room.rawdata);
-          }
-          if (typeof rawdata == "object" && rawdata != null) {
-            liveStreamRoomId = rawdata?.owner?.web_rid;
-            liveStreamRoomTitle = rawdata?.title;
-            liveStreamNickName = rawdata?.owner?.nickname;
-            liveStreamRoomUserCount = rawdata?.user_count;
-            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
-            if (typeof liveStreamRoomId !== "string") {
-              liveStreamRoomId = void 0;
-            }
-            if (typeof liveStreamRoomTitle !== "string") {
-              liveStreamRoomTitle = void 0;
-            }
-            if (typeof liveStreamNickName !== "string") {
-              liveStreamNickName = void 0;
-            }
-            if (typeof liveStreamRoomUserCount !== "number") {
-              liveStreamRoomUserCount = void 0;
-            }
-            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-              liveStreamRoomDynamicSpliceLabel = void 0;
-            }
-          }
-        }
         isAds = [
           () => {
             if (awemeInfoWithNetWork.is_ads) {
@@ -5186,6 +5133,59 @@
             }
           },
         ].some((it) => it());
+        if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
+          isLive = true;
+          showLog && log.success("直播间: cell_room is not null");
+          let rawdata;
+          if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
+            rawdata = utils.toJSON(awemeInfoWithNetWork.cell_room.rawdata);
+          }
+          if (typeof rawdata == "object" && rawdata != null) {
+            liveStreamRoomId = rawdata?.owner?.web_rid;
+            liveStreamRoomTitle = rawdata?.title;
+            liveStreamNickName = rawdata?.owner?.nickname;
+            liveStreamRoomUserCount = rawdata?.user_count;
+            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+            if (typeof liveStreamRoomId !== "string") {
+              liveStreamRoomId = void 0;
+            }
+            if (typeof liveStreamRoomTitle !== "string") {
+              liveStreamRoomTitle = void 0;
+            }
+            if (typeof liveStreamNickName !== "string") {
+              liveStreamNickName = void 0;
+            }
+            if (typeof liveStreamRoomUserCount !== "number") {
+              liveStreamRoomUserCount = void 0;
+            }
+            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
+              liveStreamRoomDynamicSpliceLabel = void 0;
+            }
+          }
+        }
+        if (Array.isArray(awemeInfoWithNetWork?.text_extra)) {
+          awemeInfoWithNetWork.text_extra.forEach((item) => {
+            const tagName = item?.hashtag_name;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              textExtra.push(tagName);
+            }
+          });
+        }
+        if (Array.isArray(awemeInfoWithNetWork.video_tag)) {
+          awemeInfoWithNetWork.video_tag.forEach((item) => {
+            const tagName = item?.tag_name;
+            const tagId = item?.tag_id;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              videoTag.push(tagName);
+            }
+            if (typeof tagId === "number" || typeof tagId === "string") {
+              const tagTdStr = tagId.toString();
+              if (tagTdStr.trim() != "" && tagTdStr != "0") {
+                videoTagId.push(tagTdStr);
+              }
+            }
+          });
+        }
         const risk_infos = awemeInfoWithNetWork?.risk_infos;
         if (
           (typeof risk_infos?.content === "string" && risk_infos?.content.trim() === "") ||
@@ -5195,7 +5195,7 @@
         } else {
           riskInfoContent = risk_infos?.content;
         }
-        let series_info = awemeInfoWithNetWork?.series_info;
+        const series_info = awemeInfoWithNetWork?.series_info;
         if (typeof series_info === "object" && series_info != null) {
           if (typeof series_info?.series_name === "string") {
             seriesInfoName = series_info?.series_name;
@@ -5211,7 +5211,7 @@
             isSeriesInfo = true;
           }
         }
-        let mixInfo = awemeInfoWithNetWork?.mix_info;
+        const mixInfo = awemeInfoWithNetWork?.mix_info;
         if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
           mixInfoName = mixInfo?.mix_name;
           mixInfoDesc = mixInfo?.desc;
@@ -5324,7 +5324,7 @@
             });
           }
         }
-        let suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
+        const suggestWords = awemeInfoWithNetWork?.["suggest_words"]?.suggest_words;
         if (Array.isArray(suggestWords)) {
           suggestWords.forEach((item) => {
             let words = item?.words;
@@ -5339,9 +5339,9 @@
           });
         }
         suggestWord = [...new Set(suggestWord)];
-        let authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
+        const authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
         if (typeof authorAccountCertInfoInsStr === "string") {
-          let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
+          const authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
           if (typeof authorAccountCertInfoJSON.label_text === "string") {
             authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
           }
@@ -5402,29 +5402,32 @@
         authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
         isPicture = awemeInfoWithDOM.awemeType === 68;
         isFollow = Boolean(authorInfo?.followStatus);
-        if (Array.isArray(awemeInfoWithDOM.textExtra)) {
-          awemeInfoWithDOM.textExtra.forEach((item) => {
-            const tagName = item?.hashtagName;
-            if (typeof tagName === "string" && tagName.trim() != "") {
-              textExtra.push(tagName);
+        isAds = [
+          () => {
+            if (awemeInfoWithDOM.isAds) {
+              showLog && log.success("广告: isAds is true");
+              return true;
             }
-          });
-        }
-        if (Array.isArray(awemeInfoWithDOM.videoTag)) {
-          awemeInfoWithDOM.videoTag.forEach((item) => {
-            const tagName = item?.tagName;
-            const tagId = item?.tagId;
-            if (typeof tagName === "string" && tagName.trim() != "") {
-              videoTag.push(tagName);
+          },
+          () => {
+            if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
+              showLog && log.success("广告: rawAdData is not null");
+              return true;
             }
-            if (typeof tagId === "number" || typeof tagId === "string") {
-              const tagTdStr = tagId.toString();
-              if (tagTdStr.trim() != "" && tagTdStr != "0") {
-                videoTagId.push(tagTdStr);
+          },
+          () => {
+            if (awemeInfoWithDOM?.webRawData) {
+              if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
+                showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+                return true;
+              }
+              if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
+                showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
+                return true;
               }
             }
-          });
-        }
+          },
+        ].some((it) => it());
         if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
           isLive = true;
           showLog && log.success("直播间: cellRoom is not null");
@@ -5452,32 +5455,29 @@
             }
           }
         }
-        isAds = [
-          () => {
-            if (awemeInfoWithDOM.isAds) {
-              showLog && log.success("广告: isAds is true");
-              return true;
+        if (Array.isArray(awemeInfoWithDOM.textExtra)) {
+          awemeInfoWithDOM.textExtra.forEach((item) => {
+            const tagName = item?.hashtagName;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              textExtra.push(tagName);
             }
-          },
-          () => {
-            if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
-              showLog && log.success("广告: rawAdData is not null");
-              return true;
+          });
+        }
+        if (Array.isArray(awemeInfoWithDOM.videoTag)) {
+          awemeInfoWithDOM.videoTag.forEach((item) => {
+            const tagName = item?.tagName;
+            const tagId = item?.tagId;
+            if (typeof tagName === "string" && tagName.trim() != "") {
+              videoTag.push(tagName);
             }
-          },
-          () => {
-            if (awemeInfoWithDOM?.webRawData) {
-              if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
-                showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
-                return true;
-              }
-              if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
-                showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
-                return true;
+            if (typeof tagId === "number" || typeof tagId === "string") {
+              const tagTdStr = tagId.toString();
+              if (tagTdStr.trim() != "" && tagTdStr != "0") {
+                videoTagId.push(tagTdStr);
               }
             }
-          },
-        ].some((it) => it());
+          });
+        }
         const riskInfos = awemeInfoWithDOM?.riskInfos;
         if (
           (typeof riskInfos?.content === "string" && riskInfos?.content.trim() === "") ||
