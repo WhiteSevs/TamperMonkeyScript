@@ -27,7 +27,7 @@
     "@whitesev/data-paging": "^0.0.4",
     "@whitesev/domutils": "^1.9.2",
     "@whitesev/pops": "^3.2.1",
-    "@whitesev/utils": "^2.9.11",
+    "@whitesev/utils": "^2.9.12",
     "artplayer": "^5.3.0",
     "artplayer-plugin-danmuku": "^5.2.0",
     "crypto-js": "^4.2.0",
