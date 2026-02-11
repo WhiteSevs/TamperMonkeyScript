@@ -2,7 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { ReactUtils } from "@components/utils/ReactUtils";
 
-export const DouYinDanmaku = {
+export const DouYinLiveDanmaku = {
   init() {
     Panel.execMenu("dy-live-danmaku-block-gift", () => {
       return this.blockGift();

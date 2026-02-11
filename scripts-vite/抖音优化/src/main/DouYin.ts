@@ -24,7 +24,8 @@ import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
 
 export const DouYin = {
   init() {
-    if (DouYinRouter.isCreator()) {
+    if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
+      // 当前仅主站和直播页面支持
       return;
     }
     Panel.onceExec("dy-global-block-css", () => {

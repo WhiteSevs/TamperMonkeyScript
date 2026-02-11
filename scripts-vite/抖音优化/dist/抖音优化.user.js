@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.10
+// @version      2026.2.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -9,6 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
+// @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
@@ -1868,7 +1869,7 @@
       const that = this;
       let isInit = false;
       let __value = defaultValue;
-      const listenerId = that.addValueChangeListener(key, (_, newValue) => {
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
         __value = newValue;
       });
       return {
@@ -2028,13 +2029,16 @@
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinRouter = {
     isIndex() {
-      return window.location.hostname === "www.douyin.com";
-    },
-    isFollow() {
-      return this.isIndex() && window.location.pathname.startsWith("/follow");
+      return window.location.hostname === "www.douyin.com" || window.location.hostname === "douyin.com";
     },
     isLive() {
       return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
+    },
+    isCreator() {
+      return window.location.hostname === "creator.douyin.com";
+    },
+    isFollow() {
+      return this.isIndex() && window.location.pathname.startsWith("/follow");
     },
     isFollowLive() {
       return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
@@ -2075,9 +2079,6 @@
     },
     isChat() {
       return this.isIndex() && window.location.pathname.startsWith("/chat");
-    },
-    isCreator() {
-      return window.location.hostname === "creator.douyin.com";
     },
   };
   const BlockTopNavigator = {
@@ -2476,7 +2477,7 @@
       );
     },
   };
-  const DouYinMessageFilter = {
+  const DouYinLiveMessageFilter = {
     key: "douyin-live-danmu-rule",
     $data: {
       rule: [],
@@ -2586,7 +2587,6 @@
           typeof message === "string" &&
           this.$data.rule.some((ruleText) => {
             if (message.match(ruleText)) {
-              log.info("自定义规则成功过滤消息: " + message);
               return true;
             }
           });
@@ -2605,9 +2605,9 @@
       log.info("消息过滤");
       const lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isLive()) return;
-        DouYinMessageFilter.change();
+        DouYinLiveMessageFilter.change();
       });
-      DouYinMessageFilter.init();
+      DouYinLiveMessageFilter.init();
       const observer = utils.mutationObserver(document.body, {
         config: {
           childList: true,
@@ -2631,7 +2631,7 @@
       ];
     },
     execFilter(messageInst, method) {
-      return DouYinMessageFilter.checkMessageFilter(messageInst, method);
+      return DouYinLiveMessageFilter.checkMessageFilter(messageInst, method);
     },
   };
   const DouYinElement = {
@@ -7154,8 +7154,10 @@
       ) => {
         for (const key in data) {
           if (!Object.hasOwn(data, key)) continue;
-          const value = Reflect.get(data, key).toString();
-          fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
+          const value = data[key];
+          if (value == null) continue;
+          const valueStr = value?.toString();
+          fileNameTemplate = fileNameTemplate.replace(`{${key}}`, valueStr);
         }
         fileNameTemplate = fileNameTemplate.replaceAll(
           /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,
@@ -7743,18 +7745,18 @@
     },
     shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
-      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="level"])')];
+      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])')];
     },
     shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
-      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])')];
+      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
     },
     shieldUserFansIcon() {
       log.info("【屏蔽】粉丝牌");
       return [
         CommonUtil.addBlockCSS(
           '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
+          '#chatroom .webcast-chatroom___item *:has(>img[src*="fansclub"])'
         ),
       ];
     },
@@ -7885,6 +7887,108 @@
     block_exhibition_banner_dylive_tooltip() {
       log.info(`【屏蔽】点亮展馆帮主播集星`);
       return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
+    },
+  };
+  const DouYinLiveDanmaku = {
+    init() {
+      Panel.execMenu("dy-live-danmaku-block-gift", () => {
+        return this.blockGift();
+      });
+      Panel.execMenu("dy-live-danmaku-block-lucky-bag", () => {
+        return this.blockLuckyBag();
+      });
+    },
+    blockGift() {
+      log.info(`【屏蔽】送礼信息`);
+      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
+        },
+        set(reactPropInst, $el) {
+          log.info(`【屏蔽】送礼信息-弹出弹幕设置面板`);
+          const onMouseEnter = reactPropInst.onMouseEnter;
+          const onMouseLeave = reactPropInst.onMouseLeave;
+          onMouseEnter();
+          domUtils
+            .waitNode(
+              () =>
+                domUtils.selector(
+                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"送礼信息")]'
+                ),
+              2e3
+            )
+            .then(($el2) => {
+              try {
+                if (!$el2) {
+                  log.error(`【屏蔽】送礼信息-未找到送礼信息按钮`);
+                  return;
+                }
+                const $next = domUtils.next($el2);
+                if (!$next) {
+                  log.error(`【屏蔽】送礼信息-未找到送礼信息的Checkbox按钮`);
+                  return;
+                }
+                const rect = utils.getReactInstance($next);
+                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
+                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
+                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
+                  log.success(`点击关闭 送礼信息`);
+                  onClick();
+                }
+              } catch (error) {
+                log.error(error);
+              } finally {
+                onMouseLeave();
+              }
+            });
+        },
+      });
+    },
+    blockLuckyBag() {
+      log.info(`【屏蔽】福袋口令`);
+      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
+        },
+        set(reactPropInst, $el) {
+          log.info(`【屏蔽】福袋口令-弹出弹幕设置面板`);
+          const onMouseEnter = reactPropInst.onMouseEnter;
+          const onMouseLeave = reactPropInst.onMouseLeave;
+          onMouseEnter();
+          domUtils
+            .waitNode(
+              () =>
+                domUtils.selector(
+                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"福袋口令")]'
+                ),
+              2e3
+            )
+            .then(($el2) => {
+              try {
+                if (!$el2) {
+                  log.error(`【屏蔽】福袋口令-未找到福袋口令按钮`);
+                  return;
+                }
+                const $next = domUtils.next($el2);
+                if (!$next) {
+                  log.error(`【屏蔽】福袋口令-未找到福袋口令的Checkbox按钮`);
+                  return;
+                }
+                const rect = utils.getReactInstance($next);
+                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
+                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
+                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
+                  log.success(`福袋口令：点击关闭`);
+                  onClick();
+                }
+              } catch (error) {
+                log.error(error);
+              } finally {
+                onMouseLeave();
+              }
+            });
+        },
+      });
     },
   };
   const DouYinLivePlayerInstance = {
@@ -8072,108 +8176,6 @@
       };
     },
   };
-  const DouYinDanmaku = {
-    init() {
-      Panel.execMenu("dy-live-danmaku-block-gift", () => {
-        return this.blockGift();
-      });
-      Panel.execMenu("dy-live-danmaku-block-lucky-bag", () => {
-        return this.blockLuckyBag();
-      });
-    },
-    blockGift() {
-      log.info(`【屏蔽】送礼信息`);
-      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
-        check(reactPropInst, $el) {
-          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
-        },
-        set(reactPropInst, $el) {
-          log.info(`【屏蔽】送礼信息-弹出弹幕设置面板`);
-          const onMouseEnter = reactPropInst.onMouseEnter;
-          const onMouseLeave = reactPropInst.onMouseLeave;
-          onMouseEnter();
-          domUtils
-            .waitNode(
-              () =>
-                domUtils.selector(
-                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"送礼信息")]'
-                ),
-              2e3
-            )
-            .then(($el2) => {
-              try {
-                if (!$el2) {
-                  log.error(`【屏蔽】送礼信息-未找到送礼信息按钮`);
-                  return;
-                }
-                const $next = domUtils.next($el2);
-                if (!$next) {
-                  log.error(`【屏蔽】送礼信息-未找到送礼信息的Checkbox按钮`);
-                  return;
-                }
-                const rect = utils.getReactInstance($next);
-                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
-                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
-                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
-                  log.success(`点击关闭 送礼信息`);
-                  onClick();
-                }
-              } catch (error) {
-                log.error(error);
-              } finally {
-                onMouseLeave();
-              }
-            });
-        },
-      });
-    },
-    blockLuckyBag() {
-      log.info(`【屏蔽】福袋口令`);
-      ReactUtils.waitReactPropsToSet('[data-e2e="danmaku-setting-icon"]', "reactProps", {
-        check(reactPropInst, $el) {
-          return typeof reactPropInst?.onMouseEnter === "function" && typeof reactPropInst?.onMouseLeave === "function";
-        },
-        set(reactPropInst, $el) {
-          log.info(`【屏蔽】福袋口令-弹出弹幕设置面板`);
-          const onMouseEnter = reactPropInst.onMouseEnter;
-          const onMouseLeave = reactPropInst.onMouseLeave;
-          onMouseEnter();
-          domUtils
-            .waitNode(
-              () =>
-                domUtils.selector(
-                  'xpath://div[@data-e2e="danmaku-setting-icon"]/following::span[contains(text(),"福袋口令")]'
-                ),
-              2e3
-            )
-            .then(($el2) => {
-              try {
-                if (!$el2) {
-                  log.error(`【屏蔽】福袋口令-未找到福袋口令按钮`);
-                  return;
-                }
-                const $next = domUtils.next($el2);
-                if (!$next) {
-                  log.error(`【屏蔽】福袋口令-未找到福袋口令的Checkbox按钮`);
-                  return;
-                }
-                const rect = utils.getReactInstance($next);
-                const onClick = rect?.reactFiber?.child?.child?.memoizedProps?.onClick;
-                const checked = rect?.reactFiber?.child?.memoizedProps?.checked;
-                if (typeof checked === "boolean" && checked && typeof onClick === "function") {
-                  log.success(`福袋口令：点击关闭`);
-                  onClick();
-                }
-              } catch (error) {
-                log.error(error);
-              } finally {
-                onMouseLeave();
-              }
-            });
-        },
-      });
-    },
-  };
   const VideoQualityMap = {
     auto: {
       label: "自动",
@@ -8204,7 +8206,7 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
-      DouYinDanmaku.init();
+      DouYinLiveDanmaku.init();
       Panel.onceExec("live-parsePlayerInstance", () => {
         return DouYinLivePlayerInstance.registerMenu();
       });
@@ -8242,8 +8244,41 @@
         return this.doubleClickAction(option.value);
       });
       domUtils.onReady(() => {
-        Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-          return DouYinLiveMessage.filterMessage();
+        Panel.execMenuOnce("live-danmu-shield-rule-enable", async () => {
+          DouYinLiveMessageFilter.init();
+          const decoder = await domUtils.wait(() => {
+            const __MESSAGE_INSTANCE__ = _unsafeWindow["__MESSAGE_INSTANCE__"];
+            const decoder2 = __MESSAGE_INSTANCE__?.decoder;
+            return {
+              data: decoder2,
+              success: typeof decoder2?.decode === "function",
+            };
+          }, 5e3);
+          if (!decoder) {
+            log.warn("can't find live message decoder");
+            return DouYinLiveMessage.filterMessage();
+          }
+          log.success("hook live message decode success");
+          const decode = decoder?.decode;
+          decoder.decode = async function (...args2) {
+            const [data, method] = args2;
+            const payload = await Reflect.apply(decode, this, args2);
+            const flag = await DouYinLiveMessage.execFilter(
+              {
+                payload,
+              },
+              method
+            );
+            if (typeof flag === "boolean" && flag) {
+              return {};
+            }
+            return payload;
+          };
+          return [
+            () => {
+              decoder.decode = decode;
+            },
+          ];
         });
         Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
           return this.waitToRemovePauseDialog();
@@ -10539,6 +10574,7 @@
       onlyShowFilteredVideo: void 0,
       isFilterAwemeInfoListWithOnlyShowFilteredVideo: new Utils.Dictionary(),
       networkAwemeInfoMap: new Utils.Dictionary(),
+      addParseButton: void 0,
       __videoFilterRuleStorage: null,
       get videoFilterRuleStorage() {
         if (this.__videoFilterRuleStorage == null) {
@@ -10557,6 +10593,9 @@
           this.$data.enable.destory();
         }
         return;
+      }
+      if (this.$data.addParseButton == null) {
+        this.$data.addParseButton = Panel.getDynamicValue("shieldVideo-add-parseVideoInfoButton");
       }
       if (this.$data.enable == null) {
         this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
@@ -10637,10 +10676,15 @@
             }
           }
           if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-            DouYinVideoFilter.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+            this.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
               awemeInfo: awemeFilterInfoResult.awemeInfo,
               transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
+              index: performance.now(),
             });
+            if (this.$data.addParseButton.value && this.$data.networkAwemeInfoMap.length > 100) {
+              const values = this.$data.networkAwemeInfoMap.values().sort((a, b) => a.index - b.index);
+              values.splice(0, 1);
+            }
           }
         };
         const xhr_hook_callback_1 = (scopeName, request) => {
@@ -11774,7 +11818,7 @@
   };
   const DouYin = {
     init() {
-      if (DouYinRouter.isCreator()) {
+      if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
         return;
       }
       Panel.onceExec("dy-global-block-css", () => {
@@ -13913,13 +13957,13 @@
                       }
                     );
                     const textarea = $textareaWrapper.querySelector("textarea");
-                    textarea.value = DouYinMessageFilter.get();
+                    textarea.value = DouYinLiveMessageFilter.get();
                     domUtils.on(
                       textarea,
                       ["input", "propertychange"],
                       utils.debounce(function () {
-                        DouYinMessageFilter.set(textarea.value);
-                        DouYinMessageFilter.init();
+                        DouYinLiveMessageFilter.set(textarea.value);
+                        DouYinLiveMessageFilter.initRule();
                       }, 1e3)
                     );
                     $li.appendChild($textareaWrapper);

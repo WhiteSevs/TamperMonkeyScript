@@ -89,8 +89,14 @@ export const DouYinVideoFilter = {
         awemeInfo: DouYinVideoAwemeInfoWithDOM;
         /** 解析出的所需的信息 */
         transformAwemeInfo: DouYinVideoHandlerInfo;
+        /** 排序用的下标 */
+        index: number;
       }
     >(),
+    /**
+     * 是否添加解析按钮
+     */
+    addParseButton: undefined as ReturnType<typeof Panel.getDynamicValue<boolean>> | undefined,
     __videoFilterRuleStorage: null as null | RuleStorage<DouYinVideoFilterRule>,
     get videoFilterRuleStorage() {
       if (this.__videoFilterRuleStorage == null) {
@@ -112,6 +118,9 @@ export const DouYinVideoFilter = {
         this.$data.enable.destory();
       }
       return;
+    }
+    if (this.$data.addParseButton == null) {
+      this.$data.addParseButton = Panel.getDynamicValue("shieldVideo-add-parseVideoInfoButton");
     }
     if (this.$data.enable == null) {
       this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
@@ -211,10 +220,16 @@ export const DouYinVideoFilter = {
         }
         // 添加网络接口的视频信息字典映射
         if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-          DouYinVideoFilter.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+          this.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
             awemeInfo: awemeFilterInfoResult.awemeInfo,
             transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
+            index: performance.now(),
           });
+          // only max length is 100
+          if (this.$data.addParseButton!.value && this.$data.networkAwemeInfoMap.length > 100) {
+            const values = this.$data.networkAwemeInfoMap.values().sort((a, b) => a.index - b.index);
+            values.splice(0, 1);
+          }
         }
       };
       /**

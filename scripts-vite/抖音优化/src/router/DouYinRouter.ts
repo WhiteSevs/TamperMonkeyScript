@@ -3,7 +3,19 @@ export const DouYinRouter = {
    * 是否是抖音主站
    */
   isIndex() {
-    return window.location.hostname === "www.douyin.com";
+    return window.location.hostname === "www.douyin.com" || window.location.hostname === "douyin.com";
+  },
+  /**
+   * 直播
+   */
+  isLive() {
+    return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
+  },
+  /**
+   * 创作者中心
+   */
+  isCreator() {
+    return window.location.hostname === "creator.douyin.com";
   },
   /**
    * 关注
@@ -12,12 +24,6 @@ export const DouYinRouter = {
    */
   isFollow() {
     return this.isIndex() && window.location.pathname.startsWith("/follow");
-  },
-  /**
-   * 直播
-   */
-  isLive() {
-    return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
   },
   /**
    * 关注-直播
@@ -124,11 +130,5 @@ export const DouYinRouter = {
    */
   isChat() {
     return this.isIndex() && window.location.pathname.startsWith("/chat");
-  },
-  /**
-   * 创作者中心
-   */
-  isCreator() {
-    return window.location.hostname === "creator.douyin.com";
   },
 };

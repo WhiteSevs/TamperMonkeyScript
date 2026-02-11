@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
-import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
+import { DouYinLiveMessageFilter } from "@/main/live/DouYinLiveMessageFilter";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UIOwn } from "@components/setting/components/ui-own";
@@ -238,13 +238,13 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                     }
                   );
                   const textarea = $textareaWrapper.querySelector("textarea")!;
-                  textarea.value = DouYinMessageFilter.get();
+                  textarea.value = DouYinLiveMessageFilter.get();
                   DOMUtils.on(
                     textarea,
                     ["input", "propertychange"],
                     utils.debounce(function () {
-                      DouYinMessageFilter.set(textarea.value);
-                      DouYinMessageFilter.init();
+                      DouYinLiveMessageFilter.set(textarea.value);
+                      DouYinLiveMessageFilter.initRule();
                     }, 1000)
                   );
                   $li.appendChild($textareaWrapper);

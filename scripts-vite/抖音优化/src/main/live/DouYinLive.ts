@@ -1,14 +1,16 @@
-import { $, $$, DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
+import { $$, DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
-import { DouYinLiveMessage } from "./DouYinLiveMessage";
-import Qmsg from "qmsg";
 import { ReactUtils } from "@components/utils/ReactUtils";
+import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
+import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
+import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
+import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
-import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
-import { DouYinDanmaku } from "./DouYinDanmaku";
+import { DouYinLiveMessageFilter } from "./DouYinLiveMessageFilter";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -63,7 +65,7 @@ export const DouYinLive = {
   init() {
     DouYinLiveBlock.init();
     DouYinLiveShortCut.init();
-    DouYinDanmaku.init();
+    DouYinLiveDanmaku.init();
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });
@@ -104,8 +106,50 @@ export const DouYinLive = {
       return this.doubleClickAction(option.value);
     });
     DOMUtils.onReady(() => {
-      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-        return DouYinLiveMessage.filterMessage();
+      Panel.execMenuOnce("live-danmu-shield-rule-enable", async () => {
+        DouYinLiveMessageFilter.init();
+        // return DouYinLiveMessage.filterMessage();
+        const decoder = await DOMUtils.wait(() => {
+          // @ts-expect-error
+          const __MESSAGE_INSTANCE__ = unsafeWindow["__MESSAGE_INSTANCE__"];
+          const decoder: {
+            decode: (data: Uint8Array, method: string) => any;
+            encode: Function;
+            loadSchema: Function;
+          } = __MESSAGE_INSTANCE__?.decoder;
+          return {
+            data: decoder,
+            success: typeof decoder?.decode === "function",
+          };
+        }, 5000);
+        if (!decoder) {
+          log.warn("can't find live message decoder");
+          return DouYinLiveMessage.filterMessage();
+        }
+        log.success("hook live message decode success");
+        const decode = decoder?.decode;
+        decoder.decode = async function (...args2: any[]) {
+          const [data, method] = args2;
+          const payload = await Reflect.apply(decode, this, args2);
+          const flag = await DouYinLiveMessage.execFilter(
+            {
+              payload: payload,
+            },
+            method
+          );
+          if (typeof flag === "boolean" && flag) {
+            if (import.meta.env.DEV) {
+              log.success(`过滤：`, payload);
+            }
+            return {};
+          }
+          return payload;
+        };
+        return [
+          () => {
+            decoder.decode = decode;
+          },
+        ];
       });
       Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         return this.waitToRemovePauseDialog();

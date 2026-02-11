@@ -1014,8 +1014,10 @@ export const DouYinVideoPlayer = {
     ): string => {
       for (const key in data) {
         if (!Object.hasOwn(data, key)) continue;
-        const value = Reflect.get(data, key).toString();
-        fileNameTemplate = fileNameTemplate.replace(`{${key}}`, value);
+        const value = data[key as keyof typeof data] as unknown;
+        if (value == null) continue;
+        const valueStr = value?.toString();
+        fileNameTemplate = fileNameTemplate.replace(`{${key}}`, valueStr);
       }
       fileNameTemplate = fileNameTemplate.replaceAll(
         /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,

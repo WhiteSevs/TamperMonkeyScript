@@ -70,14 +70,14 @@ export const DouYinLiveBlock_ChatRoom = {
    */
   shieldUserLevelIcon() {
     log.info("【屏蔽】用户等级图标");
-    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="level"])')];
+    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])')];
   },
   /**
    * 【屏蔽】VIP图标
    */
   shieldUserVIPIcon() {
     log.info("【屏蔽】VIP图标");
-    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])')];
+    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
   },
   /**
    * 【屏蔽】粉丝牌
@@ -87,7 +87,7 @@ export const DouYinLiveBlock_ChatRoom = {
     return [
       CommonUtil.addBlockCSS(
         '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
-        '#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
+        '#chatroom .webcast-chatroom___item *:has(>img[src*="fansclub"])'
       ),
     ];
   },
