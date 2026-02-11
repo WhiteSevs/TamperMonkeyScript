@@ -1426,7 +1426,7 @@ const Panel = {
     const that = this;
     let isInit = false;
     let __value = defaultValue;
-    const listenerId = that.addValueChangeListener(key, (_, newValue) => {
+    const listenerId = this.addValueChangeListener(key, (_, newValue) => {
       __value = newValue;
     });
     return {
