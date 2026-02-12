@@ -57,6 +57,7 @@
     "picocolors": "^1.1.1",
     "prettier": "^3.7.4",
     "rollup": "^4.54.0",
+    "simple-git": "^3.30.0",
     "typescript": "^5.9.3",
     "unplugin-auto-import": "^20.3.0",
     "unplugin-element-plus": "^0.11.2",
