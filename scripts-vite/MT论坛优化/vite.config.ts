@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/MT论坛优化",
   monkeyOption: {
     userscript: {
       name: "MT论坛优化",

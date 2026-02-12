@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/ImageViewer",
   monkeyOption: {
     userscript: {
       name: "ImageViewer",

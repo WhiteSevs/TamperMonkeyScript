@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/CookieManager",
   monkeyOption: {
     userscript: {
       name: "CookieManager",
@@ -29,16 +30,10 @@ const userConfig = await GenerateUserConfig({
     build: {
       // import库的文件映射
       externalGlobals: {
-        // viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
         "crypto-js": ["CryptoJS", await GetLib("Crypto-JS")],
       },
       // import资源文件的映射
-      externalResource: {
-        // "viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-        // 	"Viewer",
-        // 	"dist/viewer.min.css"
-        // ),
-      },
+      externalResource: {},
     },
   },
 });

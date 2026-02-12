@@ -21,6 +21,7 @@ const localizedConfig = {
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/GreasyFork优化",
   monkeyOption: {
     userscript: {
       name: localizedConfig.name,

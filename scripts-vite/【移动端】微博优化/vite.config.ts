@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/【移动端】微博优化",
   monkeyOption: {
     userscript: {
       name: "【移动端】微博优化",
@@ -35,16 +36,9 @@ const userConfig = await GenerateUserConfig({
     },
     build: {
       // import库的文件映射
-      externalGlobals: {
-        // viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
-      },
+      externalGlobals: {},
       // import资源文件的映射
-      externalResource: {
-        // "viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-        // 	"Viewer",
-        // 	"dist/viewer.min.css"
-        // ),
-      },
+      externalResource: {},
     },
   },
 });

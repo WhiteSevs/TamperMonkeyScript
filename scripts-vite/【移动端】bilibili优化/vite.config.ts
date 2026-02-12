@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/【移动端】bilibili优化",
   monkeyOption: {
     userscript: {
       name: "【移动端】bilibili优化",
@@ -43,7 +44,6 @@ const userConfig = await GenerateUserConfig({
     build: {
       // import库的文件映射
       externalGlobals: {
-        // viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
         md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
         "flv.js": cdn.jsdelivrFastly("MD5", "dist/flv.js"),
         artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
@@ -66,12 +66,7 @@ const userConfig = await GenerateUserConfig({
         // ],
       },
       // import资源文件的映射
-      externalResource: {
-        // "viewerjs/dist/viewer.css": cdn.jsdelivrFastly(
-        // 	"Viewer",
-        // 	"dist/viewer.min.css"
-        // ),
-      },
+      externalResource: {},
     },
   },
 });

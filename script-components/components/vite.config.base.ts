@@ -11,6 +11,7 @@ import { type Plugin, type UserConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
 import { GetLib, ViteUtils, viteUtils } from "../../vite.utils";
+import { simpleGit } from "simple-git";
 
 type IArray<T> = T[] | T;
 
@@ -72,6 +73,135 @@ type SuperMonkeyOption = {
   };
 };
 
+type ParseMetaItemInfo = {
+  /**
+   * 在//和@中间的空格
+   */
+  spaceBeforeAt: string;
+  /**
+   * 在key后面的空格
+   */
+  spaceAfterKey: string;
+  /**
+   * @后面的名称，如@name、@version、@require等
+   */
+  key: string;
+  /**
+   * key后面的值（已去除左右空格）
+   */
+  value: string;
+};
+
+const UserScriptUtils = {
+  /**
+   * UserScript的meta每一行的解析器
+   */
+  parseMetaItem: function (meta: string): undefined | ParseMetaItemInfo {
+    // 必须是 // @xx 这种类型
+    const atMatcher = meta.match(/[\s]*\/\/[\s]+@/);
+    if (!atMatcher) return;
+
+    const spaceBeforeAtMatcher = meta.match(/[\s]*\/\/([\s]+)@/);
+    let spaceBeforeAt = "";
+    if (spaceBeforeAtMatcher?.length >= 2) {
+      spaceBeforeAt = spaceBeforeAtMatcher[1];
+    }
+
+    const keyMatcher = meta.match(/[\s]*\/\/[\s]+@([\w-]+)/);
+    // 必须匹配到键
+    if (!keyMatcher || keyMatcher.length < 2) return;
+    const key = keyMatcher[1].trim().toLowerCase();
+
+    const spaceAfterKeyMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s]+)/);
+    let spaceAfterKey = "";
+    if (spaceAfterKeyMatcher?.length >= 2) {
+      spaceAfterKey = spaceAfterKeyMatcher[1];
+    }
+
+    const valueMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s\S]+)/);
+    // 必须匹配到值
+    if (!valueMatcher || valueMatcher.length < 2) return;
+    const value = valueMatcher[1].trim();
+    // 不能为空
+    if (value === "") return;
+
+    return {
+      spaceBeforeAt,
+      spaceAfterKey,
+      key,
+      value,
+    };
+  },
+  /**
+   * 解析
+   * @param text meta内容
+   * @param callback 回调
+   */
+  parseMeta: function (
+    text: string,
+    callback?: /**     * @param data 本次解析的数据
+     * @returns
+     * + false 本次解析的结果不生效
+     */
+    (data: ParseMetaItemInfo) => void | boolean
+  ): void | {
+    userScriptMetaEndIndex: number;
+    totalCollect: Record<string, string | string[]>;
+    collectGrant: string[];
+    metaItems: string[];
+  } {
+    if (typeof text !== "string") return;
+    text = text.trim();
+    if (!text.match(/^\/\/[\s]+==UserScript==/)) return;
+    // ↓ collect GM API to fix cannot find GM API in global
+    // for example dev in via or x browser
+    const metaItems = text.split("\n");
+    const totalCollect: Record<string, string | string[]> = {};
+
+    const collectGrant: string[] = [];
+    const userScriptMetaStartPattern = /^\/\/[\s]+==UserScript==/;
+    const isMetaStart = userScriptMetaStartPattern.test(text);
+    if (!isMetaStart) return;
+    const userScriptMetaEndPattern = /^\/\/[\s]+==\/UserScript==/;
+    let userScriptMetaEndIndex = -1;
+    for (let index = 0; index < metaItems.length; index++) {
+      const item = metaItems[index].trim();
+      const isMetaEnd = userScriptMetaEndPattern.test(item);
+      // break iterator
+      if (isMetaEnd) {
+        userScriptMetaEndIndex = index;
+        break;
+      }
+      const metaItemInfo = UserScriptUtils.parseMetaItem(item);
+      if (!metaItemInfo) continue;
+      if (typeof callback === "function") {
+        const flag = callback(metaItemInfo);
+        if (typeof flag === "boolean" && flag === false) {
+          continue;
+        }
+      }
+      totalCollect[metaItemInfo.key] = metaItemInfo.value;
+      if (metaItemInfo.key === "grant") {
+        // @grant
+        const grantApi = metaItemInfo.value;
+        if (grantApi.startsWith("window.") || grantApi.startsWith("GM.")) {
+          // ignore window.* API
+          // ignore GM.* API
+          continue;
+        }
+        collectGrant.push(grantApi);
+      }
+    }
+
+    return {
+      userScriptMetaEndIndex,
+      totalCollect,
+      collectGrant,
+      metaItems,
+    };
+  },
+};
+
 const baseUtils = new ViteUtils(__dirname);
 /**
  * 生成用户配置
@@ -87,9 +217,21 @@ const GenerateUserConfig = async (option: {
    */
   userConfig?: UserConfig;
   /**
-   * 项目地址
+   * 本地开发的项目路径
    */
   __dirname: string;
+  /**
+   * git项目中的项目路径
+   * @example
+   * "scripts-vite/xxx/"
+   * @example
+   * "scripts-vite/xxx"
+   * @example
+   * "/"
+   * @example
+   * ""
+   */
+  gitProjectPath?: string;
 }) => {
   /**
    * 当前是否是build模式
@@ -106,6 +248,11 @@ const GenerateUserConfig = async (option: {
    * 用户脚本文件名
    */
   let FILE_NAME = SCRIPT_NAME + ".user.js";
+  /**
+   * 压缩后的用户脚本文件名
+   */
+  let MIN_FILE_NAME = SCRIPT_NAME + ".min.user.js";
+  let META_FILE_NAME = SCRIPT_NAME + ".meta.js";
 
   /**
    * 是否压缩代码
@@ -113,7 +260,6 @@ const GenerateUserConfig = async (option: {
   let isMinify: boolean | "esbuild" | "terser" = false;
   if (process.argv.includes("--minify")) {
     isMinify = "esbuild";
-    FILE_NAME = SCRIPT_NAME + ".min.user.js";
   }
 
   /**
@@ -129,7 +275,32 @@ const GenerateUserConfig = async (option: {
   const devOrLocalVersion = "9999.99.99";
   let VERSION = devOrLocalVersion;
   if (isBuild) {
-    VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+    let gitProjectPath = option.gitProjectPath;
+    if (typeof gitProjectPath === "string") {
+      gitProjectPath = gitProjectPath.trim();
+      // 去除开始和末尾的/
+      gitProjectPath = gitProjectPath.replace(/^\//, "");
+      gitProjectPath = gitProjectPath.replace(/\/$/, "");
+      // 获取git提交的历史版本号
+      const git = simpleGit({
+        baseDir: option.__dirname,
+      });
+      const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
+      const fileContent = await git.show(["HEAD:" + filePath]);
+      let historyVersion = "";
+      UserScriptUtils.parseMeta(fileContent, (data) => {
+        if (data.key.toLowerCase() === "version") {
+          historyVersion = data.value;
+        }
+      });
+      if (historyVersion.trim() !== "") {
+        console.log("git history version: ", historyVersion);
+      }
+      VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
+      console.log("script build version: " + VERSION);
+    } else {
+      VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+    }
   }
 
   /**
@@ -362,11 +533,11 @@ const GenerateUserConfig = async (option: {
         if (file.match(pattern)) {
           const filePath = path.join(dir, file);
           fs.unlinkSync(filePath);
-          console.log(`已删除文件: ${filePath}`);
+          console.log(`delete file: ${filePath}`);
         }
       });
     } catch (error) {
-      console.error("删除文件时出错:", error);
+      console.error("delete error: ", error);
     }
   });
 
@@ -529,7 +700,7 @@ const GenerateUserConfig = async (option: {
   // 设置版本号
   defaultMonkeyOption.userscript!.version = VERSION;
   // 设置构建的文件名
-  defaultMonkeyOption.build!.fileName = FILE_NAME;
+  defaultMonkeyOption.build!.fileName = isMinify ? MIN_FILE_NAME : FILE_NAME;
   // 添加@require
   defaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
 
@@ -592,66 +763,6 @@ const GenerateUserConfig = async (option: {
       }
     },
   };
-  /**
-   * UserScript的meta的解析器
-   */
-  const ParseUserScriptMeta = (
-    meta: string
-  ):
-    | {
-        /**
-         * 在//和@中间的空格
-         */
-        spaceBeforeAt: string;
-        /**
-         * 在key后面的空格
-         */
-        spaceAfterKey: string;
-        /**
-         * @后面的名称，如@name、@version、@require等
-         */
-        key: string;
-        /**
-         * key后面的值（已去除左右空格）
-         */
-        value: string;
-      }
-    | undefined => {
-    // 必须是 // @xx 这种类型
-    const atMatcher = meta.match(/[\s]*\/\/[\s]+@/);
-    if (!atMatcher) return;
-
-    const spaceBeforeAtMatcher = meta.match(/[\s]*\/\/([\s]+)@/);
-    let spaceBeforeAt = "";
-    if (spaceBeforeAtMatcher?.length >= 2) {
-      spaceBeforeAt = spaceBeforeAtMatcher[1];
-    }
-
-    const keyMatcher = meta.match(/[\s]*\/\/[\s]+@([\w-]+)/);
-    // 必须匹配到键
-    if (!keyMatcher || keyMatcher.length < 2) return;
-    const key = keyMatcher[1];
-
-    const spaceAfterKeyMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s]+)/);
-    let spaceAfterKey = "";
-    if (spaceAfterKeyMatcher?.length >= 2) {
-      spaceAfterKey = spaceAfterKeyMatcher[1];
-    }
-
-    const valueMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s\S]+)/);
-    // 必须匹配到值
-    if (!valueMatcher || valueMatcher.length < 2) return;
-    const value = valueMatcher[1].trim();
-    // 不能为空
-    if (value === "") return;
-
-    return {
-      spaceBeforeAt,
-      spaceAfterKey,
-      key,
-      value,
-    };
-  };
   // 对vite-plugin-monkey插件进行hook
   const SuperMonkeyPlugin: Plugin = {
     name: "hook:vite-plugin-monkey",
@@ -664,36 +775,15 @@ const GenerateUserConfig = async (option: {
         const originEnd = res.end;
         res.end = (...args: any[]) => {
           let text: string = args[0];
-          if (typeof text === "string" && text.trim().match(/^\/\/[\s]+==UserScript==/)) {
-            // version <7.2.2
-            // when script inject too fast, document.head is null
-            // this replace can fix this bug
-            text = text.replaceAll("document.head", "(document.head || document.documentElement)");
-            // ↓ collect GM API to fix cannot find GM API in global
-            // for example dev in via or x browser
-            const textSplit = text.split("\n");
-            const userScriptMetaEndIndex = textSplit.findIndex((item) =>
-              item.trim().match(/^\/\/[\s]+==\/UserScript==/)
-            );
-            const collectGrant: string[] = [];
-            textSplit.forEach((item, index) => {
-              item = item.trim();
-              const metaItemInfo = ParseUserScriptMeta(item);
-              if (!metaItemInfo) return;
-              if (metaItemInfo.key === "grant") {
-                const grantApi = metaItemInfo.value;
-                if (grantApi.startsWith("window.") || grantApi.startsWith("GM.")) {
-                  // ignore window.* API
-                  // ignore GM.* API
-                  return;
-                }
-                collectGrant.push(grantApi);
-              }
-            });
-            textSplit.splice(
-              userScriptMetaEndIndex + 1,
-              0,
-              /*js*/ `
+          const parseInfo = UserScriptUtils.parseMeta(text);
+          if (parseInfo) {
+            const { userScriptMetaEndIndex, collectGrant, metaItems } = parseInfo;
+
+            if (userScriptMetaEndIndex != -1) {
+              metaItems.splice(
+                userScriptMetaEndIndex + 1,
+                0,
+                /*js*/ `
 ;(()=>{
 	const needRepairGMApi = {};
 	if (typeof unsafeWindow !== "undefined" && unsafeWindow == window || typeof unsafeWindow === "undefined") {
@@ -727,8 +817,9 @@ const GenerateUserConfig = async (option: {
 		}
 	}
 })();`
-            );
-            text = textSplit.join("\n");
+              );
+            }
+            text = metaItems.join("\n");
             args[0] = text;
             console.log(pc.green("success modify [vite-plugin-monkey] dev .install.user.js"));
           }
@@ -775,7 +866,7 @@ const GenerateUserConfig = async (option: {
         for (let index = splitContent.length - 1; index >= 0; index--) {
           // reverse loop because @require info in meta.js is end
           const metaItem = splitContent[index].trim();
-          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          const metaItemInfo = UserScriptUtils.parseMetaItem(metaItem);
           if (!metaItemInfo) {
             continue;
           }
@@ -793,7 +884,7 @@ const GenerateUserConfig = async (option: {
         }
         for (let index = 0; index < splitContent.length; index++) {
           let metaItem = splitContent[index];
-          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          const metaItemInfo = UserScriptUtils.parseMetaItem(metaItem);
           if (!metaItemInfo) {
             continue;
           }
@@ -833,7 +924,7 @@ const GenerateUserConfig = async (option: {
         const metaLocalContentSplitList = [].concat(splitContent);
         for (let index = 0; index < metaLocalContentSplitList.length; index++) {
           const metaItem = metaLocalContentSplitList[index];
-          const metaItemInfo = ParseUserScriptMeta(metaItem);
+          const metaItemInfo = UserScriptUtils.parseMetaItem(metaItem);
           if (!metaItemInfo) {
             continue;
           }

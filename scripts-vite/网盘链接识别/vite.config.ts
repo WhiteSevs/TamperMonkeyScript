@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/网盘链接识别",
   monkeyOption: {
     userscript: {
       name: "网盘链接识别",

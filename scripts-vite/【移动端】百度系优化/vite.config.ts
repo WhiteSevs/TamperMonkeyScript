@@ -8,6 +8,7 @@ const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
   __dirname: __dirname,
+  gitProjectPath: "scripts-vite/【移动端】百度系优化",
   monkeyOption: {
     isVueProject: true,
     userscript: {
