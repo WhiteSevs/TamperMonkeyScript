@@ -184,19 +184,19 @@ export class ViteUtils {
 
     let timeRegexp = {
       yyyy: time.getFullYear(),
-      /* 年 */
+      /** 年 */
       MM: checkTime(time.getMonth() + 1),
-      /* 月 */
+      /** 月 */
       dd: checkTime(time.getDate()),
-      /* 日 */
+      /** 日 */
       HH: checkTime(time.getHours()),
-      /* 时 (24小时制) */
+      /** 时 (24小时制) */
       hh: checkTime(timeSystemChange(time.getHours())),
-      /* 时 (12小时制) */
+      /** 时 (12小时制) */
       mm: checkTime(time.getMinutes()),
-      /* 分 */
+      /** 分 */
       ss: checkTime(time.getSeconds()),
-      /* 秒 */
+      /** 秒 */
     };
     Object.keys(timeRegexp).forEach(function (key) {
       let replaecRegexp = new RegExp(key, "g");
@@ -285,39 +285,94 @@ export class ViteUtils {
       version: `${this.formatTime(currentTime, "yyyy.MM.dd", false)}`,
     };
     try {
-      /* 版本号文件存在 */
+      // 版本号文件存在
       let fileInfo = fs.readFileSync(SCRIPT_VERSION_PATH, {
         encoding: "utf-8",
       });
       let fileVersionInfo = JSON.parse(fileInfo);
-      let fileVersionTime = new Date(fileVersionInfo["time"]);
-      let fileVersionTimeNumber = fileVersionTime.getTime();
+      let historyTime = new Date(fileVersionInfo["time"]);
+      let historyTimeNumber = historyTime.getTime();
       if (useFileVersion) {
-        console.log("使用已有的版本号: " + fileVersionInfo["version"]);
+        console.log("use local version json: " + fileVersionInfo["version"]);
         return fileVersionInfo["version"];
       }
-      if (fileVersionTimeNumber <= versionInfo.time) {
-        /* 过去 */
+      if (historyTimeNumber <= versionInfo.time) {
+        // 过去
         if (
-          fileVersionTime.getFullYear() === currentTime.getFullYear() &&
-          fileVersionTime.getMonth() === currentTime.getMonth() &&
-          fileVersionTime.getDate() === currentTime.getDate()
+          historyTime.getFullYear() === currentTime.getFullYear() &&
+          historyTime.getMonth() === currentTime.getMonth() &&
+          historyTime.getDate() === currentTime.getDate()
         ) {
-          /* 今天 */
+          // 今天
           versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
         } else {
-          /* 昨天、前天... */ ViteUtils;
+          // 昨天、前天...
         }
       } else {
-        /* 未来？啊？怎么可能 */
+        // 未来？啊？怎么可能
       }
     } catch (error) {
-      /* 版本号文件不存在 */
+      // 版本号文件不存在
     }
     fs.writeFileSync(SCRIPT_VERSION_PATH, JSON.stringify(versionInfo, null, 2) + "\n", {
       encoding: "utf-8",
     });
-    console.log("脚本构建的版本号: " + versionInfo.version);
+    console.log("script build version: " + versionInfo.version);
+    return versionInfo.version;
+  }
+  /**
+   * 获取最新的版本号
+   */
+  getLatestScriptVersion(version: string): string {
+    version = version.trim();
+    const currentTime = new Date();
+    const versionInfo = {
+      version: `${this.formatTime(currentTime, "yyyy.MM.dd", false)}`,
+      time: currentTime.getTime(),
+    };
+    if (version === "") {
+      return versionInfo.version;
+    }
+    const yearMonthDayMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)$/);
+    const yearMonthDayHourMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)\.([\d]+)$/);
+    const historyTime = new Date();
+    let versionLength = 0;
+    if (yearMonthDayHourMatcher) {
+      // 时间格式为 年.月.日.时
+      versionLength = 4;
+      const year = parseInt(yearMonthDayHourMatcher[1]);
+      const month = parseInt(yearMonthDayHourMatcher[2]);
+      const day = parseInt(yearMonthDayHourMatcher[3]);
+      const hour = parseInt(yearMonthDayHourMatcher[4]);
+      historyTime.setFullYear(year, month, day);
+      historyTime.setHours(hour);
+    } else if (yearMonthDayMatcher) {
+      // 时间格式为 年.月.日
+      versionLength = 3;
+      const year = parseInt(yearMonthDayMatcher[1]);
+      const month = parseInt(yearMonthDayMatcher[2]);
+      const day = parseInt(yearMonthDayMatcher[3]);
+      historyTime.setFullYear(year, month, day);
+    }
+    if (versionLength) {
+      const historyTimeNumber = historyTime.getTime();
+      if (historyTimeNumber <= versionInfo.time) {
+        // 过去
+        if (
+          historyTime.getFullYear() === currentTime.getFullYear() &&
+          historyTime.getMonth() === currentTime.getMonth() &&
+          historyTime.getDate() === currentTime.getDate()
+        ) {
+          // 今天
+          // 年.月.日.时
+          versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
+        } else {
+          // 昨天、前天..
+        }
+      } else {
+        // 未来？啊？怎么可能
+      }
+    }
     return versionInfo.version;
   }
   /**
