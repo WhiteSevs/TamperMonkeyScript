@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.11
+// @version      2026.2.13
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10681,7 +10681,8 @@
               transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
               index: performance.now(),
             });
-            if (this.$data.addParseButton.value && this.$data.networkAwemeInfoMap.length > 100) {
+            const MAX_LENGTH = window.innerWidth > 768 ? 500 : 250;
+            if (this.$data.addParseButton.value && this.$data.networkAwemeInfoMap.length > MAX_LENGTH) {
               const values = this.$data.networkAwemeInfoMap.values().sort((a, b) => a.index - b.index);
               values.splice(0, 1);
             }
@@ -12042,7 +12043,7 @@
   };
   const blockCSS$4 =
     "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button {\r\n  display: none !important;\r\n}\r\n";
-  const DouYinUrlUtils = {
+  const DouYinUrl = {
     getVideoUrl(videoId) {
       return "https://www.douyin.com/video/" + videoId;
     },
@@ -12097,7 +12098,7 @@
             return;
           }
           const currentPlaylet = playletList[index];
-          const url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+          const url = DouYinUrl.getCollectionUrl(currentPlaylet["mix_id"]);
           window.open(url, "_blank");
         },
         {
@@ -12214,7 +12215,7 @@
             return;
           }
           const awemeId = rectFiber?.return?.memoizedProps.awemeId;
-          const url = DouYinUrlUtils.getNoteUrl(awemeId);
+          const url = DouYinUrl.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -12232,7 +12233,7 @@
           return;
         }
         const sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
-        const url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+        const url = DouYinUrl.getUserHomeUrl(sec_id);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", ".message-con__top", callback, { capture: true });
@@ -12251,7 +12252,7 @@
         const splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
         const currentSplitStr = splitStrArr[index];
         const hashtagId = currentSplitStr["hashtagId"];
-        const url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+        const url = DouYinUrl.getHashTagUrl(hashtagId);
         window.open(url, "_blank");
       };
       const result = domUtils.on(
@@ -12281,7 +12282,7 @@
             return;
           }
           const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-          const url = DouYinUrlUtils.getMusicUrl(musicId);
+          const url = DouYinUrl.getMusicUrl(musicId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -12305,7 +12306,7 @@
           }
           const itemData = rectFiber?.return?.memoizedProps?.itemData;
           const awemeId = itemData["awemeId"];
-          const url = DouYinUrlUtils.getNoteUrl(awemeId);
+          const url = DouYinUrl.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -12355,7 +12356,7 @@
         const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
         const index = rectFiber.index;
         const currentList = listData[index];
-        const url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+        const url = DouYinUrl.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
@@ -12386,7 +12387,7 @@
         const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
         const index = rectFiber.index;
         const currentList = listData[index];
-        const url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+        const url = DouYinUrl.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {

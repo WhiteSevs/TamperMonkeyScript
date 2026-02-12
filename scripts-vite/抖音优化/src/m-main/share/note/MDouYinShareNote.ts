@@ -3,7 +3,7 @@ import blockCSS from "./block.css?raw";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
-import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
+import { DouYinUrl } from "@/router/DouYinUrl";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const MDouYinShareNote = {
@@ -74,7 +74,7 @@ export const MDouYinShareNote = {
           return;
         }
         const awemeId = rectFiber?.return?.memoizedProps.awemeId;
-        const url = DouYinUrlUtils.getNoteUrl(awemeId);
+        const url = DouYinUrl.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true }
@@ -95,7 +95,7 @@ export const MDouYinShareNote = {
         return;
       }
       const sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
-      const url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+      const url = DouYinUrl.getUserHomeUrl(sec_id);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(document, "click", ".message-con__top", callback, { capture: true });
@@ -117,7 +117,7 @@ export const MDouYinShareNote = {
       const splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
       const currentSplitStr = splitStrArr[index];
       const hashtagId = currentSplitStr["hashtagId"];
-      const url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+      const url = DouYinUrl.getHashTagUrl(hashtagId);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(
@@ -151,7 +151,7 @@ export const MDouYinShareNote = {
           return;
         }
         const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-        const url = DouYinUrlUtils.getMusicUrl(musicId);
+        const url = DouYinUrl.getMusicUrl(musicId);
         window.open(url, "_blank");
       },
       { capture: true }
@@ -179,7 +179,7 @@ export const MDouYinShareNote = {
         }
         const itemData = rectFiber?.return?.memoizedProps?.itemData;
         const awemeId = itemData["awemeId"];
-        const url = DouYinUrlUtils.getNoteUrl(awemeId);
+        const url = DouYinUrl.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true }

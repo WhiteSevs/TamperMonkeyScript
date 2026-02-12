@@ -225,8 +225,10 @@ export const DouYinVideoFilter = {
             transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
             index: performance.now(),
           });
-          // only max length is 100
-          if (this.$data.addParseButton!.value && this.$data.networkAwemeInfoMap.length > 100) {
+          // mobile device has a limit of 250 items
+          // PC has a limit of 500 items
+          const MAX_LENGTH = window.innerWidth > 768 ? 500 : 250;
+          if (this.$data.addParseButton!.value && this.$data.networkAwemeInfoMap.length > MAX_LENGTH) {
             const values = this.$data.networkAwemeInfoMap.values().sort((a, b) => a.index - b.index);
             values.splice(0, 1);
           }

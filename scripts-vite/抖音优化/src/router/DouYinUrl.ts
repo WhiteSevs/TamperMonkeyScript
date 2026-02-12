@@ -1,4 +1,4 @@
-export const DouYinUrlUtils = {
+export const DouYinUrl = {
   /**
    * 获取视频链接
    * @param videoId 视频id

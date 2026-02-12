@@ -3,7 +3,7 @@ import { ApiConfig } from "./ApiConfig";
 import Qmsg from "qmsg";
 import { ApiResponseCheck } from "./ApiResponseCheck";
 import { unsafeWindow } from "ViteGM";
-import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
+import { DouYinUrl } from "@/router/DouYinUrl";
 
 export const DouYinFollowingApi = {
   /**
@@ -105,7 +105,7 @@ export const DouYinFollowingApi = {
             getAvatarUri(item?.["avatar_300x300"]) ||
             getAvatarUri(item?.["avatar_168x168"]),
           sec_uid: item["sec_uid"],
-          homeUrl: DouYinUrlUtils.getUserHomeUrl(item["sec_uid"]),
+          homeUrl: DouYinUrl.getUserHomeUrl(item["sec_uid"]),
         },
       });
     }
