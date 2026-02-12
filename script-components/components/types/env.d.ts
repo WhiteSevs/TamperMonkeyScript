@@ -18,6 +18,10 @@ type NestedObjectWithToString = {
  */
 declare type IPromise<T> = T | Promise<T>;
 
+declare type IFunction<T> = T | ((...args: any[]) => T);
+
+declare type IArray<T> = T | T[];
+
 /**
  * 提取数组中的元素类型
  */
