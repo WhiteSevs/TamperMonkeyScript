@@ -344,7 +344,7 @@ export class ViteUtils {
       const month = parseInt(yearMonthDayHourMatcher[2]);
       const day = parseInt(yearMonthDayHourMatcher[3]);
       const hour = parseInt(yearMonthDayHourMatcher[4]);
-      historyTime.setFullYear(year, month, day);
+      historyTime.setFullYear(year, month - 1, day);
       historyTime.setHours(hour);
     } else if (yearMonthDayMatcher) {
       // 时间格式为 年.月.日
@@ -352,7 +352,7 @@ export class ViteUtils {
       const year = parseInt(yearMonthDayMatcher[1]);
       const month = parseInt(yearMonthDayMatcher[2]);
       const day = parseInt(yearMonthDayMatcher[3]);
-      historyTime.setFullYear(year, month, day);
+      historyTime.setFullYear(year, month - 1, day);
     }
     if (versionLength) {
       const historyTimeNumber = historyTime.getTime();
