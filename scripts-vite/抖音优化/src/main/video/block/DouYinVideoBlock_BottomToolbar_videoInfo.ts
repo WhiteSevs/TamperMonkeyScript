@@ -8,7 +8,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   init() {
     Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-      return this.shieldVideoInfoWrap();
+      return this.blockVideoInfoWrap();
     });
     Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
       return this.blockClickRecommend();
@@ -17,7 +17,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
       return this.blobkTitleTopTag();
     });
     Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
-      return this.shieldVideoUnderTitleTag();
+      return this.blockVideoUnderTitleTag();
     });
     Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
       return this.blockAIIdentifyTheScreen();
@@ -32,7 +32,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   /**
    * 【屏蔽】视频信息
    */
-  shieldVideoInfoWrap() {
+  blockVideoInfoWrap() {
     log.info("【屏蔽】视频信息");
     return [
       CommonUtil.addBlockCSS(
@@ -41,6 +41,8 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
         '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
         '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
       ),
+      this.blockClickRecommend(),
+      this.blobkTitleTopTag(),
     ];
   },
   /**
@@ -63,7 +65,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   /**
    * 【屏蔽】视频标题下的标签
    */
-  shieldVideoUnderTitleTag() {
+  blockVideoUnderTitleTag() {
     log.info(`【屏蔽】视频标题下的标签`);
     return [
       CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),

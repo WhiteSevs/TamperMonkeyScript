@@ -15,12 +15,12 @@ import { DouYinVideoBlock_RightToolbar } from "./DouYinVideoBlock_RightToolbar";
 export const DouYinVideoBlock = {
   init() {
     Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
-      return this.shieldRightExpandCommentButton();
+      return this.blockRightExpandCommentButton();
     });
     Panel.execMenuOnce(
       "shieldSearchFloatingBar",
       () => {
-        return this.shieldSearchFloatingBar();
+        return this.blockSearchFloatingBar();
       },
       void 0,
       true
@@ -28,7 +28,7 @@ export const DouYinVideoBlock = {
     Panel.execMenuOnce(
       "shieldCloseFullScreenButton",
       () => {
-        return this.shieldCloseFullScreenButton();
+        return this.blockCloseFullScreenButton();
       },
       void 0,
       true
@@ -53,7 +53,7 @@ export const DouYinVideoBlock = {
   /**
    * 【屏蔽】右侧的展开评论按钮
    */
-  shieldRightExpandCommentButton() {
+  blockRightExpandCommentButton() {
     log.info("【屏蔽】右侧的展开评论按钮");
     return [
       CommonUtil.addBlockCSS(
@@ -70,7 +70,7 @@ export const DouYinVideoBlock = {
    * 左上角的鼠标的快捷搜索热点的悬浮栏
    * 【屏蔽】搜索悬浮栏
    */
-  shieldSearchFloatingBar() {
+  blockSearchFloatingBar() {
     log.info("【屏蔽】搜索悬浮栏");
     const result = [];
     result.push(
@@ -111,7 +111,7 @@ export const DouYinVideoBlock = {
   /**
    * 【屏蔽】网页全屏关闭按钮
    */
-  shieldCloseFullScreenButton() {
+  blockCloseFullScreenButton() {
     log.info("【屏蔽】网页全屏关闭按钮");
     const result = [];
     result.push(

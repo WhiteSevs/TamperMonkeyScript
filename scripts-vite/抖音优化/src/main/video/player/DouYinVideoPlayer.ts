@@ -17,6 +17,8 @@ import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
+import { DouYinVideoBlock_RightToolbar } from "../block/DouYinVideoBlock_RightToolbar";
+import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "../block/DouYinVideoBlock_BottomToolbar_PlayerComponents";
 
 /**
  * 视频播放器的播放速度
@@ -124,28 +126,33 @@ export const DouYinVideoPlayer = {
       Panel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
         return this.rightToolBarAutoHide();
       });
+      Panel.execMenuOnce("dy-video-commentTimeJump", () => {
+        return this.commentTimeJump();
+      });
     });
   },
   /**
-   * 全屏（沉浸模式）
+   * 沉浸模式
    */
-  fullScreen(mode: boolean | "mouseEnterShow") {
+  fullScreen(mode: boolean | "mouseEnterShow" | "bottomInfoWrap-rightToolBar") {
     log.info("沉浸模式：" + mode);
     const result = [];
     if (typeof mode === "boolean" && mode) {
+      // 全部
       result.push(
         CommonUtil.addBlockCSS(
-          /* 右侧工具栏 */
-          ".slider-video .positionBox",
-          /* 中间底部的视频信息（描述、作者、话题等） */
-          "#video-info-wrap",
           /* 中间底部的视频控制工具栏 */
           "xg-controls.xgplayer-controls"
         )
       );
-      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
-      result.push(...DouYinVideoBlock.shieldSearchFloatingBar());
-      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
+      // 左上角搜索框
+      result.push(...DouYinVideoBlock.blockSearchFloatingBar());
+      // 右侧工具栏
+      result.push(DouYinVideoBlock_RightToolbar.blockToolBar());
+      // 底部视频信息
+      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
+      // 底部播放器组件
+      result.push(DouYinVideoBlock_BottomToolbar_PlayerComponents.blockBottomVideoToolBar());
       result.push(
         addStyle(/*css*/ `
 			/* 视频全屏 */
@@ -215,6 +222,16 @@ export const DouYinVideoPlayer = {
         }
       `)
       );
+    } else if (mode === "bottomInfoWrap-rightToolBar") {
+      // 隐藏底部信息区域和右侧工具栏
+      // 左上角搜索框
+      result.push(...DouYinVideoBlock.blockSearchFloatingBar());
+      // 右侧工具栏
+      result.push(DouYinVideoBlock_RightToolbar.blockToolBar());
+      // 底部视频信息
+      result.push(...DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
+    } else {
+      log.warn("未知mode参数: " + mode);
     }
     return result;
   },
@@ -1622,5 +1639,156 @@ export const DouYinVideoPlayer = {
         scrollbar-width: thin !important;
       }
     `);
+  },
+  /**
+   * 评论区时间可跳转
+   */
+  commentTimeJump() {
+    log.info(`评论区时间可跳转`);
+    const transformTime = (time: string) => {
+      const timeArr = time.split(":");
+      if (timeArr.length !== 2 && timeArr.length !== 3) {
+        return;
+      }
+      const second = parseInt(timeArr[timeArr.length - 1]);
+      const minute = parseInt(timeArr[timeArr.length - 2]);
+      const hour = timeArr.length === 3 ? parseInt(timeArr[0]) : 0;
+      const timeStamp = hour * 60 * 60 + minute * 60 + second;
+      return timeStamp;
+    };
+
+    // 更全面的时间正则表达式匹配
+    const timePatterns = [
+      /(\d{1,2}:\d{2}:\d{2})/g, // HH:MM:SS
+      /(\d{1,2}:\d{2})/g, // MM:SS
+    ]; // 处理单个评论元素
+    const processCommentElement = ($comment: Element) => {
+      // 检查是否已经处理过
+      if ($comment.hasAttribute("data-dy-time-processed")) {
+        return;
+      }
+
+      // 标记为已处理，避免重复处理
+      $comment.setAttribute("data-dy-time-processed", "true");
+
+      // 递归查找所有包含时间的文本节点
+      const walker = document.createTreeWalker($comment, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) => {
+          const text = node.textContent || "";
+          return timePatterns.some((pattern) => pattern.test(text))
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_REJECT;
+        },
+      });
+
+      const textNodes: Text[] = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        textNodes.push(node as Text);
+      }
+
+      textNodes.forEach((textNode) => {
+        let originalText = textNode.textContent || "";
+
+        // 检查是否包含时间模式
+        let hasTimeMatch = false;
+        let processedText = originalText;
+
+        timePatterns.forEach((pattern) => {
+          processedText = processedText.replace(pattern, (match) => {
+            const timestamp = transformTime(match);
+            if (typeof timestamp === "number" && !isNaN(timestamp)) {
+              hasTimeMatch = true;
+              return `<span class="dy-comment-time" data-time="${timestamp}">${match}</span>`;
+            }
+            return match;
+          });
+        });
+
+        // 只有当文本实际发生变化时才替换
+        if (hasTimeMatch && processedText !== originalText) {
+          const wrapper = DOMUtils.createElement("span", {
+            innerHTML: processedText,
+          });
+
+          const parent = textNode.parentNode;
+          if (parent) {
+            parent.replaceChild(wrapper, textNode);
+          }
+        }
+      });
+    };
+    // 点击时间戳处理
+    const handleTimeClick = (event: PointerEvent | MouseEvent, $click: HTMLElement) => {
+      DOMUtils.preventEvent(event);
+      const timeStr = $click.getAttribute("data-time") || "0";
+      const jumpTimeDuration = parseInt(timeStr);
+      if (!isNaN(jumpTimeDuration) && jumpTimeDuration >= 0) {
+        let $video: HTMLVideoElement | null = null;
+        if (DouYinRouter.isVideo()) {
+          // 单个video下
+          const $videoContainer = $click.closest('[data-e2e="video-detail"]');
+          if (!$videoContainer) {
+            Qmsg.error("未找到视频容器");
+            return;
+          }
+          $video = $videoContainer.querySelector<HTMLVideoElement>('[data-e2e="player-container"] video');
+        } else {
+          const $videoContainer = $click.closest(".sliderVideo");
+          if (!$videoContainer) {
+            Qmsg.error("未找到视频容器");
+            return;
+          }
+          $video = $videoContainer.querySelector<HTMLVideoElement>("video");
+        }
+        if (!$video) {
+          Qmsg.error("未找到视频元素");
+          return;
+        }
+        $video.currentTime = jumpTimeDuration;
+        if (jumpTimeDuration > $video.duration) {
+          log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${DouYinUtils.parseDuration(jumpTimeDuration)}`);
+        } else {
+          log.info(`跳转时间至: ${timeStr} => ${jumpTimeDuration}`);
+        }
+      }
+    };
+    // 添加点击事件监听
+    const listener = DOMUtils.on(document, "click", ".dy-comment-time", handleTimeClick, {
+      capture: true,
+    });
+    const lockFn = new utils.LockFunction(() => {
+      if (DouYinRouter.isLive()) return;
+      const $commentItems = $$('[data-e2e="comment-item"]:not([data-dy-time-processed])');
+      $commentItems.forEach(($commentItem) => {
+        processCommentElement($commentItem);
+      });
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    return [
+      addStyle(/*css*/ `
+        .dy-comment-time{
+          cursor: pointer;
+          color: #48a4ff;
+          text-decoration: none;
+        }
+      `),
+      () => {
+        listener.off();
+        observer.disconnect();
+        $$('[data-e2e="comment-item"] .dy-comment-time').forEach(($time) => {
+          DOMUtils.html($time, DOMUtils.text($time));
+        });
+      },
+    ];
   },
 };

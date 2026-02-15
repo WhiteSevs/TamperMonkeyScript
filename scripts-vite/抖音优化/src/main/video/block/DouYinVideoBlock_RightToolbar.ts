@@ -14,29 +14,36 @@ export const DouYinVideoBlock_RightToolbar = {
       return this.blockAIDouYin();
     });
     Panel.execMenuOnce("shieldAuthorAvatar", () => {
-      return this.shieldAuthorAvatar();
+      return this.blockAuthorAvatar();
     });
     Panel.execMenuOnce("shieldLikeButton", () => {
-      return this.shieldLikeButton();
+      return this.blockLikeButton();
     });
     Panel.execMenuOnce("shieldCommentButton", () => {
-      return this.shieldCommentButton();
+      return this.blockCommentButton();
     });
     Panel.execMenuOnce("shieldCollectionButton", () => {
-      return this.shieldCollectionButton();
+      return this.blockCollectionButton();
     });
     Panel.execMenuOnce("shieldSharenButton", () => {
-      return this.shieldSharenButton();
+      return this.blockSharenButton();
     });
     Panel.execMenuOnce("shieldListenDouYinButton", () => {
-      return this.shieldListenDouYinButton();
+      return this.blockListenDouYinButton();
     });
     Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
-      return this.shieldRelatedRecommendationsButton();
+      return this.blockRelatedRecommendationsButton();
     });
     Panel.execMenuOnce("shieldMoreButton", () => {
-      return this.shieldMoreButton();
+      return this.blockMoreButton();
     });
+  },
+  /**
+   * 【屏蔽】右侧工具栏
+   */
+  blockToolBar() {
+    log.info(`【屏蔽】右侧工具栏`);
+    return CommonUtil.addBlockCSS(".slider-video .positionBox");
   },
   /**
    * 【屏蔽】切换播放↑↓
@@ -83,7 +90,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】作者头像
    */
-  shieldAuthorAvatar() {
+  blockAuthorAvatar() {
     log.info("【屏蔽】作者头像");
     return [
       CommonUtil.addBlockCSS(
@@ -96,7 +103,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】点赞
    */
-  shieldLikeButton() {
+  blockLikeButton() {
     log.info("【屏蔽】点赞");
     return [
       CommonUtil.addBlockCSS(
@@ -109,7 +116,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】评论
    */
-  shieldCommentButton() {
+  blockCommentButton() {
     log.info("【屏蔽】评论");
     return [
       CommonUtil.addBlockCSS(
@@ -122,7 +129,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】收藏
    */
-  shieldCollectionButton() {
+  blockCollectionButton() {
     log.info("【屏蔽】收藏");
     return [
       CommonUtil.addBlockCSS(
@@ -135,7 +142,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】分享
    */
-  shieldSharenButton() {
+  blockSharenButton() {
     log.info("【屏蔽】分享");
     return [
       CommonUtil.addBlockCSS(
@@ -148,7 +155,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】听抖音
    */
-  shieldListenDouYinButton() {
+  blockListenDouYinButton() {
     log.info("【屏蔽】听抖音");
     return [
       CommonUtil.addBlockCSS(
@@ -159,7 +166,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】看相关
    */
-  shieldRelatedRecommendationsButton() {
+  blockRelatedRecommendationsButton() {
     log.info("【屏蔽】看相关");
     return [
       CommonUtil.addBlockCSS(
@@ -183,7 +190,7 @@ export const DouYinVideoBlock_RightToolbar = {
   /**
    * 【屏蔽】更多
    */
-  shieldMoreButton() {
+  blockMoreButton() {
     log.info("【屏蔽】更多");
     return [
       CommonUtil.addBlockCSS(

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.13
+// @version      2026.2.15
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1173,7 +1173,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1196,23 +1196,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -4070,7 +4084,7 @@
   const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
-        return this.shieldBottomVideoToolBar();
+        return this.blockBottomVideoToolBar();
       });
       Panel.execMenuOnce("shieldBottomVideoToolBar-play", () => {
         return this.blockPlay();
@@ -4082,7 +4096,7 @@
         return this.blockChapterContainer();
       });
       Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
-        return this.shieldBottomVideoToolbarDanmuContainer();
+        return this.blockBottomVideoToolbarDanmuContainer();
       });
       Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
         return this.autoPlay();
@@ -4115,7 +4129,7 @@
         return this.fullScreen();
       });
     },
-    shieldBottomVideoToolBar() {
+    blockBottomVideoToolBar() {
       log.info("【屏蔽】播放器组件");
       return [
         CommonUtil.addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
@@ -4147,7 +4161,7 @@
       log.info(`【屏蔽】章节要点`);
       return CommonUtil.addBlockCSS('.chapterContainer[data-e2e="chapter-container"]');
     },
-    shieldBottomVideoToolbarDanmuContainer() {
+    blockBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
       return CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]');
     },
@@ -4199,7 +4213,7 @@
   const DouYinVideoBlock_BottomToolbar_videoInfo = {
     init() {
       Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-        return this.shieldVideoInfoWrap();
+        return this.blockVideoInfoWrap();
       });
       Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
         return this.blockClickRecommend();
@@ -4208,7 +4222,7 @@
         return this.blobkTitleTopTag();
       });
       Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
-        return this.shieldVideoUnderTitleTag();
+        return this.blockVideoUnderTitleTag();
       });
       Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
         return this.blockAIIdentifyTheScreen();
@@ -4220,7 +4234,7 @@
         return this.blockAuthorDeclaration();
       });
     },
-    shieldVideoInfoWrap() {
+    blockVideoInfoWrap() {
       log.info("【屏蔽】视频信息");
       return [
         CommonUtil.addBlockCSS(
@@ -4228,6 +4242,8 @@
           '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
           '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
         ),
+        this.blockClickRecommend(),
+        this.blobkTitleTopTag(),
       ];
     },
     blockClickRecommend() {
@@ -4238,7 +4254,7 @@
       log.info(`【屏蔽】视频标题上的标签`);
       return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
     },
-    shieldVideoUnderTitleTag() {
+    blockVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
       return [
         CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),
@@ -4625,29 +4641,33 @@
         return this.blockAIDouYin();
       });
       Panel.execMenuOnce("shieldAuthorAvatar", () => {
-        return this.shieldAuthorAvatar();
+        return this.blockAuthorAvatar();
       });
       Panel.execMenuOnce("shieldLikeButton", () => {
-        return this.shieldLikeButton();
+        return this.blockLikeButton();
       });
       Panel.execMenuOnce("shieldCommentButton", () => {
-        return this.shieldCommentButton();
+        return this.blockCommentButton();
       });
       Panel.execMenuOnce("shieldCollectionButton", () => {
-        return this.shieldCollectionButton();
+        return this.blockCollectionButton();
       });
       Panel.execMenuOnce("shieldSharenButton", () => {
-        return this.shieldSharenButton();
+        return this.blockSharenButton();
       });
       Panel.execMenuOnce("shieldListenDouYinButton", () => {
-        return this.shieldListenDouYinButton();
+        return this.blockListenDouYinButton();
       });
       Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
-        return this.shieldRelatedRecommendationsButton();
+        return this.blockRelatedRecommendationsButton();
       });
       Panel.execMenuOnce("shieldMoreButton", () => {
-        return this.shieldMoreButton();
+        return this.blockMoreButton();
       });
+    },
+    blockToolBar() {
+      log.info(`【屏蔽】右侧工具栏`);
+      return CommonUtil.addBlockCSS(".slider-video .positionBox");
     },
     shieldPlaySwitchButton() {
       log.info("【屏蔽】切换播放↑↓");
@@ -4681,7 +4701,7 @@
         ),
       ];
     },
-    shieldAuthorAvatar() {
+    blockAuthorAvatar() {
       log.info("【屏蔽】作者头像");
       return [
         CommonUtil.addBlockCSS(
@@ -4690,7 +4710,7 @@
         ),
       ];
     },
-    shieldLikeButton() {
+    blockLikeButton() {
       log.info("【屏蔽】点赞");
       return [
         CommonUtil.addBlockCSS(
@@ -4699,7 +4719,7 @@
         ),
       ];
     },
-    shieldCommentButton() {
+    blockCommentButton() {
       log.info("【屏蔽】评论");
       return [
         CommonUtil.addBlockCSS(
@@ -4708,7 +4728,7 @@
         ),
       ];
     },
-    shieldCollectionButton() {
+    blockCollectionButton() {
       log.info("【屏蔽】收藏");
       return [
         CommonUtil.addBlockCSS(
@@ -4717,7 +4737,7 @@
         ),
       ];
     },
-    shieldSharenButton() {
+    blockSharenButton() {
       log.info("【屏蔽】分享");
       return [
         CommonUtil.addBlockCSS(
@@ -4726,7 +4746,7 @@
         ),
       ];
     },
-    shieldListenDouYinButton() {
+    blockListenDouYinButton() {
       log.info("【屏蔽】听抖音");
       return [
         CommonUtil.addBlockCSS(
@@ -4734,7 +4754,7 @@
         ),
       ];
     },
-    shieldRelatedRecommendationsButton() {
+    blockRelatedRecommendationsButton() {
       log.info("【屏蔽】看相关");
       return [
         CommonUtil.addBlockCSS(
@@ -4754,7 +4774,7 @@
         ),
       ];
     },
-    shieldMoreButton() {
+    blockMoreButton() {
       log.info("【屏蔽】更多");
       return [
         CommonUtil.addBlockCSS(
@@ -4777,12 +4797,12 @@
   const DouYinVideoBlock = {
     init() {
       Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
-        return this.shieldRightExpandCommentButton();
+        return this.blockRightExpandCommentButton();
       });
       Panel.execMenuOnce(
         "shieldSearchFloatingBar",
         () => {
-          return this.shieldSearchFloatingBar();
+          return this.blockSearchFloatingBar();
         },
         void 0,
         true
@@ -4790,7 +4810,7 @@
       Panel.execMenuOnce(
         "shieldCloseFullScreenButton",
         () => {
-          return this.shieldCloseFullScreenButton();
+          return this.blockCloseFullScreenButton();
         },
         void 0,
         true
@@ -4812,7 +4832,7 @@
       DouYinVideoBlock_RightMenu.init();
       DouYinVideoBlock_RightMenu_Live.init();
     },
-    shieldRightExpandCommentButton() {
+    blockRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
       return [
         CommonUtil.addBlockCSS(
@@ -4827,7 +4847,7 @@
         ),
       ];
     },
-    shieldSearchFloatingBar() {
+    blockSearchFloatingBar() {
       log.info("【屏蔽】搜索悬浮栏");
       const result = [];
       result.push(
@@ -4859,7 +4879,7 @@
       }
       return result;
     },
-    shieldCloseFullScreenButton() {
+    blockCloseFullScreenButton() {
       log.info("【屏蔽】网页全屏关闭按钮");
       const result = [];
       result.push(
@@ -6335,7 +6355,20 @@
             if (typeof value === "boolean") {
               value = !value;
             } else {
+              value = true;
+            }
+            log.info("触发快捷键 ==> 沉浸模式：" + value);
+            Panel.setValue("fullScreen", value);
+          },
+        },
+        "dy-video-shortcut-immersionMode-bottomInfoWrap-rightToolBar": {
+          callback() {
+            let value = Panel.getValue("fullScreen");
+            const defaultValue = "bottomInfoWrap-rightToolBar";
+            if (value === defaultValue) {
               value = false;
+            } else {
+              value = defaultValue;
             }
             log.info("触发快捷键 ==> 沉浸模式：" + value);
             Panel.setValue("fullScreen", value);
@@ -6480,18 +6513,20 @@
         Panel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
           return this.rightToolBarAutoHide();
         });
+        Panel.execMenuOnce("dy-video-commentTimeJump", () => {
+          return this.commentTimeJump();
+        });
       });
     },
     fullScreen(mode) {
       log.info("沉浸模式：" + mode);
       const result = [];
       if (typeof mode === "boolean" && mode) {
-        result.push(
-          CommonUtil.addBlockCSS(".slider-video .positionBox", "#video-info-wrap", "xg-controls.xgplayer-controls")
-        );
-        result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
-        result.push(...DouYinVideoBlock.shieldSearchFloatingBar());
-        result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
+        result.push(CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"));
+        result.push(...DouYinVideoBlock.blockSearchFloatingBar());
+        result.push(DouYinVideoBlock_RightToolbar.blockToolBar());
+        result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
+        result.push(DouYinVideoBlock_BottomToolbar_PlayerComponents.blockBottomVideoToolBar());
         result.push(
           addStyle(
             `
@@ -6552,6 +6587,12 @@
       `
           )
         );
+      } else if (mode === "bottomInfoWrap-rightToolBar") {
+        result.push(...DouYinVideoBlock.blockSearchFloatingBar());
+        result.push(DouYinVideoBlock_RightToolbar.blockToolBar());
+        result.push(...DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
+      } else {
+        log.warn("未知mode参数: " + mode);
       }
       return result;
     },
@@ -7690,6 +7731,135 @@
       }
     `
       );
+    },
+    commentTimeJump() {
+      log.info(`评论区时间可跳转`);
+      const transformTime = (time) => {
+        const timeArr = time.split(":");
+        if (timeArr.length !== 2 && timeArr.length !== 3) {
+          return;
+        }
+        const second = parseInt(timeArr[timeArr.length - 1]);
+        const minute = parseInt(timeArr[timeArr.length - 2]);
+        const hour = timeArr.length === 3 ? parseInt(timeArr[0]) : 0;
+        const timeStamp = hour * 60 * 60 + minute * 60 + second;
+        return timeStamp;
+      };
+      const timePatterns = [/(\d{1,2}:\d{2}:\d{2})/g, /(\d{1,2}:\d{2})/g];
+      const processCommentElement = ($comment) => {
+        if ($comment.hasAttribute("data-dy-time-processed")) {
+          return;
+        }
+        $comment.setAttribute("data-dy-time-processed", "true");
+        const walker = document.createTreeWalker($comment, NodeFilter.SHOW_TEXT, {
+          acceptNode: (node2) => {
+            const text = node2.textContent || "";
+            return timePatterns.some((pattern) => pattern.test(text))
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_REJECT;
+          },
+        });
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) {
+          textNodes.push(node);
+        }
+        textNodes.forEach((textNode) => {
+          let originalText = textNode.textContent || "";
+          let hasTimeMatch = false;
+          let processedText = originalText;
+          timePatterns.forEach((pattern) => {
+            processedText = processedText.replace(pattern, (match) => {
+              const timestamp = transformTime(match);
+              if (typeof timestamp === "number" && !isNaN(timestamp)) {
+                hasTimeMatch = true;
+                return `<span class="dy-comment-time" data-time="${timestamp}">${match}</span>`;
+              }
+              return match;
+            });
+          });
+          if (hasTimeMatch && processedText !== originalText) {
+            const wrapper = domUtils.createElement("span", {
+              innerHTML: processedText,
+            });
+            const parent = textNode.parentNode;
+            if (parent) {
+              parent.replaceChild(wrapper, textNode);
+            }
+          }
+        });
+      };
+      const handleTimeClick = (event, $click) => {
+        domUtils.preventEvent(event);
+        const timeStr = $click.getAttribute("data-time") || "0";
+        const jumpTimeDuration = parseInt(timeStr);
+        if (!isNaN(jumpTimeDuration) && jumpTimeDuration >= 0) {
+          let $video = null;
+          if (DouYinRouter.isVideo()) {
+            const $videoContainer = $click.closest('[data-e2e="video-detail"]');
+            if (!$videoContainer) {
+              Qmsg.error("未找到视频容器");
+              return;
+            }
+            $video = $videoContainer.querySelector('[data-e2e="player-container"] video');
+          } else {
+            const $videoContainer = $click.closest(".sliderVideo");
+            if (!$videoContainer) {
+              Qmsg.error("未找到视频容器");
+              return;
+            }
+            $video = $videoContainer.querySelector("video");
+          }
+          if (!$video) {
+            Qmsg.error("未找到视频元素");
+            return;
+          }
+          $video.currentTime = jumpTimeDuration;
+          if (jumpTimeDuration > $video.duration) {
+            log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${DouYinUtils.parseDuration(jumpTimeDuration)}`);
+          } else {
+            log.info(`跳转时间至: ${timeStr} => ${jumpTimeDuration}`);
+          }
+        }
+      };
+      const listener = domUtils.on(document, "click", ".dy-comment-time", handleTimeClick, {
+        capture: true,
+      });
+      const lockFn = new utils.LockFunction(() => {
+        if (DouYinRouter.isLive()) return;
+        const $commentItems = $$('[data-e2e="comment-item"]:not([data-dy-time-processed])');
+        $commentItems.forEach(($commentItem) => {
+          processCommentElement($commentItem);
+        });
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        addStyle(
+          `
+        .dy-comment-time{
+          cursor: pointer;
+          color: #48a4ff;
+          text-decoration: none;
+        }
+      `
+        ),
+        () => {
+          listener.off();
+          observer.disconnect();
+          $$('[data-e2e="comment-item"] .dy-comment-time').forEach(($time) => {
+            domUtils.html($time, domUtils.text($time));
+          });
+        },
+      ];
     },
   };
   const DouYinLiveBlock_ChatRoom = {
@@ -12920,6 +13090,10 @@
                         value: false,
                       },
                       {
+                        text: "隐藏底部信息区域和右侧工具栏",
+                        value: "bottomInfoWrap-rightToolBar",
+                      },
+                      {
                         text: "全部",
                         value: true,
                       },
@@ -13019,6 +13193,7 @@
                   ),
                   UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
                   UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll", false),
+                  UISwitch("评论区时间可跳转", "dy-video-commentTimeJump", false),
                 ],
               },
               {
@@ -13229,8 +13404,17 @@
                   ),
                   UIButtonShortCut(
                     "沉浸模式（全部）",
-                    "隐藏右侧工具栏、底部信息栏等",
+                    "可隐藏右侧工具栏、底部信息栏、左上角搜索悬浮栏等",
                     "dy-video-shortcut-immersionMode",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoPlayerShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "沉浸模式（隐藏底部信息区域和右侧工具栏）",
+                    "",
+                    "dy-video-shortcut-immersionMode-bottomInfoWrap-rightToolBar",
                     void 0,
                     "点击录入快捷键",
                     void 0,

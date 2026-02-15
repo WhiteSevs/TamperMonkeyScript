@@ -64,9 +64,27 @@ export const DouYinVideoPlayerShortCut = {
         callback() {
           let value = Panel.getValue<string | boolean>("fullScreen");
           if (typeof value === "boolean") {
+            // 开 => 关
+            // 关 => 开
             value = !value;
           } else {
+            // 开
+            value = true;
+          }
+          log.info("触发快捷键 ==> 沉浸模式：" + value);
+          Panel.setValue("fullScreen", value);
+        },
+      },
+      "dy-video-shortcut-immersionMode-bottomInfoWrap-rightToolBar": {
+        callback() {
+          let value = Panel.getValue<string | boolean>("fullScreen");
+          const defaultValue = "bottomInfoWrap-rightToolBar";
+          if (value === defaultValue) {
+            // 开 => 关
             value = false;
+          } else {
+            // 开
+            value = defaultValue;
           }
           log.info("触发快捷键 ==> 沉浸模式：" + value);
           Panel.setValue("fullScreen", value);

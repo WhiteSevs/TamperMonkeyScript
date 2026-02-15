@@ -77,6 +77,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       value: false,
                     },
                     {
+                      text: "隐藏底部信息区域和右侧工具栏",
+                      value: "bottomInfoWrap-rightToolBar",
+                    },
+                    {
                       text: "全部",
                       value: true,
                     },
@@ -176,6 +180,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
                 UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll", false),
+                UISwitch("评论区时间可跳转", "dy-video-commentTimeJump", false, undefined),
               ],
             },
             {
@@ -387,8 +392,17 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UIButtonShortCut(
                   "沉浸模式（全部）",
-                  "隐藏右侧工具栏、底部信息栏等",
+                  "可隐藏右侧工具栏、底部信息栏、左上角搜索悬浮栏等",
                   "dy-video-shortcut-immersionMode",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinVideoPlayerShortCut.shortCut
+                ),
+                UIButtonShortCut(
+                  "沉浸模式（隐藏底部信息区域和右侧工具栏）",
+                  "",
+                  "dy-video-shortcut-immersionMode-bottomInfoWrap-rightToolBar",
                   void 0,
                   "点击录入快捷键",
                   void 0,

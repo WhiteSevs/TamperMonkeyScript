@@ -9,7 +9,7 @@ import { DouYinVideoPlayer } from "../player/DouYinVideoPlayer";
 export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   init() {
     Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
-      return this.shieldBottomVideoToolBar();
+      return this.blockBottomVideoToolBar();
     });
     Panel.execMenuOnce("shieldBottomVideoToolBar-play", () => {
       return this.blockPlay();
@@ -21,7 +21,7 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       return this.blockChapterContainer();
     });
     Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
-      return this.shieldBottomVideoToolbarDanmuContainer();
+      return this.blockBottomVideoToolbarDanmuContainer();
     });
     Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
       return this.autoPlay();
@@ -57,7 +57,7 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   /**
    * 【屏蔽】播放器组件
    */
-  shieldBottomVideoToolBar() {
+  blockBottomVideoToolBar() {
     log.info("【屏蔽】播放器组件");
     return [
       CommonUtil.addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
@@ -105,7 +105,7 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
   /**
    * 【屏蔽】底部视频工具栏的弹幕容器
    */
-  shieldBottomVideoToolbarDanmuContainer() {
+  blockBottomVideoToolbarDanmuContainer() {
     // 弹幕
     // .basePlayerContainer > div.danmu
     log.info("【屏蔽】底部视频工具栏的弹幕容器");
