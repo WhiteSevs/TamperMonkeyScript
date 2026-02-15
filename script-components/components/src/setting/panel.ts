@@ -518,7 +518,7 @@ const Panel = {
         resultValueList = resultValueList.concat(args);
       } else {
         // 额外处理ExecMenuResultInst类型
-        const handlerArgs = (obj: any) => {
+        const handleArgs = (obj: any) => {
           if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) {
               // 元素
@@ -544,26 +544,41 @@ const Panel = {
         };
         if (args != null && Array.isArray(args)) {
           for (const it of args) {
-            handlerArgs(it);
+            handleArgs(it);
           }
         } else {
-          handlerArgs(args);
+          handleArgs(args);
         }
       }
-      for (const it of resultValueList) {
+      const handleResult = (it: any) => {
         if (it == null) {
           // 空的
-          continue;
+          return;
         }
         if (it instanceof Element) {
           // 元素
           dynamicMenuStoreValueList.push(it);
-          continue;
+          return;
         }
         if (typeof it === "function") {
           // 函数（判断为卸载函数）
           dynamicDestoryFnList.push(it);
-          continue;
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          // 数组套数组
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
         }
       }
       // 先执行旧的卸载函数和移除添加的元素
