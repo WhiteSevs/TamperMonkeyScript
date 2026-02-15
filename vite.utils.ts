@@ -263,9 +263,9 @@ export class ViteUtils {
       if (oid == null) {
         throw new TypeError("获取github文件sha值失败", scriptInfo);
       }
-      console.log(`github文件路径：https://github.com/${repoName}/tree/${branchName}/${pathName}`);
-      console.log(`github文件sha值：${oid}`);
-      console.log("");
+      // console.log(`github文件路径：https://github.com/${repoName}/tree/${branchName}/${pathName}`);
+      // console.log(`github文件sha值：${oid}`);
+      // console.log("");
       return github_jsdelivr(repoName, oid, pathName);
     } catch (error) {
       if (reTry) {

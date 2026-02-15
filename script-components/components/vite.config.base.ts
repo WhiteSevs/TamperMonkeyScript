@@ -294,10 +294,10 @@ const GenerateUserConfig = async (option: {
         }
       });
       if (historyVersion.trim() !== "") {
-        console.log("git history version: ", historyVersion);
+        console.log("git history version: ", pc.blue(historyVersion));
       }
       VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
-      console.log("script build version: " + VERSION);
+      console.log("script build version: ", pc.green(VERSION));
     } else {
       VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
     }
