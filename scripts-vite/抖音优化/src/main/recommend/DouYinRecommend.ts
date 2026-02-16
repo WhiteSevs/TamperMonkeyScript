@@ -259,6 +259,6 @@ export const DouYinRecommend = {
    */
   disableVideoSatisfaction() {
     log.info(`禁用视频满意评价`);
-    unsafeWindow.localStorage.setItem("questionV1", String(Date.now() - 1000 * 60 * 60));
+    unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 1000 * 60 * 60 * 24 * 365));
   },
 };

@@ -15,6 +15,8 @@ div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
 [data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,
 /* so.douyin.com的广告item */
 .card-item:has(.h5-ad-video-card),
-.card-item:has([data-is-ad="true"]) {
+.card-item:has([data-is-ad="true"]),
+/* 左侧导航栏的下面的下载抖音精选 */
+[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {
   display: none !important;
 }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.15
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4925,7 +4925,7 @@
     },
   };
   const MobileCSS$1 =
-    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\r\n    [id^="douyin-header-menu"] {\r\n    display: none !important;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: 100dvw !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 网页全屏下的推荐视频的高度适配 */\r\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r\n    margin: 0px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n    white-space: nowrap;\r\n    overflow: auto;\r\n    align-items: start;\r\n    justify-content: start;\r\n    margin: 0px;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
+    '/* 竖屏且高度小于550px */\n@media screen and (max-width: 550px) and (orientation: portrait) {\n  /* 右侧工具栏放大 */\n  .basePlayerContainer .positionBox {\n    bottom: 80px !important;\n    padding-right: 5px !important;\n    scale: unset !important;\n    transform: scale3d(1.12, 1.12, 1.12) !important;\n  }\n  /* 右侧工具栏的svg再放大 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(1.12, 1.12, 1.12);\n  }\n  /* 重置关注按钮的scale */\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\n    scale: unset !important;\n  }\n\n  /* 调整顶部搜索框的宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: 150px;\n    padding-right: 0;\n    max-width: unset;\n    flex: 1;\n  }\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\n    [id^="douyin-header-menu"] {\n    display: none !important;\n  }\n  /* 搜索框获取焦点时自动放大宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\n    width: 100vw;\n    width: 100dvw;\n  }\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\n  #search-content-area > div,\n  #search-content-area > div div:has(+ #search-result-container),\n  #search-content-area > div #search-result-container {\n    width: 100%;\n    width: -webkit-fill-available;\n    width: -moz-available;\n  }\n  /* 搜索页面 视频右侧的工具栏缩小 */\n  #search-content-area .basePlayerContainer .positionBox {\n    bottom: 28px !important;\n    transform: scale3d(0.6, 0.6, 0.6) !important;\n  }\n  /* 搜索页面 搜索出的用户信息换行 */\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\n    flex-wrap: wrap;\n  }\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\n    overflow: auto;\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) {\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\n  #search-content-area div:has(> div > span[data-key="general"]) {\n    position: unset !important;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) > * {\n    white-space: nowrap !important;\n    width: auto !important;\n    width: fit-content !important;\n    margin-left: 0px !important;\n    margin-right: 0px !important;\n  }\n  /* 去除设置min-width超出浏览器宽度的问题 */\n  body {\n    min-width: 100% !important;\n  }\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\n  #douyin-right-container #douyin-header {\n    width: 100%;\n  }\n  /* 去除设置 */\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\n    min-width: 100%;\n  }\n\n  /* /video/xxx页面 */\n  /* 点赞、评论、分享偏移 */\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\n    padding-right: 30px !important;\n  }\n  /* 底部工具栏右侧的按钮 */\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\n    margin-right: 35px !important;\n  }\n  /* 评论区全屏 */\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\n    width: 100dvw !important;\n  }\n\n  /* 设置视频区域的高度 */\n  #slidelist {\n    width: 100%;\n    height: calc(100dvh - var(--header-height)) !important;\n  }\n  /* 修正网页全屏下的视频高度 */\n  #slidelist[class*="isCssFullScreen"] {\n    height: round(nearest, 100dvh, 1px) !important;\n  }\n  /* 去除视频区域右侧偏移 */\n  .is-mobile-pc div[data-e2e="slideList"] {\n    padding-right: 0px !important;\n  }\n  /* 推荐视频的高度适配 */\n  #slidelist .page-recommend-container {\n    margin-top: 8px !important;\n    margin-bottom: 4px !important;\n  }\n  /* 网页全屏下的推荐视频的高度适配 */\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\n    margin: 0px !important;\n  }\n  /* 底部工具栏右侧的按钮不换行显示 */\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\n    flex-wrap: nowrap;\n    white-space: nowrap;\n    overflow: auto;\n    align-items: start;\n    justify-content: start;\n    margin: 0px;\n  }\n}\n\n/* 横屏且高度小于550px */\n@media screen and (max-height: 550px) and (orientation: landscape) {\n  /* 右侧工具栏缩小 */\n  .basePlayerContainer .positionBox {\n    transform: scale(0.95) !important;\n    bottom: 42px !important;\n    padding-right: 10px !important;\n  }\n  /* 右侧工具栏的svg再缩小 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(0.95, 0.95, 0.95);\n  }\n  /* 修复全屏下不显示视频底部的控制栏 */\n  .isCssFullScreen [data-e2e="slideList"] {\n    min-height: auto !important;\n  }\n}\n';
   const DouYinVideoElementAutoHide = (delayTimeKey, selectors) => {
     const isInjectAttrName = "data-is-inject-mouse-hide";
     const opacityShowAttrName = "data-opacity-show";
@@ -5882,7 +5882,12 @@
                 });
               }
             } else {
-              log.success(`视频过滤器 ==> ${filterRule.name}`, { transformAwemeInfo, details, awemeInfo, filterRule });
+              log.success(`视频过滤器 ==> ${filterRule.name}`, {
+                transformAwemeInfo,
+                details,
+                awemeInfo,
+                filterRule,
+              });
             }
           }
           if (flag) {
@@ -8864,7 +8869,7 @@
     },
   };
   const MobileCSS =
-    '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n  padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n  width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n  transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n  padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n  width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n  margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header {\r\n  flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n  position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n  #sliderVideo {\r\n    width: 100%;\r\n  }\r\n  /* 调整顶部搜索框的宽度 */\r\n  #component-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n    padding-right: 0;\r\n  }\r\n}\r\n';
+    '/* 去除顶部的padding距离 */\n#douyin-right-container {\n  padding-top: 0;\n}\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\n  width: 100vw;\n}\n/* 放大顶部的综合、视频、用户等header */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\n  transform: scale(0.8);\n}\n/* 视频宽度 */\nul[data-e2e="scroll-list"] {\n  padding: 0px 10px;\n}\n#sliderVideo {\n  width: -webkit-fill-available;\n}\n/* 距离是顶部导航栏的高度 */\n#search-content-area {\n  margin-top: 65px;\n}\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\n#douyin-header header {\n  flex-direction: row-reverse !important;\n}\n#douyin-header header > div:nth-child(2) {\n  position: unset !important;\n}\n/* 调整视频列表的宽度 */\n@media screen and (max-width: 550px) {\n  #sliderVideo {\n    width: 100%;\n  }\n  /* 调整顶部搜索框的宽度 */\n  #component-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: -webkit-fill-available;\n    width: -moz-available;\n    padding-right: 0;\n  }\n}\n';
   const DouYinSearchBlock = {
     init() {
       Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
@@ -9290,9 +9295,9 @@
     },
   };
   const blockCSS$8 =
-    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r\n/* so.douyin.com的广告item */\r\n.card-item:has(.h5-ad-video-card),\r\n.card-item:has([data-is-ad="true"]) {\r\n  display: none !important;\r\n}\r\n';
+    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
   const blockCSS$7 =
-    '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n  display: none !important;\r\n}\r\n';
+    '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\n  display: none !important;\n}\n';
   const DouYinUser = {
     init() {
       addStyle(blockCSS$7);
@@ -9335,7 +9340,7 @@
     },
   };
   const blockCSS$6 =
-    '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n  display: none !important;\r\n}\r\n';
+    '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\ndiv[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
   const DouYinVideo = {
     init() {
       addStyle(blockCSS$6);
@@ -11755,7 +11760,7 @@
     },
   };
   const blockCSS$5 =
-    '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\r\n  display: none !important;\r\n}\r\n';
+    '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\n[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\n  display: none !important;\n}\n';
   const DouYinNote = {
     init() {
       addStyle(blockCSS$5);
@@ -11970,7 +11975,7 @@
     },
     disableVideoSatisfaction() {
       log.info(`禁用视频满意评价`);
-      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() - 1e3 * 60 * 60));
+      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 1e3 * 60 * 60 * 24 * 365));
     },
   };
   const blockLeftNavigatorOther = {
@@ -12212,7 +12217,7 @@
     },
   };
   const blockCSS$4 =
-    "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button {\r\n  display: none !important;\r\n}\r\n";
+    "/* 顶部 打开看看 登录 */\n.adapt-login-header,\n/* 上面屏蔽后的空白区域 */\n.user-card .nav-bar-placeholder,\n/* 视频区域底部的【打开抖音App看更多内容】 */\n.select-list .img-button {\n  display: none !important;\n}\n";
   const DouYinUrl = {
     getVideoUrl(videoId) {
       return "https://www.douyin.com/video/" + videoId;
@@ -12301,9 +12306,9 @@
     },
   };
   const blockCSS$3 =
-    "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n  display: none !important;\r\n}\r\n";
+    "/* 顶部 打开看看 登录 */\n.adapt-login-header,\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\n.footer .img-button,\n/* 登录页面 */\n.login-page ,\n/* 底部左下角 打开抖音看精彩视频 */\n.footer .bottom-btn-con-new,\n/* 合集 打开抖音看精彩视频 */\n.container .end-page-info-button {\n  display: none !important;\n}\n";
   const beautifyCSS =
-    ".video-container {\r\n  height: 100% !important;\r\n  margin-top: 0 !important;\r\n}\r\n.footer {\r\n  bottom: 50px !important;\r\n}\r\n.mix-info {\r\n  bottom: 0px !important;\r\n}\r\n";
+    ".video-container {\n  height: 100% !important;\n  margin-top: 0 !important;\n}\n.footer {\n  bottom: 50px !important;\n}\n.mix-info {\n  bottom: 0px !important;\n}\n";
   const MDouYinShareVideo = {
     init() {
       addStyle(blockCSS$3);
@@ -12328,7 +12333,7 @@
     },
   };
   const blockCSS$2 =
-    "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n  display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n  margin-top: 10px !important;\r\n}\r\n";
+    "/* 顶部 打开看看 登录 */\n.container .adapt-login-header,\n/* 底部中间的 App内打开 */\n.container .float-button-con {\n  display: none !important;\n}\n\n.gallery-container {\n  margin-top: 10px !important;\n}\n";
   const MDouYinShareNote = {
     init() {
       addStyle(blockCSS$2);
@@ -12488,7 +12493,7 @@
     },
   };
   const blockCSS$1 =
-    "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n  display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n  padding-top: 0 !important;\r\n}\r\n";
+    "/* 顶部 打开看看 登录 */\n.page-reflow-challenge .header,\n/* 底部的 打开抖音App看更多内容 */\n.page-reflow-challenge .bottom-btn__con {\n  display: none !important;\n}\n\n.page-reflow-challenge {\n  padding-top: 0 !important;\n}\n";
   const MDouYinShareChallenge = {
     init() {
       addStyle(blockCSS$1);
@@ -12536,7 +12541,7 @@
     },
   };
   const blockCSS =
-    "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n  display: none !important;\r\n}\r\n";
+    "/* 顶部 打开App，发现更多内容 */\n.page-reflow-music .header,\n/* ↑屏蔽后的 顶部空白区域 */\n.page-reflow-music .banner-placeholder ,\n/* 底部 打开抖音App看更多内容 */\n.page-reflow-music .bottom-btn__con {\n  display: none !important;\n}\n";
   const MDouYinShareMusic = {
     init() {
       addStyle(blockCSS);

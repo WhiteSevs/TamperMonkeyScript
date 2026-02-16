@@ -1,14 +1,14 @@
 {
   "name": "douyin",
-  "description": "过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等",
-  "private": true,
   "version": "0.0.1",
+  "private": true,
+  "description": "过滤广告、过滤直播、可自定义过滤视频的屏蔽关键字、伪装登录、直播屏蔽弹幕、礼物特效等",
   "type": "module",
   "scripts": {
     "check": "pnpm run format && vue-tsc",
     "dev": "vue-tsc --noEmit && vite --force",
-    "format": "prettier . --write",
-    "format:dist": "prettier dist --write",
+    "format": "oxfmt . --write",
+    "format:dist": "oxfmt dist --write",
     "build": "pnpm run format && vue-tsc --noEmit && vite build && pnpm run format:dist",
     "build:min": "pnpm run format && vue-tsc --noEmit && vite build --minify && pnpm run format:dist",
     "build:all": "pnpm run format && vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir && pnpm run format:dist",

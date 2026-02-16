@@ -1099,7 +1099,12 @@ export class DouYinVideoFilterBase {
               });
             }
           } else {
-            log.success(`视频过滤器 ==> ${filterRule.name}`, { transformAwemeInfo, details, awemeInfo, filterRule });
+            log.success(`视频过滤器 ==> ${filterRule.name}`, {
+              transformAwemeInfo,
+              details,
+              awemeInfo,
+              filterRule,
+            });
           }
         }
         if (flag) {

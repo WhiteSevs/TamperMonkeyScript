@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.15
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -244,165 +244,165 @@
 			`)]}},pt={init(){u.execMenuOnce("shieldRightExpandCommentButton",()=>this.blockRightExpandCommentButton()),u.execMenuOnce("shieldSearchFloatingBar",()=>this.blockSearchFloatingBar(),void 0,true),u.execMenuOnce("shieldCloseFullScreenButton",()=>this.blockCloseFullScreenButton(),void 0,true),u.execMenuOnce("dy-video-blockShopInfo",()=>this.blockShopInfo()),u.execMenuOnce("dy-video-blockDanmaku",()=>this.blockDanmaku()),u.execMenuOnce("dy-video-blockStartPlayIcon",()=>this.blockStartPlayIcon()),bt.init(),Et.init(),wt.init(),Qt.init(),Xt.init(),en.init(),tn.init();},blockRightExpandCommentButton(){return a.info("【屏蔽】右侧的展开评论按钮"),[g.addBlockCSS('#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]','.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'),R(`
 			.basePlayerContainer .positionBox{
 				padding-right: 20px !important;
-			}`)]},blockSearchFloatingBar(){a.info("【屏蔽】搜索悬浮栏");const e=[];return e.push(g.addBlockCSS("#slideMode + div",'.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])')),(V.isSearch()||V.isDiscover())&&e.push(g.addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')),V.isUser()&&e.push(g.addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')),V.isVideo()&&e.push(g.addBlockCSS('[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])')),e},blockCloseFullScreenButton(){a.info("【屏蔽】网页全屏关闭按钮");const e=[];return e.push(g.addBlockCSS('.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])','div:has(>svg path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),(V.isSearch()||V.isDiscover())&&e.push(g.addBlockCSS('#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),V.isUser()&&e.push(g.addBlockCSS('#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),V.isVideo()&&e.push(g.addBlockCSS('#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),e},blockShopInfo(){return a.info("【屏蔽】购物信息"),g.addBlockCSS(".xgplayer-shop-anchor")},blockDanmaku(){return a.info("【屏蔽】弹幕"),g.addBlockCSS(".basePlayerContainer .danmu")},blockStartPlayIcon(){return a.info("【屏蔽】中间的播放图标"),g.addBlockCSS(".xgplayer-start")}},nn=`/* 竖屏且高度小于550px */\r
-@media screen and (max-width: 550px) and (orientation: portrait) {\r
-  /* 右侧工具栏放大 */\r
-  .basePlayerContainer .positionBox {\r
-    bottom: 80px !important;\r
-    padding-right: 5px !important;\r
-    scale: unset !important;\r
-    transform: scale3d(1.12, 1.12, 1.12) !important;\r
-  }\r
-  /* 右侧工具栏的svg再放大 */\r
-  .basePlayerContainer .positionBox svg {\r
-    transform: scale3d(1.12, 1.12, 1.12);\r
-  }\r
-  /* 重置关注按钮的scale */\r
-  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r
-    scale: unset !important;\r
-  }\r
-\r
-  /* 调整顶部搜索框的宽度 */\r
-  #douyin-header\r
-    div[data-click="doubleClick"]\r
-    > div[data-click="doubleClick"]\r
-    > div:has(input[data-e2e="searchbar-input"]) {\r
-    width: 150px;\r
-    padding-right: 0;\r
-    max-width: unset;\r
-    flex: 1;\r
-  }\r
-  /* 搜索框获取焦点时隐藏右侧的菜单 */\r
-  #douyin-header\r
-    div[data-click="doubleClick"]\r
-    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\r
-    [id^="douyin-header-menu"] {\r
-    display: none !important;\r
-  }\r
-  /* 搜索框获取焦点时自动放大宽度 */\r
-  #douyin-header\r
-    div[data-click="doubleClick"]\r
-    > div[data-click="doubleClick"]\r
-    > div:has(input[data-e2e="searchbar-input"]:focus) {\r
-    width: 100vw;\r
-    width: 100dvw;\r
-  }\r
-  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r
-  #search-content-area > div,\r
-  #search-content-area > div div:has(+ #search-result-container),\r
-  #search-content-area > div #search-result-container {\r
-    width: 100%;\r
-    width: -webkit-fill-available;\r
-    width: -moz-available;\r
-  }\r
-  /* 搜索页面 视频右侧的工具栏缩小 */\r
-  #search-content-area .basePlayerContainer .positionBox {\r
-    bottom: 28px !important;\r
-    transform: scale3d(0.6, 0.6, 0.6) !important;\r
-  }\r
-  /* 搜索页面 搜索出的用户信息换行 */\r
-  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r
-    flex-wrap: wrap;\r
-  }\r
-  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r
-  #search-content-area div:has(> div > div > span[data-key="general"]) {\r
-    overflow: auto;\r
-    gap: 10px;\r
-  }\r
-  /* 搜索页面 搜索结果筛选选项 */\r
-  #search-content-area div:has(> span[data-key="general"]) {\r
-    gap: 10px;\r
-  }\r
-  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r
-  #search-content-area div:has(> div > span[data-key="general"]) {\r
-    position: unset !important;\r
-  }\r
-  /* 搜索页面 搜索结果筛选选项 */\r
-  #search-content-area div:has(> span[data-key="general"]) > * {\r
-    white-space: nowrap !important;\r
-    width: auto !important;\r
-    width: fit-content !important;\r
-    margin-left: 0px !important;\r
-    margin-right: 0px !important;\r
-  }\r
-  /* 去除设置min-width超出浏览器宽度的问题 */\r
-  body {\r
-    min-width: 100% !important;\r
-  }\r
-  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r
-  #douyin-right-container #douyin-header {\r
-    width: 100%;\r
-  }\r
-  /* 去除设置 */\r
-  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r
-    min-width: 100%;\r
-  }\r
-\r
-  /* /video/xxx页面 */\r
-  /* 点赞、评论、分享偏移 */\r
-  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r
-    padding-right: 30px !important;\r
-  }\r
-  /* 底部工具栏右侧的按钮 */\r
-  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r
-    margin-right: 35px !important;\r
-  }\r
-  /* 评论区全屏 */\r
-  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r
-  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r
-    width: 100dvw !important;\r
-  }\r
-\r
-  /* 设置视频区域的高度 */\r
-  #slidelist {\r
-    width: 100%;\r
-    height: calc(100dvh - var(--header-height)) !important;\r
-  }\r
-  /* 修正网页全屏下的视频高度 */\r
-  #slidelist[class*="isCssFullScreen"] {\r
-    height: round(nearest, 100dvh, 1px) !important;\r
-  }\r
-  /* 去除视频区域右侧偏移 */\r
-  .is-mobile-pc div[data-e2e="slideList"] {\r
-    padding-right: 0px !important;\r
-  }\r
-  /* 推荐视频的高度适配 */\r
-  #slidelist .page-recommend-container {\r
-    margin-top: 8px !important;\r
-    margin-bottom: 4px !important;\r
-  }\r
-  /* 网页全屏下的推荐视频的高度适配 */\r
-  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r
-    margin: 0px !important;\r
-  }\r
-  /* 底部工具栏右侧的按钮不换行显示 */\r
-  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r
-    flex-wrap: nowrap;\r
-    white-space: nowrap;\r
-    overflow: auto;\r
-    align-items: start;\r
-    justify-content: start;\r
-    margin: 0px;\r
-  }\r
-}\r
-\r
-/* 横屏且高度小于550px */\r
-@media screen and (max-height: 550px) and (orientation: landscape) {\r
-  /* 右侧工具栏缩小 */\r
-  .basePlayerContainer .positionBox {\r
-    transform: scale(0.95) !important;\r
-    bottom: 42px !important;\r
-    padding-right: 10px !important;\r
-  }\r
-  /* 右侧工具栏的svg再缩小 */\r
-  .basePlayerContainer .positionBox svg {\r
-    transform: scale3d(0.95, 0.95, 0.95);\r
-  }\r
-  /* 修复全屏下不显示视频底部的控制栏 */\r
-  .isCssFullScreen [data-e2e="slideList"] {\r
-    min-height: auto !important;\r
-  }\r
-}\r
+			}`)]},blockSearchFloatingBar(){a.info("【屏蔽】搜索悬浮栏");const e=[];return e.push(g.addBlockCSS("#slideMode + div",'.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])')),(V.isSearch()||V.isDiscover())&&e.push(g.addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')),V.isUser()&&e.push(g.addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')),V.isVideo()&&e.push(g.addBlockCSS('[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])')),e},blockCloseFullScreenButton(){a.info("【屏蔽】网页全屏关闭按钮");const e=[];return e.push(g.addBlockCSS('.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])','div:has(>svg path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),(V.isSearch()||V.isDiscover())&&e.push(g.addBlockCSS('#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),V.isUser()&&e.push(g.addBlockCSS('#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),V.isVideo()&&e.push(g.addBlockCSS('#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])')),e},blockShopInfo(){return a.info("【屏蔽】购物信息"),g.addBlockCSS(".xgplayer-shop-anchor")},blockDanmaku(){return a.info("【屏蔽】弹幕"),g.addBlockCSS(".basePlayerContainer .danmu")},blockStartPlayIcon(){return a.info("【屏蔽】中间的播放图标"),g.addBlockCSS(".xgplayer-start")}},nn=`/* 竖屏且高度小于550px */
+@media screen and (max-width: 550px) and (orientation: portrait) {
+  /* 右侧工具栏放大 */
+  .basePlayerContainer .positionBox {
+    bottom: 80px !important;
+    padding-right: 5px !important;
+    scale: unset !important;
+    transform: scale3d(1.12, 1.12, 1.12) !important;
+  }
+  /* 右侧工具栏的svg再放大 */
+  .basePlayerContainer .positionBox svg {
+    transform: scale3d(1.12, 1.12, 1.12);
+  }
+  /* 重置关注按钮的scale */
+  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {
+    scale: unset !important;
+  }
+
+  /* 调整顶部搜索框的宽度 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]) {
+    width: 150px;
+    padding-right: 0;
+    max-width: unset;
+    flex: 1;
+  }
+  /* 搜索框获取焦点时隐藏右侧的菜单 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)
+    [id^="douyin-header-menu"] {
+    display: none !important;
+  }
+  /* 搜索框获取焦点时自动放大宽度 */
+  #douyin-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]:focus) {
+    width: 100vw;
+    width: 100dvw;
+  }
+  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */
+  #search-content-area > div,
+  #search-content-area > div div:has(+ #search-result-container),
+  #search-content-area > div #search-result-container {
+    width: 100%;
+    width: -webkit-fill-available;
+    width: -moz-available;
+  }
+  /* 搜索页面 视频右侧的工具栏缩小 */
+  #search-content-area .basePlayerContainer .positionBox {
+    bottom: 28px !important;
+    transform: scale3d(0.6, 0.6, 0.6) !important;
+  }
+  /* 搜索页面 搜索出的用户信息换行 */
+  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {
+    flex-wrap: wrap;
+  }
+  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */
+  #search-content-area div:has(> div > div > span[data-key="general"]) {
+    overflow: auto;
+    gap: 10px;
+  }
+  /* 搜索页面 搜索结果筛选选项 */
+  #search-content-area div:has(> span[data-key="general"]) {
+    gap: 10px;
+  }
+  /* 搜索页面 搜索结果筛选选项弹窗修复 */
+  #search-content-area div:has(> div > span[data-key="general"]) {
+    position: unset !important;
+  }
+  /* 搜索页面 搜索结果筛选选项 */
+  #search-content-area div:has(> span[data-key="general"]) > * {
+    white-space: nowrap !important;
+    width: auto !important;
+    width: fit-content !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+  }
+  /* 去除设置min-width超出浏览器宽度的问题 */
+  body {
+    min-width: 100% !important;
+  }
+  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */
+  #douyin-right-container #douyin-header {
+    width: 100%;
+  }
+  /* 去除设置 */
+  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {
+    min-width: 100%;
+  }
+
+  /* /video/xxx页面 */
+  /* 点赞、评论、分享偏移 */
+  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {
+    padding-right: 30px !important;
+  }
+  /* 底部工具栏右侧的按钮 */
+  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {
+    margin-right: 35px !important;
+  }
+  /* 评论区全屏 */
+  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),
+  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {
+    width: 100dvw !important;
+  }
+
+  /* 设置视频区域的高度 */
+  #slidelist {
+    width: 100%;
+    height: calc(100dvh - var(--header-height)) !important;
+  }
+  /* 修正网页全屏下的视频高度 */
+  #slidelist[class*="isCssFullScreen"] {
+    height: round(nearest, 100dvh, 1px) !important;
+  }
+  /* 去除视频区域右侧偏移 */
+  .is-mobile-pc div[data-e2e="slideList"] {
+    padding-right: 0px !important;
+  }
+  /* 推荐视频的高度适配 */
+  #slidelist .page-recommend-container {
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+  }
+  /* 网页全屏下的推荐视频的高度适配 */
+  #slidelist[class*="isCssFullScreen"] .page-recommend-container {
+    margin: 0px !important;
+  }
+  /* 底部工具栏右侧的按钮不换行显示 */
+  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: auto;
+    align-items: start;
+    justify-content: start;
+    margin: 0px;
+  }
+}
+
+/* 横屏且高度小于550px */
+@media screen and (max-height: 550px) and (orientation: landscape) {
+  /* 右侧工具栏缩小 */
+  .basePlayerContainer .positionBox {
+    transform: scale(0.95) !important;
+    bottom: 42px !important;
+    padding-right: 10px !important;
+  }
+  /* 右侧工具栏的svg再缩小 */
+  .basePlayerContainer .positionBox svg {
+    transform: scale3d(0.95, 0.95, 0.95);
+  }
+  /* 修复全屏下不显示视频底部的控制栏 */
+  .isCssFullScreen [data-e2e="slideList"] {
+    min-height: auto !important;
+  }
+}
 `,ft=(e,t)=>{const n="data-is-inject-mouse-hide",i="data-opacity-show",o="data-opacity-hide",r=[],s=()=>u.getValue(e),d=(m=s())=>m===0?`
             ${t.join(",")}{
                 opacity: 0 !important;
@@ -739,51 +739,51 @@
 		#LeftBackgroundLayout .douyin-player-dynamic-background{
 			visibility: hidden;
 		}
-		`)},autoCloseChatRoom(){_e.waitReactPropsToSet("#chatroom .chatroom_close","reactFiber",{check(e,t){return typeof e?.memoizedProps?.onClick=="function"},set(e,t){a.info("自动关闭聊天室-点击关闭聊天室按钮"),t.click();}});},disableQuickGift(){a.info("禁用快捷键送礼 - localStorage处理"),window.localStorage.setItem("disable_shortcut_key_v2","false");},doubleClickAction(e){let t=false;const n=e==="website-fullscreen";a.info("双击video动作："+e);const i=p.on(document,"click",['[id^="living_player_container"] .douyin-player'],o=>{t?(t=false,Me.autoEnterElementFullScreen(true,n)):(t=true,setTimeout(()=>{t=false;},250));});return [()=>{i.off();}]}},pn={init(){u.execMenu("douyin-redirect-url-home-to-root",()=>{this.redirectUrlHomeToRoot();});},redirectUrlHomeToRoot(){window.location.pathname==="/home"&&(a.info("从首页跳转到根目录"),window.location.href=window.location.origin+"/?is_from_mobile_home=1&recommend=1");}},fn=`/* 去除顶部的padding距离 */\r
-#douyin-right-container {\r
-  padding-top: 0;\r
-}\r
-/* 放大放大顶部的综合、视频、用户等header的宽度 */\r
-#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r
-  width: 100vw;\r
-}\r
-/* 放大顶部的综合、视频、用户等header */\r
-#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r
-  transform: scale(0.8);\r
-}\r
-/* 视频宽度 */\r
-ul[data-e2e="scroll-list"] {\r
-  padding: 0px 10px;\r
-}\r
-#sliderVideo {\r
-  width: -webkit-fill-available;\r
-}\r
-/* 距离是顶部导航栏的高度 */\r
-#search-content-area {\r
-  margin-top: 65px;\r
-}\r
-/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r
-#douyin-header header {\r
-  flex-direction: row-reverse !important;\r
-}\r
-#douyin-header header > div:nth-child(2) {\r
-  position: unset !important;\r
-}\r
-/* 调整视频列表的宽度 */\r
-@media screen and (max-width: 550px) {\r
-  #sliderVideo {\r
-    width: 100%;\r
-  }\r
-  /* 调整顶部搜索框的宽度 */\r
-  #component-header\r
-    div[data-click="doubleClick"]\r
-    > div[data-click="doubleClick"]\r
-    > div:has(input[data-e2e="searchbar-input"]) {\r
-    width: -webkit-fill-available;\r
-    width: -moz-available;\r
-    padding-right: 0;\r
-  }\r
-}\r
+		`)},autoCloseChatRoom(){_e.waitReactPropsToSet("#chatroom .chatroom_close","reactFiber",{check(e,t){return typeof e?.memoizedProps?.onClick=="function"},set(e,t){a.info("自动关闭聊天室-点击关闭聊天室按钮"),t.click();}});},disableQuickGift(){a.info("禁用快捷键送礼 - localStorage处理"),window.localStorage.setItem("disable_shortcut_key_v2","false");},doubleClickAction(e){let t=false;const n=e==="website-fullscreen";a.info("双击video动作："+e);const i=p.on(document,"click",['[id^="living_player_container"] .douyin-player'],o=>{t?(t=false,Me.autoEnterElementFullScreen(true,n)):(t=true,setTimeout(()=>{t=false;},250));});return [()=>{i.off();}]}},pn={init(){u.execMenu("douyin-redirect-url-home-to-root",()=>{this.redirectUrlHomeToRoot();});},redirectUrlHomeToRoot(){window.location.pathname==="/home"&&(a.info("从首页跳转到根目录"),window.location.href=window.location.origin+"/?is_from_mobile_home=1&recommend=1");}},fn=`/* 去除顶部的padding距离 */
+#douyin-right-container {
+  padding-top: 0;
+}
+/* 放大放大顶部的综合、视频、用户等header的宽度 */
+#search-content-area > div > div:nth-child(1) > div:nth-child(1) {
+  width: 100vw;
+}
+/* 放大顶部的综合、视频、用户等header */
+#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {
+  transform: scale(0.8);
+}
+/* 视频宽度 */
+ul[data-e2e="scroll-list"] {
+  padding: 0px 10px;
+}
+#sliderVideo {
+  width: -webkit-fill-available;
+}
+/* 距离是顶部导航栏的高度 */
+#search-content-area {
+  margin-top: 65px;
+}
+/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */
+#douyin-header header {
+  flex-direction: row-reverse !important;
+}
+#douyin-header header > div:nth-child(2) {
+  position: unset !important;
+}
+/* 调整视频列表的宽度 */
+@media screen and (max-width: 550px) {
+  #sliderVideo {
+    width: 100%;
+  }
+  /* 调整顶部搜索框的宽度 */
+  #component-header
+    div[data-click="doubleClick"]
+    > div[data-click="doubleClick"]
+    > div:has(input[data-e2e="searchbar-input"]) {
+    width: -webkit-fill-available;
+    width: -moz-available;
+    padding-right: 0;
+  }
+}
 `,mn={init(){u.execMenuOnce("douyin-search-shieldReleatedSearches",()=>this.shieldReleatedSearches()),u.execMenuOnce("douyin-search-blockAIAsk",()=>this.blockAIAsk()),u.execMenuOnce("douyin-search-blockAskAI",()=>this.blockAskAI()),this.resizeSearchFilterBar();},resizeSearchFilterBar(){p.onReady(()=>{const e=X("div:has(+#search-result-container)"),t=X("#search-result-container");if(!e||!t)return;const n=p.width(t);p.css(e,"width",n+"px");});},shieldReleatedSearches(){a.info("【屏蔽】相关搜索");const e=new b.LockFunction(()=>{V.isSearch()&&Z('[id^="waterfall_item"]:has(.search-result-card p)').forEach(n=>{const i=n.querySelector("p");p.text(i).includes("相关搜索")&&p.remove(n);});}),t=b.mutationObserver(document,{config:{subtree:true,childList:true},immediate:true,callback:()=>{e.run();}});return [g.addBlockCSS("#search-content-area > div > div:nth-child(2)"),R(`
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
@@ -859,36 +859,38 @@ ul[data-e2e="scroll-list"] {\r
 			/* 修复顶部导航栏的宽度 */
 			#douyin-header{
 				width: 100%;
-			}`)),e},block_tab_home(){return a.info("【屏蔽】精选"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)')},block_tab_recommend(){return a.info("【屏蔽】推荐"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)')},block_tab_ai_search(){return a.info("【屏蔽】AI搜索/抖音"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])')},block_tab_follow(){return a.info("【屏蔽】关注"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)')},block_tab_friend(){return a.info("【屏蔽】朋友"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)')},block_tab_user_self(){return a.info("【屏蔽】我的"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)')},block_tab_activity(){return a.info("【屏蔽】activity"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])')},block_tab_live(){return a.info("【屏蔽】直播"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)')},block_tab_vs(){return a.info("【屏蔽】放映厅"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)')},block_tab_series(){return a.info("短剧"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)')},block_tab_microgame(){return a.info("【屏蔽】小游戏"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)')},block_panel_menu_setting(){return a.info("【屏蔽】设置"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])')},block_panel_menu_about(){return a.info("【屏蔽】关于"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])')},block_panel_menu_q_a(){return a.info("【屏蔽】问题/反馈"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])')},block_panel_menu_survey(){return a.info("【屏蔽】用户体验调研"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood')}},gn=`/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r
-#douyin-web-download-guide-container\r
-/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r
-/* 但是这个CSS又会屏蔽右键菜单 */\r
-/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r
-/* 下载客户端，使用壁纸 */\r
-div:has(+#wallpaper-modal),\r
-/* 下载客户端，实时接收消息通知 */\r
-/* 下载客户端，实时接收好友消息 */\r
-div:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r
-div:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r
-/* 客户端登录访问更便捷 */\r
-div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r
-/* 前往电脑客户端，即享下载视频 */\r
-[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r
-/* so.douyin.com的广告item */\r
-.card-item:has(.h5-ad-video-card),\r
-.card-item:has([data-is-ad="true"]) {\r
-  display: none !important;\r
-}\r
-`,bn=`/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r
-div[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r
-  display: none !important;\r
-}\r
+			}`)),e},block_tab_home(){return a.info("【屏蔽】精选"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)')},block_tab_recommend(){return a.info("【屏蔽】推荐"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)')},block_tab_ai_search(){return a.info("【屏蔽】AI搜索/抖音"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])')},block_tab_follow(){return a.info("【屏蔽】关注"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)')},block_tab_friend(){return a.info("【屏蔽】朋友"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)')},block_tab_user_self(){return a.info("【屏蔽】我的"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)')},block_tab_activity(){return a.info("【屏蔽】activity"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])')},block_tab_live(){return a.info("【屏蔽】直播"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)')},block_tab_vs(){return a.info("【屏蔽】放映厅"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)')},block_tab_series(){return a.info("短剧"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)')},block_tab_microgame(){return a.info("【屏蔽】小游戏"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)')},block_panel_menu_setting(){return a.info("【屏蔽】设置"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])')},block_panel_menu_about(){return a.info("【屏蔽】关于"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])')},block_panel_menu_q_a(){return a.info("【屏蔽】问题/反馈"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])')},block_panel_menu_survey(){return a.info("【屏蔽】用户体验调研"),g.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood')}},gn=`/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */
+#douyin-web-download-guide-container
+/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */
+/* 但是这个CSS又会屏蔽右键菜单 */
+/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,
+/* 下载客户端，使用壁纸 */
+div:has(+#wallpaper-modal),
+/* 下载客户端，实时接收消息通知 */
+/* 下载客户端，实时接收好友消息 */
+div:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),
+div:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),
+/* 客户端登录访问更便捷 */
+div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
+/* 前往电脑客户端，即享下载视频 */
+[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,
+/* so.douyin.com的广告item */
+.card-item:has(.h5-ad-video-card),
+.card-item:has([data-is-ad="true"]),
+/* 左侧导航栏的下面的下载抖音精选 */
+[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {
+  display: none !important;
+}
+`,bn=`/* 资料右边的 下载桌面客户端，桌面快捷访问 */
+div[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {
+  display: none !important;
+}
 `,wn={init(){R(bn),p.onReady(()=>{u.execMenu("dy-user-addShowUserUID",()=>{this.addShowUserUID();});});},addShowUserUID(){_e.waitReactPropsToSet('[data-e2e="user-detail"] [data-e2e="user-info"]',"reactFiber",{msg:"显示UID",check(e){return typeof e?.return?.memoizedProps?.userInfo?.uid=="string"},set(e,t){const n=e?.return?.memoizedProps?.userInfo?.uid;p.remove(t.querySelectorAll(".gm-user-uid"));const i=p.createElement("p",{className:"gm-user-uid",innerHTML:`
 							<span>UID：${n}</span>
-						`},{style:"color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"});p.on(i,"click",o=>{p.preventEvent(o),b.copy(n),x.success("复制成功");}),t.appendChild(i);}});}},kn=`/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r
-div[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {\r
-  display: none !important;\r
-}\r
+						`},{style:"color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"});p.on(i,"click",o=>{p.preventEvent(o),b.copy(n),x.success("复制成功");}),t.appendChild(i);}});}},kn=`/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */
+div[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {
+  display: none !important;
+}
 `,Cn={init(){R(kn);}},xn={__ajaxHooker:null,get ajaxHooker(){return this.__ajaxHooker==null&&(this.__ajaxHooker=b.ajaxHooker()),this.__ajaxHooker}},Xe=function(e,t,n,i,o,r,s,d,l,h){const c={text:e,type:"button",attributes:{},props:{},description:t,buttonIcon:i,buttonIsRightIcon:o,buttonIconIsLoading:r,buttonType:s,buttonText:n,callback(f){typeof d=="function"&&d(f);},afterAddToUListCallBack:l};return Reflect.set(c.attributes,at,()=>{c.disable=false;}),c},pe=function(e,t,n,i,o,r="default",s,d){const l=o,h=()=>s.getShowText(n,l),c=Xe(e,t,h,"keyboard",false,false,r,async f=>{if(f instanceof PointerEvent&&f.x===0&&f.y===0)return;const y=f.target.closest(".pops-panel-button")?.querySelector("span");if(s.isWaitKeyboardPress()){x.warning("请先执行当前的录入操作");return}if(s.hasOptionValue(n))s.emptyOption(n),x.success("清空快捷键");else {const w=x.loading("请按下快捷键...",{showClose:true,onClose(){s.cancelEnterShortcutKeys();}}),{status:k,option:C,key:S}=await s.enterShortcutKeys(n);w.close(),k?(a.success("录入快捷键",C),x.success("录入成功")):x.error(`快捷键 ${s.translateKeyboardValueToButtonText(C)} 已被 ${S} 占用`);}p.html(y,h());});return c.attributes={},Reflect.set(c.attributes,at,()=>false),c},ot=function(e,t,n,i,o,r){const s={type:"own",attributes:{},props:{},createLIElement:e,afterAddToUListCallBack:r};return typeof t=="object"&&t!==null&&Object.keys(t).length>0?Reflect.set(s.attributes,Vt,t):Reflect.set(s.attributes,at,()=>false),typeof n=="object"&&n!==null&&Reflect.set(s.attributes,Bt,n),s},se=function(e,t,n,i,o,r,s){const d={text:e,type:"select",description:r,attributes:{},props:{},getValue(){return this.props[J].get(t,n)},callback(l){if(l==null)return;const h=l.value;if(a.info(`选择：${l.text}`),typeof o=="function"&&o(l))return;this.props[J].set(t,h);},data:i};return Reflect.set(d.attributes,we,t),Reflect.set(d.attributes,ke,n),qe.initComponentsStorageApi("select",d,{get(l,h){return u.getValue(l,h)},set(l,h){u.setValue(l,h);}}),d},Lt=function(e,t,n,i,o,r,s="请至少选择一个选项",d,l){let h=[];typeof i=="function"?h=i():h=i;const c={text:e,type:"select-multiple",description:r,placeholder:s,attributes:{},props:{},getValue(){return this.props[J].get(t,n)},selectConfirmDialogConfig:d,callback(f){const m=this.props[J],y=[];f.forEach(w=>{y.push(w.value);}),a.info("多选-选择：",y),m.set(t,y);},data:h};return Reflect.set(c.attributes,we,t),Reflect.set(c.attributes,ke,n),qe.initComponentsStorageApi("select-multiple",c,{get(f,m){return u.getValue(f,m)},set(f,m){u.setValue(f,m);}}),c},mt=function(e,t,n,i,o,r,s,d,l,h){const c={text:e,type:"slider",description:d,attributes:{},props:{},getValue(){return this.props[J].get(t,n)},getToolTipContent(f){return typeof s=="function"?s(f):`${f}`},callback(f,m){this.props[J].set(t,m);},min:i,max:o,step:l};return Reflect.set(c.attributes,we,t),Reflect.set(c.attributes,ke,n),qe.initComponentsStorageApi("slider",c,{get(f,m){return u.getValue(f,m)},set(f,m){u.setValue(f,m);}}),c},v=function(e,t,n,i,o,r,s,d,l){const h={text:e,type:"switch",description:o,disabled:s,attributes:{},props:{},getValue(){return this.props[J].get(t,n)},callback(c,f){const m=!!f;a.success(`${m?"开启":"关闭"} ${e}`),this.props[J].set(t,m),typeof d=="function"&&d(c,m);},afterAddToUListCallBack:(...c)=>{}};return Reflect.set(h.attributes,we,t),Reflect.set(h.attributes,ke,n),qe.initComponentsStorageApi("switch",h,{get(c,f){return u.getValue(c,f)},set(c,f){u.setValue(c,f);}}),h},It=function(e,t,n,i,o,r="",s,d){const l={text:e,type:"textarea",attributes:{},props:{},description:i,placeholder:r,disabled:s,getValue(){const c=this.props[J].get(t,n);return Array.isArray(c)?c.join(`
 `):c},callback(h,c){this.props[J].set(t,c);}};return Reflect.set(l.attributes,we,t),Reflect.set(l.attributes,ke,n),qe.initComponentsStorageApi("switch",l,{get(h,c){return u.getValue(h,c)},set(h,c){u.setValue(h,c);}}),l},qe={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new be.Dictionary),this.__storeApiFn}},getStorageApi(e){if(this.hasStorageApi(e))return this.$data.storeApiValue.get(e)},hasStorageApi(e){return this.$data.storeApiValue.has(e)},setStorageApi(e,t){this.$data.storeApiValue.set(e,t);},initComponentsStorageApi(e,t,n){let i;this.hasStorageApi(e)?i=this.getStorageApi(e):i=n,this.setComponentsStorageApiProperty(t,i);},setComponentsStorageApiProperty(e,t){Reflect.set(e.props,J,t);}},Ct=function(e,t,n,i,o,r="",s="text",d,l){const h={text:e,type:"input",inputType:s,attributes:{},props:{},description:i,placeholder:r,afterAddToUListCallBack:d,getValue(){return this.props[J].get(t,n)},callback(c,f){c.target.validity.valid,this.props[J].set(t,f);}};return Reflect.set(h.attributes,we,t),Reflect.set(h.attributes,ke,n),qe.initComponentsStorageApi("input",h,{get(c,f){return u.getValue(c,f)},set(c,f){u.setValue(c,f);}}),h};class Sn{option;constructor(t){this.option=t;}getAllRule(){return Ne(this.option.STORAGE_API_KEY,[])}setAllRule(t){Ae(this.option.STORAGE_API_KEY,t);}clearAllRule(){this.setAllRule([]);}getRule(t){const n=this.getAllRule(),i=n.findIndex(o=>o.uuid===t);if(i!==-1)return n[i]}setRule(t){const n=this.getAllRule(),i=n.findIndex(r=>r.uuid===t.uuid);let o=false;return i!==-1&&(n[i]=t,this.setAllRule(n),o=true),o}addRule(t){const n=this.getAllRule(),i=n.findIndex(r=>r.uuid===t.uuid);let o=false;return i!==-1||(n.push(t),this.setAllRule(n),o=true),o}updateRule(t){const n=this.getAllRule(),i=n.findIndex(o=>o.uuid===t.uuid);i!==-1?n[i]=t:n.push(t),this.setAllRule(n);}deleteRule(t){const n=this.getAllRule(),i=typeof t=="string"?t:t.uuid,o=n.findIndex(r=>r.uuid===i);return o!==-1?(n.splice(o,1),this.setAllRule(n),true):false}importRules(t){const n=j.alert({title:{text:"请选择导入方式",position:"center"},content:{text:`
                     <div class="btn-control" data-mode="local">本地导入</div>
@@ -1168,68 +1170,68 @@ div[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-we
             width: calc(100% - 100px);
             max-width: unset;
           }
-          `,width:()=>window.innerWidth>700?"700px":"88vw"},delete:{enable:true,deleteCallBack:async o=>await n.deleteData(o)}},bottomControls:{filter:{enable:true,option:[{name:"无",value:"",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return  true}},{name:"已启用",value:"external-enabled",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return o.enable}},{name:"未启用",value:"external-notEnabled",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return !o.enable}}],inputOption:[{name:"规则名称",value:"rule-name",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.name.match(r)}},{name:"属性值",value:"rule-ruleValue",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.data.ruleValue.match(r)}},{name:"备注",value:"rule-remarks",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.data.remarks.match(r)}}]},clear:{enable:true,callback:()=>{this.$data.videoFilterRuleStorage.clearAllRule();}}}};return new Mn(n)},showView(){this.getRuleViewInstance().showView({external:u.getValue("dy-video-ui-rule-filter-option-external-index"),rule:u.getValue("dy-video-ui-rule-filter-option-rule-index")});},getTemplateData(){return {uuid:b.generateUUID(),enable:true,name:"",data:{scope:[],ruleName:"nickname",isFunctionHandler:false,ruleValue:"",remarks:""},dynamicData:[]}}},Ln=`/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r
-[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\r
-  display: none !important;\r
-}\r
-`,In={init(){R(Ln);}},Vn={init(){u.execMenuOnce("dy-recommend-pauseVideo",()=>this.pauseVideo()),u.execMenuOnce("dy-recommend-disableVideoSatisfaction",()=>{this.disableVideoSatisfaction();}),p.onReady(()=>{u.execMenuOnce("dy-recommend-automaticContinuousPlayback",e=>{const t=e.value==="Sequence+Collection";return this.automaticContinuousPlayback(t)});});},async pauseVideo(){a.info("禁止自动播放");const e=['.page-recommend-container [data-e2e="feed-active-video"] video'],t=await p.waitAnyNode(e,1e4);if(!t)return;t.autoplay=false,t.pause();const n=3e3,i=d=>{p.preventEvent(d),t.autoplay=false,t.pause(),a.success("成功禁止自动播放视频");};p.off(t,"play",void 0,{capture:true},d=>d.callback.toString().includes("listener remove tag"));const o=p.on(t,"play",i,{capture:true}),r=()=>{clearTimeout(s),a.info("已移除监听自动播放"),o.off();},s=setTimeout(r,n);return [()=>{r();}]},automaticContinuousPlayback(e){a.info("自动连播");const t="data-automaticContinuousPlayback",n=(l=false,h=false)=>{const c=`.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${l?`:not([${t}])`:""}`;return h?Z(c):X(c)},i=u.getDynamicValue("dy-keyboard-hook-pageUpAndDown"),o=()=>{const l=X(".xgplayer-playswitch-next");if(l)l.click();else {if(i.value){x.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");return}const h=new KeyboardEvent("keydown",{bubbles:true,cancelable:true,key:"ArrowDown",code:"ArrowDown",keyCode:40,which:40});document.body.dispatchEvent(h);}},r=()=>{const l=Z("#related-card-list-container .related-list-item-in-small-card"),h=l.findIndex(f=>!!f.querySelector(".video-playing-item")),c=X('.slider-video span:has(svg path[d="M16.7071 3.29289C16.3166 2.90237 15.6834 2.90237 15.2929 3.29289L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071L15.2929 20.7071C15.6834 21.0976 16.3166 21.0976 16.7071 20.7071C17.0976 20.3166 17.0976 19.6834 16.7071 19.2929L9.41421 12L16.7071 4.70711C17.0976 4.31658 17.0976 3.68342 16.7071 3.29289Z"])');return {listLength:l.length,currentIndex:h,maxIndex:l.length-1,isEnded:h===l.length-1,$exit:c,$relatedList:l,$currentRelated:l[h]}},s=new b.LockFunction(()=>{if(!V.isRecommend())return;const l=n();if(!l||l.hasAttribute(t))return;l.setAttribute(t,"true");let h=l.src;p.on(l,"ended",async c=>{a.success("视频播放完毕，准备切换至下一个视频"),p.preventEvent(c),h=l.src;const f=l.closest(".page-recommend-container");if(e&&f){const m=X(`xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,f);if(m){const y=b.getReactInstance(m)?.reactFiber?.return?.key;(y==="series"||y==="mix"||m.textContent.trim().startsWith("合集："))&&(m.parentElement?.parentElement?.textContent.trim().includes("已是最新集")||(a.success("点击 合集"),m.click(),await p.waitNode("#slideMode",3e3),a.success("合集容器加载完成"),await b.sleep(1500)));}}g.interval(async m=>{const y=!!l.closest("#slideMode");if(m){const{$exit:C}=r();return y?(a.success("当前视频为合集中的最后一个视频，退出合集并播放下一个视频"),C?(C.click(),a.info("点击退出合集按钮"),await b.sleep(1500)):a.error("退出合集失败，未找到退出合集按钮")):a.error("切换视频超时，切换失败"),true}const w=n(),k=w?.src;if(y){if(k&&l===w&&h!==k)return a.success("合集-切换视频成功"),true}else if(l!==w)return a.success("切换视频成功"),true;o();},500,5e3);},{capture:true});}),d=b.mutationObserver(document,{config:{subtree:true,childList:true},immediate:true,callback:()=>{s.run();}});return [()=>{d?.disconnect();const l=n(void 0,true);p.off(l,"ended");},i.destory]},disableVideoSatisfaction(){a.info("禁用视频满意评价"),D.localStorage.setItem("questionV1",String(Date.now()-1e3*60*60));}},Bn={init(){u.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot",()=>this.tabFollowRedHot());},tabFollowRedHot(){return a.info("【屏蔽】左侧导航栏关注右边的小红点"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)','[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))')}},Pt={init(){(V.isIndex()||V.isLive())&&(u.onceExec("dy-global-block-css",()=>this.removeAds()),Zt(),$t.init(),Oe.init(),pn.init(),u.execMenuOnce("watchLoginDialogToClose",()=>Mt.watchLoginDialogToClose()),u.execMenuOnce("disguiseLogin",()=>Mt.disguiseLogin()),u.execMenuOnce("dy-initialScale",()=>this.initialScale()),u.execMenu("dy-apple-removeMetaAppleItunesApp",()=>{this.removeMetaAppleItunesApp();}),yn.init(),Bn.init(),Gt.init(),Yt.init(),u.execMenuOnce("dy-common-listenRouterChange",()=>this.listenRouterChange(),void 0,false),u.execMenuOnce("dy-search-click-to-new-tab",()=>this.navSearchClickToNewTab()),V.isLive()?(a.info("Router: 直播"),hn.init()):V.isIndex()?(Me.init(),V.isRecommend()?(a.info("Router: 推荐"),Vn.init()):V.isSearch()?(a.info("Router: 搜索"),vn.init()):V.isUser()?(a.info("Router: 用户页面"),wn.init()):V.isVideo()?(a.info("Router: 单个视频页面"),Cn.init()):V.isChannel()?a.info("Router: Channel页面"):V.isNote()?(a.info("Router:  笔记页面"),In.init()):a.warn("子router: "+window.location.href)):window.location.hostname.startsWith("lf-zt.douyin.com")||a.error("未适配router: "+window.location.href));},removeAds(){return p.waitNode(()=>p.selector('#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'),1e4).then(e=>{e&&p.remove(e);}),[R(gn)]},async initialScale(){a.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>"),await p.onReady();const e=p.createElement("meta",{},{name:"viewport",content:"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"});return p.remove("meta[name='viewport']"),await p.waitNode("head"),document.head.appendChild(e),e},async removeMetaAppleItunesApp(){const e=await p.waitNodeList(['meta[name="apple-itunes-app"]'],1e4);e&&p.remove(e);},listenRouterChange(){a.info("监听Router重载");let e=window.location.href;const t=()=>{const i=e,o=window.location.href;e=o,a.info("Router Change Before："+i),a.info("Router Change Now："+o),u.emitUrlChangeWithExecMenuOnceEvent({url:o,beforeUrl:i}),this.init();};return [p.on(window,"wb_url_change",t).off]},navSearchClickToNewTab(){a.info("新标签页打开搜索结果");const e=i=>`https://www.douyin.com/search/${encodeURIComponent(i)}`,t=p.on(document,"click",['div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]','a[href*="douyin.com/search/"]'],(i,o)=>{p.preventEvent(i);let r;if(o instanceof HTMLAnchorElement)r=o.href;else {const s=o.closest('div[data-click="doubleClick"]');if(!s){x.error("未找到搜索框元素");return}const d=s.querySelector("input");let l=d.value;if(l==null||l===""){const h=p.prev(d);if(h)l=p.text(h);else {const c=d.placeholder.trim();if(c!=null&&c!==""&&c!=="搜索你感兴趣的内容")l=c;else {a.error("搜索内容为空，不进行搜索");return}}}a.info("当前的搜索内容："+l),r=e(l);}a.info(`新标签页打开搜索：${r}`),window.open(r,"_blank");},{capture:true}),n=p.on(document,"click",'[data-e2e="searchbar-button"] + div [data-text][data-index]',(i,o)=>{const r=i.composedPath()[0];if(r.closest(".icon[data-text]")||r.matches(".icon[data-text]"))return;p.preventEvent(i);const s=o.getAttribute("data-text");if(!s){a.error("未找到搜索建议内容",o),x.error("未找到搜索建议内容");return}const d=e(s);window.open(d,"_blank");},{capture:true});return [t.off,n.off]}},ze={isMDouYin(){return window.location.hostname==="m.douyin.com"||window.location.hostname==="www.iesdouyin.com"},isShareUser(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/user/")},isShareVideo(){return this.isMDouYin()&&(window.location.pathname.startsWith("/share/video/")||window.location.pathname.startsWith("/shipin/"))},isShareNote(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/note/")},isShareMusic(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/music/")},isShareChallenge(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/challenge/")}},An=`/* 顶部 打开看看 登录 */\r
-.adapt-login-header,\r
-/* 上面屏蔽后的空白区域 */\r
-.user-card .nav-bar-placeholder,\r
-/* 视频区域底部的【打开抖音App看更多内容】 */\r
-.select-list .img-button {\r
-  display: none !important;\r
-}\r
-`,Be={getVideoUrl(e){return "https://www.douyin.com/video/"+e},getCollectionUrl(e){return "https://www.douyin.com/collection/"+e},getNoteUrl(e){return "https://www.douyin.com/note/"+e},getHashTagUrl(e){return "https://www.douyin.com/hashtag/"+e},getUserHomeUrl(e){return "https://www.douyin.com/user/"+e},getMusicUrl(e){return "https://www.douyin.com/music/"+e}},Tn={init(){R(An),u.execMenuOnce("m-dy-share-user-coverPlayletList",()=>this.coverPlayletList()),u.execMenuOnce("m-dy-share-user-coverPostListContainer",()=>this.coverPostListContainer());},coverPlayletList(){return [p.on(document,"click",".user-playlet-list .playlet-item",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n)?.reactFiber;if(i?.key==null){x.error("获取视频合集key失败");return}const r=i?.index;if(r==null){x.error("获取视频合集index失败");return}const s=i?.return?.return?.pendingProps?.playletList;if(s==null){x.error("获取视频合集playletList失败");return}const d=s[r],l=Be.getCollectionUrl(d.mix_id);window.open(l,"_blank");},{capture:true}).off]},coverPostListContainer(){return [p.on(document,"click",".post-list-container .user-post-cover",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n)?.reactFiber;if(i?.return?.memoizedProps?.productionUrl){const o=i?.return?.memoizedProps?.productionUrl;window.open(o,"_blank");}else x.error("获取视频链接失败");},{capture:true}).off]}},$n=`/* 顶部 打开看看 登录 */\r
-.adapt-login-header,\r
-/* 视频描述信息区域中的 打开抖音看精彩视频 */\r
-.footer .img-button,\r
-/* 登录页面 */\r
-.login-page ,\r
-/* 底部左下角 打开抖音看精彩视频 */\r
-.footer .bottom-btn-con-new,\r
-/* 合集 打开抖音看精彩视频 */\r
-.container .end-page-info-button {\r
-  display: none !important;\r
-}\r
-`,Rn=`.video-container {\r
-  height: 100% !important;\r
-  margin-top: 0 !important;\r
-}\r
-.footer {\r
-  bottom: 50px !important;\r
-}\r
-.mix-info {\r
-  bottom: 0px !important;\r
-}\r
-`,En={init(){R($n),R(Rn),u.execMenuOnce("m-dy-share-video-coverGlobalClick",()=>this.coverGlobalClick());},coverGlobalClick(){return [le.on(document,"click",[".right-con",".footer",".mix-info"],t=>le.preventEvent(t),{capture:true}).off]}},Dn=`/* 顶部 打开看看 登录 */\r
-.container .adapt-login-header,\r
-/* 底部中间的 App内打开 */\r
-.container .float-button-con {\r
-  display: none !important;\r
-}\r
-\r
-.gallery-container {\r
-  margin-top: 10px !important;\r
-}\r
-`,Pn={init(){R(Dn),u.execMenuOnce("m-dy-share-note-blockRecommend",()=>this.blockRecommend()),u.execMenuOnce("m-dy-share-note-blockComment",()=>this.blockComment()),u.execMenuOnce("m-dy-share-note-blockFooterToobar",()=>this.blockFooterToobar()),u.execMenuOnce("m-dy-share-note-coverUser",()=>this.coverUser()),u.execMenuOnce("m-dy-share-note-coverHashTag",()=>this.coverHashTag()),u.execMenuOnce("m-dy-share-note-coverMusic",()=>this.coverMusic()),u.execMenuOnce("m-dy-share-note-coverRecommend",()=>this.coverRecommend()),u.execMenuOnce("m-dy-share-note-coverExcitingGraphicsAndText",()=>this.coverExcitingGraphicsAndText());},blockRecommend(){return a.info("【屏蔽】相关推荐"),g.addBlockCSS(".recommend-con")},blockComment(){return a.info("【屏蔽】评论"),g.addBlockCSS(".comment-con")},blockFooterToobar(){return a.info("【屏蔽】底部工具栏"),g.addBlockCSS(".footer-con")},coverRecommend(){return a.info("覆盖相关推荐的点击事件"),[p.on(document,"click","#masonry .card",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n).reactFiber;if(!i){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const o=i?.return?.memoizedProps.awemeId,r=Be.getNoteUrl(o);window.open(r,"_blank");},{capture:true}).off]},coverUser(){a.info("覆盖用户点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const r=o?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid,s=Be.getUserHomeUrl(r);window.open(s,"_blank");};return [p.on(document,"click",".message-con__top",e,{capture:true}).off]},coverHashTag(){a.info("覆盖话题点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){x.error("获取reactFiber失败");return}const r=o.index,l=(o?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr)[r].hashtagId,h=Be.getHashTagUrl(l);window.open(h,"_blank");};return [p.on(document,"click",".message-con__content__body .message-con__content__body-text",e,{capture:true}).off]},coverMusic(){return a.info("覆盖音乐点击事件"),[p.on(document,"click",".message-con__footer",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n).reactFiber;if(!i){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const o=i?.return?.return?.memoizedProps?.video?.musicId,r=Be.getMusicUrl(o);window.open(r,"_blank");},{capture:true}).off]},coverExcitingGraphicsAndText(){a.info("覆盖精彩图文点击事件");const e=p.on(document,"click",".container .related-list-con .related-note-item",n=>{p.preventEvent(n);const i=n.target,o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const s=(o?.return?.memoizedProps?.itemData).awemeId,d=Be.getNoteUrl(s);window.open(d,"_blank");},{capture:true}),t=p.on(document,"click",".related-title-con",n=>p.preventEvent(n),{capture:true});return [e.off,t.off]}},Fn=`/* 顶部 打开看看 登录 */\r
-.page-reflow-challenge .header,\r
-/* 底部的 打开抖音App看更多内容 */\r
-.page-reflow-challenge .bottom-btn__con {\r
-  display: none !important;\r
-}\r
-\r
-.page-reflow-challenge {\r
-  padding-top: 0 !important;\r
-}\r
-`,On={init(){R(Fn),u.onceExec("m-dy-share-challenge-coverTopJump",()=>this.coverTopJump()),u.execMenuOnce("m-dy-share-challenge-coverVideoCard",()=>this.coverVideoCard());},coverTopJump(){a.info("阻止上面区域点击跳转至下载页面"),p.on(document,"click",".challenge-body",e=>{p.preventEvent(e);},{capture:true});},coverVideoCard(){a.info("覆盖视频卡片点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const r=o?.return?.return?.return?.memoizedProps.listData,s=o.index,d=r[s],l=Be.getVideoUrl(d.aweme_id);window.open(l,"_blank");};return [p.on(document,"click","#pagelet-worklist li.item",e,{capture:true}).off]}},Nn=`/* 顶部 打开App，发现更多内容 */\r
-.page-reflow-music .header,\r
-/* ↑屏蔽后的 顶部空白区域 */\r
-.page-reflow-music .banner-placeholder ,\r
-/* 底部 打开抖音App看更多内容 */\r
-.page-reflow-music .bottom-btn__con {\r
-  display: none !important;\r
-}\r
+          `,width:()=>window.innerWidth>700?"700px":"88vw"},delete:{enable:true,deleteCallBack:async o=>await n.deleteData(o)}},bottomControls:{filter:{enable:true,option:[{name:"无",value:"",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return  true}},{name:"已启用",value:"external-enabled",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return o.enable}},{name:"未启用",value:"external-notEnabled",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-external-index",o.value);},filterCallBack(o){return !o.enable}}],inputOption:[{name:"规则名称",value:"rule-name",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.name.match(r)}},{name:"属性值",value:"rule-ruleValue",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.data.ruleValue.match(r)}},{name:"备注",value:"rule-remarks",selectedCallBack(o){u.setValue("dy-video-ui-rule-filter-option-rule-index",o.value);},filterCallBack(o,r){return !!o.data.remarks.match(r)}}]},clear:{enable:true,callback:()=>{this.$data.videoFilterRuleStorage.clearAllRule();}}}};return new Mn(n)},showView(){this.getRuleViewInstance().showView({external:u.getValue("dy-video-ui-rule-filter-option-external-index"),rule:u.getValue("dy-video-ui-rule-filter-option-rule-index")});},getTemplateData(){return {uuid:b.generateUUID(),enable:true,name:"",data:{scope:[],ruleName:"nickname",isFunctionHandler:false,ruleValue:"",remarks:""},dynamicData:[]}}},Ln=`/* 右侧视频信息里的 下载客户端，桌面快捷访问 */
+[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {
+  display: none !important;
+}
+`,In={init(){R(Ln);}},Vn={init(){u.execMenuOnce("dy-recommend-pauseVideo",()=>this.pauseVideo()),u.execMenuOnce("dy-recommend-disableVideoSatisfaction",()=>{this.disableVideoSatisfaction();}),p.onReady(()=>{u.execMenuOnce("dy-recommend-automaticContinuousPlayback",e=>{const t=e.value==="Sequence+Collection";return this.automaticContinuousPlayback(t)});});},async pauseVideo(){a.info("禁止自动播放");const e=['.page-recommend-container [data-e2e="feed-active-video"] video'],t=await p.waitAnyNode(e,1e4);if(!t)return;t.autoplay=false,t.pause();const n=3e3,i=d=>{p.preventEvent(d),t.autoplay=false,t.pause(),a.success("成功禁止自动播放视频");};p.off(t,"play",void 0,{capture:true},d=>d.callback.toString().includes("listener remove tag"));const o=p.on(t,"play",i,{capture:true}),r=()=>{clearTimeout(s),a.info("已移除监听自动播放"),o.off();},s=setTimeout(r,n);return [()=>{r();}]},automaticContinuousPlayback(e){a.info("自动连播");const t="data-automaticContinuousPlayback",n=(l=false,h=false)=>{const c=`.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${l?`:not([${t}])`:""}`;return h?Z(c):X(c)},i=u.getDynamicValue("dy-keyboard-hook-pageUpAndDown"),o=()=>{const l=X(".xgplayer-playswitch-next");if(l)l.click();else {if(i.value){x.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");return}const h=new KeyboardEvent("keydown",{bubbles:true,cancelable:true,key:"ArrowDown",code:"ArrowDown",keyCode:40,which:40});document.body.dispatchEvent(h);}},r=()=>{const l=Z("#related-card-list-container .related-list-item-in-small-card"),h=l.findIndex(f=>!!f.querySelector(".video-playing-item")),c=X('.slider-video span:has(svg path[d="M16.7071 3.29289C16.3166 2.90237 15.6834 2.90237 15.2929 3.29289L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071L15.2929 20.7071C15.6834 21.0976 16.3166 21.0976 16.7071 20.7071C17.0976 20.3166 17.0976 19.6834 16.7071 19.2929L9.41421 12L16.7071 4.70711C17.0976 4.31658 17.0976 3.68342 16.7071 3.29289Z"])');return {listLength:l.length,currentIndex:h,maxIndex:l.length-1,isEnded:h===l.length-1,$exit:c,$relatedList:l,$currentRelated:l[h]}},s=new b.LockFunction(()=>{if(!V.isRecommend())return;const l=n();if(!l||l.hasAttribute(t))return;l.setAttribute(t,"true");let h=l.src;p.on(l,"ended",async c=>{a.success("视频播放完毕，准备切换至下一个视频"),p.preventEvent(c),h=l.src;const f=l.closest(".page-recommend-container");if(e&&f){const m=X(`xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,f);if(m){const y=b.getReactInstance(m)?.reactFiber?.return?.key;(y==="series"||y==="mix"||m.textContent.trim().startsWith("合集："))&&(m.parentElement?.parentElement?.textContent.trim().includes("已是最新集")||(a.success("点击 合集"),m.click(),await p.waitNode("#slideMode",3e3),a.success("合集容器加载完成"),await b.sleep(1500)));}}g.interval(async m=>{const y=!!l.closest("#slideMode");if(m){const{$exit:C}=r();return y?(a.success("当前视频为合集中的最后一个视频，退出合集并播放下一个视频"),C?(C.click(),a.info("点击退出合集按钮"),await b.sleep(1500)):a.error("退出合集失败，未找到退出合集按钮")):a.error("切换视频超时，切换失败"),true}const w=n(),k=w?.src;if(y){if(k&&l===w&&h!==k)return a.success("合集-切换视频成功"),true}else if(l!==w)return a.success("切换视频成功"),true;o();},500,5e3);},{capture:true});}),d=b.mutationObserver(document,{config:{subtree:true,childList:true},immediate:true,callback:()=>{s.run();}});return [()=>{d?.disconnect();const l=n(void 0,true);p.off(l,"ended");},i.destory]},disableVideoSatisfaction(){a.info("禁用视频满意评价"),D.localStorage.setItem("questionV1",String(Date.now()+1e3*60*60*24*365));}},Bn={init(){u.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot",()=>this.tabFollowRedHot());},tabFollowRedHot(){return a.info("【屏蔽】左侧导航栏关注右边的小红点"),g.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)','[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))')}},Pt={init(){(V.isIndex()||V.isLive())&&(u.onceExec("dy-global-block-css",()=>this.removeAds()),Zt(),$t.init(),Oe.init(),pn.init(),u.execMenuOnce("watchLoginDialogToClose",()=>Mt.watchLoginDialogToClose()),u.execMenuOnce("disguiseLogin",()=>Mt.disguiseLogin()),u.execMenuOnce("dy-initialScale",()=>this.initialScale()),u.execMenu("dy-apple-removeMetaAppleItunesApp",()=>{this.removeMetaAppleItunesApp();}),yn.init(),Bn.init(),Gt.init(),Yt.init(),u.execMenuOnce("dy-common-listenRouterChange",()=>this.listenRouterChange(),void 0,false),u.execMenuOnce("dy-search-click-to-new-tab",()=>this.navSearchClickToNewTab()),V.isLive()?(a.info("Router: 直播"),hn.init()):V.isIndex()?(Me.init(),V.isRecommend()?(a.info("Router: 推荐"),Vn.init()):V.isSearch()?(a.info("Router: 搜索"),vn.init()):V.isUser()?(a.info("Router: 用户页面"),wn.init()):V.isVideo()?(a.info("Router: 单个视频页面"),Cn.init()):V.isChannel()?a.info("Router: Channel页面"):V.isNote()?(a.info("Router:  笔记页面"),In.init()):a.warn("子router: "+window.location.href)):window.location.hostname.startsWith("lf-zt.douyin.com")||a.error("未适配router: "+window.location.href));},removeAds(){return p.waitNode(()=>p.selector('#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'),1e4).then(e=>{e&&p.remove(e);}),[R(gn)]},async initialScale(){a.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>"),await p.onReady();const e=p.createElement("meta",{},{name:"viewport",content:"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"});return p.remove("meta[name='viewport']"),await p.waitNode("head"),document.head.appendChild(e),e},async removeMetaAppleItunesApp(){const e=await p.waitNodeList(['meta[name="apple-itunes-app"]'],1e4);e&&p.remove(e);},listenRouterChange(){a.info("监听Router重载");let e=window.location.href;const t=()=>{const i=e,o=window.location.href;e=o,a.info("Router Change Before："+i),a.info("Router Change Now："+o),u.emitUrlChangeWithExecMenuOnceEvent({url:o,beforeUrl:i}),this.init();};return [p.on(window,"wb_url_change",t).off]},navSearchClickToNewTab(){a.info("新标签页打开搜索结果");const e=i=>`https://www.douyin.com/search/${encodeURIComponent(i)}`,t=p.on(document,"click",['div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]','a[href*="douyin.com/search/"]'],(i,o)=>{p.preventEvent(i);let r;if(o instanceof HTMLAnchorElement)r=o.href;else {const s=o.closest('div[data-click="doubleClick"]');if(!s){x.error("未找到搜索框元素");return}const d=s.querySelector("input");let l=d.value;if(l==null||l===""){const h=p.prev(d);if(h)l=p.text(h);else {const c=d.placeholder.trim();if(c!=null&&c!==""&&c!=="搜索你感兴趣的内容")l=c;else {a.error("搜索内容为空，不进行搜索");return}}}a.info("当前的搜索内容："+l),r=e(l);}a.info(`新标签页打开搜索：${r}`),window.open(r,"_blank");},{capture:true}),n=p.on(document,"click",'[data-e2e="searchbar-button"] + div [data-text][data-index]',(i,o)=>{const r=i.composedPath()[0];if(r.closest(".icon[data-text]")||r.matches(".icon[data-text]"))return;p.preventEvent(i);const s=o.getAttribute("data-text");if(!s){a.error("未找到搜索建议内容",o),x.error("未找到搜索建议内容");return}const d=e(s);window.open(d,"_blank");},{capture:true});return [t.off,n.off]}},ze={isMDouYin(){return window.location.hostname==="m.douyin.com"||window.location.hostname==="www.iesdouyin.com"},isShareUser(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/user/")},isShareVideo(){return this.isMDouYin()&&(window.location.pathname.startsWith("/share/video/")||window.location.pathname.startsWith("/shipin/"))},isShareNote(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/note/")},isShareMusic(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/music/")},isShareChallenge(){return this.isMDouYin()&&window.location.pathname.startsWith("/share/challenge/")}},An=`/* 顶部 打开看看 登录 */
+.adapt-login-header,
+/* 上面屏蔽后的空白区域 */
+.user-card .nav-bar-placeholder,
+/* 视频区域底部的【打开抖音App看更多内容】 */
+.select-list .img-button {
+  display: none !important;
+}
+`,Be={getVideoUrl(e){return "https://www.douyin.com/video/"+e},getCollectionUrl(e){return "https://www.douyin.com/collection/"+e},getNoteUrl(e){return "https://www.douyin.com/note/"+e},getHashTagUrl(e){return "https://www.douyin.com/hashtag/"+e},getUserHomeUrl(e){return "https://www.douyin.com/user/"+e},getMusicUrl(e){return "https://www.douyin.com/music/"+e}},Tn={init(){R(An),u.execMenuOnce("m-dy-share-user-coverPlayletList",()=>this.coverPlayletList()),u.execMenuOnce("m-dy-share-user-coverPostListContainer",()=>this.coverPostListContainer());},coverPlayletList(){return [p.on(document,"click",".user-playlet-list .playlet-item",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n)?.reactFiber;if(i?.key==null){x.error("获取视频合集key失败");return}const r=i?.index;if(r==null){x.error("获取视频合集index失败");return}const s=i?.return?.return?.pendingProps?.playletList;if(s==null){x.error("获取视频合集playletList失败");return}const d=s[r],l=Be.getCollectionUrl(d.mix_id);window.open(l,"_blank");},{capture:true}).off]},coverPostListContainer(){return [p.on(document,"click",".post-list-container .user-post-cover",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n)?.reactFiber;if(i?.return?.memoizedProps?.productionUrl){const o=i?.return?.memoizedProps?.productionUrl;window.open(o,"_blank");}else x.error("获取视频链接失败");},{capture:true}).off]}},$n=`/* 顶部 打开看看 登录 */
+.adapt-login-header,
+/* 视频描述信息区域中的 打开抖音看精彩视频 */
+.footer .img-button,
+/* 登录页面 */
+.login-page ,
+/* 底部左下角 打开抖音看精彩视频 */
+.footer .bottom-btn-con-new,
+/* 合集 打开抖音看精彩视频 */
+.container .end-page-info-button {
+  display: none !important;
+}
+`,Rn=`.video-container {
+  height: 100% !important;
+  margin-top: 0 !important;
+}
+.footer {
+  bottom: 50px !important;
+}
+.mix-info {
+  bottom: 0px !important;
+}
+`,En={init(){R($n),R(Rn),u.execMenuOnce("m-dy-share-video-coverGlobalClick",()=>this.coverGlobalClick());},coverGlobalClick(){return [le.on(document,"click",[".right-con",".footer",".mix-info"],t=>le.preventEvent(t),{capture:true}).off]}},Dn=`/* 顶部 打开看看 登录 */
+.container .adapt-login-header,
+/* 底部中间的 App内打开 */
+.container .float-button-con {
+  display: none !important;
+}
+
+.gallery-container {
+  margin-top: 10px !important;
+}
+`,Pn={init(){R(Dn),u.execMenuOnce("m-dy-share-note-blockRecommend",()=>this.blockRecommend()),u.execMenuOnce("m-dy-share-note-blockComment",()=>this.blockComment()),u.execMenuOnce("m-dy-share-note-blockFooterToobar",()=>this.blockFooterToobar()),u.execMenuOnce("m-dy-share-note-coverUser",()=>this.coverUser()),u.execMenuOnce("m-dy-share-note-coverHashTag",()=>this.coverHashTag()),u.execMenuOnce("m-dy-share-note-coverMusic",()=>this.coverMusic()),u.execMenuOnce("m-dy-share-note-coverRecommend",()=>this.coverRecommend()),u.execMenuOnce("m-dy-share-note-coverExcitingGraphicsAndText",()=>this.coverExcitingGraphicsAndText());},blockRecommend(){return a.info("【屏蔽】相关推荐"),g.addBlockCSS(".recommend-con")},blockComment(){return a.info("【屏蔽】评论"),g.addBlockCSS(".comment-con")},blockFooterToobar(){return a.info("【屏蔽】底部工具栏"),g.addBlockCSS(".footer-con")},coverRecommend(){return a.info("覆盖相关推荐的点击事件"),[p.on(document,"click","#masonry .card",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n).reactFiber;if(!i){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const o=i?.return?.memoizedProps.awemeId,r=Be.getNoteUrl(o);window.open(r,"_blank");},{capture:true}).off]},coverUser(){a.info("覆盖用户点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const r=o?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid,s=Be.getUserHomeUrl(r);window.open(s,"_blank");};return [p.on(document,"click",".message-con__top",e,{capture:true}).off]},coverHashTag(){a.info("覆盖话题点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){x.error("获取reactFiber失败");return}const r=o.index,l=(o?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr)[r].hashtagId,h=Be.getHashTagUrl(l);window.open(h,"_blank");};return [p.on(document,"click",".message-con__content__body .message-con__content__body-text",e,{capture:true}).off]},coverMusic(){return a.info("覆盖音乐点击事件"),[p.on(document,"click",".message-con__footer",t=>{p.preventEvent(t);const n=t.target,i=b.getReactInstance(n).reactFiber;if(!i){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const o=i?.return?.return?.memoizedProps?.video?.musicId,r=Be.getMusicUrl(o);window.open(r,"_blank");},{capture:true}).off]},coverExcitingGraphicsAndText(){a.info("覆盖精彩图文点击事件");const e=p.on(document,"click",".container .related-list-con .related-note-item",n=>{p.preventEvent(n);const i=n.target,o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const s=(o?.return?.memoizedProps?.itemData).awemeId,d=Be.getNoteUrl(s);window.open(d,"_blank");},{capture:true}),t=p.on(document,"click",".related-title-con",n=>p.preventEvent(n),{capture:true});return [e.off,t.off]}},Fn=`/* 顶部 打开看看 登录 */
+.page-reflow-challenge .header,
+/* 底部的 打开抖音App看更多内容 */
+.page-reflow-challenge .bottom-btn__con {
+  display: none !important;
+}
+
+.page-reflow-challenge {
+  padding-top: 0 !important;
+}
+`,On={init(){R(Fn),u.onceExec("m-dy-share-challenge-coverTopJump",()=>this.coverTopJump()),u.execMenuOnce("m-dy-share-challenge-coverVideoCard",()=>this.coverVideoCard());},coverTopJump(){a.info("阻止上面区域点击跳转至下载页面"),p.on(document,"click",".challenge-body",e=>{p.preventEvent(e);},{capture:true});},coverVideoCard(){a.info("覆盖视频卡片点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const r=o?.return?.return?.return?.memoizedProps.listData,s=o.index,d=r[s],l=Be.getVideoUrl(d.aweme_id);window.open(l,"_blank");};return [p.on(document,"click","#pagelet-worklist li.item",e,{capture:true}).off]}},Nn=`/* 顶部 打开App，发现更多内容 */
+.page-reflow-music .header,
+/* ↑屏蔽后的 顶部空白区域 */
+.page-reflow-music .banner-placeholder ,
+/* 底部 打开抖音App看更多内容 */
+.page-reflow-music .bottom-btn__con {
+  display: none !important;
+}
 `,Hn={init(){R(Nn),u.execMenuOnce("m-dy-share-music-coverVideoCard",()=>this.coverVideoCard());},coverVideoCard(){a.info("覆盖视频卡片点击事件");const e=(n,i)=>{p.preventEvent(n);const o=b.getReactInstance(i).reactFiber;if(!o){a.error("获取reactFiber失败"),x.error("获取reactFiber失败");return}const r=o?.return?.return?.return?.memoizedProps.listData,s=o.index,d=r[s],l=Be.getVideoUrl(d.aweme_id);window.open(l,"_blank");};return [p.on(document,"click","#pagelet-worklist li.item",e,{capture:true}).off]}},Un={init(){ze.isShareUser()?(a.info("M-Router: 分享用户"),Tn.init()):ze.isShareVideo()?(a.info("M-Router: 分享视频"),En.init()):ze.isShareNote()?(a.info("M-Router: 分享笔记"),Pn.init()):ze.isShareChallenge()?(a.info("M-Router: 分享话题"),On.init()):ze.isShareMusic()?(a.info("M-Router: 分享音乐"),Hn.init()):a.error("未知M-router: "+window.location.hostname);}},Kn=(e,t)=>{const n=t.$sectionBodyContainer.querySelector(".keyboard-oneClickOpen"),i=t.$sectionBodyContainer.querySelector(".keyboard-oneClickClose"),o=r=>{t.$sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(s=>{const d=s.querySelector(".pops-panel-switch__input"),l=s.querySelector(".pops-panel-switch__core");r?d.checked||l.click():d.checked&&l.click();});};p.on(n,"click",r=>{p.preventEvent(r),o(true);}),p.on(i,"click",r=>{p.preventEvent(r),o(false);});},H={text:`
 		<p>注：开启是启用该功能、关闭是不启用|不执行该功能</p>
         <a href="javascript:;" class="keyboard-oneClickOpen">一键全部开启</a>
