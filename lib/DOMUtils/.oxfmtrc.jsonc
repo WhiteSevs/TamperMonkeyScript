@@ -1,0 +1,18 @@
+{
+  "bracketSameLine": true,
+  "bracketSpacing": true,
+  "singleQuote": false,
+  "useTabs": false,
+  "tabWidth": 2,
+  "semi": true,
+  "printWidth": 120,
+  "htmlWhitespaceSensitivity": "css",
+  "vueIndentScriptAndStyle": true,
+  "trailingComma": "es5",
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
+  "arrowParens": "always",
+  "embeddedLanguageFormatting": "auto",
+  "ignorePatterns": ["node_modules", "*.bat"],
+  "endOfLine": "crlf",
+}

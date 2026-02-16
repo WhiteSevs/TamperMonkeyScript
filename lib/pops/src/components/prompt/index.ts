@@ -137,40 +137,12 @@ export const PopsPrompt = {
     // 输入框赋值初始值
 
     $input.value = config.content.text;
-    PopsHandler.handlePromptClickEvent(
-      "close",
-      $input,
-      $btnClose,
-      evtConfig,
+    PopsHandler.handlePromptClickEvent("close", $input, $btnClose, evtConfig, config.btn.close.callback);
 
-      config.btn.close.callback
-    );
+    PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, evtConfig, config.btn.ok.callback);
+    PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, evtConfig, config.btn.cancel.callback);
 
-    PopsHandler.handlePromptClickEvent(
-      "ok",
-      $input,
-      $btnOk,
-      evtConfig,
-
-      config.btn.ok.callback
-    );
-    PopsHandler.handlePromptClickEvent(
-      "cancel",
-      $input,
-      $btnCancel,
-      evtConfig,
-
-      config.btn.cancel.callback
-    );
-
-    PopsHandler.handlePromptClickEvent(
-      "other",
-      $input,
-      $btnOther,
-      evtConfig,
-
-      config.btn.other.callback
-    );
+    PopsHandler.handlePromptClickEvent("other", $input, $btnOther, evtConfig, config.btn.other.callback);
     // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);

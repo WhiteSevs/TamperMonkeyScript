@@ -1,8 +1,23 @@
 {
   "name": "qmsg",
   "version": "1.6.2",
-  "type": "module",
   "description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
+  "keywords": [
+    "ScriptCat",
+    "TamperMonkey",
+    "VioletMonkey",
+    "javascript",
+    "toast",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "WhiteSev",
+  "files": [
+    "dist",
+    "src",
+    "./index.ts"
+  ],
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/node/index.esm.js",
   "types": "dist/index.d.ts",
@@ -10,38 +25,23 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs.js"
     }
   },
-  "files": [
-    "dist",
-    "src",
-    "./index.ts"
-  ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "format": "oxfmt . --write",
     "dev": "vue-tsc --noEmit && vite --force",
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
-  "keywords": [
-    "javascript",
-    "typescript",
-    "toast",
-    "TamperMonkey",
-    "VioletMonkey",
-    "ScriptCat"
-  ],
-  "author": "WhiteSev",
-  "license": "MIT",
   "dependencies": {
-    "worker-timers": "^8.0.27"
+    "worker-timers": "^8.0.30"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -51,12 +51,14 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "browserslist": "^4.28.1",
-    "caniuse-lite": "^1.0.30001761",
+    "caniuse-lite": "^1.0.30001770",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
+    "oxfmt": "^0.32.0",
+    "oxlint": "1.46.0",
     "prettier": "^3.7.4",
     "rollup": "^4.54.0",
     "rollup-plugin-clear": "^2.0.7",
@@ -64,5 +66,5 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.1"
   },
-  "packageManager": "pnpm@10.17.1"
+  "packageManager": "pnpm@10.29.3"
 }

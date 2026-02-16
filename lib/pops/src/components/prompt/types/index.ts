@@ -9,7 +9,8 @@ import type {
  * pops.prompt
  */
 export interface PopsPromptConfig
-  extends PopsTitleConfig,
+  extends
+    PopsTitleConfig,
     PopsDragConfig,
     PopsMoreButtonConfig<{
       text: string;

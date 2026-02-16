@@ -2,8 +2,19 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/domutils",
   "version": "1.9.2",
-  "type": "module",
   "description": "适合在浏览器中操作DOM的常用工具类",
+  "keywords": [
+    "typescript",
+    "元素工具类"
+  ],
+  "license": "MIT",
+  "author": "WhiteSev",
+  "files": [
+    "dist",
+    "src",
+    "./index.ts"
+  ],
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/types/index.d.ts",
@@ -12,34 +23,23 @@
     "./package.json": "./package.json",
     "./dist/*": "./dist/*",
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/types/index.d.ts"
+      "require": "./dist/index.cjs.js"
     }
-  },
-  "files": [
-    "dist",
-    "src",
-    "./index.ts"
-  ],
-  "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
-    "dev": "vue-tsc --noEmit && vite --force",
-    "build": "pnpm run format && pnpm run lint && rollup -c"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "keywords": [
-    "typescript",
-    "元素工具类"
-  ],
-  "author": "WhiteSev",
-  "license": "MIT",
+  "scripts": {
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "format": "oxfmt . --write",
+    "dev": "vue-tsc --noEmit && vite --force",
+    "build": "pnpm run format && pnpm run lint && rollup -c"
+  },
   "dependencies": {
-    "worker-timers": "^8.0.27"
+    "worker-timers": "^8.0.30"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -49,12 +49,14 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "browserslist": "^4.28.1",
-    "caniuse-lite": "^1.0.30001761",
+    "caniuse-lite": "^1.0.30001770",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
+    "oxfmt": "^0.32.0",
+    "oxlint": "1.46.0",
     "rollup": "^4.54.0",
     "rollup-plugin-clear": "^2.0.7",
     "tslib": "^2.8.1",

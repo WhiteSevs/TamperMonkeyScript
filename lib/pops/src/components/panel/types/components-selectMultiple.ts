@@ -35,8 +35,9 @@ export interface PopsPanelSelectMultipleDataOption<T> {
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectMultipleConfig<T = any>
-  extends PopsPanelGeneralConfig<PopsPanelSelectMultipleConfig<T>> {
+export interface PopsPanelSelectMultipleConfig<T = any> extends PopsPanelGeneralConfig<
+  PopsPanelSelectMultipleConfig<T>
+> {
   /**
    * 组件类型
    */

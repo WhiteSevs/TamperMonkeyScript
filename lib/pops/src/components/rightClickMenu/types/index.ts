@@ -68,8 +68,10 @@ export interface PopsRightClickMenuDataConfig {
 /**
  * pops.rightClickMenu
  */
-export interface PopsRightClickMenuConfig
-  extends Pick<PopsGeneralConfig, "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"> {
+export interface PopsRightClickMenuConfig extends Pick<
+  PopsGeneralConfig,
+  "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"
+> {
   /**
    * 目标元素
    * @default document.documentElement

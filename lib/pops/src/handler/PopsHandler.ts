@@ -165,9 +165,9 @@ export const PopsHandler = {
       function isAnimElement(element: HTMLElement) {
         return Boolean(
           element?.localName?.toLowerCase() === "div" &&
-            element.className &&
-            element.className === "pops-anim" &&
-            element.hasAttribute("anim")
+          element.className &&
+          element.className === "pops-anim" &&
+          element.hasAttribute("anim")
         );
       }
       // 判断按下的元素是否是pops-anim

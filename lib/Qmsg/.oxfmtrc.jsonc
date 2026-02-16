@@ -6,12 +6,23 @@
   "tabWidth": 2,
   "semi": true,
   "printWidth": 120,
-  "endOfLine": "auto",
   "htmlWhitespaceSensitivity": "css",
   "vueIndentScriptAndStyle": true,
   "trailingComma": "es5",
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "arrowParens": "always",
-  "embeddedLanguageFormatting": "auto"
+  "embeddedLanguageFormatting": "auto",
+  "endOfLine": "crlf",
+  "ignorePatterns": [
+    //# Lock files
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "dist",
+    "node_modules",
+    ".prettierrc",
+    "assets",
+    //# Ignore source files
+  ],
 }

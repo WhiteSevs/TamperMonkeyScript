@@ -72,7 +72,7 @@ export class GBKEncoder {
           continue;
         }
 
-        /* 
+        /*
 					If 2 or more char combines to one visible code,
 					or just this code is not in GBK
 				*/

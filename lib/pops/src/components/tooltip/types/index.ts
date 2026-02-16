@@ -7,8 +7,10 @@ export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow"
 /**
  * pops.tooltip
  */
-export interface PopsToolTipConfig
-  extends Pick<PopsGeneralConfig, "useShadowRoot" | "only" | "zIndex" | "style" | "beforeAppendToPageCallBack"> {
+export interface PopsToolTipConfig extends Pick<
+  PopsGeneralConfig,
+  "useShadowRoot" | "only" | "zIndex" | "style" | "beforeAppendToPageCallBack"
+> {
   /**
    * 目标元素
    */

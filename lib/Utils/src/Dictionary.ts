@@ -44,6 +44,12 @@ export class UtilsDictionary<K, V> {
       this.set(key, value);
     }
   }
+  [Symbol.dispose]() {
+    this.clear();
+  }
+  async [Symbol.asyncDispose]() {
+    this.clear();
+  }
   /**
    * 获取字典的长度，同this.size
    */

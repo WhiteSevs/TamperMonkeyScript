@@ -10,7 +10,8 @@ import type {
  * pops.drawer
  */
 export interface PopsDrawerConfig
-  extends PopsContentConfig,
+  extends
+    PopsContentConfig,
     PopsMoreButtonConfig,
     Omit<PopsGeneralConfig, "width" | "height" | "position" | "animation"> {
   /**

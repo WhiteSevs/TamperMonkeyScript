@@ -104,8 +104,10 @@ export type PopsSearchSuggestionData<T> = {
  * 搜索建议悬浮窗
  * pops.searchSuggestion
  */
-export interface PopsSearchSuggestionConfig<T = any>
-  extends Pick<PopsGeneralConfig, "useShadowRoot" | "zIndex" | "style"> {
+export interface PopsSearchSuggestionConfig<T = any> extends Pick<
+  PopsGeneralConfig,
+  "useShadowRoot" | "zIndex" | "style"
+> {
   /**
    * 当前的环境，可以是document，可以是shadowroot，默认是document
    *

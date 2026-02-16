@@ -16,6 +16,8 @@ export declare class UtilsDictionary<K, V> {
         [key: string | symbol]: V;
     });
     constructor(key: K, value: V);
+    [Symbol.dispose](): void;
+    [Symbol.asyncDispose](): Promise<void>;
     /**
      * 获取字典的长度，同this.size
      */

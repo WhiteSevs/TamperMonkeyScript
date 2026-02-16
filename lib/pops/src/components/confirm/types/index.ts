@@ -10,8 +10,4 @@ import type {
  * pops.confirm
  */
 export interface PopsConfirmConfig
-  extends PopsTitleConfig,
-    PopsContentConfig,
-    PopsMoreButtonConfig,
-    PopsDragConfig,
-    PopsGeneralConfig {}
+  extends PopsTitleConfig, PopsContentConfig, PopsMoreButtonConfig, PopsDragConfig, PopsGeneralConfig {}

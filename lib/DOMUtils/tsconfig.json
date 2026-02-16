@@ -43,5 +43,5 @@
     "importsNotUsedAsValues": "remove"
   },
   // 包含src下的所有文件
-  "include": ["src/**/*", "index.ts", "eslint.config.mjs"]
+  "include": ["src/**/*", "index.ts", "eslint.config.mjs", "oxlint.config.ts"]
 }

@@ -7,9 +7,9 @@ export const PagingUtils = {
     try {
       $el.innerHTML = text;
     } catch {
-      // @ts-ignore
+      // @ts-expect-error
       if (globalThis.trustedTypes) {
-        // @ts-ignore
+        // @ts-expect-error
         const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
           createHTML: (html: string) => html,
         });
