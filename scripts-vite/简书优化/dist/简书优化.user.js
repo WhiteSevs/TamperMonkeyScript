@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -32,54 +32,54 @@
 (function (DOMUtils, pops, Utils, Qmsg) {
   "use strict";
 
-  const blockCSS = `.download-app-guidance,\r
-.call-app-btn,\r
-.collapse-tips,\r
-.note-graceful-button,\r
-.app-open,\r
-.header-wrap,\r
-.recommend-wrap.recommend-ad,\r
-.call-app-Ad-bottom,\r
-#recommended-notes p.top-title span.more,\r
-#homepage .modal,\r
-button.index_call-app-btn,\r
-span.note__flow__download,\r
-.download-guide,\r
-#footer,\r
-.comment-open-app-btn-wrap,\r
-.nav.navbar-nav + div,\r
-.self-flow-ad,\r
-#free-reward-panel,\r
-div[id*='AdFive'],\r
-#index-aside-download-qrbox,\r
-.baidu-app-download-2eIkf_1,\r
-/* 底部的"小礼物走一走，来简书关注我"、赞赏支持和更多精彩内容，就在简书APP */\r
-div[role="main"] > div > section:first-child > div:nth-last-child(2),\r
-/* 它的内部是script标签，可能影响部分评论之间的高度问题 */\r
-div.adad_container ,\r
-/* 顶部导航栏的【下载App】 */\r
-#__next nav a[href*="navbar-app"] {\r
-  display: none !important;\r
-}\r
-body.reader-day-mode.normal-size {\r
-  overflow: auto !important;\r
-}\r
-.collapse-free-content {\r
-  height: auto !important;\r
-}\r
-.copyright {\r
-  color: #000 !important;\r
-}\r
-#note-show .content .show-content-free .collapse-free-content:after {\r
-  background-image: none !important;\r
-}\r
-footer > div > div {\r
-  justify-content: center;\r
-}\r
-/* 修复底部最后编辑于：。。。在某些套壳浏览器上的错位问题 */\r
-#note-show .content .show-content-free .note-meta-time {\r
-  margin-top: 0px !important;\r
-}\r
+  const blockCSS = `.download-app-guidance,
+.call-app-btn,
+.collapse-tips,
+.note-graceful-button,
+.app-open,
+.header-wrap,
+.recommend-wrap.recommend-ad,
+.call-app-Ad-bottom,
+#recommended-notes p.top-title span.more,
+#homepage .modal,
+button.index_call-app-btn,
+span.note__flow__download,
+.download-guide,
+#footer,
+.comment-open-app-btn-wrap,
+.nav.navbar-nav + div,
+.self-flow-ad,
+#free-reward-panel,
+div[id*='AdFive'],
+#index-aside-download-qrbox,
+.baidu-app-download-2eIkf_1,
+/* 底部的"小礼物走一走，来简书关注我"、赞赏支持和更多精彩内容，就在简书APP */
+div[role="main"] > div > section:first-child > div:nth-last-child(2),
+/* 它的内部是script标签，可能影响部分评论之间的高度问题 */
+div.adad_container ,
+/* 顶部导航栏的【下载App】 */
+#__next nav a[href*="navbar-app"] {
+  display: none !important;
+}
+body.reader-day-mode.normal-size {
+  overflow: auto !important;
+}
+.collapse-free-content {
+  height: auto !important;
+}
+.copyright {
+  color: #000 !important;
+}
+#note-show .content .show-content-free .collapse-free-content:after {
+  background-image: none !important;
+}
+footer > div > div {
+  justify-content: center;
+}
+/* 修复底部最后编辑于：。。。在某些套壳浏览器上的错位问题 */
+#note-show .content .show-content-free .note-meta-time {
+  margin-top: 0px !important;
+}
 `;
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
@@ -1162,8 +1162,16 @@ footer > div > div {\r
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1210,7 +1218,7 @@ footer > div > div {\r
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1233,23 +1241,37 @@ footer > div > div {\r
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1294,6 +1316,7 @@ footer > div > div {\r
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1901,6 +1924,26 @@ footer > div > div {\r
         return key;
       }
     },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
+    },
   };
   const PanelSettingConfig = {
     qmsg_config_position: {
@@ -1946,7 +1989,7 @@ footer > div > div {\r
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -2023,6 +2066,8 @@ footer > div > div {\r
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,

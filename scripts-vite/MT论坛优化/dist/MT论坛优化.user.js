@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.1
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -385,7 +385,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -462,6 +462,8 @@
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -1294,8 +1296,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1342,7 +1352,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1365,23 +1375,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1426,6 +1450,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -2032,6 +2057,26 @@
       } else {
         return key;
       }
+    },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
     },
   };
   const MTIdentifyLinks = () => {
@@ -4473,6 +4518,12 @@
           const searchText = domUtils.val($searchInput);
           for (let index = 0; index < allData.length; index++) {
             const item = allData[index];
+            if (typeof filterCallBack === "function") {
+              const flag = await filterCallBack(item);
+              if (typeof flag === "boolean" && !flag) {
+                continue;
+              }
+            }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
               if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
@@ -5052,7 +5103,7 @@
     },
   };
   const blackHomeCSS =
-    ".pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.blackhome-user-filter input {\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n}\r\n.blackhome-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.blackhome-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.blackhome-user-list .blackhome-user-item {\r\n  margin: 15px 10px;\r\n  padding: 10px;\r\n  border-radius: 8px;\r\n  box-shadow:\r\n    0 0 0.6rem #c8d0e7,\r\n    -0.2rem -0.2rem 0.5rem #fff;\r\n}\r\n.blackhome-user {\r\n  display: flex;\r\n}\r\n.blackhome-user img {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.blackhome-user-info {\r\n  margin-left: 10px;\r\n}\r\n.blackhome-user-info p:nth-child(1) {\r\n  margin-bottom: 5px;\r\n}\r\n.blackhome-user-info p:nth-child(2) {\r\n  font-size: 14px;\r\n}\r\n.blackhome-user-action {\r\n  display: flex;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-user-action p:nth-child(1),\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid red;\r\n  color: red;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  place-self: center;\r\n}\r\n.blackhome-user-action p:nth-child(2) {\r\n  border: 1px solid #ff4b4b;\r\n  color: #ff4b4b;\r\n  margin-left: 8px;\r\n}\r\n.blackhome-user-uuid {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.blackhome-operator {\r\n  padding: 10px;\r\n  background-color: #efefef;\r\n  border-radius: 6px;\r\n}\r\n.blackhome-operator-user {\r\n  display: flex;\r\n}\r\n.blackhome-operator-user img {\r\n  width: 35px;\r\n  height: 35px;\r\n  border-radius: 35px;\r\n}\r\n.blackhome-operator-user p {\r\n  align-self: center;\r\n  margin-left: 10px;\r\n}\r\n.blackhome-operator-user-info {\r\n  margin: 10px 0;\r\n  font-weight: 500;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .blackhome-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .blackhome-user-list .blackhome-user-item {\r\n    flex: 1 1 250px;\r\n    max-width: calc(50% - 10px - 10px);\r\n  }\r\n}\r\n";
+    ".pops-confirm-content {\n  display: flex;\n  flex-direction: column;\n}\n.blackhome-user-filter input {\n  width: -moz-available;\n  width: -webkit-fill-available;\n  height: 30px;\n  margin: 8px 20px;\n  border: 0;\n  border-bottom: 1px solid;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.blackhome-user-filter input:focus-within {\n  outline: none;\n}\n.blackhome-user-list {\n  flex: 1;\n  overflow-y: auto;\n}\n.blackhome-user-list .blackhome-user-item {\n  margin: 15px 10px;\n  padding: 10px;\n  border-radius: 8px;\n  box-shadow:\n    0 0 0.6rem #c8d0e7,\n    -0.2rem -0.2rem 0.5rem #fff;\n}\n.blackhome-user {\n  display: flex;\n}\n.blackhome-user img {\n  width: 45px;\n  height: 45px;\n  border-radius: 45px;\n}\n.blackhome-user-info {\n  margin-left: 10px;\n}\n.blackhome-user-info p:nth-child(1) {\n  margin-bottom: 5px;\n}\n.blackhome-user-info p:nth-child(2) {\n  font-size: 14px;\n}\n.blackhome-user-action {\n  display: flex;\n  margin: 10px 0;\n}\n.blackhome-user-action p:nth-child(1),\n.blackhome-user-action p:nth-child(2) {\n  border: 1px solid red;\n  color: red;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  place-self: center;\n}\n.blackhome-user-action p:nth-child(2) {\n  border: 1px solid #ff4b4b;\n  color: #ff4b4b;\n  margin-left: 8px;\n}\n.blackhome-user-uuid {\n  border: 1px solid #ff7600;\n  color: #ff7600;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  width: fit-content;\n  width: -moz-fit-content;\n  margin: 10px 0;\n}\n.blackhome-operator {\n  padding: 10px;\n  background-color: #efefef;\n  border-radius: 6px;\n}\n.blackhome-operator-user {\n  display: flex;\n}\n.blackhome-operator-user img {\n  width: 35px;\n  height: 35px;\n  border-radius: 35px;\n}\n.blackhome-operator-user p {\n  align-self: center;\n  margin-left: 10px;\n}\n.blackhome-operator-user-info {\n  margin: 10px 0;\n  font-weight: 500;\n}\n\n@media screen and (min-width: 800px) {\n  .blackhome-user-list {\n    display: flex;\n    flex-wrap: wrap;\n  }\n  .blackhome-user-list .blackhome-user-item {\n    flex: 1 1 250px;\n    max-width: calc(50% - 10px - 10px);\n  }\n}\n";
   const MTBlackHome = {
     $data: {
       cid: "",
@@ -5308,7 +5359,7 @@
     },
   };
   const onlineUserCSS =
-    '.pops-alert-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.pops-alert-content > .online-user-info {\r\n  text-align: center;\r\n  padding: 0px 6px;\r\n}\r\n.online-user-filter input {\r\n  width: -webkit-fill-available;\r\n  width: -moz-available;\r\n  height: 30px;\r\n  margin: 8px 20px;\r\n  border: 0;\r\n  border-bottom: 1px solid;\r\n}\r\n.online-user-filter input:focus-within {\r\n  outline: none;\r\n}\r\n.online-user-list {\r\n  flex: 1;\r\n  overflow-y: auto;\r\n}\r\n.online-user-list li {\r\n  margin: 18px 0;\r\n}\r\n.online-user {\r\n  display: flex;\r\n  margin: 2px 20px;\r\n  align-items: center;\r\n}\r\n.online-user img[data-avatar] {\r\n  width: 45px;\r\n  height: 45px;\r\n  border-radius: 45px;\r\n}\r\n.online-user-list .online-user-info {\r\n  margin: 2px 14px;\r\n}\r\n.online-user-list .online-user-info p[data-name] {\r\n  margin-bottom: 4px;\r\n}\r\n.online-user-list .online-user-info span[data-sf] {\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n}\r\n.online-user-list .online-user-info span[data-uid] {\r\n  border: 1px solid #ff7600;\r\n  color: #ff7600;\r\n  border-radius: 4px;\r\n  padding: 2px 4px;\r\n  font-weight: 500;\r\n  font-size: 14px;\r\n  width: fit-content;\r\n  width: -moz-fit-content;\r\n  margin: 10px 0;\r\n}\r\n.online-user-list .online-user-info span[data-sf="会员"] {\r\n  color: #88b500;\r\n  border: 1px solid #88b500;\r\n}\r\n.online-user-list .online-user-info span[data-sf="版主"] {\r\n  color: #2db5e3;\r\n  border: 1px solid #2db5e3;\r\n}\r\n.online-user-list .online-user-info span[data-sf="超级版主"] {\r\n  color: #e89e38;\r\n  border: 1px solid #e89e38;\r\n}\r\n.online-user-list .online-user-info span[data-sf="管理员"] {\r\n  color: #ff5416;\r\n  border: 1px solid #ff5416;\r\n}\r\n\r\n@media screen and (min-width: 800px) {\r\n  .online-user-list {\r\n    display: flex;\r\n    flex-wrap: wrap;\r\n  }\r\n  .online-user-list .online-item {\r\n    flex: 1 1 250px;\r\n  }\r\n}\r\n';
+    '.pops-alert-content {\n  display: flex;\n  flex-direction: column;\n}\n.pops-alert-content > .online-user-info {\n  text-align: center;\n  padding: 0px 6px;\n}\n.online-user-filter input {\n  width: -webkit-fill-available;\n  width: -moz-available;\n  height: 30px;\n  margin: 8px 20px;\n  border: 0;\n  border-bottom: 1px solid;\n}\n.online-user-filter input:focus-within {\n  outline: none;\n}\n.online-user-list {\n  flex: 1;\n  overflow-y: auto;\n}\n.online-user-list li {\n  margin: 18px 0;\n}\n.online-user {\n  display: flex;\n  margin: 2px 20px;\n  align-items: center;\n}\n.online-user img[data-avatar] {\n  width: 45px;\n  height: 45px;\n  border-radius: 45px;\n}\n.online-user-list .online-user-info {\n  margin: 2px 14px;\n}\n.online-user-list .online-user-info p[data-name] {\n  margin-bottom: 4px;\n}\n.online-user-list .online-user-info span[data-sf] {\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n}\n.online-user-list .online-user-info span[data-uid] {\n  border: 1px solid #ff7600;\n  color: #ff7600;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  width: fit-content;\n  width: -moz-fit-content;\n  margin: 10px 0;\n}\n.online-user-list .online-user-info span[data-sf="会员"] {\n  color: #88b500;\n  border: 1px solid #88b500;\n}\n.online-user-list .online-user-info span[data-sf="版主"] {\n  color: #2db5e3;\n  border: 1px solid #2db5e3;\n}\n.online-user-list .online-user-info span[data-sf="超级版主"] {\n  color: #e89e38;\n  border: 1px solid #e89e38;\n}\n.online-user-list .online-user-info span[data-sf="管理员"] {\n  color: #ff5416;\n  border: 1px solid #ff5416;\n}\n\n@media screen and (min-width: 800px) {\n  .online-user-list {\n    display: flex;\n    flex-wrap: wrap;\n  }\n  .online-user-list .online-item {\n    flex: 1 1 250px;\n  }\n}\n';
   const MTOnlineUser = {
     $data: {},
     init() {

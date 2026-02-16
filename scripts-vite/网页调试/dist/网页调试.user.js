@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -410,7 +410,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -487,6 +487,8 @@
   const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -1312,8 +1314,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1360,7 +1370,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1383,23 +1393,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1444,6 +1468,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -2050,6 +2075,26 @@
       } else {
         return key;
       }
+    },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
     },
   };
   const unsafeWin = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;

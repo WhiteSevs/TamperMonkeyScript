@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.2
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -73,7 +73,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";#small-toolbar[data-v-b2773fdf]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-b2773fdf]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-b2773fdf]{flex:1}#small-toolbar .small-editor-toolbar[data-v-b2773fdf]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-b2773fdf]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-b2773fdf]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-b2773fdf]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-b2773fdf]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-b2773fdf],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-b2773fdf]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-ac6d6f7f]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-6550ea22]{fill:#7557ff}#full-toolbar[data-v-6550ea22]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-6550ea22]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-6550ea22]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-6550ea22]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-6550ea22]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-6550ea22]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-6550ea22],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-6550ea22]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-6550ea22]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-6550ea22]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-6550ea22]{margin:16px}#full-toolbar[data-v-6550ea22]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-6550ea22]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-6550ea22],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-6550ea22]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-6550ea22]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-6550ea22]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-6550ea22]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.follow-forum-container[data-v-47679705]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-47679705]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-47679705]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-47679705]{border-radius:12px}.follow-forum-item-right-container[data-v-47679705]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-47679705]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-47679705]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v1f0a1c97);color:var(--v7ff8801c)}.follow-forum-item-level[data-level="0"][data-v-47679705],.follow-forum-item-level[data-level="1"][data-v-47679705],.follow-forum-item-level[data-level="2"][data-v-47679705],.follow-forum-item-level[data-level="3"][data-v-47679705]{background:var(--v1744fa48)}.follow-forum-item-level[data-level="4"][data-v-47679705],.follow-forum-item-level[data-level="5"][data-v-47679705],.follow-forum-item-level[data-level="6"][data-v-47679705],.follow-forum-item-level[data-level="7"][data-v-47679705],.follow-forum-item-level[data-level="8"][data-v-47679705],.follow-forum-item-level[data-level="9"][data-v-47679705]{background:var(--v17450952)}.follow-forum-item-level[data-level="10"][data-v-47679705],.follow-forum-item-level[data-level="11"][data-v-47679705],.follow-forum-item-level[data-level="12"][data-v-47679705],.follow-forum-item-level[data-level="13"][data-v-47679705],.follow-forum-item-level[data-level="14"][data-v-47679705],.follow-forum-item-level[data-level="15"][data-v-47679705]{background:var(--v59e8eda8)}.follow-forum-item-level[data-level="16"][data-v-47679705],.follow-forum-item-level[data-level="17"][data-v-47679705],.follow-forum-item-level[data-level="18"][data-v-47679705]{background:var(--v59eba7e5)}.follow-forum-item-info[data-v-47679705]{word-wrap:break-word}.posts-container-item[data-v-3116157a]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-3116157a]{font-weight:700}.posts-item-title[data-v-3116157a],.posts-item-content[data-v-3116157a],.posts-item-media-container[data-v-3116157a]{margin:10px 0}.posts-item-footer[data-v-3116157a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-3116157a]{text-align:center}.posts-item-footer-icon-container[data-v-3116157a]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-3116157a]{padding:0 10px}.posts-container[data-v-5c753ad5]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-5c753ad5]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-5c753ad5]{font-weight:700}.posts-item-title[data-v-5c753ad5],.posts-item-content[data-v-5c753ad5],.posts-item-media-container[data-v-5c753ad5]{margin:10px 0}.posts-item-footer[data-v-5c753ad5]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-5c753ad5]{text-align:center}.posts-item-footer-icon-container[data-v-5c753ad5]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-5c753ad5]{padding:0 10px}#main[data-v-29f3cce9]{z-index:1000;width:100%;height:100%}.big-text[data-v-29f3cce9]{font-weight:700}.top-container[data-v-29f3cce9]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-29f3cce9]{width:100%;height:100px}.user-info-bg-main[data-v-29f3cce9]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-29f3cce9]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-29f3cce9]{padding:0 10px}.nav-left-arrow-icon[data-v-9d6dd989]{align-content:center;padding-left:0!important}.nav-title[data-v-9d6dd989]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-9d6dd989]{text-align:center;padding-bottom:20px}.user-info-item[data-v-9d6dd989]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-9d6dd989]{width:60px;display:block}.user-end-text[data-v-9d6dd989]{padding:0 20px}.user-top[data-v-e0f2c99c]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-e0f2c99c]{align-content:center;padding-left:0!important}.top-title-name[data-v-e0f2c99c]{text-align:center;padding:10px}.user-main[data-v-e0f2c99c]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-e0f2c99c]{padding:0 10px}.user-container .el-scrollbar__view[data-v-e0f2c99c]{height:100%}.user-item[data-v-e0f2c99c]{margin:10px 0}.user-item-row[data-v-e0f2c99c]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-e0f2c99c]{padding:0 10px}.user-name[data-v-e0f2c99c],.user-sign-text[data-v-e0f2c99c]{text-align:left}.user-sign-text[data-v-e0f2c99c]{color:#a2a2a2}.user-follow-btn[data-v-e0f2c99c]{float:right}.user-info[data-v-e0f2c99c]{display:grid}.user-item-row-left[data-v-e0f2c99c]{display:flex}.user-item-row-right[data-v-e0f2c99c]{float:right}.user-top[data-v-b1d5c2a2]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-b1d5c2a2]{align-content:center;padding-left:0!important}.top-title-name[data-v-b1d5c2a2]{text-align:center;padding:10px}.user-main[data-v-b1d5c2a2]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-b1d5c2a2]{padding:0 10px}.user-container .el-scrollbar__view[data-v-b1d5c2a2]{height:100%}.user-item[data-v-b1d5c2a2]{margin:10px 0}.user-item-row[data-v-b1d5c2a2]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-b1d5c2a2]{padding:0 10px;align-content:center}.user-name[data-v-b1d5c2a2],.user-sign-text[data-v-b1d5c2a2]{text-align:left}.user-sign-text[data-v-b1d5c2a2]{color:#a2a2a2}.user-follow-btn[data-v-b1d5c2a2]{float:right}.user-info[data-v-b1d5c2a2]{display:grid}.user-item-row-left[data-v-b1d5c2a2]{display:flex}.user-item-row-right[data-v-b1d5c2a2]{float:right}.router-view-container[data-v-8524ef32]{padding:20px}.router-view-container .layout-item[data-v-8524ef32]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-8524ef32]{width:100%;height:100%}.router-view-container .layout-text[data-v-8524ef32]{flex:1}.post-list-item[data-v-d277e659]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-d277e659]:last-child{border-bottom:0}.user-info[data-v-d277e659]{display:flex;align-items:center;gap:5px}.user-time[data-v-d277e659]{font-size:.8em;color:#999}.user-avatar img[data-v-d277e659]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-d277e659]{font-size:.9em;color:#4a4a4a}.post-info[data-v-d277e659]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-d277e659]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-d277e659]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-d277e659]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-d277e659]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-d277e659]{color:#999}.bottom-msg[data-v-d277e659]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-d277e659]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-5cd2511d]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-5cd2511d]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-5cd2511d]:last-child{border-bottom:0}.user-info[data-v-5cd2511d]{display:flex;align-items:center;gap:5px}.user-time[data-v-5cd2511d]{font-size:.8em;color:#999}.user-avatar img[data-v-5cd2511d]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-5cd2511d]{font-size:.9em}.reply-content .quote-user[data-v-5cd2511d]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-5cd2511d]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-5cd2511d]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-5cd2511d]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-5cd2511d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-5cd2511d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-5cd2511d]{color:#999}.bottom-msg[data-v-5cd2511d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-5cd2511d]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-b2e309d0]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-21d9b8e4]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-21d9b8e4]{align-items:center;width:100%}.top-title-name[data-v-21d9b8e4]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-21d9b8e4]{padding:0;margin:40px 0 0} '
+    ' @charset "UTF-8";#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-95d0ddb6]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}.follow-forum-container[data-v-36bdb051]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-36bdb051]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-36bdb051]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-36bdb051]{border-radius:12px}.follow-forum-item-right-container[data-v-36bdb051]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-36bdb051]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-36bdb051]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v895b8202);color:var(--v75361c84)}.follow-forum-item-level[data-level="0"][data-v-36bdb051],.follow-forum-item-level[data-level="1"][data-v-36bdb051],.follow-forum-item-level[data-level="2"][data-v-36bdb051],.follow-forum-item-level[data-level="3"][data-v-36bdb051]{background:var(--v040124e0)}.follow-forum-item-level[data-level="4"][data-v-36bdb051],.follow-forum-item-level[data-level="5"][data-v-36bdb051],.follow-forum-item-level[data-level="6"][data-v-36bdb051],.follow-forum-item-level[data-level="7"][data-v-36bdb051],.follow-forum-item-level[data-level="8"][data-v-36bdb051],.follow-forum-item-level[data-level="9"][data-v-36bdb051]{background:var(--v040133ea)}.follow-forum-item-level[data-level="10"][data-v-36bdb051],.follow-forum-item-level[data-level="11"][data-v-36bdb051],.follow-forum-item-level[data-level="12"][data-v-36bdb051],.follow-forum-item-level[data-level="13"][data-v-36bdb051],.follow-forum-item-level[data-level="14"][data-v-36bdb051],.follow-forum-item-level[data-level="15"][data-v-36bdb051]{background:var(--v0844d240)}.follow-forum-item-level[data-level="16"][data-v-36bdb051],.follow-forum-item-level[data-level="17"][data-v-36bdb051],.follow-forum-item-level[data-level="18"][data-v-36bdb051]{background:var(--v08478c7d)}.follow-forum-item-info[data-v-36bdb051]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-7bf7ec62]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-7bf7ec62]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-7bf7ec62]{font-weight:700}.posts-item-title[data-v-7bf7ec62],.posts-item-content[data-v-7bf7ec62],.posts-item-media-container[data-v-7bf7ec62]{margin:10px 0}.posts-item-footer[data-v-7bf7ec62]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-7bf7ec62]{text-align:center}.posts-item-footer-icon-container[data-v-7bf7ec62]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-7bf7ec62]{padding:0 10px}#main[data-v-2460abc4]{z-index:1000;width:100%;height:100%}.big-text[data-v-2460abc4]{font-weight:700}.top-container[data-v-2460abc4]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-2460abc4]{width:100%;height:100px}.user-info-bg-main[data-v-2460abc4]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-2460abc4]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-2460abc4]{padding:0 10px}.nav-left-arrow-icon[data-v-15ea9e5a]{align-content:center;padding-left:0!important}.nav-title[data-v-15ea9e5a]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-15ea9e5a]{text-align:center;padding-bottom:20px}.user-info-item[data-v-15ea9e5a]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-15ea9e5a]{width:60px;display:block}.user-end-text[data-v-15ea9e5a]{padding:0 20px}.user-top[data-v-ca4819d3]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-ca4819d3]{align-content:center;padding-left:0!important}.top-title-name[data-v-ca4819d3]{text-align:center;padding:10px}.user-main[data-v-ca4819d3]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-ca4819d3]{padding:0 10px}.user-container .el-scrollbar__view[data-v-ca4819d3]{height:100%}.user-item[data-v-ca4819d3]{margin:10px 0}.user-item-row[data-v-ca4819d3]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-ca4819d3]{padding:0 10px}.user-name[data-v-ca4819d3],.user-sign-text[data-v-ca4819d3]{text-align:left}.user-sign-text[data-v-ca4819d3]{color:#a2a2a2}.user-follow-btn[data-v-ca4819d3]{float:right}.user-info[data-v-ca4819d3]{display:grid}.user-item-row-left[data-v-ca4819d3]{display:flex}.user-item-row-right[data-v-ca4819d3]{float:right}.user-top[data-v-955f79f5]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-955f79f5]{align-content:center;padding-left:0!important}.top-title-name[data-v-955f79f5]{text-align:center;padding:10px}.user-main[data-v-955f79f5]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-955f79f5]{padding:0 10px}.user-container .el-scrollbar__view[data-v-955f79f5]{height:100%}.user-item[data-v-955f79f5]{margin:10px 0}.user-item-row[data-v-955f79f5]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-955f79f5]{padding:0 10px;align-content:center}.user-name[data-v-955f79f5],.user-sign-text[data-v-955f79f5]{text-align:left}.user-sign-text[data-v-955f79f5]{color:#a2a2a2}.user-follow-btn[data-v-955f79f5]{float:right}.user-info[data-v-955f79f5]{display:grid}.user-item-row-left[data-v-955f79f5]{display:flex}.user-item-row-right[data-v-955f79f5]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-63be16a3]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-63be16a3]:last-child{border-bottom:0}.user-info[data-v-63be16a3]{display:flex;align-items:center;gap:5px}.user-time[data-v-63be16a3]{font-size:.8em;color:#999}.user-avatar img[data-v-63be16a3]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-63be16a3]{font-size:.9em;color:#4a4a4a}.post-info[data-v-63be16a3]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-63be16a3]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-63be16a3]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-63be16a3]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-63be16a3]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-63be16a3]{color:#999}.bottom-msg[data-v-63be16a3]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-63be16a3]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-3dfa54cc]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-3dfa54cc]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-3dfa54cc]:last-child{border-bottom:0}.user-info[data-v-3dfa54cc]{display:flex;align-items:center;gap:5px}.user-time[data-v-3dfa54cc]{font-size:.8em;color:#999}.user-avatar img[data-v-3dfa54cc]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-3dfa54cc]{font-size:.9em}.reply-content .quote-user[data-v-3dfa54cc]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-3dfa54cc]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-3dfa54cc]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-3dfa54cc]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-3dfa54cc]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-3dfa54cc]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-3dfa54cc]{color:#999}.bottom-msg[data-v-3dfa54cc]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-3dfa54cc]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-5a0f39d7]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-CKQBYC83.js"(exports$1, module) {
+    "entrance-BYWmgNZk.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -412,7 +412,7 @@
           } else {
             log.info(content);
           }
-          return true;
+          return false;
         },
         get position() {
           return Panel.getValue(
@@ -489,6 +489,8 @@
       const OriginPrototype = {
         Object: {
           defineProperty: _unsafeWindow.Object.defineProperty,
+          keys: _unsafeWindow.Object.keys,
+          values: _unsafeWindow.Object.values,
         },
         Function: {
           apply: _unsafeWindow.Function.prototype.apply,
@@ -1337,8 +1339,16 @@
         hasKey(key) {
           return PopsPanelStorageApi.has(key);
         },
-        addValueChangeListener(key, callback) {
+        addValueChangeListener(key, callback, option) {
           const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+          if (option?.immediate || option?.immediateAll) {
+            const value = this.getValue(key);
+            if (option?.immediate) {
+              callback(key, value, value);
+            } else if (option?.immediateAll) {
+              Panel.emitMenuValueChange(key, value, value);
+            }
+          }
           return listenerId;
         },
         removeValueChangeListener(listenerId) {
@@ -1385,7 +1395,7 @@
             if (Array.isArray(args)) {
               resultValueList = resultValueList.concat(args);
             } else {
-              const handlerArgs = (obj) => {
+              const handleArgs = (obj) => {
                 if (typeof obj === "object" && obj != null) {
                   if (obj instanceof Element) {
                     resultValueList.push(obj);
@@ -1408,23 +1418,37 @@
               };
               if (args != null && Array.isArray(args)) {
                 for (const it of args) {
-                  handlerArgs(it);
+                  handleArgs(it);
                 }
               } else {
-                handlerArgs(args);
+                handleArgs(args);
               }
             }
-            for (const it of resultValueList) {
+            const handleResult = (it) => {
               if (it == null) {
-                continue;
+                return;
               }
               if (it instanceof Element) {
                 dynamicMenuStoreValueList.push(it);
-                continue;
+                return;
               }
               if (typeof it === "function") {
                 dynamicDestoryFnList.push(it);
-                continue;
+                return;
+              }
+            };
+            for (const it of resultValueList) {
+              const flag = handleResult(it);
+              if (typeof flag === "boolean" && !flag) {
+                break;
+              }
+              if (Array.isArray(it)) {
+                for (const it2 of it) {
+                  const flag2 = handleResult(it2);
+                  if (typeof flag2 === "boolean" && !flag2) {
+                    break;
+                  }
+                }
               }
             }
             execClearStoreStyleElements();
@@ -1469,6 +1493,7 @@
             if (execFlag) {
               const valueList = keyList.map((key) => this.getValue(key));
               callbackResult = await callback({
+                key: keyList,
                 value: isArrayKey ? valueList : valueList[0],
                 addStoreValue: (...args) => {
                   return addStoreValueCallback(execFlag, args);
@@ -2078,6 +2103,26 @@
             return key;
           }
         },
+        getDynamicValue(key, defaultValue) {
+          const that = this;
+          let isInit = false;
+          let __value = defaultValue;
+          const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+            __value = newValue;
+          });
+          return {
+            get value() {
+              if (!isInit) {
+                isInit = true;
+                __value = that.getValue(key, defaultValue);
+              }
+              return __value;
+            },
+            destory() {
+              that.removeValueChangeListener(listenerId);
+            },
+          };
+        },
       };
       class LoadingView {
         config;
@@ -2430,7 +2475,7 @@
         },
       };
       const AiQiChaShieldCSS =
-        'div.header-down-app,\r\ndiv.active-enter,\r\ndiv.app-enter,\r\ndiv.coupon-active,\r\ndiv.cpc-adv-container,\r\ndiv.detail-footer.detail-footer-test,\r\ndiv.index-more[data-show-id="indexMoreExposure"] {\r\n  display: none !important;\r\n}\r\n.bread-crumbs.has-down,\r\n.border-bottom-line {\r\n  top: 0 !important;\r\n}\r\n';
+        'div.header-down-app,\ndiv.active-enter,\ndiv.app-enter,\ndiv.coupon-active,\ndiv.cpc-adv-container,\ndiv.detail-footer.detail-footer-test,\ndiv.index-more[data-show-id="indexMoreExposure"] {\n  display: none !important;\n}\n.bread-crumbs.has-down,\n.border-bottom-line {\n  top: 0 !important;\n}\n';
       const BaiduAiQiCha = {
         init() {
           addStyle$1(AiQiChaShieldCSS);
@@ -2487,7 +2532,7 @@
         },
       };
       const BaiJiaHaoShieldCSS =
-        ".layer-wrap,\r\n.openImg,\r\n.oPadding,\r\n.bottomTTSStruct,\r\n.undefined,\r\n.headDeflectorContainer,\r\n.followSuper,\r\n#searchwordSdk,\r\ndiv#commentModule > div > div > span:nth-child(2),\r\n/* 顶部打开APP横幅 */\r\n#headDeflectorContainer,\r\n/* 展开全文 */\r\n.foldMaskWrapper {\r\n  display: none !important;\r\n}\r\nbody.scrollHide {\r\n  overflow: auto !important;\r\n}\r\n.mainContent,\r\n#mainContentContainer {\r\n  height: auto !important;\r\n}\r\n";
+        ".layer-wrap,\n.openImg,\n.oPadding,\n.bottomTTSStruct,\n.undefined,\n.headDeflectorContainer,\n.followSuper,\n#searchwordSdk,\ndiv#commentModule > div > div > span:nth-child(2),\n/* 顶部打开APP横幅 */\n#headDeflectorContainer,\n/* 展开全文 */\n.foldMaskWrapper {\n  display: none !important;\n}\nbody.scrollHide {\n  overflow: auto !important;\n}\n.mainContent,\n#mainContentContainer {\n  height: auto !important;\n}\n";
       const BaiduHook = {
         $isHook: {
           windowBoxJSBefore: false,
@@ -3036,7 +3081,7 @@
         },
       };
       const BaiKeShieldCSS =
-        '/* 底部的广告 */\r\n#J_yitiao_container,\r\n/* 顶部广告 */\r\n#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,\r\n/* 底部的广告 */\r\n.BK-after-content-wrapper>div:has(a[onclick*="page"]) {\r\n  display: none !important;\r\n}\r\n';
+        '/* 底部的广告 */\n#J_yitiao_container,\n/* 顶部广告 */\n#BK_before_content_wrapper > div:has(a[onclick*="page"]) ,\n/* 底部的广告 */\n.BK-after-content-wrapper>div:has(a[onclick*="page"]) {\n  display: none !important;\n}\n';
       const BaiduBaiKe = {
         init() {
           addStyle$1(BaiKeShieldCSS);
@@ -3190,7 +3235,7 @@
         },
       };
       const EasyLearnShieldCSS =
-        "/* 中间弹窗-限时专享福利 */\r\n#app .pre-unpaid-wrap,\r\n/* 底部工具栏上面-月考全胜 您有xx元体验卡 */\r\n.question-bottom-bar .vip-bar,\r\n/* 解析-免费查看答案及解析 */\r\n.question-analysis-new .see-more,\r\n/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/\r\n.business-el-line,\r\n.business-el-line-background,\r\n/* 展开按钮 */\r\n.question-analysis-new .expand,\r\n/* 7日VIP限免 大学生免费领 */\r\n#app .bgk-question-detail .float-fixed {\r\n  display: none !important;\r\n}\r\n/* 显示答案及解析 */\r\n.ques-title.analysis-title + div {\r\n  display: unset !important;\r\n}\r\n.question-analysis-new .analysis-wrap,\r\n#analysis {\r\n  overflow: unset !important;\r\n  height: unset !important;\r\n  max-height: unset !important;\r\n}\r\n/* 电脑端 */\r\n/* 中间弹窗-限时专享福利 */\r\n.kaixue-dialog-mask,\r\n/* 解析-免费查看答案及解析 */\r\n.question-cont .mask,\r\n/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */\r\n.vip-banner-cont {\r\n  display: none !important;\r\n}\r\n";
+        "/* 中间弹窗-限时专享福利 */\n#app .pre-unpaid-wrap,\n/* 底部工具栏上面-月考全胜 您有xx元体验卡 */\n.question-bottom-bar .vip-bar,\n/* 解析-免费查看答案及解析 */\n.question-analysis-new .see-more,\n/* 最底部-百度教育商务合作、产品代理销售或内容合作等*/\n.business-el-line,\n.business-el-line-background,\n/* 展开按钮 */\n.question-analysis-new .expand,\n/* 7日VIP限免 大学生免费领 */\n#app .bgk-question-detail .float-fixed {\n  display: none !important;\n}\n/* 显示答案及解析 */\n.ques-title.analysis-title + div {\n  display: unset !important;\n}\n.question-analysis-new .analysis-wrap,\n#analysis {\n  overflow: unset !important;\n  height: unset !important;\n  max-height: unset !important;\n}\n/* 电脑端 */\n/* 中间弹窗-限时专享福利 */\n.kaixue-dialog-mask,\n/* 解析-免费查看答案及解析 */\n.question-cont .mask,\n/* 底部-横幅畅享百万解题视频、 千万整本试题解析VIP全场免费下 */\n.vip-banner-cont {\n  display: none !important;\n}\n";
       const VueUtils = {
         getVue($el) {
           if ($el == null) {
@@ -3540,7 +3585,7 @@
           });
         },
       };
-      const FanYiAppShieldCSS = ".fanyi-invoke-btn,\r\n.top-bn {\r\n  display: none !important;\r\n}\r\n";
+      const FanYiAppShieldCSS = ".fanyi-invoke-btn,\n.top-bn {\n  display: none !important;\n}\n";
       const BaiduFanYiApp = {
         init() {
           addStyle$1(FanYiAppShieldCSS);
@@ -3576,7 +3621,7 @@
         },
       };
       const FanYiShieldCSS =
-        ".app-bar,\r\n.jifeng-container,\r\n.intro-title,\r\n.sideQrContainer,\r\n.inner.clearfix,\r\nsection.bottom-intro,\r\n#desktop-guide-wrapper {\r\n  display: none !important;\r\n}\r\n.new-header-dl {\r\n  visibility: hidden;\r\n}\r\n";
+        ".app-bar,\n.jifeng-container,\n.intro-title,\n.sideQrContainer,\n.inner.clearfix,\nsection.bottom-intro,\n#desktop-guide-wrapper {\n  display: none !important;\n}\n.new-header-dl {\n  visibility: hidden;\n}\n";
       const BaiduFanYi = {
         init() {
           addStyle$1(FanYiShieldCSS);
@@ -3617,7 +3662,7 @@
         },
       };
       const HaoKanShieldCSS =
-        "div.share-origin.wx-share-launch,\r\ndiv.open-app-top,\r\ndiv.open-app-bottom.wx-share-launch,\r\n/* 打开APP  好看更清晰(1080P) */\r\n.NewOpenApp,\r\n/* 顶部空白区域 */\r\n.placeholder,\r\n/* 底部好看视频图片 */\r\n.page-buttom,\r\n/* 暂停视频弹出来的打开百度好看视频 */\r\n.video-player-download-tips {\r\n  display: none !important;\r\n}\r\n";
+        "div.share-origin.wx-share-launch,\ndiv.open-app-top,\ndiv.open-app-bottom.wx-share-launch,\n/* 打开APP  好看更清晰(1080P) */\n.NewOpenApp,\n/* 顶部空白区域 */\n.placeholder,\n/* 底部好看视频图片 */\n.page-buttom,\n/* 暂停视频弹出来的打开百度好看视频 */\n.video-player-download-tips {\n  display: none !important;\n}\n";
       const BaiduHaoKan = {
         init() {
           addStyle$1(HaoKanShieldCSS);
@@ -3675,13 +3720,13 @@
           return CommonUtil.addBlockCSS(".video-author-info-mask .new-video-action");
         },
       };
-      const blockCSS$2 = "/* 底部的推荐文章 */\r\n.hui-pull__body {\r\n  display: none !important;\r\n}\r\n";
+      const blockCSS$2 = "/* 底部的推荐文章 */\n.hui-pull__body {\n  display: none !important;\n}\n";
       const BaiduHealth = {
         init() {
           addStyle$1(blockCSS$2);
         },
       };
-      const ImageShieldCSS = "#boxBanner {\r\n  display: none !important;\r\n}\r\n";
+      const ImageShieldCSS = "#boxBanner {\n  display: none !important;\n}\n";
       const BaiduImage = {
         init() {
           addStyle$1(ImageShieldCSS);
@@ -3689,7 +3734,7 @@
         },
       };
       const ISiteShieldCSS =
-        "/* 底部推荐广告项 */\r\n.gt-local-h5-advert-card-root-container {\r\n  display: none !important;\r\n}\r\n";
+        "/* 底部推荐广告项 */\n.gt-local-h5-advert-card-root-container {\n  display: none !important;\n}\n";
       const BaiduISite = {
         init() {
           addStyle$1(ISiteShieldCSS);
@@ -3734,7 +3779,7 @@
         },
       };
       const JingYanShieldCSS =
-        ".article-feed-next,\r\n.wgt-rel-exp-feed,\r\n.article-feed-btn-fixed,\r\n.read-whole-mask.app,\r\n.asp-self-rander,\r\n.baobao-image-item,\r\n#wgt-ad-guess {\r\n  display: none !important;\r\n}\r\n.exp-content-container {\r\n  max-height: 100% !important;\r\n  overflow: auto !important;\r\n}\r\n";
+        ".article-feed-next,\n.wgt-rel-exp-feed,\n.article-feed-btn-fixed,\n.read-whole-mask.app,\n.asp-self-rander,\n.baobao-image-item,\n#wgt-ad-guess {\n  display: none !important;\n}\n.exp-content-container {\n  max-height: 100% !important;\n  overflow: auto !important;\n}\n";
       const BaiduJingYan = {
         init() {
           addStyle$1(JingYanShieldCSS);
@@ -3742,7 +3787,7 @@
         },
       };
       const MapShieldCSS =
-        '.index-widget-guidebanner,\r\n.common-widget-bottom-banner-changeId,\r\n#index-areaEntry-widget,\r\ndiv.common-widget-bottom-banner-changeId,\r\n#downloadnativepopup,\r\n.xiaoduVoiceCard,\r\n.index-widget-guidebanner,\r\n#message-center-panel,\r\n.xiaoduVoice-banner.-border-round,\r\n/* 底部中间横幅-打开百度地图APP */\r\n#main div[id^="fis_elm"] .btn-banner-float,\r\n/* 顶部导航栏右上角 打开百度地图APP */\r\n.baidu-entrance {\r\n  display: none !important;\r\n}\r\n';
+        '.index-widget-guidebanner,\n.common-widget-bottom-banner-changeId,\n#index-areaEntry-widget,\ndiv.common-widget-bottom-banner-changeId,\n#downloadnativepopup,\n.xiaoduVoiceCard,\n.index-widget-guidebanner,\n#message-center-panel,\n.xiaoduVoice-banner.-border-round,\n/* 底部中间横幅-打开百度地图APP */\n#main div[id^="fis_elm"] .btn-banner-float,\n/* 顶部导航栏右上角 打开百度地图APP */\n.baidu-entrance {\n  display: none !important;\n}\n';
       const BaiduMapHook = {
         init() {
           Panel.execMenuOnce("baidu_map_hijack-element-appendChild", () => {
@@ -3770,38 +3815,38 @@
           BaiduMapHook.init();
         },
       };
-      const MbdShieldCSS = `div.headDeflectorContainer,\r
-#bdrainrwDragButton,\r
-#page_wrapper .other div[class*="undefined"],\r
-#page_wrapper .other > div[class=""],\r
-/* 底部按钮-百度APP内播放 */ div.common-wrap.single-pd,\r
-/* 顶部横幅-APP内播放 */ div#app div.guid-new,\r
-/* 顶部横幅-APP内阅读 */ #headDeflectorContainer,\r
-/* 底部 打开百度APP，阅读体验更佳 */ #page_wrapper div[class^="foldMaskWrapper-"],\r
-/* 打开百度APP，阅读完整内容 */ #content_wrapper .foldMaskWrapper,\r
-/* 影响定位元素的遮罩层 */ #page_wrapper .bdboxshare > div:first-child,\r
-/* 来百度APP畅享高清图片 */ .contentMedia .openImg,\r
-/* 精彩推荐右边的 打开APP看更多精彩推荐 */ div[class*="relateTitle"] span[class*="subTitle"],\r
-/* 会自动在上面弹出的【百度热榜】 */ #page_wrapper div:has(> div[class*="leftbox"]),\r
-/* dtlandingwise 右上角 App内打开 */ .fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\r
-/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\r
-  .fusionWrapper\r
-  [class^="recoConatainer_"]\r
-  > [class^="titleBar_"]\r
-  [class^="right_"]\r
-  > span:first-child,\r
-/* landingsuper 文章内容的展开的蒙板 */ #mainContentContainer .oPadding,\r
-/* 底部的广告 */ [class^="adsContainer-"],\r
-/* 弹窗 打开百度App弹窗 */ [class^="alertModalContainer-"],\r
-/* 视频下面的广告推荐 */ #hcgContainer > div:has([data-log-view*='"isAds":true']) {\r
-  display: none !important;\r
-}\r
-/* 展开阅读 */\r
-#page_wrapper #dynamicItem,\r
-/* 手机版-展开阅读 */\r
-#mainContentContainer {\r
-  height: auto !important;\r
-}\r
+      const MbdShieldCSS = `div.headDeflectorContainer,
+#bdrainrwDragButton,
+#page_wrapper .other div[class*="undefined"],
+#page_wrapper .other > div[class=""],
+/* 底部按钮-百度APP内播放 */ div.common-wrap.single-pd,
+/* 顶部横幅-APP内播放 */ div#app div.guid-new,
+/* 顶部横幅-APP内阅读 */ #headDeflectorContainer,
+/* 底部 打开百度APP，阅读体验更佳 */ #page_wrapper div[class^="foldMaskWrapper-"],
+/* 打开百度APP，阅读完整内容 */ #content_wrapper .foldMaskWrapper,
+/* 影响定位元素的遮罩层 */ #page_wrapper .bdboxshare > div:first-child,
+/* 来百度APP畅享高清图片 */ .contentMedia .openImg,
+/* 精彩推荐右边的 打开APP看更多精彩推荐 */ div[class*="relateTitle"] span[class*="subTitle"],
+/* 会自动在上面弹出的【百度热榜】 */ #page_wrapper div:has(> div[class*="leftbox"]),
+/* dtlandingwise 右上角 App内打开 */ .fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],
+/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */
+  .fusionWrapper
+  [class^="recoConatainer_"]
+  > [class^="titleBar_"]
+  [class^="right_"]
+  > span:first-child,
+/* landingsuper 文章内容的展开的蒙板 */ #mainContentContainer .oPadding,
+/* 底部的广告 */ [class^="adsContainer-"],
+/* 弹窗 打开百度App弹窗 */ [class^="alertModalContainer-"],
+/* 视频下面的广告推荐 */ #hcgContainer > div:has([data-log-view*='"isAds":true']) {
+  display: none !important;
+}
+/* 展开阅读 */
+#page_wrapper #dynamicItem,
+/* 手机版-展开阅读 */
+#mainContentContainer {
+  height: auto !important;
+}
 `;
       const BaiduMbdHook = {
         init() {
@@ -3944,14 +3989,14 @@
         },
       };
       const PanShieldCSS =
-        "/* 失败页底部广告推荐 */\r\ndiv.share-error-ad,\r\n/* 左侧导航栏底部下载百度网盘APP横栏 */\r\n#app div.download-app,\r\n/* 失败页-小飞机送惊喜 */\r\ndiv.errorWrap div.share-plane,\r\n/* 保存到网盘右上角的领红包图标 */\r\nimg.sharelist-savebutton-hb-tip {\r\n  display: none !important;\r\n}\r\n";
+        "/* 失败页底部广告推荐 */\ndiv.share-error-ad,\n/* 左侧导航栏底部下载百度网盘APP横栏 */\n#app div.download-app,\n/* 失败页-小飞机送惊喜 */\ndiv.errorWrap div.share-plane,\n/* 保存到网盘右上角的领红包图标 */\nimg.sharelist-savebutton-hb-tip {\n  display: none !important;\n}\n";
       const BaiduPan = {
         init() {
           addStyle$1(PanShieldCSS);
           log.info("插入CSS规则");
         },
       };
-      const PosShieldCSS = "html,\r\nbody {\r\n  display: none !important;\r\n}\r\n";
+      const PosShieldCSS = "html,\nbody {\n  display: none !important;\n}\n";
       const BaiduPos = {
         init() {
           addStyle$1(PosShieldCSS);
@@ -3959,7 +4004,7 @@
         },
       };
       const SearchHealthShieldCSS =
-        '/* 右下角悬浮的健康直播间图标按钮 */\r\ndiv[class^="index_brandEntry"],\r\n/* 底部的推荐的广告 */\r\n.moduleItemWrap:has([data-ad-id]) {\r\n  display: none !important;\r\n}\r\n';
+        '/* 右下角悬浮的健康直播间图标按钮 */\ndiv[class^="index_brandEntry"],\n/* 底部的推荐的广告 */\n.moduleItemWrap:has([data-ad-id]) {\n  display: none !important;\n}\n';
       const BaiduHeadlth = {
         init() {
           addStyle$1(SearchHealthShieldCSS);
@@ -5695,7 +5740,7 @@ match-attr##srcid##yx_entity_pc_san
         }
       }
       const searchToolBarCSS =
-        ".search-toolbar-container {\r\n  --back-icon-size: 14px;\r\n  --back-icon-padding-top-bottom: 12px;\r\n  --back-icon-padding-left-right: 14px;\r\n  --empty-icon-size: 14px;\r\n  --container-padding: 10px;\r\n  --input-height: 36px;\r\n  --input-border-height: 2px;\r\n  --suggestion-text-color: #6d6d6d;\r\n  --suggestion-left-icon-size: 26px;\r\n  --suggestion-left-icon-color: #6d6d6d;\r\n  --suggestion-right-icon-size: 22px;\r\n}\r\n.search-toolbar-container {\r\n  position: fixed;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  z-index: 10000;\r\n  width: 100vw;\r\n  opacity: 1;\r\n  visibility: visible;\r\n  transition: all 0.2s;\r\n}\r\n.search-toolbar-inner {\r\n  display: flex;\r\n  flex-direction: column;\r\n  height: 100%;\r\n}\r\n\r\n.search-toolbar {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: var(--container-padding) 0px;\r\n  background: #fff;\r\n  position: sticky;\r\n  bottom: 0;\r\n}\r\n\r\n.search-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n.search-icon svg {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.search-toolbar-back {\r\n  width: var(--back-icon-size);\r\n  height: var(--back-icon-size);\r\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\r\n}\r\n.search-form {\r\n  width: 100%;\r\n  border: var(--input-border-height) solid #222;\r\n  height: var(--input-height);\r\n  border-radius: 10px;\r\n  display: flex;\r\n  align-items: center;\r\n  margin-right: 10px;\r\n  position: relative;\r\n}\r\n.search-toolbar-input {\r\n  flex: 1;\r\n  margin: 12px;\r\n  border: 0;\r\n  background: transparent;\r\n}\r\n.search-toolbar-input::-webkit-search-cancel-button {\r\n  -webkit-appearance: none;\r\n}\r\n.search-toolbar-input::-moz-search-clear-button {\r\n  display: none;\r\n}\r\n.search-toolbar-input:focus,\r\n.search-toolbar-input:focus-visible,\r\n.search-toolbar-input:focus-within {\r\n  outline: none;\r\n}\r\n.search-toolbar-input-inner {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 12px;\r\n  margin-right: 16px;\r\n}\r\n.search-toolbar-empty {\r\n  width: var(--empty-icon-size);\r\n  height: var(--empty-icon-size);\r\n  padding: 2px;\r\n}\r\n.search-form-submit {\r\n  font-size: 14px;\r\n  background: transparent;\r\n  border: 0;\r\n  margin: 0;\r\n  padding: 0;\r\n  user-select: none;\r\n  -webkit-user-select: none;\r\n}\r\n.search-form-submit[disabled] {\r\n  color: #6d6d6d;\r\n}\r\n.search-suggestion {\r\n  background: #f2f2f2;\r\n  flex: 1;\r\n  display: flex;\r\n  flex-direction: column-reverse;\r\n  height: 100%;\r\n  height: -webkit-fill-available;\r\n  overflow-y: auto;\r\n}\r\n.search-suggestion-item {\r\n  display: flex;\r\n  align-items: center;\r\n  padding: 8px 16px;\r\n}\r\n.search-suggestion-item-left-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: var(--suggestion-left-icon-size);\r\n  height: var(--suggestion-left-icon-size);\r\n}\r\n.search-suggestion-item-left-icon svg {\r\n  fill: var(--suggestion-left-icon-color);\r\n}\r\n.search-suggestion-item-text {\r\n  margin-left: 6px;\r\n  width: 100%;\r\n  text-align: left;\r\n  color: #000000;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  line-height: normal;\r\n}\r\n.search-suggestion-item-text em {\r\n  color: var(--suggestion-text-color);\r\n  font-style: unset;\r\n}\r\n.search-suggestion-item-right-icon {\r\n  display: flex;\r\n  align-items: center;\r\n  width: var(--suggestion-right-icon-size);\r\n  height: var(--suggestion-right-icon-size);\r\n}\r\n";
+        ".search-toolbar-container {\n  --back-icon-size: 14px;\n  --back-icon-padding-top-bottom: 12px;\n  --back-icon-padding-left-right: 14px;\n  --empty-icon-size: 14px;\n  --container-padding: 10px;\n  --input-height: 36px;\n  --input-border-height: 2px;\n  --suggestion-text-color: #6d6d6d;\n  --suggestion-left-icon-size: 26px;\n  --suggestion-left-icon-color: #6d6d6d;\n  --suggestion-right-icon-size: 22px;\n}\n.search-toolbar-container {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: 10000;\n  width: 100vw;\n  opacity: 1;\n  visibility: visible;\n  transition: all 0.2s;\n}\n.search-toolbar-inner {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n\n.search-toolbar {\n  display: flex;\n  align-items: center;\n  padding: var(--container-padding) 0px;\n  background: #fff;\n  position: sticky;\n  bottom: 0;\n}\n\n.search-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.search-icon svg {\n  width: 100%;\n  height: 100%;\n}\n.search-toolbar-back {\n  width: var(--back-icon-size);\n  height: var(--back-icon-size);\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\n}\n.search-form {\n  width: 100%;\n  border: var(--input-border-height) solid #222;\n  height: var(--input-height);\n  border-radius: 10px;\n  display: flex;\n  align-items: center;\n  margin-right: 10px;\n  position: relative;\n}\n.search-toolbar-input {\n  flex: 1;\n  margin: 12px;\n  border: 0;\n  background: transparent;\n}\n.search-toolbar-input::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n}\n.search-toolbar-input::-moz-search-clear-button {\n  display: none;\n}\n.search-toolbar-input:focus,\n.search-toolbar-input:focus-visible,\n.search-toolbar-input:focus-within {\n  outline: none;\n}\n.search-toolbar-input-inner {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  margin-right: 16px;\n}\n.search-toolbar-empty {\n  width: var(--empty-icon-size);\n  height: var(--empty-icon-size);\n  padding: 2px;\n}\n.search-form-submit {\n  font-size: 14px;\n  background: transparent;\n  border: 0;\n  margin: 0;\n  padding: 0;\n  user-select: none;\n  -webkit-user-select: none;\n}\n.search-form-submit[disabled] {\n  color: #6d6d6d;\n}\n.search-suggestion {\n  background: #f2f2f2;\n  flex: 1;\n  display: flex;\n  flex-direction: column-reverse;\n  height: 100%;\n  height: -webkit-fill-available;\n  overflow-y: auto;\n}\n.search-suggestion-item {\n  display: flex;\n  align-items: center;\n  padding: 8px 16px;\n}\n.search-suggestion-item-left-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: var(--suggestion-left-icon-size);\n  height: var(--suggestion-left-icon-size);\n}\n.search-suggestion-item-left-icon svg {\n  fill: var(--suggestion-left-icon-color);\n}\n.search-suggestion-item-text {\n  margin-left: 6px;\n  width: 100%;\n  text-align: left;\n  color: #000000;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  line-height: normal;\n}\n.search-suggestion-item-text em {\n  color: var(--suggestion-text-color);\n  font-style: unset;\n}\n.search-suggestion-item-right-icon {\n  display: flex;\n  align-items: center;\n  width: var(--suggestion-right-icon-size);\n  height: var(--suggestion-right-icon-size);\n}\n";
       const BaiduSearchToolBar = {
         $el: {
           $container: null,
@@ -5987,198 +6032,197 @@ match-attr##srcid##yx_entity_pc_san
           this.$el.$suggestion.appendChild($ele);
         },
       };
-      const SearchShieldCSS = `.c-container.na-ec-item,\r
-.c-container.ec-container,\r
-div[data-type="ad"],\r
-.c-result.sfc-log[data-tpl="adv_wenku_fc"],\r
-.c-recomm-wrap.new-ux-recom-wrapper.animation,\r
-#results-pre,\r
-.video-recommend,\r
-.c-result.sfc-log[data-tpl="search_recomm"],\r
-.sfc-image-content-waterfall-item[wat-item-data-id="no-img"],\r
-.se-results-pre,\r
-.ec_wise_ad,\r
-div#copyright + div,\r
-div#pop-up,\r
-div[class*='ad-wrapper__'],\r
-div[class*='rec-wrapper__'],\r
-.brand-entry,\r
-.barea-ad,\r
-.swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],\r
-div#page-bd div.recommend,\r
-div.short-mini div[data-module="rec:undefined-undefined"],\r
-/* 相关软件 */\r
-div[srcid="sigma_celebrity_rela"],\r
-/* 搜一些隐私的内容时弹出的来的，开启无痕模式----保护隐私，安全浏览 */\r
-div:has(p.ivk-private-p),\r
-/* 智能卡片的 更多 按钮 */\r
-.c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {\r
-  display: none !important;\r
-}\r
-/* 搜索框 */\r
-.searchboxtop.newsearch-white-style .se-form {\r
-  border-color: #4e6ef2 !important;\r
-}\r
-/* 百度一下 按钮 */\r
-.searchboxtop.newsearch-white-style .se-bn {\r
-  color: #fff !important;\r
-  background: #4e6ef2 !important;\r
-}\r
-.se-head-logo .se-logo img {\r
-  display: inherit !important;\r
-}\r
-/* 选项卡，如综合、笔记、视频等 */\r
-.se-head-tablink {\r
-  border-bottom: 1px solid #e6e6e6 !important;\r
-  /*background-color: #fff !important;*/\r
-  background-color: transparent !important;\r
-}\r
-\r
-a.se-tabitem span {\r
-  color: #000 !important;\r
-}\r
-/*div.c-peak-layer{\r
-   display:none !important;\r
- } 百度关键字背景*/\r
-.se-tablink-scroll-wrapper .se-tab-cur:after {\r
-  border-bottom: 2px solid #38f !important;\r
-}\r
-.c-tags-scroll.c-padding-x {\r
-  display: none !important;\r
-}\r
-.white-bdsearch-isredirecrt {\r
-  display: inline-flex;\r
-  background: #43ba76;\r
-  color: #fff;\r
-  width: 28px;\r
-  font-size: 16px;\r
-  line-height: 25px;\r
-  justify-content: center;\r
-  align-items: center;\r
-  border-radius: 5px;\r
-  margin: 0 auto;\r
-  margin-right: 6px;\r
-}\r
-/* 修复图片显示问题 */\r
-.image-strong-card div[class*="image-content__"] > div {\r
-  display: inline-block;\r
-  overflow: hidden;\r
-  vertical-align: top;\r
-}\r
-.c-result-content div[class*="tieba-newxml-forum-img-class__"] {\r
-  display: -webkit-box;\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  align-items: center;\r
-}\r
-\r
-.c-result-content div[class*="tieba-newxml-forum-img__"] {\r
-  width: 0.553rem;\r
-  height: 0.553rem;\r
-}\r
-\r
-.c-result-content div[class*="tieba-newxml-forum-img__"] img {\r
-  width: 100%;\r
-  height: 100%;\r
-  border-radius: 0.09rem;\r
-}\r
-.c-result-content div[class*="tieba-newxml-forum-class__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-orient: vertical;\r
-  -moz-box-orient: vertical;\r
-  -webkit-box-direction: normal;\r
-  -moz-box-direction: normal;\r
-  -webkit-flex-direction: column;\r
-  -moz-flex-direction: column;\r
-  flex-direction: column;\r
-  -webkit-box-pack: center;\r
-  -moz-box-pack: center;\r
-  -webkit-justify-content: center;\r
-  -moz-justify-content: center;\r
-  justify-content: center;\r
-  max-width: 2.2rem;\r
-}\r
-.c-result-content div[class*="c-img-content-btn__"] {\r
-  position: absolute;\r
-  right: 0;\r
-  width: 0.55rem;\r
-  text-align: center;\r
-  line-height: 0.28rem;\r
-  border: 1px solid rgba(31, 31, 31, 0.5);\r
-  border-radius: 0.15rem;\r
-  font-family: PingFangSC-Medium;\r
-  font-size: 0.13rem;\r
-  color: #1f1f1f;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] {\r
-  display: -webkit-flex;\r
-  display: flex;\r
-  -webkit-box-align: center;\r
-  -moz-box-align: center;\r
-  -webkit-align-items: center;\r
-  -moz-align-items: center;\r
-  align-items: center;\r
-  margin-top: 0.03rem;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {\r
-  width: 0.16rem;\r
-  height: 0.16rem;\r
-  border-radius: 50%;\r
-}\r
-.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {\r
-  margin-right: 0.08rem;\r
-}\r
-.whitesev-gm-refactor-everyone-searching {\r
-  width: 100%;\r
-  box-sizing: border-box;\r
-  height: 2.857em;\r
-  line-height: 2.857;\r
-  background-color: #f5f6f9;\r
-  border-color: #f5f6f9;\r
-  padding: 0 0.08rem;\r
-  /*vertical-align: middle;*/\r
-  outline: 0;\r
-  font-size: 14px;\r
-  overflow: hidden;\r
-  border-radius: 9px;\r
-  text-align: center;\r
-  text-decoration: none;\r
-  -webkit-tap-highlight-color: transparent;\r
-  -moz-tap-highlight-color: transparent;\r
-  text-overflow: ellipsis;\r
-  white-space: nowrap;\r
-  -webkit-box-orient: horizontal;\r
-  -moz-box-orient: horizontal;\r
-  -webkit-box-align: stretch;\r
-  -moz-box-align: stretch;\r
-  display: block;\r
-  justify-content: space-between;\r
-  -webkit-justify-content: space-between;\r
-  -moz-justify-content: space-between;\r
-  -webkit-align-items: stretch;\r
-  -moz-align-items: stretch;\r
-  align-items: stretch;\r
-  flex-wrap: nowrap;\r
-  -webkit-flex-wrap: nowrap;\r
-  -moz-flex-wrap: nowrap;\r
-}\r
-\r
-/* 让搜索中某些视频的阶段可以横向滚动 */\r
-div[class^="new-summary-container_"] {\r
-  overflow: auto;\r
-}\r
-\r
-/* 智能卡片 展开更多，这里是拼音 */\r
-.c-result-content div[class*="multi-pinyin_"] div[class*="multi-pinyin-item"][style*="display: none"] {\r
-  display: block !important;\r
-}\r
+      const SearchShieldCSS = `.c-container.na-ec-item,
+.c-container.ec-container,
+div[data-type="ad"],
+.c-result.sfc-log[data-tpl="adv_wenku_fc"],
+.c-recomm-wrap.new-ux-recom-wrapper.animation,
+#results-pre,
+.video-recommend,
+.c-result.sfc-log[data-tpl="search_recomm"],
+.sfc-image-content-waterfall-item[wat-item-data-id="no-img"],
+.se-results-pre,
+.ec_wise_ad,
+div#copyright + div,
+div#pop-up,
+div[class*='ad-wrapper__'],
+div[class*='rec-wrapper__'],
+.brand-entry,
+.barea-ad,
+.swan-ad-fc-rcmd.swan-ad-fc-base-wrap[data-platform],
+div#page-bd div.recommend,
+div.short-mini div[data-module="rec:undefined-undefined"],
+/* 相关软件 */
+div[srcid="sigma_celebrity_rela"],
+/* 搜一些隐私的内容时弹出的来的，开启无痕模式----保护隐私，安全浏览 */
+div:has(p.ivk-private-p),
+/* 智能卡片的 更多 按钮 */
+.c-result-content div[rl-type="stop"]:has(div[data-module="lgsd"]) {
+  display: none !important;
+}
+/* 搜索框 */
+.searchboxtop.newsearch-white-style .se-form {
+  border-color: #4e6ef2 !important;
+}
+/* 百度一下 按钮 */
+.searchboxtop.newsearch-white-style .se-bn {
+  color: #fff !important;
+  background: #4e6ef2 !important;
+}
+.se-head-logo .se-logo img {
+  display: inherit !important;
+}
+/* 选项卡，如综合、笔记、视频等 */
+.se-head-tablink {
+  border-bottom: 1px solid #e6e6e6 !important;
+  /*background-color: #fff !important;*/
+  background-color: transparent !important;
+}
+
+a.se-tabitem span {
+  color: #000 !important;
+}
+/*div.c-peak-layer{
+   display:none !important;
+ } 百度关键字背景*/
+.se-tablink-scroll-wrapper .se-tab-cur:after {
+  border-bottom: 2px solid #38f !important;
+}
+.c-tags-scroll.c-padding-x {
+  display: none !important;
+}
+.white-bdsearch-isredirecrt {
+  display: inline-flex;
+  background: #43ba76;
+  color: #fff;
+  width: 28px;
+  font-size: 16px;
+  line-height: 25px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin: 0 auto;
+  margin-right: 6px;
+}
+/* 修复图片显示问题 */
+.image-strong-card div[class*="image-content__"] > div {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.c-result-content div[class*="tieba-newxml-forum-img-class__"] {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.c-result-content div[class*="tieba-newxml-forum-img__"] {
+  width: 0.553rem;
+  height: 0.553rem;
+}
+
+.c-result-content div[class*="tieba-newxml-forum-img__"] img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.09rem;
+}
+.c-result-content div[class*="tieba-newxml-forum-class__"] {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -moz-box-direction: normal;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  max-width: 2.2rem;
+}
+.c-result-content div[class*="c-img-content-btn__"] {
+  position: absolute;
+  right: 0;
+  width: 0.55rem;
+  text-align: center;
+  line-height: 0.28rem;
+  border: 1px solid rgba(31, 31, 31, 0.5);
+  border-radius: 0.15rem;
+  font-family: PingFangSC-Medium;
+  font-size: 0.13rem;
+  color: #1f1f1f;
+}
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  align-items: center;
+  margin-top: 0.03rem;
+}
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] img {
+  width: 0.16rem;
+  height: 0.16rem;
+  border-radius: 50%;
+}
+.c-result-content div[class*="tieba-newxml-thread-comment-user__"] span {
+  margin-right: 0.08rem;
+}
+.whitesev-gm-refactor-everyone-searching {
+  width: 100%;
+  box-sizing: border-box;
+  height: 2.857em;
+  line-height: 2.857;
+  background-color: #f5f6f9;
+  border-color: #f5f6f9;
+  padding: 0 0.08rem;
+  /*vertical-align: middle;*/
+  outline: 0;
+  font-size: 14px;
+  overflow: hidden;
+  border-radius: 9px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -webkit-box-align: stretch;
+  -moz-box-align: stretch;
+  display: block;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  -webkit-align-items: stretch;
+  -moz-align-items: stretch;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  -webkit-flex-wrap: nowrap;
+  -moz-flex-wrap: nowrap;
+}
+
+/* 让搜索中某些视频的阶段可以横向滚动 */
+div[class^="new-summary-container_"] {
+  overflow: auto;
+}
+
+/* 智能卡片 展开更多，这里是拼音 */
+.c-result-content div[class*="multi-pinyin_"] div[class*="multi-pinyin-item"][style*="display: none"] {
+  display: block !important;
+}
 `;
-      const blockCSS$1 =
-        '.short-mini > div:has(script[data-for="native-ads"]) {\r\n  display: none !important;\r\n}\r\n';
+      const blockCSS$1 = '.short-mini > div:has(script[data-for="native-ads"]) {\n  display: none !important;\n}\n';
       const BaiduSearchVideoBlock = {
         init() {
           addStyle$1(blockCSS$1);
@@ -6494,9 +6538,9 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const SearchHomeMinificationShieldCSS =
-        "html,\r\nbody,\r\ndiv#header {\r\n  height: calc(100vh - 120px);\r\n}\r\nform#index-form {\r\n  position: static;\r\n  top: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  left: 0;\r\n  margin: auto !important;\r\n  width: 90%;\r\n}\r\ndiv#navs ~ div,\r\n#login-wraps,\r\na.square-enterance,\r\ndiv#ts-image-uploader-icon,\r\ndiv.baiduappcall-wrap div.voice.call,\r\ndiv.tab_news,\r\ndiv#navs {\r\n  display: none !important;\r\n}\r\n/* 图片logo往下移40px */\r\n#logo {\r\n  padding-top: 40px;\r\n}\r\n";
+        "html,\nbody,\ndiv#header {\n  height: calc(100vh - 120px);\n}\nform#index-form {\n  position: static;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  margin: auto !important;\n  width: 90%;\n}\ndiv#navs ~ div,\n#login-wraps,\na.square-enterance,\ndiv#ts-image-uploader-icon,\ndiv.baiduappcall-wrap div.voice.call,\ndiv.tab_news,\ndiv#navs {\n  display: none !important;\n}\n/* 图片logo往下移40px */\n#logo {\n  padding-top: 40px;\n}\n";
       const SearchHomeShieldCSS =
-        "/* 右上角的 banner 热播爆款好剧 */\r\n#index-card #userinfo-wrap .index-banner,\r\n/* 搜索框下面的轮播推广 */\r\n#header div:has(>div>div>#carousel-img-item) {\r\n  display: none !important;\r\n}\r\n";
+        "/* 右上角的 banner 热播爆款好剧 */\n#index-card #userinfo-wrap .index-banner,\n/* 搜索框下面的轮播推广 */\n#header div:has(>div>div>#carousel-img-item) {\n  display: none !important;\n}\n";
       const BaiduSearchHome = {
         init() {
           addStyle$1(SearchHomeShieldCSS);
@@ -6511,7 +6555,7 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const blockCSS =
-        "/* 底部 继续访问 百度贴吧|手机百度 */\r\nswan-slient-wake-popup,\r\n/* 帖子内底部的推荐帖子 */\r\nswan-recommend-list {\r\n  display: none !important;\r\n}\r\n";
+        "/* 底部 继续访问 百度贴吧|手机百度 */\nswan-slient-wake-popup,\n/* 帖子内底部的推荐帖子 */\nswan-recommend-list {\n  display: none !important;\n}\n";
       const SmartAppsTieba = {
         init() {
           Panel.onceExec("smartapps-tieba-blockAds", () => {
@@ -6548,9 +6592,9 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const TieBaShieldCSS =
-        ".tb-backflow-defensive,\r\n.fixed-nav-bar-defensive,\r\n.post-cut-guide,\r\n.ertiao-wrap-defensive,\r\n.feed-warp.gray-background,\r\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\r\n.only-lz,\r\n.nav-bar-v2 .nav-bar-bottom,\r\n.more-image-desc,\r\n.fengchao-banner-defensive,\r\n/*.wake-app,*/\r\n.banner-wrapper-defensive,\r\n.open-app,\r\n.topic-share-page-v2 .bav-bar-top,\r\n/* 打开APP查看更多评论 */\r\n.cmt-large-cut-guide,\r\n/* 底部评论滚动栏 */\r\ndiv.diy-guide-wrapper,\r\n/* 底部评论滚动栏上面的空白 */\r\n.individuality,\r\n/* 吧内的广告 */\r\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\r\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\r\n/* 首页-我的-底部的 立即下载 */\r\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\r\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\r\n.img-preview .operate .wake-app,\r\n/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */\r\n#app_container .pblist-part-wrap .top-guide,\r\n#app_container .pblist-part-wrap .top-ad-bg,\r\n/* 帖子 ?share=xxx 底部的 APP内打开 */\r\n#app_container .bottom-guide,\r\n/* 帖子 ?share=xxx 猜你喜欢*/\r\n#app_container .guessyoulikegraphic-wrap,\r\n/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */\r\n#app_container .pb-share-post-list .open-tb-bar,\r\n/* 吧内 底部 关注本吧，精彩内容不错过 */\r\nuni-app .bottom-guide .btn-wrapper .wake-app ,\r\n/* 吧内 帖子右上角的 APP内查看 */\r\nuni-app .feed-card .open-app-btn,\r\n/* 吧内 视频流的底部的遮罩层 */\r\nuni-app .bottom-guide:has(.mask),\r\n/* 合辑 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容  */\r\n.collection-center .app-out-guide-text,\r\n/* 合辑 滚动出现的底部中间的 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容 */\r\n.collection-center .app-out-fixed-btn,\r\n/* 合辑 帖子卡片右下角的  打开贴吧App畅享精彩内容  */\r\n.collection-center .guide-text {\r\n  display: none !important;\r\n}\r\nbody.tb-modal-open {\r\n  overflow: auto !important;\r\n}\r\n";
+        ".tb-backflow-defensive,\n.fixed-nav-bar-defensive,\n.post-cut-guide,\n.ertiao-wrap-defensive,\n.feed-warp.gray-background,\n.pb-page-wrapper.app-view.transition-fade nav:first-child,\n.only-lz,\n.nav-bar-v2 .nav-bar-bottom,\n.more-image-desc,\n.fengchao-banner-defensive,\n/*.wake-app,*/\n.banner-wrapper-defensive,\n.open-app,\n.topic-share-page-v2 .bav-bar-top,\n/* 打开APP查看更多评论 */\n.cmt-large-cut-guide,\n/* 底部评论滚动栏 */\ndiv.diy-guide-wrapper,\n/* 底部评论滚动栏上面的空白 */\n.individuality,\n/* 吧内的广告 */\n.tb-threadlist__wrapper .tb-banner-wrapper-defensive,\n/* 首页-我的-底部的 年轻人的潮流文化社区 */\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .desc,\n/* 首页-我的-底部的 立即下载 */\n.app-view .tb-index-navbar .bottom-guide-box.bottom-guide-box .download-btn,\n/* 帖子内预览图片模式下底部的打开App查看高清大图 */\n.img-preview .operate .wake-app,\n/* 帖子 ?share=xxx 顶部的 横幅 立即打开 */\n#app_container .pblist-part-wrap .top-guide,\n#app_container .pblist-part-wrap .top-ad-bg,\n/* 帖子 ?share=xxx 底部的 APP内打开 */\n#app_container .bottom-guide,\n/* 帖子 ?share=xxx 猜你喜欢*/\n#app_container .guessyoulikegraphic-wrap,\n/* 帖子 ?share=xxx 打开贴吧APP查看全部回复 */\n#app_container .pb-share-post-list .open-tb-bar,\n/* 吧内 底部 关注本吧，精彩内容不错过 */\nuni-app .bottom-guide .btn-wrapper .wake-app ,\n/* 吧内 帖子右上角的 APP内查看 */\nuni-app .feed-card .open-app-btn,\n/* 吧内 视频流的底部的遮罩层 */\nuni-app .bottom-guide:has(.mask),\n/* 合辑 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容  */\n.collection-center .app-out-guide-text,\n/* 合辑 滚动出现的底部中间的 /mo/q/hybrid-main-user/collectionCenter  打开贴吧App畅享精彩内容 */\n.collection-center .app-out-fixed-btn,\n/* 合辑 帖子卡片右下角的  打开贴吧App畅享精彩内容  */\n.collection-center .guide-text {\n  display: none !important;\n}\nbody.tb-modal-open {\n  overflow: auto !important;\n}\n";
       const UniTieBaShieldCSS =
-        "/* 热门推荐、相关推荐 */\r\nuni-app .recom-layout-container,\r\n/* 热门推荐、相关推荐 */\r\nuni-app #pbRecomContainer,\r\n/* 猜你还想搜（标题） */\r\nuni-app .guess-title,\r\n/* 猜你还想搜 */\r\nuni-app .guess-container,\r\n/* 底部工具栏 来贴吧畅享精彩内容 */\r\nuni-app .operation-chat,\r\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\r\nuni-app .pic-popup-guide-title,\r\n/* 图片右滑最后一个 下面的按钮 打开APP */\r\nuni-app .operate-group .wake-app:has(.external-btn-class),\r\n/* 顶部右上角的 App内查看 */\r\nuni-app .operate-btn-wake,\r\n/* 吧内 视频卡片左上角的 App内查看 */\r\nuni-app .uni-frs .video-feed .wake-app .video-item .tag-text {\r\n  display: none !important;\r\n}\r\n\r\n/* 评论内容高度 */\r\nuni-app .swiper-content {\r\n  max-height: unset !important;\r\n}\r\n";
+        "/* 热门推荐、相关推荐 */\nuni-app .recom-layout-container,\n/* 热门推荐、相关推荐 */\nuni-app #pbRecomContainer,\n/* 猜你还想搜（标题） */\nuni-app .guess-title,\n/* 猜你还想搜 */\nuni-app .guess-container,\n/* 底部工具栏 来贴吧畅享精彩内容 */\nuni-app .operation-chat,\n/* 图片右滑最后一个 来贴吧畅享精彩内容 */\nuni-app .pic-popup-guide-title,\n/* 图片右滑最后一个 下面的按钮 打开APP */\nuni-app .operate-group .wake-app:has(.external-btn-class),\n/* 顶部右上角的 App内查看 */\nuni-app .operate-btn-wake,\n/* 吧内 视频卡片左上角的 App内查看 */\nuni-app .uni-frs .video-feed .wake-app .video-item .tag-text {\n  display: none !important;\n}\n\n/* 评论内容高度 */\nuni-app .swiper-content {\n  max-height: unset !important;\n}\n";
       const TiebaUrlHandler = {
         getUserAvatar(portrait) {
           let authorImgId = "6LZ1dD3d1sgCo2Kml5_Y_D3";
@@ -11520,6 +11564,12 @@ div[class^="new-summary-container_"] {\r
               const searchText = domUtils.val($searchInput);
               for (let index = 0; index < allData.length; index++) {
                 const item = allData[index];
+                if (typeof filterCallBack === "function") {
+                  const flag = await filterCallBack(item);
+                  if (typeof flag === "boolean" && !flag) {
+                    continue;
+                  }
+                }
                 if (externalSelectInfo) {
                   const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
                   if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
@@ -13935,6 +13985,7 @@ div[class^="new-summary-container_"] {\r
                         window.open(url, "_blank");
                         return;
                       } else {
+                        log.error($click, wakeUpVueInst);
                         Qmsg.error("获取链接失败，.wake-app-link上的链接未找到");
                       }
                     } else if (normalVueInst) {
@@ -13944,6 +13995,7 @@ div[class^="new-summary-container_"] {\r
                         window.open(url, "_blank");
                         return;
                       } else {
+                        log.error($click, normalVueInst);
                         Qmsg.error("获取链接失败，.normal-link上的链接未找到");
                       }
                     } else {
@@ -14524,7 +14576,7 @@ div[class^="new-summary-container_"] {\r
         }
         return target;
       };
-      const SmallToolbar = _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-b2773fdf"]]);
+      const SmallToolbar = _export_sfc$1(_sfc_main$K, [["__scopeId", "data-v-6db624a6"]]);
       const configProviderContextKey = Symbol();
       const defaultNamespace = "el";
       const statePrefix = "is-";
@@ -23737,7 +23789,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Tiptap = _export_sfc$1(_sfc_main$h, [["__scopeId", "data-v-ac6d6f7f"]]);
+      const Tiptap = _export_sfc$1(_sfc_main$h, [["__scopeId", "data-v-95d0ddb6"]]);
       const _hoisted_1$d = ["data-show-bottom-panel", "data-show-reply-content"];
       const _hoisted_2$c = ["data-full"];
       const _hoisted_3$a = {
@@ -24135,7 +24187,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const FullToolbar = _export_sfc$1(_sfc_main$g, [["__scopeId", "data-v-6550ea22"]]);
+      const FullToolbar = _export_sfc$1(_sfc_main$g, [["__scopeId", "data-v-e3390787"]]);
       const usePlaceHolder = pinia.defineStore("placeholder", {
         state: () => ({
           empty: "发帖千百度 文明第一步",
@@ -25204,12 +25256,12 @@ div[class^="new-summary-container_"] {\r
         },
         setup(__props) {
           vue.useCssVars((_ctx) => ({
-            v1f0a1c97: vue.unref(levelBgColor),
-            v7ff8801c: vue.unref(levelColor),
-            v1744fa48: vue.unref(levelColor0_3),
-            v17450952: vue.unref(levelColor4_9),
-            v59e8eda8: vue.unref(levelColor10_15),
-            v59eba7e5: vue.unref(levelColor16_18),
+            v895b8202: vue.unref(levelBgColor),
+            v75361c84: vue.unref(levelColor),
+            v040124e0: vue.unref(levelColor0_3),
+            v040133ea: vue.unref(levelColor4_9),
+            v0844d240: vue.unref(levelColor10_15),
+            v08478c7d: vue.unref(levelColor16_18),
           }));
           const props = __props;
           let showIsLoading = vue.ref(true);
@@ -25417,7 +25469,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const FollowForum = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-47679705"]]);
+      const FollowForum = _export_sfc$1(_sfc_main$c, [["__scopeId", "data-v-36bdb051"]]);
       const elImageCss =
         ".el-image__error,.el-image__inner,.el-image__placeholder,.el-image__wrapper{height:100%;width:100%}.el-image{display:inline-block;overflow:hidden;position:relative}.el-image__inner{opacity:1;vertical-align:top}.el-image__inner.is-loading{opacity:0}.el-image__wrapper{left:0;position:absolute;top:0}.el-image__error,.el-image__placeholder{background:var(--el-fill-color-light)}.el-image__error{align-items:center;color:var(--el-text-color-placeholder);display:flex;font-size:14px;justify-content:center;vertical-align:middle}.el-image__preview{cursor:pointer}";
       importCSS(elImageCss);
@@ -25576,7 +25628,7 @@ div[class^="new-summary-container_"] {\r
       }
       const TemplatePostsItem = _export_sfc$1(_sfc_main$b, [
         ["render", _sfc_render$2],
-        ["__scopeId", "data-v-3116157a"],
+        ["__scopeId", "data-v-df752779"],
       ]);
       const _hoisted_1$9 = { class: "posts-container" };
       const _hoisted_2$8 = ["onClick"];
@@ -26007,7 +26059,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Posts = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-5c753ad5"]]);
+      const Posts = _export_sfc$1(_sfc_main$a, [["__scopeId", "data-v-7bf7ec62"]]);
       const _hoisted_1$8 = ["data-sex"];
       const _hoisted_2$7 = {
         key: 1,
@@ -26767,7 +26819,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-29f3cce9"]]);
+      const Home = _export_sfc$1(_sfc_main$9, [["__scopeId", "data-v-2460abc4"]]);
       const _hoisted_1$7 = { class: "user-avatar" };
       const _hoisted_2$6 = { class: "user-info" };
       const _hoisted_3$6 = { class: "user-info-item" };
@@ -27092,7 +27144,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const About = _export_sfc$1(_sfc_main$8, [["__scopeId", "data-v-9d6dd989"]]);
+      const About = _export_sfc$1(_sfc_main$8, [["__scopeId", "data-v-15ea9e5a"]]);
       const elScrollbarCss =
         ".el-scrollbar{--el-scrollbar-opacity:.3;--el-scrollbar-bg-color:var(--el-text-color-secondary);--el-scrollbar-hover-opacity:.5;--el-scrollbar-hover-bg-color:var(--el-text-color-secondary);height:100%;overflow:hidden;position:relative}.el-scrollbar__wrap{height:100%;overflow:auto}.el-scrollbar__wrap--hidden-default{scrollbar-width:none}.el-scrollbar__wrap--hidden-default::-webkit-scrollbar{display:none}.el-scrollbar__thumb{background-color:var(--el-scrollbar-bg-color,var(--el-text-color-secondary));border-radius:inherit;cursor:pointer;display:block;height:0;opacity:var(--el-scrollbar-opacity,.3);position:relative;transition:var(--el-transition-duration) background-color;width:0}.el-scrollbar__thumb:hover{background-color:var(--el-scrollbar-hover-bg-color,var(--el-text-color-secondary));opacity:var(--el-scrollbar-hover-opacity,.5)}.el-scrollbar__bar{border-radius:4px;bottom:2px;position:absolute;right:2px;z-index:1}.el-scrollbar__bar.is-vertical{top:2px;width:6px}.el-scrollbar__bar.is-vertical>div{width:100%}.el-scrollbar__bar.is-horizontal{height:6px;left:2px}.el-scrollbar__bar.is-horizontal>div{height:100%}.el-scrollbar-fade-enter-active{transition:opacity .34s ease-out}.el-scrollbar-fade-leave-active{transition:opacity .12s ease-out}.el-scrollbar-fade-enter-from,.el-scrollbar-fade-leave-active{opacity:0}";
       importCSS(elScrollbarCss);
@@ -27502,7 +27554,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Follow = _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-e0f2c99c"]]);
+      const Follow = _export_sfc$1(_sfc_main$6, [["__scopeId", "data-v-ca4819d3"]]);
       const _hoisted_1$4 = ["onClick"];
       const _hoisted_2$4 = { class: "user-item-row" };
       const _hoisted_3$4 = { class: "user-item-row-left" };
@@ -27813,7 +27865,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Fans = _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-b1d5c2a2"]]);
+      const Fans = _export_sfc$1(_sfc_main$5, [["__scopeId", "data-v-955f79f5"]]);
       const TiebaRouter = {
         router: null,
         init() {
@@ -27849,7 +27901,7 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const AppCSS$1 =
-        'html,\r\nbody {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.user-info-tabs > .el-tabs__header {\r\n  margin: 0 0 5px;\r\n}\r\n\r\n.pops-ip-location-help {\r\n  width: 100%;\r\n  max-width: 100%;\r\n  min-width: 100%;\r\n  text-align: center;\r\n  color: #7558fe;\r\n}\r\n\r\nspan[data-sex="1"] {\r\n  color: #37b8d5;\r\n}\r\n\r\nspan[data-sex="2"] {\r\n  color: #ff8787;\r\n}\r\n';
+        'html,\nbody {\n  width: 100%;\n  height: 100%;\n}\n.user-info-tabs > .el-tabs__header {\n  margin: 0 0 5px;\n}\n\n.pops-ip-location-help {\n  width: 100%;\n  max-width: 100%;\n  min-width: 100%;\n  text-align: center;\n  color: #7558fe;\n}\n\nspan[data-sex="1"] {\n  color: #37b8d5;\n}\n\nspan[data-sex="2"] {\n  color: #ff8787;\n}\n';
       const TiebaHome = {
         $data: {
           appName: "vite-app",
@@ -28168,7 +28220,7 @@ div[class^="new-summary-container_"] {\r
       }
       const MsgTab = _export_sfc$1(_sfc_main$4, [
         ["render", _sfc_render],
-        ["__scopeId", "data-v-8524ef32"],
+        ["__scopeId", "data-v-29990e55"],
       ]);
       var md5$1 = { exports: {} };
       var crypt = { exports: {} };
@@ -28815,7 +28867,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Agreeme = _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-d277e659"]]);
+      const Agreeme = _export_sfc$1(_sfc_main$3, [["__scopeId", "data-v-63be16a3"]]);
       const _hoisted_1$1 = { class: "post-list" };
       const _hoisted_2$1 = { class: "post-list-item" };
       const _hoisted_3$1 = ["onClick"];
@@ -29050,7 +29102,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Replyme = _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-5cd2511d"]]);
+      const Replyme = _export_sfc$1(_sfc_main$2, [["__scopeId", "data-v-3dfa54cc"]]);
       const _hoisted_1 = { class: "post-list" };
       const _hoisted_2 = {
         id: "load-more",
@@ -29142,7 +29194,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       });
-      const Atme = _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-b2e309d0"]]);
+      const Atme = _export_sfc$1(_sfc_main$1, [["__scopeId", "data-v-5a0f39d7"]]);
       const TiebaMsgTabRouter = {
         router: null,
         init() {
@@ -29312,7 +29364,7 @@ div[class^="new-summary-container_"] {\r
           };
         },
       };
-      const App = _export_sfc$1(_sfc_main, [["__scopeId", "data-v-21d9b8e4"]]);
+      const App = _export_sfc$1(_sfc_main, [["__scopeId", "data-v-306ab0b3"]]);
       const AppCSS = "";
       const TiebaMsgTab = {
         $data: {
@@ -29833,7 +29885,7 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const WenKuShieldCSS =
-        '/* 首页顶部的开通VIP横幅 */\r\n.new-home-wrap .van-swipe.swipe-home,\r\n/* 优质文档VIP随便下 */\r\n.vip-card-wrap,\r\n.reader-pop-manager-view-containter,\r\n.core-download,\r\n.card-wrap.card-vip,\r\n.pop-manager-view-containter,\r\n#carousel,\r\n.card-wrap,\r\n.n-card-wrap-exp,\r\n.pageNo .pager~div[class*="__wm"],\r\n.fold-pager,\r\n.vip-choice,\r\n.wk-bottom-btn,\r\n.continue-read-wrap.invite-clipboard,\r\n.wk-student,\r\n.search-pay-container,\r\n.wk-student-defense,\r\n.vip-rec-card-main,\r\n.back-dialog,\r\ndiv.middle-box-root {\r\n  display: none !important;\r\n}\r\n.bartop {\r\n  display: unset;\r\n}\r\n.reader-wrap {\r\n  height: auto !important;\r\n}\r\n#view-rr-app {\r\n  overflow-y: auto !important;\r\n}\r\n#view-app,\r\n#view-rr-app {\r\n  max-height: 100% !important;\r\n}\r\n.top-card {\r\n  margin-top: 10px !important;\r\n}\r\n* {\r\n  -webkit-touch-callout: inherit !important;\r\n  -khtml-user-select: auto !important;\r\n  -moz-user-select: auto !important;\r\n  -ms-user-select: auto !important;\r\n  user-select: auto !important;\r\n}\r\n';
+        '/* 首页顶部的开通VIP横幅 */\n.new-home-wrap .van-swipe.swipe-home,\n/* 优质文档VIP随便下 */\n.vip-card-wrap,\n.reader-pop-manager-view-containter,\n.core-download,\n.card-wrap.card-vip,\n.pop-manager-view-containter,\n#carousel,\n.card-wrap,\n.n-card-wrap-exp,\n.pageNo .pager~div[class*="__wm"],\n.fold-pager,\n.vip-choice,\n.wk-bottom-btn,\n.continue-read-wrap.invite-clipboard,\n.wk-student,\n.search-pay-container,\n.wk-student-defense,\n.vip-rec-card-main,\n.back-dialog,\ndiv.middle-box-root {\n  display: none !important;\n}\n.bartop {\n  display: unset;\n}\n.reader-wrap {\n  height: auto !important;\n}\n#view-rr-app {\n  overflow-y: auto !important;\n}\n#view-app,\n#view-rr-app {\n  max-height: 100% !important;\n}\n.top-card {\n  margin-top: 10px !important;\n}\n* {\n  -webkit-touch-callout: inherit !important;\n  -khtml-user-select: auto !important;\n  -moz-user-select: auto !important;\n  -ms-user-select: auto !important;\n  user-select: auto !important;\n}\n';
       const BaiduWenKu = {
         init() {
           addStyle$1(WenKuShieldCSS);
@@ -29897,7 +29949,7 @@ div[class^="new-summary-container_"] {\r
         },
       };
       const XueShieldCSS =
-        ".sc-dkcEsn,\r\n.sc-fHSyak,\r\n.sc-gikAfH,\r\nswan-view.strategy-institution-list,\r\nswan-view.strategy-wrapper,\r\n.swan-spider-tap,\r\n.booking,\r\n.head-bar,\r\n.head-bar-placeholder {\r\n  display: none !important;\r\n}\r\n.sc-cHGmPC {\r\n  width: auto !important;\r\n}\r\n";
+        ".sc-dkcEsn,\n.sc-fHSyak,\n.sc-gikAfH,\nswan-view.strategy-institution-list,\nswan-view.strategy-wrapper,\n.swan-spider-tap,\n.booking,\n.head-bar,\n.head-bar-placeholder {\n  display: none !important;\n}\n.sc-cHGmPC {\n  width: auto !important;\n}\n";
       const BaiduXue = {
         init() {
           addStyle$1(XueShieldCSS);
@@ -30112,28 +30164,28 @@ div[class^="new-summary-container_"] {\r
           });
         },
       };
-      const ZhiDaoShieldCSS = `/* .dec + div, */\r
-#feed-recommend,\r
-.dec,\r
-.wgt-topic-hot,\r
-#respect-footer,\r
-#wap-youx-change-asp,\r
-div.question-line + div:not(.replies-container),\r
-.wgt-asp-youx,\r
-.w-detail-display-btn,\r
-.ask-for-friend,\r
-#knowledge-answer-list,\r
-.go-to-ask,\r
-div[class*='ads'],\r
-/* 免费领票 */\r
-.doodle-container,\r
-.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {\r
-  display: none !important;\r
-}\r
-.w-detail-container {\r
-  max-height: 100% !important;\r
-  overflow: auto !important;\r
-}\r
+      const ZhiDaoShieldCSS = `/* .dec + div, */
+#feed-recommend,
+.dec,
+.wgt-topic-hot,
+#respect-footer,
+#wap-youx-change-asp,
+div.question-line + div:not(.replies-container),
+.wgt-asp-youx,
+.w-detail-display-btn,
+.ask-for-friend,
+#knowledge-answer-list,
+.go-to-ask,
+div[class*='ads'],
+/* 免费领票 */
+.doodle-container,
+.feed-recommend-item-with-adhere [class*="feed-item-adhere-AD"] {
+  display: none !important;
+}
+.w-detail-container {
+  max-height: 100% !important;
+  overflow: auto !important;
+}
 `;
       const BaiduZhiDao = {
         init() {

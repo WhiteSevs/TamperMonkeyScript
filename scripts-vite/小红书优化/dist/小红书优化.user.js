@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -357,7 +357,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -431,9 +431,11 @@
     }
     return data;
   });
-  ({
+  const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -446,7 +448,7 @@
     clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
     setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
+  };
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
@@ -1258,8 +1260,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1306,7 +1316,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1329,23 +1339,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1390,6 +1414,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1997,6 +2022,26 @@
         return key;
       }
     },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
+    },
   };
   const _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
   const __viewer = Viewer;
@@ -2428,33 +2473,46 @@
       };
     },
     window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
-      let originWebPack = void 0;
-      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
+      let webpackList = void 0;
+      OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
-          return originWebPack;
+          return webpackList;
         },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originWebPack = newValue;
-          const originWebPackPush = originWebPack.push;
-          originWebPack.push = function (...args) {
-            let _mainCoreData = args[0][0];
-            if (
-              mainCoreData == _mainCoreData ||
-              (Array.isArray(mainCoreData) &&
-                Array.isArray(_mainCoreData) &&
-                JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
-            ) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function (..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = handler(_args[0]);
-                  return result;
-                };
+        set(value) {
+          webpackList = value;
+          const originPush = value.push;
+          value.push = function (...args) {
+            const __mainCoreData = args[0][0];
+            let isCoreIdMatched = false;
+            if (typeof mainCoreData === "function") {
+              const ret = mainCoreData(__mainCoreData);
+              if (typeof ret === "boolean") {
+                isCoreIdMatched = ret;
+              }
+            } else {
+              isCoreIdMatched = mainCoreData == __mainCoreData;
+              if (!isCoreIdMatched) {
+                if (Array.isArray(mainCoreData) && Array.isArray(__mainCoreData)) {
+                  isCoreIdMatched = JSON.stringify(mainCoreData) === JSON.stringify(__mainCoreData);
+                }
+              }
+            }
+            if (isCoreIdMatched) {
+              const exportObj = args[0][1];
+              const keys = OriginPrototype.Object.keys(exportObj);
+              keys.forEach((keyName) => {
+                const fn = exportObj[keyName];
+                if (typeof fn === "function") {
+                  args[0][1][keyName] = function (...args2) {
+                    const result = fn.call(this, ...args2);
+                    const exports$1 = args2[0];
+                    args2[0] = handler(exports$1);
+                    return result;
+                  };
+                }
               });
             }
-            return Reflect.apply(originWebPackPush, this, args);
+            return originPush.call(this, ...args);
           };
         },
       });
@@ -2583,7 +2641,7 @@
     },
   };
   const blockCSS$2 =
-    "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box {\r\n  display: none !important;\r\n}\r\n";
+    "/* 底部的App内打开 */\n.bottom-button-box,\n/* 顶部的打开看看 */\n.nav-bar-box {\n  display: none !important;\n}\n";
   const M_XHSArticleBlock = {
     allowCopy() {
       log.info("允许复制");
@@ -3041,7 +3099,7 @@
     },
   };
   const blockCSS$1 =
-    "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n  display: none !important;\r\n}\r\n";
+    "/* 用户主页 */\n/* 底部的-App内打开 */\n.launch-app-container.bottom-bar,\n/* 顶部的-打开看看 */\n.main-container > .scroll-view-container > .launch-app-container:first-child,\n/* 底部的-打开小红书看更多精彩内容 */\n.bottom-launch-app-tip.show-bottom-bar,\n/* 首页-顶部横幅 */\n#app .launch-app-container,\n/* 笔记-顶部横幅 */\n.note-view-container .nav-bar-box-expand ,\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\n/* 404页面 顶部的打开看看 */\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\n/* 404页面 底部的-App内打开 */\n.not-found-container #fmp {\n  display: none !important;\n}\n";
   const M_XHSHome = {
     init() {
       domUtils.onReady(() => {
@@ -4482,6 +4540,12 @@
           const searchText = domUtils.val($searchInput);
           for (let index = 0; index < allData.length; index++) {
             const item = allData[index];
+            if (typeof filterCallBack === "function") {
+              const flag = await filterCallBack(item);
+              if (typeof flag === "boolean" && !flag) {
+                continue;
+              }
+            }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
               if (typeof externalFilterResult === "boolean" && !externalFilterResult) {

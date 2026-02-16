@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
@@ -350,7 +350,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -427,6 +427,8 @@
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -1251,8 +1253,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1299,7 +1309,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1322,23 +1332,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1383,6 +1407,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1990,6 +2015,26 @@
         return key;
       }
     },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
+    },
   };
   const CSDNRouter = {
     isHuaWeiCloudBlog() {
@@ -2050,9 +2095,9 @@
     },
   };
   const ShieldCSS$4 =
-    "/* 右下角的 免费赢华为平板xxxx */\r\n.org-main-content .siderbar-box {\r\n  display: none !important;\r\n}\r\n";
+    "/* 右下角的 免费赢华为平板xxxx */\n.org-main-content .siderbar-box {\n  display: none !important;\n}\n";
   const ShieldCSS$3 =
-    "/* 底部免费抽xxx奖品广告 */\r\ndiv.siderbar-box,\r\n/* 华为开发者联盟加入社区 */\r\ndiv.user-desc.user-desc-fix {\r\n  display: none !important;\r\n}\r\n";
+    "/* 底部免费抽xxx奖品广告 */\ndiv.siderbar-box,\n/* 华为开发者联盟加入社区 */\ndiv.user-desc.user-desc-fix {\n  display: none !important;\n}\n";
   const CSDNHuaWeiCloud = {
     init() {
       addStyle(ShieldCSS$3);
@@ -2125,9 +2170,9 @@
     },
   };
   const BlogCSS =
-    "/*.blog_container_aside,\r\n#nav {\r\n	margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n	margin-left: 45px;\r\n}*/\r\n";
+    "/*.blog_container_aside,\n#nav {\n	margin-left: -45px;\n}\n.recommend-right.align-items-stretch.clearfix,\n.dl_right_fixed {\n	margin-left: 45px;\n}*/\n";
   const BlogShieldCSS =
-    '.ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select,\r\n/* 侧栏的618会员开通 */\r\n.csdn-side-toolbar  .sidecolumn-vip,\r\n/* 右边推荐的推广广告 */\r\n#recommendAdBox,\r\n/* 顶部导航栏的vip推广 */\r\n#csdn-plugin-vip,\r\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\r\n#sidecolumn-deepseek,\r\n/* 侧栏的【下载APP、公众号、视频号】 */\r\n.csdn-side-toolbar .option-box[data-type="app"] {\r\n  display: none !important;\r\n}\r\n';
+    '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"] {\n  display: none !important;\n}\n';
   const CSDNBlogBlock = {
     init() {
       Panel.onceExec("csdn-blog-blockCSS", () => {
@@ -3027,7 +3072,7 @@
       );
     },
   };
-  const ShieldCSS$2 = "/* 右下角的买一年送3个月的广告图标 */\r\n.blind_box {\r\n  display: none !important;\r\n}\r\n";
+  const ShieldCSS$2 = "/* 右下角的买一年送3个月的广告图标 */\n.blind_box {\n  display: none !important;\n}\n";
   const M_CSDNWenKu = {
     init() {
       addStyle(ShieldCSS$2);
@@ -3041,7 +3086,7 @@
     },
   };
   const CSDNBlockCSS =
-    "/* 右下角悬浮图标 买1年送3个月 */\r\n.page-container .blind_box,\r\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\r\n.page-container .btn .ml-12,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n/* 通用广告className匹配 */\r\n.ads {\r\n  display: none !important;\r\n}\r\n";
+    "/* 右下角悬浮图标 买1年送3个月 */\n.page-container .blind_box,\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\n.page-container .btn .ml-12,\n/* 登录弹窗 */\n.passport-login-container,\n/* 通用广告className匹配 */\n.ads {\n  display: none !important;\n}\n";
   const M_CSDNDownload = {
     init() {
       Panel.execMenuOnce("m-csdn-download-removeAds", () => {
@@ -3067,9 +3112,9 @@
     },
   };
   const ShieldCSS$1 =
-    ".view_comment_box,\r\n.weixin-shadowbox.wap-shadowbox,\r\n.feed-Sign-span,\r\n.user-desc.user-desc-fix,\r\n.comment_read_more_box,\r\n#content_views pre.set-code-hide .hide-preCode-box,\r\n/* 登录弹窗 */\r\n.passport-login-container,\r\n.hljs-button[data-title='登录后复制'],\r\n.article-show-more,\r\n#treeSkill,\r\ndiv.btn_open_app_prompt_div,\r\ndiv.readall_box,\r\ndiv.aside-header-fixed,\r\ndiv.feed-Sign-weixin,\r\ndiv.ios-shadowbox,\r\n/* 底部评论工具栏的抢沙发图片 */\r\n.comment-sofa-flag {\r\n  display: none !important;\r\n}\r\n";
+    ".view_comment_box,\n.weixin-shadowbox.wap-shadowbox,\n.feed-Sign-span,\n.user-desc.user-desc-fix,\n.comment_read_more_box,\n#content_views pre.set-code-hide .hide-preCode-box,\n/* 登录弹窗 */\n.passport-login-container,\n.hljs-button[data-title='登录后复制'],\n.article-show-more,\n#treeSkill,\ndiv.btn_open_app_prompt_div,\ndiv.readall_box,\ndiv.aside-header-fixed,\ndiv.feed-Sign-weixin,\ndiv.ios-shadowbox,\n/* 底部评论工具栏的抢沙发图片 */\n.comment-sofa-flag {\n  display: none !important;\n}\n";
   const MBlogCSS =
-    "#mainBox {\r\n  width: auto;\r\n}\r\n.user-desc.user-desc-fix {\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n.component-box .praise {\r\n  background: #ff5722;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n}\r\n.component-box .praise,\r\n.component-box .share {\r\n  color: #fff;\r\n}\r\n.component-box a {\r\n  display: inline-block;\r\n  font-size: xx-small;\r\n}\r\n.component-box {\r\n  display: inline;\r\n  margin: 0;\r\n  position: relative;\r\n  white-space: nowrap;\r\n}\r\n.csdn-edu-title {\r\n  background: #4d6de1;\r\n  border-radius: 5px;\r\n  padding: 0px 8px;\r\n  height: auto;\r\n  color: #fff !important;\r\n}\r\n\r\n.GM-csdn-dl {\r\n  padding: 0.24rem 0.32rem;\r\n  width: 100%;\r\n  justify-content: space-between;\r\n  -webkit-box-pack: justify;\r\n  border-bottom: 1px solid #f5f6f7 !important;\r\n}\r\n.GM-csdn-title {\r\n  font-size: 0.3rem;\r\n  color: #222226;\r\n  letter-spacing: 0;\r\n  line-height: 0.44rem;\r\n  font-weight: 600;\r\n  /*max-height: .88rem;*/\r\n  word-break: break-all;\r\n  overflow: hidden;\r\n  display: -webkit-box;\r\n  -webkit-box-orient: vertical;\r\n  -webkit-line-clamp: 2;\r\n}\r\n.GM-csdn-title a {\r\n  word-break: break-all;\r\n  color: #222226;\r\n  font-weight: 600;\r\n}\r\n.GM-csdn-title em,\r\n.GM-csdn-content em {\r\n  font-style: normal;\r\n  color: #fc5531;\r\n}\r\n.GM-csdn-content {\r\n  /*max-width: 5.58rem;*/\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  display: -webkit-box;\r\n  -webkit-line-clamp: 1;\r\n  -webkit-box-orient: vertical;\r\n  color: #555666;\r\n  font-size: 0.24rem;\r\n  line-height: 0.34rem;\r\n  max-height: 0.34rem;\r\n  word-break: break-all;\r\n  -webkit-box-flex: 1;\r\n  -ms-flex: 1;\r\n  flex: 1;\r\n  margin-top: 0.16rem;\r\n}\r\n.GM-csdn-img img {\r\n  width: 2.18rem;\r\n  height: 1.58rem;\r\n  /*margin-left: .16rem*/\r\n}\r\n";
+    "#mainBox {\n  width: auto;\n}\n.user-desc.user-desc-fix {\n  height: auto !important;\n  overflow: auto !important;\n}\n.component-box .praise {\n  background: #ff5722;\n  border-radius: 5px;\n  padding: 0px 8px;\n  height: auto;\n}\n.component-box .praise,\n.component-box .share {\n  color: #fff;\n}\n.component-box a {\n  display: inline-block;\n  font-size: xx-small;\n}\n.component-box {\n  display: inline;\n  margin: 0;\n  position: relative;\n  white-space: nowrap;\n}\n.csdn-edu-title {\n  background: #4d6de1;\n  border-radius: 5px;\n  padding: 0px 8px;\n  height: auto;\n  color: #fff !important;\n}\n\n.GM-csdn-dl {\n  padding: 0.24rem 0.32rem;\n  width: 100%;\n  justify-content: space-between;\n  -webkit-box-pack: justify;\n  border-bottom: 1px solid #f5f6f7 !important;\n}\n.GM-csdn-title {\n  font-size: 0.3rem;\n  color: #222226;\n  letter-spacing: 0;\n  line-height: 0.44rem;\n  font-weight: 600;\n  /*max-height: .88rem;*/\n  word-break: break-all;\n  overflow: hidden;\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n}\n.GM-csdn-title a {\n  word-break: break-all;\n  color: #222226;\n  font-weight: 600;\n}\n.GM-csdn-title em,\n.GM-csdn-content em {\n  font-style: normal;\n  color: #fc5531;\n}\n.GM-csdn-content {\n  /*max-width: 5.58rem;*/\n  overflow: hidden;\n  text-overflow: ellipsis;\n  display: -webkit-box;\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  color: #555666;\n  font-size: 0.24rem;\n  line-height: 0.34rem;\n  max-height: 0.34rem;\n  word-break: break-all;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  margin-top: 0.16rem;\n}\n.GM-csdn-img img {\n  width: 2.18rem;\n  height: 1.58rem;\n  /*margin-left: .16rem*/\n}\n";
   const M_CSDNBlogBlock = {
     init() {
       Panel.onceExec("m-csdn-blog-removeAds", () => {
@@ -3112,9 +3157,9 @@
     },
   };
   const WenkuCSS =
-    "#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid {\r\n  max-height: unset !important;\r\n  height: auto !important;\r\n  overflow: auto !important;\r\n}\r\n\r\n.forbid {\r\n  user-select: text !important;\r\n}\r\n";
+    "#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid {\n  max-height: unset !important;\n  height: auto !important;\n  overflow: auto !important;\n}\n\n.forbid {\n  user-select: text !important;\n}\n";
   const ShieldCSS =
-    "/* wenku顶部横幅 */\r\n#app > div > div.main.pb-32 > div > div.top-bar,\r\n/* 底部展开全文 */\r\n#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open {\r\n  display: none !important;\r\n}\r\n";
+    "/* wenku顶部横幅 */\n#app > div > div.main.pb-32 > div > div.top-bar,\n/* 底部展开全文 */\n#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open {\n  display: none !important;\n}\n";
   const CSDNWenKu = {
     init() {
       addStyle(WenkuCSS);
@@ -3168,7 +3213,7 @@
     },
   };
   const BlogArticleCenterCSS =
-    '.main_father {\r\n  justify-content: center;\r\n}\r\n#mainBox main {\r\n  width: inherit !important;\r\n}\r\n/* 当文章向下滚动时，触发左侧信息悬浮 */\r\naside.blog_container_aside[style*="position: fixed;"] {\r\n  display: none !important;\r\n}\r\n\r\n@media (min-width: 1320px) and (max-width: 1380px) {\r\n  .nodata .container {\r\n    width: 900px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 900px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 500px;\r\n  }\r\n}\r\n\r\n@media screen and (max-width: 1320px) {\r\n  .nodata .container {\r\n    width: 760px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 760px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .toolbox-list .tool-reward {\r\n    display: none;\r\n  }\r\n\r\n  .nodata .container main .more-toolbox-new .toolbox-left .profile-box .profile-name {\r\n    max-width: 128px;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 420px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1380px) {\r\n  .nodata .container {\r\n    width: 1010px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 1010px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 490px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 560px;\r\n  }\r\n}\r\n\r\n@media (min-width: 1550px) and (max-width: 1700px) {\r\n  .nodata .container {\r\n    width: 820px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 820px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 690px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 500px;\r\n  }\r\n}\r\n\r\n@media screen and (min-width: 1700px) {\r\n  .nodata .container {\r\n    width: 1010px !important;\r\n  }\r\n\r\n  .nodata .container main {\r\n    width: 1010px;\r\n  }\r\n\r\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\r\n    width: 690px !important;\r\n  }\r\n\r\n  .nodata .container main .articleConDownSource {\r\n    width: 560px;\r\n  }\r\n}\r\n';
+    '.main_father {\n  justify-content: center;\n}\n#mainBox main {\n  width: inherit !important;\n}\n/* 当文章向下滚动时，触发左侧信息悬浮 */\naside.blog_container_aside[style*="position: fixed;"] {\n  display: none !important;\n}\n\n@media (min-width: 1320px) and (max-width: 1380px) {\n  .nodata .container {\n    width: 900px !important;\n  }\n\n  .nodata .container main {\n    width: 900px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 500px;\n  }\n}\n\n@media screen and (max-width: 1320px) {\n  .nodata .container {\n    width: 760px !important;\n  }\n\n  .nodata .container main {\n    width: 760px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .toolbox-list .tool-reward {\n    display: none;\n  }\n\n  .nodata .container main .more-toolbox-new .toolbox-left .profile-box .profile-name {\n    max-width: 128px;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 420px;\n  }\n}\n\n@media screen and (min-width: 1380px) {\n  .nodata .container {\n    width: 1010px !important;\n  }\n\n  .nodata .container main {\n    width: 1010px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 560px;\n  }\n}\n\n@media (min-width: 1550px) and (max-width: 1700px) {\n  .nodata .container {\n    width: 820px !important;\n  }\n\n  .nodata .container main {\n    width: 820px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 690px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 500px;\n  }\n}\n\n@media screen and (min-width: 1700px) {\n  .nodata .container {\n    width: 1010px !important;\n  }\n\n  .nodata .container main {\n    width: 1010px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 690px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 560px;\n  }\n}\n';
   const CSDNBlogArticleComment = {
     init() {
       Panel.exec(

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -4954,9 +4954,12 @@
                 : (T = 1),
               0 == T % c2.tapTimes
                 ? ((c2.state = 1), r2.emit2(c2.name, t3, c2), f2())
-                : (x$1 = setTimeout(() => {
-                    ((c2.state = 2), f2());
-                  }, c2.waitNextTapTime))));
+                : (x$1 = setTimeout(
+                    () => {
+                      ((c2.state = 2), f2());
+                    },
+                    c2.waitNextTapTime
+                  ))));
       }),
       c2
     );
@@ -5015,9 +5018,12 @@
         if (c$3 === o2 && p2.pointLength === u3)
           (g$1(p2),
             clearTimeout(f2),
-            (f2 = setTimeout(() => {
-              ((p2.state = 1), c2.emit2(p2.name, t3, p2));
-            }, p2.minPressTime)));
+            (f2 = setTimeout(
+              () => {
+                ((p2.state = 1), c2.emit2(p2.name, t3, p2));
+              },
+              p2.minPressTime
+            )));
         else if (u$3 === o2 && 1 === p2.state) c2.emit2(`${p2.name}${r$4}`, t3, p2);
         else if (1 !== p2.state) {
           const e2 = t3.timestamp - r2.timestamp;
@@ -5083,9 +5089,12 @@
       e2.beforeEach((t3, e3) => {
         "tap" === t3
           ? (clearTimeout(o2),
-            (o2 = setTimeout(() => {
-              [0, 2].includes(a2.state) && e3();
-            }, 300)))
+            (o2 = setTimeout(
+              () => {
+                [0, 2].includes(a2.state) && e3();
+              },
+              300
+            )))
           : e3();
       }),
       a2
@@ -15842,7 +15851,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.9.10";
+  const version = "2.9.12";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -16971,36 +16980,47 @@
     isNull(...args) {
       let result = true;
       const checkList = [...args];
-      for (const objItem of checkList) {
-        let itemResult = false;
-        if (objItem === null || objItem === void 0) {
-          itemResult = true;
+      for (const obj of checkList) {
+        let flag = false;
+        if (obj === null || obj === void 0) {
+          flag = true;
         } else {
-          switch (typeof objItem) {
+          switch (typeof obj) {
             case "object":
-              if (typeof objItem[Symbol.iterator] === "function") {
-                itemResult = objItem.length === 0;
+              if (typeof obj[Symbol.iterator] === "function") {
+                if (obj instanceof Map) {
+                  flag = obj.size === 0;
+                } else {
+                  const length = obj.length;
+                  if (typeof length === "number") {
+                    flag = length === 0;
+                  }
+                }
               } else {
-                itemResult = Object.keys(objItem).length === 0;
+                if (obj?.toString() === "[object Object]") {
+                  flag = Object.keys(obj).length === 0;
+                }
               }
               break;
             case "number":
-              itemResult = objItem === 0;
+              flag = isNaN(obj) ? true : obj === 0;
               break;
-            case "string":
-              itemResult = objItem.trim() === "" || objItem === "null" || objItem === "undefined";
+            case "string": {
+              const trimStr = obj.trim();
+              flag = trimStr.trim() === "" || trimStr === "null" || trimStr === "undefined";
               break;
+            }
             case "boolean":
-              itemResult = !objItem;
+              flag = !obj;
               break;
             case "function": {
-              const funcStr = objItem.toString().replace(/\s/g, "");
-              itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
+              const funcStr = obj.toString().replace(/\s/g, "");
+              flag = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
               break;
             }
           }
         }
-        result = result && itemResult;
+        result = result && flag;
       }
       return result;
     }
@@ -18755,9 +18775,12 @@
         clearTimeout(that.#timeId);
       };
       this.unlock = function () {
-        that.#timeId = setTimeout(() => {
-          that.#flag = false;
-        }, that.#delayTime);
+        that.#timeId = setTimeout(
+          () => {
+            that.#flag = false;
+          },
+          that.#delayTime
+        );
       };
       this.isLock = function () {
         return that.#flag;
@@ -19546,23 +19569,24 @@ ${err.stack}`);
         return this.$data.data.find((item) => item.handleData.key === menuKey)?.handleData;
       },
     };
-    constructor(details) {
-      this.GM_Api.getValue = details.GM_getValue;
-      this.GM_Api.setValue = details.GM_setValue;
-      this.GM_Api.registerMenuCommand = details.GM_registerMenuCommand;
-      this.GM_Api.unregisterMenuCommand = details.GM_unregisterMenuCommand;
-      this.MenuHandle.$default.autoReload = typeof details.autoReload === "boolean" ? details.autoReload : true;
+    constructor(constructOptions) {
+      this.GM_Api.getValue = constructOptions.GM_getValue;
+      this.GM_Api.setValue = constructOptions.GM_setValue;
+      this.GM_Api.registerMenuCommand = constructOptions.GM_registerMenuCommand;
+      this.GM_Api.unregisterMenuCommand = constructOptions.GM_unregisterMenuCommand;
+      this.MenuHandle.$default.autoReload =
+        typeof constructOptions.autoReload === "boolean" ? constructOptions.autoReload : true;
       for (const keyName of Object.keys(this.GM_Api)) {
         if (typeof this.GM_Api[keyName] !== "function") {
           throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
         }
       }
-      this.add(details?.data || []);
+      this.add(constructOptions?.data || []);
     }
-    __add(menuOption) {
-      if (Array.isArray(menuOption)) {
-        for (let index = 0; index < menuOption.length; index++) {
-          const option = menuOption[index];
+    __add(options) {
+      if (Array.isArray(options)) {
+        for (let index = 0; index < options.length; index++) {
+          const option = options[index];
           this.MenuHandle.$data.data.push({
             data: option,
             id: void 0,
@@ -19570,14 +19594,24 @@ ${err.stack}`);
         }
       } else {
         this.MenuHandle.$data.data.push({
-          data: menuOption,
+          data: options,
           id: void 0,
         });
       }
     }
-    add(menuOption) {
-      this.__add(menuOption);
+    add(options) {
+      this.__add(options);
       this.update();
+      return {
+        destory: () => {
+          if (!Array.isArray(options)) {
+            options = [options];
+          }
+          options.forEach((option) => {
+            this.delete(option.key);
+          });
+        },
+      };
     }
     update(options) {
       let menuOptionList = [];
@@ -19586,12 +19620,12 @@ ${err.stack}`);
       } else if (options != null) {
         menuOptionList = [...menuOptionList, options];
       }
-      menuOptionList.forEach((menuOption) => {
-        const oldMenuOption = this.MenuHandle.getMenuOption(menuOption.key);
+      menuOptionList.forEach((option) => {
+        const oldMenuOption = this.MenuHandle.getMenuOption(option.key);
         if (oldMenuOption) {
-          Object.assign(oldMenuOption, menuOption);
+          Object.assign(oldMenuOption, option);
         } else {
-          this.__add(menuOption);
+          this.__add(option);
         }
       });
       this.MenuHandle.$data.data.forEach((value) => {
@@ -19603,6 +19637,12 @@ ${err.stack}`);
       this.MenuHandle.register(this.MenuHandle.$data.data);
     }
     delete(menuId) {
+      if (typeof menuId === "string") {
+        const __menuId = this.getMenuId(menuId);
+        if (__menuId != null) {
+          menuId = __menuId;
+        }
+      }
       this.GM_Api.unregisterMenuCommand(menuId);
     }
     getEnable(menuKey) {
@@ -19612,14 +19652,16 @@ ${err.stack}`);
       return this.MenuHandle.getMenuHandledOption(menuKey).text;
     }
     getShowTextValue(menuKey) {
-      return this.MenuHandle.getMenuHandledOption(menuKey).showText(this.getText(menuKey), this.getEnable(menuKey));
+      const text = this.getText(menuKey);
+      const enable = this.getEnable(menuKey);
+      return this.MenuHandle.getMenuHandledOption(menuKey).showText(text, enable);
     }
     getMenuId(menuKey) {
       let result = null;
       for (let index = 0; index < this.MenuHandle.$data.data.length; index++) {
-        const optionData = this.MenuHandle.$data.data[index];
-        if (optionData.handleData.key === menuKey) {
-          result = optionData.id;
+        const option = this.MenuHandle.$data.data[index];
+        if (option.handleData?.key === menuKey) {
+          result = option.id;
           break;
         }
       }
@@ -22123,7 +22165,7 @@ ${err.stack}`);
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -22200,6 +22242,8 @@ ${err.stack}`);
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -23034,8 +23078,16 @@ ${err.stack}`);
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -23082,7 +23134,7 @@ ${err.stack}`);
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -23105,23 +23157,37 @@ ${err.stack}`);
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -23166,6 +23232,7 @@ ${err.stack}`);
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -23772,6 +23839,26 @@ ${err.stack}`);
       } else {
         return key;
       }
+    },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
     },
   };
   let injectDocumentTime = "";

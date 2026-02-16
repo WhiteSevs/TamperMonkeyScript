@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.1.29
+// @version      2026.2.16
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
@@ -1187,8 +1187,16 @@
     hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    addValueChangeListener(key, callback) {
+    addValueChangeListener(key, callback, option) {
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
+      if (option?.immediate || option?.immediateAll) {
+        const value = this.getValue(key);
+        if (option?.immediate) {
+          callback(key, value, value);
+        } else if (option?.immediateAll) {
+          Panel.emitMenuValueChange(key, value, value);
+        }
+      }
       return listenerId;
     },
     removeValueChangeListener(listenerId) {
@@ -1235,7 +1243,7 @@
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
         } else {
-          const handlerArgs = (obj) => {
+          const handleArgs = (obj) => {
             if (typeof obj === "object" && obj != null) {
               if (obj instanceof Element) {
                 resultValueList.push(obj);
@@ -1258,23 +1266,37 @@
           };
           if (args != null && Array.isArray(args)) {
             for (const it of args) {
-              handlerArgs(it);
+              handleArgs(it);
             }
           } else {
-            handlerArgs(args);
+            handleArgs(args);
           }
         }
-        for (const it of resultValueList) {
+        const handleResult = (it) => {
           if (it == null) {
-            continue;
+            return;
           }
           if (it instanceof Element) {
             dynamicMenuStoreValueList.push(it);
-            continue;
+            return;
           }
           if (typeof it === "function") {
             dynamicDestoryFnList.push(it);
-            continue;
+            return;
+          }
+        };
+        for (const it of resultValueList) {
+          const flag = handleResult(it);
+          if (typeof flag === "boolean" && !flag) {
+            break;
+          }
+          if (Array.isArray(it)) {
+            for (const it2 of it) {
+              const flag2 = handleResult(it2);
+              if (typeof flag2 === "boolean" && !flag2) {
+                break;
+              }
+            }
           }
         }
         execClearStoreStyleElements();
@@ -1319,6 +1341,7 @@
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
+            key: keyList,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1926,6 +1949,26 @@
         return key;
       }
     },
+    getDynamicValue(key, defaultValue) {
+      const that = this;
+      let isInit = false;
+      let __value = defaultValue;
+      const listenerId = this.addValueChangeListener(key, (_, newValue) => {
+        __value = newValue;
+      });
+      return {
+        get value() {
+          if (!isInit) {
+            isInit = true;
+            __value = that.getValue(key, defaultValue);
+          }
+          return __value;
+        },
+        destory() {
+          that.removeValueChangeListener(listenerId);
+        },
+      };
+    },
   };
   const PanelSettingConfig = {
     qmsg_config_position: {
@@ -1971,7 +2014,7 @@
       } else {
         log.info(content);
       }
-      return true;
+      return false;
     },
     get position() {
       return Panel.getValue(
@@ -2048,6 +2091,8 @@
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
+      keys: _unsafeWindow.Object.keys,
+      values: _unsafeWindow.Object.values,
     },
     Function: {
       apply: _unsafeWindow.Function.prototype.apply,
@@ -2110,13 +2155,17 @@
     defaultValue,
     defaultButtonText,
     buttonType = "default",
-    shortCut
+    shortCut,
+    afterEnterShortCutCallBack
   ) {
     const __defaultButtonText = defaultButtonText;
     const getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
     const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      if (event instanceof PointerEvent && event.x === 0 && event.y === 0) {
+        return;
+      }
       const $click = event.target;
       const $btn = $click.closest(".pops-panel-button")?.querySelector("span");
       if (shortCut.isWaitKeyboardPress()) {
@@ -2127,14 +2176,14 @@
         shortCut.emptyOption(key);
         Qmsg.success("清空快捷键");
       } else {
-        const loadingQmsg = Qmsg.loading("请按下快捷键...", {
+        const $loading = Qmsg.loading("请按下快捷键...", {
           showClose: true,
           onClose() {
             shortCut.cancelEnterShortcutKeys();
           },
         });
         const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
-        loadingQmsg.close();
+        $loading.close();
         if (status) {
           log.success("录入快捷键", option);
           Qmsg.success("录入成功");
@@ -6794,7 +6843,7 @@
     }
   }
   const indexCSS$4 =
-    '.pops[type-value="alert"] .pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n  border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n  border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n  display: flex;\r\n  align-items: center;\r\n  width: 100%;\r\n  padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n  display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n  cursor: pointer;\r\n  width: 28px;\r\n  height: 28px;\r\n  min-width: 28px;\r\n  min-height: 28px;\r\n  font-size: 0.8em;\r\n  margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n  flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n  flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\r\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\r\n    0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n  padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n  padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n  color: #ff4848 !important;\r\n  min-height: 28px;\r\n  overflow-x: hidden;\r\n  overflow-y: auto;\r\n  font-size: 0.8em;\r\n  border: none;\r\n  display: flex;\r\n  align-items: center;\r\n  width: fit-content;\r\n  height: 100%;\r\n  padding: 0px;\r\n  word-break: break-word;\r\n  text-align: left;\r\n}\r\n.netdisk-status {\r\n  display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n  display: flex;\r\n  align-items: center;\r\n  width: 15px;\r\n  height: 15px;\r\n  color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n  color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n  color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n  cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n  color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n  color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n  animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n  text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n  outline-offset: 0;\r\n  outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n  color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n  box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n  outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n  text-indent: 0;\r\n}\r\n.whitesevPop-button[data-type="primary"] {\r\n  border-color: #2d8cf0;\r\n  background-color: #2d8cf0;\r\n}\r\n';
+    '.pops[type-value="alert"] .pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\n  border-bottom: none;\n}\n.netdisk-url-box {\n  border-bottom: 1px solid #e4e6eb;\n}\n.netdisk-url-div {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  padding: 5px 0px 5px 0px;\n}\n.netdisk-icon {\n  display: contents;\n}\n.netdisk-icon .netdisk-icon-img {\n  cursor: pointer;\n  width: 28px;\n  height: 28px;\n  min-width: 28px;\n  min-height: 28px;\n  font-size: 0.8em;\n  margin: 0px 10px;\n}\n.netdisk-url-div .netdisk-icon,\n.netdisk-url-div .netdisk-status {\n  flex: 0 0 auto;\n}\n.netdisk-url-div .netdisk-url {\n  flex: 1;\n}\n.netdisk-icon .netdisk-icon-img {\n  border-radius: 10px;\n  box-shadow:\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\n    0 10px 20px rgb(0 0 0 / 20%);\n}\n.netdisk-status[data-check-failed] {\n  padding: 5px 5px;\n}\n.netdisk-url {\n  padding: 5px 5px;\n}\n.netdisk-url a {\n  color: #ff4848 !important;\n  min-height: 28px;\n  overflow-x: hidden;\n  overflow-y: auto;\n  font-size: 0.8em;\n  border: none;\n  display: flex;\n  align-items: center;\n  width: fit-content;\n  height: 100%;\n  padding: 0px;\n  word-break: break-word;\n  text-align: left;\n}\n.netdisk-status {\n  display: none;\n}\n.netdisk-status[data-check-valid] {\n  display: flex;\n  align-items: center;\n  width: 15px;\n  height: 15px;\n  color: #000000;\n}\n\n.netdisk-status[data-check-valid="failed"] {\n  color: red;\n}\n\n.netdisk-status[data-check-valid="partial-violation"] {\n  color: orange;\n}\n\n.netdisk-status[data-check-valid="error"] {\n  cursor: pointer;\n}\n\n.netdisk-status[data-check-valid="success"] {\n  color: green;\n}\n\n.netdisk-status[data-check-valid="verify"] {\n  color: #faad14;\n}\n\n.netdisk-status[data-check-valid="loading"] svg {\n  animation: rotating 2s linear infinite;\n}\n\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\n  text-decoration: line-through;\n}\n\n.whitesevPop-whitesevPopSetting :focus-visible {\n  outline-offset: 0;\n  outline: 0;\n}\n.netdisk-url a[isvisited="true"] {\n  color: #8b8888 !important;\n}\n.netdisk-url a:active {\n  box-shadow: 0 0 0 1px #616161 inset;\n}\n.netdisk-url a:focus-visible {\n  outline: 0;\n}\n.whitesevPop-content p[pop] {\n  text-indent: 0;\n}\n.whitesevPop-button[data-type="primary"] {\n  border-color: #2d8cf0;\n  background-color: #2d8cf0;\n}\n';
   const NetDiskLinkViewData = {
     generateViewData() {
       let data = [];
@@ -13085,7 +13134,7 @@
     },
   };
   const indexCSS$3 =
-    '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\r\n  display: flex;\r\n  flex-direction: column;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n  display: flex;\r\n  flex-direction: column;\r\n  justify-content: center;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\r\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\r\n    0 10px 20px rgb(0 0 0 / 20%);\r\n  margin: 20px 10px;\r\n  padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n  /*height: 11%;*/\r\n  flex: 0;\r\n  padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n  /*height: calc(85% - 40px);*/\r\n  overflow: auto;\r\n  flex: 1;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  /*margin-top: 10px;*/\r\n  flex: 0;\r\n  padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input {\r\n  border: none;\r\n  border-bottom: 1px solid #000000;\r\n  padding: 0px 5px;\r\n  line-height: normal;\r\n  width: -moz-available;\r\n  width: -webkit-fill-available;\r\n  width: fill-available;\r\n  margin: 5px 5px 0px 5px;\r\n  background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input:focus-visible {\r\n  outline: none;\r\n  border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n  color: #ff4848;\r\n  font-size: 0.8em;\r\n  border: none;\r\n  word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a[isvisited="true"] {\r\n  color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img {\r\n  width: 28px;\r\n  height: 28px;\r\n  min-width: 28px;\r\n  min-height: 28px;\r\n  font-size: 0.8em;\r\n  border-radius: 10px;\r\n  box-shadow:\r\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\r\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\r\n    0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n  color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n  color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete {\r\n  background: #263cf3;\r\n  color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active {\r\n  background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n  display: flex;\r\n  margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p {\r\n  min-width: 80px;\r\n  max-width: 80px;\r\n  align-self: center;\r\n}\r\n';
+    '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\n  display: flex;\n  flex-direction: column;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  border-radius: 10px;\n  box-shadow:\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\n    0 10px 20px rgb(0 0 0 / 20%);\n  margin: 20px 10px;\n  padding: 10px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\n  /*height: 11%;*/\n  flex: 0;\n  padding: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\n  /*height: calc(85% - 40px);*/\n  overflow: auto;\n  flex: 1;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  /*margin-top: 10px;*/\n  flex: 0;\n  padding: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input {\n  border: none;\n  border-bottom: 1px solid #000000;\n  padding: 0px 5px;\n  line-height: normal;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  width: fill-available;\n  margin: 5px 5px 0px 5px;\n  background: none;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input:focus-visible {\n  outline: none;\n  border-bottom: 1px solid #0009ff;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\n  color: #ff4848;\n  font-size: 0.8em;\n  border: none;\n  word-break: break-word;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a[isvisited="true"] {\n  color: #8b8888;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img {\n  width: 28px;\n  height: 28px;\n  min-width: 28px;\n  min-height: 28px;\n  font-size: 0.8em;\n  border-radius: 10px;\n  box-shadow:\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\n    0 10px 20px rgb(0 0 0 / 20%);\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\n  color: #000;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\n  color: #000;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete {\n  background: #263cf3;\n  color: #fff;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active {\n  background: #6e7be8;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\n  display: flex;\n  margin: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p {\n  min-width: 80px;\n  max-width: 80px;\n  align-self: center;\n}\n';
   const NetDiskHistoryMatchView = {
     storageKey: "netDiskHistoryMatch",
     isSetOtherEvent: false,
@@ -14749,7 +14798,7 @@
     },
   };
   const dialogCSS =
-    '.pops[type-value="confirm"] .pops-confirm-content {\r\n  overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {\r\n  width: 100%;\r\n  height: 100%;\r\n  border: none;\r\n  outline: none;\r\n  padding: 0;\r\n  margin: 0;\r\n  -webkit-appearance: none;\r\n  -moz-appearance: none;\r\n  appearance: none;\r\n  background-image: none;\r\n  background-color: transparent;\r\n\r\n  display: inline-block;\r\n  resize: vertical;\r\n  padding: 5px 15px;\r\n  line-height: normal;\r\n  box-sizing: border-box;\r\n  border: 1px solid #dcdfe6;\r\n  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  appearance: none;\r\n  resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {\r\n  outline: none;\r\n  border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {\r\n  color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {\r\n  border-color: #c0c4cc;\r\n}\r\n';
+    '.pops[type-value="confirm"] .pops-confirm-content {\n  overflow: hidden;\n}\n/* textarea美化 */\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {\n  width: 100%;\n  height: 100%;\n  border: none;\n  outline: none;\n  padding: 0;\n  margin: 0;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  background-image: none;\n  background-color: transparent;\n\n  display: inline-block;\n  resize: vertical;\n  padding: 5px 15px;\n  line-height: normal;\n  box-sizing: border-box;\n  border: 1px solid #dcdfe6;\n  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  appearance: none;\n  resize: none;\n}\n/* 获得焦点 */\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {\n  outline: none;\n  border-color: #3677f0;\n}\n/* 提示文字 */\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {\n  color: #c0c4cc;\n}\n/* 鼠标hover */\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {\n  border-color: #c0c4cc;\n}\n';
   const NetDiskUserRuleUI = {
     show(isEdit, ruleKey, valueChangeCallBack) {
       let titleText = "添加";
@@ -17962,7 +18011,7 @@
     },
   };
   const panelIndexCSS =
-    'div[class^="netdisk-custom-rule-"] {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-left: 10px;\r\n  cursor: pointer;\r\n}\r\ndiv[class^="netdisk-custom-rule-"] svg,\r\ndiv[class^="netdisk-custom-rule-"] svg {\r\n  width: 1.2em;\r\n  height: 1.2em;\r\n}\r\n/* 控件被禁用的颜色 */\r\naside.pops-panel-aside li[data-key][data-function-enable="false"] {\r\n  color: #a8abb2;\r\n  filter: grayscale(100%);\r\n}\r\n/* 左侧网盘图标 */\r\naside.pops-panel-aside .netdisk-aside-icon {\r\n  width: 20px;\r\n  height: 20px;\r\n  background-size: 100% 100%;\r\n  background-repeat: no-repeat;\r\n}\r\n/* 设置间隔 */\r\naside.pops-panel-aside ul li {\r\n  gap: 4px;\r\n}\r\n\r\n/* mobile模式 */\r\n@media screen and (max-width: 600px) {\r\n  /* 隐藏左侧网盘图标 */\r\n  aside.pops-panel-aside .netdisk-aside-text {\r\n    display: none;\r\n  }\r\n}\r\n';
+    'div[class^="netdisk-custom-rule-"] {\n  display: flex;\n  align-items: center;\n  margin-left: 10px;\n  cursor: pointer;\n}\ndiv[class^="netdisk-custom-rule-"] svg,\ndiv[class^="netdisk-custom-rule-"] svg {\n  width: 1.2em;\n  height: 1.2em;\n}\n/* 控件被禁用的颜色 */\naside.pops-panel-aside li[data-key][data-function-enable="false"] {\n  color: #a8abb2;\n  filter: grayscale(100%);\n}\n/* 左侧网盘图标 */\naside.pops-panel-aside .netdisk-aside-icon {\n  width: 20px;\n  height: 20px;\n  background-size: 100% 100%;\n  background-repeat: no-repeat;\n}\n/* 设置间隔 */\naside.pops-panel-aside ul li {\n  gap: 4px;\n}\n\n/* mobile模式 */\n@media screen and (max-width: 600px) {\n  /* 隐藏左侧网盘图标 */\n  aside.pops-panel-aside .netdisk-aside-text {\n    display: none;\n  }\n}\n';
   const NetDiskSettingView = {
     show() {
       if (NetDiskView.$el.$settingView) {
@@ -18371,7 +18420,7 @@
     },
   };
   const indexCSS$2 =
-    ".whitesevSuspension {\r\n  top: 0;\r\n  position: fixed;\r\n  right: 10px;\r\n  border-radius: 12px;\r\n}\r\n.whitesevSuspension .whitesevSuspensionMain {\r\n  background: #fff;\r\n  border: 1px solid #f2f2f2;\r\n  box-shadow: 0 0 15px #e4e4e4;\r\n  box-sizing: border-box;\r\n  border-radius: inherit;\r\n  height: inherit;\r\n  width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor {\r\n  border-bottom: 1px solid #f2f2f2;\r\n  position: relative;\r\n  box-sizing: border-box;\r\n  border-radius: inherit;\r\n  height: inherit;\r\n  width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk {\r\n  background-position: center center;\r\n  background-size: 115% 115%;\r\n  background-repeat: no-repeat;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  border-radius: inherit;\r\n  height: inherit;\r\n  width: inherit;\r\n}\r\n.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover {\r\n  transition: all 300ms linear;\r\n  background-color: #e4e4e4;\r\n  transform: scale(1.1);\r\n}\r\n.whitesevPop-content p[pop] {\r\n  height: 100%;\r\n}\r\n";
+    ".whitesevSuspension {\n  top: 0;\n  position: fixed;\n  right: 10px;\n  border-radius: 12px;\n}\n.whitesevSuspension .whitesevSuspensionMain {\n  background: #fff;\n  border: 1px solid #f2f2f2;\n  box-shadow: 0 0 15px #e4e4e4;\n  box-sizing: border-box;\n  border-radius: inherit;\n  height: inherit;\n  width: inherit;\n}\n.whitesevSuspension .whitesevSuspensionFloor {\n  border-bottom: 1px solid #f2f2f2;\n  position: relative;\n  box-sizing: border-box;\n  border-radius: inherit;\n  height: inherit;\n  width: inherit;\n}\n.whitesevSuspension .whitesevSuspensionFloor .netdisk {\n  background-position: center center;\n  background-size: 115% 115%;\n  background-repeat: no-repeat;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: inherit;\n  height: inherit;\n  width: inherit;\n}\n.whitesevSuspension .whitesevSuspensionFloor .netdisk:hover {\n  transition: all 300ms linear;\n  background-color: #e4e4e4;\n  transform: scale(1.1);\n}\n.whitesevPop-content p[pop] {\n  height: 100%;\n}\n";
   const NetDiskSuspensionConfig = {
     position: {
       suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
@@ -18692,7 +18741,7 @@
     },
   };
   const indexCSS$1 =
-    ".pops-folder-list .list-name-text {\r\n  max-width: 300px;\r\n}\r\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\r\n  max-width: 220px;\r\n}\r\n.netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {\r\n  max-width: unset;\r\n}\r\n";
+    ".pops-folder-list .list-name-text {\n  max-width: 300px;\n}\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\n  max-width: 220px;\n}\n.netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {\n  max-width: unset;\n}\n";
   const NetDiskLinearChainDialogView = {
     oneFile(fileDetails) {
       log.success("成功获取单文件直链", fileDetails);
@@ -18871,7 +18920,7 @@
     });
   };
   const indexCSS =
-    '.pops[type-value="confirm"] .pops-confirm-content {\r\n  overflow: hidden;\r\n}\r\n.netdisk-match-paste-text {\r\n  --textarea-bd-color: #dcdfe6;\r\n  display: inline-block;\r\n  resize: vertical;\r\n  padding: 5px 15px;\r\n  line-height: normal;\r\n  box-sizing: border-box;\r\n  color: #606266;\r\n  border: 1px solid var(--textarea-bd-color);\r\n  border-radius: 4px;\r\n  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n  outline: none;\r\n  margin: 0;\r\n  -webkit-appearance: none;\r\n  -moz-appearance: none;\r\n  appearance: none;\r\n  background: none;\r\n  width: 100%;\r\n  height: 100%;\r\n  appearance: none;\r\n  resize: none;\r\n}\r\n.netdisk-match-paste-text:hover {\r\n  --textarea-bd-color: #c0c4cc;\r\n}\r\n.netdisk-match-paste-text:focus {\r\n  --textarea-bd-color: #3677f0;\r\n}\r\n';
+    '.pops[type-value="confirm"] .pops-confirm-content {\n  overflow: hidden;\n}\n.netdisk-match-paste-text {\n  --textarea-bd-color: #dcdfe6;\n  display: inline-block;\n  resize: vertical;\n  padding: 5px 15px;\n  line-height: normal;\n  box-sizing: border-box;\n  color: #606266;\n  border: 1px solid var(--textarea-bd-color);\n  border-radius: 4px;\n  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  outline: none;\n  margin: 0;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  background: none;\n  width: 100%;\n  height: 100%;\n  appearance: none;\n  resize: none;\n}\n.netdisk-match-paste-text:hover {\n  --textarea-bd-color: #c0c4cc;\n}\n.netdisk-match-paste-text:focus {\n  --textarea-bd-color: #3677f0;\n}\n';
   const NetDiskMatchPasteText = {
     show() {
       let popsConfirm = NetDiskPops.confirm(
@@ -18974,7 +19023,7 @@
     },
   };
   const panelSettingCSS =
-    "/* 容器 */\r\n.website-rule-container {\r\n}\r\n/* 每一条规则 */\r\n.website-rule-item {\r\n  display: flex;\r\n  align-items: center;\r\n  line-height: normal;\r\n  font-size: 16px;\r\n  padding: 4px 4px;\r\n  gap: 6px;\r\n}\r\n/* 规则名 */\r\n.website-rule-item .website-rule-name {\r\n  flex: 1;\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n}\r\n/* 操作按钮 */\r\n.website-rule-item .website-controls {\r\n  display: flex;\r\n  align-items: center;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  white-space: nowrap;\r\n  gap: 8px;\r\n  padding: 0px 4px;\r\n}\r\n/* 编辑和删除按钮 */\r\n.website-rule-item .website-rule-edit,\r\n.website-rule-item .website-rule-delete {\r\n  width: 16px;\r\n  height: 16px;\r\n  cursor: pointer;\r\n}\r\n/* 启用按钮 */\r\n.website-rule-item .website-rule-enable {\r\n}\r\n/* 编辑按钮 */\r\n.website-rule-item .website-rule-edit {\r\n}\r\n/* 删除按钮 */\r\n.website-rule-item .website-rule-delete {\r\n}\r\n";
+    "/* 容器 */\n.website-rule-container {\n}\n/* 每一条规则 */\n.website-rule-item {\n  display: flex;\n  align-items: center;\n  line-height: normal;\n  font-size: 16px;\n  padding: 4px 4px;\n  gap: 6px;\n}\n/* 规则名 */\n.website-rule-item .website-rule-name {\n  flex: 1;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n}\n/* 操作按钮 */\n.website-rule-item .website-controls {\n  display: flex;\n  align-items: center;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n  gap: 8px;\n  padding: 0px 4px;\n}\n/* 编辑和删除按钮 */\n.website-rule-item .website-rule-edit,\n.website-rule-item .website-rule-delete {\n  width: 16px;\n  height: 16px;\n  cursor: pointer;\n}\n/* 启用按钮 */\n.website-rule-item .website-rule-enable {\n}\n/* 编辑按钮 */\n.website-rule-item .website-rule-edit {\n}\n/* 删除按钮 */\n.website-rule-item .website-rule-delete {\n}\n";
   function deepCopy(obj) {
     if (obj === null || typeof obj !== "object") {
       return obj;
@@ -20763,7 +20812,7 @@
         domUtils.onKeyboard(
           $target,
           "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
+          async (keyName, keyValue, ohterCodeList, event) => {
             if (that.#flag.isWaitPress) {
               return;
             }
@@ -20786,7 +20835,14 @@
             if (findShortcut) {
               if (findShortcut.key in option) {
                 log.info("调用快捷键", findShortcut);
-                option[findShortcut.key].callback();
+                if (typeof config?.beforeCallBack === "function") {
+                  const flag = await config.beforeCallBack();
+                  if (typeof flag === "boolean" && !flag) {
+                    return;
+                  }
+                }
+                const callback = option[findShortcut.key].callback;
+                await callback();
               }
             }
           },
@@ -20899,7 +20955,11 @@
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
       });
-      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      if (keyboardValue.keyName === " ") {
+        result += utils.stringTitleToUpperCase("space");
+      } else {
+        result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      }
       return result;
     }
     getShowText(key, defaultShowText) {
@@ -20915,8 +20975,8 @@
       }
     }
     async enterShortcutKeys(key) {
+      this.#flag.isWaitPress = true;
       return new Promise((resolve) => {
-        this.#flag.isWaitPress = true;
         const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
           const currentOption = {
             keyName,
@@ -20963,8 +21023,9 @@
               option: currentOption,
             };
           } finally {
-            this.#flag.isWaitPress = false;
-            keyboardListener.removeListen();
+            if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
+              this.#data.currentWaitEnterPressInstanceHandler();
+            }
             this.#data.currentWaitEnterPressInstanceHandler = null;
             resolve(result);
           }
@@ -20973,6 +21034,7 @@
         this.#data.currentWaitEnterPressInstanceHandler = () => {
           this.#flag.isWaitPress = false;
           keyboardListener.removeListen();
+          this.#data.currentWaitEnterPressInstanceHandler = null;
         };
       });
     }
