@@ -13,7 +13,7 @@
   "quoteProps": "as-needed",
   "arrowParens": "always",
   "embeddedLanguageFormatting": "auto",
-  "endOfLine": "crlf",
+  "endOfLine": "lf",
   "ignorePatterns": [
     //# Lock files
     "package-lock.json",

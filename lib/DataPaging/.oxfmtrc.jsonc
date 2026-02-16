@@ -13,7 +13,7 @@
   "quoteProps": "as-needed",
   "arrowParens": "always",
   "embeddedLanguageFormatting": "auto",
-  "endOfLine": "crlf",
+  "endOfLine": "lf",
   "ignorePatterns": [
     "package-lock.json",
     "pnpm-lock.yaml",

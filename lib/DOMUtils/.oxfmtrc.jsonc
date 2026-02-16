@@ -14,5 +14,5 @@
   "arrowParens": "always",
   "embeddedLanguageFormatting": "auto",
   "ignorePatterns": ["node_modules", "*.bat"],
-  "endOfLine": "crlf",
+  "endOfLine": "lf",
 }
