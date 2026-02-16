@@ -195,9 +195,12 @@ export const GreasyforkScriptsList = {
                 },
                 content: {
                   text: /*html*/ `
-									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
-                    text: scriptInfo.scriptId,
-                  })}</button>
+									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t(
+                    "脚本id：{{text}}",
+                    {
+                      text: scriptInfo.scriptId,
+                    }
+                  )}</button>
 									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.toRegExpStr(
                     scriptInfo.scriptName
                   )}$">${i18next.t("脚本名：{{text}}", {

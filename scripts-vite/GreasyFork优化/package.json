@@ -1,14 +1,14 @@
 {
   "name": "greasyfork-optimization",
-  "description": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮",
   "type": "module",
   "scripts": {
     "check": "pnpm run format && vue-tsc",
     "dev": "vue-tsc --noEmit && vite --force",
-    "format": "prettier . --write",
-    "format:dist": "prettier dist --write",
+    "format": "oxfmt . --write",
+    "format:dist": "oxfmt dist --write",
     "build": "pnpm run format && vue-tsc --noEmit && vite build && pnpm run format:dist",
     "build:min": "pnpm run format && vue-tsc --noEmit && vite build --minify && pnpm run format:dist",
     "build:all": "pnpm run format && vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir && pnpm run format:dist",
