@@ -3,14 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "油猴脚本",
-  "author": "WhiteSev",
-  "license": "MIT",
   "keywords": [],
-  "engines": {
-    "node": ">=22.13.0",
-    "npm": ">=10.9.2",
-    "pnpm": ">=10.17.1"
-  },
+  "license": "MIT",
+  "author": "WhiteSev",
   "scripts": {
     "format": "pnpm recursive run format",
     "format:dist": "pnpm recursive run format:dist",
@@ -68,5 +63,10 @@
     "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-monkey": "^7.1.9",
     "vue-tsc": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22.13.0",
+    "npm": ">=10.9.2",
+    "pnpm": ">=10.17.1"
   }
 }

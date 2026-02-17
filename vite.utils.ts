@@ -17,7 +17,7 @@ export class ViteUtils {
       this.dirName = dirName;
     }
   }
-  /** 
+  /**
      * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
      * @param target 目标数据
      * @param source 源数据
