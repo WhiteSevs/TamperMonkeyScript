@@ -194,7 +194,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
             {
               type: "container",
               text: "",
-              views: [UISwitch("启用", "hookKeyboard", true, void 0, "开启后全局的<code>禁用快捷键<code>才会生效")],
+              views: [UISwitch("启用", "hookKeyboard", true, void 0, "开启后全局的<code>禁用快捷键</code>才会生效")],
             },
             {
               type: "container",

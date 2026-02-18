@@ -11,14 +11,14 @@ import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoHandlerInfo } from "../../
 import { DouYin } from "../../DouYin";
 import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
 import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
+import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "../block/DouYinVideoBlock_BottomToolbar_PlayerComponents";
 import { DouYinVideoBlock_BottomToolbar_videoInfo } from "../block/DouYinVideoBlock_BottomToolbar_videoInfo";
+import { DouYinVideoBlock_RightToolbar } from "../block/DouYinVideoBlock_RightToolbar";
 import MobileCSS from "../css/mobile.css?raw";
 import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import { DouYinVideoBlock_RightToolbar } from "../block/DouYinVideoBlock_RightToolbar";
-import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "../block/DouYinVideoBlock_BottomToolbar_PlayerComponents";
 
 /**
  * 视频播放器的播放速度
@@ -334,7 +334,7 @@ export const DouYinVideoPlayer = {
       document,
       "click",
       [".newVideoPlayer", ".slider-video"],
-      (event) => {
+      () => {
         if (isDouble) {
           isDouble = false;
           DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
@@ -511,7 +511,12 @@ export const DouYinVideoPlayer = {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
       $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
         const $container = utils.getReactInstance($playbackSetting).reactContainer;
-        $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
+        const updatePlayBackRatio = $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio;
+        if (typeof updatePlayBackRatio === "function") {
+          updatePlayBackRatio();
+        } else {
+          Qmsg.error("设置倍速失败，原因：未找到更新播放倍速的函数");
+        }
       });
     }
     setRate(rate);
