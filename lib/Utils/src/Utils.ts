@@ -343,6 +343,7 @@ class Utils {
    * @param addType （可选）是否添加单位
    * + true (默认) 添加单位
    * + false 不添加单位
+   * @param unit 计数单位，默认为("1024")
    * @returns
    * + {string} 当addType为true时，且保留小数点末尾2位
    * + {number} 当addType为false时，且保留小数点末尾2位
@@ -352,10 +353,16 @@ class Utils {
    * @example
    * Utils.formatByteToSize("812304",false);
    * > 793.27
+   * @example
+   * Utils.formatByteToSize("812304",true, "1000");
+   * > 812.30KB
    **/
-  formatByteToSize(byteSize: number | string): number;
-  formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
-  formatByteToSize(byteSize: number | string, addType = true) {
+  formatByteToSize<T extends boolean>(
+    byteSize: number | string,
+    addType?: T,
+    unit?: "1024" | "1000"
+  ): T extends true ? string : number;
+  formatByteToSize(byteSize: number | string, addType = true, unit: "1024" | "1000" = "1024") {
     byteSize = parseInt(byteSize.toString());
     if (isNaN(byteSize)) {
       throw new Error("Utils.formatByteToSize 参数 byteSize 格式不正确");
@@ -363,8 +370,9 @@ class Utils {
     let result = 0;
     let resultType = "KB";
     const sizeData: UtilsOwnObject<number> = {};
+    const unitNumber = Number(unit);
     sizeData.B = 1;
-    sizeData.KB = 1024;
+    sizeData.KB = unitNumber;
     sizeData.MB = sizeData.KB * sizeData.KB;
     sizeData.GB = sizeData.MB * sizeData.KB;
     sizeData.TB = sizeData.GB * sizeData.KB;

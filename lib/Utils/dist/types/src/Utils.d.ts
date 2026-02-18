@@ -151,6 +151,7 @@ declare class Utils {
      * @param addType （可选）是否添加单位
      * + true (默认) 添加单位
      * + false 不添加单位
+     * @param unit 计数单位，默认为("1024")
      * @returns
      * + {string} 当addType为true时，且保留小数点末尾2位
      * + {number} 当addType为false时，且保留小数点末尾2位
@@ -160,9 +161,11 @@ declare class Utils {
      * @example
      * Utils.formatByteToSize("812304",false);
      * > 793.27
+     * @example
+     * Utils.formatByteToSize("812304",true, "1000");
+     * > 812.30KB
      **/
-    formatByteToSize(byteSize: number | string): number;
-    formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
+    formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T, unit?: "1024" | "1000"): T extends true ? string : number;
     /**
      * 应用场景: 当你想要获取数组形式的元素时，它可能是其它的选择器，那么需要按照先后顺序填入参数
      * 第一个是优先级最高的，依次下降，如果都没有，返回空列表

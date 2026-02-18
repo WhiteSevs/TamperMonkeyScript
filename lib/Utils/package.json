@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/utils",
-  "version": "2.9.12",
+  "version": "2.9.13",
   "description": "一个常用的工具库",
   "keywords": [
     "ScriptCat",
