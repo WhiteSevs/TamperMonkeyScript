@@ -4,10 +4,10 @@ import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig, PopsMoreButton
  */
 export type PopsFolderDownloadOption = {
     /**
-     * 是否点击触发下载
+     * 是否点击后自动触发下载
      *
-     * + true：根据设置的`mode`值来选择下载方式
-     * + false：不触发下载
+     * + `true`: 自动根据设置的`mode`值来选择下载方式
+     * + `false`: 不触发下载
      */
     autoDownload: boolean;
     /**
@@ -17,11 +17,11 @@ export type PopsFolderDownloadOption = {
     /**
      * 下载方式
      *
-     * + a：使用a标签进行下载
-     * + aBlank：使用a标签进行下载（添加属性`target="_blank"`）
-     * + iframe：使用iframe进行下载
-     * + open：使用window.open进行下载
-     * + openBlank：使用window.open进行下载（添加参数`_blank`）
+     * + `a`: 使用`a标签`进行下载
+     * + `aBlank`: 使用`a标签`进行下载（添加属性`target="_blank"`）
+     * + `iframe`: 使用`iframe`进行下载
+     * + `open`: 使用`window.open`进行下载
+     * + `openBlank`: 使用`window.open`进行下载（添加参数`_blank`）
      *
      * @default "aBlank"
      */
@@ -36,23 +36,49 @@ export interface PopsFolderDataConfig {
      */
     fileName: string;
     /**
-     * 文件大小，如果是文件夹的话，为0
+     * 文件大小，如果是文件夹的话，请设置为`0`
      */
     fileSize: number | string;
     /**
-     * 文件类型，如果是文件夹，填入空字符串
+     * 文件类型，如果是文件夹，填入`""`即可
+     *
+     * 填入后会根据文件类型，自动设置图标
      */
     fileType: string;
     /**
+     * 文件图标
+     * @default undefined
+     */
+    fileIcon?: string;
+    /**
      * 创建时间
      */
-    createTime: number;
+    createTime: number | (() => {
+        /**
+         * 该值用于排序
+         */
+        timeStamp: number;
+        /**
+         * 用于显示的文本
+         */
+        showText: string;
+    });
     /**
      * 修改时间(最新时间)
      */
-    latestTime: number;
+    latestTime: number | (() => {
+        /**
+         * 该值用于排序
+         */
+        timeStamp: number;
+        /**
+         * 用于显示的文本
+         */
+        showText: string;
+    });
     /**
      * 是否是文件夹
+     * @default false
      */
     isFolder: boolean;
     /**
@@ -62,7 +88,11 @@ export interface PopsFolderDataConfig {
     /**
      * 点击事件
      */
-    clickEvent?: (event: MouseEvent | PointerEvent, config: PopsFolderDataConfig) => IPromise<PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void>;
+    clickEvent?: (event: MouseEvent | PointerEvent, 
+    /**
+     * 当前层级的文件|文件夹信息配置
+     */
+    config: PopsFolderDataConfig) => IPromise<PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void>;
 }
 /**
  * pops.folder
