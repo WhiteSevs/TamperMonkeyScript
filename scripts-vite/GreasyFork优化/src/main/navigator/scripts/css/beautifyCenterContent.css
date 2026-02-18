@@ -79,7 +79,8 @@ ol.script-list .script-description {
 /* 仅桌面端为双列 */
 /* 移动端的宽度不适用双列 */
 @media screen and (min-width: 768px) {
-  ol.script-list {
+  /* 如果只有一个元素，则使用单列布局 */
+  ol.script-list:not(:has(> :only-child)) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
   }
