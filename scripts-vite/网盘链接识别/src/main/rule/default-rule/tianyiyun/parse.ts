@@ -379,10 +379,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
    * 获取直链弹窗的文件夹信息
    */
   getFolderInfo(shareCode: string, accessCode: AccessCodeNonNullType, dirInfo: any, index = 0) {
-    const that = this;
     let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
     /* 文件夹 */
     dirInfo["folderList"].forEach((folderInfo: any) => {
       folderInfoList.push({
@@ -393,8 +390,8 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
         latestTime: utils.formatToTimeStamp(folderInfo["lastOpTime"]),
         isFolder: true,
         index: index,
-        async clickEvent() {
-          let _folderInfo_ = await that.listShareDir(
+        clickEvent: async () => {
+          const __infoList = await this.listShareDir(
             shareCode,
             accessCode,
             1,
@@ -402,15 +399,15 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
             folderInfo["id"],
             folderInfo["id"],
             void 0,
-            that.shareId,
+            this.shareId,
             void 0,
             void 0,
             void 0
           );
-          if (!_folderInfo_) {
+          if (!__infoList) {
             return [];
           }
-          return that.getFolderInfo(shareCode, accessCode, _folderInfo_, index + 1);
+          return this.getFolderInfo(shareCode, accessCode, __infoList, index + 1);
         },
       });
     });
@@ -424,9 +421,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
         latestTime: utils.formatToTimeStamp(fileInfo["lastOpTime"]),
         isFolder: false,
         index: index,
-        async clickEvent() {
+        clickEvent: async () => {
           const $loading = Qmsg.loading("正在获取下载链接...");
-          let downloadUrl = await that.getDownloadUrl(shareCode, accessCode, fileInfo["id"], that.shareId);
+          let downloadUrl = await this.getDownloadUrl(shareCode, accessCode, fileInfo["id"], this.shareId);
           $loading.close();
           if (downloadUrl) {
             if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
@@ -442,11 +439,6 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
         },
       });
     });
-    tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-    log.info("getFolderInfo", folderInfoList);
     return folderInfoList;
   }
 }

@@ -63,6 +63,7 @@ export class NetDiskParse_UC extends ParseFileCore {
         fileLatestTime: utils.formatTime(oneFileDownloadDetail[0].last_update_at),
         clickCallBack: () => {
           this.downloadFile(oneFileDownloadDetail[0].file_name, oneFileDownloadDetail[0].download_url);
+          return false;
         },
       });
     } else {
@@ -406,14 +407,11 @@ export class NetDiskParse_UC extends ParseFileCore {
    * @param infoList
    */
   getFolderInfo(infoList: any, stoken: string, index = 0) {
-    const that = this;
     let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item: any) => {
       if (item.dir == false && item.file_type === 1) {
         /* 文件 */
-        tempFolderFileInfoList.push({
+        folderInfoList.push({
           fileName: item.file_name,
           fileSize: item.size,
           fileType: "",
@@ -421,10 +419,10 @@ export class NetDiskParse_UC extends ParseFileCore {
           latestTime: item.updated_at,
           isFolder: false,
           index: index,
-          async clickEvent() {
+          clickEvent: async () => {
             const $loading = Qmsg.loading("正在获取下载链接...");
             let fileDownloadUrl = "";
-            let fileDownloadUrlInfo = await that.getDownload(that.shareCode, stoken, item.fid, item.share_fid_token);
+            let fileDownloadUrlInfo = await this.getDownload(this.shareCode, stoken, item.fid, item.share_fid_token);
             $loading.close();
             if (fileDownloadUrlInfo) {
               if (fileDownloadUrlInfo.length) {
@@ -444,7 +442,7 @@ export class NetDiskParse_UC extends ParseFileCore {
               }
               /* 如果已被scheme过滤，那么不进行GM_download下载 */
               if (schemeDownloadUrl === fileDownloadUrl) {
-                that.downloadFile(item.file_name, fileDownloadUrl);
+                this.downloadFile(item.file_name, fileDownloadUrl);
               } else {
                 return {
                   autoDownload: true,
@@ -457,7 +455,7 @@ export class NetDiskParse_UC extends ParseFileCore {
         });
       } else {
         /* 文件夹 */
-        tempFolderInfoList.push({
+        folderInfoList.push({
           fileName: item.file_name,
           fileSize: item.size,
           fileType: "",
@@ -465,15 +463,15 @@ export class NetDiskParse_UC extends ParseFileCore {
           latestTime: item.updated_at,
           isFolder: true,
           index: index,
-          async clickEvent() {
+          clickEvent: async () => {
             if (item.include_items === 0) {
               /* 里面没有文件 */
               log.success("里面没有文件");
               return [];
             }
-            let newDetail = await that.getDetail(that.shareCode, that.accessCode, stoken, item.fid);
+            let newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
             if (newDetail) {
-              return that.getFolderInfo(newDetail, stoken, index + 1);
+              return this.getFolderInfo(newDetail, stoken, index + 1);
             } else {
               return [];
             }
@@ -482,11 +480,6 @@ export class NetDiskParse_UC extends ParseFileCore {
       }
     });
 
-    tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-    log.info("getFilesInfoByRec", folderInfoList);
     return folderInfoList;
   }
 }

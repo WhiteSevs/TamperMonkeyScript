@@ -22,11 +22,20 @@ declare type NetDiskRuleSettingConfigurationInterface_Function = {
    *         "text": "复制到剪贴板",
    *     }
    * },
+   * "copy-closePopup": {
+   *         "enable": true,
+   *     }
+   * },
    * "openBlank": {
    *         "enable": true,
    *         "text": "新标签页打开",
    *     }
+   * },
+   * "openBlank-closePopup": {
+   *         "enable": true,
+   *     }
    * }
+   *
    */
   linkClickMode?: {
     [key in NetDiskRuleSettingConfigurationInterface_linkClickMode]?: {
@@ -37,13 +46,7 @@ declare type NetDiskRuleSettingConfigurationInterface_Function = {
       default?: boolean;
       /**
        * 是否启用
-       *
-       * 部分默认开启
-       * + `copy`
-       * + `copy-closePopup`
-       * + `openBlank`
-       * + `openBlank-closePopup`
-       *
+       * @default false
        */
       enable?: boolean;
       /**

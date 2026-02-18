@@ -1,18 +1,18 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.16
+// @version      2026.2.18
 // @author       WhiteSevs
-// @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
+// @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAACsJJREFUeF7tXW+IHdUVP2c2u8kHIQYL0TRIaK1SgrFFaZsvVkpAo6YR1LJpa9jUd++83SUpSrUNBFRCrVgxNOv+mTOvJBBNmtpamoQG9UNBKLHFDzEtFttKBdOYQENE/Lb75vZd2cVNum/uvXNnZt/MnoGQD+/c8+d3fu+c+2f2PgR+ljQCuKSj5+CBCbDEScAEYAIscQSWePhcAZgASxyBJR4+VwAmQHEIjIyM3DAzM/M1pdSXEfEWALgVANbkaPE0ABwhomdz1GmtSgixHxF3Wg8wC55HxPeVUu8DgP7/jRUrVvxpbGzsY/PQbBK5VwCd9Ha7vVkptRkA9L8yHiKisAxDczaklL8GgAfLsImIryql3gSAqBPnh3nazI0AjUZjbRAEjwLAI3k6aKtLKbUjjuODtvI+cs1m894kSY776Mg49hwAxHkSIRcCSCl10nXy12YMLI9hrxDR/XkoMukQQrQQ8WGTXIGfn0PEZ6IoGvO14U0AKeUJALjH15Ecxr9ARHn2464uCSEOI+K2HHz2VXGUiAZ9lHgRQEp5BgBu9nEgr7FBEGyZmprSZCz8EUIMIuKRwg3ZGfiAiK63E/1/qcwEkFJ+BAArsxrOedzLRPSdnHWmqgvD8EBntj5Ups0UWxeI6NosvmQigBDibUTckMVgAWNKXwHMxSClfBwAtgPA+gLiclX5GhHd6TrImQBhGO5RSu11MHQREY8nSXICEf/R399/bnx8/KLD+CUl2plf3BgEwa1JktyOiN8HgKscAHCuhE4EaDabQ0mSHLBxSCml5weHlFKHWq3WBZsxLHM5AlLKLwLAQwCwCwBWWeLzKBHts5S1fx9ASnkdALxluZPXIiJh6wTLpSMwPDx8U7vd/iEADFtgdTZJko2tVuushawTAZ4EgCdMSpVSW+M4PmaS48/dEZBSWuWgMznfR0R6X8b4WLUA228/Ig5GUXTUaJUFMiMghNiEiK+bFCxbtuxLExMT/zLJ2RLAhnmTRDRiMsif+yMQhuFupdTTaZoQcZfNTqEVAYQQf0TEO1IMXurr69s4OTn5rn94rMEGAYul+Ekiutuky0iAoaGhqwcGBi4ZFD1FRLpK8FMSAkKIHyHiz9PM2bQBIwGklPcBwO9SDH0CAF8hovdKip3NAECj0VgdBMHf05aHSqntcRwfSm0VJjSllD8DgJ90k1NKTcVxbLM8MZnizx0RkFL+BgC6noAi4nNRFD3mSwB96NH1xKnMc3hHfGovbnEoZdweNraAMAxPKaW+0Q1NRFwfRdE7tUe7BwOUUuqTWL3j2u0xHhIZCSCl1K8gdT1pIiKjjh7ErhYujY6OXjM9Pf3ftGBM+TEmT0qpfAzUAukeDsI3P0yAHk6ujWtMABuUaizDBKhxcm1CYwLYoFRjGSZAjZNrExoTwAalGsswAWqcXJvQmAA2KNVYhglQ4+TahMYEsEGpxjK1IYCU8vcAcJvlW8dVTqn+C9+3iGhrHkHUggCmIPIAqhd1mA5qbHw2YWeysehnAWVetGADaMkyzn/Jc6V/dSDAeQBYXTLwvWLOeF5vcrQOBEg9bjYBUPXPTSXaFB8TwIRQj3/OBDC8cNLj+fN2r+oEOE1EX/VBwVTCfHRXYWzBBDDmx7gKMNyF92PfO/pMBPAFKO9Zsyupio7PNz9GAuiAuyzVcrmZo2iA6k4A3/xYEUAb0Xfjtdvt+xBxlVLqeF538jEB8nmrOmt+rAngWvps5ZkA+RDAFu8r5XqBAP9J2f8/R0SfzxrcQuMWgXClxueKVS8QQB8CfbuL48fyOjSZ078IBCg1vsoRYHYSs+BuYN4rgDRbc8CVabMIW5UkwLyZ7O2zAbxR1MWPZVeAeZVH3y5eeHyVJYCr41nlF4sAWf0tetyizwGKDnCx9wHKjs/VHhPgCsR6oS+7JtFHngnABPDhT/XG8hzg8pxxBeAKUL1vsY/HXAG4AvCNJ/M4wC2AW4BPQa3eWG4B3AK4BXAL6F65eCOoelXdyWNuAdwCuAVwC+AWMIcALwN5GejUQisvzHMAngPwHIDnADwH4DlAFw7wPkDlu3x6ADwHyDgHCMPwLqXUJgCYDoLgpampqb9VkSt1JUDW/FgtA6WUvwSAH1yR8Bc7vxSmf9i4Uk8dCeCTHyMBDL8a9j0iOlwlBtSNAL75sSGA/v1Z/TPmCz3/JqIvMAEWDwEppVd+bAhQq3VzDSuAV36YABXfCvYlNBOACbC01s2+35jF6/YLW/aNhysAVwCuAPMRqNpWMFcAx5rsC5ijucLFfePhFsAtgFsAt4AUDviWmMJroKMBjsfxNJABc2RYyeK++VmKc4CevrfPlT9MAEfEZn+cqrR7CR3dcxZnAjhD9unl16XdS5jBPachTAAnuD4Tnr0Bvefu7XMNhwngiljN5JkANUuoazhMAFfEaia/6ATo7+//3Pj4+MWa4VqZcAwEOE9E16UFY7MPkLZu1ro3ENFfK4NYjRwVQtyIiO92CwkR34yiaKMvAY4BwJZuSpRSD8Rx/Nsa4VqZUMIw3KaUSnsr+1dEtM2LAEKIvYi4J4VlB6Mo2lEZ1GrkqBBiEhGbKSE9Q0S7vQggpfwuALyUouRikiTrW63WhRph2/OhSCn1q/qnAeCqlOp8dxzHJ70IMDIycsPMzMw/05QopR6L4/i5nketRg5KKZ8EgCfSQlq+fPnKsbGxj70IoAdLKf8AAJtTmHYmjuNbaoRvT4cyPDx8U7vdPgUAq1Ja86tRFN1lCsS4CtAKwjDcqZTab1DWIiJhMsif+yMgpZwAgGGDpqeISFeJ1MeKADZtQFtRSm2N41ivGvgpCAGb0t8p2ucA4DYi+tDkhhUBZtvA8wDwiFEh4mAURUdNcvy5OwJCiE2I+LrFSKtvv9ZjTYBGo7E2CALdd9ZaODDZ19f3i8nJya6bFBY6WGQeAmEY7lZKPW0BivW334kAs1VAVwBdCWyeSwCg5w2HOvcIvGczgGUuR6DRaKxGRH0Hw0OIuMEGH0TcFUXRmI2sMwFmSXACAO6xNQAAnyilXuysIv4cBMFfoih6x2HskhIdHR29Znp6eo1Saj0iPgAA30qb6S8AzlEiGnQBzboFzFcqpTwDADe7GCpIVm+EHCGiZwvSn6pWCLEfEXcuhu0FbH5ARNe7+pKJALOV4CMAWOlqsCB56sx4w4J0L6h29o2iB8u0mWLrAhFdm8WXzATQxoQQb9v2pizOuYxRSu2I4/igy5isss1m894kSY5nHZ/zuNeI6M6sOr0IoI2GYbhHKbU3qwM5jnulcyx9f476uqoSQrQQ8eEybBlsvOz7G8veBNAONpvNoSRJfgoAaxYRlBeIqJR+3DmHP9w5h089Zi0Yh7N6NUZE+3zt5EKA2TmBfvNE92G9HVw6EYIg2DI1NaVXKIU/QohBRDxSuKGFDexLkuT5VqulSeD95EaAOU+klJ8SQSn1TUS8w9tDOwXepdDOzGdSYRgeUEoNuY7LKH8SEU/29fWdnJiY0LeC5fbkToD5ng0NDV09MDCgSfB1AFiHiOuUUusAINOMtUvUpa8A5pH9cQDYDgDrc8sIgH6vQk+uzyRJcqa/v/9U3kmf72uhBMgRFFZVEAJMgIKArYpaJkBVMlWQn0yAgoCtilomQFUyVZCfTICCgK2KWiZAVTJVkJ9MgIKArYra/wGYigzMiqJYZwAAAABJRU5ErkJggg==
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c90210bf4ab902dbceb9c6e5b101b1ea91c34581/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -68,6 +68,7 @@
 // @connect      whatslink.info
 // @connect      www.yunpan.com
 // @connect      link.yunpan.com
+// @connect      api.feijipan.com
 // @grant        GM_deleteValue
 // @grant        GM_download
 // @grant        GM_getResourceText
@@ -2109,7 +2110,7 @@
   const addStyle = domUtils.addStyle.bind(domUtils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
+  const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   const __DataPaging = DataPaging;
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
@@ -6111,8 +6112,6 @@
     };
     async init(netDiskInfo) {
       super.init(netDiskInfo);
-      const that = this;
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       this.panelList.length = 0;
       this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
       const $loading = Qmsg.loading("正在解析，请稍后...");
@@ -6125,13 +6124,13 @@
         Qmsg.error(checkLinkValidityStatus.msg);
         return;
       }
-      const infoLists = await this.getFiles();
-      if (!infoLists) {
+      const infoList = await this.getFiles();
+      if (!infoList) {
         $loading.close();
         return;
       }
-      if (infoLists.length === 1 && infoLists[0]["Type"] == 0) {
-        const fileInfo = infoLists[0];
+      if (infoList.length === 1 && infoList[0]["Type"] == 0) {
+        const fileInfo = infoList[0];
         if (fileInfo["Status"] == 104) {
           $loading.close();
           Qmsg.error("文件已失效");
@@ -6141,11 +6140,11 @@
         let fileSize = "";
         if (downloadUrl === "") {
           $loading.setText("正在获取下载链接...");
-          let downloadInfo = await that.getFileDownloadInfo(
+          let downloadInfo = await this.getFileDownloadInfo(
             fileInfo["Etag"],
             fileInfo["FileId"],
             fileInfo["S3KeyFlag"],
-            that.shareCode,
+            this.shareCode,
             fileInfo["Size"]
           );
           if (downloadInfo && downloadInfo["code"] === 0) {
@@ -6181,59 +6180,11 @@
         });
       } else {
         $loading.setText("正在解析多文件...");
-        const folderInfoList = that.getFolderInfo(infoLists, 0);
+        const folderInfoList = this.getFolderInfo(infoList, 0);
         log.info("解析完毕");
         NetDiskView.$inst.linearChainDialogView.moreFile("123盘文件解析", folderInfoList);
       }
       $loading.close();
-    }
-    async checkLinkValidity() {
-      const that = this;
-      Qmsg.info("正在进行链接有效性校验");
-      let url = `https://www.123pan.com/s/${that.shareCode}`;
-      let response = await httpx.get({
-        url,
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Referer: "https://www.123pan.com",
-        },
-      });
-      log.info(response);
-      if (!response.status) {
-        return false;
-      }
-      let g_initialPropsMatch = response.data.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
-      if (g_initialPropsMatch) {
-        log.info(g_initialPropsMatch);
-        let g_initialProps = utils.toJSON(`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`);
-        log.info(g_initialProps);
-        if (g_initialProps.res.code !== 0) {
-          Qmsg.error(g_initialProps.res.message);
-          return false;
-        }
-        let HasPwd = g_initialProps.res.data.HasPwd;
-        if (HasPwd && (that.accessCode == null || that.accessCode === "")) {
-          Qmsg.error("密码缺失!");
-          NetDiskView.$inst.newAccessCodeView(
-            "密码缺失",
-            "_123pan",
-            that.ruleIndex,
-            that.shareCode,
-            that.accessCode,
-            (option) => {
-              that.init({
-                ruleIndex: that.ruleIndex,
-                shareCode: that.shareCode,
-                accessCode: option.accessCode,
-              });
-            }
-          );
-        } else {
-          return true;
-        }
-      } else {
-        Qmsg.error("校验链接-获取初始化内容失败");
-      }
     }
     async getFiles(parentFileId = 0) {
       const that = this;
@@ -6309,13 +6260,10 @@
       }
     }
     getFolderInfo(infoList, index) {
-      const that = this;
-      let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
+      const folderInfoList = [];
       infoList.forEach((item) => {
         if (item.Type) {
-          tempFolderInfoList.push({
+          folderInfoList.push({
             fileName: item.FileName,
             fileSize: 0,
             fileType: "",
@@ -6323,17 +6271,17 @@
             latestTime: new Date(item.UpdateAt).getTime(),
             isFolder: true,
             index,
-            async clickEvent() {
-              let resultFileInfoList = await that.getFilesByRec(item["FileId"].toString());
-              if (resultFileInfoList) {
-                return that.getFolderInfo(resultFileInfoList, index + 1);
+            clickEvent: async () => {
+              const __infoList = await this.getFilesByRec(item["FileId"].toString());
+              if (__infoList) {
+                return this.getFolderInfo(__infoList, index + 1);
               } else {
                 return [];
               }
             },
           });
         } else {
-          tempFolderFileInfoList.push({
+          folderInfoList.push({
             fileName: item.FileName,
             fileSize: item.Size,
             fileType: "",
@@ -6341,15 +6289,15 @@
             latestTime: new Date(item.UpdateAt).getTime(),
             isFolder: false,
             index,
-            async clickEvent() {
+            clickEvent: async () => {
               if (item.Status == 104) {
                 Qmsg.error("文件已失效");
-              } else if (!Boolean(item.DownloadUrl)) {
-                const downloadInfo = await that.getFileDownloadInfo(
+              } else if (utils.isNotNull(item.DownloadUrl)) {
+                const downloadInfo = await this.getFileDownloadInfo(
                   item["Etag"],
                   item["FileId"],
                   item["S3KeyFlag"],
-                  that.shareCode,
+                  this.shareCode,
                   item["Size"]
                 );
                 if (downloadInfo && downloadInfo["code"] === 0) {
@@ -6378,10 +6326,6 @@
           });
         }
       });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
     async getFileDownloadInfo(Etag, FileID, S3keyFlag, ShareKey, Size) {
@@ -6451,12 +6395,12 @@
         for (
           var a = arguments["length"] > 1 && void 0 !== arguments[1] ? arguments[1] : 10,
             funcRun = function () {
-              for (var b, c = [], d = 0; d < 256; d++) {
+              for (var b, c2 = [], d = 0; d < 256; d++) {
                 b = d;
                 for (var index = 0; index < 8; index++) b = 1 & b ? 3988292384 ^ (b >>> 1) : b >>> 1;
-                c[d] = b;
+                c2[d] = b;
               }
-              return c;
+              return c2;
             },
             _funcRun_ = funcRun(),
             _param = param,
@@ -6565,13 +6509,10 @@
       NetDiskView.$inst.linearChainDialogView.moreFile("阿里云盘文件解析", folderInfoList);
     }
     getFolderInfo(infoList, index = 0) {
-      const that = this;
-      let folderInfoList = [];
-      const tempFolderInfoList = [];
-      const tempFolderFileInfoList = [];
+      const folderInfoList = [];
       infoList.forEach((item) => {
         if (item.type !== "folder") {
-          tempFolderFileInfoList.push({
+          folderInfoList.push({
             fileName: item.name,
             fileSize: item.size,
             fileType: item.file_extension,
@@ -6579,9 +6520,9 @@
             latestTime: new Date(item.updated_at).getTime(),
             isFolder: false,
             index,
-            async clickEvent() {
+            clickEvent: async () => {
               const $loading = Qmsg.loading("正在获取下载链接...");
-              const fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
+              const fileDownloadUrl = await this.get_share_link_download_url(item.share_id, item.file_id);
               $loading.close();
               if (!fileDownloadUrl) {
                 return;
@@ -6598,7 +6539,7 @@
             },
           });
         } else {
-          tempFolderInfoList.push({
+          folderInfoList.push({
             fileName: item.name,
             fileSize: 0,
             fileType: "",
@@ -6606,10 +6547,10 @@
             latestTime: item.updated_at,
             isFolder: true,
             index,
-            async clickEvent() {
-              let newDetail = await that.list_by_share(item.share_id, item.file_id);
-              if (newDetail) {
-                return that.getFolderInfo(newDetail, index + 1);
+            clickEvent: async () => {
+              const __infoList = await this.list_by_share(item.share_id, item.file_id);
+              if (__infoList) {
+                return this.getFolderInfo(__infoList, index + 1);
               } else {
                 return [];
               }
@@ -6617,11 +6558,6 @@
           });
         }
       });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info("getFilesInfoByRec", folderInfoList);
       return folderInfoList;
     }
     async list_by_share(share_id, parent_file_id, order_by = "name", order_direction = "DESC") {
@@ -7866,7 +7802,7 @@
         });
         const $imageList = $wrapper.querySelector(".image-list");
         const imgList = [];
-        metaInfo.screenshots.forEach((item, index) => {
+        metaInfo.screenshots.forEach((item) => {
           imgList.push(item.screenshot);
           const $img = domUtils.createElement("div", {
             className: "img",
@@ -7902,6 +7838,443 @@
         return;
       }
       MetaDataParser.showFileMetaInfoDialog(metaInfo);
+    }
+  }
+  const NetDiskRule_feijipan = {
+    rule: [
+      {
+        link_innerText: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: new RegExp(`share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})`, "gi"),
+        shareCodeNeedRemoveStr: new RegExp(`share.feijipan.com/s/`, "gi"),
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "share.feijipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://share.feijipan.com/s/{#shareCode#}",
+        copyUrl: "https://share.feijipan.com/s/{#shareCode#}\n密码：{#accessCode#}",
+      },
+    ],
+    setting: {
+      name: "小飞机网盘",
+      key: "feijipan",
+      configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+            parseFile: {
+              enable: true,
+            },
+            "parseFile-closePopup": {
+              enable: true,
+            },
+          },
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true,
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
+        },
+        schemeUri: {
+          enable: false,
+          isForwardLinearChain: true,
+          isForwardBlankLink: true,
+          uri: "",
+        },
+      },
+    },
+  };
+  const NetDiskAuthorization_feijipan_appToken = {
+    KEY: "feijipan_appToken",
+    set(value) {
+      _GM_setValue(this.KEY, value);
+    },
+    get() {
+      return _GM_getValue(this.KEY);
+    },
+  };
+  const NetDiskAuthorization_feijipan = function () {
+    if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
+      return;
+    }
+    if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
+      return;
+    }
+    const cookie_appToken = cookieManager.get("appToken");
+    if (cookie_appToken) {
+      const appToken = cookie_appToken.value;
+      log.success("获取小飞机网盘的appToken: " + appToken);
+      NetDiskAuthorization_feijipan_appToken.set(appToken);
+    }
+  };
+  function o() {
+    return CryptoJS;
+  }
+  const s = "ZGluZ0hhby1kaXNrLWFwcA==",
+    u = [
+      "T",
+      "U",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "0",
+      "M",
+      "N",
+      "O",
+      "P",
+      "X",
+      "Y",
+      "Z",
+      "V",
+      "W",
+      "Q",
+      "1",
+      "2",
+      "3",
+      "4",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "L",
+      "R",
+      "S",
+      "I",
+      "J",
+      "K",
+    ];
+  function c() {
+    const e = new Uint8Array(
+        atob(s)
+          .split("")
+          .map((e2) => e2.charCodeAt(0))
+      ),
+      t = new TextDecoder("utf-8").decode(e);
+    return t;
+  }
+  const EncryUtil = {
+    encrypt(e) {
+      const t = o().enc.Utf8.parse(c()),
+        n = o().enc.Utf8.parse(e),
+        r = o().AES.encrypt(n, t, {
+          mode: o().mode.ECB,
+          padding: o().pad.Pkcs7,
+        });
+      return r;
+    },
+    decryptBase64(e) {
+      var t = o().enc.Utf8.parse(c()),
+        n = o().AES.decrypt(e, t, {
+          mode: o().mode.ECB,
+          padding: o().pad.Pkcs7,
+        });
+      return o().enc.Utf8.stringify(n).toString();
+    },
+    encryptHex(e) {
+      const t = this.encrypt(e);
+      return (() => t.ciphertext.toString().toUpperCase())();
+    },
+    encryptBase64(e) {
+      const t = this.encrypt(e);
+      return o().enc.Base64.stringify(t.ciphertext);
+    },
+    decryptHex(e) {
+      const t = o().enc.Hex.parse(e),
+        n = o().enc.Base64.stringify(t);
+      return this.decryptBase64(n);
+    },
+    idEncrypt(e) {
+      return 111;
+    },
+    decodeChar(e) {
+      for (let t = 0; t < u.length; t++) if (e == u[t]) return t;
+      return -1;
+    },
+  };
+  class NetDiskParse_feijipan extends ParseFileCore {
+    isVip = false;
+    get uuid() {
+      let r = (e = 21) =>
+        crypto
+          .getRandomValues(new Uint8Array(e))
+          .reduce(
+            (e2, t) => (
+              (t &= 63),
+              (e2 += t < 36 ? t.toString(36) : t < 62 ? (t - 26).toString(36).toUpperCase() : t > 62 ? "-" : "_"),
+              e2
+            ),
+            ""
+          );
+      return r();
+    }
+    get timestamp() {
+      return EncryUtil.encryptHex(new Date().getTime());
+    }
+    get appToken() {
+      return NetDiskAuthorization_feijipan_appToken.get();
+    }
+    async init(netDiskInfo) {
+      super.init(netDiskInfo);
+      if (utils.isNull(this.uuid)) {
+        Qmsg.error("请先打开此链接来获取uuid");
+        return;
+      }
+      const $loading = Qmsg.loading("正在解析，请稍后...");
+      const recommend = await this.recommend();
+      if (!recommend) {
+        Qmsg.error("获取folderIds失败");
+        $loading.close();
+        return;
+      }
+      if (recommend && recommend.length === 0) {
+        Qmsg.error("没有分享文件");
+        $loading.close();
+        return;
+      }
+      log.info(`解析recommend: `, recommend);
+      const firstRecommend = recommend[0];
+      if (firstRecommend?.map?.isVip) {
+        this.isVip = true;
+      }
+      const infoList = await this.list(firstRecommend.folderIds);
+      if (!infoList) {
+        $loading.close();
+        return;
+      }
+      if (!infoList.length) {
+        Qmsg.error("没有分享文件");
+        $loading.close();
+        return;
+      }
+      log.success(`解析list: `, infoList);
+      if (infoList.length === 1 && infoList[0].fileType !== 2) {
+        const data = infoList[0];
+        const downloadUrl = this.getDownloadUrl(this.shareCode, data.fileId, data.userId);
+        NetDiskView.$inst.linearChainDialogView.oneFile({
+          title: "小飞机网盘单文件直链",
+          fileName: data.fileName || data.name,
+          fileSize: typeof data.fileSize === "number" ? data.fileSize * 1024 : 0,
+          downloadUrl,
+          fileUploadTime: data.updTime,
+          fileLatestTime: data.updTime,
+          clickCallBack: () => {
+            const checkFlag = this.checkCanDownloadFile(data.fileSize);
+            if (!checkFlag) {
+              return checkFlag;
+            }
+          },
+        });
+      } else {
+        $loading.setText("正在解析多文件...");
+        const folderInfoList = this.getFolderInfo(infoList, 0);
+        log.info("解析完毕");
+        NetDiskView.$inst.linearChainDialogView.moreFile("小飞机网盘文件解析", folderInfoList);
+      }
+      $loading.close();
+    }
+    checkCanDownloadFile(fileSize) {
+      if (typeof fileSize === "number" && fileSize > 512e3 && !this.isVip) {
+        Qmsg.error(`非会员无法下载超过${utils.formatByteToSize(512e3 * 1024)}的文件`, {
+          timeout: 5e3,
+        });
+        return false;
+      }
+      return true;
+    }
+    getRequestParams(shareCode) {
+      return {
+        devType: 6,
+        devModel: "Chrome",
+        uuid: this.uuid,
+        extra: 2,
+        timestamp: this.timestamp,
+        shareId: shareCode,
+        offset: 1,
+        limit: 110,
+        referer: "https://share.feijipan.com/s/" + shareCode,
+      };
+    }
+    getRequestHeaders() {
+      return {
+        Accept: "application/json, text/plain, */*",
+        Origin: "https://share.feijipan.com",
+        Referer: "https://share.feijipan.com/",
+        "User-Agent": utils.getRandomPCUA(),
+        appToken: this.appToken,
+      };
+    }
+    getFolderInfo(infoList, index) {
+      const folderInfoList = [];
+      infoList.forEach((item) => {
+        if (item.fileType === 2) {
+          folderInfoList.push({
+            fileName: item.folderName || item.name,
+            fileSize: 0,
+            fileType: "",
+            createTime: new Date(item.updTime).getTime(),
+            latestTime: new Date(item.updTime).getTime(),
+            isFolder: true,
+            index,
+            clickEvent: async () => {
+              const __infoList = await this.list(item.folderId);
+              if (__infoList) {
+                return this.getFolderInfo(__infoList, index + 1);
+              } else {
+                return [];
+              }
+            },
+          });
+        } else {
+          folderInfoList.push({
+            fileName: item.fileName || item.name,
+            fileSize: typeof item.fileSize === "number" ? item.fileSize * 1024 : 0,
+            fileType: "",
+            createTime: new Date(item.updTime).getTime(),
+            latestTime: new Date(item.updTime).getTime(),
+            isFolder: false,
+            index,
+            clickEvent: async () => {
+              let downloadUrl = this.getDownloadUrl(this.shareCode, item.fileId, item.userId);
+              if (NetDiskFilterScheme.isForwardDownloadLink("feijipan")) {
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("feijipan", downloadUrl);
+              }
+              const checkFlag = this.checkCanDownloadFile(item.fileSize);
+              if (checkFlag) {
+                return {
+                  url: downloadUrl,
+                  autoDownload: true,
+                  mode: "aBlank",
+                };
+              } else {
+                return {
+                  url: downloadUrl,
+                  autoDownload: false,
+                };
+              }
+            },
+          });
+        }
+      });
+      return folderInfoList;
+    }
+    async recommend() {
+      const response = await httpx.post(
+        `https://api.feijipan.com/ws/recommend/list?` +
+          utils.toSearchParamsStr({
+            ...this.getRequestParams(this.shareCode),
+            type: 0,
+          }),
+        {
+          headers: {
+            ...this.getRequestHeaders(),
+          },
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      const data = utils.toJSON(response.data.responseText);
+      if (data.code !== 200) {
+        log.error(data);
+        return;
+      }
+      if (!Array.isArray(data.list)) {
+        log.error(data);
+        return;
+      }
+      return data.list;
+    }
+    async list(folderId = "") {
+      const response = await httpx.post(
+        "https://api.feijipan.com/ws/share/list?" +
+          utils.toSearchParamsStr({
+            ...this.getRequestParams(this.shareCode),
+            folderId,
+          }),
+        {
+          headers: {
+            ...this.getRequestHeaders(),
+          },
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      const data = utils.toJSON(response.data.responseText);
+      if (data.code !== 200) {
+        log.error(data);
+        return;
+      }
+      if (!Array.isArray(data.list)) {
+        log.error("NetDiskParse_Jianguoyun.getFileList: data.list is not array", data);
+        return;
+      }
+      return data.list;
+    }
+    getDownloadUrl(shareId, fileId, userId = "") {
+      const downloadId = EncryUtil.encryptHex(fileId + "|" + userId);
+      const currentTimeStamp = new Date().getTime();
+      const auth = EncryUtil.encryptHex(fileId + "|" + currentTimeStamp);
+      const searchParam = {
+        downloadId,
+        enable: 1,
+        devType: 6,
+        uuid: this.uuid,
+        timestamp: this.timestamp,
+        auth,
+        shareId,
+      };
+      const searchStr = utils.toSearchParamsStr(searchParam);
+      log.info(`download searchParam: `, {
+        ...searchParam,
+        fileId,
+        userId,
+      });
+      const api = "https://api.feijipan.com/ws/file/redirect?" + searchStr;
+      return api;
     }
   }
   class NetDiskParse_Jianguoyun extends ParseFileCore {
@@ -7949,7 +8322,6 @@
       $loading.close();
     }
     parseMoreFile(folderInfo, hash = "", fileName = "") {
-      const that = this;
       log.info("解析多文件信息", folderInfo);
       const folderInfoList = [];
       folderInfo.forEach((item) => {
@@ -7965,9 +8337,9 @@
           latestTime: item.mtime,
           isFolder: false,
           index: 0,
-          async clickEvent() {
+          clickEvent: async () => {
             const $loading = Qmsg.loading("正在获取下载链接...");
-            let downloadUrl = await that.getDirLink(hash, fileName2, item["relPath"]);
+            let downloadUrl = await this.getDirLink(hash, fileName2, item["relPath"]);
             $loading.close();
             if (!downloadUrl) {
               return;
@@ -8324,7 +8696,14 @@
       super.init(netDiskInfo);
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
-      const url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+      let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+      if (window.location.pathname === "/" + shareCode) {
+        const searchParams = new URLSearchParams(window.location.search);
+        const webpage = searchParams.get("webpage");
+        if (webpage) {
+          url = url + "?webpage=" + webpage;
+        }
+      }
       const $loading = Qmsg.loading("正在解析，请稍后...");
       const pageInfoResponse = await this.getPageInfo(url);
       if (!pageInfoResponse) {
@@ -8385,13 +8764,10 @@
       ].filter((it) => it != null);
     }
     getFolderInfo(infoList, index) {
-      const that = this;
       let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
       infoList.forEach((item) => {
         if (item.isFolder) {
-          tempFolderInfoList.push({
+          folderInfoList.push({
             fileName: item.fileName,
             fileSize: 0,
             fileType: "",
@@ -8402,7 +8778,7 @@
             clickEvent: async () => {
               let fileInfo = await this.parseFiles(item.shareCode, item.accessCode);
               if (fileInfo) {
-                return that.getFolderInfo(
+                return this.getFolderInfo(
                   this.transformFileInfoToInfoList(this.shareCode, this.accessCode, fileInfo),
                   index + 1
                 );
@@ -8411,7 +8787,7 @@
             },
           });
         } else {
-          tempFolderFileInfoList.push({
+          folderInfoList.push({
             fileName: item.fileName,
             fileSize: item.fileSize,
             fileType: "",
@@ -8443,10 +8819,6 @@
           });
         }
       });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
     async getFileDownloadInfo(shareCode, accessCode, responseData) {
@@ -8825,11 +9197,11 @@
       let pageText = responseInstance.responseText;
       let websignkeyMatch =
         pageText.match(/'websignkey'[\s]*:[\s]*'(.+?)'/i) || pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
-      let websignMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
+      let websignMatch = pageText.match(/'websign':'(.+?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
       let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
       let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
       let ajaxUrlMatch =
-        pageText.match(/[^\/\/]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
+        pageText.match(/[^//]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
       let ajaxUrl = "ajaxm.php";
       let websignkey = "";
       let websign = "";
@@ -8867,14 +9239,14 @@
       }
       let postData = {
         action: "downprocess",
+        websignkey: websignkey || signs,
         signs,
         sign,
         websign,
-        websignkey,
         kd: kdns,
         ves: 1,
       };
-      log.success("请求的路径参数：" + ajaxUrl);
+      log.success("请求的路径参数: " + ajaxUrl);
       log.success("ajaxm.php的请求参数-> ", postData);
       let postResp = await httpx.post(this.router.root(ajaxUrl), {
         data: utils.toSearchParamsStr(postData),
@@ -8893,9 +9265,6 @@
       let jsonData = utils.toJSON(postRespData.responseText);
       let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}`;
       jsonData["zt"];
-      await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
-        allowInterceptConfig: false,
-      });
       let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
         allowInterceptConfig: false,
       });
@@ -9123,13 +9492,10 @@
       $loading.close();
     }
     parseFolderInfo(infoList, index) {
-      const that = this;
       let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
       infoList.forEach((item) => {
         if (item["fileType"] === 2) {
-          tempFolderInfoList.push({
+          folderInfoList.push({
             fileName: item["folderName"],
             fileSize: 0,
             fileType: "",
@@ -9137,29 +9503,29 @@
             latestTime: new Date(item["updTime"]).getTime(),
             isFolder: true,
             index,
-            async clickEvent(event, config) {
-              let timestamp = that.getEncodeTimeStamp();
-              let folderId = item["folderId"];
-              let folderInfo = await that.getFolderInfo(
-                that.$data.devType,
-                that.$data.devModel,
-                that.uuid,
-                that.$data.extra,
+            clickEvent: async () => {
+              const timestamp = this.getEncodeTimeStamp();
+              const folderId = item["folderId"];
+              const folderInfo = await this.getFolderInfo(
+                this.$data.devType,
+                this.$data.devModel,
+                this.uuid,
+                this.$data.extra,
                 timestamp,
-                that.shareCode,
+                this.shareCode,
                 folderId,
-                that.$data.offset,
-                that.$data.limit
+                this.$data.offset,
+                this.$data.limit
               );
               if (folderInfo && folderInfo["list"]) {
-                return that.parseFolderInfo(folderInfo["list"], index + 1);
+                return this.parseFolderInfo(folderInfo["list"], index + 1);
               } else {
                 return [];
               }
             },
           });
         } else {
-          tempFolderFileInfoList.push({
+          folderInfoList.push({
             fileName: item["fileName"],
             fileSize: item["fileSize"] * 1024,
             fileType: "",
@@ -9167,10 +9533,10 @@
             latestTime: new Date(item["updTime"]).getTime(),
             isFolder: false,
             index,
-            async clickEvent() {
+            clickEvent: async () => {
               const fileId = item["fileId"];
-              const userId = item["userId"] || that.userId;
-              const uuid = that.uuid;
+              const userId = item["userId"] || this.userId;
+              const uuid = this.uuid;
               if (utils.isNull(userId)) {
                 Qmsg.error("获取【userId】为空");
                 return;
@@ -9180,7 +9546,7 @@
                 return;
               }
               const $loading = Qmsg.loading("正在获取下载链接...");
-              let downloadUrl = await that.getDownloadFileUrl(...that.getDownloadFileParams(fileId, userId, uuid));
+              let downloadUrl = await this.getDownloadFileUrl(...this.getDownloadFileParams(fileId, userId, uuid));
               $loading.close();
               if (downloadUrl) {
                 if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
@@ -9196,10 +9562,6 @@
           });
         }
       });
-      tempFolderInfoList.sort((leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"]));
-      tempFolderFileInfoList.sort((leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
     }
     async recommendList(
@@ -9340,13 +9702,12 @@
       return LanZouUtils.encryptHex(time);
     }
     getDownloadFileParams(fileId, userId = "", uuid) {
-      const that = this;
       let nowTime = Date.now();
       let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId),
         enable = 1,
-        timestamp = that.getEncodeTimeStamp(nowTime),
+        timestamp = this.getEncodeTimeStamp(nowTime),
         auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-      return [downloadId, enable, that.$data.devType, uuid, timestamp, auth, that.shareCode];
+      return [downloadId, enable, this.$data.devType, uuid, timestamp, auth, this.shareCode];
     }
     gotoLogin() {
       NetDiskPops.confirm(
@@ -9727,10 +10088,7 @@
       }
     }
     getFolderInfo(shareCode, accessCode, dirInfo, index = 0) {
-      const that = this;
       let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
       dirInfo["folderList"].forEach((folderInfo) => {
         folderInfoList.push({
           fileName: folderInfo["name"],
@@ -9740,8 +10098,8 @@
           latestTime: utils.formatToTimeStamp(folderInfo["lastOpTime"]),
           isFolder: true,
           index,
-          async clickEvent() {
-            let _folderInfo_ = await that.listShareDir(
+          clickEvent: async () => {
+            const __infoList = await this.listShareDir(
               shareCode,
               accessCode,
               1,
@@ -9749,15 +10107,15 @@
               folderInfo["id"],
               folderInfo["id"],
               void 0,
-              that.shareId,
+              this.shareId,
               void 0,
               void 0,
               void 0
             );
-            if (!_folderInfo_) {
+            if (!__infoList) {
               return [];
             }
-            return that.getFolderInfo(shareCode, accessCode, _folderInfo_, index + 1);
+            return this.getFolderInfo(shareCode, accessCode, __infoList, index + 1);
           },
         });
       });
@@ -9770,9 +10128,9 @@
           latestTime: utils.formatToTimeStamp(fileInfo["lastOpTime"]),
           isFolder: false,
           index,
-          async clickEvent() {
+          clickEvent: async () => {
             const $loading = Qmsg.loading("正在获取下载链接...");
-            let downloadUrl = await that.getDownloadUrl(shareCode, accessCode, fileInfo["id"], that.shareId);
+            let downloadUrl = await this.getDownloadUrl(shareCode, accessCode, fileInfo["id"], this.shareId);
             $loading.close();
             if (downloadUrl) {
               if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
@@ -9787,11 +10145,6 @@
           },
         });
       });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info("getFolderInfo", folderInfoList);
       return folderInfoList;
     }
   }
@@ -9854,6 +10207,7 @@
           fileLatestTime: utils.formatTime(oneFileDownloadDetail[0].last_update_at),
           clickCallBack: () => {
             this.downloadFile(oneFileDownloadDetail[0].file_name, oneFileDownloadDetail[0].download_url);
+            return false;
           },
         });
       } else {
@@ -10099,13 +10453,10 @@
       return data["data"];
     }
     getFolderInfo(infoList, stoken, index = 0) {
-      const that = this;
       let folderInfoList = [];
-      let tempFolderInfoList = [];
-      let tempFolderFileInfoList = [];
       infoList.forEach((item) => {
         if (item.dir == false && item.file_type === 1) {
-          tempFolderFileInfoList.push({
+          folderInfoList.push({
             fileName: item.file_name,
             fileSize: item.size,
             fileType: "",
@@ -10113,10 +10464,10 @@
             latestTime: item.updated_at,
             isFolder: false,
             index,
-            async clickEvent() {
+            clickEvent: async () => {
               const $loading = Qmsg.loading("正在获取下载链接...");
               let fileDownloadUrl = "";
-              let fileDownloadUrlInfo = await that.getDownload(that.shareCode, stoken, item.fid, item.share_fid_token);
+              let fileDownloadUrlInfo = await this.getDownload(this.shareCode, stoken, item.fid, item.share_fid_token);
               $loading.close();
               if (fileDownloadUrlInfo) {
                 if (fileDownloadUrlInfo.length) {
@@ -10135,7 +10486,7 @@
                   schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("uc", schemeDownloadUrl);
                 }
                 if (schemeDownloadUrl === fileDownloadUrl) {
-                  that.downloadFile(item.file_name, fileDownloadUrl);
+                  this.downloadFile(item.file_name, fileDownloadUrl);
                 } else {
                   return {
                     autoDownload: true,
@@ -10147,7 +10498,7 @@
             },
           });
         } else {
-          tempFolderInfoList.push({
+          folderInfoList.push({
             fileName: item.file_name,
             fileSize: item.size,
             fileType: "",
@@ -10155,14 +10506,14 @@
             latestTime: item.updated_at,
             isFolder: true,
             index,
-            async clickEvent() {
+            clickEvent: async () => {
               if (item.include_items === 0) {
                 log.success("里面没有文件");
                 return [];
               }
-              let newDetail = await that.getDetail(that.shareCode, that.accessCode, stoken, item.fid);
+              let newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
               if (newDetail) {
-                return that.getFolderInfo(newDetail, stoken, index + 1);
+                return this.getFolderInfo(newDetail, stoken, index + 1);
               } else {
                 return [];
               }
@@ -10170,11 +10521,6 @@
           });
         }
       });
-      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-      folderInfoList = folderInfoList.concat(tempFolderInfoList);
-      folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-      log.info("getFilesInfoByRec", folderInfoList);
       return folderInfoList;
     }
   }
@@ -10376,6 +10722,7 @@
       chengtong: NetDiskParse_Chengtong,
       magnet: NetDiskParse_magnet,
       ed2k: NetDiskParse_ed2k,
+      feijipan: NetDiskParse_feijipan,
     },
   };
   const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo) {
@@ -12039,6 +12386,70 @@
       };
     },
   };
+  const NetDiskCheckLinkValidity_feijipan = {
+    async init(netDiskInfo) {
+      const parser = new NetDiskParse_feijipan();
+      const response = await httpx.post(
+        `https://api.feijipan.com/ws/recommend/list?` +
+          utils.toSearchParamsStr({
+            ...parser.getRequestParams(netDiskInfo.shareCode),
+            type: 0,
+          }),
+        {
+          headers: {
+            ...parser.getRequestHeaders(),
+          },
+        }
+      );
+      if (!response.status || utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response,
+        };
+      }
+      const data = utils.toJSON(response.data.responseText);
+      if (data.code !== 200) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: typeof data.msg === "string" ? data.msg : NetDiskCheckLinkValidityStatus.failed.msg,
+          data,
+        };
+      }
+      if (!Array.isArray(data.list)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "list不是数组类型",
+          data,
+        };
+      }
+      if (data.list.length === 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "list为空",
+          data,
+        };
+      }
+      const firstRecommend = data.list[0];
+      if (!Array.isArray(firstRecommend.fileList)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "fileList不是数组类型",
+          data,
+        };
+      }
+      if (firstRecommend?.fileList?.length === 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "fileList为空",
+          data,
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data,
+      };
+    },
+  };
   const AllCheckLinkValidityFunction = {
     baidu: NetDiskCheckLinkValidity_baidu,
     lanzou: NetDiskCheckLinkValidity_lanzou,
@@ -12057,6 +12468,7 @@
     onedrive: NetDiskCheckLinkValidity_onedrive,
     uc: NetDiskCheckLinkValidity_uc,
     "360yunpan": NetDiskCheckLinkValidity_360yunpan,
+    feijipan: NetDiskCheckLinkValidity_feijipan,
   };
   const NetDiskCheckLinkValidityRequestOption = {
     allowInterceptConfig: false,
@@ -12453,6 +12865,7 @@
     netDisk: {
       _123pan: NetDiskAuthorization_123pan,
       lanzouyx: NetDiskAuthorization_Lanzouyx,
+      feijipan: NetDiskAuthorization_feijipan,
     },
   };
   const NetDiskRequire = {
@@ -16419,34 +16832,24 @@
       CharacterMappingSubscribe.updateAllSubscribe();
     },
   };
-  const NetDiskRule_baidu = {
+  const NetDiskRule_115pan = {
     rule: [
       {
-        link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi,
-        shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi,
-        checkAccessCode: /(密码|访问码|提取码|pwd=)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
-        blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
-        copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
-      },
-      {
-        link_innerText: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /pan\.baidu\.com\/(share|wap)\/init\?surl=([0-9a-zA-Z-_]+)/gi,
-        shareCodeNeedRemoveStr: /pan\.baidu\.com\/(share|wap)\/init\?surl=/gi,
-        checkAccessCode: /(密码|访问码|提取码|&pwd=)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
-        blank: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
-        copyUrl: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
+        link_innerText: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+        shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
+        checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
+        accessCode: /(提取码|密码|\?password=|访问码)([0-9a-zA-Z]{4})/i,
+        paramMatch: /(115.com|115cdn.com|anxia.com)/i,
+        uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://{#$1#}/s/{#shareCode#}",
+        copyUrl: "https://{#$1#}/s/{#shareCode#}\n密码：{#accessCode#}",
       },
     ],
     setting: {
-      name: "百度网盘",
-      key: "baidu",
+      name: "115网盘",
+      key: "_115pan",
       configurationInterface: {
         matchRange_text: {
           before: 20,
@@ -16478,113 +16881,36 @@
       },
     },
   };
-  const NetDiskRule_lanzou = () => {
-    return {
-      rule: [
-        {
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
-          shareCode:
-            /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
-          shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)/gi,
-          shareCodeExcludeRegular: ["lanzouyx"],
-          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-          accessCode: /([0-9a-zA-Z]{3,})/gi,
-          uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#} 提取码: {#accessCode#}`,
-          blank: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}`,
-          copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}
-密码：{#accessCode#}`,
-        },
-        {
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
-          shareCode:
-            /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
-          shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
-          shareCodeExcludeRegular: ["lanzouyx"],
-          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-          accessCode: /([0-9a-zA-Z]{3,})/gi,
-          uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#} 提取码: {#accessCode#}`,
-          blank: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}`,
-          copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}
-密码：{#accessCode#}`,
-        },
-      ],
-      setting: {
-        name: "蓝奏云",
-        key: "lanzou",
-        configurationInterface: {
-          matchRange_text: {
-            before: 20,
-            after: 10,
-          },
-          matchRange_html: {
-            before: 100,
-            after: 15,
-          },
-          function: {
-            enable: true,
-            linkClickMode: {
-              openBlank: {
-                default: true,
-              },
-              parseFile: {
-                enable: true,
-              },
-              "parseFile-closePopup": {
-                enable: true,
-              },
-            },
-            checkLinkValidity: true,
-            checkLinkValidityHoverTip: true,
-          },
-          linkClickMode_openBlank: {
-            openBlankAutoFilleAccessCode: true,
-            openBlankWithCopyAccessCode: true,
-          },
-          schemeUri: {
-            enable: false,
-            isForwardLinearChain: false,
-            isForwardBlankLink: false,
-            uri: "",
-          },
-          ownFormList: [
-            {
-              text: "其它配置",
-              type: "container",
-              views: [
-                UIInput(
-                  "蓝奏云域名",
-                  NetDiskParse_Lanzou_Config.MENU_KEY,
-                  NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME,
-                  "",
-                  void 0,
-                  `例如：${NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME}`
-                ),
-              ],
-            },
-          ],
-        },
-      },
-    };
-  };
-  const NetDiskRule_lanzouyx = {
+  const NetDiskRule_360yunpan = {
     rule: [
       {
-        link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
-        link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
-        shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_\-]{5,22})/gi,
-        shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
-        checkAccessCode: /(密码|访问码|提取码|\?code=)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{3,})/gi,
-        uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
-        blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
-        copyUrl: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
+        link_innerText: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
+        link_innerHTML: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
+        shareCode: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
+        shareCodeNeedRemoveStr: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_/gi,
+        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+        accessCode: /([0-9a-zA-Z]+)/gi,
+        paramMatch: /([0-9a-z]+).(link.yunpan.com|link.yunpan.360.cn)\/lk\//i,
+        uiLinkShow: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}",
+        copyUrl: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
+        link_innerHTML: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
+        shareCode: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
+        shareCodeNeedRemoveStr: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_/gi,
+        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+        accessCode: /([0-9a-zA-Z]+)/gi,
+        paramMatch: /(yunpan.360.cn|www.yunpan.com)/i,
+        uiLinkShow: "https://{#$1#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://{#$1#}/lk/surl_{#shareCode#}",
+        copyUrl: "https://{#$1#}/lk/surl_{#shareCode#}\n密码：{#accessCode#}",
       },
     ],
     setting: {
-      name: "蓝奏云优享",
-      key: "lanzouyx",
+      name: "360AI云盘",
+      key: "360yunpan",
       configurationInterface: {
         matchRange_text: {
           before: 20,
@@ -16599,12 +16925,6 @@
           linkClickMode: {
             openBlank: {
               default: true,
-            },
-            parseFile: {
-              enable: true,
-            },
-            "parseFile-closePopup": {
-              enable: true,
             },
           },
           checkLinkValidity: true,
@@ -16617,141 +16937,6 @@
         schemeUri: {
           enable: false,
           isForwardLinearChain: false,
-          isForwardBlankLink: false,
-          uri: "",
-        },
-      },
-    },
-  };
-  const NetDiskRule_tianyiyun = {
-    rule: [
-      {
-        link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /cloud\.189\.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://cloud.189.cn/t/{#shareCode#}",
-        copyUrl: "https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "天翼云",
-      key: "tianyiyun",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-            parseFile: {
-              enable: true,
-            },
-            "parseFile-closePopup": {
-              enable: true,
-            },
-          },
-          checkLinkValidity: true,
-          checkLinkValidityHoverTip: true,
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
-          isForwardLinearChain: false,
-          isForwardBlankLink: false,
-          uri: "",
-        },
-      },
-    },
-  };
-  const NetDiskRule_hecaiyun = {
-    rule: [
-      {
-        link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://caiyun.139.com/m/i?{#shareCode#}",
-        copyUrl: "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
-      },
-      {
-        link_innerText: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /caiyun\.139\.com\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /caiyun\.139\.com\/w\/i\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "caiyun.139.com/w/i/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://caiyun.139.com/w/i/{#shareCode#}",
-        copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}",
-      },
-      {
-        link_innerText: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        paramMatch: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//i,
-        uiLinkShow: "yun.139.com{#$1#}w/i/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://yun.139.com{#$1#}w/i/{#shareCode#}",
-        copyUrl: "https://yun.139.com{#$1#}w/i/{#shareCode#}\n密码：{#accessCode#}",
-      },
-      {
-        link_innerText: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /yun\.139\.com\/shareweb\/#\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /yun\.139\.com\/shareweb\/#\/w\/i\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "yun.139.com/shareweb/#/w/i/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}",
-        copyUrl: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}\n密码：{#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "中国移动云盘",
-      key: "hecaiyun",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-          },
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
           isForwardBlankLink: false,
           uri: "",
         },
@@ -16835,138 +17020,34 @@
       },
     },
   };
-  const NetDiskRule_wenshushu = {
+  const NetDiskRule_baidu = {
     rule: [
       {
-        link_innerText: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\/([a-zA-Z0-9_-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /[0-9a-zA-Z]{4}/gi,
-        uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://www.wenshushu.cn/f/{#shareCode#}",
-        copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
-      },
-      {
-        link_innerText: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
-        shareCodeNeedRemoveStr: /wenshushu.cn\/k\//gi,
-        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
-        accessCode: /[0-9a-zA-Z]{4}/gi,
-        uiLinkShow: "www.wenshushu.cn/k/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://www.wenshushu.cn/k/{#shareCode#}",
-        copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "文叔叔",
-      key: "wenshushu",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-            parseFile: {
-              enable: true,
-            },
-            "parseFile-closePopup": {
-              enable: true,
-            },
-          },
-          checkLinkValidity: true,
-          checkLinkValidityHoverTip: true,
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
-          isForwardLinearChain: true,
-          isForwardBlankLink: true,
-          uri: "",
-        },
-      },
-    },
-  };
-  const NetDiskRule_weiyun = {
-    rule: [
-      {
-        link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
-        link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-        shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
-        shareCodeNeedRemoveStr: /weiyun.com\//gi,
-        shareCodeNotMatch: /^(ftn_handler)/,
-        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
-        uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://share.weiyun.com/{#shareCode#}",
-        copyUrl: "https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "微云",
-      key: "weiyun",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-          },
-          checkLinkValidity: true,
-          checkLinkValidityHoverTip: true,
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
-          isForwardBlankLink: true,
-          uri: "",
-        },
-      },
-    },
-  };
-  const NetDiskRule_xunlei = {
-    rule: [
-      {
-        link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-text-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
-        shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
-        checkAccessCode: /(\?pwd=|提取码|密码|访问码)[\s\S]+/g,
+        link_innerText: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /pan\.baidu\.com\/s\/([0-9a-zA-Z-_]+)/gi,
+        shareCodeNeedRemoveStr: /pan\.baidu\.com\/s\//gi,
+        checkAccessCode: /(密码|访问码|提取码|pwd=)[\s\S]+/g,
         accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
-        blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
-        copyUrl: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
+        uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
+        blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
+        copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
+      },
+      {
+        link_innerText: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /pan\.baidu\.com\/(share|wap)\/init\?surl=([0-9a-zA-Z-_]+)/gi,
+        shareCodeNeedRemoveStr: /pan\.baidu\.com\/(share|wap)\/init\?surl=/gi,
+        checkAccessCode: /(密码|访问码|提取码|&pwd=)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
+        blank: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
+        copyUrl: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
       },
     ],
     setting: {
-      name: "迅雷云盘",
-      key: "xunlei",
+      name: "百度网盘",
+      key: "baidu",
       configurationInterface: {
         matchRange_text: {
           before: 20,
@@ -17151,71 +17232,24 @@
       },
     },
   };
-  const NetDiskRule_kuake = {
+  const NetDiskRule_ed2k = {
     rule: [
       {
-        link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
-        shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
-        checkAccessCode: /(提取码|密码|访问码|password=|pwd=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
-        blank: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
-        copyUrl: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
-      },
-    ],
-    setting: {
-      name: "夸克网盘",
-      key: "kuake",
-      configurationInterface: {
-        matchRange_text: {
-          before: 20,
-          after: 10,
-        },
-        matchRange_html: {
-          before: 100,
-          after: 15,
-        },
-        function: {
-          enable: true,
-          linkClickMode: {
-            openBlank: {
-              default: true,
-            },
-          },
-          checkLinkValidity: true,
-          checkLinkValidityHoverTip: true,
-        },
-        linkClickMode_openBlank: {
-          openBlankAutoFilleAccessCode: true,
-          openBlankWithCopyAccessCode: true,
-        },
-        schemeUri: {
-          enable: false,
-          isForwardBlankLink: true,
-          uri: "",
-        },
-      },
-    },
-  };
-  const NetDiskRule_magnet = {
-    rule: [
-      {
-        link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
-        link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
-        shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi,
-        shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi,
+        link_innerText: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
+        link_innerHTML: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
+        shareCode: /ed2k:\/\/\\|file\\|[^\\|]+\\|\\d+\\|([a-fA-F0-9]{32})\|/gi,
+        shareCodeNeedRemoveStr: / /gi,
         checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
         accessCode: /([0-9a-zA-Z]{4})/gi,
-        uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
-        blank: "magnet:?xt=urn:btih:{#shareCode#}",
-        copyUrl: "magnet:?xt=urn:btih:{#shareCode#}",
+        paramMatch: /ed2k:\/\/\|file\|([^\|]+)\|(\d+)\|([a-fA-F0-9]{32})\|/i,
+        uiLinkShow: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
+        blank: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
+        copyUrl: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
       },
     ],
     setting: {
-      name: "BT磁力",
-      key: "magnet",
+      name: "ed2k",
+      key: "ed2k",
       configurationInterface: {
         function: {
           enable: true,
@@ -17239,6 +17273,86 @@
         schemeUri: {
           enable: false,
           isForwardBlankLink: true,
+          uri: "",
+        },
+      },
+    },
+  };
+  const NetDiskRule_hecaiyun = {
+    rule: [
+      {
+        link_innerText: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /caiyun\.139\.com\/m\/i\?([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /caiyun\.139\.com\/m\/i\?/gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://caiyun.139.com/m/i?{#shareCode#}",
+        copyUrl: "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /caiyun\.139\.com\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /caiyun\.139\.com\/w\/i\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "caiyun.139.com/w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://caiyun.139.com/w/i/{#shareCode#}",
+        copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /yun\.139\.com(\/link\/|\/shareweb\/#\/)w\/i\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        paramMatch: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//i,
+        uiLinkShow: "yun.139.com{#$1#}w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://yun.139.com{#$1#}w/i/{#shareCode#}",
+        copyUrl: "https://yun.139.com{#$1#}w/i/{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /yun\.139\.com\/shareweb\/#\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /yun\.139\.com\/shareweb\/#\/w\/i\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "yun.139.com/shareweb/#/w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}",
+        copyUrl: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}\n密码：{#accessCode#}",
+      },
+    ],
+    setting: {
+      name: "中国移动云盘",
+      key: "hecaiyun",
+      configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+          },
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
+        },
+        schemeUri: {
+          enable: false,
+          isForwardBlankLink: false,
           uri: "",
         },
       },
@@ -17299,6 +17413,244 @@
       },
     },
   };
+  const NetDiskRule_kuake = {
+    rule: [
+      {
+        link_innerText: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /quark.cn\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+        shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
+        checkAccessCode: /(提取码|密码|访问码|password=|pwd=)[\s\S]+/gi,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
+        blank: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
+        copyUrl: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
+      },
+    ],
+    setting: {
+      name: "夸克网盘",
+      key: "kuake",
+      configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+          },
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true,
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
+        },
+        schemeUri: {
+          enable: false,
+          isForwardBlankLink: true,
+          uri: "",
+        },
+      },
+    },
+  };
+  const NetDiskRule_lanzou = () => {
+    return {
+      rule: [
+        {
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
+          shareCode:
+            /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
+          shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)/gi,
+          shareCodeExcludeRegular: ["lanzouyx"],
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          accessCode: /([0-9a-zA-Z]{3,})/gi,
+          uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#} 提取码: {#accessCode#}`,
+          blank: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}`,
+          copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}
+密码：{#accessCode#}`,
+        },
+        {
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
+          shareCode:
+            /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
+          shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
+          shareCodeExcludeRegular: ["lanzouyx"],
+          checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+          accessCode: /([0-9a-zA-Z]{3,})/gi,
+          uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#} 提取码: {#accessCode#}`,
+          blank: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}`,
+          copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}
+密码：{#accessCode#}`,
+        },
+      ],
+      setting: {
+        name: "蓝奏云",
+        key: "lanzou",
+        configurationInterface: {
+          matchRange_text: {
+            before: 20,
+            after: 10,
+          },
+          matchRange_html: {
+            before: 100,
+            after: 15,
+          },
+          function: {
+            enable: true,
+            linkClickMode: {
+              openBlank: {
+                default: true,
+              },
+              parseFile: {
+                enable: true,
+              },
+              "parseFile-closePopup": {
+                enable: true,
+              },
+            },
+            checkLinkValidity: true,
+            checkLinkValidityHoverTip: true,
+          },
+          linkClickMode_openBlank: {
+            openBlankAutoFilleAccessCode: true,
+            openBlankWithCopyAccessCode: true,
+          },
+          schemeUri: {
+            enable: false,
+            isForwardLinearChain: false,
+            isForwardBlankLink: false,
+            uri: "",
+          },
+          ownFormList: [
+            {
+              text: "其它配置",
+              type: "container",
+              views: [
+                UIInput(
+                  "蓝奏云域名",
+                  NetDiskParse_Lanzou_Config.MENU_KEY,
+                  NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME,
+                  "",
+                  void 0,
+                  `例如：${NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME}`
+                ),
+              ],
+            },
+          ],
+        },
+      },
+    };
+  };
+  const NetDiskRule_lanzouyx = {
+    rule: [
+      {
+        link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
+        link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
+        shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_\-]{5,22})/gi,
+        shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
+        checkAccessCode: /(密码|访问码|提取码|\?code=)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{3,})/gi,
+        uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
+        blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
+        copyUrl: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
+      },
+    ],
+    setting: {
+      name: "蓝奏云优享",
+      key: "lanzouyx",
+      configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+            parseFile: {
+              enable: true,
+            },
+            "parseFile-closePopup": {
+              enable: true,
+            },
+          },
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true,
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
+        },
+        schemeUri: {
+          enable: false,
+          isForwardLinearChain: false,
+          isForwardBlankLink: false,
+          uri: "",
+        },
+      },
+    },
+  };
+  const NetDiskRule_magnet = {
+    rule: [
+      {
+        link_innerText: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
+        link_innerHTML: `magnet:\\?xt=urn:btih:[0-9a-fA-F]{32,40}`,
+        shareCode: /magnet:\?xt=urn:btih:([0-9a-fA-F]{32,40})/gi,
+        shareCodeNeedRemoveStr: /magnet:\?xt=urn:btih:/gi,
+        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "magnet:?xt=urn:btih:{#shareCode#}",
+        blank: "magnet:?xt=urn:btih:{#shareCode#}",
+        copyUrl: "magnet:?xt=urn:btih:{#shareCode#}",
+      },
+    ],
+    setting: {
+      name: "BT磁力",
+      key: "magnet",
+      configurationInterface: {
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+            "openBlank-closePopup": {
+              enable: true,
+            },
+            parseFile: {
+              enable: true,
+              text: "元数据预览",
+            },
+            "parseFile-closePopup": {
+              enable: true,
+              text: "元数据预览 & 关闭弹窗",
+            },
+          },
+        },
+        schemeUri: {
+          enable: false,
+          isForwardBlankLink: true,
+          uri: "",
+        },
+      },
+    },
+  };
   const NetDiskRule_onedrive = {
     rule: [
       {
@@ -17343,6 +17695,61 @@
         },
         schemeUri: {
           enable: false,
+          isForwardBlankLink: false,
+          uri: "",
+        },
+      },
+    },
+  };
+  const NetDiskRule_tianyiyun = {
+    rule: [
+      {
+        link_innerText: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_\-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /cloud\.189\.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://cloud.189.cn/t/{#shareCode#}",
+        copyUrl: "https://cloud.189.cn/t/{#shareCode#}\n密码：{#accessCode#}",
+      },
+    ],
+    setting: {
+      name: "天翼云",
+      key: "tianyiyun",
+      configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true,
+            },
+            parseFile: {
+              enable: true,
+            },
+            "parseFile-closePopup": {
+              enable: true,
+            },
+          },
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true,
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
+        },
+        schemeUri: {
+          enable: false,
+          isForwardLinearChain: false,
           isForwardBlankLink: false,
           uri: "",
         },
@@ -17404,24 +17811,24 @@
       },
     },
   };
-  const NetDiskRule_115pan = {
+  const NetDiskRule_weiyun = {
     rule: [
       {
-        link_innerText: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-        shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
-        shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
-        checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
-        accessCode: /(提取码|密码|\?password=|访问码)([0-9a-zA-Z]{4})/i,
-        paramMatch: /(115.com|115cdn.com|anxia.com)/i,
-        uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://{#$1#}/s/{#shareCode#}",
-        copyUrl: "https://{#$1#}/s/{#shareCode#}\n密码：{#accessCode#}",
+        link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
+        link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
+        shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
+        shareCodeNeedRemoveStr: /weiyun.com\//gi,
+        shareCodeNotMatch: /^(ftn_handler)/,
+        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://share.weiyun.com/{#shareCode#}",
+        copyUrl: "https://share.weiyun.com/{#shareCode#}\n密码：{#accessCode#}",
       },
     ],
     setting: {
-      name: "115网盘",
-      key: "_115pan",
+      name: "微云",
+      key: "weiyun",
       configurationInterface: {
         matchRange_text: {
           before: 20,
@@ -17453,82 +17860,89 @@
       },
     },
   };
-  const NetDiskRule_ed2k = {
+  const NetDiskRule_wenshushu = {
     rule: [
       {
-        link_innerText: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
-        link_innerHTML: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
-        shareCode: /ed2k:\/\/\\|file\\|[^\\|]+\\|\\d+\\|([a-fA-F0-9]{32})\|/gi,
-        shareCodeNeedRemoveStr: / /gi,
-        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
-        paramMatch: /ed2k:\/\/\|file\|([^\|]+)\|(\d+)\|([a-fA-F0-9]{32})\|/i,
-        uiLinkShow: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
-        blank: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
-        copyUrl: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
+        link_innerText: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\/([a-zA-Z0-9_-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /[0-9a-zA-Z]{4}/gi,
+        uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://www.wenshushu.cn/f/{#shareCode#}",
+        copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
+      },
+      {
+        link_innerText: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /wenshushu.cn\/k\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /[0-9a-zA-Z]{4}/gi,
+        uiLinkShow: "www.wenshushu.cn/k/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://www.wenshushu.cn/k/{#shareCode#}",
+        copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}",
       },
     ],
     setting: {
-      name: "ed2k",
-      key: "ed2k",
+      name: "文叔叔",
+      key: "wenshushu",
       configurationInterface: {
+        matchRange_text: {
+          before: 20,
+          after: 10,
+        },
+        matchRange_html: {
+          before: 100,
+          after: 15,
+        },
         function: {
           enable: true,
           linkClickMode: {
             openBlank: {
               default: true,
-            },
-            "openBlank-closePopup": {
-              enable: true,
             },
             parseFile: {
               enable: true,
-              text: "元数据预览",
             },
             "parseFile-closePopup": {
               enable: true,
-              text: "元数据预览 & 关闭弹窗",
             },
           },
+          checkLinkValidity: true,
+          checkLinkValidityHoverTip: true,
+        },
+        linkClickMode_openBlank: {
+          openBlankAutoFilleAccessCode: true,
+          openBlankWithCopyAccessCode: true,
         },
         schemeUri: {
           enable: false,
+          isForwardLinearChain: true,
           isForwardBlankLink: true,
           uri: "",
         },
       },
     },
   };
-  const NetDiskRule_360yunpan = {
+  const NetDiskRule_xunlei = {
     rule: [
       {
-        link_innerText: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
-        link_innerHTML: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
-        shareCode: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
-        shareCodeNeedRemoveStr: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_/gi,
-        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]+)/gi,
-        paramMatch: /([0-9a-z]+).(link.yunpan.com|link.yunpan.360.cn)\/lk\//i,
-        uiLinkShow: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}",
-        copyUrl: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}\n密码：{#accessCode#}",
-      },
-      {
-        link_innerText: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
-        link_innerHTML: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
-        shareCode: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
-        shareCodeNeedRemoveStr: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_/gi,
-        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]+)/gi,
-        paramMatch: /(yunpan.360.cn|www.yunpan.com)/i,
-        uiLinkShow: "https://{#$1#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
-        blank: "https://{#$1#}/lk/surl_{#shareCode#}",
-        copyUrl: "https://{#$1#}/lk/surl_{#shareCode#}\n密码：{#accessCode#}",
+        link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-text-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
+        shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
+        checkAccessCode: /(\?pwd=|提取码|密码|访问码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
+        blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
+        copyUrl: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
       },
     ],
     setting: {
-      name: "360AI云盘",
-      key: "360yunpan",
+      name: "迅雷云盘",
+      key: "xunlei",
       configurationInterface: {
         matchRange_text: {
           before: 20,
@@ -17554,8 +17968,7 @@
         },
         schemeUri: {
           enable: false,
-          isForwardLinearChain: false,
-          isForwardBlankLink: false,
+          isForwardBlankLink: true,
           uri: "",
         },
       },
@@ -17590,6 +18003,7 @@
         NetDiskRule_onedrive,
         NetDiskRule_uc,
         NetDiskRule_360yunpan,
+        NetDiskRule_feijipan,
       ];
       let userRuleList = NetDiskUserRule.getNetDiskRuleConfig();
       [...defaultRuleList, ...userRuleList].forEach((netDiskRuleConfig) => {
@@ -18761,26 +19175,30 @@
               index: 0,
               async clickEvent() {
                 if (typeof fileDetails.clickCallBack === "function") {
-                  fileDetails.clickCallBack(fileDetails);
-                } else {
-                  return {
-                    autoDownload: true,
-                    mode: "aBlank",
-                    url: fileDetails.downloadUrl,
-                  };
+                  const flag = await fileDetails.clickCallBack(fileDetails);
+                  if (typeof flag === "boolean" && !flag) {
+                    return;
+                  }
                 }
+                return {
+                  autoDownload: true,
+                  mode: "aBlank",
+                  url: fileDetails.downloadUrl,
+                };
               },
             },
           ],
           btn: {
             ok: {
               text: "下载",
-              callback() {
+              async callback() {
                 if (typeof fileDetails.clickCallBack === "function") {
-                  fileDetails.clickCallBack(fileDetails);
-                } else {
-                  window.open(fileDetails.downloadUrl, "_blank");
+                  const flag = await fileDetails.clickCallBack(fileDetails);
+                  if (typeof flag === "boolean" && !flag) {
+                    return;
+                  }
                 }
+                window.open(fileDetails.downloadUrl, "_blank");
               },
             },
           },
@@ -18790,14 +19208,66 @@
         NetDiskView.$config.viewSizeConfig.oneFileStaticView
       );
     },
-    moreFile(title, folderInfoList = []) {
-      log.success("文件解析信息", folderInfoList);
+    moreFile(title, data = []) {
+      log.success("文件解析信息", data);
+      let infoList = [];
+      let tempFileInfoList = [];
+      let tempFolderInfoList = [];
+      const transformTime = (time) => {
+        if (typeof time === "number") {
+          return time;
+        }
+        const timeNumberMatcher = time.match(/([\d]+)/);
+        if (timeNumberMatcher) {
+          const timeNumber = Number(timeNumberMatcher[timeNumberMatcher.length - 1]);
+          if (!isNaN(timeNumber)) {
+            const currentTime = Date.now();
+            let changedTime = 0;
+            if (time.includes("秒")) {
+              changedTime = currentTime - timeNumber * 1e3;
+            } else if (time.includes("分")) {
+              changedTime = currentTime - timeNumber * 60 * 1e3;
+            } else if (time.includes("时")) {
+              changedTime = currentTime - timeNumber * 60 * 60 * 1e3;
+            } else if (time.includes("天")) {
+              changedTime = currentTime - timeNumber * 24 * 60 * 60 * 1e3;
+            } else if (time.includes("星期") || time.includes("周)")) {
+              changedTime = currentTime - timeNumber * 24 * 60 * 60 * 1e3 * 7;
+            } else if (time.includes("月")) {
+              changedTime = currentTime - timeNumber * 30 * 24 * 60 * 60 * 1e3;
+            } else if (time.includes("年")) {
+              changedTime = currentTime - timeNumber * 365 * 24 * 60 * 60 * 1e3;
+            }
+            if (changedTime) {
+              return utils.formatTime(changedTime, "yyyy-MM-dd");
+            }
+          }
+        }
+        return time;
+      };
+      data.forEach((item) => {
+        if (item.isFolder) {
+          tempFolderInfoList.push(item);
+        } else {
+          if (typeof item.createTime === "string") {
+            item.createTime = transformTime(item.createTime);
+          }
+          if (typeof item.latestTime === "string") {
+            item.latestTime = transformTime(item.latestTime);
+          }
+          tempFileInfoList.push(item);
+        }
+      });
+      tempFileInfoList.sort((a, b) => a.fileName.localeCompare(b.fileName));
+      tempFolderInfoList.sort((a, b) => a.fileName.localeCompare(b.fileName));
+      infoList = infoList.concat(tempFolderInfoList);
+      infoList = infoList.concat(tempFileInfoList);
       NetDiskPops.folder(
         {
           title: {
             text: title,
           },
-          folder: folderInfoList,
+          folder: infoList,
           btn: {
             ok: {
               enable: false,

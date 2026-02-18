@@ -19,6 +19,7 @@ import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 import { NetDiskCheckLinkValidity_360yunpan } from "../rule/default-rule/360yunpan/checkLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "./NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidity_feijipan } from "../rule/default-rule/feijipan/checkLinkValidity";
 
 // 配置的需要校验的网盘
 const AllCheckLinkValidityFunction: NetDiskCheckLinkValidityEntrance = {
@@ -40,6 +41,7 @@ const AllCheckLinkValidityFunction: NetDiskCheckLinkValidityEntrance = {
   onedrive: NetDiskCheckLinkValidity_onedrive,
   uc: NetDiskCheckLinkValidity_uc,
   "360yunpan": NetDiskCheckLinkValidity_360yunpan,
+  feijipan: NetDiskCheckLinkValidity_feijipan,
 };
 
 /**

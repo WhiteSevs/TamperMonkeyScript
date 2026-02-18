@@ -1,42 +1,43 @@
+import { pops, utils } from "@/env";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISlider } from "@components/setting/components/ui-slider";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
 import type {
   PopsPanelContentConfig,
   PopsPanelViewConfig,
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
+import { NetDisk } from "../NetDisk";
+import { NetDiskView } from "../view/NetDiskView";
+import { NetDiskRule_115pan } from "./default-rule/115pan/rule";
+import { NetDiskRule_123pan } from "./default-rule/123pan/rule";
+import { NetDiskRule_360yunpan } from "./default-rule/360yunpan/rule";
+import { NetDiskRule_aliyun } from "./default-rule/aliyun/rule";
 import { NetDiskRule_baidu } from "./default-rule/baidu/rule";
+import { NetDiskRule_chengtong } from "./default-rule/chengtong/rule";
+import { NetDiskRule_ed2k } from "./default-rule/ed2k/rule";
+import { NetDiskRule_feijipan } from "./default-rule/feijipan/rule";
+import { NetDiskRule_hecaiyun } from "./default-rule/hecaiyun/rule";
+import { NetDiskRule_jianguoyun } from "./default-rule/jianguoyun/rule";
+import { NetDiskRule_kuake } from "./default-rule/kuake/rule";
 import { NetDiskRule_lanzou } from "./default-rule/lanzou/rule";
 import { NetDiskRule_lanzouyx } from "./default-rule/lanzouyx/rule";
-import { NetDiskRule_tianyiyun } from "./default-rule/tianyiyun/rule";
-import { NetDiskRule_hecaiyun } from "./default-rule/hecaiyun/rule";
-import { NetDiskRule_aliyun } from "./default-rule/aliyun/rule";
-import { NetDiskRule_wenshushu } from "./default-rule/wenshushu/rule";
-import { NetDiskRule_123pan } from "./default-rule/123pan/rule";
-import { NetDiskRule_weiyun } from "./default-rule/weiyun/rule";
-import { NetDiskRule_xunlei } from "./default-rule/xunlei/rule";
-import { NetDiskRule_chengtong } from "./default-rule/chengtong/rule";
-import { NetDiskRule_kuake } from "./default-rule/kuake/rule";
 import { NetDiskRule_magnet } from "./default-rule/magnet/rule";
-import { NetDiskRule_jianguoyun } from "./default-rule/jianguoyun/rule";
 import { NetDiskRule_onedrive } from "./default-rule/onedrive/rule";
+import { NetDiskRule_tianyiyun } from "./default-rule/tianyiyun/rule";
 import { NetDiskRule_uc } from "./default-rule/uc/rule";
-import { NetDisk } from "../NetDisk";
-import { NetDiskUserRule } from "./user-rule/NetDiskUserRule";
-import { UISlider } from "@components/setting/components/ui-slider";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { UIInput } from "@components/setting/components/ui-input";
-import { NetDiskView } from "../view/NetDiskView";
-import { pops, utils } from "@/env";
-import { UISelect } from "@components/setting/components/ui-select";
-import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
-import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskRule_weiyun } from "./default-rule/weiyun/rule";
+import { NetDiskRule_wenshushu } from "./default-rule/wenshushu/rule";
+import { NetDiskRule_xunlei } from "./default-rule/xunlei/rule";
 import { NetDiskRuleUtils } from "./NetDiskRuleUtils";
+import { NetDiskUserRule } from "./user-rule/NetDiskUserRule";
 import {
   NetDiskUserRuleReplaceParam_matchRange_html,
   NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./user-rule/NetDiskUserRuleReplaceParam";
-import { NetDiskRule_115pan } from "./default-rule/115pan/rule";
-import { NetDiskRule_ed2k } from "./default-rule/ed2k/rule";
-import { NetDiskRule_360yunpan } from "./default-rule/360yunpan/rule";
 
 export const NetDiskRule = {
   /** 规则存储的数据 */
@@ -73,6 +74,7 @@ export const NetDiskRule = {
       NetDiskRule_onedrive,
       NetDiskRule_uc,
       NetDiskRule_360yunpan,
+      NetDiskRule_feijipan,
     ];
     // 用户规则
     let userRuleList: NetDiskRuleOption[] = NetDiskUserRule.getNetDiskRuleConfig();

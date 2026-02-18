@@ -72,7 +72,6 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
    * @param fileName 文件名
    */
   parseMoreFile(folderInfo: FolderInfo[], hash = "", fileName = "") {
-    const that = this;
     log.info("解析多文件信息", folderInfo);
     const folderInfoList: PopsFolderDataConfig[] = [];
     folderInfo.forEach((item) => {
@@ -88,9 +87,9 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
         latestTime: item.mtime,
         isFolder: false,
         index: 0,
-        async clickEvent() {
+        clickEvent: async () => {
           const $loading = Qmsg.loading("正在获取下载链接...");
-          let downloadUrl = await that.getDirLink(hash, fileName, item["relPath"]);
+          let downloadUrl = await this.getDirLink(hash, fileName, item["relPath"]);
           $loading.close();
           if (!downloadUrl) {
             return;

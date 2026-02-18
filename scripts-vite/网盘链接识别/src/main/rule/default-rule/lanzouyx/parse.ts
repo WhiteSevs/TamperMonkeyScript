@@ -201,14 +201,11 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
    * @param index
    */
   parseFolderInfo(infoList: any[], index: number) {
-    const that = this;
     let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item["fileType"] === 2) {
         /* 文件夹 */
-        tempFolderInfoList.push({
+        folderInfoList.push({
           fileName: item["folderName"],
           fileSize: 0,
           fileType: "",
@@ -216,22 +213,22 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
           latestTime: new Date(item["updTime"]).getTime(),
           isFolder: true,
           index: index,
-          async clickEvent(event, config) {
-            let timestamp = that.getEncodeTimeStamp();
-            let folderId = item["folderId"];
-            let folderInfo = await that.getFolderInfo(
-              that.$data.devType,
-              that.$data.devModel,
-              that.uuid,
-              that.$data.extra,
+          clickEvent: async () => {
+            const timestamp = this.getEncodeTimeStamp();
+            const folderId = item["folderId"];
+            const folderInfo = await this.getFolderInfo(
+              this.$data.devType,
+              this.$data.devModel,
+              this.uuid,
+              this.$data.extra,
               timestamp,
-              that.shareCode,
+              this.shareCode,
               folderId,
-              that.$data.offset,
-              that.$data.limit
+              this.$data.offset,
+              this.$data.limit
             );
             if (folderInfo && folderInfo["list"]) {
-              return that.parseFolderInfo(folderInfo["list"], index + 1);
+              return this.parseFolderInfo(folderInfo["list"], index + 1);
             } else {
               return [];
             }
@@ -239,7 +236,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
         });
       } else {
         /* 文件 */
-        tempFolderFileInfoList.push({
+        folderInfoList.push({
           fileName: item["fileName"],
           fileSize: item["fileSize"] * 1024,
           fileType: "",
@@ -247,10 +244,10 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
           latestTime: new Date(item["updTime"]).getTime(),
           isFolder: false,
           index: index,
-          async clickEvent() {
+          clickEvent: async () => {
             const fileId = item["fileId"];
-            const userId = item["userId"] || that.userId;
-            const uuid = that.uuid;
+            const userId = item["userId"] || this.userId;
+            const uuid = this.uuid;
             if (utils.isNull(userId)) {
               Qmsg.error("获取【userId】为空");
               return;
@@ -260,9 +257,9 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
               return;
             }
             const $loading = Qmsg.loading("正在获取下载链接...");
-            let downloadUrl = await that.getDownloadFileUrl(
+            let downloadUrl = await this.getDownloadFileUrl(
               // @ts-expect-error
-              ...that.getDownloadFileParams(fileId, userId, uuid)
+              ...this.getDownloadFileParams(fileId, userId, uuid)
             );
             $loading.close();
             if (downloadUrl) {
@@ -279,10 +276,6 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
         });
       }
     });
-    tempFolderInfoList.sort((leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"]));
-    tempFolderFileInfoList.sort((leftData, rightData) => leftData["fileName"].localeCompare(rightData["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
     return folderInfoList;
   }
   /**
@@ -479,13 +472,12 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
    * @param uuid 用户登录生成的uuid
    */
   getDownloadFileParams(fileId: string, userId: string = "", uuid: string) {
-    const that = this;
     let nowTime = Date.now();
     let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId),
       enable = 1,
-      timestamp = that.getEncodeTimeStamp(nowTime),
+      timestamp = this.getEncodeTimeStamp(nowTime),
       auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-    return [downloadId, enable, that.$data.devType, uuid, timestamp, auth, that.shareCode];
+    return [downloadId, enable, this.$data.devType, uuid, timestamp, auth, this.shareCode];
   }
   /**
    * 前往登录

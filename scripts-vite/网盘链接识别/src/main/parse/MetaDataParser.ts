@@ -166,7 +166,7 @@ export const MetaDataParser = {
       });
       const $imageList = $wrapper.querySelector<HTMLElement>(".image-list")!;
       const imgList: string[] = [];
-      metaInfo.screenshots.forEach((item, index) => {
+      metaInfo.screenshots.forEach((item) => {
         imgList.push(item.screenshot);
         const $img = DOMUtils.createElement("div", {
           className: "img",

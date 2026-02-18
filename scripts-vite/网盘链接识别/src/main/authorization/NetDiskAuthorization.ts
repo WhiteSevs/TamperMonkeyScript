@@ -1,7 +1,8 @@
 import { NetDiskAuthorization_Lanzouyx } from "../rule/default-rule/lanzouyx/authorization";
 import { NetDiskAuthorization_123pan } from "../rule/default-rule/123pan/authorization";
+import { NetDiskAuthorization_feijipan } from "../rule/default-rule/feijipan/authorization";
 
-/** 网盘-直链鉴权获取处理 */
+/** 网盘-解析的部分参数（鉴权）获取处理 */
 export const NetDiskAuthorization = {
   /**
    * 运行于ready
@@ -24,5 +25,9 @@ export const NetDiskAuthorization = {
      * 蓝奏优选
      */
     lanzouyx: NetDiskAuthorization_Lanzouyx,
+    /**
+     * 小飞机网盘
+     */
+    feijipan: NetDiskAuthorization_feijipan,
   },
 };

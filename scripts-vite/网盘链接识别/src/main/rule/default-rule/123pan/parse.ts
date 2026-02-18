@@ -29,8 +29,6 @@ export class NetDiskParse_123pan extends ParseFileCore {
   };
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    const that = this;
-    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.panelList.length = 0;
     this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
     const $loading = Qmsg.loading("正在解析，请稍后...");
@@ -45,13 +43,13 @@ export class NetDiskParse_123pan extends ParseFileCore {
     }
     // 成功
     // 需要密码
-    const infoLists = await this.getFiles();
-    if (!infoLists) {
+    const infoList = await this.getFiles();
+    if (!infoList) {
       $loading.close();
       return;
     }
-    if (infoLists.length === 1 && infoLists[0]["Type"] == 0) {
-      const fileInfo = infoLists[0];
+    if (infoList.length === 1 && infoList[0]["Type"] == 0) {
+      const fileInfo = infoList[0];
       if (fileInfo["Status"] == 104) {
         $loading.close();
         Qmsg.error("文件已失效");
@@ -61,11 +59,11 @@ export class NetDiskParse_123pan extends ParseFileCore {
       let fileSize = "";
       if (downloadUrl === "") {
         $loading.setText("正在获取下载链接...");
-        let downloadInfo = await that.getFileDownloadInfo(
+        let downloadInfo = await this.getFileDownloadInfo(
           fileInfo["Etag"],
           fileInfo["FileId"],
           fileInfo["S3KeyFlag"],
-          that.shareCode,
+          this.shareCode,
           fileInfo["Size"]
         );
         if (downloadInfo && downloadInfo["code"] === 0) {
@@ -104,65 +102,11 @@ export class NetDiskParse_123pan extends ParseFileCore {
       });
     } else {
       $loading.setText("正在解析多文件...");
-      const folderInfoList = that.getFolderInfo(infoLists, 0);
+      const folderInfoList = this.getFolderInfo(infoList, 0);
       log.info("解析完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("123盘文件解析", folderInfoList);
     }
     $loading.close();
-  }
-  /**
-   * 校验链接有效性
-   */
-  async checkLinkValidity() {
-    const that = this;
-    Qmsg.info("正在进行链接有效性校验");
-    let url = `https://www.123pan.com/s/${that.shareCode}`;
-
-    let response = await httpx.get({
-      url: url,
-      headers: {
-        "User-Agent": utils.getRandomPCUA(),
-        Referer: "https://www.123pan.com",
-      },
-    });
-    log.info(response);
-    if (!response.status) {
-      return false;
-    }
-    let g_initialPropsMatch = response.data.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
-    if (g_initialPropsMatch) {
-      log.info(g_initialPropsMatch);
-      let g_initialProps = utils.toJSON(`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`);
-      log.info(g_initialProps);
-      if (g_initialProps.res.code !== 0) {
-        Qmsg.error(g_initialProps.res.message);
-        return false;
-      }
-      let HasPwd = g_initialProps.res.data.HasPwd;
-      if (HasPwd && (that.accessCode == null || that.accessCode === "")) {
-        /* 该链接需要密码但是没有获取到 */
-        Qmsg.error("密码缺失!");
-        NetDiskView.$inst.newAccessCodeView(
-          "密码缺失",
-          "_123pan",
-          that.ruleIndex,
-          that.shareCode,
-          that.accessCode,
-          (option) => {
-            that.init({
-              ruleIndex: that.ruleIndex,
-              shareCode: that.shareCode,
-              accessCode: option.accessCode,
-            });
-          }
-        );
-      } else {
-        /* 该链接不需要密码 || 该链接需要密码且已获取到 */
-        return true;
-      }
-    } else {
-      Qmsg.error("校验链接-获取初始化内容失败");
-    }
   }
   /**
    * 获取文件
@@ -301,15 +245,11 @@ export class NetDiskParse_123pan extends ParseFileCore {
     }[],
     index: number
   ) {
-    const that = this;
-    let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
+    const folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item.Type) {
         /* 文件夹 */
-        tempFolderInfoList.push({
+        folderInfoList.push({
           fileName: item.FileName,
           fileSize: 0,
           fileType: "",
@@ -317,10 +257,10 @@ export class NetDiskParse_123pan extends ParseFileCore {
           latestTime: new Date(item.UpdateAt).getTime(),
           isFolder: true,
           index: index,
-          async clickEvent() {
-            let resultFileInfoList = await that.getFilesByRec(item["FileId"].toString());
-            if (resultFileInfoList) {
-              return that.getFolderInfo(resultFileInfoList, index + 1);
+          clickEvent: async () => {
+            const __infoList = await this.getFilesByRec(item["FileId"].toString());
+            if (__infoList) {
+              return this.getFolderInfo(__infoList, index + 1);
             } else {
               return [];
             }
@@ -328,7 +268,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
         });
       } else {
         /* 文件 */
-        tempFolderFileInfoList.push({
+        folderInfoList.push({
           fileName: item.FileName,
           fileSize: item.Size,
           fileType: "",
@@ -336,15 +276,15 @@ export class NetDiskParse_123pan extends ParseFileCore {
           latestTime: new Date(item.UpdateAt).getTime(),
           isFolder: false,
           index: index,
-          async clickEvent() {
+          clickEvent: async () => {
             if (item.Status == 104) {
               Qmsg.error("文件已失效");
-            } else if (!Boolean(item.DownloadUrl)) {
-              const downloadInfo = await that.getFileDownloadInfo(
+            } else if (utils.isNotNull(item.DownloadUrl)) {
+              const downloadInfo = await this.getFileDownloadInfo(
                 item["Etag"],
                 item["FileId"],
                 item["S3KeyFlag"],
-                that.shareCode,
+                this.shareCode,
                 item["Size"]
               );
               if (downloadInfo && downloadInfo["code"] === 0) {
@@ -359,7 +299,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
                 Qmsg.error(downloadInfo?.["message"] || "获取下载链接失败");
               }
             } else {
-              let downloadUrl = item.DownloadUrl;
+              let downloadUrl = item.DownloadUrl as string;
               if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
               }
@@ -373,10 +313,6 @@ export class NetDiskParse_123pan extends ParseFileCore {
         });
       }
     });
-    tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
     return folderInfoList;
   }
   /**

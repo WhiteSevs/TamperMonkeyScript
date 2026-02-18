@@ -201,7 +201,15 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     super.init(netDiskInfo);
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
-    const url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+    let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
+    if (window.location.pathname === "/" + shareCode) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const webpage = searchParams.get("webpage");
+      if (webpage) {
+        // 该参数相当于代替了密码
+        url = url + "?webpage=" + webpage;
+      }
+    }
     const $loading = Qmsg.loading("正在解析，请稍后...");
     const pageInfoResponse = await this.getPageInfo(url);
     if (!pageInfoResponse) {
@@ -275,15 +283,11 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    * @param infoList
    */
   getFolderInfo(infoList: InfoListType[], index: number) {
-    const that = this;
     let folderInfoList: PopsFolderDataConfig[] = [];
-    let tempFolderInfoList: PopsFolderDataConfig[] = [];
-
-    let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item.isFolder) {
         // 文件夹
-        tempFolderInfoList.push({
+        folderInfoList.push({
           fileName: item.fileName,
           fileSize: 0,
           fileType: "",
@@ -296,7 +300,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           clickEvent: async () => {
             let fileInfo = await this.parseFiles(item.shareCode, item.accessCode);
             if (fileInfo) {
-              return that.getFolderInfo(
+              return this.getFolderInfo(
                 this.transformFileInfoToInfoList(this.shareCode, this.accessCode, fileInfo),
                 index + 1
               );
@@ -306,7 +310,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         });
       } else {
         // 文件
-        tempFolderFileInfoList.push({
+        folderInfoList.push({
           fileName: item.fileName,
           fileSize: item.fileSize,
           fileType: "",
@@ -340,10 +344,6 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
         });
       }
     });
-    tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
     return folderInfoList;
   }
   /**
@@ -818,11 +818,11 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     let pageText = responseInstance.responseText;
     let websignkeyMatch =
       pageText.match(/'websignkey'[\s]*:[\s]*'(.+?)'/i) || pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
-    let websignMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
+    let websignMatch = pageText.match(/'websign':'(.+?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
     let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
     let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
     let ajaxUrlMatch =
-      pageText.match(/[^\/\/]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
+      pageText.match(/[^//]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
     let ajaxUrl = "ajaxm.php";
     let websignkey = "";
     let websign = "";
@@ -861,14 +861,14 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
 
     let postData = {
       action: "downprocess",
+      websignkey: websignkey || signs,
       signs: signs,
       sign: sign,
       websign: websign,
-      websignkey: websignkey,
       kd: kdns,
       ves: 1,
     };
-    log.success("请求的路径参数：" + ajaxUrl);
+    log.success("请求的路径参数: " + ajaxUrl);
     log.success("ajaxm.php的请求参数-> ", postData);
     let postResp = await httpx.post(this.router.root(ajaxUrl), {
       data: utils.toSearchParamsStr(postData),
@@ -889,9 +889,9 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     let zt = jsonData["zt"];
 
     // var killdns = true;
-    let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
-      allowInterceptConfig: false,
-    });
+    // let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
+    //   allowInterceptConfig: false,
+    // });
     // var killdns2 = true;
     let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
       allowInterceptConfig: false,

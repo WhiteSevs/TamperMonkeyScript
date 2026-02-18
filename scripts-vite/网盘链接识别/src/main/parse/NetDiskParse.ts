@@ -3,6 +3,7 @@ import { NetDiskParse_Aliyun } from "../rule/default-rule/aliyun/parse";
 import { NetDiskParse_Baidu } from "../rule/default-rule/baidu/parse";
 import { NetDiskParse_Chengtong } from "../rule/default-rule/chengtong/parse";
 import { NetDiskParse_ed2k } from "../rule/default-rule/ed2k/parse";
+import { NetDiskParse_feijipan } from "../rule/default-rule/feijipan/parse";
 import { NetDiskParse_Jianguoyun } from "../rule/default-rule/jianguoyun/parse";
 import { NetDiskParse_Lanzou } from "../rule/default-rule/lanzou/parse";
 import { NetDiskParse_Lanzouyx } from "../rule/default-rule/lanzouyx/parse";
@@ -69,5 +70,9 @@ export const NetDiskParse = {
      * @link https://whatslink.info/
      */
     ed2k: NetDiskParse_ed2k,
+    /**
+     * 小飞机网盘
+     */
+    feijipan: NetDiskParse_feijipan,
   },
 };

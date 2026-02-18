@@ -83,14 +83,11 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
     }[],
     index = 0
   ) {
-    const that = this;
-    let folderInfoList: PopsFolderDataConfig[] = [];
-    const tempFolderInfoList: PopsFolderDataConfig[] = [];
-    const tempFolderFileInfoList: PopsFolderDataConfig[] = [];
+    const folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item: any) => {
       if (item.type !== "folder") {
         /* 文件 */
-        tempFolderFileInfoList.push({
+        folderInfoList.push({
           fileName: item.name,
           fileSize: item.size,
           fileType: item.file_extension,
@@ -98,9 +95,9 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
           latestTime: new Date(item.updated_at).getTime(),
           isFolder: false,
           index: index,
-          async clickEvent() {
+          clickEvent: async () => {
             const $loading = Qmsg.loading("正在获取下载链接...");
-            const fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
+            const fileDownloadUrl = await this.get_share_link_download_url(item.share_id, item.file_id);
             $loading.close();
             if (!fileDownloadUrl) {
               return;
@@ -118,7 +115,7 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
         });
       } else {
         /* 文件夹 */
-        tempFolderInfoList.push({
+        folderInfoList.push({
           fileName: item.name,
           fileSize: 0,
           fileType: "",
@@ -126,10 +123,10 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
           latestTime: item.updated_at,
           isFolder: true,
           index: index,
-          async clickEvent() {
-            let newDetail = await that.list_by_share(item.share_id, item.file_id);
-            if (newDetail) {
-              return that.getFolderInfo(newDetail, index + 1);
+          clickEvent: async () => {
+            const __infoList = await this.list_by_share(item.share_id, item.file_id);
+            if (__infoList) {
+              return this.getFolderInfo(__infoList, index + 1);
             } else {
               return [];
             }
@@ -137,12 +134,6 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
         });
       }
     });
-
-    tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
-    folderInfoList = folderInfoList.concat(tempFolderInfoList);
-    folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
-    log.info("getFilesInfoByRec", folderInfoList);
     return folderInfoList;
   }
   /**
