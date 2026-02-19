@@ -1,4 +1,4 @@
-import { cookieManager, SCRIPT_NAME } from "@components/base.env";
+import { cookieManager, SCRIPT_NAME } from "@components/env.base";
 import { GM_cookie } from "ViteGM";
 const _SCRIPT_NAME_ = SCRIPT_NAME || "CookieManager";
 
@@ -14,7 +14,7 @@ export {
   $$,
   MountVue,
   VUE_ROOT_ID,
-} from "@components/base.env";
+} from "@components/env.base";
 
 /**
  * 让对象内的函数属性的this指向固定为该对象

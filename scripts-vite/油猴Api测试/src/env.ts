@@ -1,4 +1,4 @@
-import { addStyle, SCRIPT_NAME } from "@components/base.env";
+import { addStyle, SCRIPT_NAME } from "@components/env.base";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 import Qmsg from "qmsg";
@@ -72,6 +72,6 @@ export {
   $$,
   MountVue,
   cookieManager,
-} from "@components/base.env";
+} from "@components/env.base";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, injectDocumentTime, setTimeoutLog };

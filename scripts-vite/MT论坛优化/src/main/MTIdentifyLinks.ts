@@ -1,4 +1,4 @@
-import { DOMUtils, utils } from "@components/base.env";
+import { DOMUtils, utils } from "@/env";
 
 /**
  * 链接文本转超链接

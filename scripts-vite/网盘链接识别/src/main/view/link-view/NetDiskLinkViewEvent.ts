@@ -5,7 +5,7 @@ import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
-import { log } from "@components/base.env";
+import { log } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
 import type {

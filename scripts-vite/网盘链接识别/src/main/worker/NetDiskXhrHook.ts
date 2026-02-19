@@ -1,4 +1,4 @@
-import { utils } from "@components/base.env";
+import { utils } from "@/env";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
 import { NetDiskWorker } from "./NetDiskWorker";

@@ -1,4 +1,4 @@
-import { SCRIPT_NAME } from "@components/base.env";
+import { SCRIPT_NAME } from "@components/env.base";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 import { LoadingView } from "./utils/LoadingView";
 
@@ -20,5 +20,5 @@ export {
   pops,
   utils,
   VUE_ROOT_ID,
-} from "@components/base.env";
+} from "@components/env.base";
 export { loadingView, _SCRIPT_NAME_ as SCRIPT_NAME, showdown };

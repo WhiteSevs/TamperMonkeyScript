@@ -1,4 +1,4 @@
-import { SCRIPT_NAME } from "@components/base.env";
+import { SCRIPT_NAME } from "@components/env.base";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
@@ -18,6 +18,6 @@ export {
   VUE_ROOT_ID,
   cookieManager,
   OriginPrototype,
-} from "@components/base.env";
+} from "@components/env.base";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, QRCodeJS };

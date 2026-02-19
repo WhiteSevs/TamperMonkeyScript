@@ -1,6 +1,6 @@
 import { AnyTouch, cookieManager, DOMUtils, httpx, MenuRegister, pops, unsafeWin, utils, console, $, $$ } from "@/env";
 import { GlobalSettingConfig } from "@/setting/config";
-import { OriginPrototype } from "@components/base.env";
+import { OriginPrototype } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 import { ChromeXt } from "ViteGMChromeXt";
 import Qmsg from "qmsg";

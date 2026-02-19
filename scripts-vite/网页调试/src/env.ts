@@ -1,4 +1,4 @@
-import { SCRIPT_NAME, utils } from "@components/base.env";
+import { SCRIPT_NAME, utils } from "@components/env.base";
 import { GM_setClipboard, unsafeWindow } from "ViteGM";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "网页调试";
@@ -21,4 +21,4 @@ export {
   MountVue,
   cookieManager,
   AnyTouch,
-} from "@components/base.env";
+} from "@components/env.base";

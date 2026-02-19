@@ -2,7 +2,7 @@ import { cookieManager, DOMUtils, log, utils } from "@/env";
 import { DouYinLiveMessage } from "@/main/live/DouYinLiveMessage";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElement } from "@/utils/DouYinElement";
-import { OriginPrototype } from "@components/base.env";
+import { OriginPrototype } from "@components/env.base";
 import { Hook } from "@components/hook/Hook";
 import { Panel } from "@components/setting/panel";
 

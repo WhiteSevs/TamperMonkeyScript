@@ -1,4 +1,4 @@
-import { SCRIPT_NAME } from "@components/base.env";
+import { SCRIPT_NAME } from "@components/env.base";
 import CryptoJS from "crypto-js";
 import { unsafeWindow } from "ViteGM";
 import DataPaging from "@whitesev/data-paging";
@@ -20,6 +20,6 @@ export {
   DEBUG,
   cookieManager,
   AnyTouch,
-} from "@components/base.env";
+} from "@components/env.base";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME, Cryptojs, __DataPaging as DataPaging };

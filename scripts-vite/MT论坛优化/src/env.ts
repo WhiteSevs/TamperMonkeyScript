@@ -1,4 +1,4 @@
-import { addStyle, pops, SCRIPT_NAME } from "@components/base.env";
+import { addStyle, pops, SCRIPT_NAME } from "@components/env.base";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 
@@ -39,6 +39,6 @@ export {
   MountVue,
   VUE_ROOT_ID,
   cookieManager,
-} from "@components/base.env";
+} from "@components/env.base";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME };

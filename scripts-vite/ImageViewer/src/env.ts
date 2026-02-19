@@ -1,4 +1,4 @@
-import { SCRIPT_NAME } from "@components/base.env";
+import { SCRIPT_NAME } from "@components/env.base";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "ImageViewer";
 
@@ -16,4 +16,4 @@ export {
   MountVue,
   VUE_ROOT_ID,
   cookieManager,
-} from "@components/base.env";
+} from "@components/env.base";

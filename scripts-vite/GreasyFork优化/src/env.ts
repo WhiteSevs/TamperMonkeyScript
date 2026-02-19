@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import { LanguageInit } from "./language/language";
-import { SCRIPT_NAME } from "@components/base.env";
+import { SCRIPT_NAME } from "@components/env.base";
 
 LanguageInit();
 const _SCRIPT_NAME_ = SCRIPT_NAME || i18next.t("GreasyFork优化");
@@ -19,4 +19,4 @@ export {
   MountVue,
   VUE_ROOT_ID,
   cookieManager,
-} from "@components/base.env";
+} from "@components/env.base";
