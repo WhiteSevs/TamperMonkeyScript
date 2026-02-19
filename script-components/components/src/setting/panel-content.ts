@@ -2,7 +2,7 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_info, GM_listValues, GM_setValue, GM_setValues } from "ViteGM";
-import { AnyTouch, DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "../base.env";
+import { AnyTouch, DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "../utils/CommonUtil";
 import { KEY } from "./panel-config";
 import { PanelSizeUtil } from "./panel-size-util";

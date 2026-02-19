@@ -1,5 +1,5 @@
 import type { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
-import { DOMUtils, pops, utils } from "../base.env";
+import { DOMUtils, pops, utils } from "../env.base";
 
 type RuleEditViewOption<T> = {
   /**
@@ -35,12 +35,12 @@ type RuleEditViewOption<T> = {
   /**
    * 当提交表单时触发的回调函数
    */
-  onsubmit /**
+  onsubmit/**
    * @param event
    * @returns
    * + true 校验通过
    * + false 校验失败
-   */: (
+   */ : (
     /**
      * 表单元素
      */

@@ -1,5 +1,5 @@
 import utils from "@whitesev/utils";
-import { DOMUtils, log } from "../base.env";
+import { DOMUtils, log } from "../env.base";
 
 type GestureBackConfig = {
   /** 进入手势模式的hash */

@@ -1,5 +1,5 @@
 import { unsafeWindow } from "ViteGM";
-import { log, OriginPrototype } from "../base.env";
+import { log, OriginPrototype } from "../env.base";
 
 /**
  * @returns

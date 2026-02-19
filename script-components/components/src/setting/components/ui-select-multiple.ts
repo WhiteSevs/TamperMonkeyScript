@@ -1,6 +1,6 @@
 import type { PopsAlertConfig } from "@whitesev/pops/dist/types/src/components/alert/types/index";
 import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
-import { log } from "../../base.env";
+import { log } from "../../env.base";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";

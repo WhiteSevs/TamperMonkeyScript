@@ -8,7 +8,7 @@ import type {
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
-import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../base.env";
+import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "./../utils/CommonUtil";
 import type { UIOwnSearchConfig } from "./components/ui-own";
 import {
@@ -642,7 +642,11 @@ const Panel = {
       /**
        * 值改变的参数
        */
-      valueOption?: { key: string; newValue: any; oldValue: any }
+      valueOption?: {
+        key: string;
+        newValue: any;
+        oldValue: any;
+      }
     ) => {
       const execFlag = checkMenuExec();
       let callbackResult: ExecMenuResult = [];

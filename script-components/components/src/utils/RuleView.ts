@@ -1,5 +1,5 @@
 import Qmsg from "qmsg";
-import { DOMUtils, log, pops, utils } from "../base.env";
+import { DOMUtils, log, pops, utils } from "../env.base";
 import { RuleEditView } from "./RuleEditView";
 
 export type RuleViewSearchExternalOption<T> = {
@@ -136,13 +136,13 @@ type RuleViewOption<T> = {
       /**
        * 当提交表单时触发的回调函数
        */
-      onsubmit /**
+      onsubmit/**
        * @param event
        * @param isEdit 是否是编辑状态
        * @returns
        * + true 校验通过
        * + false 校验失败
-       */: (
+       */ : (
         $form: HTMLFormElement,
         isEdit: boolean,
         data?: T

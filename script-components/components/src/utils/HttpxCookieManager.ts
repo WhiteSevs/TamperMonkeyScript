@@ -1,5 +1,5 @@
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
-import { log, utils } from "../base.env";
+import { log, utils } from "../env.base";
 import { Panel } from "../setting/panel";
 import { PanelSettingConfig } from "../setting/panel-setting-config";
 

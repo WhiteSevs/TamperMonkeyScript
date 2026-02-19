@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "../base.env";
+import { DOMUtils, log, utils } from "../env.base";
 
 /**
  * react在元素上储存的实例对象

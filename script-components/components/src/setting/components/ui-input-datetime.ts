@@ -2,9 +2,9 @@ import type {
   PopsPanelInputConfig,
   PopsPanelInputDateType,
 } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 
 /**
  * 日期选择框的配置

@@ -1,5 +1,5 @@
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { DOMUtils, log, utils } from "../base.env";
+import { DOMUtils, log, utils } from "../env.base";
 
 /** 本地存储快捷键的键配置 */
 type ShortCutKeyboardOption = {

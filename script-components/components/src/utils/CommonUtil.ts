@@ -1,6 +1,6 @@
 import DOMUtils from "@whitesev/domutils";
 import { GM_getResourceText } from "ViteGM";
-import { addStyle, log, utils } from "../base.env";
+import { addStyle, log, utils } from "../env.base";
 
 const CommonUtil = {
   /**

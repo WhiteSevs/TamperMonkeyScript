@@ -1,6 +1,6 @@
-import { log } from "./../base.env";
-import { ShortCut, type ShortCutOption } from "./ShortCut";
+import { log } from "../env.base";
 import { Panel } from "./../setting/panel";
+import { ShortCut, type ShortCutOption } from "./ShortCut";
 
 export type SwitchShortCutExecMenuConfig = { key: string; name: string };
 export const SwitchShortCut = (KEY: string) => {

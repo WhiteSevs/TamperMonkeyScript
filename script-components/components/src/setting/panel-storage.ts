@@ -4,4 +4,3 @@ import { KEY } from "./panel-config";
 const PopsPanelStorageApi = new StorageUtils(KEY);
 
 export { PopsPanelStorageApi };
-

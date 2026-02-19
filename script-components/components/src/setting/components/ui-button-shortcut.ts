@@ -1,9 +1,9 @@
 import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
-import { UIButton } from "./ui-button";
+import Qmsg from "qmsg";
+import { DOMUtils, log } from "../../env.base";
 import { ATTRIBUTE_INIT } from "../panel-config";
 import { ShortCut, ShortCutKeyboardOption } from "./../../utils/ShortCut";
-import { DOMUtils, log } from "../../base.env";
-import Qmsg from "qmsg";
+import { UIButton } from "./ui-button";
 
 /**
  * 获取录入快捷键配置

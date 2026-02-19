@@ -1,7 +1,7 @@
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
-import { DOMUtils, log, utils } from "../base.env";
+import { DOMUtils, log, utils } from "../env.base";
 
 /** 等待设置vue某个值的配置 */
 type VueCheckOption = {

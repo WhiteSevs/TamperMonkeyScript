@@ -1,4 +1,4 @@
-import { DOMUtils, pops } from "../base.env";
+import { DOMUtils, pops } from "../env.base";
 
 /**
  * 过滤视图配置

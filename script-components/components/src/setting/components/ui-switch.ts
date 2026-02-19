@@ -1,12 +1,12 @@
 import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
-import { DOMUtils, log, pops } from "../../base.env";
+import Qmsg from "qmsg";
+import { DOMUtils, log, pops } from "../../env.base";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "../panel-config";
 import { type ShortCutKeyboardOption } from "./../../utils/ShortCut";
 import { type SwitchShortCut } from "./../../utils/SwitchShortCut";
-import Qmsg from "qmsg";
 
 /**
  * 获取checkbox按钮配置

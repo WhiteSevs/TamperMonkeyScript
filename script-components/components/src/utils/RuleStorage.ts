@@ -1,6 +1,6 @@
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { DOMUtils, httpx, log, pops, utils } from "../base.env";
+import { DOMUtils, httpx, log, pops, utils } from "../env.base";
 import { PanelUISize } from "../setting/panel-ui-size";
 
 type RuleStorageConstructOption = {

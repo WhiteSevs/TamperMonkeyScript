@@ -1,5 +1,5 @@
 import Qmsg from "qmsg";
-import { DOMUtils, httpx, log, pops, utils } from "../base.env";
+import { DOMUtils, httpx, log, pops, utils } from "../env.base";
 import { PanelUISize } from "../setting/panel-ui-size";
 import { CommonUtil } from "./CommonUtil";
 import type { RuleSubscribeOption } from "./RulePanelView";
