@@ -1,105 +1,112 @@
-import { $$, DOMUtils, MenuRegister, DEBUG, log, utils } from "@/env";
-import { NetDisk } from "../NetDisk";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { NetDiskView } from "../view/NetDiskView";
-import { NetDiskSuspensionConfig } from "../view/suspension/NetDiskSuspensionView";
-import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
-import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
-import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
-import { CharacterMapping } from "../character-mapping/CharacterMapping";
-import { GM_getValue, unsafeWindow } from "ViteGM";
-import { NetDiskPops } from "../pops/NetDiskPops";
-import { WebsiteRule } from "../website-rule/WebsiteRule";
+import { $$, DOMUtils, log, MenuRegister, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import Qmsg from "qmsg";
-import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
-import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
-import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { RulePanelView } from "@components/utils/RulePanelView";
+import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import { GM_getValue } from "ViteGM";
+import Qmsg from "qmsg";
+import { NetDisk } from "../NetDisk";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
+import { CharacterMapping } from "../character-mapping/CharacterMapping";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskPops } from "../pops/NetDiskPops";
+import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
+import { NetDiskView } from "../view/NetDiskView";
+import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
+import { NetDiskSuspensionConfig } from "../view/suspension/NetDiskSuspensionView";
+import { WebsiteRule } from "../website-rule/WebsiteRule";
+import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
+import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskXhrHook } from "./NetDiskXhrHook";
+
+const vue = new utils.Vue();
+
+const reactive = vue.reactive({
+  domChange: true,
+});
 
 /** Woker */
 export const NetDiskWorker = {
-  /** 是否正在匹配中 */
-  isHandleMatch: false,
-  /** 初始化Worker失败的错误的对象实例 */
-  workerInitError: null as Error | null,
-  /** 不再弹出Worker初始化失败的提示 */
-  neverTipWorkerInitErrorKey: "never-toast-worker-error",
-  /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
-  delayNotMatchCount: 0,
-  /** 跨域传递消息的类型 */
-  postMessageType: "worker-init-error",
-  /**
-   * 主动触发监听DOM变化的事件
-   *
-   * 主动设置true将会主动触发识别
-   */
-  dispatchMonitorDOMChange: false,
-  /** worker的Blob链接 */
-  blobUrl: "",
-  /** worker对象 */
-  GM_matchWorker: null as any as Worker,
+  $data: {
+    /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
+    delayNotMatchCount: 0,
+    /** worker的Blob链接 */
+    blobUrl: "",
+    /** worker对象 */
+    GM_matchWorker: null as any as Worker,
+  },
+  $flag: {
+    /**
+     * 是否成功初始化Worker传入执行
+     */
+    isInit: false,
+    /** 是否正在匹配中 */
+    isHandleMatch: false,
+    /**
+     * 主动触发监听DOM变化的事件
+     *
+     * 主动设置true将会主动触发识别
+     */
+    dispatchMonitorDOMChange: false,
+  },
+  $key: {
+    /** 不再弹出Worker初始化失败的提示 */
+    neverTipWorkerInitErrorKey: "never-toast-worker-error",
+    /** 跨域传递消息的类型 */
+    postMessageType: "worker-init-error",
+  },
+  $check: {
+    checkTimeId: void 0 as number | undefined,
+    /** 初始化Worker失败的错误的对象实例 */
+    workerInitError: null as Error | null | undefined,
+  },
   init() {
     this.listenWorkerInitErrorDialog();
     this.initWorker();
     this.monitorDOMChange();
-  },
-  /**
-   * 检测是否存在CSP限制
-   */
-  checkCSP() {
-    let error: Error | undefined = undefined;
-    try {
-      unsafeWindow.eval(`let __test__csp_${Date.now()} = ${Date.now()}`);
-    } catch (e: any) {
-      error = e;
-    } finally {
-      return error;
-    }
+
+    utils.hasWorkerCSP().then((isCSP) => {
+      if (isCSP) {
+        this.workerInitFailed();
+      }
+    });
   },
   /**
    * 初始化Worker对象
    */
   initWorker() {
     try {
-      const checkInitWorkerError = this.checkCSP();
-      if (checkInitWorkerError != null) {
-        throw checkInitWorkerError;
-      }
       // 需要注意的是Worker内是不能访问全局document的
-      const handleMatch = /*js*/ `
-        (() => {
-            function ${NetDiskWorker.handleRegularMatch.toString()}
+      const workerJs = /*js*/ `
+(() => {
+    function ${NetDiskWorker.handleRegularMatch.toString()}
 
-            function ${NetDiskWorker.uniqueArr}
-            
-            this.addEventListener(
-            "message",
-            function (event) {
-                const data = event.data;
-                let matchedList = [];
-                ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
-                	matchedList.push(matchData);
-					        data.textList = matchData.textList;
-                })
-                matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
-                this.postMessage({
-                  options: data,
-                  msg: "Match End",
-                  data: matchedList,
-                  startTime: data.startTime,
-                  endTime: Date.now(),
-                });
-            },
-            {
-                capture: true,
-            }
-            );
-        })();
-  		`;
-      const workerScript = new Blob([handleMatch], {
+    function ${NetDiskWorker.uniqueArr}
+    
+    this.addEventListener(
+    "message",
+    function (event) {
+        const data = event.data;
+        let matchedList = [];
+        ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
+          matchedList.push(matchData);
+          data.textList = matchData.textList;
+        })
+        matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        this.postMessage({
+          options: data,
+          msg: "Match End",
+          data: matchedList,
+          startTime: data.startTime,
+          endTime: Date.now(),
+        });
+    },
+    {
+        capture: true,
+    }
+    );
+})();`;
+      const workerScript = new Blob([workerJs], {
         type: "application/javascript",
       });
       let workerUrl: string = window.URL.createObjectURL(workerScript);
@@ -112,31 +119,33 @@ export const NetDiskWorker = {
         });
         workerUrl = workerPolicy.createScriptURL(workerUrl);
       }
-      this.blobUrl = workerUrl;
-      this.GM_matchWorker = new Worker(this.blobUrl);
-      this.GM_matchWorker.onmessage = this.onMessage;
-      this.GM_matchWorker.onerror = this.onError;
-      log.info(`Worker（Blob Url）：${this.blobUrl}`);
+      this.$data.blobUrl = workerUrl;
+      this.$data.GM_matchWorker = new Worker(this.$data.blobUrl);
+      this.$data.GM_matchWorker.onmessage = this.onMessage;
+      this.$data.GM_matchWorker.onerror = this.onError;
+      log.info(`Worker(Blob Url): ${this.$data.blobUrl}`);
     } catch (error: any) {
-      this.workerInitError = error;
-      this.coverWorker();
-      log.info(`use local GM_matchWorker`);
+      this.coverWorker(error);
     } finally {
       // 释放
-      if (typeof this.blobUrl === "string") {
-        globalThis.URL.revokeObjectURL(this.blobUrl);
+      if (typeof this.$data.blobUrl === "string") {
+        globalThis.URL.revokeObjectURL(this.$data.blobUrl);
       }
-      this.blobUrl = "";
+      this.$data.blobUrl = "";
     }
   },
   /**
    * 自定义覆盖Worker
    */
-  coverWorker() {
+  coverWorker(error?: Error) {
+    if (error != null) {
+      this.$check.workerInitError = error;
+    }
+    log.info(`use local GM_matchWorker`, error);
     // @ts-expect-error
-    this.GM_matchWorker = {
+    this.$data.GM_matchWorker = {
       postMessage(data: NetDiskWorkerOptions) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           let matchedList: NetDiskWorkerMatchOption[] = [];
           try {
             NetDiskWorker.handleRegularMatch(data, (matchData) => {
@@ -150,6 +159,7 @@ export const NetDiskWorker = {
             NetDiskWorker.onMessage(
               new MessageEvent("message", {
                 data: {
+                  isInitTest: true,
                   options: data,
                   msg: "Match End",
                   data: matchedList,
@@ -187,7 +197,7 @@ export const NetDiskWorker = {
           } else {
             matchTextItem = matchTextItem.replace(characterMapping.searchValue, characterMapping.replaceValue);
           }
-        } catch (error) {}
+        } catch {}
       }
       matchTextList.push(matchTextItem);
     }
@@ -261,17 +271,16 @@ export const NetDiskWorker = {
     if (!Panel.isTopWindow()) {
       return;
     }
-    const that = this;
     // 只做顶层的监听
     DOMUtils.on<MessageEvent>(
       globalThis,
       "message",
       (event) => {
         const messageData = event.data;
-        if (typeof messageData === "object" && messageData?.["type"] === this.postMessageType) {
+        if (typeof messageData === "object" && messageData?.["type"] === this.$key.postMessageType) {
           const data: NetDiskInitErrorPostMessageObject = messageData.data;
-          NetDiskWorker.workerInitError = data.error;
-          that.registerWorkerInitErrorNeverTipToast(data.hostname);
+          NetDiskWorker.$check.workerInitError = data.error;
+          this.registerWorkerInitErrorNeverTipToast(data.hostname);
           NetDiskPops.confirm(
             {
               title: {
@@ -333,7 +342,7 @@ export const NetDiskWorker = {
                 position: "space-between",
                 ok: {
                   text: "快速添加网站规则",
-                  callback(eventDetails, event) {
+                  callback() {
                     const ruleOption = WebsiteRule.getTemplateData();
                     ruleOption.name = "手动匹配：" + data.hostname;
                     ruleOption.url = `^http(s|):\\/\\/${data.hostname}\\/`;
@@ -362,7 +371,7 @@ export const NetDiskWorker = {
                 },
                 cancel: {
                   text: "网站规则",
-                  callback(details, event) {
+                  callback() {
                     NetDiskRuleManager.showView("网站规则");
                   },
                 },
@@ -370,7 +379,7 @@ export const NetDiskWorker = {
                   enable: true,
                   text: "不再提示",
                   type: "xiaomi-primary",
-                  callback(eventDetails, event) {
+                  callback() {
                     NetDiskPops.confirm(
                       {
                         title: {
@@ -382,7 +391,7 @@ export const NetDiskWorker = {
                         },
                         btn: {
                           ok: {
-                            callback(eventDetails, event) {
+                            callback(eventDetails) {
                               NetDiskWorkerInitError.addHost(data.hostname);
                               eventDetails.close();
                             },
@@ -423,14 +432,14 @@ export const NetDiskWorker = {
   /**
    * 主动触发Worker初始化失败的弹窗
    */
-  dispatchWorkerInitErrorDialog() {
+  dispatchWorkerInitErrorDialog(error?: Error | null) {
     top?.postMessage(
       {
-        type: this.postMessageType,
+        type: this.$key.postMessageType,
         data: {
           url: window.location.href,
           hostname: window.location.hostname,
-          error: this.workerInitError,
+          error: error ?? this.$check.workerInitError,
         },
       },
       "*"
@@ -483,7 +492,7 @@ export const NetDiskWorker = {
    */
   postMessage(message: NetDiskWorkerOptions, options?: StructuredSerializeOptions) {
     // DEBUG && log.info("Debug-传递数据给worker内进行处理匹配: ", message);
-    NetDiskWorker.GM_matchWorker.postMessage(message, options);
+    NetDiskWorker.$data.GM_matchWorker.postMessage(message, options);
   },
   /**
    * Worker的onmessage
@@ -501,7 +510,7 @@ export const NetDiskWorker = {
     }
     if (data.options.from.startsWith("FirstLoad")) {
       // 依次执行所有的首次加载
-      NetDiskWorker.delayNotMatchCount++;
+      NetDiskWorker.$data.delayNotMatchCount++;
     }
     NetDiskWorker.successCallBack(data);
   },
@@ -686,24 +695,52 @@ export const NetDiskWorker = {
    */
   errorCallBack(error: ErrorEvent) {
     NetDiskWorker.matchingEndCallBack(true);
-    log.error("Worker Error" + (Panel.isTopWindow() ? "" : "（iframe）"), error);
+    log.error("Worker Error CallBack" + (Panel.isTopWindow() ? "" : " (iframe)"), error);
   },
   /**
    * 匹配结束回调
-   * @param isNow 是否立刻释放锁
+   * @param isResolveLock 是否立刻释放锁
    */
-  matchingEndCallBack(isNow?: boolean) {
-    if (isNow) {
-      NetDiskWorker.isHandleMatch = false;
-      if (NetDiskWorker.delayNotMatchCount > 0) {
-        NetDiskWorker.delayNotMatchCount = 0;
-        NetDiskWorker.dispatchMonitorDOMChange = true;
+  matchingEndCallBack(isResolveLock?: boolean) {
+    if (isResolveLock) {
+      NetDiskWorker.$flag.isHandleMatch = false;
+      if (NetDiskWorker.$data.delayNotMatchCount > 0) {
+        NetDiskWorker.$data.delayNotMatchCount = 0;
+        reactive.domChange = true;
       }
     } else {
       const delaytime = parseFloat(NetDiskGlobalData.match.delaytime.value.toString()) * 1000;
       setTimeout(() => {
         NetDiskWorker.matchingEndCallBack(true);
       }, delaytime);
+    }
+  },
+  /**
+   * Worker初始化失败了
+   */
+  workerInitFailed() {
+    this.coverWorker();
+    const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
+    if (matchMode === "Menu") {
+      return;
+    }
+    /** 是否 不再提示Worker错误 */
+    let neverToastWorkerError = GM_getValue<string[]>(this.$key.neverTipWorkerInitErrorKey, []);
+    if (!Array.isArray(neverToastWorkerError)) {
+      neverToastWorkerError = [neverToastWorkerError];
+    }
+    if (this.$check.workerInitError != null || this.$flag.isInit == false) {
+      log.error(
+        "初始化Worker失败，可能页面使用了Content-Security-Policy策略，当前已使用其它函数来代替Worker执行文本匹配，如果执行匹配的文本的内容过大会时，则会导致页面卡死",
+        this.$check.workerInitError
+      );
+      const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
+      if (findHostName) {
+        this.registerWorkerInitErrorNeverTipToast(findHostName);
+      } else {
+        // 弹出弹窗
+        this.dispatchWorkerInitErrorDialog();
+      }
     }
   },
   /**
@@ -750,10 +787,10 @@ export const NetDiskWorker = {
      * 观察者的事件
      * @param mutations 改变的节点集合
      */
-    async function observeEvent(mutations?: MutationRecord[]) {
-      if (NetDiskWorker.isHandleMatch) {
+    const observeEvent = async function (mutations?: MutationRecord[]) {
+      if (NetDiskWorker.$flag.isHandleMatch) {
         /* 判断当前是否正在处理规则匹配字符串中 */
-        NetDiskWorker.delayNotMatchCount++;
+        NetDiskWorker.$data.delayNotMatchCount++;
         return;
       }
       if (isAddedNodeToMatch && mutations && mutations.length) {
@@ -773,7 +810,7 @@ export const NetDiskWorker = {
           return;
         }
       }
-      NetDiskWorker.isHandleMatch = true;
+      NetDiskWorker.$flag.isHandleMatch = true;
       /** 开始时间 */
       const startTime = Date.now();
       if (readClipboard) {
@@ -782,7 +819,7 @@ export const NetDiskWorker = {
           if (clipboardInfo.error != null) {
             NetDisk.$data.clipboardText = clipboardInfo.content;
           }
-        } catch (error) {
+        } catch {
           // 获取剪贴板内容失败
         }
       }
@@ -881,14 +918,12 @@ export const NetDiskWorker = {
         startTime: startTime,
         from: "DOMChange",
       });
-    }
-
+    };
     /* 动态监听是否主动触发监听器 */
-    let dispatchMonitorDOMChange = NetDiskWorker.dispatchMonitorDOMChange;
-    Object.defineProperty(NetDiskWorker, "dispatchMonitorDOMChange", {
-      set: function (value) {
-        dispatchMonitorDOMChange = value;
-        if (value) {
+    vue.watch(
+      () => reactive.domChange,
+      (newValue) => {
+        if (newValue) {
           const addedNodes = $$<HTMLElement>("html") as any as NodeList;
           observeEvent([
             {
@@ -905,33 +940,12 @@ export const NetDiskWorker = {
           ]);
         }
       },
-      get: function () {
-        return dispatchMonitorDOMChange;
-      },
-    });
+      {
+        triggerMethod: "set",
+      }
+    );
     /** 匹配模式 */
     const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
-    if (matchMode !== "Menu") {
-      /** 是否 不再提示Worker错误 */
-      let neverToastWorkerError = GM_getValue<string[]>(this.neverTipWorkerInitErrorKey, []);
-      if (!Array.isArray(neverToastWorkerError)) {
-        neverToastWorkerError = [neverToastWorkerError];
-      }
-      if (this.workerInitError != null) {
-        log.error(
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-          this.workerInitError
-        );
-        const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
-        if (findHostName) {
-          this.registerWorkerInitErrorNeverTipToast(findHostName);
-        } else {
-          // 弹出弹窗
-          this.dispatchWorkerInitErrorDialog();
-        }
-      }
-    }
-
     /* 匹配网络请求的内容 */
     NetDiskXhrHook.execMatch({
       characterMapping: characterMapping,
@@ -953,7 +967,7 @@ export const NetDiskWorker = {
         },
       });
       // 主动触发一下
-      this.dispatchMonitorDOMChange = true;
+      reactive.domChange = true;
     } else if (matchMode === "Menu") {
       // 匹配模式 - Menu
       // 注册油猴菜单
@@ -966,7 +980,7 @@ export const NetDiskWorker = {
           return text;
         },
         callback: () => {
-          this.dispatchMonitorDOMChange = true;
+          reactive.domChange = true;
         },
       });
     } else {

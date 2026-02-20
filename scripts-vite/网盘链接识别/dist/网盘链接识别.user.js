@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.18
+// @version      2026.2.20
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,11 +10,11 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -10889,52 +10889,51 @@
         return __target__;
       }
       if (typeof $el === "string") {
-        let $ele = await domUtils.waitNode($el, 1e4);
-        if (!$ele) {
+        let __$el = await domUtils.waitNode($el, 1e4);
+        if (!__$el) {
           return;
         }
       }
-      checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
+      checkOption.forEach((option) => {
+        if (typeof option.msg === "string") {
+          log.info(option.msg);
         }
-        function checkTarget() {
-          let $targetEl = getTarget();
-          if ($targetEl == null) {
+        const checkTarget = function () {
+          let $target = getTarget();
+          if ($target == null) {
             return {
               status: false,
               isTimeout: true,
               inst: null,
-              $el: $targetEl,
+              $el: $target,
             };
           }
-          let reactInst = utils.getReactInstance($targetEl);
+          const reactInst = utils.getReactInstance($target);
           if (reactInst == null) {
             return {
               status: false,
               isTimeout: false,
               inst: null,
-              $el: $targetEl,
+              $el: $target,
             };
           }
-          let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            let reactPropInst2 = reactInst[__propName__];
+          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+            const reactPropInst2 = reactInst[__propName__];
             if (!reactPropInst2) {
               return false;
             }
-            let checkResult = needSetOption.check(reactPropInst2, $targetEl);
-            checkResult = Boolean(checkResult);
-            return checkResult;
+            const flag = Boolean(option.check(reactPropInst2, $target));
+            return flag;
           });
-          let reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          let reactPropInst = reactInst[reactPropName];
+          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          const reactPropInst = reactInst[reactPropName];
           return {
             status: findPropNameIndex !== -1,
             isTimeout: false,
             inst: reactPropInst,
-            $el: $targetEl,
+            $el: $target,
           };
-        }
+        };
         utils
           .waitPropertyByInterval(
             () => {
@@ -10945,13 +10944,13 @@
             1e4
           )
           .then(() => {
-            let checkTargetResult = checkTarget();
+            const checkTargetResult = checkTarget();
             if (checkTargetResult.status) {
-              let reactInst = checkTargetResult.inst;
-              needSetOption.set(reactInst, checkTargetResult.$el);
+              const reactInst = checkTargetResult.inst;
+              option.set(reactInst, checkTargetResult.$el);
             } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
+              if (typeof option.failWait === "function") {
+                option.failWait(checkTargetResult.isTimeout);
               }
             }
           });
@@ -11145,16 +11144,34 @@
   const NetDiskAutoFillAccessCode_115pan = function (netDiskInfo) {
     if (["115.com", "115cdn.com", "anxia.com"].includes(window.location.hostname)) {
       log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("input.text", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        $("#js-share_code div.form-decode div.submit a").click();
+      domUtils.onReady(() => {
+        domUtils.waitNode("input[placeholder*='访问码']", 1e4).then(async ($el) => {
+          if (!$el) return;
+          if (!utils.isVisible($el)) {
+            log.error("输入框不可见，不输入密码");
+            return;
+          }
+          Qmsg.success("自动填充访问码");
+          $el.value = netDiskInfo.accessCode;
+          domUtils.emit($el, "input");
+          ReactUtils.waitReactPropsToSet($el, "reactProps", {
+            check(reactPropInst) {
+              const flag = typeof reactPropInst?.onChange === "function";
+              return flag;
+            },
+            async set(reactPropInst, $el2) {
+              const onChange = reactPropInst?.onChange;
+              onChange({
+                target: $el2,
+              });
+              await utils.sleep(800);
+              const $button = $el2.parentElement?.nextElementSibling;
+              if ($button instanceof HTMLButtonElement) {
+                $button.click();
+              }
+            },
+          });
+        });
       });
     }
   };
@@ -13411,141 +13428,6 @@
     STORAGE_API_KEY: "userRule",
     STORAGE_KEY: "rule-subscribe",
   });
-  const NetDiskWorkerUtils = {
-    depthQueryShadowRootAllNode($target) {
-      let result = [];
-      function queryShadowRoot($ele) {
-        let $queryChildNodeList = Array.from($ele.querySelectorAll("*"));
-        $queryChildNodeList.forEach(($childNode) => {
-          if ($childNode.classList && $childNode.classList.contains("pops-shadow-container")) {
-            return;
-          }
-          let $childNodeShadowRoot = $childNode.shadowRoot;
-          if ($childNodeShadowRoot && $childNodeShadowRoot instanceof ShadowRoot) {
-            result.push({
-              shadowRoot: $childNodeShadowRoot,
-              childNode: queryShadowRoot($childNodeShadowRoot),
-            });
-          }
-        });
-        return $queryChildNodeList;
-      }
-      queryShadowRoot($target);
-      return result;
-    },
-    ignoreStrRemove(text, isHTML = false) {
-      let ignoreNodeList = [];
-      if (ignoreNodeList.length) {
-        ignoreNodeList.forEach(($ignore) => {
-          if ($ignore == null) {
-            return;
-          }
-          if (isHTML) {
-            if ($ignore.innerHTML != null) {
-              text = text.replaceAll($ignore.innerHTML, "");
-            }
-          } else {
-            let text2 = $ignore.innerText || $ignore.textContent;
-            if (text2 != null) {
-              text2 = text2.replaceAll(text2, "");
-            }
-          }
-        });
-      }
-      return text;
-    },
-    getPageText(target = document.documentElement, isCheckShadowRoot) {
-      let strList = [];
-      strList.push(target?.textContent || target?.innerText || "");
-      if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            let shadowRootText = queryShadowRootInfo.shadowRoot.textContent;
-            if (shadowRootText) {
-              strList.push(shadowRootText);
-            }
-          });
-        }
-      }
-      strList = strList.filter((item) => item !== "");
-      return strList;
-    },
-    getPageHTML(target = document.documentElement, isCheckShadowRoot) {
-      let strList = [];
-      strList.push(target.innerHTML);
-      if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            let shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
-            if (shadowRootHTML) {
-              strList.push(shadowRootHTML);
-            }
-          });
-        }
-      }
-      strList = strList.filter((item) => item !== "");
-      return strList;
-    },
-    getInputElementValue(target = document.documentElement, isCheckShadowRoot) {
-      let result = [];
-      Array.from(target.querySelectorAll("input")).forEach(($input) => {
-        result.push($input.value);
-      });
-      if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
-              const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLInputElement && $childNode.value) {
-                result.push($childNode.value);
-              }
-            }
-          });
-        }
-      }
-      return result;
-    },
-    getTextAreaElementValue(target = document.documentElement, isCheckShadowRoot) {
-      let result = [];
-      Array.from(target.querySelectorAll("textarea")).forEach(($textarea) => {
-        result.push($textarea.value);
-      });
-      if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
-              const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
-                result.push($childNode.value);
-              }
-            }
-          });
-        }
-      }
-      return result;
-    },
-    getSelectContent() {
-      let result = {
-        text: "",
-        html: "",
-      };
-      let selection = window.getSelection();
-      if (selection) {
-        result.text = selection.toString();
-        let $tempDiv = domUtils.createElement("div");
-        if (!selection.isCollapsed) {
-          const docFragment = selection.getRangeAt(0).cloneContents();
-          $tempDiv.appendChild(docFragment);
-          result.html = domUtils.html($tempDiv);
-        }
-      }
-      return result;
-    },
-  };
   const indexCSS$3 =
     '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\n  display: flex;\n  flex-direction: column;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  border-radius: 10px;\n  box-shadow:\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\n    0 10px 20px rgb(0 0 0 / 20%);\n  margin: 20px 10px;\n  padding: 10px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\n  /*height: 11%;*/\n  flex: 0;\n  padding: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\n  /*height: calc(85% - 40px);*/\n  overflow: auto;\n  flex: 1;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  /*margin-top: 10px;*/\n  flex: 0;\n  padding: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input {\n  border: none;\n  border-bottom: 1px solid #000000;\n  padding: 0px 5px;\n  line-height: normal;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  width: fill-available;\n  margin: 5px 5px 0px 5px;\n  background: none;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input:focus-visible {\n  outline: none;\n  border-bottom: 1px solid #0009ff;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\n  color: #ff4848;\n  font-size: 0.8em;\n  border: none;\n  word-break: break-word;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a[isvisited="true"] {\n  color: #8b8888;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img {\n  width: 28px;\n  height: 28px;\n  min-width: 28px;\n  min-height: 28px;\n  font-size: 0.8em;\n  border-radius: 10px;\n  box-shadow:\n    0 0.3px 0.6px rgb(0 0 0 / 6%),\n    0 0.7px 1.3px rgb(0 0 0 / 8%),\n    0 1.3px 2.5px rgb(0 0 0 / 10%),\n    0 2.2px 4.5px rgb(0 0 0 / 12%),\n    0 4.2px 8.4px rgb(0 0 0 / 14%),\n    0 10px 20px rgb(0 0 0 / 20%);\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\n  color: #000;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\n  color: #000;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete {\n  background: #263cf3;\n  color: #fff;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active {\n  background: #6e7be8;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\n  display: flex;\n  margin: 5px 0px;\n}\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p {\n  min-width: 80px;\n  max-width: 80px;\n  align-self: center;\n}\n';
   const NetDiskHistoryMatchView = {
@@ -14111,14 +13993,149 @@
       return flag;
     },
     getList() {
-      let neverTipHostNameList = _GM_getValue(NetDiskWorker.neverTipWorkerInitErrorKey, []);
+      let neverTipHostNameList = _GM_getValue(NetDiskWorker.$key.neverTipWorkerInitErrorKey, []);
       if (!Array.isArray(neverTipHostNameList)) {
         neverTipHostNameList = [neverTipHostNameList];
       }
       return neverTipHostNameList;
     },
     updateList(hostNameList) {
-      _GM_setValue(NetDiskWorker.neverTipWorkerInitErrorKey, hostNameList);
+      _GM_setValue(NetDiskWorker.$key.neverTipWorkerInitErrorKey, hostNameList);
+    },
+  };
+  const NetDiskWorkerUtils = {
+    depthQueryShadowRootAllNode($target) {
+      let result = [];
+      function queryShadowRoot($ele) {
+        let $queryChildNodeList = Array.from($ele.querySelectorAll("*"));
+        $queryChildNodeList.forEach(($childNode) => {
+          if ($childNode.classList && $childNode.classList.contains("pops-shadow-container")) {
+            return;
+          }
+          let $childNodeShadowRoot = $childNode.shadowRoot;
+          if ($childNodeShadowRoot && $childNodeShadowRoot instanceof ShadowRoot) {
+            result.push({
+              shadowRoot: $childNodeShadowRoot,
+              childNode: queryShadowRoot($childNodeShadowRoot),
+            });
+          }
+        });
+        return $queryChildNodeList;
+      }
+      queryShadowRoot($target);
+      return result;
+    },
+    ignoreStrRemove(text, isHTML = false) {
+      let ignoreNodeList = [];
+      if (ignoreNodeList.length) {
+        ignoreNodeList.forEach(($ignore) => {
+          if ($ignore == null) {
+            return;
+          }
+          if (isHTML) {
+            if ($ignore.innerHTML != null) {
+              text = text.replaceAll($ignore.innerHTML, "");
+            }
+          } else {
+            let text2 = $ignore.innerText || $ignore.textContent;
+            if (text2 != null) {
+              text2 = text2.replaceAll(text2, "");
+            }
+          }
+        });
+      }
+      return text;
+    },
+    getPageText(target = document.documentElement, isCheckShadowRoot) {
+      let strList = [];
+      strList.push(target?.textContent || target?.innerText || "");
+      if (isCheckShadowRoot) {
+        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        if (queryShadowRootAllNodeInfo.length) {
+          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
+            let shadowRootText = queryShadowRootInfo.shadowRoot.textContent;
+            if (shadowRootText) {
+              strList.push(shadowRootText);
+            }
+          });
+        }
+      }
+      strList = strList.filter((item) => item !== "");
+      return strList;
+    },
+    getPageHTML(target = document.documentElement, isCheckShadowRoot) {
+      let strList = [];
+      strList.push(target.innerHTML);
+      if (isCheckShadowRoot) {
+        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        if (queryShadowRootAllNodeInfo.length) {
+          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
+            let shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
+            if (shadowRootHTML) {
+              strList.push(shadowRootHTML);
+            }
+          });
+        }
+      }
+      strList = strList.filter((item) => item !== "");
+      return strList;
+    },
+    getInputElementValue(target = document.documentElement, isCheckShadowRoot) {
+      let result = [];
+      Array.from(target.querySelectorAll("input")).forEach(($input) => {
+        result.push($input.value);
+      });
+      if (isCheckShadowRoot) {
+        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        if (queryShadowRootAllNodeInfo.length) {
+          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
+            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
+              const $childNode = queryShadowRootInfo.childNode[index];
+              if ($childNode instanceof HTMLInputElement && $childNode.value) {
+                result.push($childNode.value);
+              }
+            }
+          });
+        }
+      }
+      return result;
+    },
+    getTextAreaElementValue(target = document.documentElement, isCheckShadowRoot) {
+      let result = [];
+      Array.from(target.querySelectorAll("textarea")).forEach(($textarea) => {
+        result.push($textarea.value);
+      });
+      if (isCheckShadowRoot) {
+        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        if (queryShadowRootAllNodeInfo.length) {
+          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
+            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
+              const $childNode = queryShadowRootInfo.childNode[index];
+              if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
+                result.push($childNode.value);
+              }
+            }
+          });
+        }
+      }
+      return result;
+    },
+    getSelectContent() {
+      let result = {
+        text: "",
+        html: "",
+      };
+      let selection = window.getSelection();
+      if (selection) {
+        result.text = selection.toString();
+        let $tempDiv = domUtils.createElement("div");
+        if (!selection.isCollapsed) {
+          const docFragment = selection.getRangeAt(0).cloneContents();
+          $tempDiv.appendChild(docFragment);
+          result.html = domUtils.html($tempDiv);
+        }
+      }
+      return result;
     },
   };
   const NetDiskXhrHook = {
@@ -14146,67 +14163,71 @@
       });
     },
   };
+  const vue = new utils.Vue();
+  const reactive = vue.reactive({
+    domChange: true,
+  });
   const NetDiskWorker = {
-    isHandleMatch: false,
-    workerInitError: null,
-    neverTipWorkerInitErrorKey: "never-toast-worker-error",
-    delayNotMatchCount: 0,
-    postMessageType: "worker-init-error",
-    dispatchMonitorDOMChange: false,
-    blobUrl: "",
-    GM_matchWorker: null,
+    $data: {
+      delayNotMatchCount: 0,
+      blobUrl: "",
+      GM_matchWorker: null,
+    },
+    $flag: {
+      isInit: false,
+      isHandleMatch: false,
+      dispatchMonitorDOMChange: false,
+    },
+    $key: {
+      neverTipWorkerInitErrorKey: "never-toast-worker-error",
+      postMessageType: "worker-init-error",
+    },
+    $check: {
+      checkTimeId: void 0,
+      workerInitError: null,
+    },
     init() {
       this.listenWorkerInitErrorDialog();
       this.initWorker();
       this.monitorDOMChange();
-    },
-    checkCSP() {
-      let error = void 0;
-      try {
-        _unsafeWindow.eval(`let __test__csp_${Date.now()} = ${Date.now()}`);
-      } catch (e) {
-        error = e;
-      } finally {
-        return error;
-      }
+      utils.hasWorkerCSP().then((isCSP) => {
+        if (isCSP) {
+          this.workerInitFailed();
+        }
+      });
     },
     initWorker() {
       try {
-        const checkInitWorkerError = this.checkCSP();
-        if (checkInitWorkerError != null) {
-          throw checkInitWorkerError;
-        }
-        const handleMatch = `
-        (() => {
-            function ${NetDiskWorker.handleRegularMatch.toString()}
+        const workerJs = `
+(() => {
+    function ${NetDiskWorker.handleRegularMatch.toString()}
 
-            function ${NetDiskWorker.uniqueArr}
-            
-            this.addEventListener(
-            "message",
-            function (event) {
-                const data = event.data;
-                let matchedList = [];
-                ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
-                	matchedList.push(matchData);
-					        data.textList = matchData.textList;
-                })
-                matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
-                this.postMessage({
-                  options: data,
-                  msg: "Match End",
-                  data: matchedList,
-                  startTime: data.startTime,
-                  endTime: Date.now(),
-                });
-            },
-            {
-                capture: true,
-            }
-            );
-        })();
-  		`;
-        const workerScript = new Blob([handleMatch], {
+    function ${NetDiskWorker.uniqueArr}
+    
+    this.addEventListener(
+    "message",
+    function (event) {
+        const data = event.data;
+        let matchedList = [];
+        ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
+          matchedList.push(matchData);
+          data.textList = matchData.textList;
+        })
+        matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        this.postMessage({
+          options: data,
+          msg: "Match End",
+          data: matchedList,
+          startTime: data.startTime,
+          endTime: Date.now(),
+        });
+    },
+    {
+        capture: true,
+    }
+    );
+})();`;
+        const workerScript = new Blob([workerJs], {
           type: "application/javascript",
         });
         let workerUrl = window.URL.createObjectURL(workerScript);
@@ -14216,39 +14237,42 @@
           });
           workerUrl = workerPolicy.createScriptURL(workerUrl);
         }
-        this.blobUrl = workerUrl;
-        this.GM_matchWorker = new Worker(this.blobUrl);
-        this.GM_matchWorker.onmessage = this.onMessage;
-        this.GM_matchWorker.onerror = this.onError;
-        log.info(`Worker（Blob Url）：${this.blobUrl}`);
+        this.$data.blobUrl = workerUrl;
+        this.$data.GM_matchWorker = new Worker(this.$data.blobUrl);
+        this.$data.GM_matchWorker.onmessage = this.onMessage;
+        this.$data.GM_matchWorker.onerror = this.onError;
+        log.info(`Worker(Blob Url): ${this.$data.blobUrl}`);
       } catch (error) {
-        this.workerInitError = error;
-        this.coverWorker();
-        log.info(`use local GM_matchWorker`);
+        this.coverWorker(error);
       } finally {
-        if (typeof this.blobUrl === "string") {
-          globalThis.URL.revokeObjectURL(this.blobUrl);
+        if (typeof this.$data.blobUrl === "string") {
+          globalThis.URL.revokeObjectURL(this.$data.blobUrl);
         }
-        this.blobUrl = "";
+        this.$data.blobUrl = "";
       }
     },
-    coverWorker() {
-      this.GM_matchWorker = {
+    coverWorker(error) {
+      if (error != null) {
+        this.$check.workerInitError = error;
+      }
+      log.info(`use local GM_matchWorker`, error);
+      this.$data.GM_matchWorker = {
         postMessage(data) {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             let matchedList = [];
             try {
               NetDiskWorker.handleRegularMatch(data, (matchData) => {
                 matchedList.push(matchData);
                 data.textList = matchData.textList;
               });
-            } catch (error) {
-              NetDiskWorker.onError(error);
+            } catch (error2) {
+              NetDiskWorker.onError(error2);
             } finally {
               matchedList = NetDiskWorker.uniqueArr(matchedList);
               NetDiskWorker.onMessage(
                 new MessageEvent("message", {
                   data: {
+                    isInitTest: true,
                     options: data,
                     msg: "Match End",
                     data: matchedList,
@@ -14275,7 +14299,7 @@
             } else {
               matchTextItem = matchTextItem.replace(characterMapping.searchValue, characterMapping.replaceValue);
             }
-          } catch (error) {}
+          } catch {}
         }
         matchTextList.push(matchTextItem);
       }
@@ -14329,16 +14353,15 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      const that = this;
       domUtils.on(
         globalThis,
         "message",
         (event) => {
           const messageData = event.data;
-          if (typeof messageData === "object" && messageData?.["type"] === this.postMessageType) {
+          if (typeof messageData === "object" && messageData?.["type"] === this.$key.postMessageType) {
             const data = messageData.data;
-            NetDiskWorker.workerInitError = data.error;
-            that.registerWorkerInitErrorNeverTipToast(data.hostname);
+            NetDiskWorker.$check.workerInitError = data.error;
+            this.registerWorkerInitErrorNeverTipToast(data.hostname);
             NetDiskPops.confirm(
               {
                 title: {
@@ -14400,7 +14423,7 @@
                   position: "space-between",
                   ok: {
                     text: "快速添加网站规则",
-                    callback(eventDetails, event2) {
+                    callback() {
                       const ruleOption = WebsiteRule.getTemplateData();
                       ruleOption.name = "手动匹配：" + data.hostname;
                       ruleOption.url = `^http(s|):\\/\\/${data.hostname}\\/`;
@@ -14427,7 +14450,7 @@
                   },
                   cancel: {
                     text: "网站规则",
-                    callback(details, event2) {
+                    callback() {
                       NetDiskRuleManager.showView("网站规则");
                     },
                   },
@@ -14435,7 +14458,7 @@
                     enable: true,
                     text: "不再提示",
                     type: "xiaomi-primary",
-                    callback(eventDetails, event2) {
+                    callback() {
                       NetDiskPops.confirm(
                         {
                           title: {
@@ -14447,9 +14470,9 @@
                           },
                           btn: {
                             ok: {
-                              callback(eventDetails2, event3) {
+                              callback(eventDetails) {
                                 NetDiskWorkerInitError.addHost(data.hostname);
-                                eventDetails2.close();
+                                eventDetails.close();
                               },
                             },
                           },
@@ -14485,14 +14508,14 @@
         { capture: true }
       );
     },
-    dispatchWorkerInitErrorDialog() {
+    dispatchWorkerInitErrorDialog(error) {
       top?.postMessage(
         {
-          type: this.postMessageType,
+          type: this.$key.postMessageType,
           data: {
             url: window.location.href,
             hostname: window.location.hostname,
-            error: this.workerInitError,
+            error: error ?? this.$check.workerInitError,
           },
         },
         "*"
@@ -14535,7 +14558,7 @@
       MenuRegister.update(menuOption);
     },
     postMessage(message, options) {
-      NetDiskWorker.GM_matchWorker.postMessage(message, options);
+      NetDiskWorker.$data.GM_matchWorker.postMessage(message, options);
     },
     onMessage(event) {
       const data = event.data;
@@ -14543,7 +14566,7 @@
         NetDiskView.$inst.matchPasteText.workerMatchEndCallBack(data);
       }
       if (data.options.from.startsWith("FirstLoad")) {
-        NetDiskWorker.delayNotMatchCount++;
+        NetDiskWorker.$data.delayNotMatchCount++;
       }
       NetDiskWorker.successCallBack(data);
     },
@@ -14681,20 +14704,43 @@
     },
     errorCallBack(error) {
       NetDiskWorker.matchingEndCallBack(true);
-      log.error("Worker Error" + (Panel.isTopWindow() ? "" : "（iframe）"), error);
+      log.error("Worker Error CallBack" + (Panel.isTopWindow() ? "" : " (iframe)"), error);
     },
-    matchingEndCallBack(isNow) {
-      if (isNow) {
-        NetDiskWorker.isHandleMatch = false;
-        if (NetDiskWorker.delayNotMatchCount > 0) {
-          NetDiskWorker.delayNotMatchCount = 0;
-          NetDiskWorker.dispatchMonitorDOMChange = true;
+    matchingEndCallBack(isResolveLock) {
+      if (isResolveLock) {
+        NetDiskWorker.$flag.isHandleMatch = false;
+        if (NetDiskWorker.$data.delayNotMatchCount > 0) {
+          NetDiskWorker.$data.delayNotMatchCount = 0;
+          reactive.domChange = true;
         }
       } else {
         const delaytime = parseFloat(NetDiskGlobalData.match.delaytime.value.toString()) * 1e3;
         setTimeout(() => {
           NetDiskWorker.matchingEndCallBack(true);
         }, delaytime);
+      }
+    },
+    workerInitFailed() {
+      this.coverWorker();
+      const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
+      if (matchMode === "Menu") {
+        return;
+      }
+      let neverToastWorkerError = _GM_getValue(this.$key.neverTipWorkerInitErrorKey, []);
+      if (!Array.isArray(neverToastWorkerError)) {
+        neverToastWorkerError = [neverToastWorkerError];
+      }
+      if (this.$check.workerInitError != null || this.$flag.isInit == false) {
+        log.error(
+          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，当前已使用其它函数来代替Worker执行文本匹配，如果执行匹配的文本的内容过大会时，则会导致页面卡死",
+          this.$check.workerInitError
+        );
+        const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
+        if (findHostName) {
+          this.registerWorkerInitErrorNeverTipToast(findHostName);
+        } else {
+          this.dispatchWorkerInitErrorDialog();
+        }
       }
     },
     monitorDOMChange() {
@@ -14719,9 +14765,9 @@
           Reflect.set(matchedRuleOption, ruleKeyName, item.rule);
         }
       });
-      async function observeEvent(mutations) {
-        if (NetDiskWorker.isHandleMatch) {
-          NetDiskWorker.delayNotMatchCount++;
+      const observeEvent = async function (mutations) {
+        if (NetDiskWorker.$flag.isHandleMatch) {
+          NetDiskWorker.$data.delayNotMatchCount++;
           return;
         }
         if (isAddedNodeToMatch && mutations && mutations.length) {
@@ -14739,7 +14785,7 @@
             return;
           }
         }
-        NetDiskWorker.isHandleMatch = true;
+        NetDiskWorker.$flag.isHandleMatch = true;
         const startTime = Date.now();
         if (readClipboard) {
           try {
@@ -14747,7 +14793,7 @@
             if (clipboardInfo.error != null) {
               NetDisk.$data.clipboardText = clipboardInfo.content;
             }
-          } catch (error) {}
+          } catch {}
         }
         if (typeof NetDisk.$data.clipboardText !== "string") {
           NetDisk.$data.clipboardText = "";
@@ -14835,12 +14881,11 @@
           startTime,
           from: "DOMChange",
         });
-      }
-      let dispatchMonitorDOMChange = NetDiskWorker.dispatchMonitorDOMChange;
-      Object.defineProperty(NetDiskWorker, "dispatchMonitorDOMChange", {
-        set: function (value) {
-          dispatchMonitorDOMChange = value;
-          if (value) {
+      };
+      vue.watch(
+        () => reactive.domChange,
+        (newValue) => {
+          if (newValue) {
             const addedNodes = $$("html");
             observeEvent([
               {
@@ -14857,29 +14902,11 @@
             ]);
           }
         },
-        get: function () {
-          return dispatchMonitorDOMChange;
-        },
-      });
+        {
+          triggerMethod: "set",
+        }
+      );
       const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
-      if (matchMode !== "Menu") {
-        let neverToastWorkerError = _GM_getValue(this.neverTipWorkerInitErrorKey, []);
-        if (!Array.isArray(neverToastWorkerError)) {
-          neverToastWorkerError = [neverToastWorkerError];
-        }
-        if (this.workerInitError != null) {
-          log.error(
-            "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-            this.workerInitError
-          );
-          const findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
-          if (findHostName) {
-            this.registerWorkerInitErrorNeverTipToast(findHostName);
-          } else {
-            this.dispatchWorkerInitErrorDialog();
-          }
-        }
-      }
       NetDiskXhrHook.execMatch({
         characterMapping,
         matchTextRange: matchRange,
@@ -14895,7 +14922,7 @@
             subtree: NetDiskGlobalData.match["mutationObserver-subtree"].value,
           },
         });
-        this.dispatchMonitorDOMChange = true;
+        reactive.domChange = true;
       } else if (matchMode === "Menu") {
         MenuRegister.add({
           key: "performPageTextMatchingManually_" + window.location.href,
@@ -14906,7 +14933,7 @@
             return text;
           },
           callback: () => {
-            this.dispatchMonitorDOMChange = true;
+            reactive.domChange = true;
           },
         });
       } else {
@@ -21553,7 +21580,7 @@
           target: "window",
           callback() {
             log.info("快捷键 ==> 执行文本匹配");
-            NetDiskWorker.dispatchMonitorDOMChange = true;
+            NetDiskWorker.$flag.dispatchMonitorDOMChange = true;
           },
         },
         "netdisk-keyboard-character-mapping": {

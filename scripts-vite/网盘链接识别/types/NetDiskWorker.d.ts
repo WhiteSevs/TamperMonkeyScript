@@ -13,27 +13,6 @@ declare interface NetDiskWorkerHandleObject {
 
 /** worker的传递的数据 */
 declare interface NetDiskWorkerOptions {
-  /** 字符映射规则 */
-  characterMapping: {
-    searchValue: RegExp | string;
-    replaceValue: string;
-  }[];
-  /**
-   * 待匹配的字符串数组
-   */
-  textList: string[];
-  /**
-   * 规则匹配的类型
-   */
-  matchTextRange: ("innerHTML" | "innerText")[];
-  /**
-   * 匹配的规则
-   */
-  matchedRuleOption: NetDiskMatchedRuleOption;
-  /**
-   * 开始时间
-   */
-  startTime: number;
   /**
    * 来源
    */
@@ -46,6 +25,27 @@ declare interface NetDiskWorkerOptions {
     | "Debug"
     | "Xhr"
     | "ShortCut-Select-Content";
+  /**
+   * 开始时间
+   */
+  startTime: number;
+  /** 字符映射规则 */
+  characterMapping: {
+    searchValue: RegExp | string;
+    replaceValue: string;
+  }[];
+  /**
+   * 规则匹配的类型
+   */
+  matchTextRange: ("innerHTML" | "innerText")[];
+  /**
+   * 匹配的规则
+   */
+  matchedRuleOption: NetDiskMatchedRuleOption;
+  /**
+   * 待匹配的字符串数组
+   */
+  textList: string[];
 }
 declare interface NetDiskWorkerMatchOption {
   /** 匹配的网盘规则的名 */
@@ -73,7 +73,7 @@ declare interface NetDiskWorkerCallBackOptions {
    * + isMatchingEnd: true 当前循环的规则匹配结束的时间
    * + isMatchingEnd: false 所有规则匹配结束的时间
    */
-  endTime: number;
+  endTime: number | undefined;
 }
 
 /** worker初始化失败传递的对象 */

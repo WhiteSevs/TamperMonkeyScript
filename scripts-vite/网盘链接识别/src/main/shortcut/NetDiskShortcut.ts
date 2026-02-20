@@ -1,14 +1,13 @@
 import { log } from "@/env";
 import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
+import { NetDisk } from "../NetDisk";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
+import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskView } from "../view/NetDiskView";
 import { NetDiskSettingView } from "../view/setting/NetDiskSettingView";
-import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskWorker } from "../worker/NetDiskWorker";
-import { CharacterMapping } from "../character-mapping/CharacterMapping";
-import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { NetDiskWorkerUtils } from "../worker/NetDiskWorkerUtils";
-import { NetDisk } from "../NetDisk";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 export const NetDiskShortcut = {
   shortCut: new ShortCut("GM_shortcut"),
@@ -49,7 +48,7 @@ export const NetDiskShortcut = {
         target: "window",
         callback() {
           log.info("快捷键 ==> 执行文本匹配");
-          NetDiskWorker.dispatchMonitorDOMChange = true;
+          NetDiskWorker.$flag.dispatchMonitorDOMChange = true;
         },
       },
       "netdisk-keyboard-character-mapping": {
