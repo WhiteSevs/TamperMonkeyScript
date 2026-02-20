@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.16
+// @version      2026.2.20
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.10.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -2079,6 +2079,18 @@
       };
     },
   };
+  {
+    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+  }
+  {
+    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
+  }
+  __pops__.GlobalConfig.setGlobalConfig({
+    mask: {
+      enable: true,
+    },
+    drag: true,
+  });
   const MTIdentifyLinks = () => {
     const HANDLER_CLASS_NAME = "texttolink";
     const url_regexp =
@@ -2229,18 +2241,6 @@
     setTimeout(clearAllLinks, 1500);
     setTimeout(initLinkProcessing, 100);
   };
-  {
-    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-  }
-  {
-    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
-  }
-  __pops__.GlobalConfig.setGlobalConfig({
-    mask: {
-      enable: true,
-    },
-    drag: true,
-  });
   const MTRegExp = {
     formhash: /formhash=([0-9a-zA-Z]+)/,
     uid: /uid(=|-)(\d+)/,
@@ -2692,81 +2692,95 @@
     init() {
       domUtils.onReady(() => {
         Panel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
-          this.quickCollentBtn();
+          return this.quickCollentBtn();
         });
         Panel.execMenuOnce("mt-forum-post-quickReplyOptimization", () => {
-          this.quickReplyOptimization();
+          return this.quickReplyOptimization();
         });
       });
     },
-    quickCollentBtn() {
+    async quickCollentBtn() {
       log.info(`【快捷收藏】`);
-      domUtils.waitNode("#scrolltop", 1e4).then(async ($scrollTop) => {
-        if (!$scrollTop) {
-          return;
-        }
-        let formhash = await MTUtils.getFormHash();
-        let threadId = MTUtils.getThreadId(window.location.href);
-        let collectUrl = `/home.php?${utils.toSearchParamsStr({
-          mod: "spacecp",
-          ac: "favorite",
-          type: "thread",
-          id: threadId,
-          formhash,
-          infloat: "yes",
-          handlekey: "k_favorite",
-          inajax: 1,
-          ajaxtarget: "fwin_content_k_favorite",
-        })}`;
-        let $collect = domUtils.createElement("span", {
-          innerHTML: `
-        <a href="${collectUrl}" 
-          id="k_favorite"
-          onclick="showWindow(this.id, this.href, 'get', 0);"
-          onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
-          <img src="https://s1.ax1x.com/2020/04/29/JTk3lD.gif"
-              height="26" 
-              width="26" 
-              style="position:absolute;top:10px;left:11px">
-        </a>
-        `,
-        });
-        domUtils.prepend($scrollTop, $collect);
+      const $scrollTop = await domUtils.waitNode("#scrolltop", 1e4);
+      if (!$scrollTop) {
+        return;
+      }
+      let formhash = await MTUtils.getFormHash();
+      let threadId = MTUtils.getThreadId(window.location.href);
+      let collectUrl = `/home.php?${utils.toSearchParamsStr({
+        mod: "spacecp",
+        ac: "favorite",
+        type: "thread",
+        id: threadId,
+        formhash,
+        infloat: "yes",
+        handlekey: "k_favorite",
+        inajax: 1,
+        ajaxtarget: "fwin_content_k_favorite",
+      })}`;
+      let $collect = domUtils.createElement("span", {
+        innerHTML: `
+      <a href="${collectUrl}" 
+        id="k_favorite"
+        onclick="showWindow(this.id, this.href, 'get', 0);"
+        onmouseover="this.title = $('favoritenumber').innerHTML + ' 人收藏'">
+        <img src="data:image/png;base64,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"
+            height="26" 
+            width="26" 
+            style="position:absolute;top:10px;left:11px">
+      </a>
+      `,
       });
+      domUtils.prepend($scrollTop, $collect);
+      return [
+        addStyle(
+          `
+      a#k_favorite{
+        background: #ffffff;
+      }
+      a#k_favorite:hover{
+        background: #f80 !important;
+      }
+    `
+        ),
+        () => {
+          domUtils.remove($collect);
+        },
+      ];
     },
-    quickReplyOptimization() {
-      domUtils.waitNode('#scrolltop a[title="快速回复"]', 1e4).then(($ele) => {
-        if (!$ele) {
-          return;
-        }
-        log.info(`快捷回复优化`);
-        domUtils.on($ele, "click", function () {
-          _unsafeWindow.showWindow("reply", $ele.href);
-          log.info(`等待弹窗出现`);
-          domUtils.waitNode("#moreconf", 1e4).then(($moreconf) => {
-            if (!$moreconf) {
-              return;
+    async quickReplyOptimization() {
+      const $el = await domUtils.waitNode('#scrolltop a[title="快速回复"]', 1e4);
+      if (!$el) {
+        return;
+      }
+      log.info(`快捷回复优化`);
+      const listener = domUtils.on($el, "click", function () {
+        _unsafeWindow.showWindow("reply", $el.href);
+        log.info(`等待弹窗出现`);
+        domUtils.waitNode("#moreconf", 1e4).then(($moreconf) => {
+          if (!$moreconf) {
+            return;
+          }
+          log.success(`弹出出现，添加按钮`);
+          let $oneKeySpace = domUtils.createElement(
+            "button",
+            {
+              innerText: "一键空格",
+              type: "button",
+              id: "insertspace2",
+            },
+            {
+              style: "float: left;",
             }
-            log.success(`弹出出现，添加按钮`);
-            let $oneKeySpace = domUtils.createElement(
-              "button",
-              {
-                innerText: "一键空格",
-                type: "button",
-                id: "insertspace2",
-              },
-              {
-                style: "float: left;",
-              }
-            );
-            domUtils.on($oneKeySpace, "click", (event) => {
-              domUtils.preventEvent(event);
-              domUtils.val($("#postmessage"), domUtils.val($("#postmessage")) + "           ");
-            });
-            domUtils.append($moreconf, $oneKeySpace);
+          );
+          domUtils.on($oneKeySpace, "click", (event) => {
+            domUtils.preventEvent(event);
+            domUtils.val($("#postmessage"), domUtils.val($("#postmessage")) + "           ");
           });
+          domUtils.append($moreconf, $oneKeySpace);
         });
       });
+      return listener.off;
     },
   };
   const beautifyCss =
