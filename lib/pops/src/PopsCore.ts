@@ -1,36 +1,52 @@
-const PopsCoreDefaultEnv = {
+const OriginPrototype = {
+  Object: {
+    defineProperty: Object.defineProperty,
+  },
+};
+
+const PopsCoreDefaultApi = {
   document: document,
   window: window,
   globalThis: globalThis,
   self: self,
+  setTimeout: globalThis.setTimeout.bind(globalThis),
+  setInterval: globalThis.setInterval.bind(globalThis),
+  clearTimeout: globalThis.clearTimeout.bind(globalThis),
+  clearInterval: globalThis.clearInterval.bind(globalThis),
 };
 
-const PopsCoreEnv = Object.assign({}, PopsCoreDefaultEnv);
+const PopsCoreApi = Object.assign({}, PopsCoreDefaultApi);
 
 const PopsCore = {
-  init(option?: typeof PopsCoreDefaultEnv) {
+  init(option?: typeof PopsCoreDefaultApi) {
     if (!option) {
-      option = Object.assign({}, PopsCoreDefaultEnv);
+      option = Object.assign({}, PopsCoreDefaultApi);
     }
-    Object.assign(PopsCoreEnv, option);
+    Object.assign(PopsCoreApi, option);
   },
   get document() {
-    return PopsCoreEnv.document;
+    return PopsCoreApi.document;
   },
   get window() {
-    return PopsCoreEnv.window;
+    return PopsCoreApi.window;
   },
   get globalThis() {
-    return PopsCoreEnv.globalThis;
+    return PopsCoreApi.globalThis;
   },
   get self() {
-    return PopsCoreEnv.self;
+    return PopsCoreApi.self;
   },
-};
-
-const OriginPrototype = {
-  Object: {
-    defineProperty: Object.defineProperty,
+  get setTimeout() {
+    return PopsCoreApi.setTimeout;
+  },
+  get setInterval() {
+    return PopsCoreApi.setInterval;
+  },
+  get clearTimeout() {
+    return PopsCoreApi.clearTimeout;
+  },
+  get clearInterval() {
+    return PopsCoreApi.clearInterval;
   },
 };
 

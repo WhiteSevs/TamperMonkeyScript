@@ -1,7 +1,7 @@
 {
   "name": "@whitesev/pops",
-  "version": "3.2.2",
-  "description": "弹窗库，包含了alert、confirm、prompt、drawer、loading、iframe、rightClickMenu等组件",
+  "version": "3.3.0",
+  "description": "弹窗库，包含了alert、confirm、prompt、drawer、folder、loading、iframe、panel、tooltip、searchSuggestion、rightClickMenu组件",
   "keywords": [
     "ScriptCat",
     "TamperMonkey",
@@ -47,8 +47,7 @@
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
   "dependencies": {
-    "any-touch": "^2.2.0",
-    "worker-timers": "8.0.30"
+    "any-touch": "^2.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

@@ -1,11 +1,5 @@
 import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
-import {
-  clearInterval as WorkerClearInterval,
-  clearTimeout as WorkerClearTimeout,
-  setInterval as WorkerSetInterval,
-  setTimeout as WorkerSetTimeout,
-} from "worker-timers";
 import AnyTouch from "any-touch";
 
 class PopsUtils {
@@ -356,49 +350,25 @@ class PopsUtils {
    * 自动使用 Worker 执行 setTimeout
    */
   setTimeout(callback: (...args: any[]) => any, timeout: number = 0) {
-    try {
-      return WorkerSetTimeout(callback, timeout);
-    } catch {
-      return setTimeout(callback, timeout);
-    }
+    return PopsCore.setTimeout(callback, timeout);
   }
   /**
    * 配合 .setTimeout 使用
    */
   clearTimeout(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        WorkerClearTimeout(timeId);
-      }
-    } catch {
-      // TODO
-    } finally {
-      clearTimeout(timeId);
-    }
+    return PopsCore.clearTimeout(timeId);
   }
   /**
    * 自动使用 Worker 执行 setInterval
    */
   setInterval(callback: (...args: any[]) => any, timeout: number = 0) {
-    try {
-      return WorkerSetInterval(callback, timeout);
-    } catch {
-      return setInterval(callback, timeout);
-    }
+    return PopsCore.setInterval(callback, timeout);
   }
   /**
    * 配合 .setInterval 使用
    */
   clearInterval(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        WorkerClearInterval(timeId);
-      }
-    } catch {
-      // 忽略
-    } finally {
-      clearInterval(timeId);
-    }
+    return PopsCore.clearInterval(timeId);
   }
   /**
    * 覆盖对象中的数组新值
