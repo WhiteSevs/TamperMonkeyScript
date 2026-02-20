@@ -1,6 +1,6 @@
 {
   "name": "qmsg",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
   "keywords": [
     "ScriptCat",
@@ -39,9 +39,6 @@
     "format": "oxfmt . --write",
     "dev": "vue-tsc --noEmit && vite --force",
     "build": "pnpm run format && pnpm run lint && rollup -c"
-  },
-  "dependencies": {
-    "worker-timers": "^8.0.30"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

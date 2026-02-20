@@ -1,5 +1,5 @@
-# v1.6.2
+# v1.7.0
 
-## Fix
+## Deps
 
-- 修复JSON.stringify()方法处理Node类型失败的问题
+- 移除依赖`worker-timers`

@@ -1,6 +1,6 @@
 import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
-import { clearInterval, clearTimeout, setInterval, setTimeout } from "worker-timers";
 import type { QmsgConfig } from "./types/config";
+import { QmsgCore } from "./QmsgCore";
 
 export const QmsgUtils = {
   /**
@@ -110,68 +110,43 @@ export const QmsgUtils = {
    * 自动使用 Worker 执行 setTimeout
    */
   setTimeout(callback: (...args: any[]) => any, timeout: number) {
-    try {
-      return setTimeout(callback, timeout);
-    } catch {
-      return globalThis.setTimeout(callback, timeout);
-    }
+    return QmsgCore.setTimeout(callback, timeout);
   },
   /**
    * 配合 QmsgUtils.setTimeout 使用
    */
   clearTimeout(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        clearTimeout(timeId);
-      }
-    } catch {
-      // TODO
-    } finally {
-      globalThis.clearTimeout(timeId);
+    if (timeId != null) {
+      QmsgCore.clearTimeout(timeId);
     }
   },
   /**
    * 自动使用 Worker 执行 setInterval
    */
   setInterval(callback: (...args: any[]) => any, timeout: number) {
-    try {
-      return setInterval(callback, timeout);
-    } catch {
-      return globalThis.setInterval(callback, timeout);
-    }
+    QmsgCore.setInterval(callback, timeout);
   },
   /**
    * 配合 QmsgUtils.setInterval 使用
    */
   clearInterval(timeId: number | undefined) {
-    try {
-      if (timeId != null) {
-        clearInterval(timeId);
-      }
-    } catch {
-      // TODO
-    } finally {
-      globalThis.clearInterval(timeId);
+    if (timeId != null) {
+      QmsgCore.clearInterval(timeId);
     }
   },
   /**
    * 设置安全的html
    */
   setSafeHTML($el: Element, text: string) {
-    // 创建 TrustedHTML 策略（需 CSP 允许）
-    try {
+    // @ts-expect-error
+    if (globalThis.trustedTypes && typeof globalThis.trustedTypes.createPolicy === "function") {
+      // @ts-expect-error
+      const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+        createHTML: (html: string) => html,
+      });
+      $el.innerHTML = policy.createHTML(text);
+    } else {
       $el.innerHTML = text;
-    } catch {
-      // @ts-ignore
-      if (globalThis.trustedTypes) {
-        // @ts-ignore
-        const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
-          createHTML: (html: string) => html,
-        });
-        $el.innerHTML = policy.createHTML(text);
-      } else {
-        throw new Error("QmsgUtils trustedTypes is not defined");
-      }
     }
   },
 };

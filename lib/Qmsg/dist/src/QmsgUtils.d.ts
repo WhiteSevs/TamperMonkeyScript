@@ -41,7 +41,7 @@ export declare const QmsgUtils: {
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback: (...args: any[]) => any, timeout: number): number;
+    setInterval(callback: (...args: any[]) => any, timeout: number): void;
     /**
      * 配合 QmsgUtils.setInterval 使用
      */
