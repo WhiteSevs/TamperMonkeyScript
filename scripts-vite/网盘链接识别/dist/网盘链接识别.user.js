@@ -9197,7 +9197,7 @@
       let pageText = responseInstance.responseText;
       let websignkeyMatch =
         pageText.match(/'websignkey'[\s]*:[\s]*'(.+?)'/i) || pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
-      let websignMatch = pageText.match(/'websign':'(.+?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
+      let websignMatch = pageText.match(/'websign':'(.*?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
       let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
       let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
       let ajaxUrlMatch =
@@ -9263,17 +9263,8 @@
       let postRespData = postResp.data;
       log.info(postRespData);
       let jsonData = utils.toJSON(postRespData.responseText);
-      let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}`;
+      let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}&toolsdown`;
       jsonData["zt"];
-      let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
-        allowInterceptConfig: false,
-      });
-      if (!killdns2.status) {
-        downloadUrl += "&lanosso";
-        log.info(`测试killdns2失败使用参数 lanosso`);
-      } else {
-        log.info("测试killdns2成功，不改变原downloadUrl");
-      }
       log.success("直链", downloadUrl);
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
@@ -9291,14 +9282,7 @@
       }
     }
     async getKNDS() {
-      let response = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
-        allowInterceptConfig: false,
-      });
-      if (response.status && utils.isNotNull(response.data.responseText)) {
-        return 1;
-      } else {
-        return 0;
-      }
+      return 1;
     }
     async fileMoreAjax(shareCode, accessCode, config) {
       const postData = utils.toFormData({

@@ -818,7 +818,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     let pageText = responseInstance.responseText;
     let websignkeyMatch =
       pageText.match(/'websignkey'[\s]*:[\s]*'(.+?)'/i) || pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
-    let websignMatch = pageText.match(/'websign':'(.+?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
+    let websignMatch = pageText.match(/'websign':'(.*?)'/i) || pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
     let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
     let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
     let ajaxUrlMatch =
@@ -885,7 +885,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     let postRespData = postResp.data;
     log.info(postRespData);
     let jsonData = utils.toJSON(postRespData.responseText);
-    let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}`;
+    let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}&toolsdown`;
     let zt = jsonData["zt"];
 
     // var killdns = true;
@@ -893,16 +893,16 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     //   allowInterceptConfig: false,
     // });
     // var killdns2 = true;
-    let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
-      allowInterceptConfig: false,
-    });
-    if (!killdns2.status) {
-      // 使用lanosso
-      downloadUrl += "&lanosso";
-      log.info(`测试killdns2失败使用参数 lanosso`);
-    } else {
-      log.info("测试killdns2成功，不改变原downloadUrl");
-    }
+    // let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
+    //   allowInterceptConfig: false,
+    // });
+    // if (!killdns2.status) {
+    //   // 使用lanosso
+    //   downloadUrl += "&lanosso";
+    //   log.info(`测试killdns2失败使用参数 lanosso`);
+    // } else {
+    //   log.info("测试killdns2成功，不改变原downloadUrl");
+    // }
 
     log.success("直链", downloadUrl);
     if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
@@ -924,6 +924,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    * 获取kdns的参数
    */
   async getKNDS() {
+    return 1;
     let response = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
       allowInterceptConfig: false,
     });
