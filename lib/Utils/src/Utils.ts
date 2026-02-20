@@ -234,8 +234,8 @@ class Utils {
     let timer: any = null as any;
     const that = this;
     return function (...args: A) {
-      that.workerClearTimeout(timer);
-      timer = that.workerSetTimeout(function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
         fn.apply(that, args);
       }, delay);
     };
@@ -263,7 +263,6 @@ class Utils {
    **/
   downloadBase64(base64Data: string, fileName: string, isIFrame?: boolean): void;
   downloadBase64(base64Data: string, fileName: string, isIFrame = false) {
-    const that = this;
     if (typeof base64Data !== "string") {
       throw new Error("Utils.downloadBase64 参数 base64Data 必须为 string 类型");
     }
@@ -276,7 +275,7 @@ class Utils {
       $iframe.style.display = "none";
       $iframe.src = base64Data;
       (this.windowApi.document.body || this.windowApi.document.documentElement).appendChild($iframe);
-      that.workerSetTimeout(() => {
+      setTimeout(() => {
         $iframe!.contentWindow!.document.execCommand("SaveAs", true, fileName);
         (this.windowApi.document.body || this.windowApi.document.documentElement).removeChild($iframe);
       }, 100);
@@ -2841,7 +2840,6 @@ class Utils {
    **/
   setTimeout(callback: (() => void) | string, delayTime?: number): Promise<any>;
   setTimeout(callback: (() => void) | string, delayTime: number = 0): Promise<any> {
-    const that = this;
     if (typeof callback !== "function" && typeof callback !== "string") {
       throw new TypeError("Utils.setTimeout 参数 callback 必须为 function|string 类型");
     }
@@ -2849,8 +2847,8 @@ class Utils {
       throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      that.workerSetTimeout(() => {
-        resolve(that.tryCatch().run(callback));
+      setTimeout(() => {
+        resolve(this.tryCatch().run(callback));
       }, delayTime);
     });
   }
@@ -2862,12 +2860,11 @@ class Utils {
    **/
   sleep(delayTime?: number): Promise<void>;
   sleep(delayTime: number = 0): Promise<void> {
-    const that = this;
     if (typeof delayTime !== "number") {
       throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
     }
     return new Promise((resolve) => {
-      that.workerSetTimeout(() => {
+      setTimeout(() => {
         resolve(void 0);
       }, delayTime);
     });
@@ -3397,13 +3394,12 @@ class Utils {
     intervalTimer: number = 250,
     maxTime: number = -1
   ): Promise<T> {
-    const that = this;
     if (checkFn == null) {
       throw new TypeError("checkObj 不能为空对象 ");
     }
     let isResolve = false;
     return new Promise((resolve, reject) => {
-      const interval = that.workerSetInterval(() => {
+      const interval = setInterval(() => {
         let inst = checkFn;
         if (typeof checkFn === "function") {
           inst = checkFn();
@@ -3416,14 +3412,14 @@ class Utils {
         }
         if ((typeof propertyName === "function" && propertyName(inst)) || Reflect.has(inst, propertyName as string)) {
           isResolve = true;
-          that.workerClearInterval(interval);
+          clearInterval(interval);
           resolve((inst as any)[propertyName as string]);
         }
       }, intervalTimer);
       if (maxTime !== -1) {
-        that.workerSetTimeout(() => {
+        setTimeout(() => {
           if (!isResolve) {
-            that.workerClearInterval(interval);
+            clearInterval(interval);
             reject();
           }
         }, maxTime);
@@ -3752,8 +3748,7 @@ class Utils {
   workerSetTimeout(callback: (...args: any[]) => any, timeout: number = 0) {
     try {
       return WorkerSetTimeout(callback, timeout);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return this.windowApi.setTimeout(callback, timeout);
     }
   }
@@ -3766,10 +3761,7 @@ class Utils {
       if (timeId != null) {
         WorkerClearTimeout(timeId);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // console.log(error);
-    } finally {
+    } catch {
       this.windowApi.clearTimeout(timeId);
     }
   }
@@ -3781,8 +3773,7 @@ class Utils {
   workerSetInterval(callback: (...args: any[]) => any, timeout: number = 0) {
     try {
       return WorkerSetInterval(callback, timeout);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       return this.windowApi.setInterval(callback, timeout);
     }
   }
@@ -3795,10 +3786,7 @@ class Utils {
       if (timeId != null) {
         WorkerClearInterval(timeId);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // console.log(error);
-    } finally {
+    } catch {
       this.windowApi.clearInterval(timeId);
     }
   }
@@ -3852,6 +3840,65 @@ class Utils {
       const FunctionConstructor = Object.getPrototypeOf(function () {}).constructor;
       return new FunctionConstructor(...args);
     }
+  }
+  /**
+   * 判断页面中是否存在`worker-src`的CSP规则
+   */
+  hasWorkerCSP() {
+    return new Promise<boolean>((resolve) => {
+      let flag = true;
+      let workerBlobUrl: string | undefined = void 0;
+
+      const workerJs = /*js*/ `
+(() => {
+    this.addEventListener(
+    "message",
+    function () {
+        this.postMessage({
+          success: true,
+        });
+    },
+    {
+        capture: true,
+    }
+    );
+})();`;
+      try {
+        const workerScript = new Blob([workerJs], {
+          type: "application/javascript",
+        });
+        workerBlobUrl = window.URL.createObjectURL(workerScript);
+        // @ts-expect-error
+        if (globalThis.trustedTypes && typeof globalThis.trustedTypes.createPolicy === "function") {
+          // 使用这个后虽然不报错，但是仍会有blob错误
+          // violates the following Content Security Policy directive: "worker-src 'self'". The action has been blocked.
+          // 且这个错误无法使用try/catch捕捉，导致本该提醒使用手动匹配的结果并无提醒弹窗
+          // @ts-expect-error
+          const workerPolicy = globalThis.trustedTypes.createPolicy("workerPolicy", {
+            createScriptURL: (url: string) => url,
+          });
+          workerBlobUrl = workerPolicy.createScriptURL(workerBlobUrl);
+        }
+        const worker = new Worker(workerBlobUrl!);
+        worker.onmessage = (data) => {
+          if (data.data.success) {
+            flag = false;
+          }
+        };
+        setTimeout(() => {
+          worker.terminate();
+          resolve(flag);
+        }, 500);
+        worker.postMessage("test");
+      } catch {
+        flag = true;
+      } finally {
+        // 释放
+        if (typeof workerBlobUrl === "string") {
+          globalThis.URL.revokeObjectURL(workerBlobUrl);
+        }
+      }
+    });
   }
 }
 

@@ -1590,6 +1590,10 @@ declare class Utils {
     }) => Promise<any> : (...args: {
         [K in keyof P]: any;
     }) => any;
+    /**
+     * 判断页面中是否存在`worker-src`的CSP规则
+     */
+    hasWorkerCSP(): Promise<boolean>;
 }
 declare const utils: Utils;
 export { utils as Utils };
