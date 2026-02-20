@@ -38,9 +38,6 @@
     "dev": "vue-tsc --noEmit && vite --force",
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
-  "dependencies": {
-    "worker-timers": "^8.0.30"
-  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@rollup/plugin-commonjs": "^29.0.0",
