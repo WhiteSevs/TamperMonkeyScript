@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.16
+// @version      2026.2.20
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.10.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.26/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-BYWmgNZk.js"(exports$1, module) {
+    "entrance-BY34K2cR.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -29977,52 +29977,51 @@ div[class^="new-summary-container_"] {
             return __target__;
           }
           if (typeof $el === "string") {
-            let $ele = await domUtils.waitNode($el, 1e4);
-            if (!$ele) {
+            let __$el = await domUtils.waitNode($el, 1e4);
+            if (!__$el) {
               return;
             }
           }
-          checkOption.forEach((needSetOption) => {
-            if (typeof needSetOption.msg === "string") {
-              log.info(needSetOption.msg);
+          checkOption.forEach((option) => {
+            if (typeof option.msg === "string") {
+              log.info(option.msg);
             }
-            function checkTarget() {
-              let $targetEl = getTarget();
-              if ($targetEl == null) {
+            const checkTarget = function () {
+              let $target = getTarget();
+              if ($target == null) {
                 return {
                   status: false,
                   isTimeout: true,
                   inst: null,
-                  $el: $targetEl,
+                  $el: $target,
                 };
               }
-              let reactInst = utils.getReactInstance($targetEl);
+              const reactInst = utils.getReactInstance($target);
               if (reactInst == null) {
                 return {
                   status: false,
                   isTimeout: false,
                   inst: null,
-                  $el: $targetEl,
+                  $el: $target,
                 };
               }
-              let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-                let reactPropInst2 = reactInst[__propName__];
+              const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+                const reactPropInst2 = reactInst[__propName__];
                 if (!reactPropInst2) {
                   return false;
                 }
-                let checkResult = needSetOption.check(reactPropInst2, $targetEl);
-                checkResult = Boolean(checkResult);
-                return checkResult;
+                const flag = Boolean(option.check(reactPropInst2, $target));
+                return flag;
               });
-              let reactPropName = reactPropNameOrNameList[findPropNameIndex];
-              let reactPropInst = reactInst[reactPropName];
+              const reactPropName = reactPropNameOrNameList[findPropNameIndex];
+              const reactPropInst = reactInst[reactPropName];
               return {
                 status: findPropNameIndex !== -1,
                 isTimeout: false,
                 inst: reactPropInst,
-                $el: $targetEl,
+                $el: $target,
               };
-            }
+            };
             utils
               .waitPropertyByInterval(
                 () => {
@@ -30033,13 +30032,13 @@ div[class^="new-summary-container_"] {
                 1e4
               )
               .then(() => {
-                let checkTargetResult = checkTarget();
+                const checkTargetResult = checkTarget();
                 if (checkTargetResult.status) {
-                  let reactInst = checkTargetResult.inst;
-                  needSetOption.set(reactInst, checkTargetResult.$el);
+                  const reactInst = checkTargetResult.inst;
+                  option.set(reactInst, checkTargetResult.$el);
                 } else {
-                  if (typeof needSetOption.failWait === "function") {
-                    needSetOption.failWait(checkTargetResult.isTimeout);
+                  if (typeof option.failWait === "function") {
+                    option.failWait(checkTargetResult.isTimeout);
                   }
                 }
               });
