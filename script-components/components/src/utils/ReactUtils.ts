@@ -67,19 +67,19 @@ const ReactUtils = {
       return __target__;
     }
     if (typeof $el === "string") {
-      let $ele = await DOMUtils.waitNode($el, 10000);
-      if (!$ele) {
+      let __$el = await DOMUtils.waitNode($el, 10000);
+      if (!__$el) {
         return;
       }
     }
-    checkOption.forEach((needSetOption) => {
-      if (typeof needSetOption.msg === "string") {
-        log.info(needSetOption.msg);
+    checkOption.forEach((option) => {
+      if (typeof option.msg === "string") {
+        log.info(option.msg);
       }
       /**
        * 检测react实例的属性
        */
-      function checkTarget(): {
+      const checkTarget = function(): {
         /** 是否成功检测到目标属性 */
         status: boolean;
         /** 是否检测超时 */
@@ -89,41 +89,40 @@ const ReactUtils = {
         /** 目标元素 */
         $el: HTMLElement | null | undefined;
       } {
-        let $targetEl = getTarget();
-        if ($targetEl == null) {
+        let $target = getTarget();
+        if ($target == null) {
           return {
             status: false,
             isTimeout: true,
             inst: null,
-            $el: $targetEl,
+            $el: $target,
           };
         }
-        let reactInst = utils.getReactInstance($targetEl);
+        const reactInst = utils.getReactInstance($target);
         if (reactInst == null) {
           return {
             status: false,
             isTimeout: false,
             inst: null,
-            $el: $targetEl,
+            $el: $target,
           };
         }
-        let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-          let reactPropInst = reactInst[__propName__ as keyof typeof reactInst];
+        const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+          const reactPropInst = reactInst[__propName__ as keyof typeof reactInst];
           if (!reactPropInst) {
             // 属性不存在
             return false;
           }
-          let checkResult = needSetOption.check(reactPropInst, $targetEl);
-          checkResult = Boolean(checkResult);
-          return checkResult;
+          const flag = Boolean(option.check(reactPropInst, $target));
+          return flag;
         });
-        let reactPropName = reactPropNameOrNameList[findPropNameIndex] as keyof typeof reactInst;
-        let reactPropInst = reactInst[reactPropName];
+        const reactPropName = reactPropNameOrNameList[findPropNameIndex] as keyof typeof reactInst;
+        const reactPropInst = reactInst[reactPropName];
         return {
           status: findPropNameIndex !== -1,
           isTimeout: false,
           inst: reactPropInst,
-          $el: $targetEl,
+          $el: $target,
         };
       }
       utils
@@ -136,13 +135,13 @@ const ReactUtils = {
           10000
         )
         .then(() => {
-          let checkTargetResult = checkTarget();
+          const checkTargetResult = checkTarget();
           if (checkTargetResult.status) {
-            let reactInst = checkTargetResult.inst;
-            needSetOption.set(reactInst, checkTargetResult.$el!);
+            const reactInst = checkTargetResult.inst;
+            option.set(reactInst, checkTargetResult.$el!);
           } else {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(checkTargetResult.isTimeout);
+            if (typeof option.failWait === "function") {
+              option.failWait(checkTargetResult.isTimeout);
             }
           }
         });
