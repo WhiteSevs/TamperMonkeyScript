@@ -15462,7 +15462,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.10.0";
+  const version = "2.11.0";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -19349,9 +19349,11 @@ ${err.stack}`);
     active = true;
     fn;
     scheduler;
-    constructor(fn, scheduler) {
+    options;
+    constructor(fn, scheduler, options) {
       this.fn = fn;
       this.scheduler = scheduler;
+      this.options = options;
     }
     run(cb) {
       if (!this.active) {
@@ -19366,6 +19368,17 @@ ${err.stack}`);
         if (typeof cb === "function") {
           cb(void 0);
         }
+      }
+    }
+    stop() {
+      if (this.active) {
+        if (this.deps && this.deps.length) {
+          this.deps.forEach((dep) => {
+            dep.delete(this);
+          });
+          this.deps.length = 0;
+        }
+        this.active = false;
       }
     }
   }
@@ -19431,16 +19444,14 @@ ${err.stack}`);
         set(target2, key, value, receiver) {
           const oldValue = target2[key];
           const result = Reflect.set(target2, key, value, receiver);
-          if (oldValue !== value) {
-            that.trigger(target2, "set", key, oldValue, value);
-          }
+          that.trigger(target2, "set", key, oldValue, value);
           return result;
         },
       });
       that.reactMap.set(target, proxy);
       return proxy;
     }
-    watch(source, changeCallBack) {
+    watch(source, changeCallBack, options) {
       let getter;
       if (VueUtils.isReactive(source)) {
         getter = () => this.traversal(source);
@@ -19450,17 +19461,34 @@ ${err.stack}`);
         return;
       }
       let oldValue;
+      const unwatch = () => {
+        effect.stop();
+      };
       const job = () => {
         const newValue = effect.run((activeEffect) => {
           this.activeEffect = activeEffect;
         });
         changeCallBack(newValue, oldValue);
+        if (options?.once) {
+          unwatch();
+        }
         oldValue = newValue;
       };
-      const effect = new ReactiveEffect(getter, job);
+      const effect = new ReactiveEffect(getter, job, {
+        triggerMethod: "not-same",
+        ...(options ?? {}),
+      });
       oldValue = effect.run((activeEffect) => {
         this.activeEffect = activeEffect;
       });
+      if (options) {
+        if (options.immediate) {
+          job();
+        }
+      }
+      return {
+        unwatch,
+      };
     }
     toReactive(value) {
       return VueUtils.isObject(value) ? this.reactive(value) : value;
@@ -19482,20 +19510,32 @@ ${err.stack}`);
       const depsMap = this.targetMap.get(target);
       if (!depsMap) return;
       const effects = depsMap.get(key);
-      this.triggerEffect(effects, "effects");
+      this.triggerEffect(effects, type, "effects", oldValue, value);
     }
-    triggerEffect(effects, name) {
+    triggerEffect(effects, _type, _name, oldValue, value) {
       if (effects) {
+        const isSame = oldValue === value;
         effects.forEach((effect) => {
-          if (effect.scheduler) {
-            effect.scheduler();
-          } else {
-            effect.run();
+          if (effect.options.triggerMethod === "not-same") {
+            if (isSame) {
+              return;
+            }
+            if (effect.scheduler) {
+              effect.scheduler();
+            } else {
+              effect.run();
+            }
+          } else if (effect.options.triggerMethod === "set") {
+            if (effect.scheduler) {
+              effect.scheduler();
+            } else {
+              effect.run();
+            }
           }
         });
       }
     }
-    track(target, type, key) {
+    track(target, _type, key) {
       if (!this.activeEffect) return;
       let depsMap = this.targetMap.get(target);
       if (!depsMap) {
