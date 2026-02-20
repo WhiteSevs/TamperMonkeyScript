@@ -1,3 +1,23 @@
+type ObjectWatchOptionItem = {
+    /**
+     * 是否立即执行
+     * @default false
+     */
+    immediate?: boolean;
+    /**
+     * 是否仅触发一次
+     * @default false
+     */
+    once?: boolean;
+    /**
+     * 值改变触发监听器的条件
+     * @default "not-same"
+     * @desc
+     * + `not-same`: 值改变时触发
+     * + `set`: 值被设置时触发
+     */
+    triggerMethod: "not-same" | "set";
+};
 declare class RefImpl {
     _value: any;
     _isRef: boolean;
@@ -28,8 +48,11 @@ export declare class Vue {
      * 观察被reactive的对象值改变
      * @param source 被观察的对象，这里采用函数返回对象
      * @param changeCallBack 值改变的回调
+     * @param options 配置项
      */
-    watch<T>(source: () => T, changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void): void;
+    watch<T>(source: () => T, changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void, options?: ObjectWatchOptionItem): {
+        unwatch: () => void;
+    } | undefined;
     toReactive(value: any): any;
     ref(value: any): RefImpl;
     toRef(object: any, key: any): ObjectRefImpl;

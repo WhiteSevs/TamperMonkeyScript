@@ -1519,14 +1519,39 @@ declare class Utils {
     /**
      * 自定义的动态响应对象
      * @example
-     * let vue = new Utils.Vue();
-     * let reactive = new vue.reactive({});
-     * vue.watch(()=>reactive["name"], (newValue, oldValue)=>{
+     * const vue = new Utils.Vue();
+     * const reactive = vue.reactive({
+     *   name: "",
+     * });
+     * vue.watch(()=>reactive.name, (newValue, oldValue)=>{
      *     console.log("newValue ==> " + newValue);
      *     console.log("oldValue ==> " + oldValue);
      * })
-     * vue["name"] = "测试";
-     * > "测试"
+     * reactive.name = "测试";
+     * > newValue ==> 测试
+     * > oldValue ==>
+     * reactive.name = "null";
+     * > newValue ==> null
+     * > oldValue ==> 测试
+     * reactive.name = "null";
+     * @example
+     * const vue = new Utils.Vue();
+     * const reactive = vue.reactive({
+     *   name: "",
+     * });
+     * vue.watch(()=>reactive.name, (newValue, oldValue)=>{
+     *     console.log("newValue ==> " + newValue);
+     *     console.log("oldValue ==> " + oldValue);
+     * },{
+     *   triggerMethod: "set",
+     * })
+     * reactive.name = "测试";
+     * > newValue ==> 测试
+     * > oldValue ==>
+     * reactive.name = "测试";
+     * > newValue ==> 测试
+     * > oldValue ==> 测试
+     *
      */
     Vue: typeof Vue;
     ModuleRaid: typeof ModuleRaid;

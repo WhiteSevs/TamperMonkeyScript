@@ -1,4 +1,3 @@
-// @ts-nocheck
 const VueUtils = {
   /** 标签 */
   ReactiveFlags: {
@@ -34,16 +33,39 @@ const VueUtils = {
   },
 };
 
+type ObjectWatchOptionItem = {
+  /**
+   * 是否立即执行
+   * @default false
+   */
+  immediate?: boolean;
+  /**
+   * 是否仅触发一次
+   * @default false
+   */
+  once?: boolean;
+  /**
+   * 值改变触发监听器的条件
+   * @default "not-same"
+   * @desc
+   * + `not-same`: 值改变时触发
+   * + `set`: 值被设置时触发
+   */
+  triggerMethod: "not-same" | "set";
+};
+
 class ReactiveEffect {
   deps: any[] = [];
-  private active = true;
-  private fn;
-  private scheduler;
-  constructor(fn: (...args: any[]) => any, scheduler: any) {
+  active = true;
+  fn;
+  scheduler;
+  options;
+  constructor(fn: (...args: any[]) => any, scheduler: any, options: ObjectWatchOptionItem) {
     this.fn = fn;
     this.scheduler = scheduler;
+    this.options = options; // 默认值为'same'
   }
-  run(cb: (activeEffect: any) => void) {
+  run(cb?: (activeEffect: any) => void) {
     if (!this.active) {
       this.fn();
     }
@@ -56,6 +78,18 @@ class ReactiveEffect {
       if (typeof cb === "function") {
         cb(undefined);
       }
+    }
+  }
+  stop() {
+    if (this.active) {
+      // 清除依赖关系
+      if (this.deps && this.deps.length) {
+        this.deps.forEach((dep: any) => {
+          dep.delete(this);
+        });
+        this.deps.length = 0;
+      }
+      this.active = false;
     }
   }
 }
@@ -127,9 +161,7 @@ export class Vue {
       set(target, key, value, receiver) {
         const oldValue = target[key as keyof T];
         const result = Reflect.set(target, key, value, receiver);
-        if (oldValue !== value) {
-          that.trigger(target, "set", key, oldValue, value);
-        }
+        that.trigger(target, "set", key, oldValue, value);
         return result;
       },
     });
@@ -140,8 +172,13 @@ export class Vue {
    * 观察被reactive的对象值改变
    * @param source 被观察的对象，这里采用函数返回对象
    * @param changeCallBack 值改变的回调
+   * @param options 配置项
    */
-  watch<T>(source: () => T, changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void) {
+  watch<T>(
+    source: () => T,
+    changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void,
+    options?: ObjectWatchOptionItem
+  ) {
     let getter;
     if (VueUtils.isReactive(source)) {
       getter = () => this.traversal(source);
@@ -151,17 +188,35 @@ export class Vue {
       return;
     }
     let oldValue: any;
+    const unwatch = () => {
+      effect.stop();
+    };
     const job = () => {
       const newValue = effect.run((activeEffect) => {
         this.activeEffect = activeEffect;
       });
       changeCallBack(newValue, oldValue);
+      if (options?.once) {
+        // 仅触发一次
+        unwatch();
+      }
       oldValue = newValue;
     };
-    const effect = new ReactiveEffect(getter, job);
+    const effect = new ReactiveEffect(getter, job, {
+      triggerMethod: "not-same",
+      ...(options ?? {}),
+    });
     oldValue = effect.run((activeEffect) => {
       this.activeEffect = activeEffect;
     });
+    if (options) {
+      if (options.immediate) {
+        job();
+      }
+    }
+    return {
+      unwatch,
+    };
   }
   toReactive(value: any) {
     return VueUtils.isObject(value) ? this.reactive(value) : value;
@@ -179,26 +234,42 @@ export class Vue {
     }
     return result;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private trigger(target: any, type: string, key: string | symbol, oldValue: any, value: any) {
+  private trigger(target: any, type: "set", key: string | symbol, oldValue: any, value: any) {
     const depsMap = this.targetMap.get(target);
     if (!depsMap) return;
     const effects = depsMap.get(key);
-    this.triggerEffect(effects, "effects");
+    this.triggerEffect(effects, type, "effects", oldValue, value);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private triggerEffect(effects: any[], name: string) {
+  private triggerEffect(
+    effects: (typeof ReactiveEffect)["prototype"][],
+    _type: "set",
+    _name: string,
+    oldValue: any,
+    value: any
+  ) {
     if (effects) {
+      const isSame = oldValue === value;
       effects.forEach((effect) => {
-        if (effect.scheduler) {
-          effect.scheduler();
-        } else {
-          effect.run();
+        if (effect.options.triggerMethod === "not-same") {
+          if (isSame) {
+            return;
+          }
+          if (effect.scheduler) {
+            effect.scheduler();
+          } else {
+            effect.run();
+          }
+        } else if (effect.options.triggerMethod === "set") {
+          if (effect.scheduler) {
+            effect.scheduler();
+          } else {
+            effect.run();
+          }
         }
       });
     }
   }
-  private track(target: WeakKey, type: string, key: string | symbol) {
+  private track(target: WeakKey, _type: "get", key: string | symbol) {
     if (!this.activeEffect) return;
     let depsMap = this.targetMap.get(target);
     if (!depsMap) {
