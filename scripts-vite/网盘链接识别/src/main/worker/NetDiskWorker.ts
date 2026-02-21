@@ -65,9 +65,15 @@ export const NetDiskWorker = {
     this.initWorker();
     this.monitorDOMChange();
 
-    utils.hasWorkerCSP().then((isCSP) => {
+    utils.hasWorkerCSP(2000).then((isCSP) => {
       if (isCSP) {
+        this.$check.workerInitError = new Error(
+          "test Worker postMessage failed, maybe violates Content Security Policy directive"
+        );
+        log.error(`page${Panel.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
         this.workerInitFailed();
+      } else {
+        log.info(`page${Panel.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
       }
     });
   },
@@ -416,7 +422,7 @@ export const NetDiskWorker = {
             {
               PC: {
                 width: "550px",
-                height: "350px",
+                height: "450px",
               },
               Mobile: {
                 width: "88vw",
