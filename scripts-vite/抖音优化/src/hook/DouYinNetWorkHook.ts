@@ -1,6 +1,4 @@
 import { utils } from "@/env";
-import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinNetWorkHook = {
   __ajaxHooker: null as null | ReturnType<typeof utils.ajaxHooker>,

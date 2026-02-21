@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.2.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3183,22 +3183,22 @@
         return false;
       };
       let timeId;
-      Hook.document_addEventListener((target, eventName, listener, option) => {
+      Hook.document_addEventListener((target, eventName, listener) => {
         if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function (...eventArgs) {
-            const event = eventArgs[0];
-            const code = event.code;
+            const keyboardEvent = eventArgs[0];
+            const code = keyboardEvent.code;
             const otherCodeList = [];
-            if (event.ctrlKey) {
+            if (keyboardEvent.ctrlKey) {
               otherCodeList.push("ctrl");
             }
-            if (event.altKey) {
+            if (keyboardEvent.altKey) {
               otherCodeList.push("alt");
             }
-            if (event.metaKey) {
+            if (keyboardEvent.metaKey) {
               otherCodeList.push("meta");
             }
-            if (event.shiftKey) {
+            if (keyboardEvent.shiftKey) {
               otherCodeList.push("shift");
             }
             const $active = document.activeElement;
@@ -3441,7 +3441,7 @@
       };
       Panel.addValueChangeListener("dy-video-doubleClickAction", check);
       Panel.addValueChangeListener("dy-live-doubleClickAction", check);
-      Hook.element_addEventListener((target, eventName, listener, option) => {
+      Hook.element_addEventListener((target, eventName, listener) => {
         const listenerStr = listener.toString();
         if (
           eventName === "click" &&
@@ -3540,7 +3540,7 @@
                   log.success(`hook live message decode success`);
                   const decode = decoder?.decode;
                   this.decoder.decode = async function (...args2) {
-                    const [data, method] = args2;
+                    const [, method] = args2;
                     const payload = await Reflect.apply(decode, this, args2);
                     const flag = await DouYinLiveMessage.execFilter(
                       {
@@ -5058,6 +5058,7 @@
     };
     parseAwemeInfoDictData(awemeInfo, from, showLog = false) {
       let nickname;
+      let createTime;
       let uid;
       let desc;
       let musicAlbum;
@@ -5122,6 +5123,12 @@
         authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
         isPicture = awemeInfoWithNetWork.aweme_type === 68;
         isFollow = Boolean(authorInfo?.follow_status);
+        if (typeof awemeInfoWithNetWork.create_time === "number") {
+          createTime = awemeInfoWithNetWork.create_time;
+          if (createTime > 0 && createTime < 1e12) {
+            createTime = createTime * 1e3;
+          }
+        }
         isAds = [
           () => {
             if (awemeInfoWithNetWork.is_ads) {
@@ -5421,6 +5428,12 @@
         authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
         isPicture = awemeInfoWithDOM.awemeType === 68;
         isFollow = Boolean(authorInfo?.followStatus);
+        if (typeof awemeInfoWithDOM.createTime === "number") {
+          createTime = awemeInfoWithDOM.createTime;
+          if (createTime > 0 && createTime < 1e12) {
+            createTime = createTime * 1e3;
+          }
+        }
         isAds = [
           () => {
             if (awemeInfoWithDOM.isAds) {
@@ -5687,6 +5700,7 @@
       return {
         awemeId,
         nickname,
+        createTime,
         uid,
         desc,
         textExtra,
@@ -5760,7 +5774,7 @@
         return handlerResult;
       }
       if (typeof config.videoInfoValue === "string") {
-        if (Boolean(config.videoInfoValue.match(config.ruleValue))) {
+        if (config.videoInfoValue.match(config.ruleValue)) {
           return true;
         }
       } else if (typeof config.videoInfoValue === "object") {
@@ -10832,7 +10846,6 @@
       }
     },
     execFilter() {
-      const that = this;
       Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
         const filterBase = new DouYinVideoFilterBase();
@@ -10869,7 +10882,7 @@
         };
         const xhr_hook_callback_1 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = that.getFilterRules(scopeName);
+            const filterRules = this.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -10891,7 +10904,7 @@
         };
         const xhr_hook_callback_2 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = that.getFilterRules(scopeName);
+            const filterRules = this.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -10917,7 +10930,7 @@
         };
         const xhr_hook_callback_3 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = that.getFilterRules(scopeName);
+            const filterRules = this.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -10940,7 +10953,7 @@
         };
         const xhr_hook_callback_4 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = that.getFilterRules(scopeName);
+            const filterRules = this.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }
@@ -10982,7 +10995,7 @@
         };
         const xhr_hook_callback_5 = (scopeName, request) => {
           request.response = async (response) => {
-            const filterRules = that.getFilterRules(scopeName);
+            const filterRules = this.getFilterRules(scopeName);
             if (!filterRules.length) {
               return;
             }

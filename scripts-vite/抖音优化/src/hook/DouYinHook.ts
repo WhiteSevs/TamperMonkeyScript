@@ -101,24 +101,24 @@ export const DouYinHook = {
       return false;
     };
     let timeId: number;
-    Hook.document_addEventListener((target, eventName, listener, option) => {
+    Hook.document_addEventListener((target, eventName, listener) => {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
-          const event = eventArgs[0] as KeyboardEvent;
+          const keyboardEvent = eventArgs[0] as KeyboardEvent;
           /** 键值字符串 */
-          const code = event.code;
+          const code = keyboardEvent.code;
           /** 组合键列表 */
           const otherCodeList: KeyboardOtherCodeName[] = [];
-          if (event.ctrlKey) {
+          if (keyboardEvent.ctrlKey) {
             otherCodeList.push("ctrl");
           }
-          if (event.altKey) {
+          if (keyboardEvent.altKey) {
             otherCodeList.push("alt");
           }
-          if (event.metaKey) {
+          if (keyboardEvent.metaKey) {
             otherCodeList.push("meta");
           }
-          if (event.shiftKey) {
+          if (keyboardEvent.shiftKey) {
             otherCodeList.push("shift");
           }
 
@@ -382,7 +382,7 @@ export const DouYinHook = {
     };
     Panel.addValueChangeListener("dy-video-doubleClickAction", check);
     Panel.addValueChangeListener("dy-live-doubleClickAction", check);
-    Hook.element_addEventListener((target, eventName, listener, option) => {
+    Hook.element_addEventListener((target, eventName, listener) => {
       const listenerStr = listener.toString();
       if (
         eventName === "click" &&
@@ -489,7 +489,7 @@ export const DouYinHook = {
                 log.success(`hook live message decode success`);
                 const decode = decoder?.decode;
                 this.decoder.decode = async function (...args2: any[]) {
-                  const [data, method] = args2;
+                  const [, method] = args2;
                   const payload = await Reflect.apply(decode, this, args2);
                   const flag = await DouYinLiveMessage.execFilter(
                     {

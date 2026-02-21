@@ -189,7 +189,6 @@ export const DouYinVideoFilter = {
    * 执行过滤
    */
   execFilter() {
-    const that = this;
     Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
       log.info(`执行视频过滤器`);
       const filterBase = new DouYinVideoFilterBase();
@@ -242,7 +241,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = that.getFilterRules(scopeName);
+          const filterRules = this.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -274,7 +273,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = that.getFilterRules(scopeName);
+          const filterRules = this.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -311,7 +310,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = that.getFilterRules(scopeName);
+          const filterRules = this.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -344,7 +343,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = that.getFilterRules(scopeName);
+          const filterRules = this.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }
@@ -400,7 +399,7 @@ export const DouYinVideoFilter = {
         request: UtilsAjaxHookRequestOptions
       ) => {
         request.response = async (response) => {
-          const filterRules = that.getFilterRules(scopeName);
+          const filterRules = this.getFilterRules(scopeName);
           if (!filterRules.length) {
             return;
           }

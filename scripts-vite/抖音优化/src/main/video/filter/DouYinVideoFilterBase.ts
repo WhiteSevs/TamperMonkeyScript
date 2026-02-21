@@ -41,6 +41,8 @@ export class DouYinVideoFilterBase {
   ): DouYinVideoHandlerInfo {
     /** 视频作者名字 */
     let nickname: string;
+    /** 发布时间 */
+    let createTime: number | undefined;
     /** 视频作者uid */
     let uid: string;
     /** 视频描述 */
@@ -148,6 +150,14 @@ export class DouYinVideoFilterBase {
       authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
       isPicture = awemeInfoWithNetWork.aweme_type === 68;
       isFollow = Boolean(authorInfo?.follow_status);
+
+      // 获取发布时间
+      if (typeof awemeInfoWithNetWork.create_time === "number") {
+        createTime = awemeInfoWithNetWork.create_time;
+        if (createTime > 0 && createTime < 1000000000000) {
+          createTime = createTime * 1000;
+        }
+      }
 
       // 判断是否是广告
       isAds = [
@@ -536,6 +546,14 @@ export class DouYinVideoFilterBase {
       isPicture = awemeInfoWithDOM.awemeType === 68;
       isFollow = Boolean(authorInfo?.followStatus);
 
+      // 获取发布时间
+      if (typeof awemeInfoWithDOM.createTime === "number") {
+        createTime = awemeInfoWithDOM.createTime;
+        if (createTime > 0 && createTime < 1000000000000) {
+          createTime = createTime * 1000;
+        }
+      }
+
       // 判断是否是广告
       isAds = [
         () => {
@@ -848,6 +866,7 @@ export class DouYinVideoFilterBase {
     return {
       awemeId,
       nickname,
+      createTime,
       uid,
       desc,
       textExtra,
@@ -934,7 +953,7 @@ export class DouYinVideoFilterBase {
     if (typeof config.videoInfoValue === "string") {
       /* awemeInfo的值是string */
       /* 使用自定义规则的值进行匹配 */
-      if (Boolean(config.videoInfoValue.match(config.ruleValue))) {
+      if (config.videoInfoValue.match(config.ruleValue)) {
         return true;
       }
     } else if (typeof config.videoInfoValue === "object") {

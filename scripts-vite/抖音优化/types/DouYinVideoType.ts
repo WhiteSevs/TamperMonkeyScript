@@ -6,6 +6,8 @@ export interface DouYinVideoHandlerInfo {
   awemeId?: string;
   /** 作者名 */
   nickname?: string;
+  /** 发布时间 */
+  createTime?: number;
   /** 作者uid */
   uid?: string;
   /** 视频描述 */
