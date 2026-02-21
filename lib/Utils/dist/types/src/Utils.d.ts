@@ -1617,8 +1617,9 @@ declare class Utils {
     }) => any;
     /**
      * 判断页面中是否存在`worker-src`的CSP规则
+     * @param timeout 超时时间，默认为`1500ms`
      */
-    hasWorkerCSP(): Promise<boolean>;
+    hasWorkerCSP(timeout?: number): Promise<boolean>;
 }
 declare const utils: Utils;
 export { utils as Utils };

@@ -3868,10 +3868,13 @@ class Utils {
   }
   /**
    * 判断页面中是否存在`worker-src`的CSP规则
+   * @param timeout 超时时间，默认为`1500ms`
    */
-  hasWorkerCSP() {
+  hasWorkerCSP(timeout: number = 1500) {
     return new Promise<boolean>((resolve) => {
       let flag = true;
+      let timeId: number | undefined = void 0;
+      let worker: Worker | undefined = void 0;
       let workerBlobUrl: string | undefined = void 0;
 
       const workerJs = /*js*/ `
@@ -3888,11 +3891,26 @@ class Utils {
     }
     );
 })();`;
+      /**
+       * 返回结果
+       */
+      const finishCallBack = () => {
+        clearTimeout(timeId);
+        if (worker != null) {
+          worker.terminate();
+        }
+        // 释放
+        if (typeof workerBlobUrl === "string") {
+          globalThis.URL.revokeObjectURL(workerBlobUrl);
+          workerBlobUrl = void 0;
+        }
+        resolve(flag);
+      };
       try {
         const workerScript = new Blob([workerJs], {
           type: "application/javascript",
         });
-        workerBlobUrl = window.URL.createObjectURL(workerScript);
+        workerBlobUrl = globalThis.URL.createObjectURL(workerScript);
         // @ts-expect-error
         if (globalThis.trustedTypes && typeof globalThis.trustedTypes.createPolicy === "function") {
           // 使用这个后虽然不报错，但是仍会有blob错误
@@ -3904,23 +3922,25 @@ class Utils {
           });
           workerBlobUrl = workerPolicy.createScriptURL(workerBlobUrl);
         }
-        const worker = new Worker(workerBlobUrl!);
+        worker = new Worker(workerBlobUrl!);
         worker.onmessage = (data) => {
           if (data.data.success) {
             flag = false;
+            finishCallBack();
           }
         };
-        setTimeout(() => {
-          worker.terminate();
-          resolve(flag);
-        }, 500);
+        timeId = setTimeout(() => {
+          finishCallBack();
+        }, timeout);
         worker.postMessage("test");
       } catch {
         flag = true;
+        finishCallBack();
       } finally {
         // 释放
         if (typeof workerBlobUrl === "string") {
           globalThis.URL.revokeObjectURL(workerBlobUrl);
+          workerBlobUrl = void 0;
         }
       }
     });
