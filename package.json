@@ -50,7 +50,7 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "eslint": "^9.39.2",
     "oxfmt": "^0.34.0",
-    "oxlint": "^1.47.0",
+    "oxlint": "^1.49.0",
     "picocolors": "^1.1.1",
     "rollup": "^4.54.0",
     "simple-git": "^3.30.0",
