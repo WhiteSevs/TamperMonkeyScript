@@ -327,49 +327,60 @@ export class ViteUtils {
     version = version.trim();
     const currentTime = new Date();
     const versionInfo = {
+      // 默认使用3位版本
       version: `${this.formatTime(currentTime, "yyyy.MM.dd", false)}`,
       time: currentTime.getTime(),
     };
     if (version === "") {
       return versionInfo.version;
     }
+    let current_year = currentTime.getFullYear();
+    let current_month = currentTime.getMonth() + 1;
+    let current_day = currentTime.getDate();
+    let current_hour = currentTime.getHours();
     const yearMonthDayMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)$/);
     const yearMonthDayHourMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)\.([\d]+)$/);
     const historyTime = new Date();
     let versionLength = 0;
+    let history_year = 0;
+    let history_month = 0;
+    let history_day = 0;
+    let history_hour = 0;
     if (yearMonthDayHourMatcher) {
       // 时间格式为 年.月.日.时
       versionLength = 4;
-      const year = parseInt(yearMonthDayHourMatcher[1]);
-      const month = parseInt(yearMonthDayHourMatcher[2]);
-      const day = parseInt(yearMonthDayHourMatcher[3]);
-      const hour = parseInt(yearMonthDayHourMatcher[4]);
-      historyTime.setFullYear(year, month - 1, day);
-      historyTime.setHours(hour);
+      history_year = parseInt(yearMonthDayHourMatcher[1]);
+      history_month = parseInt(yearMonthDayHourMatcher[2]);
+      history_day = parseInt(yearMonthDayHourMatcher[3]);
+      history_hour = parseInt(yearMonthDayHourMatcher[4]);
+      historyTime.setFullYear(history_year, history_month - 1, history_day);
+      historyTime.setHours(history_hour);
     } else if (yearMonthDayMatcher) {
       // 时间格式为 年.月.日
       versionLength = 3;
-      const year = parseInt(yearMonthDayMatcher[1]);
-      const month = parseInt(yearMonthDayMatcher[2]);
-      const day = parseInt(yearMonthDayMatcher[3]);
-      historyTime.setFullYear(year, month - 1, day);
+      history_year = parseInt(yearMonthDayMatcher[1]);
+      history_month = parseInt(yearMonthDayMatcher[2]);
+      history_day = parseInt(yearMonthDayMatcher[3]);
+      historyTime.setFullYear(history_year, history_month - 1, history_day);
     }
     if (versionLength) {
-      const historyTimeNumber = historyTime.getTime();
-      if (historyTimeNumber <= versionInfo.time) {
-        // 过去
-        if (
-          historyTime.getFullYear() === currentTime.getFullYear() &&
-          historyTime.getMonth() === currentTime.getMonth() &&
-          historyTime.getDate() === currentTime.getDate()
-        ) {
-          // 今天
-          // 年.月.日.时
-          versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
-        } else {
-          // 昨天、前天..
+      if(history_year <= current_year){
+        // 今年、前年...
+        if(history_month <= current_month){
+          // 本月、上个月
+          if(history_day < current_day){
+            // 昨日、前日...
+          }else if(history_day === current_day){
+            // 今日的
+            // 使用4位版本
+            versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
+          }else{
+          // 未来？啊？怎么可能
+          }
+        }else{
+        // 未来？啊？怎么可能
         }
-      } else {
+      }else{
         // 未来？啊？怎么可能
       }
     }
