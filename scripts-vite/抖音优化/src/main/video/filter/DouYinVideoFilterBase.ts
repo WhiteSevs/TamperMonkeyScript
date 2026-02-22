@@ -5,7 +5,7 @@ import { unsafeWindow } from "ViteGM";
 import type {
   DouYinVideoAwemeInfoWithDOM,
   DouYinVideoAwemeInfoWithNetWork,
-  DouYinVideoHandlerInfo,
+  DouYinVideoConversionInfo,
 } from "../../../../types/DouYinVideoType";
 import type { DouYinVideoFilterRule, DouYinVideoFilterRuleDynamicOption } from "./DouYinVideoFilter";
 
@@ -18,8 +18,10 @@ type FilterRuleCheckConfig = {
   ruleKey: string;
   /** 自定义规则的值 */
   ruleValue: RegExp | string | undefined | null;
+  /** 原始的awemeInfo */
+  awemeInfo: any;
   /** 对awemeInfo转换后的信息 */
-  transformAwemeInfo: DouYinVideoHandlerInfo;
+  transformAwemeInfo: DouYinVideoConversionInfo;
   /** 当前的规则 */
   rule: DouYinVideoFilterRule;
 };
@@ -28,6 +30,57 @@ export class DouYinVideoFilterBase {
   $data = {
     dislike_request_queue: <string[]>[],
   };
+  /**
+   * 获取模板数据
+   */
+  getTemplateData(): DouYinVideoConversionInfo {
+    return {
+      isFollow: false,
+      isLive: false,
+      isAds: false,
+      isSeriesInfo: false,
+      isMixInfo: false,
+      isPicture: false,
+      isProduct: false,
+      awemeId: void 0,
+      nickname: void 0,
+      createTime: void 0,
+      uid: void 0,
+      desc: void 0,
+      textExtra: [],
+      videoTag: [],
+      videoTagId: [],
+      suggestWord: [],
+      musicAlbum: void 0,
+      musicAuthor: void 0,
+      musicDuration: void 0,
+      musicTitle: void 0,
+      musicUrl: void 0,
+      musicBackUrlList: [],
+      authorAccountCertInfo: "",
+      authorCustomVerify: "",
+      authorEnterpriseVerifyReason: "",
+      riskInfoContent: void 0,
+      seriesInfoName: void 0,
+      seriesInfoContentTypes: [],
+      mixInfoName: void 0,
+      mixInfoDesc: void 0,
+      collectCount: 0,
+      commentCount: 0,
+      diggCount: 0,
+      shareCount: 0,
+      duration: void 0,
+      liveStreamRoomId: void 0,
+      liveStreamRoomTitle: void 0,
+      liveStreamNickName: void 0,
+      liveStreamRoomUserCount: void 0,
+      liveStreamRoomDynamicSpliceLabel: void 0,
+      productId: void 0,
+      productTitle: void 0,
+      videoBitRateList: [],
+      pictureList: [],
+    };
+  }
   /**
    * 解析awemeInfo转为规则过滤的字典
    * @param awemeInfo 视频信息结构
@@ -38,94 +91,8 @@ export class DouYinVideoFilterBase {
     awemeInfo: DouYinVideoAwemeInfoWithDOM | DouYinVideoAwemeInfoWithNetWork,
     from: "dom" | "network",
     showLog: boolean = false
-  ): DouYinVideoHandlerInfo {
-    /** 视频作者名字 */
-    let nickname: string;
-    /** 发布时间 */
-    let createTime: number | undefined;
-    /** 视频作者uid */
-    let uid: string;
-    /** 视频描述 */
-    let desc: string;
-    /** 音乐专辑 */
-    let musicAlbum: string | undefined;
-    /** 音乐作者 */
-    let musicAuthor: string | undefined;
-    /** 音乐播放时长 */
-    let musicDuration: number | undefined;
-    /** 音乐标题 */
-    let musicTitle: string | undefined;
-    /** 视频的背景音乐的信息 */
-    let musicUrl: string | undefined;
-    /** 视频的背景音乐的播放地址（备用） */
-    let musicBackUrlList: string[] = [];
-    /** 收藏数量 */
-    let collectCount: number;
-    /** 评论数量 */
-    let commentCount: number;
-    /** 点赞数量 */
-    let diggCount: number;
-    /** 分享数量 */
-    let shareCount: number;
-    /** 视频时长 */
-    let duration: number | undefined;
-    /** 视频标签 */
-    let textExtra: string[] = [];
-    /** 是否是直播间 */
-    let isLive: boolean = false;
-    /** 是否是广告 */
-    let isAds: boolean = false;
-    /** 是否是系列-短剧 */
-    let isSeriesInfo: boolean = false;
-    /** 是否是混合信息-合集、短剧 */
-    let isMixInfo: boolean = false;
-    /** 风险提示内容 */
-    let riskInfoContent: string | undefined;
-    /** 系列名称 */
-    let seriesInfoName: string | undefined = void 0;
-    /** 系列内容类型 */
-    let seriesInfoContentTypes: string[] = [];
-    /** 是否是图文 */
-    let isPicture: boolean;
-    /** 图文列表信息 */
-    let pictureList: DouYinVideoHandlerInfo["pictureList"] = [];
-    /** 混合信息名称 */
-    let mixInfoName: string | undefined = void 0;
-    /** 混合信息描述 */
-    let mixInfoDesc: string | undefined = void 0;
-    /** 视频标签 */
-    let videoTag: string[] = [];
-    /** 视频标签的id */
-    let videoTagId: string[] = [];
-    /** 视频id */
-    let awemeId: string;
-    /** 直播间房间号 */
-    let liveStreamRoomId: string | undefined = void 0;
-    /** 直播间标题 */
-    let liveStreamRoomTitle: string | undefined = void 0;
-    /** 直播间的主播昵称 */
-    let liveStreamNickName: string | undefined = void 0;
-    /** 直播间人数 */
-    let liveStreamRoomUserCount: number | undefined = void 0;
-    /** 直播间标签？ */
-    let liveStreamRoomDynamicSpliceLabel: string | undefined = void 0;
-    /** 视频流的播放信息 */
-    let videoBitRateList: DouYinVideoHandlerInfo["videoBitRateList"] = [];
-    /** 是否是产品（付费视频） */
-    let isProduct: boolean = false;
-    /** 产品id */
-    let productId: string | undefined = void 0;
-    /** 产品标题（例如：付费短视频） */
-    let productTitle: string | undefined = void 0;
-    /** 是否已关注该用户 */
-    let isFollow: boolean = false;
-    /** 作者的认证信息 */
-    let authorAccountCertInfo: string = "";
-    let authorCustomVerify: string;
-    /** 作者的企业认证信息 */
-    let authorEnterpriseVerifyReason: string;
-    /** 搜索建议关键词 */
-    let suggestWord: string[] = [];
+  ): DouYinVideoConversionInfo {
+    const data = this.getTemplateData();
 
     if (from === "network") {
       // 从网络上获取的（主要）
@@ -133,34 +100,34 @@ export class DouYinVideoFilterBase {
       const authorInfo = awemeInfoWithNetWork?.author;
       const statistics = awemeInfoWithNetWork?.statistics;
       const video = awemeInfoWithNetWork?.video;
-      nickname = String(authorInfo?.nickname ?? "");
-      uid = String(authorInfo?.uid ?? "");
-      desc = String(awemeInfoWithNetWork.desc ?? "");
-      musicAlbum = awemeInfoWithNetWork?.music?.album;
-      musicAuthor = awemeInfoWithNetWork?.music?.author;
-      musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
-      musicTitle = awemeInfoWithNetWork?.music?.title;
-      collectCount = statistics?.collect_count ?? 0;
-      commentCount = statistics?.comment_count ?? 0;
-      diggCount = statistics?.digg_count ?? 0;
-      shareCount = statistics?.share_count ?? 0;
-      duration = video?.duration;
-      awemeId = awemeInfoWithNetWork.aweme_id;
-      authorCustomVerify = authorInfo?.custom_verify || "";
-      authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
-      isPicture = awemeInfoWithNetWork.aweme_type === 68;
-      isFollow = Boolean(authorInfo?.follow_status);
+      data.nickname = String(authorInfo?.nickname ?? "");
+      data.uid = String(authorInfo?.uid ?? "");
+      data.desc = String(awemeInfoWithNetWork.desc ?? "");
+      data.musicAlbum = awemeInfoWithNetWork?.music?.album;
+      data.musicAuthor = awemeInfoWithNetWork?.music?.author;
+      data.musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
+      data.musicTitle = awemeInfoWithNetWork?.music?.title;
+      data.collectCount = statistics?.collect_count ?? 0;
+      data.commentCount = statistics?.comment_count ?? 0;
+      data.diggCount = statistics?.digg_count ?? 0;
+      data.shareCount = statistics?.share_count ?? 0;
+      data.duration = video?.duration;
+      data.awemeId = awemeInfoWithNetWork.aweme_id;
+      data.authorCustomVerify = authorInfo?.custom_verify || "";
+      data.authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
+      data.isPicture = awemeInfoWithNetWork.aweme_type === 68;
+      data.isFollow = Boolean(authorInfo?.follow_status);
 
       // 获取发布时间
       if (typeof awemeInfoWithNetWork.create_time === "number") {
-        createTime = awemeInfoWithNetWork.create_time;
-        if (createTime > 0 && createTime < 1000000000000) {
-          createTime = createTime * 1000;
+        data.createTime = awemeInfoWithNetWork.create_time;
+        if (data.createTime > 0 && data.createTime < 1000000000000) {
+          data.createTime = data.createTime * 1000;
         }
       }
 
       // 判断是否是广告
-      isAds = [
+      data.isAds = [
         () => {
           if (awemeInfoWithNetWork.is_ads) {
             showLog && log.success("广告: is_ads is true");
@@ -200,7 +167,7 @@ export class DouYinVideoFilterBase {
 
       // 直播间
       if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
-        isLive = true;
+        data.isLive = true;
         showLog && log.success("直播间: cell_room is not null");
         let rawdata;
         if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
@@ -234,26 +201,26 @@ export class DouYinVideoFilterBase {
           }>(awemeInfoWithNetWork.cell_room.rawdata);
         }
         if (typeof rawdata == "object" && rawdata != null) {
-          liveStreamRoomId = rawdata?.owner?.web_rid;
-          liveStreamRoomTitle = rawdata?.title;
-          liveStreamNickName = rawdata?.owner?.nickname;
-          liveStreamRoomUserCount = rawdata?.user_count;
-          liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+          data.liveStreamRoomId = rawdata?.owner?.web_rid;
+          data.liveStreamRoomTitle = rawdata?.title;
+          data.liveStreamNickName = rawdata?.owner?.nickname;
+          data.liveStreamRoomUserCount = rawdata?.user_count;
+          data.liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
 
-          if (typeof liveStreamRoomId !== "string") {
-            liveStreamRoomId = void 0;
+          if (typeof data.liveStreamRoomId !== "string") {
+            data.liveStreamRoomId = void 0;
           }
-          if (typeof liveStreamRoomTitle !== "string") {
-            liveStreamRoomTitle = void 0;
+          if (typeof data.liveStreamRoomTitle !== "string") {
+            data.liveStreamRoomTitle = void 0;
           }
-          if (typeof liveStreamNickName !== "string") {
-            liveStreamNickName = void 0;
+          if (typeof data.liveStreamNickName !== "string") {
+            data.liveStreamNickName = void 0;
           }
-          if (typeof liveStreamRoomUserCount !== "number") {
-            liveStreamRoomUserCount = void 0;
+          if (typeof data.liveStreamRoomUserCount !== "number") {
+            data.liveStreamRoomUserCount = void 0;
           }
-          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-            liveStreamRoomDynamicSpliceLabel = void 0;
+          if (typeof data.liveStreamRoomDynamicSpliceLabel !== "string") {
+            data.liveStreamRoomDynamicSpliceLabel = void 0;
           }
         }
       }
@@ -263,7 +230,7 @@ export class DouYinVideoFilterBase {
         awemeInfoWithNetWork.text_extra.forEach((item) => {
           const tagName = item?.hashtag_name;
           if (typeof tagName === "string" && tagName.trim() != "") {
-            textExtra.push(tagName);
+            data.textExtra.push(tagName);
           }
         });
       }
@@ -274,12 +241,12 @@ export class DouYinVideoFilterBase {
           const tagName = item?.tag_name;
           const tagId = item?.tag_id;
           if (typeof tagName === "string" && tagName.trim() != "") {
-            videoTag.push(tagName);
+            data.videoTag.push(tagName);
           }
           if (typeof tagId === "number" || typeof tagId === "string") {
             const tagTdStr = tagId.toString();
             if (tagTdStr.trim() != "" && tagTdStr != "0") {
-              videoTagId.push(tagTdStr);
+              data.videoTagId.push(tagTdStr);
             }
           }
         });
@@ -291,34 +258,34 @@ export class DouYinVideoFilterBase {
         (typeof risk_infos?.content === "string" && risk_infos?.content.trim() === "") ||
         typeof risk_infos?.content !== "string"
       ) {
-        riskInfoContent = void 0;
+        data.riskInfoContent = void 0;
       } else {
-        riskInfoContent = risk_infos?.content;
+        data.riskInfoContent = risk_infos?.content;
       }
 
       /** 短剧信息 */
       const series_info = awemeInfoWithNetWork?.series_info;
       if (typeof series_info === "object" && series_info != null) {
         if (typeof series_info?.series_name === "string") {
-          seriesInfoName = series_info?.series_name;
+          data.seriesInfoName = series_info?.series_name;
         }
         const series_content_types = series_info?.series_content_types;
         if (Array.isArray(series_content_types)) {
           series_content_types.forEach((it) => {
             const __seriesInfoName = it.name;
-            seriesInfoContentTypes.push(__seriesInfoName);
+            data.seriesInfoContentTypes.push(__seriesInfoName);
           });
         }
-        if (seriesInfoName != null && series_content_types != null) {
-          isSeriesInfo = true;
+        if (data.seriesInfoName != null && series_content_types != null) {
+          data.isSeriesInfo = true;
         }
       }
 
       /** 混合信息 */
       const mixInfo = awemeInfoWithNetWork?.mix_info;
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-        mixInfoName = mixInfo?.mix_name;
-        mixInfoDesc = mixInfo?.desc;
+        data.mixInfoName = mixInfo?.mix_name;
+        data.mixInfoDesc = mixInfo?.desc;
       }
 
       /**
@@ -328,7 +295,7 @@ export class DouYinVideoFilterBase {
         bitRateList: NonNullable<DouYinVideoAwemeInfoWithNetWork["video"]>["bit_rate"],
         cover: string
       ) => {
-        let data: DouYinVideoHandlerInfo["videoBitRateList"] = [];
+        let data: DouYinVideoConversionInfo["videoBitRateList"] = [];
         if (!Array.isArray(bitRateList)) return data;
         bitRateList.forEach((item) => {
           let url = "";
@@ -412,12 +379,12 @@ export class DouYinVideoFilterBase {
       };
 
       // 判断是否是图文
-      if (isPicture) {
+      if (data.isPicture) {
         // 视频时长则需设置为空
-        duration = void 0;
+        data.duration = void 0;
         const images = awemeInfoWithNetWork?.images;
         if (Array.isArray(images)) {
-          pictureList = images.map((it) => {
+          data.pictureList = images.map((it) => {
             let url;
             if (Array.isArray(it.url_list) && it.url_list.length) {
               // 无水印图片（默认）
@@ -437,7 +404,7 @@ export class DouYinVideoFilterBase {
               cover = coverUrlList[0];
             }
             const videoBitRateListData = it?.video?.bit_rate;
-            const videoBitRateList: (typeof pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
+            const videoBitRateList: (typeof data.pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
               videoBitRateListData!,
               cover!
             );
@@ -447,7 +414,7 @@ export class DouYinVideoFilterBase {
               height: it.height,
               url: url,
               videoBitRateList: videoBitRateList,
-            } as (typeof pictureList)[0];
+            } as (typeof data.pictureList)[0];
           });
         }
       }
@@ -460,14 +427,14 @@ export class DouYinVideoFilterBase {
             words.forEach((wordItem) => {
               let word = wordItem?.word;
               if (typeof word === "string" && word.trim() !== "") {
-                suggestWord.push(word);
+                data.suggestWord.push(word);
               }
             });
           }
         });
       }
       // 去重
-      suggestWord = [...new Set(suggestWord)];
+      data.suggestWord = [...new Set(data.suggestWord)];
 
       const authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
       if (typeof authorAccountCertInfoInsStr === "string") {
@@ -477,7 +444,7 @@ export class DouYinVideoFilterBase {
           is_biz_account: number;
         }>(authorAccountCertInfoInsStr);
         if (typeof authorAccountCertInfoJSON.label_text === "string") {
-          authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
+          data.authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
         }
       }
 
@@ -485,18 +452,18 @@ export class DouYinVideoFilterBase {
       const entertainmentProductInfo = awemeInfoWithNetWork?.entertainment_product_info;
       if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
         if (typeof entertainmentProductInfo.product_id === "number") {
-          productId = entertainmentProductInfo.product_id.toString();
+          data.productId = entertainmentProductInfo.product_id.toString();
         } else if (typeof entertainmentProductInfo.product_id_str === "string") {
-          productId = entertainmentProductInfo.product_id_str;
+          data.productId = entertainmentProductInfo.product_id_str;
         }
         if (typeof entertainmentProductInfo.title === "string") {
-          productTitle = entertainmentProductInfo.title;
+          data.productTitle = entertainmentProductInfo.title;
         }
         if (
           typeof entertainmentProductInfo?.buy_schema === "string" ||
           typeof entertainmentProductInfo?.buy_panel_schema === "string"
         ) {
-          isProduct = true;
+          data.isProduct = true;
         }
       }
 
@@ -511,16 +478,16 @@ export class DouYinVideoFilterBase {
       /** 视频数据 */
       const videoBitRateListData = awemeInfoWithNetWork?.video?.bit_rate;
       if (Array.isArray(videoBitRateListData)) {
-        videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+        data.videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
       }
 
       /** 背景音乐播放信息 */
       const musicPlayData = awemeInfoWithNetWork?.music?.play_url;
-      musicUrl = musicPlayData?.uri;
+      data.musicUrl = musicPlayData?.uri;
       if (Array.isArray(musicPlayData?.url_list)) {
         musicPlayData.url_list.forEach((it) => {
-          if (it === musicUrl) return;
-          musicBackUrlList.push(it);
+          if (it === data.musicUrl) return;
+          data.musicBackUrlList.push(it);
         });
       }
     } else if (from === "dom") {
@@ -528,34 +495,34 @@ export class DouYinVideoFilterBase {
       const awemeInfoWithDOM = awemeInfo as DouYinVideoAwemeInfoWithDOM;
       // 如果是直播间，那么没有该信息
       const authorInfo = awemeInfoWithDOM.authorInfo;
-      nickname = String(authorInfo?.nickname ?? "");
-      uid = String(authorInfo?.uid ?? "");
-      desc = String(awemeInfoWithDOM.desc ?? "");
-      musicAlbum = awemeInfoWithDOM?.music?.album;
-      musicAuthor = awemeInfoWithDOM?.music?.author;
-      musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
-      musicTitle = awemeInfoWithDOM?.music?.title;
-      collectCount = awemeInfoWithDOM.stats.collectCount;
-      commentCount = awemeInfoWithDOM.stats.commentCount;
-      diggCount = awemeInfoWithDOM.stats.diggCount;
-      shareCount = awemeInfoWithDOM.stats.shareCount;
-      duration = awemeInfoWithDOM.video.duration;
-      awemeId = awemeInfoWithDOM.awemeId;
-      authorCustomVerify = authorInfo?.customVerify || "";
-      authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
-      isPicture = awemeInfoWithDOM.awemeType === 68;
-      isFollow = Boolean(authorInfo?.followStatus);
+      data.nickname = String(authorInfo?.nickname ?? "");
+      data.uid = String(authorInfo?.uid ?? "");
+      data.desc = String(awemeInfoWithDOM.desc ?? "");
+      data.musicAlbum = awemeInfoWithDOM?.music?.album;
+      data.musicAuthor = awemeInfoWithDOM?.music?.author;
+      data.musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
+      data.musicTitle = awemeInfoWithDOM?.music?.title;
+      data.collectCount = awemeInfoWithDOM.stats.collectCount;
+      data.commentCount = awemeInfoWithDOM.stats.commentCount;
+      data.diggCount = awemeInfoWithDOM.stats.diggCount;
+      data.shareCount = awemeInfoWithDOM.stats.shareCount;
+      data.duration = awemeInfoWithDOM.video.duration;
+      data.awemeId = awemeInfoWithDOM.awemeId;
+      data.authorCustomVerify = authorInfo?.customVerify || "";
+      data.authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
+      data.isPicture = awemeInfoWithDOM.awemeType === 68;
+      data.isFollow = Boolean(authorInfo?.followStatus);
 
       // 获取发布时间
       if (typeof awemeInfoWithDOM.createTime === "number") {
-        createTime = awemeInfoWithDOM.createTime;
-        if (createTime > 0 && createTime < 1000000000000) {
-          createTime = createTime * 1000;
+        data.createTime = awemeInfoWithDOM.createTime;
+        if (data.createTime > 0 && data.createTime < 1000000000000) {
+          data.createTime = data.createTime * 1000;
         }
       }
 
       // 判断是否是广告
-      isAds = [
+      data.isAds = [
         () => {
           if (awemeInfoWithDOM.isAds) {
             showLog && log.success("广告: isAds is true");
@@ -584,30 +551,30 @@ export class DouYinVideoFilterBase {
 
       // 直播间
       if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
-        isLive = true;
+        data.isLive = true;
         showLog && log.success("直播间: cellRoom is not null");
         let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
         if (typeof rawdata == "object" && rawdata != null) {
-          liveStreamRoomId = rawdata?.owner?.web_rid;
-          liveStreamRoomTitle = rawdata?.title;
-          liveStreamNickName = rawdata?.owner?.nickname;
-          liveStreamRoomUserCount = rawdata?.user_count;
-          liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+          data.liveStreamRoomId = rawdata?.owner?.web_rid;
+          data.liveStreamRoomTitle = rawdata?.title;
+          data.liveStreamNickName = rawdata?.owner?.nickname;
+          data.liveStreamRoomUserCount = rawdata?.user_count;
+          data.liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
 
-          if (typeof liveStreamRoomId !== "string") {
-            liveStreamRoomId = void 0;
+          if (typeof data.liveStreamRoomId !== "string") {
+            data.liveStreamRoomId = void 0;
           }
-          if (typeof liveStreamRoomTitle !== "string") {
-            liveStreamRoomTitle = void 0;
+          if (typeof data.liveStreamRoomTitle !== "string") {
+            data.liveStreamRoomTitle = void 0;
           }
-          if (typeof liveStreamNickName !== "string") {
-            liveStreamNickName = void 0;
+          if (typeof data.liveStreamNickName !== "string") {
+            data.liveStreamNickName = void 0;
           }
-          if (typeof liveStreamRoomUserCount !== "number") {
-            liveStreamRoomUserCount = void 0;
+          if (typeof data.liveStreamRoomUserCount !== "number") {
+            data.liveStreamRoomUserCount = void 0;
           }
-          if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-            liveStreamRoomDynamicSpliceLabel = void 0;
+          if (typeof data.liveStreamRoomDynamicSpliceLabel !== "string") {
+            data.liveStreamRoomDynamicSpliceLabel = void 0;
           }
         }
       }
@@ -617,7 +584,7 @@ export class DouYinVideoFilterBase {
         awemeInfoWithDOM.textExtra.forEach((item) => {
           const tagName = item?.hashtagName;
           if (typeof tagName === "string" && tagName.trim() != "") {
-            textExtra.push(tagName);
+            data.textExtra.push(tagName);
           }
         });
       }
@@ -628,12 +595,12 @@ export class DouYinVideoFilterBase {
           const tagName = item?.tagName;
           const tagId = item?.tagId;
           if (typeof tagName === "string" && tagName.trim() != "") {
-            videoTag.push(tagName);
+            data.videoTag.push(tagName);
           }
           if (typeof tagId === "number" || typeof tagId === "string") {
             const tagTdStr = tagId.toString();
             if (tagTdStr.trim() != "" && tagTdStr != "0") {
-              videoTagId.push(tagTdStr);
+              data.videoTagId.push(tagTdStr);
             }
           }
         });
@@ -645,34 +612,34 @@ export class DouYinVideoFilterBase {
         (typeof riskInfos?.content === "string" && riskInfos?.content.trim() === "") ||
         typeof riskInfos?.content !== "string"
       ) {
-        riskInfoContent = void 0;
+        data.riskInfoContent = void 0;
       } else {
-        riskInfoContent = riskInfos?.content;
+        data.riskInfoContent = riskInfos?.content;
       }
 
       /** 短剧信息 */
       let seriesInfo = awemeInfoWithDOM?.seriesInfo;
       if (typeof seriesInfo === "object" && seriesInfo != null) {
         if (typeof seriesInfo?.seriesName === "string") {
-          seriesInfoName = seriesInfo?.seriesName;
+          data.seriesInfoName = seriesInfo?.seriesName;
         }
         const seriesContentTypes = seriesInfo?.seriesContentTypes;
         if (Array.isArray(seriesContentTypes)) {
           seriesContentTypes.forEach((it) => {
             const __seriesInfoName = it.name;
-            seriesInfoContentTypes.push(__seriesInfoName);
+            data.seriesInfoContentTypes.push(__seriesInfoName);
           });
         }
-        if (seriesInfoName != null && seriesContentTypes != null) {
-          isSeriesInfo = true;
+        if (data.seriesInfoName != null && seriesContentTypes != null) {
+          data.isSeriesInfo = true;
         }
       }
 
       /** 混合信息 */
       let mixInfo = awemeInfoWithDOM?.mixInfo;
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-        mixInfoName = mixInfo?.mixName;
-        mixInfoDesc = mixInfo?.desc;
+        data.mixInfoName = mixInfo?.mixName;
+        data.mixInfoDesc = mixInfo?.desc;
       }
 
       /**
@@ -682,7 +649,7 @@ export class DouYinVideoFilterBase {
         bitRateList: DouYinVideoAwemeInfoWithDOM["video"]["bitRateList"],
         cover: string
       ) => {
-        let data: DouYinVideoHandlerInfo["videoBitRateList"] = [];
+        let data: DouYinVideoConversionInfo["videoBitRateList"] = [];
         if (!Array.isArray(bitRateList)) return data;
         bitRateList.forEach((item) => {
           const url = item.playApi;
@@ -757,12 +724,12 @@ export class DouYinVideoFilterBase {
       };
 
       // 判断是否是图文
-      if (isPicture) {
+      if (data.isPicture) {
         // 视频时长则需设置为空
-        duration = void 0;
+        data.duration = void 0;
         const images = awemeInfoWithDOM?.images;
         if (Array.isArray(images)) {
-          pictureList = images.map((it) => {
+          data.pictureList = images.map((it) => {
             let url;
             if (Array.isArray(it.urlList) && it.urlList.length) {
               // 无水印图片（默认）
@@ -782,7 +749,7 @@ export class DouYinVideoFilterBase {
               cover = coverUrlList[0];
             }
             const videoBitRateListData = it?.video?.bitRateList;
-            const videoBitRateList: (typeof pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
+            const videoBitRateList: (typeof data.pictureList)["0"]["videoBitRateList"] = parseVideoBitRateList(
               videoBitRateListData!,
               cover!
             );
@@ -792,7 +759,7 @@ export class DouYinVideoFilterBase {
               height: it.height,
               url: url,
               videoBitRateList: videoBitRateList,
-            } as (typeof pictureList)[0];
+            } as (typeof data.pictureList)[0];
           });
         }
       }
@@ -805,35 +772,35 @@ export class DouYinVideoFilterBase {
             words.forEach((wordItem) => {
               let word = wordItem?.word;
               if (typeof word === "string" && word.trim() !== "") {
-                suggestWord.push(word);
+                data.suggestWord.push(word);
               }
             });
           }
         });
       }
       // 去重
-      suggestWord = [...new Set(suggestWord)];
+      data.suggestWord = [...new Set(data.suggestWord)];
 
       if (typeof authorInfo?.accountCertInfo?.labelText === "string") {
-        authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
+        data.authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
       }
 
       /** 产品信息 */
       const entertainmentProductInfo = awemeInfoWithDOM?.entertainmentProductInfo;
       if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
         if (typeof entertainmentProductInfo.product_id === "number") {
-          productId = entertainmentProductInfo.product_id.toString();
+          data.productId = entertainmentProductInfo.product_id.toString();
         } else if (typeof entertainmentProductInfo.product_id_str === "string") {
-          productId = entertainmentProductInfo.product_id_str;
+          data.productId = entertainmentProductInfo.product_id_str;
         }
         if (typeof entertainmentProductInfo.title === "string") {
-          productTitle = entertainmentProductInfo.title;
+          data.productTitle = entertainmentProductInfo.title;
         }
         if (
           typeof entertainmentProductInfo?.buy_schema === "string" ||
           typeof entertainmentProductInfo?.buy_panel_schema === "string"
         ) {
-          isProduct = true;
+          data.isProduct = true;
         }
       }
 
@@ -848,67 +815,22 @@ export class DouYinVideoFilterBase {
       /** 视频数据 */
       const videoBitRateListData = awemeInfoWithDOM?.video?.bitRateList;
       if (Array.isArray(videoBitRateListData)) {
-        videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+        data.videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
       }
 
       const musicPlayData = awemeInfoWithDOM?.music?.playUrl;
-      musicUrl = musicPlayData?.uri;
+      data.musicUrl = musicPlayData?.uri;
       if (Array.isArray(musicPlayData?.urlList)) {
         musicPlayData.urlList.forEach((it) => {
-          if (it === musicUrl) return;
-          musicBackUrlList.push(it);
+          if (it === data.musicUrl) return;
+          data.musicBackUrlList.push(it);
         });
       }
     } else {
       throw new Error("from参数错误");
     }
 
-    return {
-      awemeId,
-      nickname,
-      createTime,
-      uid,
-      desc,
-      textExtra,
-      videoTag,
-      videoTagId,
-      suggestWord,
-      musicAlbum,
-      musicAuthor,
-      musicDuration,
-      musicTitle,
-      musicUrl,
-      musicBackUrlList,
-      authorAccountCertInfo,
-      authorCustomVerify,
-      authorEnterpriseVerifyReason,
-      riskInfoContent,
-      seriesInfoName,
-      seriesInfoContentTypes,
-      mixInfoName,
-      mixInfoDesc,
-      collectCount,
-      commentCount,
-      diggCount,
-      shareCount,
-      duration,
-      liveStreamRoomId,
-      liveStreamRoomTitle,
-      liveStreamNickName,
-      liveStreamRoomUserCount,
-      liveStreamRoomDynamicSpliceLabel,
-      productId,
-      productTitle,
-      isFollow,
-      isLive,
-      isAds,
-      isSeriesInfo,
-      isMixInfo,
-      isPicture,
-      isProduct,
-      videoBitRateList,
-      pictureList,
-    };
+    return data;
   }
   /**
    * 根据视频信息，判断是否需要屏蔽
@@ -930,6 +852,11 @@ export class DouYinVideoFilterBase {
     // 判断是否是使用自定义函数处理
     const isFunctionHandler = Boolean(ruleDynamicOption.isFunctionHandler);
     if (isFunctionHandler && typeof config.ruleValue === "string") {
+      const data = {
+        ruleKey: config.ruleKey,
+        transformAwemeInfo: config.transformAwemeInfo,
+        awemeInfo: config.awemeInfo,
+      };
       const handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
         utils: utils,
         DOMUtils: DOMUtils,
@@ -940,26 +867,23 @@ export class DouYinVideoFilterBase {
         window: window,
         unsafeWindow: unsafeWindow,
       });
-      const handlerResult = await handlerFunction({
-        ruleKey: config.ruleKey,
-        transformAwemeInfo: config.transformAwemeInfo,
-      });
+      const handlerResult = await handlerFunction(data);
       if (typeof handlerResult !== "boolean") {
         log.error(config, ruleDynamicOption);
-        throw new Error("过滤器规则：函数返回值必须是true或false");
+        throw new TypeError("视频过滤器规则: 函数返回值类型必须为boolean类型");
       }
       return handlerResult;
     }
     if (typeof config.videoInfoValue === "string") {
-      /* awemeInfo的值是string */
-      /* 使用自定义规则的值进行匹配 */
+      // awemeInfo的值是string
+      // 使用自定义规则的值进行匹配
       if (config.videoInfoValue.match(config.ruleValue)) {
         return true;
       }
     } else if (typeof config.videoInfoValue === "object") {
       if (Array.isArray(config.videoInfoValue)) {
-        /* awemeInfo的值是string[] */
-        /* 使用自定义规则的值进行遍历匹配 */
+        // awemeInfo的值是string[]
+        // 使用自定义规则的值进行遍历匹配
         const findValue = config.videoInfoValue.find((awemeInfoDictValue) => {
           if (typeof awemeInfoDictValue === "string" && config.ruleValue != null) {
             return Boolean(awemeInfoDictValue.match(config.ruleValue));
@@ -973,8 +897,8 @@ export class DouYinVideoFilterBase {
       }
     } else if (typeof config.videoInfoValue === "number") {
       if (typeof config.ruleValue === "string") {
-        /* awemeInfo的值是number类型，用于比较 */
-        /* 自定义规则的值是number类型，用于比较 */
+        // awemeInfo的值是number类型，用于比较
+        // 自定义规则的值是number类型，用于比较
         const ruleValue = config.ruleValue.trim();
         const compareNumberMatch = ruleValue.match(/(\d+)/);
         if (!compareNumberMatch) {
@@ -1036,7 +960,7 @@ export class DouYinVideoFilterBase {
    */
   async checkAwemeInfoIsFilter<T extends boolean = false>(
     rules: DouYinVideoFilterRule[],
-    awemeInfo: DouYinVideoAwemeInfoWithDOM,
+    awemeInfo: DouYinVideoAwemeInfoWithNetWork,
     from: "dom" | "network",
     isQueryAllMatchedFilterRules?: T
   ): Promise<{
@@ -1047,9 +971,9 @@ export class DouYinVideoFilterBase {
     /** 未命中的过滤规则 */
     notMatchedFilterRule: T extends true ? DouYinVideoFilterRule[] : null;
     /** 解析出的视频信息 */
-    transformAwemeInfo: DouYinVideoHandlerInfo;
+    transformAwemeInfo: DouYinVideoConversionInfo;
     /** 原始视频信息 */
-    awemeInfo: DouYinVideoAwemeInfoWithDOM;
+    awemeInfo: DouYinVideoAwemeInfoWithNetWork;
   }> {
     const transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo, from, false);
     let flag = false;
@@ -1072,19 +996,20 @@ export class DouYinVideoFilterBase {
         /** 解析出的标签的值 */
         const tagValue = transformAwemeInfo[tagKey as keyof typeof transformAwemeInfo];
         /** 配置 */
-        const details = {
+        const config: FilterRuleCheckConfig = {
           videoInfoKey: tagKey,
           videoInfoValue: tagValue,
-          ruleKey: filterRule.data.ruleName,
+          ruleKey: filterRule.data.ruleName as string,
           ruleValue: filterRule.data.ruleValue,
+          awemeInfo: awemeInfo,
           transformAwemeInfo: transformAwemeInfo,
           rule: filterRule,
-        } as FilterRuleCheckConfig;
-        flag = await this.checkFilterWithRule(details, filterRule.data);
+        };
+        flag = await this.checkFilterWithRule(config, filterRule.data);
         if (flag) {
           if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
             // & 动态规则
-            const dynamicDetailsList: FilterRuleCheckConfig[] = [];
+            const dynamicConfigList: FilterRuleCheckConfig[] = [];
             for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
               const dynamicOption = filterRule.dynamicData[dynamicIndex];
               /** 解析出的标签的名字 */
@@ -1092,16 +1017,17 @@ export class DouYinVideoFilterBase {
               /** 解析出的标签的值 */
               const dynamicTagValue = transformAwemeInfo[dynamicTagKey as keyof typeof transformAwemeInfo];
               /** 配置 */
-              const dynamicDetails: FilterRuleCheckConfig = {
+              const dynamicConfig: FilterRuleCheckConfig = {
                 videoInfoKey: dynamicTagKey as string,
                 videoInfoValue: dynamicTagValue,
                 ruleKey: dynamicOption.ruleName as string,
                 ruleValue: dynamicOption.ruleValue,
+                awemeInfo: awemeInfo,
                 transformAwemeInfo: transformAwemeInfo,
                 rule: filterRule,
               };
-              dynamicDetailsList.push(dynamicDetails);
-              const dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
+              dynamicConfigList.push(dynamicConfig);
+              const dynamicCheckFlag = await this.checkFilterWithRule(dynamicConfig, dynamicOption);
               flag = flag && dynamicCheckFlag;
               if (!flag) {
                 // 多组的话有一个不成立就退出
@@ -1110,17 +1036,17 @@ export class DouYinVideoFilterBase {
             }
             if (flag) {
               log.success(`视频过滤器-多组 ==> ${filterRule.name}`, {
-                dynamicDetailsList,
                 transformAwemeInfo,
-                details,
+                config,
                 awemeInfo,
                 filterRule,
+                dynamicConfigList,
               });
             }
           } else {
             log.success(`视频过滤器 ==> ${filterRule.name}`, {
               transformAwemeInfo,
-              details,
+              config,
               awemeInfo,
               filterRule,
             });
@@ -1149,8 +1075,8 @@ export class DouYinVideoFilterBase {
       isFilter: flag,
       matchedFilterRule: isQueryAllMatchedFilterRules ? (matchedFilterOptionList as any) : matchedFilterOption,
       notMatchedFilterRule: isQueryAllMatchedFilterRules ? (notMatchedFilterRule as any) : null,
-      transformAwemeInfo: transformAwemeInfo,
-      awemeInfo: awemeInfo,
+      transformAwemeInfo,
+      awemeInfo,
     };
   }
   /**
@@ -1158,7 +1084,7 @@ export class DouYinVideoFilterBase {
    * @param rule 命中的规则
    * @param awemeInfo 视频信息结构
    */
-  async sendDislikeVideo(rule: DouYinVideoFilterRule, awemeInfo: DouYinVideoAwemeInfoWithDOM) {
+  async sendDislikeVideo(rule: DouYinVideoFilterRule, awemeInfo: DouYinVideoAwemeInfoWithNetWork) {
     // if (!matchedFilterOption) {
     // 	return;
     // }

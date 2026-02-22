@@ -99,21 +99,52 @@
 - `true`：屏蔽该视频
 - `false`：不屏蔽该视频
 
-1. 例如：屏蔽掉广告视频
+#### 屏蔽示例
+
+- 屏蔽掉广告视频
 
 ```js
-return data.transformAwemeInfo.isAds;
+return !!data.transformAwemeInfo.isAds;
 ```
 
-2. 例如：屏蔽掉不包含1080p清晰度的视频
+![https://picshack.net/ib/KKGtd7jNuv.png](https://picshack.net/ib/KKGtd7jNuv.png)
+
+- 屏蔽视频文案中包含`电影`或`解说`的视频
 
 ```js
-if (!data.transformAwemeInfo.videoBitRateList.length) return false;
+if (typeof data.transformAwemeInfo.desc !== "string") return false;
+return !!data.transformAwemeInfo.desc.match(/电影|解说/);
+```
+
+![https://picshack.net/ib/fuqxGzJl90.png](https://picshack.net/ib/fuqxGzJl90.png)
+
+- 屏蔽视频文案中同时包含`电影`和`解说`的视频
+
+```js
+if (typeof data.transformAwemeInfo.desc !== "string") return false;
+return !!data.transformAwemeInfo.desc.match("电影") && !!data.transformAwemeInfo.desc.match("解说");
+```
+
+![https://picshack.net/ib/7NyyzJqcg7.png](https://picshack.net/ib/7NyyzJqcg7.png)
+
+- 屏蔽视频时长小于3分钟的视频
+
+```js
+if (typeof data.transformAwemeInfo.duration !== "number") return false;
+return data.transformAwemeInfo.duration < 3 * 60 * 1000;
+```
+
+![https://picshack.net/ib/zJL0wU1nPT.png](https://picshack.net/ib/zJL0wU1nPT.png)
+
+- 屏蔽掉不包含1080p清晰度的视频
+
+```js
+if (!Array.isArray(data.transformAwemeInfo.videoBitRateList)) return false;
 const findIndex = data.transformAwemeInfo.videoBitRateList.findIndex((item) => item?.gearName?.includes?.("1080"));
 return findIndex === -1;
 ```
 
-3. 例如：通过网络请求Api来自动判断是否屏蔽视频
+- 通过网络请求Api来自动判断是否屏蔽视频
 
 ```js
 const response = await this.httpx.post("https://xxx.xxx.xxx", {
@@ -126,7 +157,7 @@ if (!response.data.status) {
   return false;
 }
 const data = this.utils.toJSON(response.data.data);
-return Boolean(data.isFilter);
+return !!data.isFilter;
 ```
 
 ## 赞赏支持

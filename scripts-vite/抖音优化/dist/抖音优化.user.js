@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.21
+// @version      2026.2.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
@@ -5056,80 +5056,85 @@
     $data = {
       dislike_request_queue: [],
     };
+    getTemplateData() {
+      return {
+        isFollow: false,
+        isLive: false,
+        isAds: false,
+        isSeriesInfo: false,
+        isMixInfo: false,
+        isPicture: false,
+        isProduct: false,
+        awemeId: void 0,
+        nickname: void 0,
+        createTime: void 0,
+        uid: void 0,
+        desc: void 0,
+        textExtra: [],
+        videoTag: [],
+        videoTagId: [],
+        suggestWord: [],
+        musicAlbum: void 0,
+        musicAuthor: void 0,
+        musicDuration: void 0,
+        musicTitle: void 0,
+        musicUrl: void 0,
+        musicBackUrlList: [],
+        authorAccountCertInfo: "",
+        authorCustomVerify: "",
+        authorEnterpriseVerifyReason: "",
+        riskInfoContent: void 0,
+        seriesInfoName: void 0,
+        seriesInfoContentTypes: [],
+        mixInfoName: void 0,
+        mixInfoDesc: void 0,
+        collectCount: 0,
+        commentCount: 0,
+        diggCount: 0,
+        shareCount: 0,
+        duration: void 0,
+        liveStreamRoomId: void 0,
+        liveStreamRoomTitle: void 0,
+        liveStreamNickName: void 0,
+        liveStreamRoomUserCount: void 0,
+        liveStreamRoomDynamicSpliceLabel: void 0,
+        productId: void 0,
+        productTitle: void 0,
+        videoBitRateList: [],
+        pictureList: [],
+      };
+    }
     parseAwemeInfoDictData(awemeInfo, from, showLog = false) {
-      let nickname;
-      let createTime;
-      let uid;
-      let desc;
-      let musicAlbum;
-      let musicAuthor;
-      let musicDuration;
-      let musicTitle;
-      let musicUrl;
-      let musicBackUrlList = [];
-      let collectCount;
-      let commentCount;
-      let diggCount;
-      let shareCount;
-      let duration;
-      let textExtra = [];
-      let isLive = false;
-      let isAds = false;
-      let isSeriesInfo = false;
-      let isMixInfo = false;
-      let riskInfoContent;
-      let seriesInfoName = void 0;
-      let seriesInfoContentTypes = [];
-      let isPicture;
-      let pictureList = [];
-      let mixInfoName = void 0;
-      let mixInfoDesc = void 0;
-      let videoTag = [];
-      let videoTagId = [];
-      let awemeId;
-      let liveStreamRoomId = void 0;
-      let liveStreamRoomTitle = void 0;
-      let liveStreamNickName = void 0;
-      let liveStreamRoomUserCount = void 0;
-      let liveStreamRoomDynamicSpliceLabel = void 0;
-      let videoBitRateList = [];
-      let isProduct = false;
-      let productId = void 0;
-      let productTitle = void 0;
-      let isFollow = false;
-      let authorAccountCertInfo = "";
-      let authorCustomVerify;
-      let authorEnterpriseVerifyReason;
-      let suggestWord = [];
+      const data = this.getTemplateData();
       if (from === "network") {
         const awemeInfoWithNetWork = awemeInfo;
         const authorInfo = awemeInfoWithNetWork?.author;
         const statistics = awemeInfoWithNetWork?.statistics;
         const video = awemeInfoWithNetWork?.video;
-        nickname = String(authorInfo?.nickname ?? "");
-        uid = String(authorInfo?.uid ?? "");
-        desc = String(awemeInfoWithNetWork.desc ?? "");
-        musicAlbum = awemeInfoWithNetWork?.music?.album;
-        musicAuthor = awemeInfoWithNetWork?.music?.author;
-        musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
-        musicTitle = awemeInfoWithNetWork?.music?.title;
-        collectCount = statistics?.collect_count ?? 0;
-        commentCount = statistics?.comment_count ?? 0;
-        diggCount = statistics?.digg_count ?? 0;
-        shareCount = statistics?.share_count ?? 0;
-        duration = video?.duration;
-        awemeId = awemeInfoWithNetWork.aweme_id;
-        authorCustomVerify = authorInfo?.custom_verify || "";
-        authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
-        isPicture = awemeInfoWithNetWork.aweme_type === 68;
-        isFollow = Boolean(authorInfo?.follow_status);
+        data.nickname = String(authorInfo?.nickname ?? "");
+        data.uid = String(authorInfo?.uid ?? "");
+        data.desc = String(awemeInfoWithNetWork.desc ?? "");
+        data.musicAlbum = awemeInfoWithNetWork?.music?.album;
+        data.musicAuthor = awemeInfoWithNetWork?.music?.author;
+        data.musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
+        data.musicTitle = awemeInfoWithNetWork?.music?.title;
+        data.collectCount = statistics?.collect_count ?? 0;
+        data.commentCount = statistics?.comment_count ?? 0;
+        data.diggCount = statistics?.digg_count ?? 0;
+        data.shareCount = statistics?.share_count ?? 0;
+        data.duration = video?.duration;
+        data.awemeId = awemeInfoWithNetWork.aweme_id;
+        data.authorCustomVerify = authorInfo?.custom_verify || "";
+        data.authorEnterpriseVerifyReason = authorInfo?.enterprise_verify_reason || "";
+        data.isPicture = awemeInfoWithNetWork.aweme_type === 68;
+        data.isFollow = Boolean(authorInfo?.follow_status);
         if (typeof awemeInfoWithNetWork.create_time === "number") {
-          createTime = awemeInfoWithNetWork.create_time;
-          if (createTime > 0 && createTime < 1e12) {
-            createTime = createTime * 1e3;
+          data.createTime = awemeInfoWithNetWork.create_time;
+          if (data.createTime > 0 && data.createTime < 1e12) {
+            data.createTime = data.createTime * 1e3;
           }
         }
-        isAds = [
+        data.isAds = [
           () => {
             if (awemeInfoWithNetWork.is_ads) {
               showLog && log.success("广告: is_ads is true");
@@ -5160,32 +5165,32 @@
           },
         ].some((it) => it());
         if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
-          isLive = true;
+          data.isLive = true;
           showLog && log.success("直播间: cell_room is not null");
           let rawdata;
           if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
             rawdata = utils.toJSON(awemeInfoWithNetWork.cell_room.rawdata);
           }
           if (typeof rawdata == "object" && rawdata != null) {
-            liveStreamRoomId = rawdata?.owner?.web_rid;
-            liveStreamRoomTitle = rawdata?.title;
-            liveStreamNickName = rawdata?.owner?.nickname;
-            liveStreamRoomUserCount = rawdata?.user_count;
-            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
-            if (typeof liveStreamRoomId !== "string") {
-              liveStreamRoomId = void 0;
+            data.liveStreamRoomId = rawdata?.owner?.web_rid;
+            data.liveStreamRoomTitle = rawdata?.title;
+            data.liveStreamNickName = rawdata?.owner?.nickname;
+            data.liveStreamRoomUserCount = rawdata?.user_count;
+            data.liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+            if (typeof data.liveStreamRoomId !== "string") {
+              data.liveStreamRoomId = void 0;
             }
-            if (typeof liveStreamRoomTitle !== "string") {
-              liveStreamRoomTitle = void 0;
+            if (typeof data.liveStreamRoomTitle !== "string") {
+              data.liveStreamRoomTitle = void 0;
             }
-            if (typeof liveStreamNickName !== "string") {
-              liveStreamNickName = void 0;
+            if (typeof data.liveStreamNickName !== "string") {
+              data.liveStreamNickName = void 0;
             }
-            if (typeof liveStreamRoomUserCount !== "number") {
-              liveStreamRoomUserCount = void 0;
+            if (typeof data.liveStreamRoomUserCount !== "number") {
+              data.liveStreamRoomUserCount = void 0;
             }
-            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-              liveStreamRoomDynamicSpliceLabel = void 0;
+            if (typeof data.liveStreamRoomDynamicSpliceLabel !== "string") {
+              data.liveStreamRoomDynamicSpliceLabel = void 0;
             }
           }
         }
@@ -5193,7 +5198,7 @@
           awemeInfoWithNetWork.text_extra.forEach((item) => {
             const tagName = item?.hashtag_name;
             if (typeof tagName === "string" && tagName.trim() != "") {
-              textExtra.push(tagName);
+              data.textExtra.push(tagName);
             }
           });
         }
@@ -5202,12 +5207,12 @@
             const tagName = item?.tag_name;
             const tagId = item?.tag_id;
             if (typeof tagName === "string" && tagName.trim() != "") {
-              videoTag.push(tagName);
+              data.videoTag.push(tagName);
             }
             if (typeof tagId === "number" || typeof tagId === "string") {
               const tagTdStr = tagId.toString();
               if (tagTdStr.trim() != "" && tagTdStr != "0") {
-                videoTagId.push(tagTdStr);
+                data.videoTagId.push(tagTdStr);
               }
             }
           });
@@ -5217,34 +5222,34 @@
           (typeof risk_infos?.content === "string" && risk_infos?.content.trim() === "") ||
           typeof risk_infos?.content !== "string"
         ) {
-          riskInfoContent = void 0;
+          data.riskInfoContent = void 0;
         } else {
-          riskInfoContent = risk_infos?.content;
+          data.riskInfoContent = risk_infos?.content;
         }
         const series_info = awemeInfoWithNetWork?.series_info;
         if (typeof series_info === "object" && series_info != null) {
           if (typeof series_info?.series_name === "string") {
-            seriesInfoName = series_info?.series_name;
+            data.seriesInfoName = series_info?.series_name;
           }
           const series_content_types = series_info?.series_content_types;
           if (Array.isArray(series_content_types)) {
             series_content_types.forEach((it) => {
               const __seriesInfoName = it.name;
-              seriesInfoContentTypes.push(__seriesInfoName);
+              data.seriesInfoContentTypes.push(__seriesInfoName);
             });
           }
-          if (seriesInfoName != null && series_content_types != null) {
-            isSeriesInfo = true;
+          if (data.seriesInfoName != null && series_content_types != null) {
+            data.isSeriesInfo = true;
           }
         }
         const mixInfo = awemeInfoWithNetWork?.mix_info;
         if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-          mixInfoName = mixInfo?.mix_name;
-          mixInfoDesc = mixInfo?.desc;
+          data.mixInfoName = mixInfo?.mix_name;
+          data.mixInfoDesc = mixInfo?.desc;
         }
         const parseVideoBitRateList = (bitRateList, cover2) => {
-          let data = [];
-          if (!Array.isArray(bitRateList)) return data;
+          let data2 = [];
+          if (!Array.isArray(bitRateList)) return data2;
           bitRateList.forEach((item) => {
             let url = "";
             const backUrl = [];
@@ -5289,18 +5294,18 @@
               url,
               backUrl,
             };
-            data.push(videoBitRateListItem);
+            data2.push(videoBitRateListItem);
           });
-          for (let index = 0; index < data.length; index++) {
-            const item = data[index];
-            for (let index2 = 0; index2 < data.length; index2++) {
-              const item2 = data[index2];
+          for (let index = 0; index < data2.length; index++) {
+            const item = data2[index];
+            for (let index2 = 0; index2 < data2.length; index2++) {
+              const item2 = data2[index2];
               if (item === item2) {
                 continue;
               }
               if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
                 if (item.dataSize > item2.dataSize) {
-                  data.splice(index2, 1);
+                  data2.splice(index2, 1);
                   index2--;
                   if (index > index2) {
                     index--;
@@ -5309,20 +5314,20 @@
               }
             }
           }
-          data = data.map((item) => {
+          data2 = data2.map((item) => {
             if (item.url.startsWith("http:")) {
               item.url = item.url.replace("http:", "");
             }
             return item;
           });
-          utils.sortListByProperty(data, (it) => it.width);
-          return data;
+          utils.sortListByProperty(data2, (it) => it.width);
+          return data2;
         };
-        if (isPicture) {
-          duration = void 0;
+        if (data.isPicture) {
+          data.duration = void 0;
           const images = awemeInfoWithNetWork?.images;
           if (Array.isArray(images)) {
-            pictureList = images.map((it) => {
+            data.pictureList = images.map((it) => {
               let url;
               if (Array.isArray(it.url_list) && it.url_list.length) {
                 url = it.url_list[0];
@@ -5340,12 +5345,12 @@
                 cover2 = coverUrlList2[0];
               }
               const videoBitRateListData2 = it?.video?.bit_rate;
-              const videoBitRateList2 = parseVideoBitRateList(videoBitRateListData2, cover2);
+              const videoBitRateList = parseVideoBitRateList(videoBitRateListData2, cover2);
               return {
                 width: it.width,
                 height: it.height,
                 url,
-                videoBitRateList: videoBitRateList2,
+                videoBitRateList,
               };
             });
           }
@@ -5358,35 +5363,35 @@
               words.forEach((wordItem) => {
                 let word = wordItem?.word;
                 if (typeof word === "string" && word.trim() !== "") {
-                  suggestWord.push(word);
+                  data.suggestWord.push(word);
                 }
               });
             }
           });
         }
-        suggestWord = [...new Set(suggestWord)];
+        data.suggestWord = [...new Set(data.suggestWord)];
         const authorAccountCertInfoInsStr = authorInfo?.account_cert_info;
         if (typeof authorAccountCertInfoInsStr === "string") {
           const authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
           if (typeof authorAccountCertInfoJSON.label_text === "string") {
-            authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
+            data.authorAccountCertInfo = authorAccountCertInfoJSON.label_text;
           }
         }
         const entertainmentProductInfo = awemeInfoWithNetWork?.entertainment_product_info;
         if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
           if (typeof entertainmentProductInfo.product_id === "number") {
-            productId = entertainmentProductInfo.product_id.toString();
+            data.productId = entertainmentProductInfo.product_id.toString();
           } else if (typeof entertainmentProductInfo.product_id_str === "string") {
-            productId = entertainmentProductInfo.product_id_str;
+            data.productId = entertainmentProductInfo.product_id_str;
           }
           if (typeof entertainmentProductInfo.title === "string") {
-            productTitle = entertainmentProductInfo.title;
+            data.productTitle = entertainmentProductInfo.title;
           }
           if (
             typeof entertainmentProductInfo?.buy_schema === "string" ||
             typeof entertainmentProductInfo?.buy_panel_schema === "string"
           ) {
-            isProduct = true;
+            data.isProduct = true;
           }
         }
         let cover = "";
@@ -5398,43 +5403,43 @@
         }
         const videoBitRateListData = awemeInfoWithNetWork?.video?.bit_rate;
         if (Array.isArray(videoBitRateListData)) {
-          videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+          data.videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
         }
         const musicPlayData = awemeInfoWithNetWork?.music?.play_url;
-        musicUrl = musicPlayData?.uri;
+        data.musicUrl = musicPlayData?.uri;
         if (Array.isArray(musicPlayData?.url_list)) {
           musicPlayData.url_list.forEach((it) => {
-            if (it === musicUrl) return;
-            musicBackUrlList.push(it);
+            if (it === data.musicUrl) return;
+            data.musicBackUrlList.push(it);
           });
         }
       } else if (from === "dom") {
         const awemeInfoWithDOM = awemeInfo;
         const authorInfo = awemeInfoWithDOM.authorInfo;
-        nickname = String(authorInfo?.nickname ?? "");
-        uid = String(authorInfo?.uid ?? "");
-        desc = String(awemeInfoWithDOM.desc ?? "");
-        musicAlbum = awemeInfoWithDOM?.music?.album;
-        musicAuthor = awemeInfoWithDOM?.music?.author;
-        musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
-        musicTitle = awemeInfoWithDOM?.music?.title;
-        collectCount = awemeInfoWithDOM.stats.collectCount;
-        commentCount = awemeInfoWithDOM.stats.commentCount;
-        diggCount = awemeInfoWithDOM.stats.diggCount;
-        shareCount = awemeInfoWithDOM.stats.shareCount;
-        duration = awemeInfoWithDOM.video.duration;
-        awemeId = awemeInfoWithDOM.awemeId;
-        authorCustomVerify = authorInfo?.customVerify || "";
-        authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
-        isPicture = awemeInfoWithDOM.awemeType === 68;
-        isFollow = Boolean(authorInfo?.followStatus);
+        data.nickname = String(authorInfo?.nickname ?? "");
+        data.uid = String(authorInfo?.uid ?? "");
+        data.desc = String(awemeInfoWithDOM.desc ?? "");
+        data.musicAlbum = awemeInfoWithDOM?.music?.album;
+        data.musicAuthor = awemeInfoWithDOM?.music?.author;
+        data.musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
+        data.musicTitle = awemeInfoWithDOM?.music?.title;
+        data.collectCount = awemeInfoWithDOM.stats.collectCount;
+        data.commentCount = awemeInfoWithDOM.stats.commentCount;
+        data.diggCount = awemeInfoWithDOM.stats.diggCount;
+        data.shareCount = awemeInfoWithDOM.stats.shareCount;
+        data.duration = awemeInfoWithDOM.video.duration;
+        data.awemeId = awemeInfoWithDOM.awemeId;
+        data.authorCustomVerify = authorInfo?.customVerify || "";
+        data.authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
+        data.isPicture = awemeInfoWithDOM.awemeType === 68;
+        data.isFollow = Boolean(authorInfo?.followStatus);
         if (typeof awemeInfoWithDOM.createTime === "number") {
-          createTime = awemeInfoWithDOM.createTime;
-          if (createTime > 0 && createTime < 1e12) {
-            createTime = createTime * 1e3;
+          data.createTime = awemeInfoWithDOM.createTime;
+          if (data.createTime > 0 && data.createTime < 1e12) {
+            data.createTime = data.createTime * 1e3;
           }
         }
-        isAds = [
+        data.isAds = [
           () => {
             if (awemeInfoWithDOM.isAds) {
               showLog && log.success("广告: isAds is true");
@@ -5461,29 +5466,29 @@
           },
         ].some((it) => it());
         if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
-          isLive = true;
+          data.isLive = true;
           showLog && log.success("直播间: cellRoom is not null");
           let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
           if (typeof rawdata == "object" && rawdata != null) {
-            liveStreamRoomId = rawdata?.owner?.web_rid;
-            liveStreamRoomTitle = rawdata?.title;
-            liveStreamNickName = rawdata?.owner?.nickname;
-            liveStreamRoomUserCount = rawdata?.user_count;
-            liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
-            if (typeof liveStreamRoomId !== "string") {
-              liveStreamRoomId = void 0;
+            data.liveStreamRoomId = rawdata?.owner?.web_rid;
+            data.liveStreamRoomTitle = rawdata?.title;
+            data.liveStreamNickName = rawdata?.owner?.nickname;
+            data.liveStreamRoomUserCount = rawdata?.user_count;
+            data.liveStreamRoomDynamicSpliceLabel = rawdata?.dynamic_label?.splice_label?.text;
+            if (typeof data.liveStreamRoomId !== "string") {
+              data.liveStreamRoomId = void 0;
             }
-            if (typeof liveStreamRoomTitle !== "string") {
-              liveStreamRoomTitle = void 0;
+            if (typeof data.liveStreamRoomTitle !== "string") {
+              data.liveStreamRoomTitle = void 0;
             }
-            if (typeof liveStreamNickName !== "string") {
-              liveStreamNickName = void 0;
+            if (typeof data.liveStreamNickName !== "string") {
+              data.liveStreamNickName = void 0;
             }
-            if (typeof liveStreamRoomUserCount !== "number") {
-              liveStreamRoomUserCount = void 0;
+            if (typeof data.liveStreamRoomUserCount !== "number") {
+              data.liveStreamRoomUserCount = void 0;
             }
-            if (typeof liveStreamRoomDynamicSpliceLabel !== "string") {
-              liveStreamRoomDynamicSpliceLabel = void 0;
+            if (typeof data.liveStreamRoomDynamicSpliceLabel !== "string") {
+              data.liveStreamRoomDynamicSpliceLabel = void 0;
             }
           }
         }
@@ -5491,7 +5496,7 @@
           awemeInfoWithDOM.textExtra.forEach((item) => {
             const tagName = item?.hashtagName;
             if (typeof tagName === "string" && tagName.trim() != "") {
-              textExtra.push(tagName);
+              data.textExtra.push(tagName);
             }
           });
         }
@@ -5500,12 +5505,12 @@
             const tagName = item?.tagName;
             const tagId = item?.tagId;
             if (typeof tagName === "string" && tagName.trim() != "") {
-              videoTag.push(tagName);
+              data.videoTag.push(tagName);
             }
             if (typeof tagId === "number" || typeof tagId === "string") {
               const tagTdStr = tagId.toString();
               if (tagTdStr.trim() != "" && tagTdStr != "0") {
-                videoTagId.push(tagTdStr);
+                data.videoTagId.push(tagTdStr);
               }
             }
           });
@@ -5515,34 +5520,34 @@
           (typeof riskInfos?.content === "string" && riskInfos?.content.trim() === "") ||
           typeof riskInfos?.content !== "string"
         ) {
-          riskInfoContent = void 0;
+          data.riskInfoContent = void 0;
         } else {
-          riskInfoContent = riskInfos?.content;
+          data.riskInfoContent = riskInfos?.content;
         }
         let seriesInfo = awemeInfoWithDOM?.seriesInfo;
         if (typeof seriesInfo === "object" && seriesInfo != null) {
           if (typeof seriesInfo?.seriesName === "string") {
-            seriesInfoName = seriesInfo?.seriesName;
+            data.seriesInfoName = seriesInfo?.seriesName;
           }
           const seriesContentTypes = seriesInfo?.seriesContentTypes;
           if (Array.isArray(seriesContentTypes)) {
             seriesContentTypes.forEach((it) => {
               const __seriesInfoName = it.name;
-              seriesInfoContentTypes.push(__seriesInfoName);
+              data.seriesInfoContentTypes.push(__seriesInfoName);
             });
           }
-          if (seriesInfoName != null && seriesContentTypes != null) {
-            isSeriesInfo = true;
+          if (data.seriesInfoName != null && seriesContentTypes != null) {
+            data.isSeriesInfo = true;
           }
         }
         let mixInfo = awemeInfoWithDOM?.mixInfo;
         if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-          mixInfoName = mixInfo?.mixName;
-          mixInfoDesc = mixInfo?.desc;
+          data.mixInfoName = mixInfo?.mixName;
+          data.mixInfoDesc = mixInfo?.desc;
         }
         const parseVideoBitRateList = (bitRateList, cover2) => {
-          let data = [];
-          if (!Array.isArray(bitRateList)) return data;
+          let data2 = [];
+          if (!Array.isArray(bitRateList)) return data2;
           bitRateList.forEach((item) => {
             const url = item.playApi;
             const backUrl = [];
@@ -5579,18 +5584,18 @@
               url,
               backUrl,
             };
-            data.push(videoBitRateListItem);
+            data2.push(videoBitRateListItem);
           });
-          for (let index = 0; index < data.length; index++) {
-            const item = data[index];
-            for (let index2 = 0; index2 < data.length; index2++) {
-              const item2 = data[index2];
+          for (let index = 0; index < data2.length; index++) {
+            const item = data2[index];
+            for (let index2 = 0; index2 < data2.length; index2++) {
+              const item2 = data2[index2];
               if (item === item2) {
                 continue;
               }
               if (item.width === item2.width && item.height === item2.height && item.fps === item2.fps) {
                 if (item.dataSize > item2.dataSize) {
-                  data.splice(index2, 1);
+                  data2.splice(index2, 1);
                   index2--;
                   if (index > index2) {
                     index--;
@@ -5599,20 +5604,20 @@
               }
             }
           }
-          data = data.map((item) => {
+          data2 = data2.map((item) => {
             if (item.url.startsWith("http:")) {
               item.url = item.url.replace("http:", "");
             }
             return item;
           });
-          utils.sortListByProperty(data, (it) => it.width);
-          return data;
+          utils.sortListByProperty(data2, (it) => it.width);
+          return data2;
         };
-        if (isPicture) {
-          duration = void 0;
+        if (data.isPicture) {
+          data.duration = void 0;
           const images = awemeInfoWithDOM?.images;
           if (Array.isArray(images)) {
-            pictureList = images.map((it) => {
+            data.pictureList = images.map((it) => {
               let url;
               if (Array.isArray(it.urlList) && it.urlList.length) {
                 url = it.urlList[0];
@@ -5630,12 +5635,12 @@
                 cover2 = coverUrlList2[0];
               }
               const videoBitRateListData2 = it?.video?.bitRateList;
-              const videoBitRateList2 = parseVideoBitRateList(videoBitRateListData2, cover2);
+              const videoBitRateList = parseVideoBitRateList(videoBitRateListData2, cover2);
               return {
                 width: it.width,
                 height: it.height,
                 url,
-                videoBitRateList: videoBitRateList2,
+                videoBitRateList,
               };
             });
           }
@@ -5648,31 +5653,31 @@
               words.forEach((wordItem) => {
                 let word = wordItem?.word;
                 if (typeof word === "string" && word.trim() !== "") {
-                  suggestWord.push(word);
+                  data.suggestWord.push(word);
                 }
               });
             }
           });
         }
-        suggestWord = [...new Set(suggestWord)];
+        data.suggestWord = [...new Set(data.suggestWord)];
         if (typeof authorInfo?.accountCertInfo?.labelText === "string") {
-          authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
+          data.authorAccountCertInfo = authorInfo?.accountCertInfo?.labelText;
         }
         const entertainmentProductInfo = awemeInfoWithDOM?.entertainmentProductInfo;
         if (typeof entertainmentProductInfo === "object" && entertainmentProductInfo != null) {
           if (typeof entertainmentProductInfo.product_id === "number") {
-            productId = entertainmentProductInfo.product_id.toString();
+            data.productId = entertainmentProductInfo.product_id.toString();
           } else if (typeof entertainmentProductInfo.product_id_str === "string") {
-            productId = entertainmentProductInfo.product_id_str;
+            data.productId = entertainmentProductInfo.product_id_str;
           }
           if (typeof entertainmentProductInfo.title === "string") {
-            productTitle = entertainmentProductInfo.title;
+            data.productTitle = entertainmentProductInfo.title;
           }
           if (
             typeof entertainmentProductInfo?.buy_schema === "string" ||
             typeof entertainmentProductInfo?.buy_panel_schema === "string"
           ) {
-            isProduct = true;
+            data.isProduct = true;
           }
         }
         let cover = "";
@@ -5684,65 +5689,20 @@
         }
         const videoBitRateListData = awemeInfoWithDOM?.video?.bitRateList;
         if (Array.isArray(videoBitRateListData)) {
-          videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
+          data.videoBitRateList = parseVideoBitRateList(videoBitRateListData, cover);
         }
         const musicPlayData = awemeInfoWithDOM?.music?.playUrl;
-        musicUrl = musicPlayData?.uri;
+        data.musicUrl = musicPlayData?.uri;
         if (Array.isArray(musicPlayData?.urlList)) {
           musicPlayData.urlList.forEach((it) => {
-            if (it === musicUrl) return;
-            musicBackUrlList.push(it);
+            if (it === data.musicUrl) return;
+            data.musicBackUrlList.push(it);
           });
         }
       } else {
         throw new Error("from参数错误");
       }
-      return {
-        awemeId,
-        nickname,
-        createTime,
-        uid,
-        desc,
-        textExtra,
-        videoTag,
-        videoTagId,
-        suggestWord,
-        musicAlbum,
-        musicAuthor,
-        musicDuration,
-        musicTitle,
-        musicUrl,
-        musicBackUrlList,
-        authorAccountCertInfo,
-        authorCustomVerify,
-        authorEnterpriseVerifyReason,
-        riskInfoContent,
-        seriesInfoName,
-        seriesInfoContentTypes,
-        mixInfoName,
-        mixInfoDesc,
-        collectCount,
-        commentCount,
-        diggCount,
-        shareCount,
-        duration,
-        liveStreamRoomId,
-        liveStreamRoomTitle,
-        liveStreamNickName,
-        liveStreamRoomUserCount,
-        liveStreamRoomDynamicSpliceLabel,
-        productId,
-        productTitle,
-        isFollow,
-        isLive,
-        isAds,
-        isSeriesInfo,
-        isMixInfo,
-        isPicture,
-        isProduct,
-        videoBitRateList,
-        pictureList,
-      };
+      return data;
     }
     async checkFilterWithRule(config, ruleDynamicOption) {
       if (config.videoInfoValue == null) {
@@ -5753,6 +5713,11 @@
       }
       const isFunctionHandler = Boolean(ruleDynamicOption.isFunctionHandler);
       if (isFunctionHandler && typeof config.ruleValue === "string") {
+        const data = {
+          ruleKey: config.ruleKey,
+          transformAwemeInfo: config.transformAwemeInfo,
+          awemeInfo: config.awemeInfo,
+        };
         const handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
           utils,
           DOMUtils,
@@ -5763,13 +5728,10 @@
           window,
           unsafeWindow: _unsafeWindow,
         });
-        const handlerResult = await handlerFunction({
-          ruleKey: config.ruleKey,
-          transformAwemeInfo: config.transformAwemeInfo,
-        });
+        const handlerResult = await handlerFunction(data);
         if (typeof handlerResult !== "boolean") {
           log.error(config, ruleDynamicOption);
-          throw new Error("过滤器规则：函数返回值必须是true或false");
+          throw new TypeError("视频过滤器规则: 函数返回值类型必须为boolean类型");
         }
         return handlerResult;
       }
@@ -5854,32 +5816,34 @@
           }
           const tagKey = ruleName;
           const tagValue = transformAwemeInfo[tagKey];
-          const details = {
+          const config = {
             videoInfoKey: tagKey,
             videoInfoValue: tagValue,
             ruleKey: filterRule.data.ruleName,
             ruleValue: filterRule.data.ruleValue,
+            awemeInfo,
             transformAwemeInfo,
             rule: filterRule,
           };
-          flag = await this.checkFilterWithRule(details, filterRule.data);
+          flag = await this.checkFilterWithRule(config, filterRule.data);
           if (flag) {
             if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
-              const dynamicDetailsList = [];
+              const dynamicConfigList = [];
               for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
                 const dynamicOption = filterRule.dynamicData[dynamicIndex];
                 const dynamicTagKey = dynamicOption.ruleName;
                 const dynamicTagValue = transformAwemeInfo[dynamicTagKey];
-                const dynamicDetails = {
+                const dynamicConfig = {
                   videoInfoKey: dynamicTagKey,
                   videoInfoValue: dynamicTagValue,
                   ruleKey: dynamicOption.ruleName,
                   ruleValue: dynamicOption.ruleValue,
+                  awemeInfo,
                   transformAwemeInfo,
                   rule: filterRule,
                 };
-                dynamicDetailsList.push(dynamicDetails);
-                const dynamicCheckFlag = await this.checkFilterWithRule(dynamicDetails, dynamicOption);
+                dynamicConfigList.push(dynamicConfig);
+                const dynamicCheckFlag = await this.checkFilterWithRule(dynamicConfig, dynamicOption);
                 flag = flag && dynamicCheckFlag;
                 if (!flag) {
                   break;
@@ -5887,17 +5851,17 @@
               }
               if (flag) {
                 log.success(`视频过滤器-多组 ==> ${filterRule.name}`, {
-                  dynamicDetailsList,
                   transformAwemeInfo,
-                  details,
+                  config,
                   awemeInfo,
                   filterRule,
+                  dynamicConfigList,
                 });
               }
             } else {
               log.success(`视频过滤器 ==> ${filterRule.name}`, {
                 transformAwemeInfo,
-                details,
+                config,
                 awemeInfo,
                 filterRule,
               });
@@ -6989,7 +6953,7 @@
         }
         const $dialog = __pops__.alert({
           title: {
-            text: "视频解析",
+            text: "视频解析（DOM）",
             position: "center",
           },
           content: {
@@ -7254,38 +7218,38 @@
           }
           log.info("DOM上的的awemeInfo：", awemeInfo);
           const filterBase = new DouYinVideoFilterBase();
-          const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", true);
-          log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
-          if (transformAwemeInfoWithPage.nickname == null) {
-            transformAwemeInfoWithPage.nickname = "未知作者";
+          const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", true);
+          log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithDOM);
+          if (transformAwemeInfoWithDOM.nickname == null) {
+            transformAwemeInfoWithDOM.nickname = "未知作者";
           }
-          if (transformAwemeInfoWithPage.desc == null) {
-            transformAwemeInfoWithPage.desc = "未知视频文案";
+          if (transformAwemeInfoWithDOM.desc == null) {
+            transformAwemeInfoWithDOM.desc = "未知视频文案";
           }
           let videoDownloadUrlList = [];
           let musicDownloadUrlList = [];
           let pictureDownloadUrlList = [];
           videoDownloadUrlList = videoDownloadUrlList.concat(
-            transformAwemeInfoWithPage.videoBitRateList.map((it) => {
+            transformAwemeInfoWithDOM.videoBitRateList.map((it) => {
               return it;
             })
           );
           if (
-            typeof transformAwemeInfoWithPage.musicUrl === "string" &&
-            utils.isNotNull(transformAwemeInfoWithPage.musicUrl)
+            typeof transformAwemeInfoWithDOM.musicUrl === "string" &&
+            utils.isNotNull(transformAwemeInfoWithDOM.musicUrl)
           ) {
             musicDownloadUrlList.push({
-              url: transformAwemeInfoWithPage.musicUrl,
-              author: transformAwemeInfoWithPage.musicAuthor,
-              album: transformAwemeInfoWithPage.musicAlbum,
-              title: transformAwemeInfoWithPage.musicTitle,
-              duration: transformAwemeInfoWithPage.musicDuration,
-              backUrl: transformAwemeInfoWithPage.musicBackUrlList,
+              url: transformAwemeInfoWithDOM.musicUrl,
+              author: transformAwemeInfoWithDOM.musicAuthor,
+              album: transformAwemeInfoWithDOM.musicAlbum,
+              title: transformAwemeInfoWithDOM.musicTitle,
+              duration: transformAwemeInfoWithDOM.musicDuration,
+              backUrl: transformAwemeInfoWithDOM.musicBackUrlList,
             });
           }
-          if (Array.isArray(transformAwemeInfoWithPage?.pictureList) && transformAwemeInfoWithPage.pictureList.length) {
+          if (Array.isArray(transformAwemeInfoWithDOM?.pictureList) && transformAwemeInfoWithDOM.pictureList.length) {
             pictureDownloadUrlList = pictureDownloadUrlList.concat(
-              transformAwemeInfoWithPage.pictureList.map((item) => {
+              transformAwemeInfoWithDOM.pictureList.map((item) => {
                 return {
                   url: item.url,
                   width: item.width,
@@ -7302,30 +7266,30 @@
           const downloadTime = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss");
           const videoDownloadFileName = transformDownloadFileName({
             downloadTime,
-            uid: transformAwemeInfoWithPage.uid,
-            nickname: transformAwemeInfoWithPage.nickname,
-            desc: transformAwemeInfoWithPage.desc,
+            uid: transformAwemeInfoWithDOM.uid,
+            nickname: transformAwemeInfoWithDOM.nickname,
+            desc: transformAwemeInfoWithDOM.desc,
           });
           const musicDownloadFileName = transformDownloadFileName(
             {
               downloadTime,
-              album: transformAwemeInfoWithPage.musicAlbum,
-              author: transformAwemeInfoWithPage.musicAuthor,
-              title: transformAwemeInfoWithPage.musicTitle,
-              duration: transformAwemeInfoWithPage.musicDuration,
+              album: transformAwemeInfoWithDOM.musicAlbum,
+              author: transformAwemeInfoWithDOM.musicAuthor,
+              title: transformAwemeInfoWithDOM.musicTitle,
+              duration: transformAwemeInfoWithDOM.musicDuration,
             },
             Panel.getValue("dy-video-parseVideoMusic-downloadFileName")
           );
           const pictureDownloadFileName = transformDownloadFileName({
             downloadTime,
-            uid: transformAwemeInfoWithPage.uid,
-            nickname: transformAwemeInfoWithPage.nickname,
-            desc: transformAwemeInfoWithPage.desc,
+            uid: transformAwemeInfoWithDOM.uid,
+            nickname: transformAwemeInfoWithDOM.nickname,
+            desc: transformAwemeInfoWithDOM.desc,
           });
           showParseInfoDialog({
             videoInfo: {
-              author: transformAwemeInfoWithPage.nickname,
-              desc: transformAwemeInfoWithPage.desc,
+              author: transformAwemeInfoWithDOM.nickname,
+              desc: transformAwemeInfoWithDOM.desc,
             },
             videoDownloadInfo: {
               fileName: videoDownloadFileName,
@@ -11059,17 +11023,19 @@
           return;
         }
         let transformAwemeInfo;
-        log.info("DOM上的的awemeInfo：", awemeInfo);
+        let isFromNetWork = false;
+        log.info("DOM上的的awemeInfo: ", awemeInfo);
         const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
-        log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
+        log.info("DOM上解析出的transformAwemeInfo: ", transformAwemeInfoWithPage);
         if (
           typeof transformAwemeInfoWithPage.awemeId === "string" &&
           DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
         ) {
+          isFromNetWork = true;
           const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
           transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-          log.info(`网络请求的awemeInfo：`, awemeInfoMapData.awemeInfo);
-          log.info(`网络请求解析出的transformAwemeInfo：`, awemeInfoMapData.transformAwemeInfo);
+          log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
+          log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
         } else {
           transformAwemeInfo = transformAwemeInfoWithPage;
         }
@@ -11097,7 +11063,7 @@
         }
         __pops__.confirm({
           title: {
-            text: "视频awemeInfo",
+            text: `视频awemeInfo（${isFromNetWork ? "NetWork" : "DOM"}）`,
             position: "center",
           },
           content: {
@@ -11111,7 +11077,7 @@
             ok: {
               enable: true,
               text: "添加过滤规则",
-              callback(eventDetails, event) {
+              callback() {
                 const ruleView = that.getRuleViewInstance();
                 ruleView.showEditView(false, that.getTemplateData());
               },
@@ -11119,7 +11085,7 @@
             cancel: {
               enable: true,
               text: "规则管理器",
-              callback(eventDetails, event) {
+              callback() {
                 that.showView();
               },
             },
@@ -11127,7 +11093,7 @@
               enable: Boolean(targetFilterOption.length),
               text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
               type: isHasMatchedRules ? "xiaomi-primary" : "violet",
-              callback(btnConfig, event) {
+              callback() {
                 that.getRuleViewInstance().showView((data) => {
                   const find = targetFilterOption.find((it) => {
                     return data.uuid === it.uuid;
@@ -11363,51 +11329,8 @@
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
-              const douYinVideoHandlerInfoKey = [
-                "isFollow",
-                "isLive",
-                "isAds",
-                "isSeriesInfo",
-                "isMixInfo",
-                "isPicture",
-                "isProduct",
-                "awemeId",
-                "nickname",
-                "uid",
-                "desc",
-                "textExtra",
-                "videoTag",
-                "videoTagId",
-                "suggestWord",
-                "musicAlbum",
-                "musicAuthor",
-                "musicDuration",
-                "musicTitle",
-                "musicBackUrlList",
-                "musicUrl",
-                "authorAccountCertInfo",
-                "authorCustomVerify",
-                "authorEnterpriseVerifyReason",
-                "riskInfoContent",
-                "seriesInfoName",
-                "seriesInfoContentTypes",
-                "mixInfoName",
-                "mixInfoDesc",
-                "collectCount",
-                "commentCount",
-                "diggCount",
-                "shareCount",
-                "duration",
-                "liveStreamRoomId",
-                "liveStreamRoomTitle",
-                "liveStreamNickName",
-                "liveStreamRoomUserCount",
-                "liveStreamRoomDynamicSpliceLabel",
-                "productId",
-                "productTitle",
-                "videoBitRateList",
-                "pictureList",
-              ];
+              const filterBase = new DouYinVideoFilterBase();
+              const douYinVideoHandlerInfoKey = Object.keys(filterBase.getTemplateData());
               const createDynamicItemNode = (storageData) => {
                 const ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
                   ? storageData["ruleName"]
@@ -11684,7 +11607,7 @@
                 selectedCallBack(config) {
                   Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },

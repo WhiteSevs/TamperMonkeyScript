@@ -1,7 +1,7 @@
 /**
  * 视频信息处理过后的数据结构
  */
-export interface DouYinVideoHandlerInfo {
+export interface DouYinVideoConversionInfo {
   /** 视频id */
   awemeId?: string;
   /** 作者名 */
@@ -148,7 +148,7 @@ export interface DouYinVideoHandlerInfo {
     /**
      * 视频流的播放信息
      */
-    videoBitRateList: DouYinVideoHandlerInfo["videoBitRateList"];
+    videoBitRateList: DouYinVideoConversionInfo["videoBitRateList"];
   }[];
 }
 

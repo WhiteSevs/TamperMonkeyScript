@@ -7,7 +7,7 @@ import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
 import { GM_download, unsafeWindow } from "ViteGM";
-import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoHandlerInfo } from "../../../../types/DouYinVideoType";
+import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoConversionInfo } from "../../../../types/DouYinVideoType";
 import { DouYin } from "../../DouYin";
 import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
 import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
@@ -785,7 +785,7 @@ export const DouYinVideoPlayer = {
       }
       const $dialog = pops.alert({
         title: {
-          text: "视频解析",
+          text: "视频解析（DOM）",
           position: "center",
         },
         content: {
@@ -1075,17 +1075,17 @@ export const DouYinVideoPlayer = {
         }
         log.info("DOM上的的awemeInfo：", awemeInfo);
         const filterBase = new DouYinVideoFilterBase();
-        const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(
+        const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(
           awemeInfo,
           "dom",
           true
-        ) as Required<DouYinVideoHandlerInfo>;
-        log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithPage);
-        if (transformAwemeInfoWithPage.nickname == null) {
-          transformAwemeInfoWithPage.nickname = "未知作者";
+        ) as Required<DouYinVideoConversionInfo>;
+        log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithDOM);
+        if (transformAwemeInfoWithDOM.nickname == null) {
+          transformAwemeInfoWithDOM.nickname = "未知作者";
         }
-        if (transformAwemeInfoWithPage.desc == null) {
-          transformAwemeInfoWithPage.desc = "未知视频文案";
+        if (transformAwemeInfoWithDOM.desc == null) {
+          transformAwemeInfoWithDOM.desc = "未知视频文案";
         }
         // 收集到的全部的下载地址
         let videoDownloadUrlList: ParseVideoDownloadInfo[] = [];
@@ -1093,28 +1093,28 @@ export const DouYinVideoPlayer = {
         let pictureDownloadUrlList: ParsePictureDownloadInfo[] = [];
 
         videoDownloadUrlList = videoDownloadUrlList.concat(
-          transformAwemeInfoWithPage.videoBitRateList.map((it) => {
+          transformAwemeInfoWithDOM.videoBitRateList.map((it) => {
             return it;
           })
         );
         if (
-          typeof transformAwemeInfoWithPage.musicUrl === "string" &&
-          utils.isNotNull(transformAwemeInfoWithPage.musicUrl)
+          typeof transformAwemeInfoWithDOM.musicUrl === "string" &&
+          utils.isNotNull(transformAwemeInfoWithDOM.musicUrl)
         ) {
           musicDownloadUrlList.push({
-            url: transformAwemeInfoWithPage.musicUrl,
-            author: transformAwemeInfoWithPage.musicAuthor,
-            album: transformAwemeInfoWithPage.musicAlbum,
-            title: transformAwemeInfoWithPage.musicTitle,
-            duration: transformAwemeInfoWithPage.musicDuration,
-            backUrl: transformAwemeInfoWithPage.musicBackUrlList,
+            url: transformAwemeInfoWithDOM.musicUrl,
+            author: transformAwemeInfoWithDOM.musicAuthor,
+            album: transformAwemeInfoWithDOM.musicAlbum,
+            title: transformAwemeInfoWithDOM.musicTitle,
+            duration: transformAwemeInfoWithDOM.musicDuration,
+            backUrl: transformAwemeInfoWithDOM.musicBackUrlList,
           });
         }
-        if (Array.isArray(transformAwemeInfoWithPage?.pictureList) && transformAwemeInfoWithPage.pictureList.length) {
+        if (Array.isArray(transformAwemeInfoWithDOM?.pictureList) && transformAwemeInfoWithDOM.pictureList.length) {
           // 图文
           // 图文内有时候存在Live实况
           pictureDownloadUrlList = pictureDownloadUrlList.concat(
-            transformAwemeInfoWithPage.pictureList.map((item) => {
+            transformAwemeInfoWithDOM.pictureList.map((item) => {
               return {
                 url: item.url,
                 width: item.width,
@@ -1132,32 +1132,32 @@ export const DouYinVideoPlayer = {
         // 视频下载的文件名
         const videoDownloadFileName = transformDownloadFileName({
           downloadTime: downloadTime,
-          uid: transformAwemeInfoWithPage.uid,
-          nickname: transformAwemeInfoWithPage.nickname,
-          desc: transformAwemeInfoWithPage.desc,
+          uid: transformAwemeInfoWithDOM.uid,
+          nickname: transformAwemeInfoWithDOM.nickname,
+          desc: transformAwemeInfoWithDOM.desc,
         });
         // 音乐下载的文件名
         const musicDownloadFileName = transformDownloadFileName(
           {
             downloadTime: downloadTime,
-            album: transformAwemeInfoWithPage.musicAlbum,
-            author: transformAwemeInfoWithPage.musicAuthor,
-            title: transformAwemeInfoWithPage.musicTitle,
-            duration: transformAwemeInfoWithPage.musicDuration,
+            album: transformAwemeInfoWithDOM.musicAlbum,
+            author: transformAwemeInfoWithDOM.musicAuthor,
+            title: transformAwemeInfoWithDOM.musicTitle,
+            duration: transformAwemeInfoWithDOM.musicDuration,
           },
           Panel.getValue<string>("dy-video-parseVideoMusic-downloadFileName")
         );
         // 图片下载的文件名
         const pictureDownloadFileName = transformDownloadFileName({
           downloadTime: downloadTime,
-          uid: transformAwemeInfoWithPage.uid,
-          nickname: transformAwemeInfoWithPage.nickname,
-          desc: transformAwemeInfoWithPage.desc,
+          uid: transformAwemeInfoWithDOM.uid,
+          nickname: transformAwemeInfoWithDOM.nickname,
+          desc: transformAwemeInfoWithDOM.desc,
         });
         showParseInfoDialog({
           videoInfo: {
-            author: transformAwemeInfoWithPage.nickname,
-            desc: transformAwemeInfoWithPage.desc,
+            author: transformAwemeInfoWithDOM.nickname,
+            desc: transformAwemeInfoWithDOM.desc,
           },
           videoDownloadInfo: {
             fileName: videoDownloadFileName,
