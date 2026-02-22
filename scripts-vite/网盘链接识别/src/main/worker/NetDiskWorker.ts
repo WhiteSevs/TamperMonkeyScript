@@ -347,7 +347,7 @@ export const NetDiskWorker = {
                 merge: true,
                 position: "space-between",
                 ok: {
-                  text: "快速添加网站规则",
+                  text: "快捷添加",
                   callback() {
                     const ruleOption = WebsiteRule.getTemplateData();
                     ruleOption.name = "手动匹配：" + data.hostname;
@@ -357,7 +357,7 @@ export const NetDiskWorker = {
 
                     const rulePanelView = new RulePanelView<WebsiteRuleOption>({
                       title() {
-                        return "规则管理器";
+                        return "规则管理";
                       },
                       contentConfig: [WebsiteRule.getRulePanelViewOption(ruleOption)],
                     });
