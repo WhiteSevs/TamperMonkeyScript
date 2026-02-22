@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.22
+// @version      2026.2.22.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
@@ -1378,6 +1378,11 @@
     addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+      return {
+        off: () => {
+          return this.removeUrlChangeWithExecMenuOnceListener(key);
+        },
+      };
     },
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
@@ -2041,6 +2046,15 @@
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
+  const DouYinNetWorkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
+    },
+  };
   const DouYinRouter = {
     isIndex() {
       return window.location.hostname === "www.douyin.com" || window.location.hostname === "douyin.com";
@@ -2095,400 +2109,427 @@
       return this.isIndex() && window.location.pathname.startsWith("/chat");
     },
   };
-  const BlockTopNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldTopNavigator", "search-shieldTopNavigator"],
-        () => {
-          return this.shieldTopNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          const mainValue = Panel.getValue(mainKey);
-          const childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce(
-        "shieldClientTip",
-        () => {
-          return this.shieldClientTip();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldFillingBricksAndStones",
-        () => {
-          return this.shieldFillingBricksAndStones();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldClient",
-        () => {
-          return this.shieldClient();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldQuickAccess",
-        () => {
-          return this.shieldQuickAccess();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldNotifitation",
-        () => {
-          return this.shieldNotifitation();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldPrivateMessage",
-        () => {
-          return this.shieldPrivateMessage();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldSubmission",
-        () => {
-          return this.shieldSubmission();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldWallpaper",
-        () => {
-          return this.shieldWallpaper();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
-        return this.shieldRightMenu();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
-        return this.shieldRightMenuMore();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
-        return this.shieldRightMenuLoginAvatar();
-      });
-      Panel.execMenuOnce("shield-topNav-ai-search", () => {
-        return this.shieldAISearch();
-      });
-    },
-    shieldTopNavigator() {
-      log.info("【屏蔽】顶部导航栏");
-      const result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-header"));
-      result.push(
-        addStyle(
-          `
-			/* 修复视频的高度 */
-			#douyin-right-container{
-				padding-top: 0px !important;
-			}
-			/* 兼容手机模式 */
-			@media screen and (max-width: 550px)  and (orientation: portrait) {
-				.is-mobile-pc{
-					--header-height: 0px !important;
-				}
-			}
-		`
-        )
-      );
-      result.push(
-        addStyle(
-          `
-       /* pc端 or mobile端*/
-      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
-        #slidelist .page-recommend-container{
-          --recommend-video-container-margin-height: 0px;
-          margin: var(--recommend-video-container-margin-height) 0px !important;
-          height: ${window.innerHeight}px !important;
-          height: round(nearest, 100dvh, 1px) !important;
-        }
-      }
-			`
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addStyle(
-            `
-				/* 把搜索顶部的工具栏置顶 */
-				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-					top: 0;
-				}`
-          )
-        );
-      }
-      return result;
-    },
-    shieldFillingBricksAndStones() {
-      log.info("【屏蔽】充钻石");
-      const result = [];
-      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
-      result.push(
-        CommonUtil.addBlockCSS(
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
-          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldClient() {
-      log.info("【屏蔽】客户端");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
-            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
-            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldQuickAccess() {
-      log.info("【屏蔽】快捷访问");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
-
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
-        domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
-          $semi?.remove();
+  const DouYinElement = {
+    watchFeedVideoListChange(callback) {
+      let $os = null;
+      domUtils.onReady(() => {
+        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
+          log.info(`启用观察器观察加载的视频`);
+          const lockFn = new utils.LockFunction((observer) => {
+            $os = $os || this.selectorRootOSNode();
+            if (!$os) {
+              log.error("watchVideDataListChange：获取osElement失败");
+              return;
+            }
+            callback($os, observer);
+          }, 50);
+          utils.mutationObserver(document, {
+            config: {
+              childList: true,
+              subtree: true,
+            },
+            immediate: true,
+            callback: (mutations, observer) => {
+              lockFn.run(observer);
+            },
+          });
         });
-      } else if (DouYinRouter.isLive());
-      return result;
+      });
     },
-    shieldNotifitation() {
-      log.info("【屏蔽】通知");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
+    selectorRootOSNode() {
+      return $("#root div[class*='-os']") || $("#douyin-right-container");
+    },
+    getPercentInWindowView($el) {
+      const rect = $el.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const visibleLeft = Math.max(0, rect.left);
+      const visibleTop = Math.max(0, rect.top);
+      const visibleRight = Math.min(viewportWidth, rect.right);
+      const visibleBottom = Math.min(viewportHeight, rect.bottom);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const elementArea = rect.width * rect.height;
+      const visibleArea = visibleWidth * visibleHeight;
+      if (elementArea === 0) {
+        return {
+          percentage: 0,
+          horizontal: 0,
+          vertical: 0,
+          toCenter: 0,
+          nodeCenterX: 0,
+          nodeCenterY: 0,
+        };
       }
+      const visibleCenterX = visibleLeft + Math.max(0, (visibleRight - visibleLeft) / 2);
+      const visibleCenterY = visibleTop + Math.max(0, (visibleBottom - visibleTop) / 2);
+      const viewportCenterX = Math.max(0, viewportWidth / 2);
+      const viewportCenterY = Math.max(0, viewportHeight / 2);
+      const percentage = (visibleArea / elementArea) * 100;
+      const toCenter = Math.sqrt(
+        Math.pow(visibleCenterX - viewportCenterX, 2) + Math.pow(visibleCenterY - viewportCenterY, 2)
+      );
+      const horizontalPercentage = (visibleWidth / rect.width) * 100;
+      const verticalPercentage = (visibleHeight / rect.height) * 100;
+      return {
+        percentage: Math.round(percentage * 100) / 100,
+        horizontal: Math.round(horizontalPercentage * 100) / 100,
+        vertical: Math.round(verticalPercentage * 100) / 100,
+        toCenter,
+        nodeCenterX: visibleCenterX,
+        nodeCenterY: visibleCenterY,
+      };
+    },
+    getInViewVideo() {
+      const $videos = Array.from($$("video"))
+        .map(($video) => {
+          if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && $video.srcObject == null) return;
+          return $video;
+        })
+        .filter((it) => it != null);
+      const videosInViewData = this.getInViewNode($videos);
+      return videosInViewData;
+    },
+    getInViewPlayButton() {
+      const $btn = Array.from($$(".xgplayer-play"));
+      $btn.push(...Array.from($$("#slidelist .douyin-player-play")));
+      const buttonNodeInViewData = this.getInViewNode($btn);
+      const result = buttonNodeInViewData
+        .map((it) => {
+          const $el = it.$el;
+          const $point = document.elementFromPoint(it.nodeCenterX, it.nodeCenterY);
+          if ($point !== $el && !$el.contains($point)) return;
+          return {
+            ...it,
+            state: $el.getAttribute("data-state"),
+          };
+        })
+        .filter((it) => it != null);
       return result;
     },
-    shieldPrivateMessage() {
-      log.info("【屏蔽】私信");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
-          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        log.info("搜索-【屏蔽】私信");
-        result.push(
-          CommonUtil.addBlockCSS(
-            'ul:has( div>div[data-e2e="im-entry"] )',
-            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
-          )
-        );
+    getInViewNode($el) {
+      if (!Array.isArray($el)) {
+        $el = [$el];
       }
-      return result;
-    },
-    shieldSubmission() {
-      log.info("【屏蔽】投稿");
-      const result = [];
-      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
-      result.push(
-        CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`)
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldClientTip() {
-      log.info("【屏蔽】客户端提示");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
-          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
-          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
-          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
-            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldWallpaper() {
-      log.info("【屏蔽】壁纸");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
-          )
-        );
-      }
-      return result;
-    },
-    shieldRightMenu() {
-      log.info(`【屏蔽】右侧菜单栏`);
-      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
-    },
-    shieldRightMenuMore() {
-      log.info(`【屏蔽】更多`);
-      return CommonUtil.addBlockCSS(
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
-      );
-    },
-    shieldRightMenuLoginAvatar() {
-      log.info(`【屏蔽】登录头像`);
-      return CommonUtil.addBlockCSS(
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
-      );
-    },
-    shieldAISearch() {
-      log.info(`【屏蔽】AI搜索/抖音`);
-      return CommonUtil.addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
+      const nodeInViewData = $el
+        .map(($it) => {
+          const positionInfo = this.getPercentInWindowView($it);
+          if (positionInfo.percentage <= 0) return;
+          return {
+            ...positionInfo,
+            $el: $it,
+          };
+        })
+        .filter((it) => it != null);
+      utils.sortListByProperty(nodeInViewData, (it) => it.toCenter, false);
+      return nodeInViewData;
     },
   };
-  const BlockSearchFrame = {
-    init() {
-      Panel.execMenuOnce("shieldSearch", () => {
-        return this.shieldSearch();
-      });
-      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
-        return this.shieldSearchPlaceholder();
-      });
-      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
-        return this.shieldSearchGuessYouWantToSearch();
-      });
-      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
-        return this.shieldSearchTiktokHotspot();
-      });
-    },
-    shieldSearch() {
-      log.info("【屏蔽】搜索框");
-      return CommonUtil.addBlockCSS(
-        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
-      );
-    },
-    shieldSearchPlaceholder() {
-      log.info("【屏蔽】搜索框的提示");
-      const result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
-        )
-      );
-      result.push(
-        addStyle(
-          `
-			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-				color: transparent;
-			}`
-        )
+  const DouYinAccount = {
+    disguiseLogin() {
+      log.info("伪装登录");
+      let result = [CommonUtil.addBlockCSS(".login-tooltip-slot")];
+      const WAIT_TIME = 2e4;
+      const uid = parseInt((Math.random() * 1e10).toString());
+      const info = {
+        uid,
+        secUid: "",
+        shortId: parseInt((Math.random() * 1e9).toString()),
+        realName: "乌萨奇",
+        nickname: "乌萨奇",
+        desc: "除草证3级",
+        gender: 0,
+        avatarUrl: "https://picshack.net/ib/F9JKlC3yhh.gif",
+        avatar300Url: "https://picshack.net/ib/F9JKlC3yhh.gif",
+        followStatus: 0,
+        followerStatus: 0,
+        awemeCount: 0,
+        watchLaterCount: 0,
+        followingCount: 0,
+        followerCount: 0,
+        followerCountStr: "",
+        mplatformFollowersCount: 9999999,
+        favoritingCount: 0,
+        totalFavorited: 9999999,
+        userCollectCount: {
+          logPb: {
+            impr_id: "",
+          },
+          collectCountList: [],
+          statusCode: 0,
+          extra: {
+            fatal_item_ids: [],
+            logid: "",
+            now: Date.now(),
+          },
+        },
+        uniqueId: "",
+        customVerify: "",
+        generalPermission: {
+          is_hit_active_fans_grayed: false,
+        },
+        age: new Date().getFullYear() - 2019,
+        country: "",
+        province: "",
+        city: "",
+        district: "",
+        school: "chiikawa",
+        schoolVisible: 1,
+        enterpriseVerifyReason: "",
+        secret: 1,
+        userCanceled: false,
+        roomData: {},
+        shareQrcodeUrl: "",
+        shareInfo: {
+          boolPersist: 1,
+          shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+          shareImageUrl: {
+            uri: "",
+            url_list: [],
+          },
+          shareQrcodeUrl: {
+            uri: "",
+            url_list: [],
+          },
+          shareUrl: "",
+          shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+        },
+        coverAndHeadImageInfo: {
+          profileCoverList: [],
+        },
+        roomId: 0,
+        favoritePermission: 1,
+        viewHistoryPermission: true,
+        isGovMediaVip: false,
+        isStar: false,
+        hideLocation: false,
+        needSpecialShowFollowerCount: false,
+        continuationState: 0,
+        im_role_ids: [],
+        accountCertInfo: {},
+        close_consecutive_chat: 0,
+        profileRankLabel: null,
+      };
+      Object.freeze(info);
+      const getUserInfo = function ($el) {
+        const userInfoList = [];
+        const reactInstance = utils.getReactInstance($el);
+        const reactFiber = reactInstance?.reactFiber;
+        reactInstance?.reactProps;
+        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
+          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
+        }
+        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
+          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo);
+        }
+        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
+          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo);
+        }
+        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo) {
+          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo);
+        }
+        return userInfoList;
+      };
+      const setLogin = function ($el) {
+        getUserInfo($el).forEach((userInfo) => {
+          if (!userInfo.isLogin) {
+            userInfo.info = info;
+            userInfo.isLogin = true;
+            userInfo.statusCode = 0;
+          }
+        });
+      };
+      DouYinElement.watchFeedVideoListChange(setLogin);
+      domUtils
+        .waitNode("#root div[class*='-os']", WAIT_TIME)
+        .then(() => {
+          const lockFn = new utils.LockFunction(() => {
+            const $os = DouYinElement.selectorRootOSNode();
+            if (!$os) {
+              return;
+            }
+            setLogin($os);
+          }, 70);
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            immediate: true,
+            callback: () => {
+              lockFn.run();
+            },
+          });
+        })
+        .catch((err) => {});
+      if (DouYinRouter.isLive()) {
+        log.info("伪装登录：live");
+        domUtils.waitNode(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
+          const lockFn = new utils.LockFunction(() => {
+            setLogin($(`[id^="douyin-header"]`));
+          }, 70);
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            immediate: true,
+            callback: () => {
+              lockFn.run();
+            },
+          });
+        });
+      } else if (DouYinRouter.isSearch()) {
+        let setUserInfoBySearch = function ($ele) {
+          const $react = utils.getReactInstance($ele);
+          $react?.reactFiber;
+          const reactProps = $react?.reactProps;
+          if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
+            Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
+          }
+          if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
+            Reflect.set(reactProps.children[1].props, "isClient", true);
+          }
+        };
+        log.info("伪装登录：search");
+        domUtils.waitNode("#root > div", WAIT_TIME).then(($rootDiv) => {
+          if (!$rootDiv) {
+            log.error("#root > div获取失败");
+            return;
+          }
+          const lockFn = new utils.LockFunction(() => {
+            setUserInfoBySearch($rootDiv);
+          }, 70);
+          utils.mutationObserver(document, {
+            config: {
+              subtree: true,
+              childList: true,
+            },
+            immediate: true,
+            callback: () => {
+              lockFn.run();
+            },
+          });
+        });
+      }
+      if (!Panel.getValue("watchLoginDialogToClose")) {
+        result = result.concat(this.watchLoginDialogToClose());
+      }
+      result = result.concat(this.watchCommentDialogToClose());
+      window.localStorage.removeItem("UNLOGIN_CLARITY_NEW");
+      window.localStorage.setItem("HasUserLogin", "1");
+      window.localStorage.setItem(
+        "has_login_show",
+        JSON.stringify({
+          count: 1,
+          lastTime: Date.now() - 1e3 * 60 * 60 * 12,
+          firstTime: Date.now() - 1e3 * 60 * 60 * 12,
+        })
       );
       return result;
     },
-    shieldSearchGuessYouWantToSearch() {
-      log.info("【屏蔽】搜索-猜你想搜");
-      return CommonUtil.addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
-      );
+    watchLoginDialogToClose() {
+      log.info("监听登录弹窗并关闭");
+      const watchLoginDialogToClose = Panel.getDynamicValue("watchLoginDialogToClose");
+      const disguiseLogin = Panel.getDynamicValue("disguiseLogin");
+      const lockFn = new utils.LockFunction(() => {
+        if (!watchLoginDialogToClose.value && !disguiseLogin.value) {
+          return;
+        }
+        domUtils.remove(".douyin_login_iframe:has(iframe)");
+        const $loginDialog = $('div[id^="login-full-panel-"]');
+        if ($loginDialog && $loginDialog.children.length) {
+          const $loginDialogCloseBtn =
+            $loginDialog.querySelector(".dy-account-close") ||
+            $loginDialog.querySelector(
+              'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
+            );
+          if ($loginDialogCloseBtn) {
+            const reactInst = utils.getReactInstance($loginDialogCloseBtn);
+            const onClick = reactInst?.reactProps?.onClick;
+            if (typeof onClick === "function") {
+              onClick(new Event("click"));
+              log.success(`调用onClick触发关闭弹窗`);
+            } else {
+              log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
+            }
+          } else {
+            const $logPanelNew = $loginDialog.querySelector("#login-panel-new > div");
+            if (!$logPanelNew || ($logPanelNew && $logPanelNew.children.length)) {
+              log.error(
+                "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+                $loginDialog.cloneNode(true)
+              );
+            }
+          }
+        }
+        const $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
+        if ($ohterDialog) {
+          const reactInst = utils.getReactInstance($ohterDialog);
+          const onClick = reactInst?.reactProps?.onClick;
+          if (typeof onClick === "function") {
+            onClick(new Event("click"));
+          } else {
+            log.error("监听到【为保障更好的访问体验，请在登录后继续使用抖音】但是关闭失败，原因：未获取到onClick函数");
+          }
+        }
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
+        () => {
+          observer.disconnect();
+        },
+        watchLoginDialogToClose.destory,
+        disguiseLogin.destory,
+      ];
     },
-    shieldSearchTiktokHotspot() {
-      log.info("【屏蔽】搜索-抖音热点");
-      return CommonUtil.addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
-      );
+    watchCommentDialogToClose() {
+      const lockFn = new utils.LockFunction(() => {
+        const $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
+        if (!$cardLoginGuide) {
+          return;
+        }
+        const $close = $cardLoginGuide.querySelector(".related-video-card-login-guide__footer-close");
+        if (!$close) {
+          log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
+          return;
+        }
+        $close.click();
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+        addStyle(
+          `
+        /* 去除遮罩层 */
+        [id^="related-video-card-login-guide"]+div{
+          filter: none !important;
+        }
+      `
+        ),
+        () => {
+          observer?.disconnect();
+        },
+      ];
     },
   };
   const DouYinLiveMessageFilter = {
@@ -2646,122 +2687,6 @@
     },
     execFilter(messageInst, method) {
       return DouYinLiveMessageFilter.checkMessageFilter(messageInst, method);
-    },
-  };
-  const DouYinElement = {
-    watchFeedVideoListChange(callback) {
-      let $os = null;
-      domUtils.onReady(() => {
-        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
-          log.info(`启用观察器观察加载的视频`);
-          const lockFn = new utils.LockFunction((observer) => {
-            $os = $os || this.selectorRootOSNode();
-            if (!$os) {
-              log.error("watchVideDataListChange：获取osElement失败");
-              return;
-            }
-            callback($os, observer);
-          }, 50);
-          utils.mutationObserver(document, {
-            config: {
-              childList: true,
-              subtree: true,
-            },
-            immediate: true,
-            callback: (mutations, observer) => {
-              lockFn.run(observer);
-            },
-          });
-        });
-      });
-    },
-    selectorRootOSNode() {
-      return $("#root div[class*='-os']") || $("#douyin-right-container");
-    },
-    getPercentInWindowView($el) {
-      const rect = $el.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const visibleLeft = Math.max(0, rect.left);
-      const visibleTop = Math.max(0, rect.top);
-      const visibleRight = Math.min(viewportWidth, rect.right);
-      const visibleBottom = Math.min(viewportHeight, rect.bottom);
-      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-      const elementArea = rect.width * rect.height;
-      const visibleArea = visibleWidth * visibleHeight;
-      if (elementArea === 0) {
-        return {
-          percentage: 0,
-          horizontal: 0,
-          vertical: 0,
-          toCenter: 0,
-          nodeCenterX: 0,
-          nodeCenterY: 0,
-        };
-      }
-      const visibleCenterX = visibleLeft + Math.max(0, (visibleRight - visibleLeft) / 2);
-      const visibleCenterY = visibleTop + Math.max(0, (visibleBottom - visibleTop) / 2);
-      const viewportCenterX = Math.max(0, viewportWidth / 2);
-      const viewportCenterY = Math.max(0, viewportHeight / 2);
-      const percentage = (visibleArea / elementArea) * 100;
-      const toCenter = Math.sqrt(
-        Math.pow(visibleCenterX - viewportCenterX, 2) + Math.pow(visibleCenterY - viewportCenterY, 2)
-      );
-      const horizontalPercentage = (visibleWidth / rect.width) * 100;
-      const verticalPercentage = (visibleHeight / rect.height) * 100;
-      return {
-        percentage: Math.round(percentage * 100) / 100,
-        horizontal: Math.round(horizontalPercentage * 100) / 100,
-        vertical: Math.round(verticalPercentage * 100) / 100,
-        toCenter,
-        nodeCenterX: visibleCenterX,
-        nodeCenterY: visibleCenterY,
-      };
-    },
-    getInViewVideo() {
-      const $videos = Array.from($$("video"))
-        .map(($video) => {
-          if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && $video.srcObject == null) return;
-          return $video;
-        })
-        .filter((it) => it != null);
-      const videosInViewData = this.getInViewNode($videos);
-      return videosInViewData;
-    },
-    getInViewPlayButton() {
-      const $btn = Array.from($$(".xgplayer-play"));
-      $btn.push(...Array.from($$("#slidelist .douyin-player-play")));
-      const buttonNodeInViewData = this.getInViewNode($btn);
-      const result = buttonNodeInViewData
-        .map((it) => {
-          const $el = it.$el;
-          const $point = document.elementFromPoint(it.nodeCenterX, it.nodeCenterY);
-          if ($point !== $el && !$el.contains($point)) return;
-          return {
-            ...it,
-            state: $el.getAttribute("data-state"),
-          };
-        })
-        .filter((it) => it != null);
-      return result;
-    },
-    getInViewNode($el) {
-      if (!Array.isArray($el)) {
-        $el = [$el];
-      }
-      const nodeInViewData = $el
-        .map(($it) => {
-          const positionInfo = this.getPercentInWindowView($it);
-          if (positionInfo.percentage <= 0) return;
-          return {
-            ...positionInfo,
-            $el: $it,
-          };
-        })
-        .filter((it) => it != null);
-      utils.sortListByProperty(nodeInViewData, (it) => it.toCenter, false);
-      return nodeInViewData;
     },
   };
   const Hook = {
@@ -3121,7 +3046,7 @@
     },
     init() {
       Panel.execMenuOnce("hookKeyboard", () => {
-        DouYinHook.hookKeyboard();
+        return DouYinHook.hookKeyboard();
       });
       Panel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
@@ -3135,20 +3060,6 @@
           if (liveAction === "") return;
         }
         this.disableDoubleClickLike();
-      });
-    },
-    removeEnvCheck() {
-      log.info("移除环境检测");
-      Hook.setInterval((fn) => {
-        const funcStr = fn.toString().trim();
-        if (funcStr.includes("debugger")) {
-          log.success("拦截→", [funcStr]);
-          return false;
-        }
-        if (funcStr.includes("checkEXp")) {
-          log.success("拦截→", [funcStr]);
-          return false;
-        }
       });
     },
     removeCookie() {
@@ -3392,12 +3303,12 @@
                   code: ["KeyE"],
                 }
               );
+              keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
+                const compare1 = it1.code.toSorted().toString();
+                const compare2 = it2.code.toSorted().toString();
+                return compare1 === compare2;
+              });
             }
-            keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
-              const compare1 = JSON.stringify(it1.code.toSorted());
-              const compare2 = JSON.stringify(it2.code.toSorted());
-              return compare1 === compare2;
-            });
             keyboardConfigList = otherKeyboardConfigList.concat(keyboardConfigList);
             for (let index = 0; index < keyboardConfigList.length; index++) {
               const keyboardConfig = keyboardConfigList[index];
@@ -3567,311 +3478,682 @@
       );
     },
   };
-  const DouYinAccount = {
-    disguiseLogin() {
-      log.info("伪装登录");
-      let result = [CommonUtil.addBlockCSS(".login-tooltip-slot")];
-      const WAIT_TIME = 2e4;
-      const uid = parseInt((Math.random() * 1e10).toString());
-      const info = {
-        uid,
-        secUid: "",
-        shortId: parseInt((Math.random() * 1e9).toString()),
-        realName: "乌萨奇",
-        nickname: "乌萨奇",
-        desc: "除草证3级",
-        gender: 0,
-        avatarUrl: "https://picshack.net/ib/F9JKlC3yhh.gif",
-        avatar300Url: "https://picshack.net/ib/F9JKlC3yhh.gif",
-        followStatus: 0,
-        followerStatus: 0,
-        awemeCount: 0,
-        watchLaterCount: 0,
-        followingCount: 0,
-        followerCount: 0,
-        followerCountStr: "",
-        mplatformFollowersCount: 9999999,
-        favoritingCount: 0,
-        totalFavorited: 9999999,
-        userCollectCount: {
-          logPb: {
-            impr_id: "",
-          },
-          collectCountList: [],
-          statusCode: 0,
-          extra: {
-            fatal_item_ids: [],
-            logid: "",
-            now: Date.now(),
-          },
+  const BlockLeftNavigator = {
+    init() {
+      Panel.exec(
+        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
+        () => {
+          return this.shieldLeftNavigator();
         },
-        uniqueId: "",
-        customVerify: "",
-        generalPermission: {
-          is_hit_active_fans_grayed: false,
-        },
-        age: new Date().getFullYear() - 2019,
-        country: "",
-        province: "",
-        city: "",
-        district: "",
-        school: "chiikawa",
-        schoolVisible: 1,
-        enterpriseVerifyReason: "",
-        secret: 1,
-        userCanceled: false,
-        roomData: {},
-        shareQrcodeUrl: "",
-        shareInfo: {
-          boolPersist: 1,
-          shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
-          shareImageUrl: {
-            uri: "",
-            url_list: [],
-          },
-          shareQrcodeUrl: {
-            uri: "",
-            url_list: [],
-          },
-          shareUrl: "",
-          shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
-        },
-        coverAndHeadImageInfo: {
-          profileCoverList: [],
-        },
-        roomId: 0,
-        favoritePermission: 1,
-        viewHistoryPermission: true,
-        isGovMediaVip: false,
-        isStar: false,
-        hideLocation: false,
-        needSpecialShowFollowerCount: false,
-        continuationState: 0,
-        im_role_ids: [],
-        accountCertInfo: {},
-        close_consecutive_chat: 0,
-        profileRankLabel: null,
-      };
-      Object.freeze(info);
-      const getUserInfo = function ($el) {
-        const userInfoList = [];
-        const reactInstance = utils.getReactInstance($el);
-        const reactFiber = reactInstance?.reactFiber;
-        reactInstance?.reactProps;
-        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
-          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
-        }
-        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
-          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo);
-        }
-        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
-          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo);
-        }
-        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo) {
-          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo);
-        }
-        return userInfoList;
-      };
-      const setLogin = function ($el) {
-        getUserInfo($el).forEach((userInfo) => {
-          if (!userInfo.isLogin) {
-            userInfo.info = info;
-            userInfo.isLogin = true;
-            userInfo.statusCode = 0;
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else;
           }
-        });
-      };
-      DouYinElement.watchFeedVideoListChange(setLogin);
-      domUtils
-        .waitNode("#root div[class*='-os']", WAIT_TIME)
-        .then(() => {
-          const lockFn = new utils.LockFunction(() => {
-            const $os = DouYinElement.selectorRootOSNode();
-            if (!$os) {
-              return;
-            }
-            setLogin($os);
-          }, 70);
-          utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            immediate: true,
-            callback: () => {
-              lockFn.run();
-            },
-          });
-        })
-        .catch((err) => {});
-      if (DouYinRouter.isLive()) {
-        log.info("伪装登录：live");
-        domUtils.waitNode(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
-          const lockFn = new utils.LockFunction(() => {
-            setLogin($(`[id^="douyin-header"]`));
-          }, 70);
-          utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            immediate: true,
-            callback: () => {
-              lockFn.run();
-            },
-          });
-        });
-      } else if (DouYinRouter.isSearch()) {
-        let setUserInfoBySearch = function ($ele) {
-          const $react = utils.getReactInstance($ele);
-          $react?.reactFiber;
-          const reactProps = $react?.reactProps;
-          if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
-            Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
-          }
-          if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
-            Reflect.set(reactProps.children[1].props, "isClient", true);
-          }
-        };
-        log.info("伪装登录：search");
-        domUtils.waitNode("#root > div", WAIT_TIME).then(($rootDiv) => {
-          if (!$rootDiv) {
-            log.error("#root > div获取失败");
-            return;
-          }
-          const lockFn = new utils.LockFunction(() => {
-            setUserInfoBySearch($rootDiv);
-          }, 70);
-          utils.mutationObserver(document, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            immediate: true,
-            callback: () => {
-              lockFn.run();
-            },
-          });
-        });
-      }
-      if (!Panel.getValue("watchLoginDialogToClose")) {
-        result = result.concat(this.watchLoginDialogToClose());
-      }
-      result = result.concat(this.watchCommentDialogToClose());
-      window.localStorage.removeItem("UNLOGIN_CLARITY_NEW");
-      window.localStorage.setItem("HasUserLogin", "1");
-      window.localStorage.setItem(
-        "has_login_show",
-        JSON.stringify({
-          count: 1,
-          lastTime: Date.now() - 1e3 * 60 * 60 * 12,
-          firstTime: Date.now() - 1e3 * 60 * 60 * 12,
-        })
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+        return this.block_tab_home();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+        return this.block_tab_recommend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+        return this.block_tab_follow();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+        return this.block_tab_friend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+        return this.block_tab_user_self();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+        return this.block_tab_live();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+        return this.block_tab_vs();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+        return this.block_tab_series();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
+        return this.block_tab_microgame();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+        return this.block_tab_ai_search();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-activity", () => {
+        return this.block_tab_activity();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-setting", () => {
+        return this.block_panel_menu_setting();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-about", () => {
+        return this.block_panel_menu_about();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-q_a", () => {
+        return this.block_panel_menu_q_a();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-survey", () => {
+        return this.block_panel_menu_survey();
+      });
+    },
+    shieldLeftNavigator() {
+      log.info("【屏蔽】左侧导航栏");
+      const result = [];
+      result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
+      result.push(
+        addStyle(
+          `
+			/* 修复顶部导航栏的宽度 */
+			#douyin-header{
+				width: 100%;
+			}`
+        )
       );
       return result;
     },
-    watchLoginDialogToClose() {
-      log.info("监听登录弹窗并关闭");
-      const watchLoginDialogToClose = Panel.getDynamicValue("watchLoginDialogToClose");
-      const disguiseLogin = Panel.getDynamicValue("disguiseLogin");
-      const lockFn = new utils.LockFunction(() => {
-        if (!watchLoginDialogToClose.value && !disguiseLogin.value) {
-          return;
-        }
-        domUtils.remove(".douyin_login_iframe:has(iframe)");
-        const $loginDialog = $('div[id^="login-full-panel-"]');
-        if ($loginDialog && $loginDialog.children.length) {
-          const $loginDialogCloseBtn =
-            $loginDialog.querySelector(".dy-account-close") ||
-            $loginDialog.querySelector(
-              'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
-            );
-          if ($loginDialogCloseBtn) {
-            const reactInst = utils.getReactInstance($loginDialogCloseBtn);
-            const onClick = reactInst?.reactProps?.onClick;
-            if (typeof onClick === "function") {
-              onClick(new Event("click"));
-              log.success(`调用onClick触发关闭弹窗`);
-            } else {
-              log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
-            }
-          } else {
-            const $logPanelNew = $loginDialog.querySelector("#login-panel-new > div");
-            if (!$logPanelNew || ($logPanelNew && $logPanelNew.children.length)) {
-              log.error(
-                "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-                $loginDialog.cloneNode(true)
-              );
-            }
-          }
-        }
-        const $ohterDialog = $("body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')");
-        if ($ohterDialog) {
-          const reactInst = utils.getReactInstance($ohterDialog);
-          const onClick = reactInst?.reactProps?.onClick;
-          if (typeof onClick === "function") {
-            onClick(new Event("click"));
-          } else {
-            log.error("监听到【为保障更好的访问体验，请在登录后继续使用抖音】但是关闭失败，原因：未获取到onClick函数");
-          }
-        }
-      });
-      const observer = utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
-      return [
-        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
-        () => {
-          observer.disconnect();
-        },
-        watchLoginDialogToClose.destory,
-        disguiseLogin.destory,
-      ];
+    block_tab_home() {
+      log.info("【屏蔽】精选");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
     },
-    watchCommentDialogToClose() {
-      const lockFn = new utils.LockFunction(() => {
-        const $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
-        if (!$cardLoginGuide) {
-          return;
-        }
-        const $close = $cardLoginGuide.querySelector(".related-video-card-login-guide__footer-close");
-        if (!$close) {
-          log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
-          return;
-        }
-        $close.click();
+    block_tab_recommend() {
+      log.info("【屏蔽】推荐");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+    },
+    block_tab_ai_search() {
+      log.info(`【屏蔽】AI搜索/抖音`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
+      );
+    },
+    block_tab_follow() {
+      log.info("【屏蔽】关注");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
+    },
+    block_tab_friend() {
+      log.info("【屏蔽】朋友");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
+    },
+    block_tab_user_self() {
+      log.info("【屏蔽】我的");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
+    },
+    block_tab_activity() {
+      log.info(`【屏蔽】activity`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])'
+      );
+    },
+    block_tab_live() {
+      log.info("【屏蔽】直播");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
+    },
+    block_tab_vs() {
+      log.info("【屏蔽】放映厅");
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
+    },
+    block_tab_series() {
+      log.info(`短剧`);
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
+    },
+    block_tab_microgame() {
+      log.info(`【屏蔽】小游戏`);
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
+    },
+    block_panel_menu_setting() {
+      log.info(`【屏蔽】设置`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])'
+      );
+    },
+    block_panel_menu_about() {
+      log.info(`【屏蔽】关于`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])'
+      );
+    },
+    block_panel_menu_q_a() {
+      log.info(`【屏蔽】问题/反馈`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])'
+      );
+    },
+    block_panel_menu_survey() {
+      log.info(`【屏蔽】用户体验调研`);
+      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
+    },
+  };
+  const blockLeftNavigatorOther = {
+    init() {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot", () => {
+        return this.tabFollowRedHot();
       });
-      const observer = utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
+    },
+    tabFollowRedHot() {
+      log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
+      return CommonUtil.addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
+      );
+    },
+  };
+  const BlockSearchFrame = {
+    init() {
+      Panel.execMenuOnce("shieldSearch", () => {
+        return this.shieldSearch();
       });
-      return [
-        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
+        return this.shieldSearchPlaceholder();
+      });
+      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+        return this.shieldSearchGuessYouWantToSearch();
+      });
+      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+        return this.shieldSearchTiktokHotspot();
+      });
+    },
+    shieldSearch() {
+      log.info("【屏蔽】搜索框");
+      return CommonUtil.addBlockCSS(
+        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
+      );
+    },
+    shieldSearchPlaceholder() {
+      log.info("【屏蔽】搜索框的提示");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+        )
+      );
+      result.push(
         addStyle(
           `
-        /* 去除遮罩层 */
-        [id^="related-video-card-login-guide"]+div{
-          filter: none !important;
-        }
-      `
-        ),
+			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+				color: transparent;
+			}`
+        )
+      );
+      return result;
+    },
+    shieldSearchGuessYouWantToSearch() {
+      log.info("【屏蔽】搜索-猜你想搜");
+      return CommonUtil.addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
+      );
+    },
+    shieldSearchTiktokHotspot() {
+      log.info("【屏蔽】搜索-抖音热点");
+      return CommonUtil.addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
+      );
+    },
+  };
+  const BlockTopNavigator = {
+    init() {
+      Panel.exec(
+        ["shieldTopNavigator", "search-shieldTopNavigator"],
         () => {
-          observer?.disconnect();
+          return this.shieldTopNavigator();
         },
-      ];
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else;
+          }
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce(
+        "shieldClientTip",
+        () => {
+          return this.shieldClientTip();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldFillingBricksAndStones",
+        () => {
+          return this.shieldFillingBricksAndStones();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldClient",
+        () => {
+          return this.shieldClient();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldQuickAccess",
+        () => {
+          return this.shieldQuickAccess();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldNotifitation",
+        () => {
+          return this.shieldNotifitation();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldPrivateMessage",
+        () => {
+          return this.shieldPrivateMessage();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldSubmission",
+        () => {
+          return this.shieldSubmission();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldWallpaper",
+        () => {
+          return this.shieldWallpaper();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
+        return this.shieldRightMenu();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+        return this.shieldRightMenuMore();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+        return this.shieldRightMenuLoginAvatar();
+      });
+      Panel.execMenuOnce("shield-topNav-ai-search", () => {
+        return this.shieldAISearch();
+      });
+    },
+    shieldTopNavigator() {
+      log.info("【屏蔽】顶部导航栏");
+      const result = [];
+      result.push(CommonUtil.addBlockCSS("#douyin-header"));
+      result.push(
+        addStyle(
+          `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+			/* 兼容手机模式 */
+			@media screen and (max-width: 550px)  and (orientation: portrait) {
+				.is-mobile-pc{
+					--header-height: 0px !important;
+				}
+			}
+		`
+        )
+      );
+      result.push(
+        addStyle(
+          `
+       /* pc端 or mobile端*/
+      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
+        #slidelist .page-recommend-container{
+          --recommend-video-container-margin-height: 0px;
+          margin: var(--recommend-video-container-margin-height) 0px !important;
+          height: ${window.innerHeight}px !important;
+          height: round(nearest, 100dvh, 1px) !important;
+        }
+      }
+			`
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addStyle(
+            `
+				/* 把搜索顶部的工具栏置顶 */
+				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+					top: 0;
+				}`
+          )
+        );
+      }
+      return result;
+    },
+    shieldFillingBricksAndStones() {
+      log.info("【屏蔽】充钻石");
+      const result = [];
+      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
+      result.push(
+        CommonUtil.addBlockCSS(
+          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
+          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldClient() {
+      log.info("【屏蔽】客户端");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
+            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldQuickAccess() {
+      log.info("【屏蔽】快捷访问");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
+
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
+        domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
+          $semi?.remove();
+        });
+      } else if (DouYinRouter.isLive());
+      return result;
+    },
+    shieldNotifitation() {
+      log.info("【屏蔽】通知");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldPrivateMessage() {
+      log.info("【屏蔽】私信");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
+          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        log.info("搜索-【屏蔽】私信");
+        result.push(
+          CommonUtil.addBlockCSS(
+            'ul:has( div>div[data-e2e="im-entry"] )',
+            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldSubmission() {
+      log.info("【屏蔽】投稿");
+      const result = [];
+      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
+      result.push(
+        CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`)
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldClientTip() {
+      log.info("【屏蔽】客户端提示");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
+          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
+          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
+          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
+            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldWallpaper() {
+      log.info("【屏蔽】壁纸");
+      const result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
+          )
+        );
+      }
+      return result;
+    },
+    shieldRightMenu() {
+      log.info(`【屏蔽】右侧菜单栏`);
+      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
+    },
+    shieldRightMenuMore() {
+      log.info(`【屏蔽】更多`);
+      return CommonUtil.addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
+      );
+    },
+    shieldRightMenuLoginAvatar() {
+      log.info(`【屏蔽】登录头像`);
+      return CommonUtil.addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+      );
+    },
+    shieldAISearch() {
+      log.info(`【屏蔽】AI搜索/抖音`);
+      return CommonUtil.addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
+    },
+  };
+  const blockCSS$8 =
+    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
+  const DouYinGestureBackHashConfig = {
+    videoCommentDrawer: "videoCommentDrawer",
+  };
+  const DouYinGestureBackClearHash = () => {
+    const findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
+      return globalThis.location.hash.endsWith(hash);
+    });
+    if (findValue) {
+      globalThis.location.hash = "";
+      log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
+    }
+  };
+  const DouYinRedirect = {
+    init() {
+      Panel.execMenu("douyin-redirect-url-home-to-root", () => {
+        this.redirectUrlHomeToRoot();
+      });
+    },
+    redirectUrlHomeToRoot() {
+      if (window.location.pathname === "/home") {
+        log.info("从首页跳转到根目录");
+        window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
+      }
+    },
+  };
+  const ReactUtils = {
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
+        }
+        return __target__;
+      }
+      if (typeof $el === "string") {
+        let __$el = await domUtils.waitNode($el, 1e4);
+        if (!__$el) {
+          return;
+        }
+      }
+      checkOption.forEach((option) => {
+        if (typeof option.msg === "string") {
+          log.info(option.msg);
+        }
+        const checkTarget = function () {
+          let $target = getTarget();
+          if ($target == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const reactInst = utils.getReactInstance($target);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+            const reactPropInst2 = reactInst[__propName__];
+            if (!reactPropInst2) {
+              return false;
+            }
+            const flag = Boolean(option.check(reactPropInst2, $target));
+            return flag;
+          });
+          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          const reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $target,
+          };
+        };
+        utils
+          .waitPropertyByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then(() => {
+            const checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              const reactInst = checkTargetResult.inst;
+              option.set(reactInst, checkTargetResult.$el);
+            } else {
+              if (typeof option.failWait === "function") {
+                option.failWait(checkTargetResult.isTimeout);
+              }
+            }
+          });
+      });
     },
   };
   const DouYinUtils = {
@@ -3980,106 +4262,6 @@
       }
     }
   }
-  const ReactUtils = {
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
-      if (!Array.isArray(reactPropNameOrNameList)) {
-        reactPropNameOrNameList = [reactPropNameOrNameList];
-      }
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
-        return __target__;
-      }
-      if (typeof $el === "string") {
-        let __$el = await domUtils.waitNode($el, 1e4);
-        if (!__$el) {
-          return;
-        }
-      }
-      checkOption.forEach((option) => {
-        if (typeof option.msg === "string") {
-          log.info(option.msg);
-        }
-        const checkTarget = function () {
-          let $target = getTarget();
-          if ($target == null) {
-            return {
-              status: false,
-              isTimeout: true,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const reactInst = utils.getReactInstance($target);
-          if (reactInst == null) {
-            return {
-              status: false,
-              isTimeout: false,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            const reactPropInst2 = reactInst[__propName__];
-            if (!reactPropInst2) {
-              return false;
-            }
-            const flag = Boolean(option.check(reactPropInst2, $target));
-            return flag;
-          });
-          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          const reactPropInst = reactInst[reactPropName];
-          return {
-            status: findPropNameIndex !== -1,
-            isTimeout: false,
-            inst: reactPropInst,
-            $el: $target,
-          };
-        };
-        utils
-          .waitPropertyByInterval(
-            () => {
-              return getTarget();
-            },
-            () => checkTarget().status,
-            250,
-            1e4
-          )
-          .then(() => {
-            const checkTargetResult = checkTarget();
-            if (checkTargetResult.status) {
-              const reactInst = checkTargetResult.inst;
-              option.set(reactInst, checkTargetResult.$el);
-            } else {
-              if (typeof option.failWait === "function") {
-                option.failWait(checkTargetResult.isTimeout);
-              }
-            }
-          });
-      });
-    },
-  };
-  const DouYinGestureBackHashConfig = {
-    videoCommentDrawer: "videoCommentDrawer",
-  };
-  const DouYinGestureBackClearHash = () => {
-    const findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
-      return globalThis.location.hash.endsWith(hash);
-    });
-    if (findValue) {
-      globalThis.location.hash = "";
-      log.success(`发现残留的手势返回hash，已清理 ==> ` + findValue);
-    }
-  };
   const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
@@ -8837,17 +9019,223 @@
       ];
     },
   };
-  const DouYinRedirect = {
+  const blockCSS$7 =
+    '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\n[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\n  display: none !important;\n}\n';
+  const DouYinNote = {
     init() {
-      Panel.execMenu("douyin-redirect-url-home-to-root", () => {
-        this.redirectUrlHomeToRoot();
+      addStyle(blockCSS$7);
+    },
+  };
+  const DouYinRecommend = {
+    init() {
+      Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
+        return this.pauseVideo();
+      });
+      Panel.execMenuOnce("dy-recommend-disableVideoSatisfaction", () => {
+        this.disableVideoSatisfaction();
+      });
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", (option) => {
+          const isPlayCollection = option.value === "Sequence+Collection";
+          return this.automaticContinuousPlayback(isPlayCollection);
+        });
       });
     },
-    redirectUrlHomeToRoot() {
-      if (window.location.pathname === "/home") {
-        log.info("从首页跳转到根目录");
-        window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
+    async pauseVideo() {
+      log.info(`禁止自动播放`);
+      const selector = ['.page-recommend-container [data-e2e="feed-active-video"] video'];
+      const $video = await domUtils.waitAnyNode(selector, 1e4);
+      if (!$video) {
+        return;
       }
+      $video.autoplay = false;
+      $video.pause();
+      const timeout = 3e3;
+      const playCallback = (evt) => {
+        domUtils.preventEvent(evt);
+        $video.autoplay = false;
+        $video.pause();
+        log.success("成功禁止自动播放视频");
+      };
+      domUtils.off(
+        $video,
+        "play",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("listener remove tag");
+        }
+      );
+      const playListener = domUtils.on($video, "play", playCallback, {
+        capture: true,
+      });
+      const offAllListener = () => {
+        clearTimeout(timeId);
+        log.info(`已移除监听自动播放`);
+        playListener.off();
+      };
+      const timeId = setTimeout(offAllListener, timeout);
+      return [
+        () => {
+          offAllListener();
+        },
+      ];
+    },
+    automaticContinuousPlayback(isPlayCollection) {
+      log.info(`自动连播`);
+      const attrFlagName = "data-automaticContinuousPlayback";
+      const queryActiveVideo = (withAttr = false, isAll = false) => {
+        const selector = `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`;
+        return isAll ? $$(selector) : $(selector);
+      };
+      const keyboardHookPageUpAndDown = Panel.getDynamicValue("dy-keyboard-hook-pageUpAndDown");
+      const switchActiveVideo = () => {
+        const $next = $(".xgplayer-playswitch-next");
+        if ($next) {
+          $next.click();
+        } else {
+          if (keyboardHookPageUpAndDown.value) {
+            Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
+            return;
+          }
+          const keydownEvent = new KeyboardEvent("keydown", {
+            bubbles: true,
+            cancelable: true,
+            key: "ArrowDown",
+            code: "ArrowDown",
+            keyCode: 40,
+            which: 40,
+          });
+          document.body.dispatchEvent(keydownEvent);
+        }
+      };
+      const queryRelatedModeInfo = () => {
+        const $relatedList = $$("#related-card-list-container .related-list-item-in-small-card");
+        const currentRelatedPlayIndex = $relatedList.findIndex(($el) => {
+          return Boolean($el.querySelector(".video-playing-item"));
+        });
+        const $exit = $(
+          '.slider-video span:has(svg path[d="M16.7071 3.29289C16.3166 2.90237 15.6834 2.90237 15.2929 3.29289L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071L15.2929 20.7071C15.6834 21.0976 16.3166 21.0976 16.7071 20.7071C17.0976 20.3166 17.0976 19.6834 16.7071 19.2929L9.41421 12L16.7071 4.70711C17.0976 4.31658 17.0976 3.68342 16.7071 3.29289Z"])'
+        );
+        return {
+          listLength: $relatedList.length,
+          currentIndex: currentRelatedPlayIndex,
+          maxIndex: $relatedList.length - 1,
+          isEnded: currentRelatedPlayIndex === $relatedList.length - 1,
+          $exit,
+          $relatedList,
+          $currentRelated: $relatedList[currentRelatedPlayIndex],
+        };
+      };
+      const lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isRecommend()) {
+          return;
+        }
+        const $activeVideo = queryActiveVideo();
+        if (!$activeVideo) {
+          return;
+        }
+        if ($activeVideo.hasAttribute(attrFlagName)) {
+          return;
+        }
+        $activeVideo.setAttribute(attrFlagName, "true");
+        let currentVideoSrc = $activeVideo.src;
+        domUtils.on(
+          $activeVideo,
+          "ended",
+          async (evt) => {
+            log.success(`视频播放完毕，准备切换至下一个视频`);
+            domUtils.preventEvent(evt);
+            currentVideoSrc = $activeVideo.src;
+            const $recommend = $activeVideo.closest(".page-recommend-container");
+            if (isPlayCollection && $recommend) {
+              const $collectionNextEpisode = $(
+                `xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,
+                $recommend
+              );
+              if ($collectionNextEpisode) {
+                const key = utils.getReactInstance($collectionNextEpisode)?.reactFiber?.return?.key;
+                const isSeries =
+                  key === "series" || key === "mix" || $collectionNextEpisode.textContent.trim().startsWith("合集：");
+                if (isSeries) {
+                  const isLatestSeries = $collectionNextEpisode.parentElement?.parentElement?.textContent
+                    .trim()
+                    .includes("已是最新集");
+                  if (!isLatestSeries) {
+                    log.success(`点击 合集`);
+                    $collectionNextEpisode.click();
+                    await domUtils.waitNode("#slideMode", 3e3);
+                    log.success(`合集容器加载完成`);
+                    await utils.sleep(1500);
+                  }
+                }
+              }
+            }
+            CommonUtil.interval(
+              async (isTimeout) => {
+                const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
+                if (isTimeout) {
+                  const { $exit } = queryRelatedModeInfo();
+                  if (isSlideMode) {
+                    log.success(`当前视频为合集中的最后一个视频，退出合集并播放下一个视频`);
+                    if ($exit) {
+                      $exit.click();
+                      log.info(`点击退出合集按钮`);
+                      await utils.sleep(1500);
+                    } else {
+                      log.error(`退出合集失败，未找到退出合集按钮`);
+                    }
+                  } else {
+                    log.error(`切换视频超时，切换失败`);
+                  }
+                  return true;
+                }
+                const $playingVideo = queryActiveVideo();
+                const playingSrc = $playingVideo?.src;
+                if (isSlideMode) {
+                  if (playingSrc && $activeVideo === $playingVideo && currentVideoSrc !== playingSrc) {
+                    log.success("合集-切换视频成功");
+                    return true;
+                  }
+                } else {
+                  if ($activeVideo !== $playingVideo) {
+                    log.success("切换视频成功");
+                    return true;
+                  }
+                }
+                switchActiveVideo();
+              },
+              500,
+              5e3
+            );
+          },
+          { capture: true }
+        );
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        () => {
+          observer?.disconnect();
+          const $videos = queryActiveVideo(void 0, true);
+          domUtils.off($videos, "ended");
+        },
+        keyboardHookPageUpAndDown.destory,
+      ];
+    },
+    disableVideoSatisfaction() {
+      log.info(`禁用视频满意评价`);
+      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 1e3 * 60 * 60 * 24 * 365));
     },
   };
   const MobileCSS =
@@ -9123,166 +9511,11 @@
       ];
     },
   };
-  const BlockLeftNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
-        () => {
-          return this.shieldLeftNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          const mainValue = Panel.getValue(mainKey);
-          const childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
-        return this.block_tab_home();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
-        return this.block_tab_recommend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
-        return this.block_tab_follow();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
-        return this.block_tab_friend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
-        return this.block_tab_user_self();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
-        return this.block_tab_live();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
-        return this.block_tab_vs();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
-        return this.block_tab_series();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
-        return this.block_tab_microgame();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
-        return this.block_tab_ai_search();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-activity", () => {
-        return this.block_tab_activity();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-setting", () => {
-        return this.block_panel_menu_setting();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-about", () => {
-        return this.block_panel_menu_about();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-q_a", () => {
-        return this.block_panel_menu_q_a();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-survey", () => {
-        return this.block_panel_menu_survey();
-      });
-    },
-    shieldLeftNavigator() {
-      log.info("【屏蔽】左侧导航栏");
-      const result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
-      result.push(
-        addStyle(
-          `
-			/* 修复顶部导航栏的宽度 */
-			#douyin-header{
-				width: 100%;
-			}`
-        )
-      );
-      return result;
-    },
-    block_tab_home() {
-      log.info("【屏蔽】精选");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
-    },
-    block_tab_recommend() {
-      log.info("【屏蔽】推荐");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
-    },
-    block_tab_ai_search() {
-      log.info(`【屏蔽】AI搜索/抖音`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-      );
-    },
-    block_tab_follow() {
-      log.info("【屏蔽】关注");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
-    },
-    block_tab_friend() {
-      log.info("【屏蔽】朋友");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
-    },
-    block_tab_user_self() {
-      log.info("【屏蔽】我的");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
-    },
-    block_tab_activity() {
-      log.info(`【屏蔽】activity`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])'
-      );
-    },
-    block_tab_live() {
-      log.info("【屏蔽】直播");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
-    },
-    block_tab_vs() {
-      log.info("【屏蔽】放映厅");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
-    },
-    block_tab_series() {
-      log.info(`短剧`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
-    },
-    block_tab_microgame() {
-      log.info(`【屏蔽】小游戏`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
-    },
-    block_panel_menu_setting() {
-      log.info(`【屏蔽】设置`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])'
-      );
-    },
-    block_panel_menu_about() {
-      log.info(`【屏蔽】关于`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])'
-      );
-    },
-    block_panel_menu_q_a() {
-      log.info(`【屏蔽】问题/反馈`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])'
-      );
-    },
-    block_panel_menu_survey() {
-      log.info(`【屏蔽】用户体验调研`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
-    },
-  };
-  const blockCSS$8 =
-    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
-  const blockCSS$7 =
+  const blockCSS$6 =
     '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\n  display: none !important;\n}\n';
   const DouYinUser = {
     init() {
-      addStyle(blockCSS$7);
+      addStyle(blockCSS$6);
       domUtils.onReady(() => {
         Panel.execMenu("dy-user-addShowUserUID", () => {
           this.addShowUserUID();
@@ -9321,20 +9554,11 @@
       });
     },
   };
-  const blockCSS$6 =
+  const blockCSS$5 =
     '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\ndiv[data-e2e="video-detail"] div > :has(> div:last-child > a[href*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
   const DouYinVideo = {
     init() {
-      addStyle(blockCSS$6);
-    },
-  };
-  const DouYinNetWorkHook = {
-    __ajaxHooker: null,
-    get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
-      return this.__ajaxHooker;
+      addStyle(blockCSS$5);
     },
   };
   const UIButton = function (
@@ -11699,242 +11923,10 @@
       };
     },
   };
-  const blockCSS$5 =
-    '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\n[data-e2e="note-detail"] div:has(> [data-e2e="user-info"]) > div:has(a[download*="douyin-downloader"]) {\n  display: none !important;\n}\n';
-  const DouYinNote = {
-    init() {
-      addStyle(blockCSS$5);
-    },
-  };
-  const DouYinRecommend = {
-    init() {
-      Panel.execMenuOnce("dy-recommend-pauseVideo", () => {
-        return this.pauseVideo();
-      });
-      Panel.execMenuOnce("dy-recommend-disableVideoSatisfaction", () => {
-        this.disableVideoSatisfaction();
-      });
-      domUtils.onReady(() => {
-        Panel.execMenuOnce("dy-recommend-automaticContinuousPlayback", (option) => {
-          const isPlayCollection = option.value === "Sequence+Collection";
-          return this.automaticContinuousPlayback(isPlayCollection);
-        });
-      });
-    },
-    async pauseVideo() {
-      log.info(`禁止自动播放`);
-      const selector = ['.page-recommend-container [data-e2e="feed-active-video"] video'];
-      const $video = await domUtils.waitAnyNode(selector, 1e4);
-      if (!$video) {
-        return;
-      }
-      $video.autoplay = false;
-      $video.pause();
-      const timeout = 3e3;
-      const playCallback = (evt) => {
-        domUtils.preventEvent(evt);
-        $video.autoplay = false;
-        $video.pause();
-        log.success("成功禁止自动播放视频");
-      };
-      domUtils.off(
-        $video,
-        "play",
-        void 0,
-        {
-          capture: true,
-        },
-        (value) => {
-          return value.callback.toString().includes("listener remove tag");
-        }
-      );
-      const playListener = domUtils.on($video, "play", playCallback, {
-        capture: true,
-      });
-      const offAllListener = () => {
-        clearTimeout(timeId);
-        log.info(`已移除监听自动播放`);
-        playListener.off();
-      };
-      const timeId = setTimeout(offAllListener, timeout);
-      return [
-        () => {
-          offAllListener();
-        },
-      ];
-    },
-    automaticContinuousPlayback(isPlayCollection) {
-      log.info(`自动连播`);
-      const attrFlagName = "data-automaticContinuousPlayback";
-      const queryActiveVideo = (withAttr = false, isAll = false) => {
-        const selector = `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`;
-        return isAll ? $$(selector) : $(selector);
-      };
-      const keyboardHookPageUpAndDown = Panel.getDynamicValue("dy-keyboard-hook-pageUpAndDown");
-      const switchActiveVideo = () => {
-        const $next = $(".xgplayer-playswitch-next");
-        if ($next) {
-          $next.click();
-        } else {
-          if (keyboardHookPageUpAndDown.value) {
-            Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
-            return;
-          }
-          const keydownEvent = new KeyboardEvent("keydown", {
-            bubbles: true,
-            cancelable: true,
-            key: "ArrowDown",
-            code: "ArrowDown",
-            keyCode: 40,
-            which: 40,
-          });
-          document.body.dispatchEvent(keydownEvent);
-        }
-      };
-      const queryRelatedModeInfo = () => {
-        const $relatedList = $$("#related-card-list-container .related-list-item-in-small-card");
-        const currentRelatedPlayIndex = $relatedList.findIndex(($el) => {
-          return Boolean($el.querySelector(".video-playing-item"));
-        });
-        const $exit = $(
-          '.slider-video span:has(svg path[d="M16.7071 3.29289C16.3166 2.90237 15.6834 2.90237 15.2929 3.29289L7.29289 11.2929C6.90237 11.6834 6.90237 12.3166 7.29289 12.7071L15.2929 20.7071C15.6834 21.0976 16.3166 21.0976 16.7071 20.7071C17.0976 20.3166 17.0976 19.6834 16.7071 19.2929L9.41421 12L16.7071 4.70711C17.0976 4.31658 17.0976 3.68342 16.7071 3.29289Z"])'
-        );
-        return {
-          listLength: $relatedList.length,
-          currentIndex: currentRelatedPlayIndex,
-          maxIndex: $relatedList.length - 1,
-          isEnded: currentRelatedPlayIndex === $relatedList.length - 1,
-          $exit,
-          $relatedList,
-          $currentRelated: $relatedList[currentRelatedPlayIndex],
-        };
-      };
-      const lockFn = new utils.LockFunction(() => {
-        if (!DouYinRouter.isRecommend()) {
-          return;
-        }
-        const $activeVideo = queryActiveVideo();
-        if (!$activeVideo) {
-          return;
-        }
-        if ($activeVideo.hasAttribute(attrFlagName)) {
-          return;
-        }
-        $activeVideo.setAttribute(attrFlagName, "true");
-        let currentVideoSrc = $activeVideo.src;
-        domUtils.on(
-          $activeVideo,
-          "ended",
-          async (evt) => {
-            log.success(`视频播放完毕，准备切换至下一个视频`);
-            domUtils.preventEvent(evt);
-            currentVideoSrc = $activeVideo.src;
-            const $recommend = $activeVideo.closest(".page-recommend-container");
-            if (isPlayCollection && $recommend) {
-              const $collectionNextEpisode = $(
-                `xpath:.//div[contains(@class,'under-title-tag')]/descendant::span[contains(text(),"合集")]`,
-                $recommend
-              );
-              if ($collectionNextEpisode) {
-                const key = utils.getReactInstance($collectionNextEpisode)?.reactFiber?.return?.key;
-                const isSeries =
-                  key === "series" || key === "mix" || $collectionNextEpisode.textContent.trim().startsWith("合集：");
-                if (isSeries) {
-                  const isLatestSeries = $collectionNextEpisode.parentElement?.parentElement?.textContent
-                    .trim()
-                    .includes("已是最新集");
-                  if (!isLatestSeries) {
-                    log.success(`点击 合集`);
-                    $collectionNextEpisode.click();
-                    await domUtils.waitNode("#slideMode", 3e3);
-                    log.success(`合集容器加载完成`);
-                    await utils.sleep(1500);
-                  }
-                }
-              }
-            }
-            CommonUtil.interval(
-              async (isTimeout) => {
-                const isSlideMode = Boolean($activeVideo.closest("#slideMode"));
-                if (isTimeout) {
-                  const { $exit } = queryRelatedModeInfo();
-                  if (isSlideMode) {
-                    log.success(`当前视频为合集中的最后一个视频，退出合集并播放下一个视频`);
-                    if ($exit) {
-                      $exit.click();
-                      log.info(`点击退出合集按钮`);
-                      await utils.sleep(1500);
-                    } else {
-                      log.error(`退出合集失败，未找到退出合集按钮`);
-                    }
-                  } else {
-                    log.error(`切换视频超时，切换失败`);
-                  }
-                  return true;
-                }
-                const $playingVideo = queryActiveVideo();
-                const playingSrc = $playingVideo?.src;
-                if (isSlideMode) {
-                  if (playingSrc && $activeVideo === $playingVideo && currentVideoSrc !== playingSrc) {
-                    log.success("合集-切换视频成功");
-                    return true;
-                  }
-                } else {
-                  if ($activeVideo !== $playingVideo) {
-                    log.success("切换视频成功");
-                    return true;
-                  }
-                }
-                switchActiveVideo();
-              },
-              500,
-              5e3
-            );
-          },
-          { capture: true }
-        );
-      });
-      const observer = utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
-      return [
-        () => {
-          observer?.disconnect();
-          const $videos = queryActiveVideo(void 0, true);
-          domUtils.off($videos, "ended");
-        },
-        keyboardHookPageUpAndDown.destory,
-      ];
-    },
-    disableVideoSatisfaction() {
-      log.info(`禁用视频满意评价`);
-      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 1e3 * 60 * 60 * 24 * 365));
-    },
-  };
-  const blockLeftNavigatorOther = {
-    init() {
-      Panel.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot", () => {
-        return this.tabFollowRedHot();
-      });
-    },
-    tabFollowRedHot() {
-      log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
-        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
-      );
-    },
-  };
   const DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
+        log.error("当前仅主站和直播页面支持");
         return;
       }
       Panel.onceExec("dy-global-block-css", () => {
@@ -13195,7 +13187,7 @@
                       $color.value = Panel.getValue("dy-video-changeBackgroundColor");
                       const $style = domUtils.createElement("style");
                       domUtils.append(document.head, $style);
-                      domUtils.on($color, ["input", "propertychange"], (event) => {
+                      domUtils.on($color, ["input", "propertychange"], () => {
                         log.info("选择颜色：" + $color.value);
                         $style.innerHTML = `
 												#sliderVideo > div{
@@ -13418,7 +13410,7 @@
             type: "deepMenu",
             views: [
               {
-                text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+                text: '<a href="https://scriptcat.org/zh-CN/script-show-page/2534#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
                 type: "container",
                 views: [
                   UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),

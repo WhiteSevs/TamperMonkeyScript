@@ -19,7 +19,7 @@ export const DouYinHook = {
   },
   init() {
     Panel.execMenuOnce("hookKeyboard", () => {
-      DouYinHook.hookKeyboard();
+      return DouYinHook.hookKeyboard();
     });
     Panel.execMenu("dy-cookie-remove__ac__", () => {
       this.removeCookie();
@@ -39,23 +39,6 @@ export const DouYinHook = {
     //     this.liveMessage();
     //   });
     // }
-  },
-  /**
-   * 移除环境检测
-   */
-  removeEnvCheck() {
-    log.info("移除环境检测");
-    Hook.setInterval((fn) => {
-      const funcStr = fn.toString().trim();
-      if (funcStr.includes("debugger")) {
-        log.success("拦截→", [funcStr]);
-        return false;
-      }
-      if (funcStr.includes("checkEXp")) {
-        log.success("拦截→", [funcStr]);
-        return false;
-      }
-    });
   },
   /**
    * 移除Cookie
@@ -101,6 +84,7 @@ export const DouYinHook = {
       return false;
     };
     let timeId: number;
+
     Hook.document_addEventListener((target, eventName, listener) => {
       if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
         return function (this: Document, ...eventArgs: any[]) {
@@ -325,21 +309,22 @@ export const DouYinHook = {
                 code: ["KeyE"],
               }
             );
+
+            keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
+              const compare1 = it1.code.toSorted().toString();
+              const compare2 = it2.code.toSorted().toString();
+              return compare1 === compare2;
+            });
           }
-          // 去重，code排序后完全相同的配置只保留一个
-          // 比如直播的KeyR和推荐视频的不感兴趣快捷键重复了
-          keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
-            const compare1 = JSON.stringify(it1.code.toSorted());
-            const compare2 = JSON.stringify(it2.code.toSorted());
-            return compare1 === compare2;
-          });
           keyboardConfigList = otherKeyboardConfigList.concat(keyboardConfigList);
           for (let index = 0; index < keyboardConfigList.length; index++) {
             const keyboardConfig = keyboardConfigList[index];
             if (keyboardConfig.code.includes(code)) {
+              // code 匹配
               if (Array.isArray(keyboardConfig.otherCodeList)) {
                 const findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
                 if (findValue) {
+                  // otherCodeList 不匹配
                   continue;
                 }
               }

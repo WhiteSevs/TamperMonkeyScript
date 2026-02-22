@@ -11,7 +11,6 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { AutoOpenOrClose } from "../all-open-or-close";
-import Qmsg from "qmsg";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
@@ -237,7 +236,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                     $color.value = Panel.getValue("dy-video-changeBackgroundColor");
                     const $style = DOMUtils.createElement("style");
                     DOMUtils.append(document.head, $style);
-                    DOMUtils.on($color, ["input", "propertychange"], (event) => {
+                    DOMUtils.on($color, ["input", "propertychange"], () => {
                       log.info("选择颜色：" + $color.value);
                       $style.innerHTML = /*css*/ `
 												#sliderVideo > div{
@@ -461,7 +460,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           type: "deepMenu",
           views: [
             {
-              text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+              text: '<a href="https://scriptcat.org/zh-CN/script-show-page/2534#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
               type: "container",
               views: [
                 UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),

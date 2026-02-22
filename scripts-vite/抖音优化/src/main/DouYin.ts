@@ -1,31 +1,32 @@
-import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { Panel } from "@components/setting/panel";
-import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
-import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
-import { DouYinHook } from "../hook/DouYinHook";
-import { DouYinAccount } from "../account/DouYinAccount";
-import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
+import { addStyle, DOMUtils, log } from "@/env";
+import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinLive } from "./live/DouYinLive";
-import { DouYinRedirect } from "./DouYinRedirect";
-import { DouYinSearch } from "./search/DouYinSearch";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
+import { DouYinAccount } from "../account/DouYinAccount";
+import { DouYinHook } from "../hook/DouYinHook";
 import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
-import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
+import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
+import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
+import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
+import { DouYinChannel } from "./channel/DouYinChannel";
 import blockCSS from "./css/block.css?raw";
+import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
+import { DouYinRedirect } from "./DouYinRedirect";
+import { DouYinLive } from "./live/DouYinLive";
+import { DouYinNote } from "./note/DouYinNote";
+import { DouYinRecommend } from "./recommend/DouYinRecommend";
+import { DouYinSearch } from "./search/DouYinSearch";
 import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
-import { DouYinChannel } from "./channel/DouYinChannel";
 import { DouYinVideoFilter } from "./video/filter/DouYinVideoFilter";
-import { DouYinNote } from "./note/DouYinNote";
-import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
-import { DouYinRecommend } from "./recommend/DouYinRecommend";
-import Qmsg from "qmsg";
-import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
+import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
 
 export const DouYin = {
   init() {
     if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
       // 当前仅主站和直播页面支持
+      log.error("当前仅主站和直播页面支持");
       return;
     }
     Panel.onceExec("dy-global-block-css", () => {
