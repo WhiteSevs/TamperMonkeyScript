@@ -104,17 +104,23 @@ class ElementSelector {
     } else if (selector.match(/[^\s]{1}:empty$/gi)) {
       // empty 语法
       selector = selector.replace(/:empty$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        return $ele?.innerHTML?.trim() === "";
+      return Array.from(parent.querySelectorAll<E>(selector)).filter(($elItem) => {
+        return $elItem?.innerHTML?.trim() === "";
       });
     } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
       // contains 语法
       const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
       const text = textMatch![2];
       selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        // @ts-ignore
-        return ($ele?.textContent || $ele?.innerText)?.includes(text);
+      return Array.from(parent.querySelectorAll<E>(selector)).filter(($elItem) => {
+        let domText = $elItem.textContent;
+        if (domText == null) {
+          domText = ($elItem as any as HTMLElement).innerText;
+        }
+        if (domText == null) {
+          return false;
+        }
+        return domText.includes(text);
       });
     } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
       // regexp 语法
@@ -128,9 +134,15 @@ class ElementSelector {
       }
       const regexp = new RegExp(pattern, flags);
       selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-      return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-        // @ts-ignore
-        return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+      return Array.from(parent.querySelectorAll<E>(selector)).filter(($elItem) => {
+        let domText = $elItem.textContent;
+        if (domText == null) {
+          domText = ($elItem as any as HTMLElement).innerText;
+        }
+        if (domText == null) {
+          return false;
+        }
+        return !!domText.match(regexp);
       });
     } else {
       // 普通语法
@@ -172,12 +184,14 @@ class ElementSelector {
       const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
       const text = textMatch![2];
       selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-      // @ts-ignore
-      let content = $el?.textContent || $el?.innerText;
-      if (typeof content !== "string") {
-        content = "";
+      let domText = $el.textContent;
+      if (domText == null) {
+        domText = ($el as any as HTMLElement).innerText;
       }
-      return $el.matches(selector) && content?.includes(text);
+      if (domText == null) {
+        return false;
+      }
+      return $el.matches(selector) && domText.includes(text);
     } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
       // regexp 语法
       const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
@@ -190,12 +204,14 @@ class ElementSelector {
       }
       const regexp = new RegExp(pattern, flags);
       selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-      // @ts-ignore
-      let content = $el?.textContent || $el?.innerText;
-      if (typeof content !== "string") {
-        content = "";
+      let domText = $el.textContent;
+      if (domText == null) {
+        domText = ($el as any as HTMLElement).innerText;
       }
-      return $el.matches(selector) && Boolean(content?.match(regexp));
+      if (domText == null) {
+        return false;
+      }
+      return $el.matches(selector) && !!domText.match(regexp);
     } else {
       // 普通语法
       return $el.matches(selector);
@@ -269,9 +285,11 @@ class ElementSelector {
       selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
       const $closest = $el?.closest<E>(selector);
       if ($closest) {
-        // @ts-ignore
-        const content = $el?.textContent || $el?.innerText;
-        if (typeof content === "string" && content.match(regexp)) {
+        let domText = $el.textContent;
+        if (domText == null) {
+          domText = ($el as any as HTMLElement).innerText;
+        }
+        if (typeof domText === "string" && domText.match(regexp)) {
           return $closest;
         }
       }
