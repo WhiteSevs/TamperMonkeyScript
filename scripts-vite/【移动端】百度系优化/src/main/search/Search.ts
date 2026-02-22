@@ -192,14 +192,17 @@ const BaiduSearch = {
         // 展开
         const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
         if ($foldSwitch) {
-          // 展开内容，原始事件可能会失效
+          // 展开内容，原始事件可能会失效，导致无法自动展开
+          // 这里重新处理一下
           const $more = $foldSwitch.closest<HTMLElement>(`[data-module="more"]`);
           if ($more) {
             DOMUtils.hide($more);
           } else {
             log.error("未找到展开按钮元素");
           }
-          const $content = $result.querySelector<HTMLElement>(`[class*="content-folded"]`);
+          const $content =
+            $result.querySelector<HTMLElement>(`[class*="content-folded"]`) ||
+            $result.querySelector<HTMLElement>("#baikan-content");
           if ($content) {
             DOMUtils.css($content, "max-height", "unset !important");
           } else {

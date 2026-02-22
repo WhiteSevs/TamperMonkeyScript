@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.2.22
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,8 +13,8 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-BY34K2cR.js"(exports$1, module) {
+    "entrance-BDxbpPwA.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -1600,6 +1600,11 @@
         addUrlChangeWithExecMenuOnceListener(key, callback) {
           key = this.transformKey(key);
           this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+          return {
+            off: () => {
+              return this.removeUrlChangeWithExecMenuOnceListener(key);
+            },
+          };
         },
         removeUrlChangeWithExecMenuOnceListener(key) {
           key = this.transformKey(key);
@@ -6458,7 +6463,8 @@ div[class^="new-summary-container_"] {
                 } else {
                   log.error("未找到展开按钮元素");
                 }
-                const $content = $result.querySelector(`[class*="content-folded"]`);
+                const $content =
+                  $result.querySelector(`[class*="content-folded"]`) || $result.querySelector("#baikan-content");
                 if ($content) {
                   domUtils.css($content, "max-height", "unset !important");
                 } else {
