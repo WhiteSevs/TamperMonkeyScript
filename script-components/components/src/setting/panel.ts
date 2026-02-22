@@ -824,6 +824,11 @@ const Panel = {
   addUrlChangeWithExecMenuOnceListener(key: string | string[], callback: () => IPromise<void>) {
     key = this.transformKey(key);
     this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+    return {
+      off:()=>{
+        return this.removeUrlChangeWithExecMenuOnceListener(key);
+      }
+    }
   },
   /**
    * 移除触发url改变的监听
@@ -1477,5 +1482,6 @@ export {
   type ExecMenuCallBackOption,
   type ExecMenuResultInst,
   type OnceExecMenuStoreData,
-  type UrlChangeWithExecMenuOnceEventConfig,
+  type UrlChangeWithExecMenuOnceEventConfig
 };
+
