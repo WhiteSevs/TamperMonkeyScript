@@ -3268,12 +3268,26 @@ class Utils {
       }
       return result;
     } else {
-      return Array.from(uniqueArrayData).filter(
-        (item) =>
-          !Array.from(compareArrayData).some(function (item2) {
-            return compareFun(item, item2);
-          })
-      );
+      const compareSet = new Set(compareArrayData);
+      const result: T[] = [];
+
+      for (let i = 0; i < uniqueArrayData.length; i++) {
+        const item = uniqueArrayData[i];
+        let flag = false;
+
+        for (const compareItem of compareSet) {
+          if (compareFun(item, compareItem)) {
+            flag = true;
+            break;
+          }
+        }
+
+        if (!flag) {
+          result.push(item);
+        }
+      }
+
+      return result;
     }
   }
   /**
