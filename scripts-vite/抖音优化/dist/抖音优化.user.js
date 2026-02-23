@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.22.23
+// @version      2026.2.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2538,40 +2538,39 @@
       rule: [],
       block_gift: false,
       block_lucky_bag: false,
-      block_biz_scene: false,
+      block_emoji: false,
+      block_room_message: false,
     },
     init() {
       this.initRule();
-      const block_gift = "live-danmu-shield-gift";
-      const block_lucky_bag = "live-danmu-shield-lucky-bag";
-      const block_biz_scene = "live-message-shield-biz_scene-common_text_game_score";
-      Panel.addValueChangeListener(
-        block_gift,
-        (_, value) => {
-          this.$data.block_gift = value;
+      [
+        {
+          key: "live-danmu-shield-gift",
+          callback: (v) => (this.$data.block_gift = v),
         },
         {
-          immediate: true,
-        }
-      );
-      Panel.addValueChangeListener(
-        block_lucky_bag,
-        (_, value) => {
-          this.$data.block_lucky_bag = value;
+          key: "live-danmu-shield-lucky-bag",
+          callback: (v) => (this.$data.block_lucky_bag = v),
         },
         {
-          immediate: true,
-        }
-      );
-      Panel.addValueChangeListener(
-        block_biz_scene,
-        (_, value) => {
-          this.$data.block_biz_scene = value;
+          key: "live-message-shield-method-emoji-chat",
+          callback: (v) => (this.$data.block_emoji = v),
         },
         {
-          immediate: true,
-        }
-      );
+          key: "live-message-shield-room-message",
+          callback: (v) => (this.$data.block_room_message = v),
+        },
+      ].forEach((item) => {
+        Panel.addValueChangeListener(
+          item.key,
+          (_, value) => {
+            item.callback(value);
+          },
+          {
+            immediate: true,
+          }
+        );
+      });
     },
     initRule() {
       this.$data.rule.length = 0;
@@ -2608,10 +2607,12 @@
       }
     },
     checkMessageFilter(messageInst, method) {
-      const message = messageInst?.payload?.content || messageInst?.payload?.common?.describe;
+      const payload = messageInst?.payload;
+      const message = payload?.content || payload?.common?.describe;
       method = method ?? messageInst?.method;
-      const chat_by = messageInst?.payload?.chat_by;
-      const biz_scene = messageInst?.payload?.biz_scene;
+      const chat_by = payload?.chat_by;
+      const biz_scene = payload?.biz_scene;
+      const public_area_common = payload?.public_area_common || {};
       let flag = false;
       if (!flag) {
         if (method === "WebcastGiftMessage") {
@@ -2619,23 +2620,27 @@
             flag = true;
           }
         } else if (method === "WebcastChatMessage") {
-          if (chat_by === "0");
-          else if (chat_by === "9" || chat_by === "10") {
+          if (
+            chat_by === "9" ||
+            chat_by === "10" ||
+            Object.keys(public_area_common?.individual_strategy_result || {}).length !== 0
+          ) {
             if (this.$data.block_lucky_bag) {
               flag = true;
             }
-          } else;
+          }
         } else if (method === "WebcastRoomMessage") {
-          messageInst?.payload?.system_top_msg;
-          messageInst?.payload?.biz_scene;
-        } else;
-      }
-      if (!flag && typeof biz_scene === "string") {
-        if (biz_scene === "common_text_game_score") {
-          if (this.$data.block_biz_scene) {
+          if (this.$data.block_room_message) {
             flag = true;
           }
-        }
+          if (biz_scene === "live_recommend");
+          else if (payload?.system_top_msg);
+        } else if (method === "WebcastFansclubMessage");
+        else if (method === "WebcastEmojiChatMessage") {
+          if (this.$data.block_emoji) {
+            flag = true;
+          }
+        } else;
       }
       if (!flag) {
         flag =
@@ -8084,7 +8089,11 @@
     },
     shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
-      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])')];
+      return [
+        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
+        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
+        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
+      ];
     },
     shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
@@ -11926,7 +11935,7 @@
   const DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
-        log.error("当前仅主站和直播页面支持");
+        log.error(`当前仅主站和直播页面支持${Panel.isTopWindow() ? "" : "（iframe）"}`);
         return;
       }
       Panel.onceExec("dy-global-block-css", () => {
@@ -14051,14 +14060,14 @@
                   UISwitch("启用", "live-danmu-shield-rule-enable", false),
                   UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                   UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
+                  UISwitch("【屏蔽】emoji|图片|表情包", "live-message-shield-method-emoji-chat", false, void 0, ""),
                   UISwitch(
-                    "【屏蔽】xxx 为主播加了 xx分",
-                    "live-message-shield-biz_scene-common_text_game_score",
+                    "【屏蔽】信息播报",
+                    "live-message-shield-room-message",
                     false,
                     void 0,
-                    ""
+                    "如：xxx 为主播加了 xx分、恭喜xxx等"
                   ),
-                  UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, ""),
                 ],
               },
               {

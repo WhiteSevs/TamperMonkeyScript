@@ -6,44 +6,45 @@ export const DouYinLiveMessageFilter = {
   key: "douyin-live-danmu-rule",
   $data: {
     rule: <RegExp[]>[],
-    /** 屏蔽礼物 */
+    /** 【屏蔽】送礼信息 */
     block_gift: false,
-    /** 屏福袋带口令 */
+    /** 【屏蔽】福袋口令 */
     block_lucky_bag: false,
-    block_biz_scene: false,
+    /** 【屏蔽】emoji|图片|表情包 */
+    block_emoji: false,
+    /** 【屏蔽】信息播报 */
+    block_room_message: false,
   },
   init() {
     this.initRule();
-    const block_gift = "live-danmu-shield-gift";
-    const block_lucky_bag = "live-danmu-shield-lucky-bag";
-    const block_biz_scene = "live-message-shield-biz_scene-common_text_game_score";
-    Panel.addValueChangeListener(
-      block_gift,
-      (_, value) => {
-        this.$data.block_gift = value;
+    [
+      {
+        key: "live-danmu-shield-gift",
+        callback: (v: boolean) => (this.$data.block_gift = v),
       },
       {
-        immediate: true,
-      }
-    );
-    Panel.addValueChangeListener(
-      block_lucky_bag,
-      (_, value) => {
-        this.$data.block_lucky_bag = value;
+        key: "live-danmu-shield-lucky-bag",
+        callback: (v: boolean) => (this.$data.block_lucky_bag = v),
       },
       {
-        immediate: true,
-      }
-    );
-    Panel.addValueChangeListener(
-      block_biz_scene,
-      (_, value) => {
-        this.$data.block_biz_scene = value;
+        key: "live-message-shield-method-emoji-chat",
+        callback: (v: boolean) => (this.$data.block_emoji = v),
       },
       {
-        immediate: true,
-      }
-    );
+        key: "live-message-shield-room-message",
+        callback: (v: boolean) => (this.$data.block_room_message = v),
+      },
+    ].forEach((item) => {
+      Panel.addValueChangeListener(
+        item.key,
+        (_, value) => {
+          item.callback(value);
+        },
+        {
+          immediate: true,
+        }
+      );
+    });
   },
   /**
    * 初始化|重置解析规则
@@ -103,7 +104,8 @@ export const DouYinLiveMessageFilter = {
    * + false 不过滤
    */
   checkMessageFilter(messageInst: any, method?: string) {
-    const message = messageInst?.payload?.content || messageInst?.payload?.common?.describe;
+    const payload = messageInst?.payload;
+    const message = payload?.content || payload?.common?.describe;
 
     /**
      * 消息类型
@@ -118,8 +120,9 @@ export const DouYinLiveMessageFilter = {
      * + WebcastLikeMessage
      */
     method = method ?? messageInst?.method;
-    const chat_by: undefined | string = messageInst?.payload?.chat_by;
-    const biz_scene: undefined | string = messageInst?.payload?.biz_scene;
+    const chat_by: undefined | string = payload?.chat_by;
+    const biz_scene: undefined | string = payload?.biz_scene;
+    const public_area_common = payload?.public_area_common || {};
     let flag = false;
     if (!flag) {
       if (method === "WebcastGiftMessage") {
@@ -129,14 +132,18 @@ export const DouYinLiveMessageFilter = {
         }
       } else if (method === "WebcastChatMessage") {
         // 普通信息
-        if (chat_by === "0") {
-          //
-        } else if (chat_by === "9" || chat_by === "10") {
+        if (
+          chat_by === "9" ||
+          chat_by === "10" ||
+          Object.keys(public_area_common?.individual_strategy_result || {}).length !== 0
+        ) {
           // 来自福袋一键发送
           // 福袋口令
           if (this.$data.block_lucky_bag) {
             flag = true;
           }
+        } else if (chat_by === "0") {
+          //
         } else if (chat_by === "5") {
           // 主播@ 别人
         } else if (chat_by === "11") {
@@ -147,21 +154,25 @@ export const DouYinLiveMessageFilter = {
           }
         }
       } else if (method === "WebcastRoomMessage") {
-        // 聊天室的信息
+        // 聊天室的信息（黄颜色的）
         // 例如：欢迎来到直播间！抖音严禁未成年人直播或礼物消费。严禁违法违规、低俗色情、吸烟酗酒、人身伤害等直播内容。理性消费，如主播在直播中以不当方式诱导消费，请谨慎辨别。切勿私下交易，以防人身财产损失，谨防网络诈骗。
         // 是否是置顶信息
-        const system_top_msg = messageInst?.payload?.system_top_msg;
-        const biz_scene = messageInst?.payload?.biz_scene;
+        if (this.$data.block_room_message) {
+          flag = true;
+        }
         if (biz_scene === "live_recommend") {
           // xxx推荐了直播
           // 黄色的信息播报
-        } else if (system_top_msg) {
+        } else if (payload?.system_top_msg) {
           // 系统消息
         }
       } else if (method === "WebcastFansclubMessage") {
         // 恭喜 xxx 成为第xxx名xxx成员
       } else if (method === "WebcastEmojiChatMessage") {
         // 表情包|图片|emoji
+        if (this.$data.block_emoji) {
+          flag = true;
+        }
       } else if (method === "WebcastExhibitionChatMessage") {
         //
       } else if (method === "WebcastScreenChatMessage") {
@@ -171,14 +182,6 @@ export const DouYinLiveMessageFilter = {
       } else {
         if (import.meta.env.DEV) {
           log.info("未知消息实例类型：" + method, messageInst);
-        }
-      }
-    }
-    if (!flag && typeof biz_scene === "string") {
-      if (biz_scene === "common_text_game_score") {
-        // xxx 为主播加了 xx分
-        if (this.$data.block_biz_scene) {
-          flag = true;
         }
       }
     }

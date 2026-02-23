@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { addStyle, DOMUtils, log } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
@@ -70,7 +70,11 @@ export const DouYinLiveBlock_ChatRoom = {
    */
   shieldUserLevelIcon() {
     log.info("【屏蔽】用户等级图标");
-    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])')];
+    return [
+      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
+      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
+      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
+    ];
   },
   /**
    * 【屏蔽】VIP图标

@@ -26,7 +26,7 @@ export const DouYin = {
   init() {
     if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
       // 当前仅主站和直播页面支持
-      log.error("当前仅主站和直播页面支持");
+      log.error(`当前仅主站和直播页面支持${Panel.isTopWindow() ? "" : "（iframe）"}`);
       return;
     }
     Panel.onceExec("dy-global-block-css", () => {

@@ -212,14 +212,14 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                 UISwitch("启用", "live-danmu-shield-rule-enable", false),
                 UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
                 UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
+                UISwitch("【屏蔽】emoji|图片|表情包", "live-message-shield-method-emoji-chat", false, void 0, ""),
                 UISwitch(
-                  "【屏蔽】xxx 为主播加了 xx分",
-                  "live-message-shield-biz_scene-common_text_game_score",
+                  "【屏蔽】信息播报",
+                  "live-message-shield-room-message",
                   false,
                   void 0,
-                  ""
+                  "如：xxx 为主播加了 xx分、恭喜xxx等"
                 ),
-                UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, ""),
               ],
             },
             {
