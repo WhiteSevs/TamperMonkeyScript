@@ -975,9 +975,7 @@ export const DouYinVideoPlayer = {
             onload() {
               isSuccessDownload = true;
               downloadingQmsg.close();
-              Qmsg.success(`下载 ${fileName} 已完成`, {
-                consoleLogContent: true,
-              });
+              Qmsg.success(`下载 ${fileName} 已完成`);
             },
             onprogress(details) {
               if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
@@ -1478,11 +1476,9 @@ export const DouYinVideoPlayer = {
     const checkDialogToClose = ($ele: HTMLElement) => {
       const eleText = DOMUtils.text($ele);
       if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-        Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
-          consoleLogContent: true,
-        });
+        Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`);
         const $rect = utils.getReactInstance($ele);
-        if (typeof $rect.reactProps === "object") {
+        if (typeof $rect.reactProps === "object" && $rect.reactProps != null) {
           const closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
             if (typeof obj?.["props"]?.["onClose"] === "function") {
               return {
@@ -1499,13 +1495,13 @@ export const DouYinVideoPlayer = {
             }
           });
           if (typeof closeDialogFn === "function") {
-            Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`);
             closeDialogFn();
+            Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`);
           }
         }
       }
     };
-    const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
+    const waitToRemovePauseDialog = Panel.getDynamicValue("dy-video-waitToRemovePauseDialog");
     const lockFn = new utils.LockFunction(() => {
       if (!waitToRemovePauseDialog.value) {
         return;

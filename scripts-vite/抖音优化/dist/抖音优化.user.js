@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.23
+// @version      2026.2.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4639,7 +4639,13 @@
         const allEnable = ExecMenu.every((it) => it.enable);
         if (allEnable) {
           if (this.$el.hideMenuStyle == null) {
-            this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`);
+            const selectorList = [
+              this.$data.menuSelector,
+              this.$data.menuSelector_sliderVideo,
+              this.$data.menuSelector_slideMode,
+              this.$data.menuSelector_onlyVideo,
+            ];
+            this.$el.hideMenuStyle = CommonUtil.addBlockCSS(...selectorList);
           } else {
             if (!document.contains(this.$el.hideMenuStyle)) {
               document.head.appendChild(this.$el.hideMenuStyle);
@@ -7324,9 +7330,7 @@
               onload() {
                 isSuccessDownload = true;
                 downloadingQmsg.close();
-                Qmsg.success(`下载 ${fileName} 已完成`, {
-                  consoleLogContent: true,
-                });
+                Qmsg.success(`下载 ${fileName} 已完成`);
               },
               onprogress(details) {
                 if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
@@ -7751,11 +7755,9 @@
       const checkDialogToClose = ($ele) => {
         const eleText = domUtils.text($ele);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-          Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`, {
-            consoleLogContent: true,
-          });
+          Qmsg.info(`出现【长时间无操作，已暂停播放】弹窗`);
           const $rect = utils.getReactInstance($ele);
-          if (typeof $rect.reactProps === "object") {
+          if (typeof $rect.reactProps === "object" && $rect.reactProps != null) {
             const closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
               if (typeof obj?.["props"]?.["onClose"] === "function") {
                 return {
@@ -7771,13 +7773,13 @@
               }
             });
             if (typeof closeDialogFn === "function") {
-              Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`);
               closeDialogFn();
+              Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`);
             }
           }
         }
       };
-      const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
+      const waitToRemovePauseDialog = Panel.getDynamicValue("dy-video-waitToRemovePauseDialog");
       const lockFn = new utils.LockFunction(() => {
         if (!waitToRemovePauseDialog.value) {
           return;
@@ -8820,9 +8822,7 @@
       const checkDialogToClose = ($el, from) => {
         const eleText = domUtils.text($el);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
-            consoleLogContent: true,
-          });
+          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           const $rect = utils.getReactInstance($el);
           if (typeof $rect.reactContainer === "object") {
             const closeDialogFn =
@@ -8845,15 +8845,13 @@
                 }
               }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
             if (typeof closeDialogFn === "function") {
-              Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
-                consoleLogContent: true,
-              });
+              Qmsg.success(`检测${from}：调用函数关闭弹窗`);
               closeDialogFn();
             }
           }
         }
       };
-      const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
+      const waitToRemovePauseDialog = Panel.getDynamicValue("live-waitToRemovePauseDialog");
       const lockFn = new utils.LockFunction(() => {
         if (!waitToRemovePauseDialog.value) {
           return;

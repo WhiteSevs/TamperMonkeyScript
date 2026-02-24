@@ -105,11 +105,18 @@ export const DouYinVideoBlock_RightMenu = {
     ];
     const handleMenuBlock = () => {
       const allEnable = ExecMenu.every((it) => it.enable);
+      // 先移除
       if (allEnable) {
         // 全部执行了
         // 屏蔽总菜单
         if (this.$el.hideMenuStyle == null) {
-          this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`)!;
+          const selectorList: string[] = [
+            this.$data.menuSelector,
+            this.$data.menuSelector_sliderVideo,
+            this.$data.menuSelector_slideMode,
+            this.$data.menuSelector_onlyVideo,
+          ];
+          this.$el.hideMenuStyle = CommonUtil.addBlockCSS(...selectorList)!;
         } else {
           if (!document.contains(this.$el.hideMenuStyle)) {
             // 不在页面，重新添加
@@ -118,7 +125,6 @@ export const DouYinVideoBlock_RightMenu = {
         }
       } else {
         // 不完全执行
-        // 移除总屏蔽css
         if (this.$el.hideMenuStyle != null) {
           this.$el.hideMenuStyle.remove();
           this.$el.hideMenuStyle = null;

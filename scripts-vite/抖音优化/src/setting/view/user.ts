@@ -37,15 +37,13 @@ export const PanelUserConfig: PopsPanelContentConfig = {
         // 		});
         // 		if (!response.status) {
         // 			log.error(response);
-        // 			Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
+        // 			Qmsg.error("获取用户sec_uid失败");
         // 			return;
         // 		}
         // 		let finalUrl = response.data.finalUrl;
         // 		let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
         // 		if (!sec_uid_match) {
-        // 			Qmsg.error("正则获取用户sec_uid失败", {
-        // 				consoleLogContent: true,
-        // 			});
+        // 			Qmsg.error("正则获取用户sec_uid失败");
         // 			return;
         // 		}
         // 		let sec_uid = sec_uid_match[sec_uid_match.length - 1];

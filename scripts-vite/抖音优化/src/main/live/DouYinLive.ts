@@ -371,9 +371,7 @@ export const DouYinLive = {
     const checkDialogToClose = ($el: HTMLElement, from: string) => {
       const eleText = DOMUtils.text($el);
       if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-        Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
-          consoleLogContent: true,
-        });
+        Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
         const $rect = utils.getReactInstance($el);
         if (typeof $rect.reactContainer === "object") {
           const closeDialogFn =
@@ -398,15 +396,13 @@ export const DouYinLive = {
               }
             }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
           if (typeof closeDialogFn === "function") {
-            Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
-              consoleLogContent: true,
-            });
+            Qmsg.success(`检测${from}：调用函数关闭弹窗`);
             closeDialogFn();
           }
         }
       }
     };
-    const waitToRemovePauseDialog = Panel.getDynamicValue("waitToRemovePauseDialog");
+    const waitToRemovePauseDialog = Panel.getDynamicValue("live-waitToRemovePauseDialog");
     const lockFn = new utils.LockFunction(() => {
       if (!waitToRemovePauseDialog.value) {
         return;

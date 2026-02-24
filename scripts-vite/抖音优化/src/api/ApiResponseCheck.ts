@@ -8,18 +8,18 @@ export const ApiResponseCheck = {
    */
   isSuccess(responseData: any, showToast: boolean = true) {
     if (responseData == null) {
-      showToast && Qmsg.error("接口返回数据为空", { consoleLogContent: true });
+      showToast && Qmsg.error("接口返回数据为空");
       return false;
     }
     if (typeof responseData !== "object") {
-      showToast && Qmsg.error("接口返回数据不是JSON", { consoleLogContent: true });
+      showToast && Qmsg.error("接口返回数据不是JSON");
       return false;
     }
     const status_code = responseData["status_code"];
     if (status_code == 0) {
       return true;
     } else {
-      showToast && Qmsg.error("接口返回数据状态码不为0", { consoleLogContent: true });
+      showToast && Qmsg.error("接口返回数据状态码不为0");
       return false;
     }
   },
