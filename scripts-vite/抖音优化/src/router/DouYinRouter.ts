@@ -131,4 +131,10 @@ export const DouYinRouter = {
   isChat() {
     return this.isIndex() && window.location.pathname.startsWith("/chat");
   },
+  /**
+   * AI抖音
+   */
+  isAISearch() {
+    return this.isIndex() && window.location.pathname.startsWith("/aisearch");
+  },
 };

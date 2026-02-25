@@ -89,20 +89,25 @@ export const DouYinVideoBlock = {
           '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
         )
       );
-    }
-    if (DouYinRouter.isUser()) {
+    } else if (DouYinRouter.isUser()) {
       // 用户页面的
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
         )
       );
-    }
-    if (DouYinRouter.isVideo()) {
+    } else if (DouYinRouter.isVideo()) {
       // 单个视频页面
       result.push(
         CommonUtil.addBlockCSS(
           '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
+        )
+      );
+    } else if (DouYinRouter.isJingXuan()) {
+      // 精选
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container div:has([data-e2e="modal-video-container"]) div:has(>div>input[data-e2e="searchbar-input"])'
         )
       );
     }
