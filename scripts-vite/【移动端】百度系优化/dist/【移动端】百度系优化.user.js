@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.22
+// @version      2026.2.25
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -82,7 +82,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-BDxbpPwA.js"(exports$1, module) {
+    "entrance-D8GRScRi.js"(exports$1, module) {
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
       var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
       var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -2536,8 +2536,6 @@
           ];
         },
       };
-      const BaiJiaHaoShieldCSS =
-        ".layer-wrap,\n.openImg,\n.oPadding,\n.bottomTTSStruct,\n.undefined,\n.headDeflectorContainer,\n.followSuper,\n#searchwordSdk,\ndiv#commentModule > div > div > span:nth-child(2),\n/* 顶部打开APP横幅 */\n#headDeflectorContainer,\n/* 展开全文 */\n.foldMaskWrapper {\n  display: none !important;\n}\nbody.scrollHide {\n  overflow: auto !important;\n}\n.mainContent,\n#mainContentContainer {\n  height: auto !important;\n}\n";
       const BaiduHook = {
         $isHook: {
           windowBoxJSBefore: false,
@@ -3036,6 +3034,8 @@
           });
         },
       };
+      const BaiJiaHaoShieldCSS =
+        ".layer-wrap,\n.openImg,\n.oPadding,\n.bottomTTSStruct,\n.undefined,\n.headDeflectorContainer,\n.followSuper,\n#searchwordSdk,\ndiv#commentModule > div > div > span:nth-child(2),\n/* 顶部打开APP横幅 */\n#headDeflectorContainer,\n/* 展开全文 */\n.foldMaskWrapper {\n  display: none !important;\n}\nbody.scrollHide {\n  overflow: auto !important;\n}\n.mainContent,\n#mainContentContainer {\n  height: auto !important;\n}\n";
       const BaiduBaiJiaHao = {
         init() {
           addStyle$1(BaiJiaHaoShieldCSS);
@@ -3058,15 +3058,19 @@
               ".infinite-scroll-component__outerdiv",
               "div#page_wrapper > div > div:nth-child(5)",
               "div:has(+ .infinite-scroll-component__outerdiv)",
-              "#ssr-content > :last-child",
-              "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
+              '#ssr-content div:has(>[data-testid="like-btn"])',
+              "#ssr-content .hasRecommendCard"
             ),
             addStyle$1(
               `
 			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
-			}`
+			}
+      #ssr-content div:has(>.hasRecommendCard){
+        justify-content: space-around;
+      }
+      `
             ),
             CommonUtil.addBlockCSS('#page_wrapper > div.other > div[class=""]:nth-child(4)'),
             CommonUtil.addBlockCSS(

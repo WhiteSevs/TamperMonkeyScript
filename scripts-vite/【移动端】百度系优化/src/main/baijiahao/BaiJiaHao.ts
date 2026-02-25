@@ -1,8 +1,8 @@
 import { addStyle, log } from "@/env";
 import { Panel } from "@components/setting/panel";
-import BaiJiaHaoShieldCSS from "./shield.css?raw";
-import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
+import BaiJiaHaoShieldCSS from "./shield.css?raw";
 
 export const BaiduBaiJiaHao = {
   init() {
@@ -30,15 +30,19 @@ export const BaiduBaiJiaHao = {
         "div#page_wrapper > div > div:nth-child(5)",
         "div:has(+ .infinite-scroll-component__outerdiv)",
         /* 电脑端的左边的按钮-屏蔽 */
-        "#ssr-content > :last-child",
+        '#ssr-content div:has(>[data-testid="like-btn"])',
         /* 电脑端的右边的推荐-屏蔽 */
-        "#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(2)"
+        "#ssr-content .hasRecommendCard"
       ),
       addStyle(/*css*/ `
 			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
-			}`),
+			}
+      #ssr-content div:has(>.hasRecommendCard){
+        justify-content: space-around;
+      }
+      `),
       /* 某些情况下的CSS */
       CommonUtil.addBlockCSS('#page_wrapper > div.other > div[class=""]:nth-child(4)'),
       /* 简单UA&链接参数wfr=spide下的精彩推荐 */
