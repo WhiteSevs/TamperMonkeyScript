@@ -1,5 +1,11 @@
 /**
  * 网盘匹配规则配置
+ * @description
+ * 流程：
+ *
+ * 1. 先进行`link_innerText`和`link_innerHTML`，如果匹配到了，取匹配的整个字符串
+ * 2. 用`shareCode`进行分享码获取，对它获取到的，进行`shareCodeNotMatch`判断，如果不符合，则忽略，如果符合，进行`shareCodeNeedRemoveStr`把不需要的字符串去除，
+ * 处理完毕后如果设置了`shareCodeExcludeRegular`那么进行去重
  */
 declare interface NetDiskMatchRuleConfig {
   /**
@@ -37,13 +43,13 @@ declare interface NetDiskMatchRuleConfig {
    */
   shareCodeExcludeRegular?: string[];
   /**
-   * 正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码
+   * （可选）正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码
    */
-  checkAccessCode: RegExp;
+  checkAccessCode?: RegExp;
   /**
-   * 正则：用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码
+   * （可选）正则：用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码
    */
-  accessCode: RegExp;
+  accessCode?: RegExp;
   /**
    * （可选）正则：用于判断提取到的accessCode是否是错误的accessCode
    */

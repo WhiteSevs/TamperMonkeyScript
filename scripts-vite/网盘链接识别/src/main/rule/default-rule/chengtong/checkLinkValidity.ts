@@ -9,8 +9,8 @@ import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckL
 export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    /* 城通通用的检查api */
-    /* ref是来源 */
+    // 城通通用的检查api
+    // ref是来源
     let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName: "chengtong",
       ruleIndex,
@@ -18,7 +18,7 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
       accessCode,
     });
     let blankUrlInst = new URL(blankUrl);
-    /* f是文件 d是文件夹 */
+    // f是文件 d是文件夹
     let path = blankUrlInst.pathname.split("/")[1].trim();
     let url = "";
     if (blankUrlInst.pathname === "/" && blankUrlInst.hash.startsWith("#/d/")) {
@@ -27,10 +27,10 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
       path = "d";
     }
     if (path === "f" || path === "file") {
-      /* 文件 */
+      // 文件
       url = `https://webapi.ctfile.com/getfile.php?path=${path}&f=${shareCode}&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
     } else if (path === "d" || path === "dir") {
-      /* 文件夹 */
+      // 文件夹
       url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
     } else {
       log.warn("未知path", [ruleIndex, shareCode, accessCode]);

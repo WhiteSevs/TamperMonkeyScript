@@ -176,7 +176,7 @@ export const NetDiskCheckLinkValidity = {
     }
     const netDiskCheck = this.ruleCheckValidFunction[checkInfo.ruleKeyName];
     if (!netDiskCheck || (netDiskCheck && typeof netDiskCheck.init !== "function")) {
-      /* 没有配置该网盘的校验有效性 */
+      // 没有配置该网盘的校验有效性
       log.error("该规则未配置有效性校验函数", checkInfo);
       return result;
     }

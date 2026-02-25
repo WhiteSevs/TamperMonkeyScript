@@ -8,14 +8,15 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
     window.location.search.startsWith("?surl=")
   ) {
     log.success("自动填写链接", netDiskInfo);
-    DOMUtils.waitNode<HTMLInputElement>("div.verify-form #accessCode").then(($ele) => {
-      if (!utils.isVisible($ele)) {
+    DOMUtils.waitNode<HTMLInputElement>("div.verify-form #accessCode", 10000).then(($el) => {
+      if (!$el) return;
+      if (!utils.isVisible($el)) {
         log.error("输入框不可见，不输入密码");
         return;
       }
       Qmsg.success("自动填充访问码");
-      $ele.value = netDiskInfo.accessCode;
-      DOMUtils.emit($ele, "input");
+      $el.value = netDiskInfo.accessCode;
+      DOMUtils.emit($el, "input");
       $<HTMLElement>("div.verify-form #submitBtn")?.click();
     });
   }
@@ -26,15 +27,17 @@ export const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo: NetDiskAut
   ) {
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.waitNode<HTMLInputElement>(
-      "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
-    ).then(($input) => {
-      if (!utils.isVisible($input)) {
+      "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]",
+      10000
+    ).then(($el) => {
+      if (!$el) return;
+      if (!utils.isVisible($el)) {
         log.error("输入框不可见，不输入密码");
         return;
       }
       Qmsg.success("自动填充访问码");
-      $input.value = netDiskInfo.accessCode;
-      DOMUtils.emit($input, "input");
+      $el.value = netDiskInfo.accessCode;
+      DOMUtils.emit($el, "input");
       $<HTMLElement>("div.extractWrap div.extract-content button.m-button")?.click();
     });
   }

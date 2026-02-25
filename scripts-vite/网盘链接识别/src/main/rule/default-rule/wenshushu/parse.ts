@@ -196,7 +196,7 @@ export class NetDiskParse_Wenshushu extends ParseFileCore {
           downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("wenshushu", downloadUrl);
         }
 
-        /* 文叔叔没有上传时间信息(暂时是这样的) */
+        // 文叔叔没有上传时间信息(暂时是这样的)
         NetDiskView.$inst.linearChainDialogView.oneFile({
           title: "文叔叔单文件直链",
           fileName: file_name,

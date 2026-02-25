@@ -208,35 +208,35 @@ export const NetDiskLinkViewEvent = {
       if (prevSearchShareCode == void 0) {
         prevSearchShareCode = dataSharecode;
       } else if (prevSearchShareCode !== dataSharecode) {
-        /* 切换到另一个shareCode搜索 */
+        // 切换到另一个shareCode搜索
         log.info(`上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`);
         findGenerator = void 0;
         iterator = void 0;
         prevSearchShareCode = dataSharecode;
       }
       if (findGenerator == void 0) {
-        /* 未找到元素或者已迭代完毕 */
+        // 未找到元素或者已迭代完毕
         findGenerator = DOMUtils.findElementsWithText(document.documentElement, dataSharecode);
         iterator = findGenerator.next();
       }
       if (iterator?.value) {
         log.success("定位元素", iterator);
         if (iterator.value.nodeType === Node.ELEMENT_NODE && (<HTMLElement>iterator.value).getClientRects().length) {
-          /* 可见 */
-          /* 滚动到该元素 */
+          // 可见
+          // 滚动到该元素
           (<HTMLElement>iterator.value).scrollIntoView({
             behavior: "smooth",
             block: "center",
             inline: "nearest",
           });
           if (NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value) {
-            /* 开启功能 */
+            // 开启功能
             let elementText = (<HTMLElement>iterator.value).innerText || (<HTMLElement>iterator.value).textContent!;
             let childTextNode: ChildNode | undefined = void 0;
             let startIndex: number | undefined = void 0;
             let endIndex: number | undefined = void 0;
             if (elementText.includes(dataSharecode)) {
-              /* 文字包含shareCode */
+              // 文字包含shareCode
               let textNodeList = Array.from((<HTMLElement>iterator.value).childNodes).filter(
                 (ele) => ele.nodeType === Node.TEXT_NODE
               );
@@ -260,7 +260,7 @@ export const NetDiskLinkViewEvent = {
           iterator.value.nodeType === Node.TEXT_NODE &&
           iterator.value!.parentElement!.getClientRects().length
         ) {
-          /* #text元素且可见 */
+          // #text元素且可见
           if (NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value) {
             let elementText = iterator.value.textContent || iterator.value.nodeValue!;
             let childTextNode = iterator.value;
@@ -277,7 +277,7 @@ export const NetDiskLinkViewEvent = {
               let range = selection.getRangeAt(0);
               let rect = range.getBoundingClientRect();
               let scrollYOffset = globalThis.scrollY;
-              /* 居中定位 */
+              // 居中定位
               let position = rect.top + scrollYOffset - globalThis.innerHeight / 2;
               globalThis.scrollTo({
                 behavior: "smooth",
@@ -296,7 +296,7 @@ export const NetDiskLinkViewEvent = {
               range.selectNodeContents(iterator.value);
               let rect = range.getBoundingClientRect();
               let scrollYOffset = globalThis.scrollY;
-              /* 居中定位 */
+              // 居中定位
               let position = rect.top + scrollYOffset - globalThis.innerHeight / 2;
               globalThis.scrollTo({
                 behavior: "smooth",
@@ -326,7 +326,7 @@ export const NetDiskLinkViewEvent = {
 
       iterator = findGenerator.next();
       if (iterator.done) {
-        /* 循环查找 */
+        // 循环查找
         if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].value) {
           Qmsg.info("已经定位至最后一个元素了");
           return;

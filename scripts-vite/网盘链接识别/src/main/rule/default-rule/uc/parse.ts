@@ -67,7 +67,7 @@ export class NetDiskParse_UC extends ParseFileCore {
         },
       });
     } else {
-      /* 多文件 */
+      // 多文件
       log.success("该链接是 多文件");
       $loading.setText("正在解析多文件...");
       const folderInfoList = this.getFolderInfo(detail, stoken, 0);
@@ -410,7 +410,7 @@ export class NetDiskParse_UC extends ParseFileCore {
     let folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item: any) => {
       if (item.dir == false && item.file_type === 1) {
-        /* 文件 */
+        // 文件
         folderInfoList.push({
           fileName: item.file_name,
           fileSize: item.size,
@@ -440,7 +440,7 @@ export class NetDiskParse_UC extends ParseFileCore {
               if (NetDiskFilterScheme.isForwardDownloadLink("uc")) {
                 schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("uc", schemeDownloadUrl);
               }
-              /* 如果已被scheme过滤，那么不进行GM_download下载 */
+              // 如果已被scheme过滤，那么不进行GM_download下载
               if (schemeDownloadUrl === fileDownloadUrl) {
                 this.downloadFile(item.file_name, fileDownloadUrl);
               } else {
@@ -454,7 +454,7 @@ export class NetDiskParse_UC extends ParseFileCore {
           },
         });
       } else {
-        /* 文件夹 */
+        // 文件夹
         folderInfoList.push({
           fileName: item.file_name,
           fileSize: item.size,
@@ -465,7 +465,7 @@ export class NetDiskParse_UC extends ParseFileCore {
           index: index,
           clickEvent: async () => {
             if (item.include_items === 0) {
-              /* 里面没有文件 */
+              // 里面没有文件
               log.success("里面没有文件");
               return [];
             }

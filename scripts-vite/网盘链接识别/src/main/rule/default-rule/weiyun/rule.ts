@@ -4,10 +4,10 @@ export const NetDiskRule_weiyun: NetDiskRuleOption = {
     {
       link_innerText: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `weiyun.com/[0-9a-zA-Z-_]{7,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /weiyun.com\/([0-9a-zA-Z\-_]{7,24})/gi,
+      shareCode: /weiyun.com\/([0-9a-zA-Z-_]{7,24})/gi,
       shareCodeNeedRemoveStr: /weiyun.com\//gi,
       shareCodeNotMatch: /^(ftn_handler)/,
-      checkAccessCode: /(提取码|密码|访问码)[\s\S]+/g,
+      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
       uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://share.weiyun.com/{#shareCode#}",

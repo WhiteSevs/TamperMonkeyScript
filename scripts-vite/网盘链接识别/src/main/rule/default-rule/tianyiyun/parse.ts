@@ -8,7 +8,7 @@ import { NetDiskPops } from "@/main/pops/NetDiskPops";
 
 export class NetDiskParse_Tianyiyun extends ParseFileCore {
   shareId = void 0 as any as number;
-  /* 猜测1是有密码，2是无密码 */
+  // 猜测1是有密码，2是无密码
   shareMode: number = 1;
   code = {
     ShareNotFoundFlatDir: "抱歉，该文件的分享平铺目录未找到",
@@ -66,7 +66,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
       return;
     }
     if (shareInfoData.isFolder) {
-      /* 多文件 */
+      // 多文件
       Qmsg.info("正在递归文件");
       let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
       let fileId = shareInfoData["fileId"];
@@ -93,7 +93,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
       NetDiskView.$inst.linearChainDialogView.moreFile("天翼云文件解析", folderInfoList);
       return;
     } else {
-      /* 单文件 */
+      // 单文件
       let downloadUrl = await this.getDownloadUrl(this.shareCode, this.accessCode, shareInfoData.fileId, this.shareId);
       if (downloadUrl) {
         if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
@@ -323,7 +323,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
     descending = true
   ) {
     const that = this;
-    /* Sessionkey: Sessionkey */
+    // Sessionkey: Sessionkey
     const getSearParamData = {
       pageNum: pageNum,
       pageSize: pageSize,
@@ -380,7 +380,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
    */
   getFolderInfo(shareCode: string, accessCode: AccessCodeNonNullType, dirInfo: any, index = 0) {
     let folderInfoList: PopsFolderDataConfig[] = [];
-    /* 文件夹 */
+    // 文件夹
     dirInfo["folderList"].forEach((folderInfo: any) => {
       folderInfoList.push({
         fileName: folderInfo["name"],
@@ -411,7 +411,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
         },
       });
     });
-    /* 文件 */
+    // 文件
     dirInfo["fileList"].forEach((fileInfo: any) => {
       folderInfoList.push({
         fileName: fileInfo["name"],

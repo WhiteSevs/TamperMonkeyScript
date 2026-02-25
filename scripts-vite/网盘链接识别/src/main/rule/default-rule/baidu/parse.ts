@@ -32,7 +32,7 @@ export class NetDiskParse_Baidu extends ParseFileCore {
       method: "post",
       target: "_blank",
     });
-    /* POST的表单数据 */
+    // POST的表单数据
     const formData: {
       [key: string]: string;
     } = {};

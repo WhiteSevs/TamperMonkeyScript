@@ -4,13 +4,17 @@ import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_123pan = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
   if (window.location.hostname === "www.123pan.com") {
-    /* 桌面端 */
+    // 桌面端
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.onReady(() => {
-      DOMUtils.waitAnyNode<HTMLInputElement>([
-        "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
-        "#app .appinput input.ant-input[type=text][placeholder*='提取码']",
-      ]).then(($el) => {
+      DOMUtils.waitAnyNode<HTMLInputElement>(
+        [
+          "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
+          "#app .appinput input.ant-input[type=text][placeholder*='提取码']",
+        ],
+        10000
+      ).then(($el) => {
+        if (!$el) return;
         ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
           check(reactPropInst) {
             return (

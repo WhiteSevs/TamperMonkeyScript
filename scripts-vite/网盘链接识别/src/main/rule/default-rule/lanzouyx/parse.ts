@@ -186,7 +186,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
         });
       }
     } else {
-      /* 多文件 */
+      // 多文件
       log.success("该链接是 多文件");
       $loading.setText("正在解析多文件...");
       const folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
@@ -204,7 +204,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
     let folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item["fileType"] === 2) {
-        /* 文件夹 */
+        // 文件夹
         folderInfoList.push({
           fileName: item["folderName"],
           fileSize: 0,
@@ -235,7 +235,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
           },
         });
       } else {
-        /* 文件 */
+        // 文件
         folderInfoList.push({
           fileName: item["fileName"],
           fileSize: item["fileSize"] * 1024,

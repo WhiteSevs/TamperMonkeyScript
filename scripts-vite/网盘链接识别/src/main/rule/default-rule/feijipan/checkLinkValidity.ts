@@ -1,7 +1,7 @@
 import { httpx, utils } from "@/env";
 import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 import { NetDiskParse_feijipan } from "./parse";
-import type { FeiJiPanRecommendJSON } from "./Type";
+import type { FeiJiPanListJSON, FeiJiPanRecommendJSON } from "./Type";
 
 export const NetDiskCheckLinkValidity_feijipan: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
@@ -35,14 +35,14 @@ export const NetDiskCheckLinkValidity_feijipan: NetDiskCheckLinkValidityEntrance
     if (!Array.isArray(data.list)) {
       return {
         ...NetDiskCheckLinkValidityStatus.failed,
-        msg: "list不是数组类型",
+        msg: "recommend.list不是数组类型",
         data: data,
       };
     }
     if (data.list.length === 0) {
       return {
         ...NetDiskCheckLinkValidityStatus.failed,
-        msg: "list为空",
+        msg: "recommend.list为空",
         data: data,
       };
     }
@@ -56,11 +56,48 @@ export const NetDiskCheckLinkValidity_feijipan: NetDiskCheckLinkValidityEntrance
       };
     }
     if (firstRecommend?.fileList?.length === 0) {
-      return {
-        ...NetDiskCheckLinkValidityStatus.failed,
-        msg: "fileList为空",
-        data: data,
-      };
+      // 通过list确认是否真为空
+      const folderIds = firstRecommend.folderIds;
+      const listResponse = await httpx.post(
+        "https://api.feijipan.com/ws/share/list?" +
+          utils.toSearchParamsStr({
+            ...parser.getRequestParams(netDiskInfo.shareCode, netDiskInfo.accessCode),
+            folderIds,
+          }),
+        {
+          headers: {
+            ...parser.getRequestHeaders(),
+          },
+        }
+      );
+      if (!listResponse.status) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: listResponse,
+        };
+      }
+      const listData = utils.toJSON<FeiJiPanListJSON>(listResponse.data.responseText);
+      if (listData.code !== 200) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: typeof listData.msg === "string" ? listData.msg : NetDiskCheckLinkValidityStatus.failed.msg,
+          data: listData,
+        };
+      }
+      if (!Array.isArray(listData.list)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "list.list不是数组类型",
+          data: listData,
+        };
+      }
+      if (listData.list.length === 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          msg: "list.list为空",
+          data: listData,
+        };
+      }
     }
     return {
       ...NetDiskCheckLinkValidityStatus.success,

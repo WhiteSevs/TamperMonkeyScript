@@ -30,7 +30,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
       return;
     }
     if (downloadParams["isdir"]) {
-      /* 是文件夹 */
+      // 是文件夹
       $loading.setText("正在解析多文件...");
       const folderInfo = await that.getFolderInfo(downloadParams["hash"]);
       if (!folderInfo) {
@@ -39,10 +39,10 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
       }
       const newFolderInfoList = that.parseMoreFile(folderInfo, downloadParams["hash"], downloadParams["name"]);
 
-      /* 坚果云盘没有上传时间信息(暂时是这样的) */
+      // 坚果云盘没有上传时间信息(暂时是这样的)
       NetDiskView.$inst.linearChainDialogView.moreFile("坚果云文件解析", newFolderInfoList);
     } else {
-      /* 是文件 */
+      // 是文件
       $loading.setText("正在获取下载链接...");
       const fileSize = utils.formatByteToSize(downloadParams["size"]);
       let downloadUrl = await that.getFileLink(downloadParams.hash, downloadParams.name);
@@ -55,7 +55,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
       }
 
       log.info(downloadUrl);
-      /* 坚果云盘没有上传时间信息(暂时是这样的) */
+      // 坚果云盘没有上传时间信息(暂时是这样的)
       NetDiskView.$inst.linearChainDialogView.oneFile({
         title: "坚果云盘单文件直链",
         fileName: downloadParams["name"],
@@ -161,7 +161,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
       log.success("name ===> " + fileName);
       log.success("size ===> " + fileSize);
       if (fileNeedsPassword && (that.accessCode == void 0 || that.accessCode === "")) {
-        /* 需要密码但没密码 */
+        // 需要密码但没密码
         Qmsg.error("密码不正确!");
         NetDiskView.$inst.newAccessCodeView(
           "密码缺失",

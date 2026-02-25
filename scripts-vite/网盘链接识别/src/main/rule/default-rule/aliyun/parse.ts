@@ -86,7 +86,7 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
     const folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item: any) => {
       if (item.type !== "folder") {
-        /* 文件 */
+        // 文件
         folderInfoList.push({
           fileName: item.name,
           fileSize: item.size,
@@ -114,7 +114,7 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
           },
         });
       } else {
-        /* 文件夹 */
+        // 文件夹
         folderInfoList.push({
           fileName: item.name,
           fileSize: 0,

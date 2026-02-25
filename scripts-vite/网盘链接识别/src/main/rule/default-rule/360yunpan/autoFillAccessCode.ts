@@ -3,9 +3,10 @@ import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
   if (window.location.hostname.endsWith(".link.yunpan.com")) {
-    /* 桌面端 */
+    // 桌面端
     log.success("自动填写链接", netDiskInfo);
-    DOMUtils.waitNode<HTMLInputElement>("#extract-bg-container input.pwd-input").then(($el) => {
+    DOMUtils.waitNode<HTMLInputElement>("#extract-bg-container input.pwd-input", 10000).then(($el) => {
+      if (!$el) return;
       if (!utils.isVisible($el)) {
         log.error("输入框不可见，不输入密码");
         return;
@@ -17,10 +18,9 @@ export const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo: NetDis
       $submit?.click();
     });
 
-    /* ------------------------------------ */
-
-    /* 移动端 */
-    DOMUtils.waitNode<HTMLInputElement>("#extractForm input.pwd-input").then(($el) => {
+    // 移动端
+    DOMUtils.waitNode<HTMLInputElement>("#extractForm input.pwd-input", 10000).then(($el) => {
+      if (!$el) return;
       if (!utils.isVisible($el)) {
         log.error("输入框不可见，不输入密码");
         return;

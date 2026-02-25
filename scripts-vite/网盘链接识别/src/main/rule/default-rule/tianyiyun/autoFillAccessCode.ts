@@ -26,29 +26,31 @@ export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDis
     }, 500);
   }
   if (window.location.hostname === "cloud.189.cn") {
-    /* 桌面端 */
+    // 桌面端
     log.success("自动填写链接", netDiskInfo);
 
-    DOMUtils.waitNode<HTMLInputElement>("input#code_txt").then((codeTxtElement) => {
-      loopWaitElementShow(codeTxtElement, () => {
+    DOMUtils.waitNode<HTMLInputElement>("input#code_txt", 10000).then(($el) => {
+      if (!$el) return;
+      loopWaitElementShow($el, () => {
         Qmsg.success("自动填充访问码");
         const $visit = $<HTMLElement>(".btn.btn-primary.visit")!;
-        codeTxtElement.value = netDiskInfo.accessCode;
-        Reflect.set(codeTxtElement, "_value", netDiskInfo.accessCode);
-        DOMUtils.emit(codeTxtElement, "input");
+        $el.value = netDiskInfo.accessCode;
+        Reflect.set($el, "_value", netDiskInfo.accessCode);
+        DOMUtils.emit($el, "input");
         DOMUtils.emit($visit, "click");
       });
     });
   }
   if (window.location.hostname === "h5.cloud.189.cn") {
-    /* 移动端 */
+    // 移动端
     log.success("自动填写链接", netDiskInfo);
-    DOMUtils.waitNode<HTMLInputElement>("input.access-code-input").then((accessInputElement) => {
-      loopWaitElementShow(accessInputElement, () => {
+    DOMUtils.waitNode<HTMLInputElement>("input.access-code-input", 10000).then(($el) => {
+      if (!$el) return;
+      loopWaitElementShow($el, () => {
         Qmsg.success("自动填充访问码");
-        accessInputElement.value = netDiskInfo.accessCode;
-        Reflect.set(accessInputElement, "_value", netDiskInfo.accessCode);
-        DOMUtils.emit(accessInputElement, "input");
+        $el.value = netDiskInfo.accessCode;
+        Reflect.set($el, "_value", netDiskInfo.accessCode);
+        DOMUtils.emit($el, "input");
         DOMUtils.emit($<HTMLElement>("div.button")!, "click");
       });
     });

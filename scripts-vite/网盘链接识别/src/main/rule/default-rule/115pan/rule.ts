@@ -3,11 +3,11 @@ export const NetDiskRule_115pan: NetDiskRuleOption = {
   rule: <NetDiskMatchRuleConfig[]>[
     {
       link_innerText: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-      link_innerHTML: `(115.com|115cdn.com|anxia.com)\/s\/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-      shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
+      link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+      shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z-_]{8,24})/gi,
       shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
-      checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
-      accessCode: /(提取码|密码|\?password=|访问码)([0-9a-zA-Z]{4})/i,
+      checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
+      accessCode: /(访问码|密码|提取码|\?password=)([0-9a-zA-Z]{4})/i,
       paramMatch: /(115.com|115cdn.com|anxia.com)/i,
       uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://{#$1#}/s/{#shareCode#}",

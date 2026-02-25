@@ -16,7 +16,7 @@ export const NetDiskAuthorization_feijipan = function () {
   if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
     return;
   }
-  /* 没在设置中开启直链获取就不获取鉴权信息 */
+  // 没在设置中开启直链获取就不获取鉴权信息
   if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
     return;
   }

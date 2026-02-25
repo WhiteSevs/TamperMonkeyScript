@@ -107,8 +107,8 @@ export class NetDiskParse_feijipan extends ParseFileCore {
    * + recommend
    * + list
    */
-  getRequestParams(shareCode: string) {
-    return {
+  getRequestParams(shareCode: string, accessCode?: string | null) {
+    const result = {
       devType: 6,
       devModel: "Chrome",
       uuid: this.uuid,
@@ -120,6 +120,11 @@ export class NetDiskParse_feijipan extends ParseFileCore {
       limit: 110,
       referer: "https://share.feijipan.com/s/" + shareCode,
     };
+    if (typeof accessCode === "string") {
+      // @ts-expect-error
+      result.code = accessCode;
+    }
+    return result;
   }
   /**
    * 生成请求以下api时需要的请求头
@@ -147,7 +152,7 @@ export class NetDiskParse_feijipan extends ParseFileCore {
     const folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item.fileType === 2) {
-        /* 文件夹 */
+        // 文件夹
         folderInfoList.push({
           fileName: item.folderName || item.name,
           fileSize: 0,
@@ -166,7 +171,7 @@ export class NetDiskParse_feijipan extends ParseFileCore {
           },
         });
       } else {
-        /* 文件 */
+        // 文件
         folderInfoList.push({
           fileName: item.fileName || item.name,
           fileSize: typeof item.fileSize === "number" ? item.fileSize * 1024 : 0,
@@ -206,7 +211,7 @@ export class NetDiskParse_feijipan extends ParseFileCore {
     const response = await httpx.post(
       `https://api.feijipan.com/ws/recommend/list?` +
         utils.toSearchParamsStr({
-          ...this.getRequestParams(this.shareCode),
+          ...this.getRequestParams(this.shareCode, this.accessCode),
           type: 0,
         }),
       {
@@ -233,11 +238,11 @@ export class NetDiskParse_feijipan extends ParseFileCore {
   /**
    * 获取文件信息列表
    */
-  async list(folderId: string | number = "") {
+  async list(folderId: string | number | null = "") {
     const response = await httpx.post(
       "https://api.feijipan.com/ws/share/list?" +
         utils.toSearchParamsStr({
-          ...this.getRequestParams(this.shareCode),
+          ...this.getRequestParams(this.shareCode, this.accessCode),
           folderId,
         }),
       {

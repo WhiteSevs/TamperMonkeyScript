@@ -6,7 +6,7 @@ export const NetDiskRule_uc: NetDiskRuleOption = {
       link_innerHTML: `(drive|fast).uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
       shareCode: /(drive|fast).uc.cn\/s\/([0-9a-zA-Z]{8,24})/gi,
       shareCodeNeedRemoveStr: /(drive|fast).uc.cn\/s\//gi,
-      checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]+)/gi,
       uiLinkShow: "drive.uc.cn/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://drive.uc.cn/s/{#shareCode#}",

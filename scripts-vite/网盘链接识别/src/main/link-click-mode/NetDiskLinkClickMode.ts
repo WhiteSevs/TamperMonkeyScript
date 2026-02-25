@@ -273,7 +273,7 @@ export const NetDiskLinkClickMode = {
     if (NetDiskFilterScheme.isForwardBlankLink(ruleKeyName)) {
       url = NetDiskFilterScheme.parseDataToSchemeUri(ruleKeyName, url);
     }
-    /* 百度网盘会拒绝referrer不安全访问 */
+    // 百度网盘会拒绝referrer不安全访问
     $("meta[name='referrer']")?.setAttribute("content", "no-referrer");
 
     /**
@@ -306,7 +306,7 @@ export const NetDiskLinkClickMode = {
       utils.isNotNull(accessCode) &&
       NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKeyName)
     ) {
-      /* 等待复制完毕再跳转 */
+      // 等待复制完毕再跳转
       utils.copy(accessCode).then(() => {
         openUrl();
       });

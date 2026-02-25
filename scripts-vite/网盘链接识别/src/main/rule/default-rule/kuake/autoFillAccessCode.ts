@@ -7,8 +7,10 @@ export const NetDiskAutoFillAccessCode_kuake = function (netDiskInfo: NetDiskAut
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.onReady(() => {
       DOMUtils.waitNode<HTMLInputElement>(
-        "#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']"
+        "#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']",
+        10000
       ).then(($el) => {
+        if (!$el) return;
         ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactEventHandlers"], {
           check(reactPropInst) {
             return (

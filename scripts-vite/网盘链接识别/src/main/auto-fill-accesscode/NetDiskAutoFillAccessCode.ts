@@ -14,6 +14,7 @@ import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskAutoFillAccessCode_115pan } from "../rule/default-rule/115pan/autoFillAccessCode";
 import { NetDiskAutoFillAccessCode_360yunpan } from "../rule/default-rule/360yunpan/autoFillAccessCode";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskAutoFillAccessCode_feijipan } from "../rule/default-rule/feijipan/autoFillAccessCode";
 
 /** 网盘-自动填充访问码 */
 export const NetDiskAutoFillAccessCode = {
@@ -151,6 +152,10 @@ export const NetDiskAutoFillAccessCode = {
      * 360云盘
      */
     "360yunpan": NetDiskAutoFillAccessCode_360yunpan,
+    /**
+     * 小飞机网盘
+     */
+    feijipan: NetDiskAutoFillAccessCode_feijipan,
   },
   /**
    * 设置值

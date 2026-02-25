@@ -99,8 +99,8 @@ export const NetDiskRule = {
 
       // 添加规则
       if (Reflect.has(NetDisk.$rule.ruleOption, ruleKey)) {
-        /* 如果规则已存在(已内置)，自定义的链接识别规则先放在前面匹配 */
-        /* 即用户自定义的规则优先级最高 */
+        // 如果规则已存在(已内置)，自定义的链接识别规则先放在前面匹配
+        // 即用户自定义的规则优先级最高
         let commonRule = NetDisk.$rule.ruleOption[ruleKey];
         if (netDiskRuleConfig.isUserRule) {
           // 是用户规则，放在最前面

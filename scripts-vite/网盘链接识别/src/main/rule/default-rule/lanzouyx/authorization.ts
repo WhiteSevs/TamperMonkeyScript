@@ -1,10 +1,10 @@
 export const NetDiskAuthorization_Lanzouyx = function () {
-  /* 目前uuid可生成，userId可以通过请求获取到，暂不需要获取本地存储的 */
+  // 目前uuid可生成，userId可以通过请求获取到，暂不需要获取本地存储的
   return;
   // if (window.location.hostname !== "www.ilanzou.com") {
   // 	return;
   // }
-  // /* 没在设置中开启直链获取就不获取鉴权信息 */
+  // // 没在设置中开启直链获取就不获取鉴权信息
   // if (!GM_getValue("lanzouyx-static-enable")) {
   // 	return;
   // }
@@ -31,12 +31,12 @@ export const NetDiskAuthorization_Lanzouyx = function () {
   // 		GM_setValue("lanzouyx-userId", userId);
   // 	}
   // }
-  // /* 目前uuid可生成，userId可以通过请求获取到，暂不需要获取本地存储的 */
+  // // 目前uuid可生成，userId可以通过请求获取到，暂不需要获取本地存储的
   // return;
   // if (window.location.hostname !== "www.ilanzou.com") {
   // 	return;
   // }
-  // /* 没在设置中开启直链获取就不获取鉴权信息 */
+  // // 没在设置中开启直链获取就不获取鉴权信息
   // if (!GM_getValue("lanzouyx-static-enable")) {
   // 	return;
   // }

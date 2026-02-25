@@ -2,11 +2,11 @@ export const NetDiskRule_feijipan: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
     {
-      link_innerText: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-      link_innerHTML: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+      link_innerText: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+      link_innerHTML: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: new RegExp(`share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})`, "gi"),
       shareCodeNeedRemoveStr: new RegExp(`share.feijipan.com/s/`, "gi"),
-      checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "share.feijipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://share.feijipan.com/s/{#shareCode#}",

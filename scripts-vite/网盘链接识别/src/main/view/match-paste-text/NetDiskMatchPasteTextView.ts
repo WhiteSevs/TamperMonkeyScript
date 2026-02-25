@@ -1,10 +1,11 @@
-import Qmsg from "qmsg";
-import { NetDiskView } from "../NetDiskView";
-import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
+import { utils } from "@/env";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
+import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
+import Qmsg from "qmsg";
+import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
 
 export const NetDiskMatchPasteText = {
@@ -16,9 +17,7 @@ export const NetDiskMatchPasteText = {
           position: "center",
         },
         content: {
-          text: /*html*/ `
-                    <textarea class="netdisk-match-paste-text"></textarea>
-                    `,
+          text: /*html*/ `<textarea class="netdisk-match-paste-text"></textarea>`,
           html: true,
         },
         btn: {
@@ -26,18 +25,12 @@ export const NetDiskMatchPasteText = {
             text: "识别",
             callback() {
               let inputText =
-                popsConfirm.$pops?.querySelector<HTMLInputElement>(".netdisk-match-paste-text")?.value || "";
-              if (inputText.trim() !== "") {
-                /* 删除掉中文 */
+                popsConfirm.$pops?.querySelector<HTMLTextAreaElement>(".netdisk-match-paste-text")?.value || "";
+              if (utils.isNotNull(inputText)) {
+                // 删除掉中文
                 inputText = NetDiskRuleUtils.replaceChinese(inputText);
                 NetDiskWorker.postMessage({
-                  characterMapping: [
-                    // 删除中文
-                    {
-                      searchValue: /[\u4e00-\u9fa5]/g,
-                      replaceValue: "",
-                    },
-                  ],
+                  characterMapping: [],
                   textList: [inputText],
                   matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
                   // 剪贴板匹配的话直接使用全部规则来进行匹配

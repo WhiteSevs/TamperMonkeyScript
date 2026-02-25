@@ -1,13 +1,13 @@
-import { DOMUtils, log, pops, utils, DataPaging } from "@/env";
-import { GM_getValue, GM_setValue } from "ViteGM";
-import { NetDisk } from "@/main/NetDisk";
-import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { DataPaging, DOMUtils, log, pops, utils } from "@/env";
+import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
+import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskView } from "../NetDiskView";
 import { NetDiskLinkView } from "../link-view/NetDiskLinkView";
-import indexCSS from "./index.css?raw";
-import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
 import { NetDiskLinkViewEvent } from "../link-view/NetDiskLinkViewEvent";
+import indexCSS from "./index.css?raw";
 
 export const NetDiskHistoryMatchView = {
   /**
@@ -168,7 +168,7 @@ export const NetDiskHistoryMatchView = {
    */
   createLinkItemElementInfo(data: NetDiskHistoryDataOption) {
     /** 获取处理后的显示的链接 */
-    let uiLink = NetDisk.handleLinkShow({
+    let uiLink = NetDiskRegularExtractor.extractShowLink({
       ruleKeyName: data.ruleKeyName,
       ruleIndex: data.ruleIndex,
       shareCode: data.shareCode,
@@ -288,7 +288,7 @@ export const NetDiskHistoryMatchView = {
      */
     DOMUtils.on(target, "click", ".netdiskrecord-functions button.btn-delete", function (event) {
       let $btnOther = target.querySelector<HTMLElement>(".pops-confirm-btn-other")!;
-      /* 删除中的遮罩层 */
+      // 删除中的遮罩层
       let deleteLoading = NetDiskPops.loading({
         $parent: that.getLinkContainer(),
         content: {
@@ -352,8 +352,8 @@ export const NetDiskHistoryMatchView = {
    * 设置搜索框的回车事件
    */
   setSearchEvent() {
-    let isSeaching = false; /* 当前搜索的状态 */
-    let $searchLoading = void 0 as undefined | ReturnType<(typeof NetDiskPops)["loading"]>; /* 搜索中的遮罩层 */
+    let isSeaching = false; // 当前搜索的状态
+    let $searchLoading = void 0 as undefined | ReturnType<(typeof NetDiskPops)["loading"]>; // 搜索中的遮罩层
     let that = this;
     function searchEvent() {
       if (isSeaching) {
@@ -374,7 +374,7 @@ export const NetDiskHistoryMatchView = {
       let data = that.getStorageData();
       data = that.orderNetDiskHistoryMatchData(data);
       if (searchText === "") {
-        /* 输入空就关闭遮罩层且恢复style */
+        // 输入空就关闭遮罩层且恢复style
         that.clearLinkElements();
         that.clearPageNavigator();
         that.addLinkElements(data.slice(0, 9));
@@ -386,7 +386,7 @@ export const NetDiskHistoryMatchView = {
       log.info(`历史匹配记录-搜索：` + searchText);
       /** 搜索到的链接 */
       let searchData = data.filter((dataOption) => {
-        let uiLink = NetDisk.handleLinkShow({
+        let uiLink = NetDiskRegularExtractor.extractShowLink({
           ruleKeyName: dataOption.ruleKeyName,
           ruleIndex: dataOption.ruleIndex,
           shareCode: dataOption.shareCode,
@@ -405,7 +405,7 @@ export const NetDiskHistoryMatchView = {
           dataOption.topURL.match(searchTextRegExp) ||
           dataOption.title.match(searchTextRegExp)
         ) {
-          /* 匹配到 */
+          // 匹配到
           return true;
         }
       });
@@ -435,8 +435,8 @@ export const NetDiskHistoryMatchView = {
    */
   orderNetDiskHistoryMatchData(data: NetDiskHistoryDataOption[]) {
     let localOrder = NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].value;
-    let isDesc = localOrder.indexOf("降序") !== -1 ? true : false; /* 降序 */
-    let orderField = localOrder.indexOf("记录时间") !== -1 ? "addTime" : "updateTime"; /* 排序字段 */
+    let isDesc = localOrder.indexOf("降序") !== -1 ? true : false; // 降序
+    let orderField = localOrder.indexOf("记录时间") !== -1 ? "addTime" : "updateTime"; // 排序字段
 
     utils.sortListByProperty(
       data,
@@ -553,7 +553,7 @@ export const NetDiskHistoryMatchView = {
           flag = true;
           let editFlag = false;
           if (matchText.trim() !== "" && localData.matchText !== matchText) {
-            /* 修改/设置新的matchText */
+            // 修改/设置新的matchText
             editFlag = true;
             log.success("匹配历史记录 -> 设置新的matchText", [matchText]);
             storageDataList[index].matchText = matchText;

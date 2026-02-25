@@ -4,9 +4,9 @@ export const NetDiskRule_jianguoyun: NetDiskRuleOption = {
     {
       link_innerText: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]+|)`,
       link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
-      shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z\-_]{16,24})/gi,
+      shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z-_]{16,24})/gi,
       shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
-      checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{3,6})/gi,
       uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.jianguoyun.com/p/{#shareCode#}",

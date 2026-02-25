@@ -481,12 +481,12 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           typeof json_data["url"] === "string" &&
           (json_data["url"].startsWith("http") || json_data["url"].startsWith(json_data["dom"]))
         ) {
-          /* 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接 */
+          // 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接
           downloadUrl = json_data["url"];
         }
-        /* json_data["zt"]表示状态，一般为1 */
+        // json_data["zt"]表示状态，一般为1
         const zt = json_data["zt"];
-        /* json_data["inf"]一般是文件名，也可以看作是请求信息提示 */
+        // json_data["inf"]一般是文件名，也可以看作是请求信息提示
         if ("密码不正确".indexOf(json_data["inf"]) != -1) {
           Qmsg.error("密码不正确!");
           const newAccessCodeInfo = await new Promise<

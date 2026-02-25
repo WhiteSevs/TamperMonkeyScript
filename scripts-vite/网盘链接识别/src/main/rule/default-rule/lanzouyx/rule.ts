@@ -2,11 +2,11 @@ export const NetDiskRule_lanzouyx: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
     {
-      link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
-      link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
-      shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_\-]{5,22})/gi,
+      link_innerText: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
+      link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
+      shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_-]{5,22})/gi,
       shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
-      checkAccessCode: /(密码|访问码|提取码|\?code=)[\s\S]+/g,
+      checkAccessCode: /(访问码|密码|提取码|\?code=)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{3,})/gi,
       uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
       blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,

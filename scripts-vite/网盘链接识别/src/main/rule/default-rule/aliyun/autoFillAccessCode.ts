@@ -6,10 +6,11 @@ export const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo: NetDiskAu
   if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.onReady(() => {
-      DOMUtils.waitAnyNode<HTMLInputElement>([
-        "#root input.ant-input[placeholder*='提取码']",
-        "#root input[name=pwd][placeholder*='提取码']",
-      ]).then(($el) => {
+      DOMUtils.waitAnyNode<HTMLInputElement>(
+        ["#root input.ant-input[placeholder*='提取码']", "#root input[name=pwd][placeholder*='提取码']"],
+        10000
+      ).then(($el) => {
+        if (!$el) return;
         ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
           check(reactPropInst) {
             return (

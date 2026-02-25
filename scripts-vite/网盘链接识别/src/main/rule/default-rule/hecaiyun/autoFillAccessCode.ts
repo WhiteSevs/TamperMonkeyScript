@@ -3,7 +3,7 @@ import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
   if (window.location.hostname === "caiyun.139.com") {
-    /* 桌面端 */
+    // 桌面端
     log.success("自动填写链接", netDiskInfo);
     DOMUtils.waitNode<HTMLInputElement>("#token-input").then((element) => {
       if (!utils.isVisible(element)) {
@@ -16,7 +16,7 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
 
       $<HTMLElement>("#homepage div.token div.token-form a")!.click();
     });
-    /* 移动端 */
+    // 移动端
     DOMUtils.waitNode<HTMLInputElement>("#app div.token-form input[type=text]").then((element) => {
       if (!utils.isVisible(element)) {
         log.error("输入框不可见，不输入密码");

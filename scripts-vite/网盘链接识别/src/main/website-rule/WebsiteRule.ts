@@ -176,7 +176,7 @@ export const WebsiteRule = {
               }
               let childViews = (<PopsPanelContainerConfig>configItem).views;
               if (childViews && Array.isArray(childViews)) {
-                /* 存在子配置forms */
+                // 存在子配置forms
                 iterativeTraversal(childViews);
               }
             });
@@ -184,7 +184,7 @@ export const WebsiteRule = {
           for (let index = 0; index < newPanelContentConfig.length; index++) {
             let leftContentConfigItem = newPanelContentConfig[index];
             if (!leftContentConfigItem.views) {
-              /* 不存在forms */
+              // 不存在forms
               continue;
             }
             if (
@@ -286,10 +286,10 @@ export const WebsiteRule = {
               ${panelSettingCSS}
 
 
-              /* 隐藏顶部的图标 */
+              // 隐藏顶部的图标
               .netdisk-custom-rule-edit,
               .netdisk-custom-rule-delete,
-              /* 隐藏快捷键设置菜单，因为这个是全局唯一的 */
+              // 隐藏快捷键设置菜单，因为这个是全局唯一的
               .netdisk-panel-forms-shortcut-keys-deepMenu{
                 display: none !important;
               }`,

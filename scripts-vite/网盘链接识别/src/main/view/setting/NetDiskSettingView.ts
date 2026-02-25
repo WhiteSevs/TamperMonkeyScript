@@ -54,7 +54,7 @@ export const NetDiskSettingView = {
       $panel,
       content,
       searchDialogStyle: /*css*/ `
-			/* 网盘图标 */
+			// 网盘图标
 			.netdisk-aside-icon {
 				width: 20px;
 				height: 20px;

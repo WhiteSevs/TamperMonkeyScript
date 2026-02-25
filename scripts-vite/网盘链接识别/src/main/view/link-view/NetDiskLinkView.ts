@@ -1,5 +1,6 @@
 import { DataPaging, DOMUtils, log } from "@/env";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
+import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
 import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
 import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import {
@@ -184,11 +185,11 @@ export const NetDiskLinkView = {
           },
           // @ts-expect-error
           animation: "",
-          beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
+          beforeAppendToPageCallBack($shadowRoot) {
             let $headerControl = $shadowRoot.querySelector<HTMLElement>(".pops-header-control")!;
             let $title = $shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
             let $content = $shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
-            /* 展开 */
+            // 展开
             let launchIcon = DOMUtils.createElement(
               "button",
               {
@@ -208,7 +209,7 @@ export const NetDiskLinkView = {
                 "data-header": true,
               }
             );
-            /* 收起 */
+            // 收起
             let shrinkIcon = DOMUtils.createElement(
               "button",
               {
@@ -234,7 +235,7 @@ export const NetDiskLinkView = {
               launchIcon,
               "click",
               function () {
-                /* 展开-切换为收缩图标 */
+                // 展开-切换为收缩图标
                 DOMUtils.addClass(launchIcon, "pops-hide-important");
                 DOMUtils.removeClass(shrinkIcon, "pops-hide-important");
                 DOMUtils.removeClass($title, "pops-no-border-important");
@@ -249,7 +250,7 @@ export const NetDiskLinkView = {
               shrinkIcon,
               "click",
               function () {
-                /* 收缩-切换为展开图标 */
+                // 收缩-切换为展开图标
                 DOMUtils.removeClass(launchIcon, "pops-hide-important");
                 DOMUtils.addClass(shrinkIcon, "pops-hide-important");
                 DOMUtils.addClass($title, "pops-no-border-important");
@@ -324,7 +325,7 @@ export const NetDiskLinkView = {
         const { transformLeft, transformTop } = DOMUtils.getTransform($pops);
         /* 最大的left偏移*/
         let maxLeft = maxWindowLeft - viewWidth + transformLeft;
-        /* 最大的top偏移 */
+        // 最大的top偏移
         let maxTop = maxWindowTop - viewHeight + transformTop;
         /* 最小的left偏移*/
         let minLeft = 0 + transformLeft;
@@ -443,7 +444,7 @@ export const NetDiskLinkView = {
 
           }
 
-          /* 小窗 */
+          // 小窗
           .netdisk-link-view-small-window #data-paging-wrapper{
             display: flex;
             flex-wrap: nowrap;
@@ -549,7 +550,7 @@ export const NetDiskLinkView = {
       const dataItem = data[currentIndex];
 
       const { ruleKeyName, netDiskDictData: netDiskData, shareCode } = dataItem;
-      let uiLink = NetDisk.handleLinkShow({
+      let uiLink = NetDiskRegularExtractor.extractShowLink({
         ruleKeyName: ruleKeyName,
         ruleIndex: netDiskData.ruleIndex!,
         shareCode: shareCode,
@@ -609,7 +610,7 @@ export const NetDiskLinkView = {
     }
     log.info(ruleKeyName, ruleIndex, shareCode, accessCode);
     let icon = NetDiskView.$inst.icon.getIcon(ruleKeyName);
-    let uiLink = NetDisk.handleLinkShow({
+    let uiLink = NetDiskRegularExtractor.extractShowLink({
       ruleKeyName,
       ruleIndex,
       shareCode,
@@ -662,7 +663,7 @@ export const NetDiskLinkView = {
       // 还未创建视图，那就不修改元素
       return;
     }
-    const uiLink = NetDisk.handleLinkShow({
+    const uiLink = NetDiskRegularExtractor.extractShowLink({
       ruleKeyName,
       ruleIndex,
       shareCode,

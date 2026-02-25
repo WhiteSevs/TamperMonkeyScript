@@ -1,8 +1,10 @@
-import { NetDisk } from "@/main/NetDisk";
-import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { NetDiskView } from "../NetDiskView";
 import { DOMUtils, log } from "@/env";
+import { NetDisk } from "@/main/NetDisk";
+import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { NetDiskHistoryMatchView } from "../history-match/NetDiskHistoryMatchView";
+import { NetDiskView } from "../NetDiskView";
 
 type OkCallBackOption = {
   /** 该分享码是否在已匹配的字典中 */
@@ -45,24 +47,23 @@ export const NetDiskNewAccessCodeView = function (
         position: "end",
         cancel: {
           text: "取消",
-          callback(eventDetails, event) {
+          callback() {
             accessCodeConfirm.close();
             closeCallBack?.();
           },
         },
         close: {
-          callback(details, event) {
+          callback(details) {
             details.close();
-
             closeCallBack?.();
           },
         },
         ok: {
           callback: (event) => {
-            /* 把输入的新密码去空格 */
+            // 把输入的新密码去空格
             let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
-            /* 处理已显示的链接 */
-            let uiLink = NetDisk.handleLinkShow({
+            // 处理已显示的链接
+            let uiLink = NetDiskRegularExtractor.extractShowLink({
               ruleKeyName,
               ruleIndex,
               shareCode,
@@ -81,7 +82,7 @@ export const NetDiskNewAccessCodeView = function (
               currentItemElement.setAttribute("data-accesscode", userInputAccessCode);
               DOMUtils.html(currentItemElement, uiLink);
             }
-            /* 历史记录的弹出的 */
+            // 历史记录的弹出的
             if (currentHistoryItemElement) {
               currentHistoryItemElement.setAttribute("data-accesscode", userInputAccessCode);
               DOMUtils.html(currentHistoryItemElement, uiLink);
@@ -109,7 +110,7 @@ export const NetDiskNewAccessCodeView = function (
               let currentDict = netDiskDict.get(shareCode);
               netDiskDict.set(
                 shareCode,
-                NetDisk.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
+                NetDiskHandlerUtil.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
               );
             }
             // 同步新的访问码到历史匹配记录

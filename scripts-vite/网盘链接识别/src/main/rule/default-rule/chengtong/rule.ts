@@ -3,103 +3,103 @@ import { UIInput } from "@components/setting/components/ui-input";
 export const NetDiskRule_chengtong: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
-    /* d ==> https */
+    // d ==> https
     {
       link_innerText: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
-      paramMatch: /([a-zA-Z0-9\.]+)\/d\//i,
+      paramMatch: /([a-zA-Z0-9.]+)\/d\//i,
       uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
       copyUrl: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* d ==> http */
+    // d ==> http
     {
       link_innerText: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /ct.ghpym.com(\/|\/#\/)d\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
-      paramMatch: /([a-zA-Z0-9\.]+)(\/|\/#\/)d\//i,
+      paramMatch: /([a-zA-Z0-9.]+)(\/|\/#\/)d\//i,
       uiLinkShow: "{#$1#}{#$2#}d/{#shareCode#} 提取码: {#accessCode#}",
       blank: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}",
       copyUrl: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* d */
+    // d
     {
       link_innerText: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /ctfile.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /ctfile.com\/d\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /ctfile.com\/d\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
       uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}",
       copyUrl: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* file */
+    // file
     {
       link_innerText: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
       uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://u062.com/file/{#shareCode#}?p={#accessCode#}",
       copyUrl: "https://u062.com/file/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* f ==> http  */
+    // f ==> http
     {
       link_innerText: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
       shareCode:
-        /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
+        /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr:
         /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
-      paramMatch: /([0-9a-zA-Z\.]+)\/f\//i,
+      paramMatch: /([0-9a-zA-Z.]+)\/f\//i,
       uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
       blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
       copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* f ==> http  */
+    // f ==> http
     {
       link_innerText: `url[0-9]{2}.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `url[0-9]{2}.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /url[0-9]{2}.com\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /url[0-9]{2}.com\/f\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /url[0-9]{2}.com\/f\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
-      paramMatch: /([0-9a-zA-Z\.]+)\/f\//i,
+      paramMatch: /([0-9a-zA-Z.]+)\/f\//i,
       uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
       blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
       copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* f */
+    // f
     {
       link_innerText: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-      shareCode: /(ctfile.com|089u.com)\/f\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /(ctfile.com|089u.com)\/f\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /(ctfile.com|089u.com)\/f\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
       uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}",
       copyUrl: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
     },
-    /* dir */
+    // dir
     {
       link_innerText: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
       link_innerHTML: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{6}|)`,
-      shareCode: /(089u.com|474b.com)\/dir\/([0-9a-zA-Z\-_]{8,26})/gi,
+      shareCode: /(089u.com|474b.com)\/dir\/([0-9a-zA-Z-_]{8,26})/gi,
       shareCodeNeedRemoveStr: /(089u.com|474b.com)\/dir\//gi,
-      checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
+      checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{6})/gi,
       uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://089u.com/dir/{#shareCode#}?p={#accessCode#}",

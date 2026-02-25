@@ -20,7 +20,7 @@ export type FeiJiPanRecommendJSON = {
     term: number;
     favorite: number;
     userId: null;
-    folderIds: string;
+    folderIds: string | null;
     fileIds: null;
     status: number;
     updTime: string;

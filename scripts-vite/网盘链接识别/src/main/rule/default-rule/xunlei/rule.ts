@@ -2,11 +2,11 @@ export const NetDiskRule_xunlei: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
     {
-      link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-text-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-      link_innerHTML: `xunlei.com\/s\/[0-9a-zA-Z\-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(\\?pwd=|访问码|提取码|密码|)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
-      shareCode: /xunlei.com\/s\/([0-9a-zA-Z\-_]{8,30})/gi,
+      link_innerText: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|提取码|密码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+      link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|提取码|密码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+      shareCode: /xunlei.com\/s\/([0-9a-zA-Z-_]{8,30})/gi,
       shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
-      checkAccessCode: /(\?pwd=|提取码|密码|访问码)[\s\S]+/g,
+      checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
       blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",

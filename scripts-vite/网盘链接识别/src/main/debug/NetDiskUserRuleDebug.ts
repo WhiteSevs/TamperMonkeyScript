@@ -1,12 +1,12 @@
 import { DOMUtils, log, utils } from "@/env";
+import { CharacterMapping } from "@/main/character-mapping/CharacterMapping";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import Qmsg from "qmsg";
-import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
-import { CharacterMapping } from "@/main/character-mapping/CharacterMapping";
-import { NetDisk } from "@/main/NetDisk";
-import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
+import Qmsg from "qmsg";
+import { NetDiskRegularExtractor } from "../NetDiskRegularExtractor";
+import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
 
 /**
  * 调试用户规则
@@ -216,7 +216,7 @@ export const NetDiskUserRuleDebug = {
           Qmsg.error("请先输入待匹配的字符串");
           return;
         }
-        /* 清空日志 */
+        // 清空日志
         that.clearLog();
         /** 网盘名 */
         const ruleKeyName = ruleJSON.key;
@@ -249,10 +249,10 @@ export const NetDiskUserRuleDebug = {
         }
         matchTextList = NetDiskWorker.uniqueArr(matchTextList);
         that.setLog("info", "成功匹配到的数据 ==> ", matchTextList);
-        matchTextList.forEach((matchText, index) => {
+        matchTextList.forEach((matchText) => {
           that.setLog("success", "当前处理的字符串: " + matchText);
           that.setLog("success", "当前执行: 对shareCode进行处理获取");
-          const shareCode = NetDisk.handleShareCode({
+          const shareCode = NetDiskRegularExtractor.extractShareCode({
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             matchText: matchText,
@@ -269,7 +269,7 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对accessCode进行处理获取");
-          const accessCode = NetDisk.handleAccessCode({
+          const handlerConfig = {
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             matchText: matchText,
@@ -278,12 +278,14 @@ export const NetDiskUserRuleDebug = {
               config: selectRegularOption,
               logCallBack,
             },
-          });
+          };
+          const accessCode = NetDiskRegularExtractor.extractAccessCode(handlerConfig);
+
           that.setLog("info", " ");
           that.setLog("info", `================分割线================`);
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对uiLinkShow进行处理获取");
-          const uiLinkShow = NetDisk.handleLinkShow({
+          const uiLinkShow = NetDiskRegularExtractor.extractShowLink({
             ruleKeyName: ruleKeyName,
             ruleIndex: ruleIndex,
             shareCode: shareCode,

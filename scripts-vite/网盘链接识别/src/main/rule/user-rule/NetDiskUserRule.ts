@@ -419,7 +419,7 @@ export const NetDiskUserRule = {
       // 2. 转换setting
       if (userRuleItemConfig.setting) {
         // 其它的规则，也就是界面设置的规则
-        /* 是否启用，初始化默认值 */
+        // 是否启用，初始化默认值
         this.initDefaultValue(NetDiskRuleDataKEY.function.enable(ruleKey), Boolean(userRuleItemConfig.setting.enable));
         // 添加默认值
         netDiskRuleConfig.setting!.configurationInterface!.function!.enable = Boolean(
@@ -427,7 +427,7 @@ export const NetDiskUserRule = {
         );
 
         if (typeof userRuleItemConfig.setting["isBlank"] === "boolean") {
-          /* 新标签页打开（旧） */
+          // 新标签页打开（旧）
           this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), "openBlank");
           netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode = {
             openBlank: {
@@ -468,7 +468,7 @@ export const NetDiskUserRule = {
           this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), default_value);
         }
         if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
-          /* 跳转时复制访问码 */
+          // 跳转时复制访问码
           this.initDefaultValue(
             NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey),
             Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"])
@@ -477,7 +477,7 @@ export const NetDiskUserRule = {
             Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"]);
         }
         if (typeof userRuleItemConfig.setting["openBlankAutoFilleAccessCode"] === "boolean") {
-          /* 自动填充访问码 */
+          // 自动填充访问码
           this.initDefaultValue(
             NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey),
             Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"])
@@ -486,7 +486,7 @@ export const NetDiskUserRule = {
             Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"]);
         }
         if (typeof userRuleItemConfig.setting["checkLinkValidity"] === "boolean") {
-          /* 用于验证链接有效性 */
+          // 用于验证链接有效性
           this.initDefaultValue(
             NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
             Boolean(userRuleItemConfig.setting["checkLinkValidity"])
@@ -496,14 +496,14 @@ export const NetDiskUserRule = {
           );
         }
         if (typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] === "boolean") {
-          /* 用于验证链接有效性结果的悬停提示 */
+          // 用于验证链接有效性结果的悬停提示
           this.initDefaultValue(
             NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
             Boolean(userRuleItemConfig.setting["checkLinkValidityHoverTip"])
           );
         }
         if (typeof userRuleItemConfig.setting["isForward"] === "boolean") {
-          /* 直接进行scheme转发链接 */
+          // 直接进行scheme转发链接
           this.initDefaultValue(
             NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
             Boolean(userRuleItemConfig.setting["isForward"])
@@ -513,12 +513,12 @@ export const NetDiskUserRule = {
           );
         }
         if (typeof userRuleItemConfig.setting["schemeUri"] === "string") {
-          /* scheme转发的字符串格式 */
+          // scheme转发的字符串格式
           this.initDefaultValue(NetDiskRuleDataKEY.schemeUri.uri(ruleKey), userRuleItemConfig.setting["schemeUri"]);
           netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.uri = userRuleItemConfig.setting["schemeUri"];
         }
         if (typeof userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"] === "number") {
-          /* text-提取码间隔前的字符长度 */
+          // text-提取码间隔前的字符长度
           this.initDefaultValue(
             NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
             userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"]
@@ -527,7 +527,7 @@ export const NetDiskUserRule = {
             userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"];
         }
         if (typeof userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"] === "number") {
-          /* text-提取码间隔后的字符长度 */
+          // text-提取码间隔后的字符长度
           this.initDefaultValue(
             NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
             userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"]
@@ -536,7 +536,7 @@ export const NetDiskUserRule = {
             userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"];
         }
         if (typeof userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"] === "number") {
-          /* html-提取码间隔前的字符长度 */
+          // html-提取码间隔前的字符长度
           this.initDefaultValue(
             NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
             userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"]
@@ -545,7 +545,7 @@ export const NetDiskUserRule = {
             userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"];
         }
         if (typeof userRuleItemConfig.setting["innerHTMLAccessCodeAfterMaxRange"] === "number") {
-          /* html-提取码间隔后的字符长度 */
+          // html-提取码间隔后的字符长度
           this.initDefaultValue(
             NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
             userRuleItemConfig.setting["innerHTMLAccessCodeAfterMaxRange"]
@@ -644,7 +644,7 @@ export const NetDiskUserRule = {
       // 存在 => 追加新的rule
       let findValue = netDiskRuleConfigList.find((item) => item.setting.key === netDiskRuleConfig.setting.key);
       if (findValue) {
-        /* 已存在相同key规则，追加新的 */
+        // 已存在相同key规则，追加新的
         findValue.rule = findValue.rule.concat(netDiskRuleConfig.rule);
       } else {
         netDiskRuleConfigList.push(netDiskRuleConfig);

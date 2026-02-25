@@ -248,7 +248,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
     const folderInfoList: PopsFolderDataConfig[] = [];
     infoList.forEach((item) => {
       if (item.Type) {
-        /* 文件夹 */
+        // 文件夹
         folderInfoList.push({
           fileName: item.FileName,
           fileSize: 0,
@@ -267,7 +267,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
           },
         });
       } else {
-        /* 文件 */
+        // 文件
         folderInfoList.push({
           fileName: item.FileName,
           fileSize: item.Size,

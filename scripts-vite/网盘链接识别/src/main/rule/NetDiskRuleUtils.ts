@@ -71,23 +71,23 @@ export const NetDiskRuleUtils = {
       if (utils.isNotNull(replacedText)) {
         try {
           text = text.replaceAll(`{#encodeURI-${key}#}`, encodeURI(replacedText));
-        } catch (error) {
+        } catch {
           log.error("encodeURI-替换的文本失败", [replacedText]);
         }
 
         try {
           text = text.replaceAll(`{#encodeURIComponent-${key}#}`, encodeURIComponent(replacedText));
-        } catch (error) {
+        } catch {
           log.error("encodeURIComponent-替换的文本失败", [replacedText]);
         }
         try {
           text = text.replaceAll(`{#decodeURI-${key}#}`, decodeURI(replacedText));
-        } catch (error) {
+        } catch {
           log.error("decodeURI-替换的文本失败", [replacedText]);
         }
         try {
           text = text.replaceAll(`{#decodeURIComponent-${key}#}`, decodeURIComponent(replacedText));
-        } catch (error) {
+        } catch {
           log.error("encodeURIComponent-替换的文本失败", [replacedText]);
         }
         text = text.replaceAll(`{#${key}#}`, replacedText);
@@ -97,10 +97,35 @@ export const NetDiskRuleUtils = {
   },
   /**
    * 删除掉所有中文
+   *
+   * 保留：密码、提取码、访问码
    * @param text
    */
   replaceChinese(text: string) {
-    return text.replace(/[\u4e00-\u9fa5]/g, "");
+    const keywordList = [
+      {
+        code: "密码",
+        replacer: `{#retain-keyword-accesscode-${performance.now() + Math.random()}#}`,
+      },
+      {
+        code: "提取码",
+        replacer: `{#retain-keyword-accesscode-${performance.now() + Math.random()}#}`,
+      },
+      {
+        code: "访问码",
+        replacer: `{#retain-keyword-accesscode-${performance.now() + Math.random()}#}`,
+      },
+    ];
+    // 删除
+    keywordList.forEach((item) => {
+      text = text.replaceAll(item.code, item.replacer);
+    });
+    text = text.replace(/[\u4e00-\u9fa5]/g, "");
+    // 恢复
+    keywordList.forEach((item) => {
+      text = text.replaceAll(item.replacer, item.code);
+    });
+    return text;
   },
   /**
    * 获取已解码的当前url
@@ -109,7 +134,7 @@ export const NetDiskRuleUtils = {
   getDecodeComponentUrl(decodeUrl = window.location.href): string {
     try {
       decodeUrl = decodeURIComponent(decodeUrl);
-    } catch (error) {
+    } catch {
       // 当前url解码失败
     }
     return decodeUrl;
