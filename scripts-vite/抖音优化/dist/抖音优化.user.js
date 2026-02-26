@@ -4877,7 +4877,7 @@
           `
 			div[data-e2e="slideList"]{
 				/* 修复屏蔽后的视频宽度占据 */
-				padding: 0px !important;
+				padding: 0px 12px 0px 0px !important;
 			}
 			`
         ),
