@@ -44,10 +44,11 @@ const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
  * 在props属性上
  * @example
  * Reflect.set(result.props!, PROPS_STORAGE_API, {
- *   get(){
+ *   get(key, defaultValue){
  *     ...
+ *     return value;
  *   },
- *   set(){
+ *   set(key, value){
  *     ...
  *   },
  * })
