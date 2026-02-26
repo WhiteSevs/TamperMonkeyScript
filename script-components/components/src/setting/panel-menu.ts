@@ -2,6 +2,7 @@ import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/Uti
 import { MenuRegister } from "../env.base";
 import { Panel } from "./panel";
 import { PanelContent } from "./panel-content";
+import { CommonUtil } from "./../utils/CommonUtil";
 
 /**
  * 油猴菜单
@@ -33,7 +34,7 @@ const PanelMenu = {
    * 初始化菜单项
    */
   initExtensionsMenu() {
-    if (!Panel.isTopWindow()) {
+    if (!CommonUtil.isTopWindow()) {
       /* 不允许在iframe内重复注册 */
       return;
     }

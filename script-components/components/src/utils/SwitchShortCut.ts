@@ -20,7 +20,7 @@ export const SwitchShortCut = (KEY: string) => {
           callback() {
             log.info(`快捷键 ==> ${name ?? key}`);
             const enable = Panel.getValue(key);
-            Panel.setValue(key, !!!enable);
+            Panel.setValue(key, !enable);
           },
         };
       });

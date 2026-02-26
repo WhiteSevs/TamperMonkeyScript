@@ -1,11 +1,12 @@
 import { console, copy, MenuRegister } from "@/env";
-import type { UtilsGMMenuClickCallBackData, UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
-import { Eruda } from "./Eruda/Eruda";
-import { vConsole } from "./vConsole/vConsole";
-import { PageSpy } from "./PageSpy/PageSpy";
-import { Chii } from "./Chii/Chii";
-import { Panel } from "@components/setting/panel";
 import { GlobalSettingConfig } from "@/setting/config";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import type { UtilsGMMenuClickCallBackData, UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import { Chii } from "./Chii/Chii";
+import { Eruda } from "./Eruda/Eruda";
+import { PageSpy } from "./PageSpy/PageSpy";
+import { vConsole } from "./vConsole/vConsole";
 
 export const DebugTool = {
   $data: {
@@ -24,7 +25,7 @@ export const DebugTool = {
    * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
    */
   handleToolWithIframe() {
-    if (Panel.isTopWindow()) {
+    if (CommonUtil.isTopWindow()) {
       return true;
     }
     if (!Panel.getValue(GlobalSettingConfig.allowRunInIframe.key)) {
@@ -87,7 +88,7 @@ export const DebugTool = {
    * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
    */
   registerDebugToolMenuControls() {
-    if (!Panel.isTopWindow()) {
+    if (!CommonUtil.isTopWindow()) {
       console.warn("不在iframe内重复添加菜单按钮");
       return;
     }

@@ -39,7 +39,7 @@ const VueUtils = {
     if ($el == null) {
       return;
     }
-    // @ts-ignore
+    // @ts-expect-error
     return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
   },
   /**
@@ -50,7 +50,7 @@ const VueUtils = {
     if ($el == null) {
       return;
     }
-    // @ts-ignore
+    // @ts-expect-error
     return $el["__vueParentComponent"];
   },
   /**
@@ -86,7 +86,7 @@ const VueUtils = {
       /**
        * 检测vue的实例
        */
-      function checkTarget(): {
+      const checkTarget = function (): {
         /** 是否成功检测到目标属性 */
         status: boolean;
         /** 是否检测超时 */
@@ -96,7 +96,7 @@ const VueUtils = {
         /** 目标元素 */
         $el: HTMLElement | null | undefined;
       } {
-        let $targetEl = getTarget();
+        const $targetEl = getTarget();
         if ($targetEl == null) {
           return {
             status: false,
@@ -105,7 +105,7 @@ const VueUtils = {
             $el: $targetEl,
           };
         }
-        let vueInst = VueUtils.getVue($targetEl);
+        const vueInst = VueUtils.getVue($targetEl);
         if (vueInst == null) {
           return {
             status: false,
@@ -114,15 +114,14 @@ const VueUtils = {
             $el: $targetEl,
           };
         }
-        let checkResult = needSetOption.check(vueInst, $targetEl);
-        checkResult = Boolean(checkResult);
+        const checkResult = Boolean(needSetOption.check(vueInst, $targetEl));
         return {
           status: checkResult,
           isTimeout: false,
           inst: vueInst,
           $el: $targetEl,
         };
-      }
+      };
       utils
         .waitVueByInterval(
           () => {
@@ -132,10 +131,10 @@ const VueUtils = {
           250,
           10000
         )
-        .then((result) => {
-          let checkTargetResult = checkTarget();
+        .then(() => {
+          const checkTargetResult = checkTarget();
           if (checkTargetResult.status) {
-            let vueInst = checkTargetResult.inst;
+            const vueInst = checkTargetResult.inst;
             needSetOption.set(vueInst, checkTargetResult.$el!);
           } else {
             if (typeof needSetOption.failWait === "function") {
@@ -295,7 +294,7 @@ const VueUtils = {
       if (callbackResult) {
         return;
       }
-      while (1) {
+      while (true) {
         if (option.vueInst.$router.history.current.hash === option.hash) {
           log.info("后退！");
           option.vueInst.$router.back();

@@ -457,7 +457,7 @@ class RulePanelView<T> {
                     ok: {
                       enable: true,
                       text: "下一步",
-                      async callback(eventDetails, event) {
+                      async callback(eventDetails) {
                         let subscribeUrl = DOMUtils.val($promptInput).trim();
                         if (subscribeUrl === "") {
                           return;
@@ -465,7 +465,7 @@ class RulePanelView<T> {
                         log.info(`订阅：` + subscribeUrl);
                         let $loading = Qmsg.loading("正在获取订阅信息...");
                         try {
-                          let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl)!;
+                          let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
                           if (subscribeInfoResult.data) {
                             eventDetails.close();
                             let subscribeInfo = subscribeInfoResult.data;
@@ -494,7 +494,7 @@ class RulePanelView<T> {
                                 ok: {
                                   text: "添加",
                                   type: "subscribe",
-                                  callback: async (eventDetails, event) => {
+                                  callback: async (eventDetails) => {
                                     let addFlag = await subscribeOption.addData(subscribeInfo);
                                     if (!addFlag) {
                                       Qmsg.error("该订阅已存在", {
@@ -560,40 +560,36 @@ class RulePanelView<T> {
 																}
 															`,
                             });
-                            let $subscribeNetworkAddDialog_title_input =
+                            const $subscribeNetworkAddDialog_title_input =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
                                 ".subscribe-network-title input"
                               )!;
-                            let $subscribeNetworkAddDialog_count =
+                            const $subscribeNetworkAddDialog_count =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
                                 ".subscribe-network-data-count"
                               )!;
-                            let $subscribeNetworkAddDialog_homeUrl =
+                            const $subscribeNetworkAddDialog_homeUrl =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
                                 ".subscribe-network-home-url"
                               )!;
-                            let $subscribeNetworkAddDialog_url =
+                            const $subscribeNetworkAddDialog_url =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
                                 ".subscribe-network-url"
                               )!;
-                            let $subscribeNetworkAddDialog_version =
+                            const $subscribeNetworkAddDialog_version =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
                                 ".subscribe-network-version"
                               )!;
-                            let $subscribeNetworkAddDialog_lastModified =
+                            const $subscribeNetworkAddDialog_lastModified =
                               $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
                                 ".subscribe-network-last-modified"
                               )!;
 
                             DOMUtils.val($subscribeNetworkAddDialog_title_input, title);
-                            DOMUtils.on(
-                              $subscribeNetworkAddDialog_title_input,
-                              ["input", "propertychange"],
-                              (event) => {
-                                let inputValue = DOMUtils.val($subscribeNetworkAddDialog_title_input);
-                                subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
-                              }
-                            );
+                            DOMUtils.on($subscribeNetworkAddDialog_title_input, ["input", "propertychange"], () => {
+                              const inputValue = DOMUtils.val($subscribeNetworkAddDialog_title_input);
+                              subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
+                            });
                             DOMUtils.html(
                               $subscribeNetworkAddDialog_count,
                               /*html*/ `
@@ -669,7 +665,7 @@ class RulePanelView<T> {
                 let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
                 let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok ")!;
                 // 添加输入监听
-                DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+                DOMUtils.on($promptInput, ["input", "propertychange"], () => {
                   let promptValue = DOMUtils.val($promptInput);
                   if (promptValue === "") {
                     DOMUtils.attr($promptOk, "disabled", "true");
@@ -721,7 +717,7 @@ class RulePanelView<T> {
       btn: {
         close: {
           enable: true,
-          callback(evtConfig, event) {
+          callback(evtConfig) {
             evtConfig.close();
           },
         },
@@ -1066,7 +1062,7 @@ class RulePanelView<T> {
           btn: {
             ok: {
               enable: true,
-              callback: async (popsEvent) => {
+              callback: async () => {
                 log.success("清空所有");
                 let result = await btnControlsOption?.clearAll?.callback?.();
                 if (typeof result === "boolean" && !result) {
@@ -1232,7 +1228,7 @@ class RulePanelView<T> {
       $ruleValueSelect.selectedIndex = defaultSelectedIndex;
     }
 
-    DOMUtils.on($externalSelect, "change", async (evt) => {
+    DOMUtils.on($externalSelect, "change", async () => {
       const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex] as HTMLOptionElement;
       const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchExternalOption<T>;
       if (typeof selectInfo?.selectedCallBack === "function") {
@@ -1241,7 +1237,7 @@ class RulePanelView<T> {
       externalSelectInfo = selectInfo;
       await execFilter(true);
     });
-    DOMUtils.on($ruleValueSelect, "change", async (evt) => {
+    DOMUtils.on($ruleValueSelect, "change", async () => {
       const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex] as HTMLOptionElement;
       const selectInfo = Reflect.get($isSelectedElement, "data-value") as RuleViewSearchRuleValueOption<T>;
       if (typeof selectInfo?.selectedCallBack === "function") {
@@ -1291,7 +1287,9 @@ class RulePanelView<T> {
       // 清空旧的
       this.clearContent($rightContainer);
       // 更新选项
-      isUpdateSelectData && updateSelectData();
+      if (isUpdateSelectData) {
+        updateSelectData();
+      }
       const allData = await option.data();
       const filteredData: T[] = [];
       const searchText = DOMUtils.val($searchInput);
@@ -1431,7 +1429,7 @@ class RulePanelView<T> {
       this.parseRuleElement($ruleItem);
     if (option.btnControls?.ruleEnable?.enable) {
       // 给switch添加点击事件
-      DOMUtils.on($enableSwitchCore, "click", async (event) => {
+      DOMUtils.on($enableSwitchCore, "click", async () => {
         let isChecked = false;
         if ($enableSwitch.classList.contains(switchCheckedClassName)) {
           // 关
@@ -1547,7 +1545,7 @@ class RulePanelView<T> {
           btn: {
             ok: {
               enable: true,
-              callback: async (popsEvent) => {
+              callback: async () => {
                 log.success("删除数据");
                 let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(ruleData);
                 if (flag) {
@@ -1622,7 +1620,6 @@ class RulePanelView<T> {
     $el: ShadowRoot | HTMLElement
   ) {
     this.clearContent($el);
-    const { $container } = this.parseViewElement($el);
     const data = await option.data();
     await this.addRuleElement(option, subscribeOption, $el, data);
     await this.updateDeleteAllBtnText(option, $el);
@@ -1740,13 +1737,13 @@ class RulePanelView<T> {
           text: isEdit ? "修改" : "添加",
         },
         cancel: {
-          callback: async (detail, event) => {
+          callback: async (detail) => {
             detail.close();
             await dialogCloseCallBack(false);
           },
         },
         close: {
-          callback: async (detail, event) => {
+          callback: async (detail) => {
             detail.close();
             await dialogCloseCallBack(false);
           },
@@ -1763,11 +1760,15 @@ class RulePanelView<T> {
             Qmsg.success("修改成功");
             // 当前是编辑规则
             // 给外面的弹窗更新元素
-            $parent && (await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem!, $parent));
+            if ($parent) {
+              await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem!, $parent);
+            }
           } else {
             // 当前是添加规则
             // 给外面的弹窗添加元素
-            $parent && (await this.addRuleElement(option, subscribeOption, $parent, result.data));
+            if ($parent) {
+              await this.addRuleElement(option, subscribeOption, $parent, result.data);
+            }
           }
         } else {
           // if (isEdit) {

@@ -322,7 +322,7 @@ class RuleSubscribe<
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -334,40 +334,40 @@ class RuleSubscribe<
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
-            `,
+      .btn-control{
+        display: inline-block;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+      }
+      `,
     });
     /** 本地导入 */
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
     /** 网络导入 */
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
     /** 剪贴板导入 */
-    let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
+    const $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
     /**
      * 将获取到的规则更新至存储
      */
-    let updateRuleToStorage = async (data: RuleSubscribeOption<T>[]) => {
+    const updateRuleToStorage = async (data: RuleSubscribeOption<T>[]) => {
       let allData = this.getAllSubscribe();
-      let addNewData: typeof allData = [];
-      let repeatData: {
+      const addNewData: typeof allData = [];
+      const repeatData: {
         index: number;
         data: (typeof allData)["0"];
       }[] = [];
       for (let index = 0; index < data.length; index++) {
         const dataItem = data[index];
-        let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+        const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
         if (findIndex !== -1) {
           // 存在相同的uuid的规则
           repeatData.push({
@@ -380,7 +380,7 @@ class RuleSubscribe<
         }
       }
       await new Promise<boolean>((resolve) => {
-        let confirmResult = globalThis.confirm(`存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`);
+        const confirmResult = globalThis.confirm(`存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`);
         if (confirmResult) {
           // 覆盖
           for (const repeatDataItem of repeatData) {
@@ -398,9 +398,9 @@ class RuleSubscribe<
     /**
      * @param subscribeText 订阅文件文本
      */
-    let importFile = (subscribeText: string) => {
+    const importFile = (subscribeText: string) => {
       return new Promise<boolean>(async (resolve) => {
-        let data = utils.toJSON<RuleSubscribeOption<T>>(subscribeText);
+        const data = utils.toJSON<RuleSubscribeOption<T>>(subscribeText);
         if (!Array.isArray(data)) {
           log.error(data);
           Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -416,7 +416,7 @@ class RuleSubscribe<
           resolve(false);
           return;
         }
-        let demoFirst: RuleSubscribeOption<T> = data[0];
+        const demoFirst: RuleSubscribeOption<T> = data[0];
         if (
           !(
             typeof demoFirst.data === "object" &&
@@ -441,16 +441,16 @@ class RuleSubscribe<
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
           importFile(fileReader.result as string);
         };
@@ -462,7 +462,7 @@ class RuleSubscribe<
     DOMUtils.on($network, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $prompt = pops.prompt({
+      const $prompt = pops.prompt({
         title: {
           text: "网络导入",
           position: "center",
@@ -475,13 +475,13 @@ class RuleSubscribe<
         btn: {
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
           ok: {
             text: "导入",
-            callback: async (eventDetails, event) => {
+            callback: async (eventDetails) => {
               let url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
@@ -515,10 +515,10 @@ class RuleSubscribe<
         width: PanelUISize.info.width,
         height: "auto",
       });
-      let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-      let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-      DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
-        let value = DOMUtils.val($promptInput);
+      const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+      const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+      DOMUtils.on($promptInput, ["input", "propertychange"], () => {
+        const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
         } else {
@@ -527,7 +527,7 @@ class RuleSubscribe<
       });
       DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
-          let value = DOMUtils.val($promptInput);
+          const value = DOMUtils.val($promptInput);
           if (value !== "") {
             DOMUtils.emit($promptOk, "click");
           }
@@ -539,12 +539,12 @@ class RuleSubscribe<
     DOMUtils.on($clipboard, "click", async (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let clipboardText = await CommonUtil.getClipboardText();
+      const clipboardText = await CommonUtil.getClipboardText();
       if (clipboardText.trim() === "") {
         Qmsg.warning("获取到的剪贴板内容为空");
         return;
       }
-      let flag = await importFile(clipboardText);
+      const flag = await importFile(clipboardText);
       if (!flag) {
         return;
       }
@@ -554,7 +554,7 @@ class RuleSubscribe<
    * 导出订阅
    */
   exportSubscribe(fileName = "rule.json") {
-    let $alert = pops.alert({
+    const $alert = pops.alert({
       title: {
         text: "请选择导出方式",
         position: "center",
@@ -569,7 +569,7 @@ class RuleSubscribe<
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -597,16 +597,16 @@ class RuleSubscribe<
             `,
     });
     /** 仅导出规则 */
-    let $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(
+    const $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(
       ".btn-control[data-mode='only-export-rule-list']"
     )!;
     /**
      * 导出文件
      */
-    let exportFile = (__fileName__: string, __data__: any) => {
-      let blob = new Blob([JSON.stringify(__data__, null, 4)]);
-      let blobUrl = window.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
+    const exportFile = (__fileName__: string, __data__: any) => {
+      const blob = new Blob([JSON.stringify(__data__, null, 4)]);
+      const blobUrl = window.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
       $a.href = blobUrl;
       $a.download = __fileName__;
       $a.click();

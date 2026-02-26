@@ -215,10 +215,6 @@ const Panel = {
     this.initContentDefaultValue();
     PanelMenu.init();
   },
-  /** 判断是否是顶层窗口 */
-  isTopWindow() {
-    return unsafeWindow.top === unsafeWindow.self;
-  },
   /**
    * 对菜单配置项的键进行默认值初始化储存（到内存中）
    */
@@ -666,7 +662,7 @@ const Panel = {
     };
     // 仅执行一次
     // 那么需要添加值改变监听
-    once &&
+    if (once) {
       keyList.forEach((key) => {
         const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
           return valueChangeCallback({
@@ -677,6 +673,7 @@ const Panel = {
         });
         listenerIdList.push(listenerId);
       });
+    }
     await valueChangeCallback();
 
     const result: OnceExecMenuStoreData = {
@@ -703,7 +700,9 @@ const Panel = {
         });
       },
       clearOnceExecMenuData() {
-        once && that.$data.onceExecMenuData.delete(storageKey);
+        if (once) {
+          that.$data.onceExecMenuData.delete(storageKey);
+        }
       },
     };
 
@@ -737,8 +736,9 @@ const Panel = {
             flag = false;
             log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
           }
-
-          isReverse && (flag = !flag);
+          if (isReverse) {
+            flag = !flag;
+          }
           return flag;
         });
         return execFlag;
@@ -825,10 +825,10 @@ const Panel = {
     key = this.transformKey(key);
     this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
     return {
-      off:()=>{
+      off: () => {
         return this.removeUrlChangeWithExecMenuOnceListener(key);
-      }
-    }
+      },
+    };
   },
   /**
    * 移除触发url改变的监听
@@ -881,48 +881,46 @@ const Panel = {
       content.push(...PanelContent.getDefaultBottomContentConfig());
     }
     const $panel = pops.panel({
-      ...{
-        title: {
-          text: title,
-          position: "center",
-          html: false,
-          style: "",
-        },
-        content: content,
-        btn: {
-          close: {
-            enable: true,
-            callback: (details, event) => {
-              details.close();
-              this.$data.$panel = null;
-            },
-          },
-        },
-        mask: {
+      title: {
+        text: title,
+        position: "center",
+        html: false,
+        style: "",
+      },
+      content,
+      btn: {
+        close: {
           enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false,
-          },
-          clickCallBack: (originalRun, config) => {
-            originalRun();
+          callback: (details) => {
+            details.close();
             this.$data.$panel = null;
           },
         },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true,
-        style: /*css*/ `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
       },
+      mask: {
+        enable: true,
+        clickEvent: {
+          toClose: true,
+          toHide: false,
+        },
+        clickCallBack: (originalRun) => {
+          originalRun();
+          this.$data.$panel = null;
+        },
+      },
+      width: PanelUISize.setting.width,
+      height: PanelUISize.setting.height,
+      drag: true,
+      only: true,
+      style: /*css*/ `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
       ...this.$data.panelConfig,
     });
     this.$data.$panel = $panel;
@@ -1124,7 +1122,7 @@ const Panel = {
         });
         // 点击进行定位项
         const panelHandlerComponents = pops.config.PanelHandlerComponents();
-        DOMUtils.on($item, "click", (clickItemEvent) => {
+        DOMUtils.on($item, "click", () => {
           const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
             "aside.pops-panel-aside .pops-panel-aside-top-container li"
           );
@@ -1482,6 +1480,5 @@ export {
   type ExecMenuCallBackOption,
   type ExecMenuResultInst,
   type OnceExecMenuStoreData,
-  type UrlChangeWithExecMenuOnceEventConfig
+  type UrlChangeWithExecMenuOnceEventConfig,
 };
-

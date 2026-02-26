@@ -1,17 +1,9 @@
-import { AnyTouch, cookieManager, DOMUtils, httpx, MenuRegister, pops, unsafeWin, utils, console, $, $$ } from "@/env";
+import { $, $$, AnyTouch, console, cookieManager, DOMUtils, httpx, MenuRegister, pops, unsafeWin, utils } from "@/env";
 import { GlobalSettingConfig } from "@/setting/config";
 import { OriginPrototype } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { ChromeXt } from "ViteGMChromeXt";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
-import {
-  CAT_clearProxy,
-  CAT_click,
-  CAT_fileStorage,
-  CAT_scriptLoaded,
-  CAT_setProxy,
-  CAT_userConfig,
-} from "ViteGMScriptCat";
 import {
   GM,
   GM_addElement,
@@ -44,6 +36,15 @@ import {
   GM_xmlhttpRequest,
   unsafeWindow,
 } from "ViteGM";
+import { ChromeXt } from "ViteGMChromeXt";
+import {
+  CAT_clearProxy,
+  CAT_click,
+  CAT_fileStorage,
+  CAT_scriptLoaded,
+  CAT_setProxy,
+  CAT_userConfig,
+} from "ViteGMScriptCat";
 
 export const DebugBridge = {
   init() {
@@ -193,6 +194,6 @@ export const DebugBridge = {
       // 如果不存在，继续注册尝试
       Reflect.set(window, exportName, exportApi);
     }
-    console.log(`Debug Api${Panel.isTopWindow() ? "" : "（iframe）"}：` + exportName);
+    console.log(`Debug Api${CommonUtil.isTopWindow() ? "" : "（iframe）"}：` + exportName);
   },
 };

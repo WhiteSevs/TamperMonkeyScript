@@ -1,5 +1,5 @@
 import DOMUtils from "@whitesev/domutils";
-import { GM_getResourceText } from "ViteGM";
+import { GM_getResourceText, unsafeWindow } from "ViteGM";
 import { addStyle, log, utils } from "../env.base";
 
 const CommonUtil = {
@@ -253,7 +253,7 @@ const CommonUtil = {
           // @ts-ignore
           name: "clipboard-read",
         })
-        .then((permissionStatus) => {
+        .then(() => {
           readClipboardText(resolve);
         })
         .catch((error: TypeError) => {
@@ -293,7 +293,7 @@ const CommonUtil = {
   },
   /**
    * html转义
-   * @param unsafe
+   * @param unsafe html
    */
   escapeHtml(unsafe: string): string {
     return unsafe
@@ -319,7 +319,7 @@ const CommonUtil = {
       .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;"); // 转义制表符，用四个空格表示
   },
   /**
-   * 在规定时间内循环，如果超时或返回false则取消循环
+   * (Worker实现，CSP页面下会失效)在规定时间内循环，如果超时或返回false则取消循环
    * @param fn 循环的函数
    * @param intervalTime 循环间隔时间
    * @param [timeout=5000] 循环超时时间
@@ -367,6 +367,9 @@ const CommonUtil = {
   },
   /**
    * 找到对应的上层元素
+   * @param $el 目标元素
+   * @param selector 目标选择器
+   * @param parentSelector 父元素内
    */
   findParentNode<T = HTMLElement>($el: HTMLElement, selector: string, parentSelector?: string): T | null | undefined {
     if (parentSelector) {
@@ -386,7 +389,7 @@ const CommonUtil = {
   /**
    * 使用JSON.stringify转字符串
    *
-   * 会处理undefined
+   * 额外处理：undefined
    */
   toStr(data: any): string {
     const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
@@ -398,6 +401,41 @@ const CommonUtil = {
       2
     ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
     return dataStr;
+  },
+  /**
+   * 判断是否是竖屏
+   *
+   * `window.screen.orientation.type`
+   * + `landscape-primary`: 横屏
+   * + `portrait-primary`: 竖屏
+   * @returns
+   * + `true`: 竖屏
+   * + `false`: 横屏
+   */
+  isVerticalScreen() {
+    return !globalThis.screen.orientation.type.includes("landscape");
+  },
+  /**
+   * 是否是移动端设备(根据浏览器宽/高来判断)
+   * @param size 用于判断的大小阈值
+   * @returns
+   * + `true`: 移动端设备
+   * + `false`: PC设备
+   */
+  isMobileDevice(size: number = 768) {
+    const isVerticalScreen = this.isVerticalScreen();
+    if (isVerticalScreen) {
+      // 竖屏
+      return globalThis.innerWidth < size;
+    } else {
+      // 横屏
+      return globalThis.innerHeight < size;
+    }
+  },
+  /** 判断是否是顶层窗口 */
+  isTopWindow() {
+    const win = typeof unsafeWindow === "object" && unsafeWindow != null ? unsafeWindow : window;
+    return win.top === win.self;
   },
 };
 

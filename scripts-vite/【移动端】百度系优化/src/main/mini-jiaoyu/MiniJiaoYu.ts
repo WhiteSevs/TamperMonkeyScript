@@ -1,6 +1,7 @@
-import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { unsafeWindow } from "ViteGM";
 import MiniJiaoYuShieldCSS from "./shield.css?raw";
 
 const BaiduMiniJiaoYu = {
@@ -30,7 +31,7 @@ const BaiduMiniJiaoYu = {
       DOMUtils: typeof DOMUtils;
     }) => void
   ) {
-    if (!Panel.isTopWindow()) {
+    if (!CommonUtil.isTopWindow()) {
       return;
     }
     DOMUtils.onReady(() => {

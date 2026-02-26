@@ -1,14 +1,15 @@
 import { Panel } from "@components/setting/panel";
 import { PanelContent } from "@components/setting/panel-content";
+import { PanelMenu } from "@components/setting/panel-menu";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { Component_Common } from "./setting/view/common";
 import { GMTotal } from "./main/GMTotal";
-import { GrantTest_onurlchange } from "./main/grant/onurlchange";
 import { GrantTest_close } from "./main/grant/close";
 import { GrantTest_focus } from "./main/grant/focus";
-import { PanelMenu } from "@components/setting/panel-menu";
+import { GrantTest_onurlchange } from "./main/grant/onurlchange";
+import { Component_Common } from "./setting/view/common";
 
-if (Panel.isTopWindow()) {
+if (CommonUtil.isTopWindow()) {
   let showPanel = () => {
     Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
   };

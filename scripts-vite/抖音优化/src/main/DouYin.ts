@@ -2,6 +2,7 @@ import { addStyle, DOMUtils, log } from "@/env";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { DouYinAccount } from "../account/DouYinAccount";
 import { DouYinHook } from "../hook/DouYinHook";
@@ -26,7 +27,7 @@ export const DouYin = {
   init() {
     if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
       // 当前仅主站和直播页面支持
-      log.error(`当前仅主站和直播页面支持${Panel.isTopWindow() ? "" : "（iframe）"}`);
+      log.error(`当前仅主站和直播页面支持${CommonUtil.isTopWindow() ? "" : "（iframe）"}`);
       return;
     }
     Panel.onceExec("dy-global-block-css", () => {

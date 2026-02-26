@@ -153,7 +153,7 @@ class RuleStorage<
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -217,14 +217,14 @@ class RuleStorage<
             },
             btn: {
               close: {
-                callback(details, event) {
+                callback(details) {
                   details.close();
                   resolve(false);
                 },
               },
               ok: {
                 text: "覆盖",
-                callback(details, event) {
+                callback(details) {
                   details.close();
                   resolve(true);
                 },
@@ -289,7 +289,7 @@ class RuleStorage<
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
@@ -319,13 +319,13 @@ class RuleStorage<
         btn: {
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
           ok: {
             text: "导入",
-            callback: async (details, event) => {
+            callback: async (details) => {
               const url = details.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
@@ -359,7 +359,7 @@ class RuleStorage<
       });
       const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-      DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+      DOMUtils.on($promptInput, ["input", "propertychange"], () => {
         const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
