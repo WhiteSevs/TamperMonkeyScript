@@ -270,9 +270,10 @@ export const NetDiskUserRuleDebug = {
           that.setLog("info", " ");
           that.setLog("success", "当前执行: 对accessCode进行处理获取");
           const handlerConfig = {
-            ruleKeyName: ruleKeyName,
-            ruleIndex: ruleIndex,
-            matchText: matchText,
+            ruleKeyName,
+            ruleIndex,
+            shareCode,
+            matchText,
             debugConfig: {
               matchText,
               config: selectRegularOption,

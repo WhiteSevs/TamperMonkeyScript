@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.25
+// @version      2026.2.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -262,7 +262,7 @@
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -368,6 +368,21 @@
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const KEY = "GM_Panel";
@@ -881,7 +896,7 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -1090,9 +1105,6 @@
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
-    },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
@@ -1351,13 +1363,14 @@
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
             return valueChangeCallback();
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -1383,7 +1396,9 @@
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1403,7 +1418,9 @@
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -1486,48 +1503,46 @@
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -1673,7 +1688,7 @@
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -3602,7 +3617,7 @@
         tip: "该链接为非会员用户分享的文件，目前无法下载",
       },
       moreFile: {
-        match: /<span id=\"filemore\" onclick=\"more\(\);\">/g,
+        match: /<span id="filemore" onclick="more\(\);">/g,
       },
       sign: {
         match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/,
@@ -3615,7 +3630,7 @@
         match: /<title>(.*)<\/title>/,
       },
       fileSize: {
-        match: /<span class=\"mtt\">\((.*)\)<\/span>/,
+        match: /<span class="mtt">\((.*)\)<\/span>/,
       },
       loadDownHost: {
         match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i,
@@ -3627,7 +3642,7 @@
         match: /var[\s]*appitem[\s]*=[\s]*'(.+?)'/i,
       },
       uploadTime: {
-        match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i,
+        match: /mt2">时间:<\/span>(.+?)[\s]*<span/i,
       },
     };
     async init(netDiskInfo) {
@@ -3883,8 +3898,10 @@
                     accessCode: option.accessCode,
                   });
                 },
-                () => {
-                  resolve(void 0);
+                {
+                  closeCallBack() {
+                    resolve(void 0);
+                  },
                 }
               );
             });
@@ -4046,13 +4063,13 @@
         })
         .filter((it) => it != null);
       let infos;
-      const fid = pageText.match(/\'fid\':(.+?),/)[1].replaceAll("'", "");
-      const uid = pageText.match(/\'uid\':(.+?),/)[1].replaceAll("'", "");
+      const fid = pageText.match(/'fid':(.+?),/)[1].replaceAll("'", "");
+      const uid = pageText.match(/'uid':(.+?),/)[1].replaceAll("'", "");
       const pgs = 1;
-      const t_name = pageText.match(/\'t\':(.+?),/)[1];
+      const t_name = pageText.match(/'t':(.+?),/)[1];
       const t_rexp = new RegExp(t_name + `[\\s]*=[\\s]*('|")(.+?)('|");`);
       const t = pageText.match(t_rexp)[2];
-      const k_name = pageText.match(/\'k\':(.+?),/)[1];
+      const k_name = pageText.match(/'k':(.+?),/)[1];
       const k_rexp = new RegExp(k_name + `[\\s]*=[\\s]*('|")(.+?)('|");`);
       const k = pageText.match(k_rexp)[2];
       const lx = shareCode.match(this.regexp.unicode.match) ? 1 : 2;
@@ -4086,8 +4103,10 @@
                     accssCode: option.accessCode,
                   });
                 },
-                () => {
-                  resolve(void 0);
+                {
+                  closeCallBack() {
+                    resolve(void 0);
+                  },
                 }
               );
             });
@@ -4202,7 +4221,6 @@
       log.info(postRespData);
       let jsonData = utils.toJSON(postRespData.responseText);
       let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}&toolsdown`;
-      jsonData["zt"];
       log.success("直链", downloadUrl);
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
@@ -5518,6 +5536,24 @@
       }
     }
   }
+  const add_rule_svg =
+    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M761.948797 511.939185c0-16.541632-13.500891-30.042523-30.042523-30.042523H542.042395v-189.742249c0-16.541632-13.379261-30.042523-30.042523-30.042523-16.541632 0-30.042523 13.500891-30.042523 30.042523v189.863879H292.09347c-16.541632 0-30.042523 13.500891-30.042523 30.042523 0 8.270816 3.40563 15.811854 8.757335 21.285188 5.473334 5.473334 12.892743 8.757335 21.285188 8.757335h189.863879v189.863879c0 8.270816 3.40563 15.811854 8.757335 21.285188 5.473334 5.473334 12.892743 8.757335 21.285188 8.757335 16.541632 0 30.042523-13.500891 30.042523-30.042523V541.981708h189.863879c16.541632 0 30.042523-13.379261 30.042523-30.042523z m0 0"></path>\r\n	<path\r\n		d="M780.436504 511.939185c0-17.757928-14.473928-32.231857-32.231857-32.231856H544.353358V275.85604c0-17.757928-14.473928-32.231857-32.231856-32.231857s-32.231857 14.473928-32.231857 32.231857v203.972918H275.916727C258.158799 479.828958 243.684871 494.302886 243.684871 512.060815c0 8.878964 3.648889 17.028151 9.487112 22.866374 5.838223 5.838223 13.86578 9.487112 22.866374 9.487112h203.972918v203.972918c0 8.878964 3.648889 17.028151 9.487113 22.866374 5.838223 5.838223 13.86578 9.487112 22.866373 9.487113 17.757928 0 32.231857-14.473928 32.231857-32.231857V544.292671h203.972918c17.514669 0 31.866968-14.473928 31.866968-32.353486z m0 0"></path>\r\n	<path\r\n		d="M829.93977 928.034208H194.181604C140.29967 928.034208 96.512997 884.247535 96.512997 830.487231V193.512769c0-53.760304 43.786673-97.546977 97.546977-97.546977H829.93977c53.760304 0 97.546977 43.786673 97.546977 97.546977v636.974462c0.12163 53.760304-43.665043 97.546977-97.546977 97.546977zM194.181604 156.780615C173.869453 156.780615 157.327821 173.322247 157.327821 193.512769v636.974462C157.327821 850.677753 173.869453 867.219385 194.181604 867.219385H829.93977c20.312151 0 36.732153-16.541632 36.732154-36.732154V193.512769c0-20.312151-16.541632-36.732153-36.732154-36.732154H194.181604z"></path>\r\n</svg>\r\n';
+  const history_svg =
+    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M511.998 64C264.574 64 64 264.574 64 511.998S264.574 960 511.998 960 960 759.422 960 511.998 759.422 64 511.998 64z m353.851 597.438c-82.215 194.648-306.657 285.794-501.306 203.579S78.749 558.36 160.964 363.711 467.621 77.917 662.27 160.132c168.009 70.963 262.57 250.652 225.926 429.313a383.995 383.995 0 0 1-22.347 71.993z"></path>\r\n	<path\r\n		d="M543.311 498.639V256.121c0-17.657-14.314-31.97-31.97-31.97s-31.97 14.314-31.97 31.97v269.005l201.481 201.481c12.485 12.485 32.728 12.485 45.213 0s12.485-32.728 0-45.213L543.311 498.639z"></path>\r\n</svg>\r\n';
+  const identify_text_svg =
+    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M648.6016 128c0-18.7904 15.2576-34.048 34.048-34.048H896c18.7904 0 34.048 15.2576 34.048 34.048v213.3504a34.048 34.048 0 1 1-68.096 0V162.048h-179.3024a34.048 34.048 0 0 1-34.048-34.048zM93.952 128c0-18.7904 15.2576-34.048 34.048-34.048h213.3504a34.048 34.048 0 1 1 0 68.096H162.048v179.3024a34.048 34.048 0 1 1-68.096 0V128zM896 648.6016c18.7904 0 34.048 15.2576 34.048 34.048V896a34.048 34.048 0 0 1-34.048 34.048h-213.3504a34.048 34.048 0 0 1 0-68.096h179.3024v-179.3024c0-18.7904 15.2576-34.048 34.048-34.048zM128 648.6016c18.7904 0 34.048 15.2576 34.048 34.048v179.3024h179.3024a34.048 34.048 0 1 1 0 68.096H128a34.048 34.048 0 0 1-34.048-34.048v-213.3504c0-18.7904 15.2576-34.048 34.048-34.048zM322.3552 358.4c0-18.8416 15.3088-34.1504 34.1504-34.1504h310.9888c18.8416 0 34.1504 15.3088 34.1504 34.1504v58.3168a34.1504 34.1504 0 0 1-68.2496 0v-24.1664H390.6048v24.1664a34.1504 34.1504 0 0 1-68.2496 0V358.4zM438.9888 708.2496c0-18.8416 15.3088-34.0992 34.1504-34.0992h77.7216a34.0992 34.0992 0 1 1 0 68.2496H473.1392a34.0992 34.0992 0 0 1-34.1504-34.1504z"></path>\r\n	<path\r\n		d="M512 363.1616c18.8416 0 34.0992 15.2576 34.0992 34.0992v310.9888a34.0992 34.0992 0 1 1-68.1984 0V397.312c0-18.8416 15.2576-34.0992 34.0992-34.0992z"></path>\r\n</svg>\r\n';
+  const link_svg =
+    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M563.2 672c-6.4-6.4 0 0 0 0L448 793.6c-57.6 57.6-153.6 57.6-211.2 0-57.6-57.6-64-147.2 0-211.2l121.6-121.6-6.4-6.4-38.4-32-6.4-6.4-121.6 121.6C108.8 614.4 108.8 755.2 192 832s217.6 83.2 300.8 0l121.6-121.6-6.4-6.4-44.8-32z m38.4-294.4c6.4 0 6.4 0 0 0l38.4 38.4 6.4 6.4-230.4 230.4-38.4-51.2 224-224zM531.2 192c83.2-83.2 217.6-83.2 300.8 0 83.2 83.2 83.2 217.6 0 300.8l-121.6 121.6-44.8-44.8 128-128c44.8-44.8 51.2-147.2-6.4-204.8-57.6-57.6-160-57.6-204.8-6.4l-128 128v-6.4l-38.4-38.4-6.4-6.4L531.2 192z"></path>\r\n</svg>\r\n';
+  const manager_svg =
+    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M560.104 574.25c0.625-0.64 1.182-1.2 1.67-1.683 24.773-24.465 55.547-42.364 89.471-51.779 1.014-0.281 2.241-0.603 3.682-0.965a16 16 0 0 1 13.64 2.823l1.477 1.134 25.485 19.554h22.942l15.46-11.862 11.457-8.791a16 16 0 0 1 13.692-2.81c3.65 0.93 6.585 1.734 8.803 2.412a206.001 206.001 0 0 1 14.852 5.167 205.45 205.45 0 0 1 69.482 45.108c0.491 0.485 1.05 1.049 1.68 1.692a16 16 0 0 1 4.412 13.355l-0.529 3.863-3.935 28.758 11.471 19.547L892.89 651.5l3.15 1.34a16 16 0 0 1 9.166 10.48c0.38 1.385 0.695 2.575 0.942 3.57A198.992 198.992 0 0 1 912 714.91c0 18.075-2.424 35.85-7.152 52.976-0.204 0.74-0.452 1.6-0.745 2.584a16 16 0 0 1-8.956 10.114l-1.606 0.699-28.225 12.274-11.471 19.547 2.152 24.3 0.645 7.282a16 16 0 0 1-4.654 12.755 179.21 179.21 0 0 1-4.143 4.013A205.62 205.62 0 0 1 762.876 909c-1.373 0.382-3.109 0.83-5.206 1.345a16 16 0 0 1-12.839-2.331l-4.217-2.883-22.143-15.135H695.53l-23.053 15.757-3.288 2.248a16 16 0 0 1-12.864 2.324c-3.02-0.745-5.463-1.389-7.331-1.93a205.604 205.604 0 0 1-83.28-47.352 173.687 173.687 0 0 1-3.705-3.6 16 16 0 0 1-4.65-12.751c0.252-2.85 0.458-5.184 0.62-7.001l2.177-24.587-11.471-19.547-28.313-12.313-1.5-0.652a16 16 0 0 1-8.957-10.116 163.909 163.909 0 0 1-1.291-4.546c-4.38-16.522-6.623-33.632-6.623-51.02 0-17.065 2.16-33.866 6.384-50.11 0.042-0.158 0.193-0.697 0.454-1.615a16 16 0 0 1 9.128-10.347l1.675-0.713 29.043-12.352 11.471-19.547a317416336.627 317416336.627 0 0 0-4.464-32.62 16 16 0 0 1 4.413-13.357z m58.693 51.865l-32.6 57.431-26.86 10.457A155.784 155.784 0 0 0 558 714.416c0 8.177 0.634 16.258 1.884 24.192l26.314 10.244 32.599 57.43-4.232 27.01c11.838 9.538 25.036 17.206 39.159 22.708l20.677-17.064h65.198L760.276 856c14.123-5.502 27.321-13.17 39.16-22.709l-4.233-27.008 32.6-57.431 26.313-10.244A155.435 155.435 0 0 0 856 714.416c0-6.882-0.45-13.696-1.337-20.413l-26.86-10.457-32.6-57.431 4.728-30.173A148.3 148.3 0 0 0 763.181 574L739.6 593.462h-65.198L650.819 574a148.3 148.3 0 0 0-36.75 21.942l4.728 30.173zM707.1 802.289c-48.228 0-87.324-39.096-87.324-87.324s39.096-87.324 87.324-87.324 87.325 39.096 87.325 87.324-39.097 87.324-87.325 87.324z m0-56.938c17.768 0 32.172-14.404 32.172-32.172 0-17.768-14.404-32.172-32.172-32.172-17.768 0-32.172 14.404-32.172 32.172 0 17.768 14.404 32.172 32.172 32.172zM256 348v-56a8 8 0 0 1 8-8h432a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m0 192v-56a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m0 192v-56a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m584-548H184v656h288a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H144c-17.673 0-32-14.327-32-32V144c0-17.673 14.327-32 32-32h736c17.673 0 32 14.327 32 32v328a8 8 0 0 1-8 8h-56a8 8 0 0 1-8-8V184z"></path>\r\n</svg>\r\n';
+  const open_svg =
+    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M892 928.1H134c-19.9 0-36-16.1-36-36v-758c0-19.9 16.1-36 36-36h314.1c19.9 0 36 16.1 36 36s-16.1 36-36 36H170v686h686V579.6c0-19.9 16.1-36 36-36s36 16.1 36 36v312.5c0 19.9-16.1 36-36 36z"></path>\r\n	<path\r\n		d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>\r\n</svg>\r\n';
+  const other_svg =
+    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M826.92 857.397H197.08c-33.667 0-60.953-27.287-60.953-60.953V349.46c0-33.666 27.286-60.952 60.952-60.952h121.905v-60.952c0-33.666 27.286-60.953 60.953-60.953h243.809c33.666 0 60.952 27.287 60.952 60.953v60.952H826.921c33.666 0 60.952 27.286 60.952 60.952v446.984c0 33.666-27.286 60.953-60.952 60.953zM644.064 247.873c0-22.43-18.204-40.635-40.634-40.635H400.254c-22.43 0-40.635 18.205-40.635 40.635v40.635h284.444v-40.635z m203.175 121.905c0-22.43-18.204-40.635-40.635-40.635H217.397c-22.43 0-40.635 18.204-40.635 40.635v162.54h304.762v-50.794c0-16.823 13.653-30.476 30.476-30.476s30.476 13.653 30.476 30.476v50.793h304.762v-162.54z m0 203.174H542.476v10.16c0 16.842-13.653 30.475-30.476 30.475s-30.476-13.633-30.476-30.476v-10.159H176.762v203.175c0 22.43 18.204 40.635 40.635 40.635h589.206c22.43 0 40.635-18.205 40.635-40.635V572.952z"></path>\r\n</svg>\r\n';
+  const password_svg =
+    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M288 384v-74.666667c0-123.722667 100.266667-224 224-224s224 100.224 224 224v74.666667h10.677333C811.445333 384 864 436.597333 864 501.333333v320c0 64.821333-52.469333 117.333333-117.322667 117.333334H277.333333C212.554667 938.666667 160 886.069333 160 821.333333V501.333333c0-64.821333 52.469333-117.333333 117.322667-117.333333H288z m64 0h320v-74.666667c0-88.426667-71.605333-160-160-160-88.384 0-160 71.626667-160 160v74.666667zM224 501.333333v320c0 29.397333 23.914667 53.333333 53.322667 53.333334H746.666667A53.269333 53.269333 0 0 0 800 821.333333V501.333333c0-29.397333-23.914667-53.333333-53.322667-53.333333H277.333333A53.269333 53.269333 0 0 0 224 501.333333z"></path>\r\n</svg>\r\n';
+  const setting_svg =
+    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M510.1056 674.2528c-89.1904 0-161.6896-72.5504-161.6896-161.6896s72.5504-161.6896 161.6896-161.6896 161.6896 72.5504 161.6896 161.6896-72.4992 161.6896-161.6896 161.6896z m0-251.7504c-49.664 0-90.0096 40.3968-90.0096 90.0096s40.3968 90.0096 90.0096 90.0096 90.0096-40.3968 90.0096-90.0096-40.3456-90.0096-90.0096-90.0096z"></path>\r\n	<path\r\n		d="M510.1056 957.5424c-36.1984 0-72.3968-4.4544-107.5712-13.1584a35.88096 35.88096 0 0 1-27.1872-36.352c0.0512-1.2288 0.1024-2.4576 0.1024-3.6864 0-49.664-40.3968-90.0608-90.0608-90.0608-17.2544 0-34.048 4.9152-48.5376 14.2336a35.86048 35.86048 0 0 1-45.0048-5.12c-53.2992-54.5792-91.8528-122.0608-111.5136-195.2256a35.7888 35.7888 0 0 1 19.3024-41.6768c31.3856-14.848 51.6608-46.7968 51.6608-81.4592 0-33.8944-18.7904-64.6144-48.9984-80.128a35.8656 35.8656 0 0 1-17.92-42.3424c20.5824-67.5328 57.7536-130.0992 107.3664-180.9408 11.8784-12.1856 30.72-14.336 45.0048-5.12 14.4896 9.3184 31.2832 14.2336 48.5888 14.2336 49.664 0 90.0608-40.3968 90.0608-90.0096 0-1.28-0.0512-2.5088-0.1024-3.7376a35.82464 35.82464 0 0 1 27.1872-36.3008c72.2944-17.9712 149.504-17.408 221.9008 1.792 16.0768 4.2496 27.136 19.0464 26.624 35.6864l-0.0512 2.6112c0 49.664 40.3968 90.0096 90.0096 90.0096 16.128 0 31.9488-4.352 45.7728-12.4928a35.87072 35.87072 0 0 1 44.1344 5.9904c48.4864 50.432 84.7872 112.2816 104.96 178.8416 5.0176 16.4864-2.4064 34.1504-17.6128 42.1376a89.8048 89.8048 0 0 0-48.2816 79.7696c0 34.3552 20.0192 66.2016 50.944 81.152a35.80928 35.80928 0 0 1 19.0464 41.5232c-19.2512 72.0896-56.9856 138.8544-109.1072 193.0752a35.79904 35.79904 0 0 1-44.0832 5.9904c-13.824-8.192-29.6448-12.4928-45.7216-12.4928-49.664 0-90.0096 40.3968-90.0096 90.0608l0.0512 2.6112a35.8912 35.8912 0 0 1-26.624 35.6864 445.69088 445.69088 0 0 1-114.3296 14.8992z m-64.768-77.3632a375.53664 375.53664 0 0 0 135.936-1.1776c12.1856-77.2096 79.1552-136.3968 159.744-136.3968 18.8416 0 37.4784 3.2768 55.04 9.6768a374.58944 374.58944 0 0 0 66.9184-117.9136c-40.0384-30.208-64.7168-78.2336-64.7168-129.3312 0-49.7152 22.5792-95.744 60.416-126.0544a374.74304 374.74304 0 0 0-62.5664-106.1376 161.34144 161.34144 0 0 1-55.1424 9.6768c-80.5376 0-147.5584-59.1872-159.744-136.3968a376.76032 376.76032 0 0 0-135.936-1.2288C433.664 222.6176 366.3872 282.4704 285.44 282.4704c-20.6336 0-40.9088-3.9424-59.8528-11.4688a375.0912 375.0912 0 0 0-63.8464 107.264c38.4 30.3104 61.2864 76.5952 61.2864 126.7712 0 51.5584-24.9856 99.84-65.5872 129.9968a373.74464 373.74464 0 0 0 68.1984 119.04c18.8928-7.5264 39.168-11.4688 59.8016-11.4688 80.9472 0 148.224 59.8528 159.8976 137.5744z"></path>\r\n</svg>\r\n';
   class RuleEditView {
     option;
     constructor(option) {
@@ -5692,7 +5728,7 @@
                       ok: {
                         enable: true,
                         text: "下一步",
-                        async callback(eventDetails, event3) {
+                        async callback(eventDetails) {
                           let subscribeUrl = domUtils.val($promptInput).trim();
                           if (subscribeUrl === "") {
                             return;
@@ -5729,7 +5765,7 @@
                                   ok: {
                                     text: "添加",
                                     type: "subscribe",
-                                    callback: async (eventDetails2, event4) => {
+                                    callback: async (eventDetails2) => {
                                       let addFlag = await subscribeOption.addData(subscribeInfo);
                                       if (!addFlag) {
                                         Qmsg.error("该订阅已存在", {
@@ -5795,29 +5831,25 @@
 																}
 															`,
                               });
-                              let $subscribeNetworkAddDialog_title_input =
+                              const $subscribeNetworkAddDialog_title_input =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-title input");
-                              let $subscribeNetworkAddDialog_count =
+                              const $subscribeNetworkAddDialog_count =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-data-count");
-                              let $subscribeNetworkAddDialog_homeUrl =
+                              const $subscribeNetworkAddDialog_homeUrl =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-home-url");
-                              let $subscribeNetworkAddDialog_url =
+                              const $subscribeNetworkAddDialog_url =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-url");
-                              let $subscribeNetworkAddDialog_version =
+                              const $subscribeNetworkAddDialog_version =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-version");
-                              let $subscribeNetworkAddDialog_lastModified =
+                              const $subscribeNetworkAddDialog_lastModified =
                                 $subscribeNetworkAddDialog.$shadowRoot.querySelector(
                                   ".subscribe-network-last-modified"
                                 );
                               domUtils.val($subscribeNetworkAddDialog_title_input, title);
-                              domUtils.on(
-                                $subscribeNetworkAddDialog_title_input,
-                                ["input", "propertychange"],
-                                (event4) => {
-                                  let inputValue = domUtils.val($subscribeNetworkAddDialog_title_input);
-                                  subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
-                                }
-                              );
+                              domUtils.on($subscribeNetworkAddDialog_title_input, ["input", "propertychange"], () => {
+                                const inputValue = domUtils.val($subscribeNetworkAddDialog_title_input);
+                                subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
+                              });
                               domUtils.html(
                                 $subscribeNetworkAddDialog_count,
                                 `
@@ -5889,7 +5921,7 @@
                   });
                   let $promptInput = $prompt.$shadowRoot.querySelector("input");
                   let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok ");
-                  domUtils.on($promptInput, ["input", "propertychange"], (event3) => {
+                  domUtils.on($promptInput, ["input", "propertychange"], () => {
                     let promptValue = domUtils.val($promptInput);
                     if (promptValue === "") {
                       domUtils.attr($promptOk, "disabled", "true");
@@ -5935,7 +5967,7 @@
         btn: {
           close: {
             enable: true,
-            callback(evtConfig, event) {
+            callback(evtConfig) {
               evtConfig.close();
             },
           },
@@ -6229,7 +6261,7 @@
             btn: {
               ok: {
                 enable: true,
-                callback: async (popsEvent) => {
+                callback: async () => {
                   log.success("清空所有");
                   let result = await btnControlsOption?.clearAll?.callback?.();
                   if (typeof result === "boolean" && !result) {
@@ -6374,7 +6406,7 @@
         );
         $ruleValueSelect.selectedIndex = defaultSelectedIndex;
       }
-      domUtils.on($externalSelect, "change", async (evt) => {
+      domUtils.on($externalSelect, "change", async () => {
         const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
         const selectInfo = Reflect.get($isSelectedElement, "data-value");
         if (typeof selectInfo?.selectedCallBack === "function") {
@@ -6383,7 +6415,7 @@
         externalSelectInfo = selectInfo;
         await execFilter(true);
       });
-      domUtils.on($ruleValueSelect, "change", async (evt) => {
+      domUtils.on($ruleValueSelect, "change", async () => {
         const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
         const selectInfo = Reflect.get($isSelectedElement, "data-value");
         if (typeof selectInfo?.selectedCallBack === "function") {
@@ -6415,7 +6447,9 @@
       };
       const execFilter = async (isUpdateSelectData) => {
         this.clearContent($rightContainer);
-        isUpdateSelectData && updateSelectData();
+        if (isUpdateSelectData) {
+          updateSelectData();
+        }
         const allData = await option.data();
         const filteredData = [];
         const searchText = domUtils.val($searchInput);
@@ -6514,7 +6548,7 @@
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleElement($ruleItem);
       if (option.btnControls?.ruleEnable?.enable) {
-        domUtils.on($enableSwitchCore, "click", async (event) => {
+        domUtils.on($enableSwitchCore, "click", async () => {
           let isChecked = false;
           if ($enableSwitch.classList.contains(switchCheckedClassName)) {
             $enableSwitch.classList.remove(switchCheckedClassName);
@@ -6602,7 +6636,7 @@
             btn: {
               ok: {
                 enable: true,
-                callback: async (popsEvent) => {
+                callback: async () => {
                   log.success("删除数据");
                   let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(ruleData);
                   if (flag) {
@@ -6649,7 +6683,6 @@
     }
     async updateRuleContaienrElement(option, subscribeOption, $el) {
       this.clearContent($el);
-      const { $container } = this.parseViewElement($el);
       const data = await option.data();
       await this.addRuleElement(option, subscribeOption, $el, data);
       await this.updateDeleteAllBtnText(option, $el);
@@ -6713,13 +6746,13 @@
             text: isEdit ? "修改" : "添加",
           },
           cancel: {
-            callback: async (detail, event) => {
+            callback: async (detail) => {
               detail.close();
               await dialogCloseCallBack(false);
             },
           },
           close: {
-            callback: async (detail, event) => {
+            callback: async (detail) => {
               detail.close();
               await dialogCloseCallBack(false);
             },
@@ -6730,9 +6763,13 @@
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parent && (await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem, $parent));
+              if ($parent) {
+                await this.updateRuleItemElement(option, subscribeOption, result.data, $ruleItem, $parent);
+              }
             } else {
-              $parent && (await this.addRuleElement(option, subscribeOption, $parent, result.data));
+              if ($parent) {
+                await this.addRuleElement(option, subscribeOption, $parent, result.data);
+              }
             }
           } else {
             if (isEdit) {
@@ -6977,7 +7014,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -6989,31 +7026,31 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
-            `,
+      .btn-control{
+        display: inline-block;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+      }
+      `,
       });
-      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      let updateRuleToStorage = async (data) => {
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = async (data) => {
         let allData = this.getAllSubscribe();
-        let addNewData = [];
-        let repeatData = [];
+        const addNewData = [];
+        const repeatData = [];
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
-          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
           if (findIndex !== -1) {
             repeatData.push({
               index: findIndex,
@@ -7024,7 +7061,7 @@
           }
         }
         await new Promise((resolve) => {
-          let confirmResult = globalThis.confirm(`存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`);
+          const confirmResult = globalThis.confirm(`存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`);
           if (confirmResult) {
             for (const repeatDataItem of repeatData) {
               allData[repeatDataItem.index] = repeatDataItem.data;
@@ -7037,9 +7074,9 @@
         Qmsg.success(`共 ${data.length} 条订阅，新增 ${addNewData.length} 条`);
         importEndCallBack?.();
       };
-      let importFile = (subscribeText) => {
+      const importFile = (subscribeText) => {
         return new Promise(async (resolve) => {
-          let data = utils.toJSON(subscribeText);
+          const data = utils.toJSON(subscribeText);
           if (!Array.isArray(data)) {
             log.error(data);
             Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -7055,7 +7092,7 @@
             resolve(false);
             return;
           }
-          let demoFirst = data[0];
+          const demoFirst = data[0];
           if (
             !(
               typeof demoFirst.data === "object" &&
@@ -7078,16 +7115,16 @@
       domUtils.on($local, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $input = domUtils.createElement("input", {
+        const $input = domUtils.createElement("input", {
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
+        domUtils.on($input, ["propertychange", "input"], () => {
           if (!$input.files?.length) {
             return;
           }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
           fileReader.onload = () => {
             importFile(fileReader.result);
           };
@@ -7098,7 +7135,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $prompt = __pops__.prompt({
+        const $prompt = __pops__.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -7111,13 +7148,13 @@
           btn: {
             close: {
               enable: true,
-              callback(details, event2) {
+              callback(details) {
                 details.close();
               },
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
+              callback: async (eventDetails) => {
                 let url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
@@ -7151,10 +7188,10 @@
           width: PanelUISize.info.width,
           height: "auto",
         });
-        let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
-          let value = domUtils.val($promptInput);
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
+          const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
           } else {
@@ -7163,7 +7200,7 @@
         });
         domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
-            let value = domUtils.val($promptInput);
+            const value = domUtils.val($promptInput);
             if (value !== "") {
               domUtils.emit($promptOk, "click");
             }
@@ -7174,19 +7211,19 @@
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let clipboardText = await CommonUtil.getClipboardText();
+        const clipboardText = await CommonUtil.getClipboardText();
         if (clipboardText.trim() === "") {
           Qmsg.warning("获取到的剪贴板内容为空");
           return;
         }
-        let flag = await importFile(clipboardText);
+        const flag = await importFile(clipboardText);
         if (!flag) {
           return;
         }
       });
     }
     exportSubscribe(fileName = "rule.json") {
-      let $alert = __pops__.alert({
+      const $alert = __pops__.alert({
         title: {
           text: "请选择导出方式",
           position: "center",
@@ -7201,7 +7238,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -7228,11 +7265,11 @@
 				}
             `,
       });
-      let $onlyExportRuleList = $alert.$shadowRoot.querySelector(".btn-control[data-mode='only-export-rule-list']");
-      let exportFile = (__fileName__, __data__) => {
-        let blob = new Blob([JSON.stringify(__data__, null, 4)]);
-        let blobUrl = window.URL.createObjectURL(blob);
-        let $a = document.createElement("a");
+      const $onlyExportRuleList = $alert.$shadowRoot.querySelector(".btn-control[data-mode='only-export-rule-list']");
+      const exportFile = (__fileName__, __data__) => {
+        const blob = new Blob([JSON.stringify(__data__, null, 4)]);
+        const blobUrl = window.URL.createObjectURL(blob);
+        const $a = document.createElement("a");
         $a.href = blobUrl;
         $a.download = __fileName__;
         $a.click();
@@ -8716,9 +8753,20 @@
         }
         return __accessCode__;
       };
+      const handlerOhter = (__accessCode__) => {
+        if (__accessCode__ === handlerConfig.shareCode) {
+          handlerConfig.debugConfig?.logCallBack?.({
+            status: true,
+            msg: "最终结果判定访问码为空，因为分享码和提取到的访问码相同: " + __accessCode__,
+          });
+          return "";
+        }
+        return __accessCode__;
+      };
       accessCode = handler(accessCode);
       accessCode = handlerByAutoFill(accessCode);
       accessCode = handlerByUserRule(accessCode);
+      accessCode = handlerOhter(accessCode);
       return accessCode;
     },
     extractShowLink(handlerConfig) {
@@ -8802,7 +8850,10 @@
       if (utils.isNull(shareCode)) {
         return;
       }
-      const accessCode = NetDiskRegularExtractor.extractShareCode(handlerConfig);
+      const accessCode = NetDiskRegularExtractor.extractAccessCode({
+        ...handlerConfig,
+        shareCode,
+      });
       return {
         shareCode,
         accessCode,
@@ -9072,11 +9123,11 @@
             let setCSSLeft = 0;
             if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
               setCSSLeft = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-              if (Panel.isTopWindow()) {
+              if (CommonUtil.isTopWindow()) {
                 NetDiskSuspensionConfig.position.isRight.value = true;
               }
             } else {
-              if (Panel.isTopWindow()) {
+              if (CommonUtil.isTopWindow()) {
                 NetDiskSuspensionConfig.position.isRight.value = false;
               }
             }
@@ -9138,7 +9189,7 @@
       });
     },
     savePosition(position) {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       if (position == null) {
@@ -10628,10 +10679,10 @@
           this.$check.workerInitError = new Error(
             "test Worker postMessage failed, maybe violates Content Security Policy directive"
           );
-          log.error(`page${Panel.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
+          log.error(`page${CommonUtil} has worker CSP`);
           this.workerInitFailed();
         } else {
-          log.info(`page${Panel.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
+          log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
         }
       });
     },
@@ -10789,7 +10840,7 @@
       });
     },
     listenWorkerInitErrorDialog() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       domUtils.on(
@@ -10817,7 +10868,7 @@
                     </div>
                   </div>
                   <div class="msg-wrapper">
-                    <div class="tip-text">链接${Panel.isTopWindow() ? "" : "（iframe）"}：</div>  
+                    <div class="tip-text">链接${CommonUtil.isTopWindow() ? "" : "（iframe）"}：</div>  
                     <div class="msg-container" data-type="url">
                       <p>${data.url}</p>
                     </div>
@@ -11143,7 +11194,7 @@
     },
     errorCallBack(error) {
       NetDiskWorker.matchingEndCallBack(true);
-      log.error("Worker Error CallBack" + (Panel.isTopWindow() ? "" : " (iframe)"), error);
+      log.error("Worker Error CallBack" + (CommonUtil.isTopWindow() ? "" : " (iframe)"), error);
     },
     matchingEndCallBack(isResolveLock) {
       if (isResolveLock) {
@@ -11365,7 +11416,7 @@
       } else if (matchMode === "Menu") {
         MenuRegister.add({
           key: "performPageTextMatchingManually_" + window.location.href,
-          text: "点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
+          text: "点击执行文本匹配" + (CommonUtil.isTopWindow() ? "" : "（iframe）"),
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -11613,6 +11664,7 @@
             const handlerConfig = {
               ruleKeyName,
               ruleIndex,
+              shareCode,
               matchText,
               debugConfig: {
                 matchText,
@@ -11874,24 +11926,6 @@
       $ruleInput.value = NetDiskUserRule.getFormatRule(rule);
     },
   };
-  const setting_svg =
-    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M510.1056 674.2528c-89.1904 0-161.6896-72.5504-161.6896-161.6896s72.5504-161.6896 161.6896-161.6896 161.6896 72.5504 161.6896 161.6896-72.4992 161.6896-161.6896 161.6896z m0-251.7504c-49.664 0-90.0096 40.3968-90.0096 90.0096s40.3968 90.0096 90.0096 90.0096 90.0096-40.3968 90.0096-90.0096-40.3456-90.0096-90.0096-90.0096z"></path>\r\n	<path\r\n		d="M510.1056 957.5424c-36.1984 0-72.3968-4.4544-107.5712-13.1584a35.88096 35.88096 0 0 1-27.1872-36.352c0.0512-1.2288 0.1024-2.4576 0.1024-3.6864 0-49.664-40.3968-90.0608-90.0608-90.0608-17.2544 0-34.048 4.9152-48.5376 14.2336a35.86048 35.86048 0 0 1-45.0048-5.12c-53.2992-54.5792-91.8528-122.0608-111.5136-195.2256a35.7888 35.7888 0 0 1 19.3024-41.6768c31.3856-14.848 51.6608-46.7968 51.6608-81.4592 0-33.8944-18.7904-64.6144-48.9984-80.128a35.8656 35.8656 0 0 1-17.92-42.3424c20.5824-67.5328 57.7536-130.0992 107.3664-180.9408 11.8784-12.1856 30.72-14.336 45.0048-5.12 14.4896 9.3184 31.2832 14.2336 48.5888 14.2336 49.664 0 90.0608-40.3968 90.0608-90.0096 0-1.28-0.0512-2.5088-0.1024-3.7376a35.82464 35.82464 0 0 1 27.1872-36.3008c72.2944-17.9712 149.504-17.408 221.9008 1.792 16.0768 4.2496 27.136 19.0464 26.624 35.6864l-0.0512 2.6112c0 49.664 40.3968 90.0096 90.0096 90.0096 16.128 0 31.9488-4.352 45.7728-12.4928a35.87072 35.87072 0 0 1 44.1344 5.9904c48.4864 50.432 84.7872 112.2816 104.96 178.8416 5.0176 16.4864-2.4064 34.1504-17.6128 42.1376a89.8048 89.8048 0 0 0-48.2816 79.7696c0 34.3552 20.0192 66.2016 50.944 81.152a35.80928 35.80928 0 0 1 19.0464 41.5232c-19.2512 72.0896-56.9856 138.8544-109.1072 193.0752a35.79904 35.79904 0 0 1-44.0832 5.9904c-13.824-8.192-29.6448-12.4928-45.7216-12.4928-49.664 0-90.0096 40.3968-90.0096 90.0608l0.0512 2.6112a35.8912 35.8912 0 0 1-26.624 35.6864 445.69088 445.69088 0 0 1-114.3296 14.8992z m-64.768-77.3632a375.53664 375.53664 0 0 0 135.936-1.1776c12.1856-77.2096 79.1552-136.3968 159.744-136.3968 18.8416 0 37.4784 3.2768 55.04 9.6768a374.58944 374.58944 0 0 0 66.9184-117.9136c-40.0384-30.208-64.7168-78.2336-64.7168-129.3312 0-49.7152 22.5792-95.744 60.416-126.0544a374.74304 374.74304 0 0 0-62.5664-106.1376 161.34144 161.34144 0 0 1-55.1424 9.6768c-80.5376 0-147.5584-59.1872-159.744-136.3968a376.76032 376.76032 0 0 0-135.936-1.2288C433.664 222.6176 366.3872 282.4704 285.44 282.4704c-20.6336 0-40.9088-3.9424-59.8528-11.4688a375.0912 375.0912 0 0 0-63.8464 107.264c38.4 30.3104 61.2864 76.5952 61.2864 126.7712 0 51.5584-24.9856 99.84-65.5872 129.9968a373.74464 373.74464 0 0 0 68.1984 119.04c18.8928-7.5264 39.168-11.4688 59.8016-11.4688 80.9472 0 148.224 59.8528 159.8976 137.5744z"></path>\r\n</svg>\r\n';
-  const history_svg =
-    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M511.998 64C264.574 64 64 264.574 64 511.998S264.574 960 511.998 960 960 759.422 960 511.998 759.422 64 511.998 64z m353.851 597.438c-82.215 194.648-306.657 285.794-501.306 203.579S78.749 558.36 160.964 363.711 467.621 77.917 662.27 160.132c168.009 70.963 262.57 250.652 225.926 429.313a383.995 383.995 0 0 1-22.347 71.993z"></path>\r\n	<path\r\n		d="M543.311 498.639V256.121c0-17.657-14.314-31.97-31.97-31.97s-31.97 14.314-31.97 31.97v269.005l201.481 201.481c12.485 12.485 32.728 12.485 45.213 0s12.485-32.728 0-45.213L543.311 498.639z"></path>\r\n</svg>\r\n';
-  const add_rule_svg =
-    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M761.948797 511.939185c0-16.541632-13.500891-30.042523-30.042523-30.042523H542.042395v-189.742249c0-16.541632-13.379261-30.042523-30.042523-30.042523-16.541632 0-30.042523 13.500891-30.042523 30.042523v189.863879H292.09347c-16.541632 0-30.042523 13.500891-30.042523 30.042523 0 8.270816 3.40563 15.811854 8.757335 21.285188 5.473334 5.473334 12.892743 8.757335 21.285188 8.757335h189.863879v189.863879c0 8.270816 3.40563 15.811854 8.757335 21.285188 5.473334 5.473334 12.892743 8.757335 21.285188 8.757335 16.541632 0 30.042523-13.500891 30.042523-30.042523V541.981708h189.863879c16.541632 0 30.042523-13.379261 30.042523-30.042523z m0 0"></path>\r\n	<path\r\n		d="M780.436504 511.939185c0-17.757928-14.473928-32.231857-32.231857-32.231856H544.353358V275.85604c0-17.757928-14.473928-32.231857-32.231856-32.231857s-32.231857 14.473928-32.231857 32.231857v203.972918H275.916727C258.158799 479.828958 243.684871 494.302886 243.684871 512.060815c0 8.878964 3.648889 17.028151 9.487112 22.866374 5.838223 5.838223 13.86578 9.487112 22.866374 9.487112h203.972918v203.972918c0 8.878964 3.648889 17.028151 9.487113 22.866374 5.838223 5.838223 13.86578 9.487112 22.866373 9.487113 17.757928 0 32.231857-14.473928 32.231857-32.231857V544.292671h203.972918c17.514669 0 31.866968-14.473928 31.866968-32.353486z m0 0"></path>\r\n	<path\r\n		d="M829.93977 928.034208H194.181604C140.29967 928.034208 96.512997 884.247535 96.512997 830.487231V193.512769c0-53.760304 43.786673-97.546977 97.546977-97.546977H829.93977c53.760304 0 97.546977 43.786673 97.546977 97.546977v636.974462c0.12163 53.760304-43.665043 97.546977-97.546977 97.546977zM194.181604 156.780615C173.869453 156.780615 157.327821 173.322247 157.327821 193.512769v636.974462C157.327821 850.677753 173.869453 867.219385 194.181604 867.219385H829.93977c20.312151 0 36.732153-16.541632 36.732154-36.732154V193.512769c0-20.312151-16.541632-36.732153-36.732154-36.732154H194.181604z"></path>\r\n</svg>\r\n';
-  const manager_svg =
-    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M560.104 574.25c0.625-0.64 1.182-1.2 1.67-1.683 24.773-24.465 55.547-42.364 89.471-51.779 1.014-0.281 2.241-0.603 3.682-0.965a16 16 0 0 1 13.64 2.823l1.477 1.134 25.485 19.554h22.942l15.46-11.862 11.457-8.791a16 16 0 0 1 13.692-2.81c3.65 0.93 6.585 1.734 8.803 2.412a206.001 206.001 0 0 1 14.852 5.167 205.45 205.45 0 0 1 69.482 45.108c0.491 0.485 1.05 1.049 1.68 1.692a16 16 0 0 1 4.412 13.355l-0.529 3.863-3.935 28.758 11.471 19.547L892.89 651.5l3.15 1.34a16 16 0 0 1 9.166 10.48c0.38 1.385 0.695 2.575 0.942 3.57A198.992 198.992 0 0 1 912 714.91c0 18.075-2.424 35.85-7.152 52.976-0.204 0.74-0.452 1.6-0.745 2.584a16 16 0 0 1-8.956 10.114l-1.606 0.699-28.225 12.274-11.471 19.547 2.152 24.3 0.645 7.282a16 16 0 0 1-4.654 12.755 179.21 179.21 0 0 1-4.143 4.013A205.62 205.62 0 0 1 762.876 909c-1.373 0.382-3.109 0.83-5.206 1.345a16 16 0 0 1-12.839-2.331l-4.217-2.883-22.143-15.135H695.53l-23.053 15.757-3.288 2.248a16 16 0 0 1-12.864 2.324c-3.02-0.745-5.463-1.389-7.331-1.93a205.604 205.604 0 0 1-83.28-47.352 173.687 173.687 0 0 1-3.705-3.6 16 16 0 0 1-4.65-12.751c0.252-2.85 0.458-5.184 0.62-7.001l2.177-24.587-11.471-19.547-28.313-12.313-1.5-0.652a16 16 0 0 1-8.957-10.116 163.909 163.909 0 0 1-1.291-4.546c-4.38-16.522-6.623-33.632-6.623-51.02 0-17.065 2.16-33.866 6.384-50.11 0.042-0.158 0.193-0.697 0.454-1.615a16 16 0 0 1 9.128-10.347l1.675-0.713 29.043-12.352 11.471-19.547a317416336.627 317416336.627 0 0 0-4.464-32.62 16 16 0 0 1 4.413-13.357z m58.693 51.865l-32.6 57.431-26.86 10.457A155.784 155.784 0 0 0 558 714.416c0 8.177 0.634 16.258 1.884 24.192l26.314 10.244 32.599 57.43-4.232 27.01c11.838 9.538 25.036 17.206 39.159 22.708l20.677-17.064h65.198L760.276 856c14.123-5.502 27.321-13.17 39.16-22.709l-4.233-27.008 32.6-57.431 26.313-10.244A155.435 155.435 0 0 0 856 714.416c0-6.882-0.45-13.696-1.337-20.413l-26.86-10.457-32.6-57.431 4.728-30.173A148.3 148.3 0 0 0 763.181 574L739.6 593.462h-65.198L650.819 574a148.3 148.3 0 0 0-36.75 21.942l4.728 30.173zM707.1 802.289c-48.228 0-87.324-39.096-87.324-87.324s39.096-87.324 87.324-87.324 87.325 39.096 87.325 87.324-39.097 87.324-87.325 87.324z m0-56.938c17.768 0 32.172-14.404 32.172-32.172 0-17.768-14.404-32.172-32.172-32.172-17.768 0-32.172 14.404-32.172 32.172 0 17.768 14.404 32.172 32.172 32.172zM256 348v-56a8 8 0 0 1 8-8h432a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m0 192v-56a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m0 192v-56a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H264a8 8 0 0 1-8-8z m584-548H184v656h288a8 8 0 0 1 8 8v56a8 8 0 0 1-8 8H144c-17.673 0-32-14.327-32-32V144c0-17.673 14.327-32 32-32h736c17.673 0 32 14.327 32 32v328a8 8 0 0 1-8 8h-56a8 8 0 0 1-8-8V184z"></path>\r\n</svg>\r\n';
-  const identify_text_svg =
-    '<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M648.6016 128c0-18.7904 15.2576-34.048 34.048-34.048H896c18.7904 0 34.048 15.2576 34.048 34.048v213.3504a34.048 34.048 0 1 1-68.096 0V162.048h-179.3024a34.048 34.048 0 0 1-34.048-34.048zM93.952 128c0-18.7904 15.2576-34.048 34.048-34.048h213.3504a34.048 34.048 0 1 1 0 68.096H162.048v179.3024a34.048 34.048 0 1 1-68.096 0V128zM896 648.6016c18.7904 0 34.048 15.2576 34.048 34.048V896a34.048 34.048 0 0 1-34.048 34.048h-213.3504a34.048 34.048 0 0 1 0-68.096h179.3024v-179.3024c0-18.7904 15.2576-34.048 34.048-34.048zM128 648.6016c18.7904 0 34.048 15.2576 34.048 34.048v179.3024h179.3024a34.048 34.048 0 1 1 0 68.096H128a34.048 34.048 0 0 1-34.048-34.048v-213.3504c0-18.7904 15.2576-34.048 34.048-34.048zM322.3552 358.4c0-18.8416 15.3088-34.1504 34.1504-34.1504h310.9888c18.8416 0 34.1504 15.3088 34.1504 34.1504v58.3168a34.1504 34.1504 0 0 1-68.2496 0v-24.1664H390.6048v24.1664a34.1504 34.1504 0 0 1-68.2496 0V358.4zM438.9888 708.2496c0-18.8416 15.3088-34.0992 34.1504-34.0992h77.7216a34.0992 34.0992 0 1 1 0 68.2496H473.1392a34.0992 34.0992 0 0 1-34.1504-34.1504z"></path>\r\n	<path\r\n		d="M512 363.1616c18.8416 0 34.0992 15.2576 34.0992 34.0992v310.9888a34.0992 34.0992 0 1 1-68.1984 0V397.312c0-18.8416 15.2576-34.0992 34.0992-34.0992z"></path>\r\n</svg>\r\n';
-  const link_svg =
-    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M563.2 672c-6.4-6.4 0 0 0 0L448 793.6c-57.6 57.6-153.6 57.6-211.2 0-57.6-57.6-64-147.2 0-211.2l121.6-121.6-6.4-6.4-38.4-32-6.4-6.4-121.6 121.6C108.8 614.4 108.8 755.2 192 832s217.6 83.2 300.8 0l121.6-121.6-6.4-6.4-44.8-32z m38.4-294.4c6.4 0 6.4 0 0 0l38.4 38.4 6.4 6.4-230.4 230.4-38.4-51.2 224-224zM531.2 192c83.2-83.2 217.6-83.2 300.8 0 83.2 83.2 83.2 217.6 0 300.8l-121.6 121.6-44.8-44.8 128-128c44.8-44.8 51.2-147.2-6.4-204.8-57.6-57.6-160-57.6-204.8-6.4l-128 128v-6.4l-38.4-38.4-6.4-6.4L531.2 192z"></path>\r\n</svg>\r\n';
-  const open_svg =
-    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M892 928.1H134c-19.9 0-36-16.1-36-36v-758c0-19.9 16.1-36 36-36h314.1c19.9 0 36 16.1 36 36s-16.1 36-36 36H170v686h686V579.6c0-19.9 16.1-36 36-36s36 16.1 36 36v312.5c0 19.9-16.1 36-36 36z"></path>\r\n	<path\r\n		d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>\r\n</svg>\r\n';
-  const password_svg =
-    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M288 384v-74.666667c0-123.722667 100.266667-224 224-224s224 100.224 224 224v74.666667h10.677333C811.445333 384 864 436.597333 864 501.333333v320c0 64.821333-52.469333 117.333333-117.322667 117.333334H277.333333C212.554667 938.666667 160 886.069333 160 821.333333V501.333333c0-64.821333 52.469333-117.333333 117.322667-117.333333H288z m64 0h320v-74.666667c0-88.426667-71.605333-160-160-160-88.384 0-160 71.626667-160 160v74.666667zM224 501.333333v320c0 29.397333 23.914667 53.333333 53.322667 53.333334H746.666667A53.269333 53.269333 0 0 0 800 821.333333V501.333333c0-29.397333-23.914667-53.333333-53.322667-53.333333H277.333333A53.269333 53.269333 0 0 0 224 501.333333z"></path>\r\n</svg>\r\n';
-  const other_svg =
-    '<svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M826.92 857.397H197.08c-33.667 0-60.953-27.287-60.953-60.953V349.46c0-33.666 27.286-60.952 60.952-60.952h121.905v-60.952c0-33.666 27.286-60.953 60.953-60.953h243.809c33.666 0 60.952 27.287 60.952 60.953v60.952H826.921c33.666 0 60.952 27.286 60.952 60.952v446.984c0 33.666-27.286 60.953-60.952 60.953zM644.064 247.873c0-22.43-18.204-40.635-40.634-40.635H400.254c-22.43 0-40.635 18.205-40.635 40.635v40.635h284.444v-40.635z m203.175 121.905c0-22.43-18.204-40.635-40.635-40.635H217.397c-22.43 0-40.635 18.204-40.635 40.635v162.54h304.762v-50.794c0-16.823 13.653-30.476 30.476-30.476s30.476 13.653 30.476 30.476v50.793h304.762v-162.54z m0 203.174H542.476v10.16c0 16.842-13.653 30.475-30.476 30.475s-30.476-13.633-30.476-30.476v-10.159H176.762v203.175c0 22.43 18.204 40.635 40.635 40.635h589.206c22.43 0 40.635-18.205 40.635-40.635V572.952z"></path>\r\n</svg>\r\n';
   const NetDiskViewRightClickMenu = {
     setGlobalRightClickMenu($el) {
       NetDiskLinkViewEvent.registerContextMenu($el, void 0, [
@@ -12071,12 +12105,54 @@
                 );
               },
             },
+            {
+              text: "删除",
+              icon: "delete",
+              callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
+                let $link = menuListenerRootNode;
+                const { ruleKeyName, ruleIndex, shareCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
+                NetDiskView.$inst.newAccessCodeView(
+                  this.text,
+                  ruleKeyName,
+                  ruleIndex,
+                  shareCode,
+                  "",
+                  (option) => {
+                    if (isHistoryView) {
+                      if (option.isUpdatedMatchedDict) {
+                        let currentTime = new Date().getTime();
+                        let $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
+                        domUtils.text($updateTime, utils.formatTime(currentTime));
+                        domUtils.attr($link, "data-accesscode", option.accessCode);
+                        log.info("删除成功");
+                      } else {
+                        Qmsg.error("删除失败");
+                      }
+                    } else {
+                      domUtils.attr($link, "data-accesscode", option.accessCode);
+                      if (option.isUpdatedMatchedDict) {
+                        log.info("删除成功");
+                      } else {
+                        if (option.isFindInMatchedDict) {
+                          Qmsg.error("删除访问码失败");
+                        } else {
+                          Qmsg.error("删除访问码失败，因为当前已匹配字典中未找到对应的访问码");
+                        }
+                      }
+                    }
+                  },
+                  {
+                    enable: false,
+                  }
+                );
+              },
+            },
           ],
         },
         {
           text: "其它",
           icon: other_svg,
-          callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
+          callback() {
             return false;
           },
           item: [
@@ -12156,8 +12232,7 @@
             callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
               let $link = menuListenerRootNode;
               let $boxAll = $link.closest(".netdisk-url-box-all");
-              const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
-              NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+              NetDisk.$match.matchedInfo.forEach((netDiskItem) => {
                 netDiskItem.clear();
               });
               NetDisk.$match.matchedInfoRuleKey.clear();
@@ -13019,7 +13094,6 @@
     };
     async init(netDiskInfo) {
       super.init(netDiskInfo);
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
       const $loading = Qmsg.loading("正在解析，请稍后...");
       const downloadParams = await that.getRequestDownloadParams();
@@ -19820,106 +19894,115 @@
     ruleIndex,
     shareCode,
     accessCode,
-    okCallBack = () => {},
-    closeCallBack
+    editSuccessCallBack = () => {},
+    dialogConfig
   ) {
-    const accessCodeConfirm = NetDiskPops.prompt(
-      {
-        title: {
-          text: title,
-          position: "center",
-          html: false,
-        },
-        btn: {
-          reverse: true,
-          position: "end",
-          cancel: {
-            text: "取消",
-            callback() {
-              accessCodeConfirm.close();
-              closeCallBack?.();
+    const callback = (userInputAccessCode) => {
+      userInputAccessCode = userInputAccessCode ?? "";
+      const uiLink = NetDiskRegularExtractor.extractShowLink({
+        ruleKeyName,
+        ruleIndex,
+        shareCode,
+        accessCode: userInputAccessCode,
+      });
+      if (!uiLink) {
+        return;
+      }
+      const $currentItem = NetDiskView.$el.$linkView?.$shadowRoot?.querySelector(
+        `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`
+      );
+      const $currentHistoryItem = NetDiskView.$el.$historyView?.$shadowRoot?.querySelector(
+        `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`
+      );
+      if ($currentItem) {
+        $currentItem.setAttribute("data-accesscode", userInputAccessCode);
+        domUtils.html($currentItem, uiLink);
+      }
+      if ($currentHistoryItem) {
+        $currentHistoryItem.setAttribute("data-accesscode", userInputAccessCode);
+        domUtils.html($currentHistoryItem, uiLink);
+      }
+      log.info(`${ruleKeyName} 重新输入的密码：${userInputAccessCode}`);
+      let callbackOption = {
+        isFindInMatchedDict: false,
+        isUpdatedMatchedDict: false,
+        isUpdatedHistoryMatched: false,
+        accessCode: userInputAccessCode,
+      };
+      let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
+      if (netDiskDict.has(shareCode)) {
+        callbackOption.isFindInMatchedDict = true;
+        callbackOption.isUpdatedMatchedDict = true;
+        let currentDict = netDiskDict.get(shareCode);
+        netDiskDict.set(
+          shareCode,
+          NetDiskHandlerUtil.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
+        );
+      }
+      callbackOption.isUpdatedHistoryMatched = NetDiskHistoryMatchView.syncAccessCode(
+        ruleKeyName,
+        ruleIndex,
+        shareCode,
+        userInputAccessCode
+      );
+      editSuccessCallBack(callbackOption);
+    };
+    if (dialogConfig?.enable ?? true) {
+      const accessCodeConfirm = NetDiskPops.prompt(
+        {
+          title: {
+            text: title,
+            position: "center",
+            html: false,
+          },
+          btn: {
+            reverse: true,
+            position: "end",
+            cancel: {
+              text: "取消",
+              callback() {
+                accessCodeConfirm.close();
+                dialogConfig?.closeCallBack?.();
+              },
+            },
+            close: {
+              callback(details) {
+                details.close();
+                dialogConfig?.closeCallBack?.();
+              },
+            },
+            ok: {
+              callback: (event) => {
+                const userInputAccessCode = event.text.replace(/[\s]*/gi, "");
+                callback(userInputAccessCode);
+                dialogConfig?.closeCallBack?.();
+                event.close();
+              },
             },
           },
-          close: {
-            callback(details) {
-              details.close();
-              closeCallBack?.();
-            },
+          content: {
+            placeholder: "请重新输入密码",
+            focus: true,
+            select: true,
+            text: accessCode == null ? "" : typeof accessCode === "string" ? accessCode : "",
           },
-          ok: {
-            callback: (event) => {
-              let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
-              let uiLink = NetDiskRegularExtractor.extractShowLink({
-                ruleKeyName,
-                ruleIndex,
-                shareCode,
-                accessCode: userInputAccessCode,
-              });
-              if (!uiLink) {
-                return;
-              }
-              let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
-              let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
-              let currentItemElement = NetDiskView.$el.$linkView?.$shadowRoot?.querySelector(currentItemSelector);
-              let currentHistoryItemElement =
-                NetDiskView.$el.$historyView?.$shadowRoot?.querySelector(currentHistoryItemSelector);
-              if (currentItemElement) {
-                currentItemElement.setAttribute("data-accesscode", userInputAccessCode);
-                domUtils.html(currentItemElement, uiLink);
-              }
-              if (currentHistoryItemElement) {
-                currentHistoryItemElement.setAttribute("data-accesscode", userInputAccessCode);
-                domUtils.html(currentHistoryItemElement, uiLink);
-              }
-              log.info(`${ruleKeyName} 重新输入的密码：${userInputAccessCode}`);
-              let callbackOption = {
-                isFindInMatchedDict: false,
-                isUpdatedMatchedDict: false,
-                isUpdatedHistoryMatched: false,
-                accessCode: userInputAccessCode,
-              };
-              let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
-              if (netDiskDict.has(shareCode)) {
-                callbackOption.isFindInMatchedDict = true;
-                callbackOption.isUpdatedMatchedDict = true;
-                let currentDict = netDiskDict.get(shareCode);
-                netDiskDict.set(
-                  shareCode,
-                  NetDiskHandlerUtil.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
-                );
-              }
-              callbackOption.isUpdatedHistoryMatched = NetDiskHistoryMatchView.syncAccessCode(
-                ruleKeyName,
-                ruleIndex,
-                shareCode,
-                userInputAccessCode
-              );
-              okCallBack(callbackOption);
-              event.close();
-              closeCallBack?.();
-            },
-          },
-        },
-        content: {
-          placeholder: "请重新输入密码",
-          focus: true,
-          select: true,
-          text: accessCode == null ? "" : typeof accessCode === "string" ? accessCode : "",
-        },
-        style: `
+          style: `
 			input{
 				font-size: larger;
 			}
 			`,
-      },
-      NetDiskView.$config.viewSizeConfig.inputNewAccessCodeView
-    );
-    domUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
-      if (keyName === "Enter") {
-        const $ok = accessCodeConfirm.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        $ok.click();
-      }
-    });
+        },
+        NetDiskView.$config.viewSizeConfig.inputNewAccessCodeView
+      );
+      domUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+        if (keyName === "Enter") {
+          const $ok = accessCodeConfirm.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+          $ok.click();
+        }
+      });
+    } else {
+      callback(accessCode);
+    }
   };
   const indexCSS =
     '.pops[type-value="confirm"] .pops-confirm-content {\n  overflow: hidden;\n}\n.netdisk-match-paste-text {\n  --textarea-bd-color: #dcdfe6;\n  display: inline-block;\n  resize: vertical;\n  padding: 5px 15px;\n  line-height: normal;\n  box-sizing: border-box;\n  color: #606266;\n  border: 1px solid var(--textarea-bd-color);\n  border-radius: 4px;\n  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  outline: none;\n  margin: 0;\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  appearance: none;\n  background: none;\n  width: 100%;\n  height: 100%;\n  appearance: none;\n  resize: none;\n}\n.netdisk-match-paste-text:hover {\n  --textarea-bd-color: #c0c4cc;\n}\n.netdisk-match-paste-text:focus {\n  --textarea-bd-color: #3677f0;\n}\n';
@@ -21319,7 +21402,7 @@
         this.$match.tempMatchedInfo.set(ruleKeyName, new utils.Dictionary());
       });
       const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
-      const TAG = Panel.isTopWindow() ? "" : "iframe：";
+      const TAG = CommonUtil.isTopWindow() ? "" : "iframe：";
       if (matchedUrlRuleList.length) {
         log.info(`${TAG}成功命中的网站规则 ==> `, matchedUrlRuleList);
         MenuRegister.add({

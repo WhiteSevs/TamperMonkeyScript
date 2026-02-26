@@ -21,7 +21,6 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
   };
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    const { ruleIndex, shareCode, accessCode } = netDiskInfo;
     const that = this;
     const $loading = Qmsg.loading("正在解析，请稍后...");
     const downloadParams = await that.getRequestDownloadParams();
@@ -358,7 +357,6 @@ export class NetDiskParse_Jianguoyun extends ParseFileCore {
    * 前往登录
    */
   gotoLogin() {
-    const that = this;
     NetDiskPops.confirm(
       {
         title: {

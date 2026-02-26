@@ -1,6 +1,6 @@
 import { $$, DOMUtils, log, MenuRegister, utils } from "@/env";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
-import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { RulePanelView } from "@components/utils/RulePanelView";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { GM_getValue } from "ViteGM";
@@ -72,10 +72,10 @@ export const NetDiskWorker = {
         this.$check.workerInitError = new Error(
           "test Worker postMessage failed, maybe violates Content Security Policy directive"
         );
-        log.error(`page${Panel.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
+        log.error(`page${CommonUtil} has worker CSP`);
         this.workerInitFailed();
       } else {
-        log.info(`page${Panel.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
+        log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
       }
     });
   },
@@ -276,7 +276,7 @@ export const NetDiskWorker = {
    * 监听Worker初始化失败的弹窗
    */
   listenWorkerInitErrorDialog() {
-    if (!Panel.isTopWindow()) {
+    if (!CommonUtil.isTopWindow()) {
       return;
     }
     // 只做顶层的监听
@@ -305,7 +305,7 @@ export const NetDiskWorker = {
                     </div>
                   </div>
                   <div class="msg-wrapper">
-                    <div class="tip-text">链接${Panel.isTopWindow() ? "" : "（iframe）"}：</div>  
+                    <div class="tip-text">链接${CommonUtil.isTopWindow() ? "" : "（iframe）"}：</div>  
                     <div class="msg-container" data-type="url">
                       <p>${data.url}</p>
                     </div>
@@ -703,7 +703,7 @@ export const NetDiskWorker = {
    */
   errorCallBack(error: ErrorEvent) {
     NetDiskWorker.matchingEndCallBack(true);
-    log.error("Worker Error CallBack" + (Panel.isTopWindow() ? "" : " (iframe)"), error);
+    log.error("Worker Error CallBack" + (CommonUtil.isTopWindow() ? "" : " (iframe)"), error);
   },
   /**
    * 匹配结束回调
@@ -981,7 +981,7 @@ export const NetDiskWorker = {
       // 注册油猴菜单
       MenuRegister.add({
         key: "performPageTextMatchingManually" + "_" + window.location.href,
-        text: "点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
+        text: "点击执行文本匹配" + (CommonUtil.isTopWindow() ? "" : "（iframe）"),
         autoReload: false,
         isStoreValue: false,
         showText(text) {

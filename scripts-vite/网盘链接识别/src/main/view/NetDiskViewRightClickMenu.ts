@@ -1,22 +1,22 @@
-import { DOMUtils, log, pops, utils } from "@/env";
-import { NetDiskView } from "./NetDiskView";
-import { NetDiskRuleManager } from "../NetDiskRuleManager";
-import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
-import { NetDiskSettingView } from "./setting/NetDiskSettingView";
+import { DOMUtils, log, utils } from "@/env";
+import add_rule_svg from "@/resource/svg/add_rule.svg?raw";
+import history_svg from "@/resource/svg/history.svg?raw";
+import identify_text_svg from "@/resource/svg/identify_text.svg?raw";
+import link_svg from "@/resource/svg/link.svg?raw";
+import manager_svg from "@/resource/svg/manager.svg?raw";
+import open_svg from "@/resource/svg/open.svg?raw";
+import other_svg from "@/resource/svg/other.svg?raw";
+import password_svg from "@/resource/svg/password.svg?raw";
+import setting_svg from "@/resource/svg/setting.svg?raw";
 import Qmsg from "qmsg";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDisk } from "../NetDisk";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
+import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { LinkViewRegisterContextMenuShowTextOption, NetDiskLinkView } from "./link-view/NetDiskLinkView";
-import setting_svg from "@/resource/svg/setting.svg?raw";
-import history_svg from "@/resource/svg/history.svg?raw";
-import add_rule_svg from "@/resource/svg/add_rule.svg?raw";
-import manager_svg from "@/resource/svg/manager.svg?raw";
-import identify_text_svg from "@/resource/svg/identify_text.svg?raw";
-import link_svg from "@/resource/svg/link.svg?raw";
-import open_svg from "@/resource/svg/open.svg?raw";
-import password_svg from "@/resource/svg/password.svg?raw";
-import other_svg from "@/resource/svg/other.svg?raw";
 import { NetDiskLinkViewEvent } from "./link-view/NetDiskLinkViewEvent";
+import { NetDiskView } from "./NetDiskView";
+import { NetDiskSettingView } from "./setting/NetDiskSettingView";
 
 export const NetDiskViewRightClickMenu = {
   /**
@@ -213,12 +213,55 @@ export const NetDiskViewRightClickMenu = {
               );
             },
           },
+          {
+            text: "删除",
+            icon: "delete",
+            callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
+              let $link = menuListenerRootNode as HTMLElement;
+              const { ruleKeyName, ruleIndex, shareCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
+              NetDiskView.$inst.newAccessCodeView(
+                this.text as string,
+                ruleKeyName,
+                ruleIndex,
+                shareCode,
+                "",
+                (option) => {
+                  if (isHistoryView) {
+                    // 来自历史匹配记录界面的
+                    if (option.isUpdatedMatchedDict) {
+                      let currentTime = new Date().getTime();
+                      let $updateTime = $link.closest("li")!.querySelector<HTMLElement>(".netdiskrecord-update-time")!;
+                      DOMUtils.text($updateTime, utils.formatTime(currentTime));
+                      DOMUtils.attr($link, "data-accesscode", option.accessCode!);
+                      log.info("删除成功");
+                    } else {
+                      Qmsg.error("删除失败");
+                    }
+                  } else {
+                    DOMUtils.attr($link, "data-accesscode", option.accessCode!);
+                    if (option.isUpdatedMatchedDict) {
+                      log.info("删除成功");
+                    } else {
+                      if (option.isFindInMatchedDict) {
+                        Qmsg.error("删除访问码失败");
+                      } else {
+                        Qmsg.error("删除访问码失败，因为当前已匹配字典中未找到对应的访问码");
+                      }
+                    }
+                  }
+                },
+                {
+                  enable: false,
+                }
+              );
+            },
+          },
         ],
       },
       {
         text: "其它",
         icon: other_svg,
-        callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
+        callback() {
           return false;
         },
         item: [
@@ -304,8 +347,7 @@ export const NetDiskViewRightClickMenu = {
           callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
             let $link = menuListenerRootNode as HTMLElement;
             let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
-            const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
-            NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+            NetDisk.$match.matchedInfo.forEach((netDiskItem) => {
               netDiskItem.clear();
             });
             NetDisk.$match.matchedInfoRuleKey.clear();

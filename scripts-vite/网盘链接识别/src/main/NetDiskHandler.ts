@@ -20,7 +20,10 @@ export const NetDiskHandler = {
     if (utils.isNull(shareCode)) {
       return;
     }
-    const accessCode = NetDiskRegularExtractor.extractShareCode(handlerConfig);
+    const accessCode = NetDiskRegularExtractor.extractAccessCode({
+      ...handlerConfig,
+      shareCode,
+    });
     return {
       shareCode: shareCode,
       accessCode: accessCode,

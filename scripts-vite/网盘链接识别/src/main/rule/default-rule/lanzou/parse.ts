@@ -142,7 +142,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
      * 蓝奏多文件
      */
     moreFile: {
-      match: /<span id=\"filemore\" onclick=\"more\(\);\">/g,
+      match: /<span id="filemore" onclick="more\(\);">/g,
     },
     /**
      * 蓝奏设置了密码的单文件请求需要的sign值
@@ -167,7 +167,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
      * 蓝奏文件大小
      */
     fileSize: {
-      match: /<span class=\"mtt\">\((.*)\)<\/span>/,
+      match: /<span class="mtt">\((.*)\)<\/span>/,
     },
     /**
      * 蓝奏文件直链host
@@ -191,7 +191,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
      * 蓝奏云文件上传时间
      */
     uploadTime: {
-      match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i,
+      match: /mt2">时间:<\/span>(.+?)[\s]*<span/i,
     },
   };
   /**
@@ -506,8 +506,10 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
                   accessCode: option.accessCode!,
                 });
               },
-              () => {
-                resolve(void 0);
+              {
+                closeCallBack() {
+                  resolve(void 0);
+                },
               }
             );
           });
@@ -709,13 +711,13 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
 
     let infos;
     // 不管存不存在普通文件，都需要请求一下重新获取信息
-    const fid = pageText.match(/\'fid\':(.+?),/)![1].replaceAll("'", "");
-    const uid = pageText.match(/\'uid\':(.+?),/)![1].replaceAll("'", "");
+    const fid = pageText.match(/'fid':(.+?),/)![1].replaceAll("'", "");
+    const uid = pageText.match(/'uid':(.+?),/)![1].replaceAll("'", "");
     const pgs = 1;
-    const t_name = pageText.match(/\'t\':(.+?),/)![1];
+    const t_name = pageText.match(/'t':(.+?),/)![1];
     const t_rexp = new RegExp(t_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
     const t = pageText.match(t_rexp)![2];
-    const k_name = pageText.match(/\'k\':(.+?),/)![1];
+    const k_name = pageText.match(/'k':(.+?),/)![1];
     const k_rexp = new RegExp(k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
     const k = pageText.match(k_rexp)![2];
     const lx = shareCode.match(this.regexp.unicode.match) ? 1 : 2;
@@ -755,8 +757,10 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
                   accssCode: option.accessCode!,
                 });
               },
-              () => {
-                resolve(void 0);
+              {
+                closeCallBack() {
+                  resolve(void 0);
+                },
               }
             );
           });
@@ -886,7 +890,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     log.info(postRespData);
     let jsonData = utils.toJSON(postRespData.responseText);
     let downloadUrl = `${jsonData["dom"]}/file/${jsonData["url"]}&toolsdown`;
-    let zt = jsonData["zt"];
+    // let zt = jsonData["zt"];
 
     // var killdns = true;
     // let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {

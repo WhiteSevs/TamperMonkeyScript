@@ -1,7 +1,7 @@
 import { AnyTouch, log, utils } from "@/env";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
-import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
 import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import { NetDiskView } from "../NetDiskView";
@@ -200,11 +200,11 @@ export const NetDiskSuspension = {
           if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
             // 设置悬浮按钮的left偏移
             setCSSLeft = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-            if (Panel.isTopWindow()) {
+            if (CommonUtil.isTopWindow()) {
               NetDiskSuspensionConfig.position.isRight.value = true;
             }
           } else {
-            if (Panel.isTopWindow()) {
+            if (CommonUtil.isTopWindow()) {
               NetDiskSuspensionConfig.position.isRight.value = false;
             }
           }
@@ -282,7 +282,7 @@ export const NetDiskSuspension = {
    * @param position
    */
   savePosition(position: { x?: number; y?: number }) {
-    if (!Panel.isTopWindow()) {
+    if (!CommonUtil.isTopWindow()) {
       // 必须在顶部窗口才可以保存位置
       return;
     }

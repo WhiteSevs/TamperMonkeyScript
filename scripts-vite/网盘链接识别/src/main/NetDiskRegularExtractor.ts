@@ -161,6 +161,8 @@ export const NetDiskRegularExtractor = {
     ruleKeyName: string;
     /** 规则的索引下标 */
     ruleIndex: number;
+    /** 获取到的访问码 */
+    shareCode: string;
     /** 正在进行匹配的文本 */
     matchText: string;
     /**
@@ -363,9 +365,24 @@ export const NetDiskRegularExtractor = {
       }
       return __accessCode__;
     };
+    /**
+     * 处理函数（其它情况）
+     */
+    const handlerOhter = (__accessCode__: AccessCodeType) => {
+      if (__accessCode__ === handlerConfig.shareCode) {
+        // 访问码和分享码相同，则不处理
+        handlerConfig.debugConfig?.logCallBack?.({
+          status: true,
+          msg: "最终结果判定访问码为空，因为分享码和提取到的访问码相同: " + __accessCode__,
+        });
+        return "";
+      }
+      return __accessCode__;
+    };
     accessCode = handler(accessCode);
     accessCode = handlerByAutoFill(accessCode);
     accessCode = handlerByUserRule(accessCode);
+    accessCode = handlerOhter(accessCode);
 
     return accessCode;
   },

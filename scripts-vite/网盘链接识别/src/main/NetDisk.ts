@@ -1,5 +1,5 @@
 import { log, MenuRegister, utils } from "@/env";
-import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Utils from "@whitesev/utils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
@@ -22,6 +22,10 @@ export const NetDisk = {
      * 匹配到的链接信息
      *
      * Worker识别规则 -> 存储识别到的信息（访问码|分享码|规则下标...）
+     *
+     * <规则key,匹配信息>
+     *
+     * <分享码,匹配信息详情>
      */
     matchedInfo: new Utils.Dictionary<string, UtilsDictionary<string, NetDiskDictData>>(),
     /**
@@ -98,7 +102,7 @@ export const NetDisk = {
 
     // 这里是输出信息用的，无其它的作用
     const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
-    const TAG = Panel.isTopWindow() ? "" : "iframe：";
+    const TAG = CommonUtil.isTopWindow() ? "" : "iframe：";
     if (matchedUrlRuleList.length) {
       log.info(`${TAG}成功命中的网站规则 ==> `, matchedUrlRuleList);
       MenuRegister.add({
