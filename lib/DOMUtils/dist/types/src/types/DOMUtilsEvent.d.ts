@@ -418,3 +418,20 @@ export declare type DOMUtilsDoubleClickOption = {
    */
   isDoubleClick: boolean;
 };
+
+/**
+ * 双击的处理函数
+ */
+export declare type DOMUtilsDoubleClickHandler = (
+  event: MouseEvent | PointerEvent | TouchEvent,
+  option: DOMUtilsDoubleClickOption
+) => void | Promise<void>;
+
+/**
+ * 双击的处理函数（传入了selector）
+ */
+export declare type DOMUtilsDoubleClickHandlerWithSelector<T = HTMLElement> = (
+  event: MouseEvent | PointerEvent | TouchEvent,
+  $selector: T,
+  option: DOMUtilsDoubleClickOption
+) => void | Promise<void>;

@@ -448,7 +448,7 @@ declare class ElementEvent extends ElementAnimate {
      * @param handler 处理的回调函数
      * @param options 监听器的配置
      */
-    onDoubleClick($el: DOMUtilsTargetElementType, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    onDoubleClick($el: DOMUtilsElementEventType, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
         off(): void;
     };
     /**
@@ -458,7 +458,7 @@ declare class ElementEvent extends ElementAnimate {
      * @param handler 处理的回调函数
      * @param options 监听器的配置
      */
-    onDoubleClick($el: DOMUtilsTargetElementType, selector: string | string[] | undefined | null, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    onDoubleClick<T = HTMLElement>($el: DOMUtilsElementEventType, selector: string | string[], handler: (event: MouseEvent | PointerEvent | TouchEvent, $selector: T, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
         off(): void;
     };
     /**

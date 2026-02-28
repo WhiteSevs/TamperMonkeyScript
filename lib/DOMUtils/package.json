@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/domutils",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "description": "适合在浏览器中操作DOM的常用工具类",
   "keywords": [
     "typescript",
