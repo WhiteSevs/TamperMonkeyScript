@@ -27,11 +27,21 @@ import { PanelUISize } from "./panel-ui-size";
 type ExecMenuCallBackOption<T = any> = {
   key: string[];
   /**
+   * 触发该回调的键
+   *
+   * （首次执行时它并不是任意键触发的，所以传入的键是空的）
+   */
+  triggerKey?: string;
+  /**
    * 当前菜单项的值
    *
-   * 如果queryKey|key是string[]，那么value也是对应的string[]
+   * 如果`key`|`queryKey`是string[]，那么`value`也是对应的`string[]`
    * @example
    * 例如：[key1, key2]，这时候值为：[value1, value2]
+   * @example
+   * 例如：[key1]，这时候值为：[value1]
+   * @example
+   * 例如：key，这时候值为：value
    */
   value: T;
   /**
@@ -321,7 +331,7 @@ const Panel = {
   setDefaultValue(key: string, defaultValue: any) {
     /* 存储到缓存中*/
     if (this.$data.contentConfigInitDefaultValue.has(key)) {
-      log.warn("请检查该key(已存在): " + key);
+      log.warn("该key已存在，初始化默认值失败: " + key);
     }
     this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
   },
@@ -652,6 +662,7 @@ const Panel = {
         const valueList = keyList.map((key) => this.getValue<T>(key));
         callbackResult = await callback({
           key: keyList,
+          triggerKey: valueOption?.key,
           value: (isArrayKey ? valueList : valueList[0]) as T,
           addStoreValue: (...args: any[]) => {
             return addStoreValueCallback(execFlag, args);
