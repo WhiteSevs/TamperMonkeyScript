@@ -83,10 +83,18 @@ export class ColorConversion {
     if (isNaN(level)) {
       throw new TypeError(`输入错误的level：${level}`);
     }
+    if (level < 0 || level > 1) {
+      throw new TypeError(`level must between 0~1.0: ${level}`);
+    }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {
       const rgbcItemValue = rgbc[index];
-      const value = Math.floor(Number(rgbcItemValue) * (1 - level));
+      let value = Math.floor(Number(rgbcItemValue) * (1 - level));
+      if (value > 255) {
+        value = 255;
+      } else if (value < 0) {
+        value = 0;
+      }
       Reflect.set(rgbc, index, value);
     }
 
@@ -107,10 +115,18 @@ export class ColorConversion {
     if (isNaN(level)) {
       throw new TypeError(`输入错误的level：${level}`);
     }
+    if (level < 0 || level > 1) {
+      throw new TypeError(`level must between 0~1.0: ${level}`);
+    }
     const rgbc = this.hexToRgb(color);
     for (let index = 0; index < 3; index++) {
       const rgbcItemValue = Number(rgbc[index]);
-      const value = Math.floor(255 - rgbcItemValue * level + rgbcItemValue);
+      let value = Math.floor(255 - rgbcItemValue * level + rgbcItemValue);
+      if (value > 255) {
+        value = 255;
+      } else if (value < 0) {
+        value = 0;
+      }
       Reflect.set(rgbc, index, value);
     }
     return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
