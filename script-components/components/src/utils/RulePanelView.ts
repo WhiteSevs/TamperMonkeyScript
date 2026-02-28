@@ -853,6 +853,11 @@ class RulePanelView<T> {
         }
       }
       `,
+      darkStyle: /*css*/`
+      .rule-view-container{
+        background: #262626;
+      }
+      `
     });
   }
   /**
