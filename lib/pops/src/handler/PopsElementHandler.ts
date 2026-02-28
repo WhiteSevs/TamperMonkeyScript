@@ -1,18 +1,18 @@
 import type { PopsAlertConfig } from "../components/alert/types";
 import type { PopsConfirmConfig } from "../components/confirm/types";
 import type { PopsIframeConfig } from "../components/iframe/types";
+import { PopsIcon } from "../PopsIcon";
 import type { PopsIconType } from "../types/icon";
 import type {
   PopsSupportAnimConfig,
-  PopsSupportBottomButtonConfig,
-  PopsSupportContentConfig,
-  PopsSupportHeaderTitleConfig,
   PopsSupportAnimConfigType,
+  PopsSupportBottomButtonConfig,
   PopsSupportBottomButtonConfigType,
+  PopsSupportContentConfig,
   PopsSupportContentConfigType,
+  PopsSupportHeaderTitleConfig,
   PopsSupportHeaderTitleConfigType,
 } from "../types/main";
-import { PopsIcon } from "../PopsIcon";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
 
 export const PopsElementHandler = {
@@ -46,25 +46,27 @@ export const PopsElementHandler = {
     bottomBtnHTML = "",
     zIndex: number
   ) {
-    const __config = config as PopsAlertConfig;
+    const __config__ = config as PopsAlertConfig;
     let popsAnimStyle = "";
     let popsStyle = "";
-    const popsPosition = __config.position || "";
+    const popsPosition = __config__.position || "";
     if (config.zIndex != null) {
       popsAnimStyle += `z-index: ${zIndex};`;
       popsStyle += `z-index: ${zIndex};`;
     }
-    if (__config.width != null) {
-      popsStyle += `width: ${__config.width};`;
+    if (__config__.width != null) {
+      popsStyle += `width: ${__config__.width};`;
     }
-    if (__config.height != null) {
-      popsStyle += `height: ${__config.height};`;
+    if (__config__.height != null) {
+      popsStyle += `height: ${__config__.height};`;
     }
     const hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
     return /*html*/ `
-		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
-      config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""
+		<div class="pops-anim" anim="${__config__.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
+      config.style != null ? /*html*/ `<style tyle="text/css" data-name="style">${config.style}</style>` : ""
     }
+    ${config.lightStyle != null ? /*html*/ `<style tyle="text/css" data-name="lightStyle">@media (prefers-color-scheme: light) {${config.lightStyle}}</style>` : ""}
+    ${config.darkStyle != null ? /*html*/ `<style tyle="text/css" data-name="darkStyle">@media (prefers-color-scheme: dark) {${config.darkStyle}}</style>` : ""}
 			<div class="pops ${
         config.class || ""
       }" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
@@ -299,5 +301,55 @@ export const PopsElementHandler = {
    */
   parseElement<T extends HTMLElement>(html: string): T {
     return popsDOMUtils.parseTextToDOM(html);
+  },
+  /**
+   * 添加样式元素
+   */
+  addStyle($parent: HTMLElement | ShadowRoot, style?: string | null) {
+    if (style == null) return;
+    const $css = popsDOMUtils.createElement(
+      "style",
+      {
+        innerHTML: style,
+      },
+      {
+        type: "text/css",
+        "data-name": "general",
+      }
+    );
+    $parent.appendChild($css);
+    return $css;
+  },
+  /**
+   * 添加在浅色模式下生效的style元素
+   */
+  addLightStyle($parent: HTMLElement | ShadowRoot, style?: string | null) {
+    const darkCSS = /*css*/ `
+      @media (prefers-color-scheme: light) {
+        ${style}
+      }
+    `;
+    const $css = this.addStyle($parent, darkCSS);
+    if (!$css) {
+      return;
+    }
+    $css.setAttribute("data-name", "light");
+    return $css;
+  },
+  /**
+   * 添加在深色模式下生效的style元素
+   */
+  addDarkStyle($parent: HTMLElement | ShadowRoot, style?: string | null) {
+    const darkCSS = /*css*/ `
+      @media (prefers-color-scheme: dark) {
+        ${style}
+      }
+    `;
+    const $css = this.addStyle($parent, darkCSS);
+    if (!$css) {
+      return;
+    }
+    $css.setAttribute("data-name", "dark");
+    return $css;
   },
 };

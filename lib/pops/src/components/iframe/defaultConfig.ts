@@ -55,6 +55,8 @@ export const PopsIframeDefaultConfig = (): DeepRequired<PopsIframeConfig> => {
     },
 
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   };
 };

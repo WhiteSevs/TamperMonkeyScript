@@ -28,6 +28,8 @@ export const PopsTooltipDefaultConfig = (): DeepRequired<PopsToolTipConfig> => {
     arrowDistance: 12.5,
     otherDistance: 0,
     style: "",
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   };
 };

@@ -284,6 +284,7 @@ declare class Pops {
                     init(): void;
                     onClick(): void;
                     setStatus(isChecked?: boolean): void;
+                    getReverseStatus(): boolean;
                     getStatus(): boolean;
                     disable(): void;
                     notDisable(): void;
@@ -709,6 +710,8 @@ declare class Pops {
             animation?: import("./types/animation").PopsAnimation | undefined;
             mask?: import("./types/mask").PopsMaskConfig | undefined;
             forbiddenScroll?: boolean | undefined;
+            lightStyle?: string | undefined;
+            darkStyle?: string | undefined;
             beforeAppendToPageCallBack?: void;
             drag?: boolean | undefined;
             dragLimit?: boolean | undefined;
@@ -775,6 +778,8 @@ declare class Pops {
             only: boolean;
             zIndex: IFunction<number>;
             style: string | null;
+            lightStyle: string | null;
+            darkStyle: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;

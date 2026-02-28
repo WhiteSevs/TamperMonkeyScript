@@ -89,6 +89,8 @@ export const PopsPromptDefaultConfig = (): DeepRequired<PopsPromptConfig> => {
     forbiddenScroll: false,
 
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   };
 };

@@ -28,6 +28,7 @@
   .pops {
     --pops-mask-bg-opacity: 0.8;
     --pops-color: #ffffff;
+    --pops-dark-color: #262626;
     --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));
     --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));
     --pops-box-shadow-color: rgba(81, 81, 81, 0.12);

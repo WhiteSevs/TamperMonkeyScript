@@ -863,6 +863,8 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
     dragEndCallBack() {},
     forbiddenScroll: false,
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   };
 };

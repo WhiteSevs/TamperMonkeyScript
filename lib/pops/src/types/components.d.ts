@@ -203,6 +203,18 @@ export interface PopsGeneralConfig {
    */
   style?: string | null;
   /**
+   * （可选）自定义浅色模式的style
+   *
+   * 传入的css都在dark内
+   */
+  lightStyle?: string | null;
+  /**
+   * （可选）自定义深色模式的style
+   *
+   * 传入的css都在dark内
+   */
+  darkStyle?: string | null;
+  /**
    * 在元素添加到页面前的事件
    * @param $shadowRoot 根元素
    * @param $shadowContainer 容器

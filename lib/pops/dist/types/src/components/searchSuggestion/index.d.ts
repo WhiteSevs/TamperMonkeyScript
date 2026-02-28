@@ -1,4 +1,4 @@
-import type { PopsSearchSuggestionData, PopsSearchSuggestionConfig } from "./types/index";
+import type { PopsSearchSuggestionConfig, PopsSearchSuggestionData } from "./types/index";
 export declare const PopsSearchSuggestion: {
     init<T>(__config__: PopsSearchSuggestionConfig<T>): {
         /**

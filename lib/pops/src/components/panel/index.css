@@ -1383,6 +1383,7 @@ section.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-pa
     --pops-panel-components-input-hover-bd-color: #6f7175;
     --pops-panel-components-input-focus-bd-color: #409eff;
     --pops-panel-components-input-suffix-color: #a8abb2;
+    --pops-panel-components-input-suffix-bg-color: var(--pops-dark-color);
   }
   /* textarea的CSS */
   .pops-panel-textarea {

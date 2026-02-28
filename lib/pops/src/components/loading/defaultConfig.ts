@@ -24,6 +24,8 @@ export const PopsLoadingDefaultConfig = (): DeepRequired<PopsLoadingConfig> => {
     forbiddenScroll: false,
     isAbsolute: false,
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     addIndexCSS: true,
   };
 };

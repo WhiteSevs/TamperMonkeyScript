@@ -1,3 +1,5 @@
+import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
+import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
@@ -5,31 +7,29 @@ import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlert } from "../alert";
-import { PopsTooltip } from "../tooltip";
-import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 import type { PopsAlertConfig } from "../alert/types";
-import type { PopsPanelButtonConfig } from "./types/components-button";
-import type { PopsPanelGeneralConfig, PopsPanelRightAsideContainerConfig } from "./types/components-common";
-import type { PopsPanelDeepViewConfig } from "./types/components-deepMenu";
-import type { PopsPanelContainerConfig } from "./types/components-container";
+import { PopsTooltip } from "../tooltip";
 import type {
   PopsPanelBottomContentConfig,
-  PopsPanelContentConfig,
   PopsPanelConfig,
+  PopsPanelContentConfig,
   PopsPanelEventType,
   PopsPanelViewConfig,
 } from "./types";
+import type { PopsPanelButtonConfig } from "./types/components-button";
+import type { PopsPanelGeneralConfig, PopsPanelRightAsideContainerConfig } from "./types/components-common";
+import type { PopsPanelContainerConfig } from "./types/components-container";
+import type { PopsPanelDeepViewConfig } from "./types/components-deepMenu";
 import type { PopsPanelInputConfig, PopsPanelInputType } from "./types/components-input";
 import type { PopsPanelOwnConfig } from "./types/components-own";
-import type {
-  PopsPanelSelectMultipleDataOption,
-  PopsPanelSelectMultipleConfig,
-} from "./types/components-selectMultiple";
 import type { PopsPanelSelectConfig, PopsPanelSelectDataOption } from "./types/components-select";
+import type {
+  PopsPanelSelectMultipleConfig,
+  PopsPanelSelectMultipleDataOption,
+} from "./types/components-selectMultiple";
 import type { PopsPanelSliderConfig } from "./types/components-slider";
 import type { PopsPanelSwitchConfig } from "./types/components-switch";
 import type { PopsPanelTextAreaConfig } from "./types/components-textarea";
-import { PopsCSS } from "../../PopsCSS";
 /**
  * 处理组件（把组件配置转为组件元素）
  */
@@ -395,15 +395,22 @@ export const PanelHandlerComponents = () => {
          * 设置点击事件
          */
         onClick() {
-          const that = this;
-          popsDOMUtils.on(this.$ele.core, "click", function (event) {
-            if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
+          popsDOMUtils.on(this.$ele.core, "click", async (event) => {
+            if (this.$ele.input.disabled || this.$ele.switch.hasAttribute("data-disabled")) {
               return;
             }
-            that.$data.value = that.getStatus();
-            that.setStatus(that.$data.value);
+            const status = this.getStatus();
+            if (typeof viewConfig.beforeSwitchStatusChangeCallBack === "function") {
+              const flag = await viewConfig.beforeSwitchStatusChangeCallBack(event, status);
+              if (typeof flag === "boolean" && !flag) {
+                return;
+              }
+            }
+            // 设置为逆反状态
+            this.$data.value = !status;
+            this.setStatus(this.$data.value);
             if (typeof viewConfig.callback === "function") {
-              viewConfig.callback(event, that.$data.value);
+              await viewConfig.callback(event, this.$data.value);
             }
           });
         },
@@ -420,11 +427,17 @@ export const PanelHandlerComponents = () => {
           }
         },
         /**
-         * 根据className来获取逆反值
+         * 获取开/关的逆反状态
+         */
+        getReverseStatus() {
+          return !this.getStatus();
+        },
+        /**
+         * 获取开/关的状态
          */
         getStatus() {
           let checkedValue = false;
-          if (!popsDOMUtils.containsClassName(this.$ele.switch, "pops-panel-switch-is-checked")) {
+          if (popsDOMUtils.containsClassName(this.$ele.switch, "pops-panel-switch-is-checked")) {
             checkedValue = true;
           }
           return checkedValue;
@@ -1896,7 +1909,7 @@ export const PanelHandlerComponents = () => {
                 return;
               }
               /** 当前已选中的值 */
-              const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+              const { style, lightStyle, darkStyle, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
               /**
                * 弹窗关闭的回调
                */
@@ -1966,7 +1979,9 @@ export const PanelHandlerComponents = () => {
                   ${PopsCSS.panelCSS}
 
 								  ${style || ""}
-								`,
+								  `,
+                  lightStyle: lightStyle,
+                  darkStyle: darkStyle,
                 },
                 userConfirmConfig
               );
@@ -3119,7 +3134,7 @@ export const PanelHandlerComponents = () => {
             }
             /** 当前已选中的值 */
             const selectInfo = this.$data.selectedDataList;
-            const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+            const { style, lightStyle, darkStyle, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
             const dialogCloseCallback = () => {
               this.$data.selectedDataList = [...selectInfo];
               this.updateTagItem();
@@ -3168,6 +3183,8 @@ export const PanelHandlerComponents = () => {
 
 								  ${style || ""}
 								`,
+                lightStyle: lightStyle,
+                darkStyle: darkStyle,
               },
               userConfirmConfig
             );

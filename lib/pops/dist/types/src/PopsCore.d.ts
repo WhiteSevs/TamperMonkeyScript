@@ -24,4 +24,4 @@ declare const PopsCore: {
     readonly clearTimeout: typeof clearTimeout;
     readonly clearInterval: typeof clearInterval;
 };
-export { PopsCore, OriginPrototype };
+export { OriginPrototype, PopsCore };

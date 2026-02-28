@@ -1,4 +1,4 @@
-import type { PopsSupportAnimConfig, PopsSupportBottomButtonConfig, PopsSupportContentConfig, PopsSupportHeaderTitleConfig, PopsSupportAnimConfigType, PopsSupportBottomButtonConfigType, PopsSupportContentConfigType, PopsSupportHeaderTitleConfigType } from "../types/main";
+import type { PopsSupportAnimConfig, PopsSupportAnimConfigType, PopsSupportBottomButtonConfig, PopsSupportBottomButtonConfigType, PopsSupportContentConfig, PopsSupportContentConfigType, PopsSupportHeaderTitleConfig, PopsSupportHeaderTitleConfigType } from "../types/main";
 export declare const PopsElementHandler: {
     /**
      * 获取遮罩层HTML
@@ -52,4 +52,16 @@ export declare const PopsElementHandler: {
      * @param html
      */
     parseElement<T extends HTMLElement>(html: string): T;
+    /**
+     * 添加样式元素
+     */
+    addStyle($parent: HTMLElement | ShadowRoot, style?: string | null): HTMLStyleElement | undefined;
+    /**
+     * 添加在浅色模式下生效的style元素
+     */
+    addLightStyle($parent: HTMLElement | ShadowRoot, style?: string | null): HTMLStyleElement | undefined;
+    /**
+     * 添加在深色模式下生效的style元素
+     */
+    addDarkStyle($parent: HTMLElement | ShadowRoot, style?: string | null): HTMLStyleElement | undefined;
 };

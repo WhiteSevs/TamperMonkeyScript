@@ -146,6 +146,8 @@ export const PopsFolderDefaultConfig = (): DeepRequired<PopsFolderConfig> => {
     dragEndCallBack() {},
     forbiddenScroll: false,
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   };
 };

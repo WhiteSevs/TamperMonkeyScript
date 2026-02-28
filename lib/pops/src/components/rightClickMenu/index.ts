@@ -15,6 +15,7 @@ import type {
 import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
 import type { PopsType } from "../../types/main";
+import { PopsElementHandler } from "../../handler/PopsElementHandler";
 
 export const PopsRightClickMenu = {
   init(__config__: PopsRightClickMenuConfig) {
@@ -47,18 +48,12 @@ export const PopsRightClickMenu = {
       },
     ]);
 
-    if (config.style != null) {
-      const $css = popsDOMUtils.createElement(
-        "style",
-        {
-          innerHTML: config.style,
-        },
-        {
-          type: "text/css",
-        }
-      );
-      $shadowRoot.appendChild($css);
-    }
+    // 添加自定义style
+    PopsElementHandler.addStyle($shadowRoot, config.style);
+    // 添加自定义浅色style
+    PopsElementHandler.addLightStyle($shadowRoot, config.lightStyle);
+    // 添加自定义深色style
+    PopsElementHandler.addDarkStyle($shadowRoot, config.darkStyle);
 
     const PopsContextMenu = {
       $data: {

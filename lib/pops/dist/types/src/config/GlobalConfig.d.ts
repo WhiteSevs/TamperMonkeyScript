@@ -25,6 +25,8 @@ export declare const GlobalConfig: {
         animation?: import("../types/animation").PopsAnimation | undefined;
         mask?: import("../types/mask").PopsMaskConfig | undefined;
         forbiddenScroll?: boolean | undefined;
+        lightStyle?: string | undefined;
+        darkStyle?: string | undefined;
         beforeAppendToPageCallBack?: void;
         drag?: boolean | undefined;
         dragLimit?: boolean | undefined;

@@ -208,6 +208,8 @@ export declare const PopsTooltip: {
             only: boolean;
             zIndex: IFunction<number>;
             style: string | null;
+            lightStyle: string | null;
+            darkStyle: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;

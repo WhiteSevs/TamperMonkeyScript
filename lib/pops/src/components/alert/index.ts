@@ -1,13 +1,13 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
+import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertDefaultConfig } from "./defaultConfig";
-import type { PopsType } from "../../types/main";
 import type { PopsAlertConfig } from "./types";
-import { PopsCSS } from "../../PopsCSS";
 
 export const PopsAlert = {
   init(__config__: PopsAlertConfig) {

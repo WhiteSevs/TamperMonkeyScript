@@ -26,7 +26,17 @@ export interface PopsPanelSwitchConfig extends PopsPanelGeneralConfig<PopsPanelS
      */
     getValue(): boolean;
     /**
-     * switch开启/关闭触发的回调函数
+     * switch`开启`/`关闭`前触发的回调函数
+     * @param event 事件
+     * @param value switch的状态(开关前)
+     * @returns
+     * + `false`: 阻止switch的开启/关闭
      */
-    callback(event: MouseEvent | PointerEvent, value: boolean): void;
+    beforeSwitchStatusChangeCallBack?(event: MouseEvent | PointerEvent, value: boolean): IPromise<void | boolean>;
+    /**
+     * switch`开启`/`关闭`后触发的回调函数
+     * @param event 事件
+     * @param value switch的状态(开关后)
+     */
+    callback(event: MouseEvent | PointerEvent, value: boolean): IPromise<void>;
 }

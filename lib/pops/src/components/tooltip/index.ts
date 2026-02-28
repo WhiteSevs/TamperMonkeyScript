@@ -1,4 +1,5 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
@@ -85,14 +86,12 @@ export class ToolTip {
     popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
     // 添加z-index
     $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
-    if (this.$data.config.style != null) {
-      // 添加自定义style
-      const cssNode = popsDOMUtils.createElement("style", {
-        type: "text/css",
-        innerHTML: this.$data.config.style,
-      });
-      $toolTipContainer.appendChild(cssNode);
-    }
+    // 添加自定义style
+    PopsElementHandler.addStyle($toolTipContainer, this.$data.config.style);
+    // 添加自定义浅色style
+    PopsElementHandler.addLightStyle($toolTipContainer, this.$data.config.lightStyle);
+    // 添加自定义深色style
+    PopsElementHandler.addDarkStyle($toolTipContainer, this.$data.config.darkStyle);
     // 处理是否显示箭头元素
     if (!this.$data.config.showArrow) {
       $toolTipArrow.remove();

@@ -1,14 +1,14 @@
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsTooltip } from "../tooltip";
+import type { PopsPanelBottomContentConfig, PopsPanelConfig, PopsPanelContentConfig, PopsPanelViewConfig } from "./types";
 import type { PopsPanelButtonConfig } from "./types/components-button";
 import type { PopsPanelGeneralConfig, PopsPanelRightAsideContainerConfig } from "./types/components-common";
-import type { PopsPanelDeepViewConfig } from "./types/components-deepMenu";
 import type { PopsPanelContainerConfig } from "./types/components-container";
-import type { PopsPanelBottomContentConfig, PopsPanelContentConfig, PopsPanelConfig, PopsPanelViewConfig } from "./types";
+import type { PopsPanelDeepViewConfig } from "./types/components-deepMenu";
 import type { PopsPanelInputConfig, PopsPanelInputType } from "./types/components-input";
 import type { PopsPanelOwnConfig } from "./types/components-own";
-import type { PopsPanelSelectMultipleDataOption, PopsPanelSelectMultipleConfig } from "./types/components-selectMultiple";
 import type { PopsPanelSelectConfig, PopsPanelSelectDataOption } from "./types/components-select";
+import type { PopsPanelSelectMultipleConfig, PopsPanelSelectMultipleDataOption } from "./types/components-selectMultiple";
 import type { PopsPanelSliderConfig } from "./types/components-slider";
 import type { PopsPanelSwitchConfig } from "./types/components-switch";
 import type { PopsPanelTextAreaConfig } from "./types/components-textarea";
@@ -152,7 +152,11 @@ export declare const PanelHandlerComponents: () => {
              */
             setStatus(isChecked?: boolean): void;
             /**
-             * 根据className来获取逆反值
+             * 获取开/关的逆反状态
+             */
+            getReverseStatus(): boolean;
+            /**
+             * 获取开/关的状态
              */
             getStatus(): boolean;
             /**

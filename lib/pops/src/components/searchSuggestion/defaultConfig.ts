@@ -59,5 +59,7 @@ export const PopsSearchSuggestionDefaultConfig = (): DeepRequired<PopsSearchSugg
       return data.filter((it) => it.value.includes(value));
     },
     style: "",
+    lightStyle: null,
+    darkStyle: null,
   };
 };

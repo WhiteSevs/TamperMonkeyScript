@@ -85,6 +85,8 @@ export const PopsConfirmDefaultConfig = (): DeepRequired<PopsConfirmConfig> => {
     forbiddenScroll: false,
 
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   } as DeepRequired<PopsConfirmConfig>;
 };

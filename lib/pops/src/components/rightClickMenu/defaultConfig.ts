@@ -95,6 +95,8 @@ export const PopsRightClickMenuDefaultConfig = (): DeepRequired<PopsRightClickMe
     zIndex: 10000,
     preventDefault: true,
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
     limitPositionXInView: true,
     limitPositionYInView: true,

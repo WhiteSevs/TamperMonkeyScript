@@ -1,6 +1,6 @@
+import AnyTouch from "any-touch";
 import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
-import AnyTouch from "any-touch";
 
 class PopsUtils {
   /**

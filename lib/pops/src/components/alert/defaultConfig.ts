@@ -57,6 +57,8 @@ export const PopsAlertDefaultConfig = (): DeepRequired<PopsAlertConfig> => {
     dragEndCallBack() {},
     forbiddenScroll: false,
     style: null,
+    lightStyle: null,
+    darkStyle: null,
     beforeAppendToPageCallBack() {},
   } as DeepRequired<PopsAlertConfig>;
 };

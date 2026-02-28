@@ -50,4 +50,4 @@ const PopsCore = {
   },
 };
 
-export { PopsCore, OriginPrototype };
+export { OriginPrototype, PopsCore };

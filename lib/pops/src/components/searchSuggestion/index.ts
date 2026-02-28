@@ -1,13 +1,14 @@
-import { PopsHandler } from "../../handler/PopsHandler";
-import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { popsUtils } from "../../utils/PopsUtils";
-import { PopsSearchSuggestionDefaultConfig } from "./defaultConfig";
+import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 import { GlobalConfig } from "../../config/GlobalConfig";
-import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
-import type { PopsSearchSuggestionData, PopsSearchSuggestionConfig } from "./types/index";
+import { PopsElementHandler } from "../../handler/PopsElementHandler";
+import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
-import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
+import { popsDOMUtils } from "../../utils/PopsDOMUtils";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
+import { popsUtils } from "../../utils/PopsUtils";
+import { PopsSearchSuggestionDefaultConfig } from "./defaultConfig";
+import type { PopsSearchSuggestionConfig, PopsSearchSuggestionData } from "./types/index";
 
 export const PopsSearchSuggestion = {
   init<T>(__config__: PopsSearchSuggestionConfig<T>) {
@@ -39,13 +40,12 @@ export const PopsSearchSuggestion = {
       },
     ]);
 
-    if (config.style != null) {
-      const $css = popsDOMUtils.createElement("style", {
-        type: "text/css",
-        innerHTML: config.style,
-      });
-      $shadowRoot.appendChild($css);
-    }
+    // 添加自定义style
+    PopsElementHandler.addStyle($shadowRoot, config.style);
+    // 添加自定义浅色style
+    PopsElementHandler.addLightStyle($shadowRoot, config.lightStyle);
+    // 添加自定义深色style
+    PopsElementHandler.addDarkStyle($shadowRoot, config.darkStyle);
     /**
      * 监听器的默认配置
      */
