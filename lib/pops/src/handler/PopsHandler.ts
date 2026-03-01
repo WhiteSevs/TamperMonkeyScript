@@ -171,14 +171,14 @@ export const PopsHandler = {
         );
       }
       // 判断按下的元素是否是pops-anim
-      popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], (event) => {
+      popsDOMUtils.on(config.animElement, "pointerup", (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
         isMaskClick = isAnimElement($click);
       });
       // 如果有动画层，在动画层上监听点击事件
       popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
-        if (isAnimElement($click) && isMaskClick) {
+        if (isMaskClick && isAnimElement($click)) {
           return clickEvent(event);
         }
       });

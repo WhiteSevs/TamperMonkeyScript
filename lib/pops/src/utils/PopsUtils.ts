@@ -1,4 +1,5 @@
 import AnyTouch from "any-touch";
+import doubletap from "@any-touch/doubletap";
 import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
 
@@ -336,8 +337,17 @@ class PopsUtils {
     result = addType ? result + resultType.toString() : (parseFloat(result.toString()) as any);
     return result;
   }
+  /**
+   * https://github.com/any86/any-touch/blob/master/README.CN.md
+   */
   AnyTouch = () => {
     return AnyTouch;
+  };
+  /**
+   * `any-touch`的`doubletap`事件插件
+   */
+  AnyTouchDoubleTapPlugin = () => {
+    return doubletap;
   };
   /**
    * 通过navigator.userAgent判断是否是手机访问

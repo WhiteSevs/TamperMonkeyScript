@@ -1,6 +1,6 @@
 {
   "name": "@whitesev/pops",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "弹窗库，包含了alert、confirm、prompt、drawer、folder、loading、iframe、panel、tooltip、searchSuggestion、rightClickMenu组件",
   "keywords": [
     "ScriptCat",
@@ -47,6 +47,7 @@
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
   "dependencies": {
+    "@any-touch/doubletap": "^2.2.0",
     "any-touch": "^2.2.0"
   },
   "devDependencies": {

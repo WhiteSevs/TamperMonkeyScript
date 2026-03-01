@@ -1,4 +1,5 @@
 import AnyTouch from "any-touch";
+import doubletap from "@any-touch/doubletap";
 declare class PopsUtils {
     /**
      * 判断是否是window，例如window、self、globalThis
@@ -112,7 +113,14 @@ declare class PopsUtils {
      * > 793.27
      **/
     formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
+    /**
+     * https://github.com/any86/any-touch/blob/master/README.CN.md
+     */
     AnyTouch: () => typeof AnyTouch;
+    /**
+     * `any-touch`的`doubletap`事件插件
+     */
+    AnyTouchDoubleTapPlugin: () => typeof doubletap;
     /**
      * 通过navigator.userAgent判断是否是手机访问
      * @param userAgent
