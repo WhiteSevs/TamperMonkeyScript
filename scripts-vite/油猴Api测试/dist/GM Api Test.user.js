@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -932,7 +932,7 @@
   var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
   var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
   var _monkeyWindow = (() => window)();
-  const version$2 = "1.9.2";
+  const version$2 = "1.9.5";
   let WindowApi$1 = class WindowApi {
     defaultApi = {
       document,
@@ -1126,15 +1126,22 @@
         return result;
       } else if (selector.match(/[^\s]{1}:empty$/gi)) {
         selector = selector.replace(/:empty$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return $ele?.innerHTML?.trim() === "";
+        return Array.from(parent.querySelectorAll(selector)).filter(($elItem) => {
+          return $elItem?.innerHTML?.trim() === "";
         });
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
         const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
         const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return ($ele?.textContent || $ele?.innerText)?.includes(text);
+        return Array.from(parent.querySelectorAll(selector)).filter(($elItem) => {
+          let domText = $elItem.textContent;
+          if (domText == null) {
+            domText = $elItem.innerText;
+          }
+          if (domText == null) {
+            return false;
+          }
+          return domText.includes(text);
         });
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
         const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
@@ -1147,8 +1154,15 @@
         }
         const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
-          return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+        return Array.from(parent.querySelectorAll(selector)).filter(($elItem) => {
+          let domText = $elItem.textContent;
+          if (domText == null) {
+            domText = $elItem.innerText;
+          }
+          if (domText == null) {
+            return false;
+          }
+          return !!domText.match(regexp);
         });
       } else {
         return Array.from(parent.querySelectorAll(selector));
@@ -1165,11 +1179,14 @@
         const textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
         const text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        let content = $el?.textContent || $el?.innerText;
-        if (typeof content !== "string") {
-          content = "";
+        let domText = $el.textContent;
+        if (domText == null) {
+          domText = $el.innerText;
         }
-        return $el.matches(selector) && content?.includes(text);
+        if (domText == null) {
+          return false;
+        }
+        return $el.matches(selector) && domText.includes(text);
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
         const textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
         let pattern = textMatch[2];
@@ -1181,11 +1198,14 @@
         }
         const regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        let content = $el?.textContent || $el?.innerText;
-        if (typeof content !== "string") {
-          content = "";
+        let domText = $el.textContent;
+        if (domText == null) {
+          domText = $el.innerText;
         }
-        return $el.matches(selector) && Boolean(content?.match(regexp));
+        if (domText == null) {
+          return false;
+        }
+        return $el.matches(selector) && !!domText.match(regexp);
       } else {
         return $el.matches(selector);
       }
@@ -1226,8 +1246,11 @@
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         const $closest = $el?.closest(selector);
         if ($closest) {
-          const content = $el?.textContent || $el?.innerText;
-          if (typeof content === "string" && content.match(regexp)) {
+          let domText = $el.textContent;
+          if (domText == null) {
+            domText = $el.innerText;
+          }
+          if (typeof domText === "string" && domText.match(regexp)) {
             return $closest;
           }
         }
@@ -2606,63 +2629,55 @@
       } else {
         throw new Error("args length error");
       }
-      let $click = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
-      let isMobileTouch = false;
       const checkClickTime = 200;
-      const dblclick_handler = async (evt, option) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
+      const dblclick_handler = (evt, option, $selector) => {
+        if ($selector) {
+          return handler(evt, $selector, option);
+        } else {
+          return handler(evt, option);
         }
-        await handler(evt, option);
       };
-      const dblClickListener = this.on(
-        $el,
-        "dblclick",
-        (evt) => {
-          this.preventEvent(evt);
-          dblclick_handler(evt, {
-            isDoubleClick: true,
-          });
-        },
-        options
-      );
-      const touchEndListener = this.on(
+      const pointerUpListener = this.on(
         $el,
         "pointerup",
         selector,
         (evt, $selector) => {
-          this.preventEvent(evt);
-          if (evt.pointerType === "touch") {
-            isMobileTouch = true;
-          }
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && $click === $selector) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            $click = null;
-            dblclick_handler(evt, {
-              isDoubleClick: true,
-            });
+            clickMap.delete($selector);
+            dblclick_handler(
+              evt,
+              {
+                isDoubleClick: true,
+              },
+              $selector
+            );
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
-              dblclick_handler(evt, {
-                isDoubleClick: false,
-              });
+              dblclick_handler(
+                evt,
+                {
+                  isDoubleClick: false,
+                },
+                $selector
+              );
             }, checkClickTime);
             isDoubleClick = true;
-            $click = $selector;
+            clickMap.set($selector, evt);
           }
         },
         options
       );
       return {
         off() {
-          $click = null;
-          dblClickListener.off();
-          touchEndListener.off();
+          pointerUpListener.off();
+          clickMap = null;
         },
       };
     }
@@ -4911,6 +4926,9 @@
     AnyTouch = () => {
       return i;
     };
+    AnyTouchDoubleTapPlugin = () => {
+      return e;
+    };
     isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
       return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
     }
@@ -6235,23 +6253,35 @@
       return `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
     },
     createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
-      const __config = config;
+      const __config__ = config;
       let popsAnimStyle = "";
       let popsStyle = "";
-      const popsPosition = __config.position || "";
+      const popsPosition = __config__.position || "";
       if (config.zIndex != null) {
         popsAnimStyle += `z-index: ${zIndex};`;
         popsStyle += `z-index: ${zIndex};`;
       }
-      if (__config.width != null) {
-        popsStyle += `width: ${__config.width};`;
+      if (__config__.width != null) {
+        popsStyle += `width: ${__config__.width};`;
       }
-      if (__config.height != null) {
-        popsStyle += `height: ${__config.height};`;
+      if (__config__.height != null) {
+        popsStyle += `height: ${__config__.height};`;
       }
       const hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
       return `
-		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
+		<div class="pops-anim" anim="${__config__.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
+      config.style != null ? `<style tyle="text/css" data-name="style">${config.style}</style>` : ""
+    }
+    ${
+      config.lightStyle != null
+        ? `<style tyle="text/css" data-name="lightStyle">@media (prefers-color-scheme: light) {${config.lightStyle}}</style>`
+        : ""
+    }
+    ${
+      config.darkStyle != null
+        ? `<style tyle="text/css" data-name="darkStyle">@media (prefers-color-scheme: dark) {${config.darkStyle}}</style>`
+        : ""
+    }
 			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`;
     },
@@ -6427,9 +6457,50 @@
     parseElement(html) {
       return popsDOMUtils.parseTextToDOM(html);
     },
+    addStyle($parent, style) {
+      if (style == null) return;
+      const $css = popsDOMUtils.createElement(
+        "style",
+        {
+          innerHTML: style,
+        },
+        {
+          type: "text/css",
+          "data-name": "general",
+        }
+      );
+      $parent.appendChild($css);
+      return $css;
+    },
+    addLightStyle($parent, style) {
+      const darkCSS = `
+      @media (prefers-color-scheme: light) {
+        ${style}
+      }
+    `;
+      const $css = this.addStyle($parent, darkCSS);
+      if (!$css) {
+        return;
+      }
+      $css.setAttribute("data-name", "light");
+      return $css;
+    },
+    addDarkStyle($parent, style) {
+      const darkCSS = `
+      @media (prefers-color-scheme: dark) {
+        ${style}
+      }
+    `;
+      const $css = this.addStyle($parent, darkCSS);
+      if (!$css) {
+        return;
+      }
+      $css.setAttribute("data-name", "dark");
+      return $css;
+    },
   };
   var indexCSS =
-    '@charset "utf-8";\n.pops * {\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  -webkit-tap-highlight-color: transparent;\n  /* 代替::-webkit-scrollbar */\n  scrollbar-width: thin;\n}\n.pops {\n  --pops-bg-opacity: 1;\n  --pops-bd-opacity: 1;\n  --pops-font-size: 16px;\n  interpolate-size: allow-keywords;\n  --pops-color: #000000;\n  --pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n  --pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n  --pops-title-color: #000000;\n  --pops-title-border-color: var(--pops-bd-color);\n  --pops-content-color: #000000;\n  --pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n  --pops-components-is-disabled-text-color: #a8abb2;\n  --pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n  .pops {\n    --pops-mask-bg-opacity: 0.8;\n    --pops-color: #ffffff;\n    --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n    --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n    --pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n    --pops-title-color: #e8e8e8;\n    --pops-title-border-color: var(--pops-bd-color);\n    --pops-content-color: #e5e5e5;\n    --pops-components-is-disabled-text-color: #a8abb2;\n    --pops-components-is-disabled-bg-color: #262727;\n  }\n}\n.pops {\n  color: var(--pops-color);\n  background-color: var(--pops-bg-color);\n  border: 1px solid var(--pops-bd-color);\n  border-radius: 4px;\n  font-size: var(--pops-font-size);\n  line-height: normal;\n  box-shadow: 0 0 12px var(--pops-box-shadow-color);\n  box-sizing: border-box;\n  overflow: hidden;\n  transition: all 0.35s;\n  display: flex;\n  flex-direction: column;\n}\n.pops-anim {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.pops-anim[anim=""] {\n  top: unset;\n  right: unset;\n  bottom: unset;\n  left: unset;\n  width: unset;\n  height: unset;\n  transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n  animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: inherit;\n  font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n  --pops-mask-bg-opacity: 0.4;\n  --pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  border: 0;\n  border-radius: 0;\n  background-color: var(--pops-mask-bg-color);\n  box-shadow: none;\n  transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n  float: right;\n  margin: 0 0;\n  outline: 0;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: #888;\n  cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n  outline: 0 !important;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: rgb(136, 136, 136);\n  cursor: pointer;\n  transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n  color: rgb(144, 147, 153);\n  font-size: inherit;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n}\nbutton.pops-header-control svg {\n  height: 1.25em;\n  width: 1.25em;\n}\nbutton.pops-header-control {\n  right: 15px;\n  padding: 0;\n  border: none;\n  outline: 0;\n  background: 0 0;\n  cursor: pointer;\n  position: unset;\n  line-height: normal;\n}\nbutton.pops-header-control i:hover {\n  color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n  margin: 0 6px;\n  display: flex;\n  align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n  display: flex;\n  gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n  font-size: 0.85em;\n  color: #000;\n  background-color: #f0f0f0;\n  border-radius: 3px;\n  border: 0;\n  padding: 0.2em 0;\n  white-space: normal;\n  background: #f5f5f5;\n  text-wrap: wrap;\n  text-align: left;\n  word-spacing: normal;\n  word-break: normal;\n  word-wrap: normal;\n  line-height: 1.4;\n  -moz-tab-size: 8;\n  -o-tab-size: 8;\n  tab-size: 8;\n  -webkit-hyphens: none;\n  -moz-hyphens: none;\n  -ms-hyphens: none;\n  hyphens: none;\n  direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n  letter-spacing: -0.2em;\n  content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-bottom: 1px solid var(--pops-title-border-color);\n  width: 100%;\n  height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n  color: var(--pops-title-color);\n  width: 100%;\n  overflow: hidden;\n  text-indent: 15px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-weight: 500;\n  line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n  width: 100%;\n  /*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n  flex: 1;\n  overflow: auto;\n  word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n  color: var(--pops-content-color);\n  padding: 5px 10px;\n  text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n  display: flex;\n  padding: 10px 10px 10px 10px;\n  width: 100%;\n  height: var(--container-bottom-btn-height);\n  max-height: var(--container-bottom-btn-height);\n  line-height: normal;\n  border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n  text-align: right;\n  align-items: center;\n}\n';
+    '@charset "utf-8";\n.pops * {\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  -webkit-tap-highlight-color: transparent;\n  /* 代替::-webkit-scrollbar */\n  scrollbar-width: thin;\n}\n.pops {\n  --pops-bg-opacity: 1;\n  --pops-bd-opacity: 1;\n  --pops-font-size: 16px;\n  interpolate-size: allow-keywords;\n  --pops-color: #000000;\n  --pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n  --pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n  --pops-title-color: #000000;\n  --pops-title-border-color: var(--pops-bd-color);\n  --pops-content-color: #000000;\n  --pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n  --pops-components-is-disabled-text-color: #a8abb2;\n  --pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n  .pops {\n    --pops-mask-bg-opacity: 0.8;\n    --pops-color: #ffffff;\n    --pops-dark-color: #262626;\n    --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n    --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n    --pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n    --pops-title-color: #e8e8e8;\n    --pops-title-border-color: var(--pops-bd-color);\n    --pops-content-color: #e5e5e5;\n    --pops-components-is-disabled-text-color: #a8abb2;\n    --pops-components-is-disabled-bg-color: #262727;\n  }\n}\n.pops {\n  color: var(--pops-color);\n  background-color: var(--pops-bg-color);\n  border: 1px solid var(--pops-bd-color);\n  border-radius: 4px;\n  font-size: var(--pops-font-size);\n  line-height: normal;\n  box-shadow: 0 0 12px var(--pops-box-shadow-color);\n  box-sizing: border-box;\n  overflow: hidden;\n  transition: all 0.35s;\n  display: flex;\n  flex-direction: column;\n}\n.pops-anim {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.pops-anim[anim=""] {\n  top: unset;\n  right: unset;\n  bottom: unset;\n  left: unset;\n  width: unset;\n  height: unset;\n  transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n  animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: inherit;\n  font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n  --pops-mask-bg-opacity: 0.4;\n  --pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  border: 0;\n  border-radius: 0;\n  background-color: var(--pops-mask-bg-color);\n  box-shadow: none;\n  transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n  float: right;\n  margin: 0 0;\n  outline: 0;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: #888;\n  cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n  outline: 0 !important;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: rgb(136, 136, 136);\n  cursor: pointer;\n  transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n  color: rgb(144, 147, 153);\n  font-size: inherit;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n}\nbutton.pops-header-control svg {\n  height: 1.25em;\n  width: 1.25em;\n}\nbutton.pops-header-control {\n  right: 15px;\n  padding: 0;\n  border: none;\n  outline: 0;\n  background: 0 0;\n  cursor: pointer;\n  position: unset;\n  line-height: normal;\n}\nbutton.pops-header-control i:hover {\n  color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n  margin: 0 6px;\n  display: flex;\n  align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n  display: flex;\n  gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n  font-size: 0.85em;\n  color: #000;\n  background-color: #f0f0f0;\n  border-radius: 3px;\n  border: 0;\n  padding: 0.2em 0;\n  white-space: normal;\n  background: #f5f5f5;\n  text-wrap: wrap;\n  text-align: left;\n  word-spacing: normal;\n  word-break: normal;\n  word-wrap: normal;\n  line-height: 1.4;\n  -moz-tab-size: 8;\n  -o-tab-size: 8;\n  tab-size: 8;\n  -webkit-hyphens: none;\n  -moz-hyphens: none;\n  -ms-hyphens: none;\n  hyphens: none;\n  direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n  letter-spacing: -0.2em;\n  content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-bottom: 1px solid var(--pops-title-border-color);\n  width: 100%;\n  height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n  color: var(--pops-title-color);\n  width: 100%;\n  overflow: hidden;\n  text-indent: 15px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-weight: 500;\n  line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n  width: 100%;\n  /*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n  flex: 1;\n  overflow: auto;\n  word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n  color: var(--pops-content-color);\n  padding: 5px 10px;\n  text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n  display: flex;\n  padding: 10px 10px 10px 10px;\n  width: 100%;\n  height: var(--container-bottom-btn-height);\n  max-height: var(--container-bottom-btn-height);\n  line-height: normal;\n  border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n  text-align: right;\n  align-items: center;\n}\n';
   var ninePalaceGridPositionCSS =
     '.pops[position="top_left"] {\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n.pops[position="top"] {\n  position: fixed;\n  top: 0;\n  left: 50%;\n  transform: translateX(-50%);\n}\n.pops[position="top_right"] {\n  position: fixed;\n  top: 0;\n  right: 0;\n}\n.pops[position="center_left"] {\n  position: fixed;\n  top: 50%;\n  left: 0;\n  transform: translateY(-50%);\n}\n.pops[position="center"] {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.pops[position="center_right"] {\n  position: fixed;\n  top: 50%;\n  right: 0;\n  transform: translateY(-50%);\n}\n.pops[position="bottom_left"] {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n}\n.pops[position="bottom"] {\n  position: fixed;\n  bottom: 0;\n  left: 50%;\n  transform: translate(-50%, 0);\n}\n.pops[position="bottom_right"] {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n';
   var scrollbarCSS =
@@ -6455,7 +6526,7 @@
   var folderCSS =
     '.pops-folder-list {\n  --folder-arrow-fill-color: #d4d7de;\n  --folder-arrow-active-fill-color: #06a7ff;\n  --header-breadcrumb-text-color: #06a7ff;\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-last-text-color: #999999;\n  --table-header-row-text-color: #818999;\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-row-text-color: #05082c;\n  --table-body-row-file-name-text-color: #05082c;\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-file-name-hover-text-color: #06a7ff;\n  --table-body-row-content-text-color: #818999;\n}\n.pops-folder-list .cursor-p {\n  cursor: pointer;\n}\n.pops-folder-list a {\n  background: 0 0;\n  text-decoration: none;\n  -webkit-tap-highlight-color: transparent;\n  color: var(--header-breadcrumb-text-color);\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  width: 100%;\n  table-layout: fixed;\n  border-collapse: collapse;\n  border-spacing: 0;\n  padding: 0 20px;\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  height: 100%;\n  background: 0 0;\n  overflow: hidden;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -ms-flex-direction: column;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n}\ntable.pops-folder-list-table__body {\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list table tr {\n  line-height: normal;\n  align-content: center;\n}\n.pops-folder-list-table__header-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-header-row-text-color);\n  text-align: left;\n  font-size: 12px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list-table__body-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-body-row-text-color);\n  font-size: 12px;\n}\n.pops-folder-list-table__body-row:hover {\n  background-color: var(--table-body-row-hover-bg-color);\n  border-color: var(--table-body-row-hover-bd-color);\n  border: 0;\n  outline: none;\n}\n.pops-folder-list table th {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-th-text-color);\n}\n.pops-folder-list table td {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-td-text-color);\n  position: relative;\n}\n.pops-folder-list .list-name-text {\n  display: inline-block;\n  padding-left: 12px;\n  line-height: normal;\n  align-content: center;\n  max-width: 176px;\n}\n.pops-folder-list-file-name > div {\n  display: flex;\n  align-items: center;\n}\n\n.pops-mobile-folder-list-file-name {\n  display: flex;\n  align-items: center;\n}\n.pops-mobile-folder-list-file-name > div {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: flex-start;\n  align-items: flex-start;\n  padding: 6px 0px;\n  flex-direction: column;\n}\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\n  width: 45px;\n  height: 45px;\n}\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\n  padding-left: unset;\n  max-width: 250px;\n  overflow-x: hidden;\n  font-weight: 400;\n  line-height: unset;\n  margin-bottom: 4px;\n  white-space: normal;\n  text-overflow: unset;\n}\n\n/* 修改滚动 */\n.pops-folder-content {\n  overflow: hidden !important;\n}\n.pops-folder-content .pops-folder-list {\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n}\n.pops-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-folder-content table.pops-folder-list-table__body {\n  overflow: auto;\n}\n.pops-folder-content .pops-folder-list-table__header-div {\n  flex: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\n  display: none;\n}\n\n.pops-folder-list .pops-folder-list-file-name-title-text {\n  color: var(--table-body-row-file-name-text-color);\n}\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\n  text-decoration: none;\n  color: var(--table-body-row-file-name-hover-text-color);\n}\n.pops-folder-list .text-ellip {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-folder-list .content {\n  color: var(--table-body-row-content-text-color);\n  position: relative;\n  width: 100%;\n  text-align: left;\n}\n.pops-folder-list .inline-block-v-middle {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .flex-a-i-center {\n  display: flex;\n  align-items: center;\n}\n.pops-folder-list .u-file-icon {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .u-file-icon--list {\n  width: 32px;\n  height: 32px;\n}\n.pops-folder-list .pops-folder-list-file-icon {\n  line-height: normal;\n  align-content: center;\n  position: relative;\n  vertical-align: middle;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\n  flex: 1;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  min-height: 17px;\n  flex-wrap: wrap;\n}\n.pops-folder-list .pops-folder-list-table__sort {\n  display: inline-flex;\n  margin-left: 4px;\n  flex-direction: column;\n}\n\n.pops-folder-list .pops-folder-icon-arrow {\n  width: 10px;\n  height: 10px;\n  fill: var(--folder-arrow-fill-color);\n}\n.pops-folder-list .pops-folder-icon-active {\n  fill: var(--folder-arrow-active-fill-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb {\n  padding: 4px 20px;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  -webkit-box-pack: start;\n  -webkit-justify-content: start;\n  -ms-flex-pack: start;\n  justify-content: flex-start;\n  min-height: 35px;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\n  font-size: 12px;\n  color: var(--header-breadcrumb-all-files-text-color);\n  line-height: normal;\n  align-content: center;\n  font-weight: 700;\n  display: inline-block;\n  max-width: 140px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-wrap: normal;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\n  color: var(--header-breadcrumb-all-files-last-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\n  font-size: 14px;\n  color: var(--header-breadcrumb-all-files-first-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\n  width: 16px;\n  height: 16px;\n}\n.pops-folder-list .iconArrow {\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\n    55% 50%/6px 9px no-repeat;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="folder"] {\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n  }\n  .pops-folder-list {\n    --header-breadcrumb-text-color: #06a7ff;\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-last-text-color: #818999;\n    --table-body-row-text-color: #f7f8fa;\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-td-text-color: #495366;\n    --table-body-row-hover-bd-color: #1f2022;\n    --table-body-row-hover-bg-color: #1f2022;\n    --table-body-row-file-name-text-color: #f7f8fa;\n  }\n}\n';
   var panelCSS =
-    '.pops[type-value="panel"] {\n  --pops-bg-color: #f2f2f2;\n  --pops-color: #333333;\n  --panel-title-bg-color: #ffffff;\n\n  --panel-aside-bg-color: #ffffff;\n  --panel-aside-hover-color: rgb(64, 158, 255);\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n  --pops-panel-forms-margin-top-bottom: 10px;\n  --pops-panel-forms-margin-left-right: 20px;\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n  --pops-panel-forms-header-padding-top-bottom: 15px;\n  --pops-panel-forms-header-padding-left-right: 10px;\n  --pops-panel-forms-container-item-left-text-gap: 6px;\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n  --pops-panel-forms-container-item-bg-color: #ffffff;\n  --pops-panel-forms-container-item-title-color: #333;\n  --pops-panel-forms-container-item-border-radius: 6px;\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\n  --pops-panel-forms-container-li-padding-left-right: 16px;\n\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n  color: var(--pops-color);\n  background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n  background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\n/* 左侧的列表 */\naside.pops-panel-aside {\n  box-sizing: border-box;\n  flex-shrink: 0;\n  max-width: 200px;\n  min-width: 100px;\n  height: 100%;\n  background: var(--panel-aside-bg-color);\n  border-right: 1px solid var(--panel-aside-bg-color);\n  font-size: 0.9em;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n  overflow: auto;\n}\naside.pops-panel-aside ul li {\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 左侧的列表 */\n\n/* 底部的容器 */\n.pops-panel-bottom-wrapper {\n  background: var(--panel-aside-bg-color);\n  border-top: 1px solid #ebeef5;\n}\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\n  border-top: 0;\n}\n.pops-panel-bottom-container {\n  display: flex;\n  flex-wrap: nowrap;\n  justify-content: space-between;\n}\n.pops-panel-bottom-left-container {\n}\n.pops-panel-bottom-right-container {\n}\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\n  list-style-type: none;\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n}\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 底部的容器 */\n\n.pops-panel-content {\n  display: flex;\n  flex-direction: row;\n  flex: 1;\n  overflow: auto;\n  flex-basis: auto;\n  box-sizing: border-box;\n  min-width: 0;\n  bottom: 0 !important;\n}\n\n.pops-panel-section-wrapper {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\n\nsection.pops-panel-container {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n  flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n  display: flex;\n  justify-content: flex-start !important;\n  margin: 0px !important;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n  text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n  overflow: auto;\n  /*flex: 1;*/\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin: var(--pops-panel-forms-margin-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n  gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n  margin: 10px;\n  margin-left: calc(\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n  );\n  font-size: 0.9em;\n  text-align: left;\n  color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n  /* 去除<li>左侧的圆点 */\n  display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px 0px;\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n  text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n  .pops-panel-forms-container-item\n  ul.pops-panel-forms-container-item-formlist\n  li:last-child {\n  border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n  display: flex;\n  flex-direction: column;\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n  display: flex;\n  align-items: center;\n  fill: #6c6c6c;\n  justify-content: space-between;\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n  transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n  transform: rotate(-90deg);\n  transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\n  height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n  margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n  transition: height 0.3s;\n  overflow: hidden;\n  border-radius: unset;\n  background: unset;\n  margin: 0;\n  height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n  /* 兼容移动端CSS */\n  .pops[type-value="panel"] {\n    --pops-panel-forms-margin-left-right: 10px;\n  }\n  .pops[type-value="panel"] {\n    width: 92%;\n    width: 92vw;\n    width: 92dvw;\n  }\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n    max-width: 20%;\n    min-width: auto;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n    text-align: left;\n    --pops-panel-forms-margin-left-right: 0px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n    margin: 0px !important;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\n    margin: 10px 10px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n    max-width: 55%;\n  }\n  .pops[type-value="panel"] .pops-panel-select .el-select__selected-item.el-select__placeholder {\n    max-width: -moz-available;\n    max-width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\n    padding: 0 4px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n    min-width: 88px !important;\n    width: -moz-available;\n    width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n    font-size: 16px;\n  }\n  .pops[type-value="panel"] .pops-panel-title p[pops],\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\n    font-size: 14px;\n  }\n}\n/* switch的CSS */\n.pops-panel-switch {\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n  --panel-switch-circle-color: #dcdfe6;\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --panel-switch-checked-circle-color: #409eff;\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n  display: inline-flex;\n  flex-direction: row-reverse;\n  align-items: center;\n  position: relative;\n  font-size: 14px;\n  line-height: normal;\n  align-content: center;\n  height: 32px;\n  vertical-align: middle;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n  position: absolute;\n  width: 0;\n  height: 0;\n  opacity: 0;\n  margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n  display: inline-flex;\n  position: relative;\n  align-items: center;\n  min-width: 40px;\n  height: 20px;\n  border: 1px solid var(--panel-switch-core-bd-color);\n  outline: 0;\n  border-radius: 10px;\n  box-sizing: border-box;\n  background: var(--panel-switch-core-bg-color);\n  cursor: pointer;\n  transition:\n    border-color 0.3s,\n    background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n  position: absolute;\n  left: 1px;\n  border-radius: 100%;\n  transition: all 0.3s;\n  width: 16px;\n  height: 16px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: var(--panel-switch-circle-bg-color);\n  color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n  border-color: var(--panel-switch-checked-core-bd-color);\n  background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n  left: calc(100% - 17px);\n  color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n  overflow: hidden;\n  height: 25px;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n  height: 6px;\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\n  outline: 0;\n  -webkit-appearance: none;\n  appearance: none;\n  width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n  height: 6px;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n  --pops-slider-color-white: #ffffff;\n  --pops-slider-color-primary: #409eff;\n  --pops-slider-color-info: #909399;\n  --pops-slider-text-color-placeholder: #a8abb2;\n  --pops-slider-border-color-light: #e4e7ed;\n  --pops-slider-border-radius-circle: 100%;\n  --pops-slider-transition-duration-fast: 0.2s;\n\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n  --pops-slider-border-radius: 3px;\n  --pops-slider-height: 6px;\n  --pops-slider-button-size: 20px;\n  --pops-slider-button-wrapper-size: 36px;\n  --pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n  width: 100%;\n  height: 32px;\n  display: flex;\n  align-items: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider-width {\n  flex: 0 0 52%;\n  margin-left: 10px;\n}\n\n.pops-slider__runway {\n  flex: 1;\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-runway-bg-color);\n  border-radius: var(--pops-slider-border-radius);\n  position: relative;\n  cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n  margin-right: 30px;\n  width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n  cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n  background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n  border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__input {\n  flex-shrink: 0;\n  width: 130px;\n}\n\n.pops-slider__bar {\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-main-bg-color);\n  border-top-left-radius: var(--pops-slider-border-radius);\n  border-bottom-left-radius: var(--pops-slider-border-radius);\n  position: absolute;\n}\n\n.pops-slider__button-wrapper {\n  height: var(--pops-slider-button-wrapper-size);\n  width: var(--pops-slider-button-wrapper-size);\n  position: absolute;\n  z-index: 1;\n  top: var(--pops-slider-button-wrapper-offset);\n  transform: translate(-50%);\n  background-color: transparent;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  line-height: normal;\n  outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n  display: inline-block;\n  content: "";\n  height: 100%;\n  vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button {\n  display: inline-block;\n  width: var(--pops-slider-button-size);\n  height: var(--pops-slider-button-size);\n  vertical-align: middle;\n  border: solid 2px var(--pops-slider-main-bg-color);\n  background-color: var(--pops-slider-color-white);\n  border-radius: 50%;\n  box-sizing: border-box;\n  transition: var(--pops-slider-transition-duration-fast);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n  transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button.dragging {\n  cursor: grabbing;\n}\n\n.pops-slider__stop {\n  position: absolute;\n  height: var(--pops-slider-height);\n  width: var(--pops-slider-height);\n  border-radius: var(--pops-slider-border-radius-circle);\n  background-color: var(--pops-slider-stop-bg-color);\n  transform: translate(-50%);\n}\n\n.pops-slider__marks {\n  top: 0;\n  left: 12px;\n  width: 18px;\n  height: 100%;\n}\n\n.pops-slider__marks-text {\n  position: absolute;\n  transform: translate(-50%);\n  font-size: 14px;\n  color: var(--pops-slider-color-info);\n  margin-top: 15px;\n  white-space: pre;\n}\n\n.pops-slider.is-vertical {\n  position: relative;\n  display: inline-flex;\n  width: auto;\n  height: 100%;\n  flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n  width: var(--pops-slider-height);\n  height: 100%;\n  margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n  width: var(--pops-slider-height);\n  height: auto;\n  border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n  top: auto;\n  left: var(--pops-slider-button-wrapper-offset);\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n  margin-top: 0;\n  left: 15px;\n  transform: translateY(50%);\n}\n\n.pops-slider--large {\n  height: 40px;\n}\n\n.pops-slider--small {\n  height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n  --el-disabled-text-color: #a8abb2;\n  --el-disabled-bg-color: #f5f7fa;\n  --el-disabled-border-color: #e4e7ed;\n  --el-color-danger: #f56c6c;\n\n  --pops-panel-components-input-border-radius: 4px;\n  --pops-panel-components-input-text-color: #000000;\n  --pops-panel-components-input-text-bg-color: transparent;\n  --pops-panel-components-input-text-default-padding: 8px;\n  --pops-panel-components-input-bd-color: #dcdfe6;\n  --pops-panel-components-input-bg-color: #ffffff;\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\n  --pops-panel-components-input-focus-bd-color: #409eff;\n  --pops-panel-components-input-suffix-color: #a8abb2;\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n  position: relative;\n  box-shadow: none;\n  width: 200px;\n  border: 0px;\n}\n.pops-panel-input_inner {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  border: 1px solid var(--pops-panel-components-input-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  background-color: var(--pops-panel-components-input-bg-color);\n  box-shadow: none;\n}\n.pops-panel-input_inner:hover {\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input_inner:has(input:focus) {\n  outline: 0;\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  box-shadow: none;\n}\n.pops-panel-input input {\n  display: inline-flex;\n  justify-content: center;\n  text-align: start;\n  align-items: center;\n  align-content: center;\n  white-space: nowrap;\n  cursor: text;\n  box-sizing: border-box;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  vertical-align: middle;\n  -webkit-appearance: none;\n  appearance: none;\n  color: var(--pops-panel-components-input-text-color);\n  background-color: var(--pops-panel-components-input-text-bg-color);\n  outline: 0;\n  transition: 0.1s;\n  border: 0;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: normal;\n  height: 32px;\n  width: 100%;\n  flex: 1;\n  /*margin-right: calc(1em + 8px);*/\n  margin: 0px;\n  padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input input[type="search"]::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n  display: none;\n}\n/* 颜色选择器不需要那么宽 */\n.pops-panel-input:has(input[type="color"]) {\n  width: 50px;\n}\n.pops-panel-input input[type="color"] {\n  padding: 0px;\n}\n.pops-panel-input_inner:has(input[type="file"]) {\n  border: 0px;\n  background: transparent;\n}\n.pops-panel-input input[type="file"] {\n  padding: 0px;\n  line-height: 32px;\n}\n.pops-panel-input span.pops-panel-input__suffix {\n  display: inline-flex;\n  white-space: nowrap;\n  flex-shrink: 0;\n  flex-wrap: nowrap;\n  height: 100%;\n  height: -moz-available;\n  height: -webkit-fill-available;\n  text-align: center;\n  color: var(--pops-panel-components-input-suffix-color);\n  background: var(--pops-panel-components-input-suffix-bg-color);\n  transition: all 0.3s;\n  pointer-events: none;\n  padding: 0 8px;\n  position: relative;\n  right: 0px;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n  pointer-events: all;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: inline-flex;\n}\n/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {\n  padding-right: 0;\n}\n.pops-panel-input .pops-panel-icon {\n  cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n  height: inherit;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n  height: 1em;\n  width: 1em;\n}\n\n.pops-input-disabled {\n  background-color: var(--pops-components-is-disabled-bg-color);\n  border-radius: 4px;\n}\n.pops-panel-input.pops-input-disabled:hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-disabled-text-color);\n  -webkit-text-fill-color: var(--el-disabled-text-color);\n  cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  display: none;\n}\n/* 校验样式 */\n.pops-panel-input:has(.pops-panel-input-valid-error) {\n  --pops-panel-components-input-bd-color: var(--el-color-danger) !important;\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n  --pops-panel-components-input-focus-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input .pops-panel-input-valid-error {\n  width: 100%;\n  color: var(--el-color-danger);\n  font-weight: 500;\n  font-size: 0.8em;\n  box-sizing: border-box;\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n  --pops-panel-components-textarea-text-color: #000000;\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n  width: 100%;\n  /*vertical-align: bottom;*/\n  position: relative;\n  display: block;\n  resize: none;\n  padding: 5px 11px;\n  /*line-height: 1;*/\n  box-sizing: border-box;\n  font-size: inherit;\n  font-family: inherit;\n  color: var(--pops-panel-components-textarea-text-color);\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\n  background-image: none;\n  -webkit-appearance: none;\n  appearance: none;\n  box-shadow: none;\n  border-radius: 0;\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n  cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n  outline: 0;\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n  --pops-panel-components-select-disabled-text-color: #a8abb2;\n  --pops-panel-components-select-text-color: #000000;\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n  border: 0;\n}\n.pops-panel-select select {\n  width: 100%;\n  height: 32px;\n  line-height: normal;\n  align-content: center;\n  min-width: 200px;\n  border: 1px solid var(--pops-panel-components-select-bd-color);\n  border-radius: 5px;\n  text-align: center;\n  outline: 0;\n  color: var(--pops-panel-components-select-text-color);\n  background-color: var(--pops-panel-components-select-bg-color);\n  box-shadow: none;\n}\n.pops-panel-select select:hover {\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n  cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n  box-shadow: none;\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  box-shadow: none;\n}\n/* select的CSS */\n\n/* select dialog 的CSS */\n.pops-panel-select[data-mode="dialog"] {\n}\n/* select dialog 的CSS */\n\n/* select horizontal 的CSS */\n.pops-panel-select[data-mode="horizontal"] {\n  --pops-panel-components-select-horizontal-selected-text-color: #626aef;\n  --pops-panel-components-select-horizontal-selected-bg-color: #eff0fd;\n}\n.pops-panel-select[data-mode="horizontal"] .el-select__wrapper {\n  padding: 0;\n  gap: 0;\n  border: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item {\n  flex: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  border: 1px solid var(--el-border-color);\n  height: -moz-available;\n  height: -webkit-fill-available;\n  border-left: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:hover {\n  color: var(--el-color-primary);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:first-child {\n  border-left: 1px solid var(--el-border-color);\n  border-top-left-radius: var(--el-border-radius-base);\n  border-bottom-left-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:last-child {\n  border-top-right-radius: var(--el-border-radius-base);\n  border-bottom-right-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item.select__selected-item {\n  color: var(--pops-panel-components-select-horizontal-selected-text-color);\n  background-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n  border-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:has(+ .select__selected-item) {\n  border-right: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item[disabled] {\n  color: var(--pops-panel-components-select-disabled-text-color);\n  --pops-panel-components-select-horizontal-selected-text-color: var(\n    --pops-panel-components-select-disabled-text-color\n  );\n  cursor: not-allowed;\n  background: unset;\n}\n/* select horizontal 的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple,\n.pops-panel-select {\n  --el-border-radius-base: 4px;\n  --el-fill-color-blank: #ffffff;\n  --el-transition-duration: 0.3s;\n  --el-border-color: #cbcbcb;\n  --el-text-color-placeholder: #a8abb2;\n  --color: inherit;\n  --el-select-input-color: #a8abb2;\n  --el-select-input-font-size: 14px;\n  --el-text-color-regular: #606266;\n  --el-color-info: #909399;\n  --el-color-info-light-9: #f4f4f5;\n  --el-color-info-light-8: #e9e9eb;\n  --el-color-primary-light-9: #ecf5ff;\n  --el-color-primary-light-8: #d9ecff;\n  --el-color-primary: #409eff;\n  --el-color-white: #ffffff;\n  width: 200px;\n}\n.pops-panel-select .el-select__wrapper,\n.pops-panel-select-multiple .el-select__wrapper {\n  display: flex;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  text-align: left;\n  font-size: 14px;\n  padding: 4px 12px;\n  gap: 6px;\n  min-height: 32px;\n  line-height: normal;\n  align-content: center;\n  border-radius: var(--el-border-radius-base);\n  background-color: var(--el-fill-color-blank);\n  transition: var(--el-transition-duration);\n  transform: translateZ(0);\n  border: 1px solid var(--el-border-color);\n}\n.pops-panel-select .el-select__wrapper.is-focused,\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n  --el-border-color: var(--el-color-primary);\n}\n.pops-panel-select .el-select__selection,\n.pops-panel-select-multiple .el-select__selection {\n  position: relative;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  flex: 1;\n  min-width: 0;\n  gap: 6px;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="left"] {\n  justify-content: left;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="center"] {\n  justify-content: center;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="right"] {\n  justify-content: right;\n}\n.pops-panel-select .el-select__selected-item,\n.pops-panel-select-multiple .el-select__selected-item {\n  display: flex;\n  flex-wrap: wrap;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-select .el-select__selected-item span {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-panel-select .el-select__selected-item.el-select__choose_tag .el-tag,\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n  max-width: 200px;\n}\n.pops-panel-select .el-select__input-wrapper,\n.pops-panel-select-multiple .el-select__input-wrapper {\n  max-width: 100%;\n}\n.pops-panel-select .el-select__selection.is-near,\n.pops-panel-select-multiple .el-select__selection.is-near {\n  margin-left: -8px;\n}\n.pops-panel-select .el-select__placeholder,\n.pops-panel-select-multiple .el-select__placeholder {\n  position: absolute;\n  display: block;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select .el-select__placeholder.is-transparent,\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-text-color-placeholder);\n}\n.pops-panel-select .el-select__prefix,\n.pops-panel-select .el-select__suffix,\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n  display: flex;\n  align-items: center;\n  flex-shrink: 0;\n  gap: 6px;\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select .el-icon,\n.pops-panel-select-multiple .el-icon {\n  --color: inherit;\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  align-content: center;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: var(--color);\n  font-size: inherit;\n}\n.pops-panel-select .el-icon svg,\n.pops-panel-select-multiple .el-icon svg {\n  height: 1em;\n  width: 1em;\n}\n.pops-panel-select .el-select__caret,\n.pops-panel-select-multiple .el-select__caret {\n  color: var(--el-select-input-color);\n  font-size: var(--el-select-input-font-size);\n  transition: transform var(--el-transition-duration);\n  transform: rotate(0);\n  cursor: pointer;\n}\n/* 把箭头旋转 */\n.pops-panel-select[data-show-option] .el-select__caret,\n.pops-panel-select-multiple[data-show-option] .el-select__caret {\n  transform: rotate(180deg);\n}\n.pops-panel-select-multiple .el-tag {\n  --el-tag-font-size: 12px;\n  --el-tag-border-radius: 4px;\n  --el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n  background-color: var(--el-tag-bg-color);\n  border-color: var(--el-tag-border-color);\n  color: var(--el-tag-text-color);\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  vertical-align: middle;\n  height: 24px;\n  padding: 0 9px;\n  font-size: var(--el-tag-font-size);\n  line-height: normal;\n  align-content: center;\n  border-width: 1px;\n  border-style: solid;\n  border-radius: var(--el-tag-border-radius);\n  box-sizing: border-box;\n  white-space: nowrap;\n  --el-icon-size: 14px;\n  --el-tag-bg-color: var(--el-color-primary-light-9);\n  --el-tag-border-color: var(--el-color-primary-light-8);\n  --el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n  cursor: pointer;\n  border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-bg-color: var(--el-color-info-light-9);\n  --el-tag-border-color: var(--el-color-info-light-8);\n  --el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n  padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n  min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  flex-shrink: 0;\n  color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n  color: var(--el-color-white);\n  background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n  border-radius: 50%;\n  cursor: pointer;\n  font-size: calc(var(--el-icon-size) - 2px);\n  height: var(--el-icon-size);\n  width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n  display: block;\n  line-height: normal;\n  align-content: center;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n/* 禁用样式 */\n.pops-panel-select-disable {\n  --el-fill-color-blank: #f5f7fa;\n  --color: #a8abb2;\n  --el-border-color: #cbcbcb;\n}\n.pops-panel-select-disable .el-tag.el-tag--info {\n  --el-tag-bg-color: #e7e7e7;\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-disable .el-select__selection .el-tag,\n.pops-panel-select-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-disable .el-select__wrapper,\n.pops-panel-select-disable .el-select__caret {\n  cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n  cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\n  border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n  display: flex;\n  align-items: center;\n  color: #6c6c6c;\n  fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\n  display: flex;\n  align-items: center;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n        var(--pops-panel-forms-header-icon-size)\n    );\n  gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n  width: var(--pops-panel-forms-header-icon-size);\n  height: var(--pops-panel-forms-header-icon-size);\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n  width: inherit;\n  height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n  display: flex;\n  align-items: baseline;\n  flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="panel"] {\n    --pops-bg-color: #000000;\n    --pops-color: #f2f2f2;\n    --panel-title-bg-color: #000000;\n    --panel-aside-bg-color: #262626;\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n    --pops-panel-forms-container-item-bg-color: #262626;\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\n\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n  }\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n    fill: #f2f2f2;\n  }\n\n  /* switch的CSS */\n  .pops-panel-switch {\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n    --panel-switch-circle-color: #dcdfe6;\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n    --panel-switch-checked-circle-color: #409eff;\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n  }\n  /* select的CSS */\n  .pops-panel-select {\n    --pops-panel-components-select-text-color: #f2f2f2;\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-components-select-bg-color: #141414;\n  }\n  /* select-multiple的CSS*/\n  .pops-panel-select-multiple {\n    --el-fill-color-blank: #141414;\n    --el-border-color: #4c4d4f;\n    --el-text-color-placeholder: #a8abb2;\n    --el-select-input-color: #a8abb2;\n    --el-text-color-regular: #606266;\n    --el-color-info: #909399;\n    --el-color-info-light-8: #e9e9eb;\n    --el-color-primary-light-9: #ecf5ff;\n    --el-color-primary-light-8: #d9ecff;\n    --el-color-primary: #409eff;\n    --el-color-white: #ffffff;\n  }\n  .pops-panel-select-multiple .el-tag {\n    --el-color-info-light-9: #202121;\n  }\n  .pops-panel-select-multiple-disable {\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n  }\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\n    --el-tag-bg-color: #2f2f2f;\n  }\n  /* select-multiple的CSS*/\n  /* slider的CSS */\n  .pops-slider {\n    --pops-slider-border-color-light: #414243;\n  }\n  /* input的CSS */\n  .pops-panel-input {\n    --pops-panel-components-input-text-color: #f2f2f2;\n    --pops-panel-components-input-bd-color: #4f5052;\n    --pops-panel-components-input-bg-color: #141414;\n    --pops-panel-components-input-hover-bd-color: #6f7175;\n    --pops-panel-components-input-focus-bd-color: #409eff;\n    --pops-panel-components-input-suffix-color: #a8abb2;\n  }\n  /* textarea的CSS */\n  .pops-panel-textarea {\n    --pops-panel-components-textarea-text-color: #f2f2f2;\n    --pops-panel-components-textarea-text-bg-color: #141414;\n    --pops-panel-components-textarea-bd-color: #4f5052;\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\n  }\n  .pops-panel-textarea-disable {\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n  }\n  /* slider */\n  .pops-slider {\n    --pops-slider-text-color-placeholder: #8d9095;\n  }\n}\n';
+    '.pops[type-value="panel"] {\n  --pops-bg-color: #f2f2f2;\n  --pops-color: #333333;\n  --panel-title-bg-color: #ffffff;\n\n  --panel-aside-bg-color: #ffffff;\n  --panel-aside-hover-color: rgb(64, 158, 255);\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n  --pops-panel-forms-margin-top-bottom: 10px;\n  --pops-panel-forms-margin-left-right: 20px;\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n  --pops-panel-forms-header-padding-top-bottom: 15px;\n  --pops-panel-forms-header-padding-left-right: 10px;\n  --pops-panel-forms-container-item-left-text-gap: 6px;\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n  --pops-panel-forms-container-item-bg-color: #ffffff;\n  --pops-panel-forms-container-item-title-color: #333;\n  --pops-panel-forms-container-item-border-radius: 6px;\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\n  --pops-panel-forms-container-li-padding-left-right: 16px;\n\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n  color: var(--pops-color);\n  background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n  background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\n/* 左侧的列表 */\naside.pops-panel-aside {\n  box-sizing: border-box;\n  flex-shrink: 0;\n  max-width: 200px;\n  min-width: 100px;\n  height: 100%;\n  background: var(--panel-aside-bg-color);\n  border-right: 1px solid var(--panel-aside-bg-color);\n  font-size: 0.9em;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n  overflow: auto;\n}\naside.pops-panel-aside ul li {\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 左侧的列表 */\n\n/* 底部的容器 */\n.pops-panel-bottom-wrapper {\n  background: var(--panel-aside-bg-color);\n  border-top: 1px solid #ebeef5;\n}\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\n  border-top: 0;\n}\n.pops-panel-bottom-container {\n  display: flex;\n  flex-wrap: nowrap;\n  justify-content: space-between;\n}\n.pops-panel-bottom-left-container {\n}\n.pops-panel-bottom-right-container {\n}\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\n  list-style-type: none;\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n}\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 底部的容器 */\n\n.pops-panel-content {\n  display: flex;\n  flex-direction: row;\n  flex: 1;\n  overflow: auto;\n  flex-basis: auto;\n  box-sizing: border-box;\n  min-width: 0;\n  bottom: 0 !important;\n}\n\n.pops-panel-section-wrapper {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\n\nsection.pops-panel-container {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n  flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n  display: flex;\n  justify-content: flex-start !important;\n  margin: 0px !important;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n  text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n  overflow: auto;\n  /*flex: 1;*/\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin: var(--pops-panel-forms-margin-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n  gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n  margin: 10px;\n  margin-left: calc(\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n  );\n  font-size: 0.9em;\n  text-align: left;\n  color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n  /* 去除<li>左侧的圆点 */\n  display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px 0px;\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n  text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n  .pops-panel-forms-container-item\n  ul.pops-panel-forms-container-item-formlist\n  li:last-child {\n  border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n  display: flex;\n  flex-direction: column;\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n  display: flex;\n  align-items: center;\n  fill: #6c6c6c;\n  justify-content: space-between;\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n  transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n  transform: rotate(-90deg);\n  transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\n  height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n  margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n  transition: height 0.3s;\n  overflow: hidden;\n  border-radius: unset;\n  background: unset;\n  margin: 0;\n  height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n  /* 兼容移动端CSS */\n  .pops[type-value="panel"] {\n    --pops-panel-forms-margin-left-right: 10px;\n  }\n  .pops[type-value="panel"] {\n    width: 92%;\n    width: 92vw;\n    width: 92dvw;\n  }\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n    max-width: 20%;\n    min-width: auto;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n    text-align: left;\n    --pops-panel-forms-margin-left-right: 0px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n    margin: 0px !important;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\n    margin: 10px 10px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n    max-width: 55%;\n  }\n  .pops[type-value="panel"] .pops-panel-select .el-select__selected-item.el-select__placeholder {\n    max-width: -moz-available;\n    max-width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\n    padding: 0 4px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n    min-width: 88px !important;\n    width: -moz-available;\n    width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n    font-size: 16px;\n  }\n  .pops[type-value="panel"] .pops-panel-title p[pops],\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\n    font-size: 14px;\n  }\n}\n/* switch的CSS */\n.pops-panel-switch {\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n  --panel-switch-circle-color: #dcdfe6;\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --panel-switch-checked-circle-color: #409eff;\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n  display: inline-flex;\n  flex-direction: row-reverse;\n  align-items: center;\n  position: relative;\n  font-size: 14px;\n  line-height: normal;\n  align-content: center;\n  height: 32px;\n  vertical-align: middle;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n  position: absolute;\n  width: 0;\n  height: 0;\n  opacity: 0;\n  margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n  display: inline-flex;\n  position: relative;\n  align-items: center;\n  min-width: 40px;\n  height: 20px;\n  border: 1px solid var(--panel-switch-core-bd-color);\n  outline: 0;\n  border-radius: 10px;\n  box-sizing: border-box;\n  background: var(--panel-switch-core-bg-color);\n  cursor: pointer;\n  transition:\n    border-color 0.3s,\n    background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n  position: absolute;\n  left: 1px;\n  border-radius: 100%;\n  transition: all 0.3s;\n  width: 16px;\n  height: 16px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: var(--panel-switch-circle-bg-color);\n  color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n  border-color: var(--panel-switch-checked-core-bd-color);\n  background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n  left: calc(100% - 17px);\n  color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n  overflow: hidden;\n  height: 25px;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n  height: 6px;\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\n  outline: 0;\n  -webkit-appearance: none;\n  appearance: none;\n  width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n  height: 6px;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n  --pops-slider-color-white: #ffffff;\n  --pops-slider-color-primary: #409eff;\n  --pops-slider-color-info: #909399;\n  --pops-slider-text-color-placeholder: #a8abb2;\n  --pops-slider-border-color-light: #e4e7ed;\n  --pops-slider-border-radius-circle: 100%;\n  --pops-slider-transition-duration-fast: 0.2s;\n\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n  --pops-slider-border-radius: 3px;\n  --pops-slider-height: 6px;\n  --pops-slider-button-size: 20px;\n  --pops-slider-button-wrapper-size: 36px;\n  --pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n  width: 100%;\n  height: 32px;\n  display: flex;\n  align-items: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider-width {\n  flex: 0 0 52%;\n  margin-left: 10px;\n}\n\n.pops-slider__runway {\n  flex: 1;\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-runway-bg-color);\n  border-radius: var(--pops-slider-border-radius);\n  position: relative;\n  cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n  margin-right: 30px;\n  width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n  cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n  background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n  border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__input {\n  flex-shrink: 0;\n  width: 130px;\n}\n\n.pops-slider__bar {\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-main-bg-color);\n  border-top-left-radius: var(--pops-slider-border-radius);\n  border-bottom-left-radius: var(--pops-slider-border-radius);\n  position: absolute;\n}\n\n.pops-slider__button-wrapper {\n  height: var(--pops-slider-button-wrapper-size);\n  width: var(--pops-slider-button-wrapper-size);\n  position: absolute;\n  z-index: 1;\n  top: var(--pops-slider-button-wrapper-offset);\n  transform: translate(-50%);\n  background-color: transparent;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  line-height: normal;\n  outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n  display: inline-block;\n  content: "";\n  height: 100%;\n  vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button {\n  display: inline-block;\n  width: var(--pops-slider-button-size);\n  height: var(--pops-slider-button-size);\n  vertical-align: middle;\n  border: solid 2px var(--pops-slider-main-bg-color);\n  background-color: var(--pops-slider-color-white);\n  border-radius: 50%;\n  box-sizing: border-box;\n  transition: var(--pops-slider-transition-duration-fast);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n  transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button.dragging {\n  cursor: grabbing;\n}\n\n.pops-slider__stop {\n  position: absolute;\n  height: var(--pops-slider-height);\n  width: var(--pops-slider-height);\n  border-radius: var(--pops-slider-border-radius-circle);\n  background-color: var(--pops-slider-stop-bg-color);\n  transform: translate(-50%);\n}\n\n.pops-slider__marks {\n  top: 0;\n  left: 12px;\n  width: 18px;\n  height: 100%;\n}\n\n.pops-slider__marks-text {\n  position: absolute;\n  transform: translate(-50%);\n  font-size: 14px;\n  color: var(--pops-slider-color-info);\n  margin-top: 15px;\n  white-space: pre;\n}\n\n.pops-slider.is-vertical {\n  position: relative;\n  display: inline-flex;\n  width: auto;\n  height: 100%;\n  flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n  width: var(--pops-slider-height);\n  height: 100%;\n  margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n  width: var(--pops-slider-height);\n  height: auto;\n  border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n  top: auto;\n  left: var(--pops-slider-button-wrapper-offset);\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n  margin-top: 0;\n  left: 15px;\n  transform: translateY(50%);\n}\n\n.pops-slider--large {\n  height: 40px;\n}\n\n.pops-slider--small {\n  height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n  --el-disabled-text-color: #a8abb2;\n  --el-disabled-bg-color: #f5f7fa;\n  --el-disabled-border-color: #e4e7ed;\n  --el-color-danger: #f56c6c;\n\n  --pops-panel-components-input-border-radius: 4px;\n  --pops-panel-components-input-text-color: #000000;\n  --pops-panel-components-input-text-bg-color: transparent;\n  --pops-panel-components-input-text-default-padding: 8px;\n  --pops-panel-components-input-bd-color: #dcdfe6;\n  --pops-panel-components-input-bg-color: #ffffff;\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\n  --pops-panel-components-input-focus-bd-color: #409eff;\n  --pops-panel-components-input-suffix-color: #a8abb2;\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n  position: relative;\n  box-shadow: none;\n  width: 200px;\n  border: 0px;\n}\n.pops-panel-input_inner {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  border: 1px solid var(--pops-panel-components-input-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  background-color: var(--pops-panel-components-input-bg-color);\n  box-shadow: none;\n}\n.pops-panel-input_inner:hover {\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input_inner:has(input:focus) {\n  outline: 0;\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  box-shadow: none;\n}\n.pops-panel-input input {\n  display: inline-flex;\n  justify-content: center;\n  text-align: start;\n  align-items: center;\n  align-content: center;\n  white-space: nowrap;\n  cursor: text;\n  box-sizing: border-box;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  vertical-align: middle;\n  -webkit-appearance: none;\n  appearance: none;\n  color: var(--pops-panel-components-input-text-color);\n  background-color: var(--pops-panel-components-input-text-bg-color);\n  outline: 0;\n  transition: 0.1s;\n  border: 0;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: normal;\n  height: 32px;\n  width: 100%;\n  flex: 1;\n  /*margin-right: calc(1em + 8px);*/\n  margin: 0px;\n  padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input input[type="search"]::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n  display: none;\n}\n/* 颜色选择器不需要那么宽 */\n.pops-panel-input:has(input[type="color"]) {\n  width: 50px;\n}\n.pops-panel-input input[type="color"] {\n  padding: 0px;\n}\n.pops-panel-input_inner:has(input[type="file"]) {\n  border: 0px;\n  background: transparent;\n}\n.pops-panel-input input[type="file"] {\n  padding: 0px;\n  line-height: 32px;\n}\n.pops-panel-input span.pops-panel-input__suffix {\n  display: inline-flex;\n  white-space: nowrap;\n  flex-shrink: 0;\n  flex-wrap: nowrap;\n  height: 100%;\n  height: -moz-available;\n  height: -webkit-fill-available;\n  text-align: center;\n  color: var(--pops-panel-components-input-suffix-color);\n  background: var(--pops-panel-components-input-suffix-bg-color);\n  transition: all 0.3s;\n  pointer-events: none;\n  padding: 0 8px;\n  position: relative;\n  right: 0px;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n  pointer-events: all;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: inline-flex;\n}\n/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {\n  padding-right: 0;\n}\n.pops-panel-input .pops-panel-icon {\n  cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n  height: inherit;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n  height: 1em;\n  width: 1em;\n}\n\n.pops-input-disabled {\n  background-color: var(--pops-components-is-disabled-bg-color);\n  border-radius: 4px;\n}\n.pops-panel-input.pops-input-disabled:hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-disabled-text-color);\n  -webkit-text-fill-color: var(--el-disabled-text-color);\n  cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  display: none;\n}\n/* 校验样式 */\n.pops-panel-input:has(.pops-panel-input-valid-error) {\n  --pops-panel-components-input-bd-color: var(--el-color-danger) !important;\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n  --pops-panel-components-input-focus-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input .pops-panel-input-valid-error {\n  width: 100%;\n  color: var(--el-color-danger);\n  font-weight: 500;\n  font-size: 0.8em;\n  box-sizing: border-box;\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n  --pops-panel-components-textarea-text-color: #000000;\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n  width: 100%;\n  /*vertical-align: bottom;*/\n  position: relative;\n  display: block;\n  resize: none;\n  padding: 5px 11px;\n  /*line-height: 1;*/\n  box-sizing: border-box;\n  font-size: inherit;\n  font-family: inherit;\n  color: var(--pops-panel-components-textarea-text-color);\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\n  background-image: none;\n  -webkit-appearance: none;\n  appearance: none;\n  box-shadow: none;\n  border-radius: 0;\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n  cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n  outline: 0;\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n  --pops-panel-components-select-disabled-text-color: #a8abb2;\n  --pops-panel-components-select-text-color: #000000;\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n  border: 0;\n}\n.pops-panel-select select {\n  width: 100%;\n  height: 32px;\n  line-height: normal;\n  align-content: center;\n  min-width: 200px;\n  border: 1px solid var(--pops-panel-components-select-bd-color);\n  border-radius: 5px;\n  text-align: center;\n  outline: 0;\n  color: var(--pops-panel-components-select-text-color);\n  background-color: var(--pops-panel-components-select-bg-color);\n  box-shadow: none;\n}\n.pops-panel-select select:hover {\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n  cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n  box-shadow: none;\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  box-shadow: none;\n}\n/* select的CSS */\n\n/* select dialog 的CSS */\n.pops-panel-select[data-mode="dialog"] {\n}\n/* select dialog 的CSS */\n\n/* select horizontal 的CSS */\n.pops-panel-select[data-mode="horizontal"] {\n  --pops-panel-components-select-horizontal-selected-text-color: #626aef;\n  --pops-panel-components-select-horizontal-selected-bg-color: #eff0fd;\n}\n.pops-panel-select[data-mode="horizontal"] .el-select__wrapper {\n  padding: 0;\n  gap: 0;\n  border: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item {\n  flex: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  border: 1px solid var(--el-border-color);\n  height: -moz-available;\n  height: -webkit-fill-available;\n  border-left: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:hover {\n  color: var(--el-color-primary);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:first-child {\n  border-left: 1px solid var(--el-border-color);\n  border-top-left-radius: var(--el-border-radius-base);\n  border-bottom-left-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:last-child {\n  border-top-right-radius: var(--el-border-radius-base);\n  border-bottom-right-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item.select__selected-item {\n  color: var(--pops-panel-components-select-horizontal-selected-text-color);\n  background-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n  border-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:has(+ .select__selected-item) {\n  border-right: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item[disabled] {\n  color: var(--pops-panel-components-select-disabled-text-color);\n  --pops-panel-components-select-horizontal-selected-text-color: var(\n    --pops-panel-components-select-disabled-text-color\n  );\n  cursor: not-allowed;\n  background: unset;\n}\n/* select horizontal 的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple,\n.pops-panel-select {\n  --el-border-radius-base: 4px;\n  --el-fill-color-blank: #ffffff;\n  --el-transition-duration: 0.3s;\n  --el-border-color: #cbcbcb;\n  --el-text-color-placeholder: #a8abb2;\n  --color: inherit;\n  --el-select-input-color: #a8abb2;\n  --el-select-input-font-size: 14px;\n  --el-text-color-regular: #606266;\n  --el-color-info: #909399;\n  --el-color-info-light-9: #f4f4f5;\n  --el-color-info-light-8: #e9e9eb;\n  --el-color-primary-light-9: #ecf5ff;\n  --el-color-primary-light-8: #d9ecff;\n  --el-color-primary: #409eff;\n  --el-color-white: #ffffff;\n  width: 200px;\n}\n.pops-panel-select .el-select__wrapper,\n.pops-panel-select-multiple .el-select__wrapper {\n  display: flex;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  text-align: left;\n  font-size: 14px;\n  padding: 4px 12px;\n  gap: 6px;\n  min-height: 32px;\n  line-height: normal;\n  align-content: center;\n  border-radius: var(--el-border-radius-base);\n  background-color: var(--el-fill-color-blank);\n  transition: var(--el-transition-duration);\n  transform: translateZ(0);\n  border: 1px solid var(--el-border-color);\n}\n.pops-panel-select .el-select__wrapper.is-focused,\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n  --el-border-color: var(--el-color-primary);\n}\n.pops-panel-select .el-select__selection,\n.pops-panel-select-multiple .el-select__selection {\n  position: relative;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  flex: 1;\n  min-width: 0;\n  gap: 6px;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="left"] {\n  justify-content: left;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="center"] {\n  justify-content: center;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="right"] {\n  justify-content: right;\n}\n.pops-panel-select .el-select__selected-item,\n.pops-panel-select-multiple .el-select__selected-item {\n  display: flex;\n  flex-wrap: wrap;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-select .el-select__selected-item span {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-panel-select .el-select__selected-item.el-select__choose_tag .el-tag,\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n  max-width: 200px;\n}\n.pops-panel-select .el-select__input-wrapper,\n.pops-panel-select-multiple .el-select__input-wrapper {\n  max-width: 100%;\n}\n.pops-panel-select .el-select__selection.is-near,\n.pops-panel-select-multiple .el-select__selection.is-near {\n  margin-left: -8px;\n}\n.pops-panel-select .el-select__placeholder,\n.pops-panel-select-multiple .el-select__placeholder {\n  position: absolute;\n  display: block;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select .el-select__placeholder.is-transparent,\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-text-color-placeholder);\n}\n.pops-panel-select .el-select__prefix,\n.pops-panel-select .el-select__suffix,\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n  display: flex;\n  align-items: center;\n  flex-shrink: 0;\n  gap: 6px;\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select .el-icon,\n.pops-panel-select-multiple .el-icon {\n  --color: inherit;\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  align-content: center;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: var(--color);\n  font-size: inherit;\n}\n.pops-panel-select .el-icon svg,\n.pops-panel-select-multiple .el-icon svg {\n  height: 1em;\n  width: 1em;\n}\n.pops-panel-select .el-select__caret,\n.pops-panel-select-multiple .el-select__caret {\n  color: var(--el-select-input-color);\n  font-size: var(--el-select-input-font-size);\n  transition: transform var(--el-transition-duration);\n  transform: rotate(0);\n  cursor: pointer;\n}\n/* 把箭头旋转 */\n.pops-panel-select[data-show-option] .el-select__caret,\n.pops-panel-select-multiple[data-show-option] .el-select__caret {\n  transform: rotate(180deg);\n}\n.pops-panel-select-multiple .el-tag {\n  --el-tag-font-size: 12px;\n  --el-tag-border-radius: 4px;\n  --el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n  background-color: var(--el-tag-bg-color);\n  border-color: var(--el-tag-border-color);\n  color: var(--el-tag-text-color);\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  vertical-align: middle;\n  height: 24px;\n  padding: 0 9px;\n  font-size: var(--el-tag-font-size);\n  line-height: normal;\n  align-content: center;\n  border-width: 1px;\n  border-style: solid;\n  border-radius: var(--el-tag-border-radius);\n  box-sizing: border-box;\n  white-space: nowrap;\n  --el-icon-size: 14px;\n  --el-tag-bg-color: var(--el-color-primary-light-9);\n  --el-tag-border-color: var(--el-color-primary-light-8);\n  --el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n  cursor: pointer;\n  border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-bg-color: var(--el-color-info-light-9);\n  --el-tag-border-color: var(--el-color-info-light-8);\n  --el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n  padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n  min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  flex-shrink: 0;\n  color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n  color: var(--el-color-white);\n  background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n  border-radius: 50%;\n  cursor: pointer;\n  font-size: calc(var(--el-icon-size) - 2px);\n  height: var(--el-icon-size);\n  width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n  display: block;\n  line-height: normal;\n  align-content: center;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n/* 禁用样式 */\n.pops-panel-select-disable {\n  --el-fill-color-blank: #f5f7fa;\n  --color: #a8abb2;\n  --el-border-color: #cbcbcb;\n}\n.pops-panel-select-disable .el-tag.el-tag--info {\n  --el-tag-bg-color: #e7e7e7;\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-disable .el-select__selection .el-tag,\n.pops-panel-select-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-disable .el-select__wrapper,\n.pops-panel-select-disable .el-select__caret {\n  cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n  cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\n  border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n  display: flex;\n  align-items: center;\n  color: #6c6c6c;\n  fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\n  display: flex;\n  align-items: center;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n        var(--pops-panel-forms-header-icon-size)\n    );\n  gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n  width: var(--pops-panel-forms-header-icon-size);\n  height: var(--pops-panel-forms-header-icon-size);\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n  width: inherit;\n  height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n  display: flex;\n  align-items: baseline;\n  flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="panel"] {\n    --pops-bg-color: #000000;\n    --pops-color: #f2f2f2;\n    --panel-title-bg-color: #000000;\n    --panel-aside-bg-color: #262626;\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n    --pops-panel-forms-container-item-bg-color: #262626;\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\n\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n  }\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n    fill: #f2f2f2;\n  }\n\n  /* switch的CSS */\n  .pops-panel-switch {\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n    --panel-switch-circle-color: #dcdfe6;\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n    --panel-switch-checked-circle-color: #409eff;\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n  }\n  /* select的CSS */\n  .pops-panel-select {\n    --pops-panel-components-select-text-color: #f2f2f2;\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-components-select-bg-color: #141414;\n  }\n  /* select-multiple的CSS*/\n  .pops-panel-select-multiple {\n    --el-fill-color-blank: #141414;\n    --el-border-color: #4c4d4f;\n    --el-text-color-placeholder: #a8abb2;\n    --el-select-input-color: #a8abb2;\n    --el-text-color-regular: #606266;\n    --el-color-info: #909399;\n    --el-color-info-light-8: #e9e9eb;\n    --el-color-primary-light-9: #ecf5ff;\n    --el-color-primary-light-8: #d9ecff;\n    --el-color-primary: #409eff;\n    --el-color-white: #ffffff;\n  }\n  .pops-panel-select-multiple .el-tag {\n    --el-color-info-light-9: #202121;\n  }\n  .pops-panel-select-multiple-disable {\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n  }\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\n    --el-tag-bg-color: #2f2f2f;\n  }\n  /* select-multiple的CSS*/\n  /* slider的CSS */\n  .pops-slider {\n    --pops-slider-border-color-light: #414243;\n  }\n  /* input的CSS */\n  .pops-panel-input {\n    --pops-panel-components-input-text-color: #f2f2f2;\n    --pops-panel-components-input-bd-color: #4f5052;\n    --pops-panel-components-input-bg-color: #141414;\n    --pops-panel-components-input-hover-bd-color: #6f7175;\n    --pops-panel-components-input-focus-bd-color: #409eff;\n    --pops-panel-components-input-suffix-color: #a8abb2;\n    --pops-panel-components-input-suffix-bg-color: var(--pops-dark-color);\n  }\n  /* textarea的CSS */\n  .pops-panel-textarea {\n    --pops-panel-components-textarea-text-color: #f2f2f2;\n    --pops-panel-components-textarea-text-bg-color: #141414;\n    --pops-panel-components-textarea-bd-color: #4f5052;\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\n  }\n  .pops-panel-textarea-disable {\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n  }\n  /* slider */\n  .pops-slider {\n    --pops-slider-text-color-placeholder: #8d9095;\n  }\n}\n';
   var rightClickMenuCSS =
     '.pops-rightClickMenu {\n  --pops-right-context-color: #000000;\n  --pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\n  --pops-right-context-backdrop-filter: blur(10px);\n  --pops-right-context-z-index: 10000;\n  --pops-right-context-bd-radius: 6px;\n  --pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\n  --pops-right-context-menu-row-bd-radius: 6px;\n  --pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\n  --pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\n}\n.pops-rightClickMenu * {\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  -webkit-tap-highlight-color: transparent;\n  scrollbar-width: thin;\n}\n.pops-rightClickMenu {\n  position: fixed;\n  z-index: var(--pops-right-context-z-index);\n  text-align: center;\n  border-radius: var(--pops-right-context-bd-radius);\n  font-size: 16px;\n  font-weight: 500;\n  color: var(--pops-right-context-color);\n  background: var(--pops-right-context-bg-color);\n  box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\n  -webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\n  backdrop-filter: var(--pops-right-context-backdrop-filter);\n}\n.pops-rightClickMenu[data-position="absolute"] {\n  position: absolute;\n}\n/* scale动画 */\n.pops-rightClickMenu-anim-scale {\n  transition:\n    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\n    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\n  transform: scale(0.85);\n}\n.pops-rightClickMenu-anim-scale-open {\n  transform: scale(1);\n}\n.pops-rightClickMenu-anim-scale-not-open {\n  opacity: 0;\n}\n/* 展开动画 */\n.pops-rightClickMenu-anim-grid {\n  display: grid;\n  transition: 0.3s;\n  grid-template-rows: 0fr;\n}\n.pops-rightClickMenu-anim-show {\n  grid-template-rows: 1fr;\n}\n.pops-rightClickMenu-is-visited {\n  background: var(--pops-right-context-menu-row-visited-color);\n}\ni.pops-rightClickMenu-icon {\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  align-content: center;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: inherit;\n  font-size: inherit;\n  margin-right: 6px;\n}\ni.pops-rightClickMenu-icon[is-loading="true"] {\n  animation: rotating 2s linear infinite;\n}\n.pops-rightClickMenu li:hover {\n  background: var(--pops-right-context-menu-row-hover-color);\n  cursor: pointer;\n}\n.pops-rightClickMenu ul {\n  margin: 0;\n  padding: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  justify-content: center;\n  overflow: hidden;\n}\n.pops-rightClickMenu ul li {\n  padding: 5px 10px;\n  margin: 5px 5px;\n  border-radius: var(--pops-right-context-menu-row-bd-radius);\n  display: flex;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  text-align: left;\n  align-items: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n@media (prefers-color-scheme: dark) {\n  /*.pops-rightClickMenu {\n		--pops-right-context-menu-shadow-color: #3c3c3c;\n	}*/\n}\n@media (hover: hover) {\n  .pops-rightClickMenu ul li:active {\n    transform: scale(0.98);\n  }\n}\n';
   var panelComponents_Select_CSS = `.pops {
@@ -7152,13 +7223,13 @@
             element.hasAttribute("anim")
           );
         };
-        popsDOMUtils.on(config.animElement, ["touchstart", "mousedown"], (event) => {
+        popsDOMUtils.on(config.animElement, "pointerup", (event) => {
           const $click = event.composedPath()[0];
           isMaskClick = isAnimElement2($click);
         });
         popsDOMUtils.on(config.animElement, "click", (event) => {
           const $click = event.composedPath()[0];
-          if (isAnimElement2($click) && isMaskClick) {
+          if (isMaskClick && isAnimElement2($click)) {
             return clickEvent(event);
           }
         });
@@ -7426,6 +7497,8 @@
       dragEndCallBack() {},
       forbiddenScroll: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -7631,6 +7704,8 @@
       dragEndCallBack() {},
       forbiddenScroll: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -7838,6 +7913,8 @@
       closeDelay: 0,
       borderRadius: 0,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
       forbiddenScroll: false,
     };
@@ -8054,6 +8131,8 @@
       forbiddenScroll: false,
       isAbsolute: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       addIndexCSS: true,
     };
   };
@@ -8271,6 +8350,8 @@
       dragEndCallBack() {},
       forbiddenScroll: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -9102,6 +9183,8 @@
         },
       },
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -10227,6 +10310,8 @@
       dragEndCallBack() {},
       forbiddenScroll: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -10310,6 +10395,8 @@
       arrowDistance: 12.5,
       otherDistance: 0,
       style: "",
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -10371,13 +10458,9 @@
       const $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
       popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
       $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
-      if (this.$data.config.style != null) {
-        const cssNode = popsDOMUtils.createElement("style", {
-          type: "text/css",
-          innerHTML: this.$data.config.style,
-        });
-        $toolTipContainer.appendChild(cssNode);
-      }
+      PopsElementHandler.addStyle($toolTipContainer, this.$data.config.style);
+      PopsElementHandler.addLightStyle($toolTipContainer, this.$data.config.lightStyle);
+      PopsElementHandler.addDarkStyle($toolTipContainer, this.$data.config.darkStyle);
       if (!this.$data.config.showArrow) {
         $toolTipArrow.remove();
       }
@@ -10998,15 +11081,21 @@
             this.onClick();
           },
           onClick() {
-            const that = this;
-            popsDOMUtils.on(this.$ele.core, "click", function (event) {
-              if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
+            popsDOMUtils.on(this.$ele.core, "click", async (event) => {
+              if (this.$ele.input.disabled || this.$ele.switch.hasAttribute("data-disabled")) {
                 return;
               }
-              that.$data.value = that.getStatus();
-              that.setStatus(that.$data.value);
+              const status = this.getStatus();
+              if (typeof viewConfig.beforeSwitchStatusChangeCallBack === "function") {
+                const flag = await viewConfig.beforeSwitchStatusChangeCallBack(event, status);
+                if (typeof flag === "boolean" && !flag) {
+                  return;
+                }
+              }
+              this.$data.value = !status;
+              this.setStatus(this.$data.value);
               if (typeof viewConfig.callback === "function") {
-                viewConfig.callback(event, that.$data.value);
+                await viewConfig.callback(event, this.$data.value);
               }
             });
           },
@@ -11019,9 +11108,12 @@
               popsDOMUtils.removeClassName(this.$ele.switch, "pops-panel-switch-is-checked");
             }
           },
+          getReverseStatus() {
+            return !this.getStatus();
+          },
           getStatus() {
             let checkedValue = false;
-            if (!popsDOMUtils.containsClassName(this.$ele.switch, "pops-panel-switch-is-checked")) {
+            if (popsDOMUtils.containsClassName(this.$ele.switch, "pops-panel-switch-is-checked")) {
               checkedValue = true;
             }
             return checkedValue;
@@ -12064,7 +12156,8 @@
                 if (this.isDisabled()) {
                   return;
                 }
-                const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+                const { style, lightStyle, darkStyle, ...userConfirmConfig } =
+                  viewConfig.selectConfirmDialogConfig || {};
                 const dialogCloseCallback = () => {
                   if (this.$data.selectedData?.addCustomInput && !this.$data.isValidSuccess) {
                     return false;
@@ -12129,7 +12222,9 @@
                   ${PopsCSS.panelCSS}
 
 								  ${style || ""}
-								`,
+								  `,
+                    lightStyle,
+                    darkStyle,
                   },
                   userConfirmConfig
                 );
@@ -12883,7 +12978,7 @@
                 return;
               }
               const selectInfo = this.$data.selectedDataList;
-              const { style, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
+              const { style, lightStyle, darkStyle, ...userConfirmConfig } = viewConfig.selectConfirmDialogConfig || {};
               const dialogCloseCallback = () => {
                 this.$data.selectedDataList = [...selectInfo];
                 this.updateTagItem();
@@ -12932,6 +13027,8 @@
 
 								  ${style || ""}
 								`,
+                  lightStyle,
+                  darkStyle,
                 },
                 userConfirmConfig
               );
@@ -13811,6 +13908,8 @@
       dragEndCallBack() {},
       forbiddenScroll: false,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
     };
   };
@@ -14038,6 +14137,8 @@
       zIndex: 1e4,
       preventDefault: true,
       style: null,
+      lightStyle: null,
+      darkStyle: null,
       beforeAppendToPageCallBack() {},
       limitPositionXInView: true,
       limitPositionYInView: true,
@@ -14071,18 +14172,9 @@
           css: PopsCSS.rightClickMenu,
         },
       ]);
-      if (config.style != null) {
-        const $css = popsDOMUtils.createElement(
-          "style",
-          {
-            innerHTML: config.style,
-          },
-          {
-            type: "text/css",
-          }
-        );
-        $shadowRoot.appendChild($css);
-      }
+      PopsElementHandler.addStyle($shadowRoot, config.style);
+      PopsElementHandler.addLightStyle($shadowRoot, config.lightStyle);
+      PopsElementHandler.addDarkStyle($shadowRoot, config.darkStyle);
       const PopsContextMenu = {
         $data: {
           menuDataKey: "data-menu",
@@ -14541,6 +14633,8 @@
         return data2.filter((it) => it.value.includes(value));
       },
       style: "",
+      lightStyle: null,
+      darkStyle: null,
     };
   };
   const PopsSearchSuggestion = {
@@ -14568,13 +14662,9 @@
           css: PopsCSS.common,
         },
       ]);
-      if (config.style != null) {
-        const $css = popsDOMUtils.createElement("style", {
-          type: "text/css",
-          innerHTML: config.style,
-        });
-        $shadowRoot.appendChild($css);
-      }
+      PopsElementHandler.addStyle($shadowRoot, config.style);
+      PopsElementHandler.addLightStyle($shadowRoot, config.lightStyle);
+      PopsElementHandler.addDarkStyle($shadowRoot, config.darkStyle);
       const defaultListenerOption = {
         capture: true,
         passive: true,
@@ -15165,7 +15255,7 @@
       return SearchSuggestion;
     },
   };
-  const version$1 = "3.3.0";
+  const version$1 = "3.3.2";
   class Pops {
     config = {
       version: version$1,
@@ -15462,7 +15552,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.11.0";
+  const version = "2.11.3";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -16460,10 +16550,18 @@
       if (isNaN(level)) {
         throw new TypeError(`输入错误的level：${level}`);
       }
+      if (level < 0 || level > 1) {
+        throw new TypeError(`level must between 0~1.0: ${level}`);
+      }
       const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
         const rgbcItemValue = rgbc[index];
-        const value = Math.floor(Number(rgbcItemValue) * (1 - level));
+        let value = Math.floor(Number(rgbcItemValue) * (1 - level));
+        if (value > 255) {
+          value = 255;
+        } else if (value < 0) {
+          value = 0;
+        }
         Reflect.set(rgbc, index, value);
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
@@ -16478,10 +16576,18 @@
       if (isNaN(level)) {
         throw new TypeError(`输入错误的level：${level}`);
       }
+      if (level < 0 || level > 1) {
+        throw new TypeError(`level must between 0~1.0: ${level}`);
+      }
       const rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
         const rgbcItemValue = Number(rgbc[index]);
-        const value = Math.floor(255 - rgbcItemValue * level + rgbcItemValue);
+        let value = Math.floor(255 - rgbcItemValue * level + rgbcItemValue);
+        if (value > 255) {
+          value = 255;
+        } else if (value < 0) {
+          value = 0;
+        }
         Reflect.set(rgbc, index, value);
       }
       return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
@@ -21245,12 +21351,22 @@ ${err.stack}`);
         }
         return result;
       } else {
-        return Array.from(uniqueArrayData).filter(
-          (item) =>
-            !Array.from(compareArrayData).some(function (item2) {
-              return compareFun(item, item2);
-            })
-        );
+        const compareSet = new Set(compareArrayData);
+        const result = [];
+        for (let i2 = 0; i2 < uniqueArrayData.length; i2++) {
+          const item = uniqueArrayData[i2];
+          let flag = false;
+          for (const compareItem of compareSet) {
+            if (compareFun(item, compareItem)) {
+              flag = true;
+              break;
+            }
+          }
+          if (!flag) {
+            result.push(item);
+          }
+        }
+        return result;
       }
     }
     waitArrayLoopToEnd(data, handleFunc) {
@@ -21508,9 +21624,11 @@ ${err.stack}`);
         return new FunctionConstructor(...args);
       }
     }
-    hasWorkerCSP() {
+    hasWorkerCSP(timeout = 1500) {
       return new Promise((resolve) => {
         let flag = true;
+        let timeId = void 0;
+        let worker2 = void 0;
         let workerBlobUrl = void 0;
         const workerJs = `
 (() => {
@@ -21526,33 +21644,46 @@ ${err.stack}`);
     }
     );
 })();`;
+        const finishCallBack = () => {
+          clearTimeout(timeId);
+          if (worker2 != null) {
+            worker2.terminate();
+          }
+          if (typeof workerBlobUrl === "string") {
+            globalThis.URL.revokeObjectURL(workerBlobUrl);
+            workerBlobUrl = void 0;
+          }
+          resolve(flag);
+        };
         try {
           const workerScript = new Blob([workerJs], {
             type: "application/javascript",
           });
-          workerBlobUrl = window.URL.createObjectURL(workerScript);
+          workerBlobUrl = globalThis.URL.createObjectURL(workerScript);
           if (globalThis.trustedTypes && typeof globalThis.trustedTypes.createPolicy === "function") {
             const workerPolicy = globalThis.trustedTypes.createPolicy("workerPolicy", {
               createScriptURL: (url) => url,
             });
             workerBlobUrl = workerPolicy.createScriptURL(workerBlobUrl);
           }
-          const worker2 = new Worker(workerBlobUrl);
+          worker2 = new Worker(workerBlobUrl);
           worker2.onmessage = (data) => {
             if (data.data.success) {
               flag = false;
+              finishCallBack();
             }
           };
-          setTimeout(() => {
-            worker2.terminate();
-            resolve(flag);
-          }, 500);
+          timeId = setTimeout(() => {
+            finishCallBack();
+          }, timeout);
           worker2.postMessage("test");
         } catch {
           flag = true;
+          finishCallBack();
         } finally {
           if (typeof workerBlobUrl === "string") {
             globalThis.URL.revokeObjectURL(workerBlobUrl);
+            workerBlobUrl = void 0;
           }
         }
       });
@@ -21725,7 +21856,7 @@ ${err.stack}`);
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -21831,6 +21962,21 @@ ${err.stack}`);
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const utils = utils$1.noConflict();
@@ -22469,7 +22615,7 @@ ${err.stack}`);
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil2.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -22679,9 +22825,6 @@ ${err.stack}`);
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
@@ -22750,7 +22893,7 @@ ${err.stack}`);
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -22931,6 +23074,7 @@ ${err.stack}`);
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -22939,13 +23083,16 @@ ${err.stack}`);
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -22971,7 +23118,9 @@ ${err.stack}`);
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -22991,7 +23140,9 @@ ${err.stack}`);
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -23037,6 +23188,11 @@ ${err.stack}`);
     addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+      return {
+        off: () => {
+          return this.removeUrlChangeWithExecMenuOnceListener(key);
+        },
+      };
     },
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
@@ -23069,48 +23225,46 @@ ${err.stack}`);
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -23161,7 +23315,6 @@ ${err.stack}`);
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -23256,7 +23409,7 @@ ${err.stack}`);
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -23474,7 +23627,7 @@ ${err.stack}`);
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -23482,20 +23635,20 @@ ${err.stack}`);
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -23506,27 +23659,27 @@ ${err.stack}`);
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },
@@ -23610,6 +23763,62 @@ ${err.stack}`);
         qmsg.error(error.toString());
       }
     }, timeout);
+  };
+  const LocalStorageApi = {
+    $storageKey: "gm-api-test-storage-config",
+    set(key, value) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      configJSON[key] = value;
+      window.localStorage.setItem(
+        LocalStorageApi.$storageKey,
+        JSON.stringify(configJSON, (key2, value2) => {
+          return typeof value2 === "function" ? value2.tString() : value2;
+        })
+      );
+    },
+    get(key, defaultValue) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      return configJSON[key] ?? defaultValue;
+    },
+    delete(key) {
+      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
+      let configJSON = utils.toJSON(config);
+      Reflect.deleteProperty(configJSON, key);
+      window.localStorage.setItem(
+        LocalStorageApi.$storageKey,
+        JSON.stringify(configJSON, (key2, value) => {
+          return typeof value === "function" ? value.tString() : value;
+        })
+      );
+    },
+  };
+  const StorageApi = {
+    set(key, value) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        _GM_setValue(key, value);
+      } else {
+        LocalStorageApi.set(key, value);
+      }
+    },
+    get(key, defaultValue) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        return _GM_getValue(key, defaultValue);
+      } else {
+        return LocalStorageApi.get(key, defaultValue);
+      }
+    },
+    delete(key) {
+      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
+        _GM_deleteValue(key);
+      } else {
+        LocalStorageApi.delete(key);
+      }
+    },
+  };
+  const PanelKeyConfig = {
+    asideLastVisit: "aside-last-visit",
   };
   const Tag = {
     success: "√ ",
@@ -23707,9 +23916,6 @@ ${err.stack}`);
       }
     );
     return result;
-  };
-  const PanelKeyConfig = {
-    asideLastVisit: "aside-last-visit",
   };
   const GlobalUtil = {
     getWindow() {
@@ -29424,307 +29630,6 @@ ${err.stack}`);
     cookie: new ApiTest_cookie(),
     audio: new ApiTest_audio(),
   };
-  const LocalStorageApi = {
-    $storageKey: "gm-api-test-storage-config",
-    set(key, value) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      configJSON[key] = value;
-      window.localStorage.setItem(
-        LocalStorageApi.$storageKey,
-        JSON.stringify(configJSON, (key2, value2) => {
-          return typeof value2 === "function" ? value2.tString() : value2;
-        })
-      );
-    },
-    get(key, defaultValue) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      return configJSON[key] ?? defaultValue;
-    },
-    delete(key) {
-      let config = window.localStorage.getItem(LocalStorageApi.$storageKey) ?? "{}";
-      let configJSON = utils.toJSON(config);
-      Reflect.deleteProperty(configJSON, key);
-      window.localStorage.setItem(
-        LocalStorageApi.$storageKey,
-        JSON.stringify(configJSON, (key2, value) => {
-          return typeof value === "function" ? value.tString() : value;
-        })
-      );
-    },
-  };
-  const StorageApi = {
-    set(key, value) {
-      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
-        _GM_setValue(key, value);
-      } else {
-        LocalStorageApi.set(key, value);
-      }
-    },
-    get(key, defaultValue) {
-      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
-        return _GM_getValue(key, defaultValue);
-      } else {
-        return LocalStorageApi.get(key, defaultValue);
-      }
-    },
-    delete(key) {
-      if (GMTotal.setValue.isSupport() && GMTotal.getValue.isSupport() && GMTotal.deleteValue.isSupport()) {
-        _GM_deleteValue(key);
-      } else {
-        LocalStorageApi.delete(key);
-      }
-    },
-  };
-  const Component_Common = () => {
-    let supportApiNameList = [];
-    let notSupportApiNameList = [];
-    Object.keys(GMTotal).forEach((keyName) => {
-      let value = GMTotal[keyName];
-      let apiName = value.getApiName();
-      let isSupport = value.isSupport();
-      let apiAsyncInfo = value.getAsyncApiOption();
-      if (isSupport) {
-        supportApiNameList.push({
-          name: apiName,
-          isSupport,
-        });
-      } else {
-        notSupportApiNameList.push({
-          name: apiName,
-          isSupport,
-        });
-      }
-      if (apiAsyncInfo) {
-        if (apiAsyncInfo.isSupport) {
-          supportApiNameList.push({
-            name: apiAsyncInfo.name,
-            isSupport: apiAsyncInfo.isSupport,
-            leftTargetSelector: "#aside-" + apiName,
-          });
-        } else {
-          notSupportApiNameList.push({
-            name: apiAsyncInfo.name,
-            isSupport: apiAsyncInfo.isSupport,
-            leftTargetSelector: "#aside-" + apiName,
-          });
-        }
-      }
-    });
-    let createFeatureItem = (config) => {
-      let $item = domUtils.createElement("div", {
-        className: "gm-api-features-item",
-        innerHTML: `
-				<div class="gm-api-features-item__label">${config.name}</div>
-				<div class="gm-api-features-item__value">
-					<span style="font-size: 16px; font-weight: 700;">
-						${
-              config.isSupport
-                ? `
-							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
-								<path d="M448 71.9c-17.3-13.4-41.5-9.3-54.1 9.1L214 344.2l-99.1-107.3c-14.6-16.6-39.1-17.4-54.7-1.8-15.6 15.5-16.4 41.6-1.7 58.1 0 0 120.4 133.6 137.7 147 17.3 13.4 41.5 9.3 54.1-9.1l206.3-301.7c12.6-18.5 8.7-44.2-8.6-57.5z" fill="#3b9f04"></path>
-							</svg>
-						`
-                : `
-							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
-								<path fill="#FF473E" d="m330.443 256l136.765-136.765c14.058-14.058 14.058-36.85 0-50.908l-23.535-23.535c-14.058-14.058-36.85-14.058-50.908 0L256 181.557L119.235 44.792c-14.058-14.058-36.85-14.058-50.908 0L44.792 68.327c-14.058 14.058-14.058 36.85 0 50.908L181.557 256L44.792 392.765c-14.058 14.058-14.058 36.85 0 50.908l23.535 23.535c14.058 14.058 36.85 14.058 50.908 0L256 330.443l136.765 136.765c14.058 14.058 36.85 14.058 50.908 0l23.535-23.535c14.058-14.058 14.058-36.85 0-50.908L330.443 256z"></path>
-							</svg>
-						`
-            }
-						
-					</span>
-				</div>
-			`,
-      });
-      domUtils.on($item, "click", (event) => {
-        domUtils.preventEvent(event);
-        let shadowRoot = $item.getRootNode();
-        let selector = utils.isNotNull(config.leftTargetSelector) ? config.leftTargetSelector : "#aside-" + config.name;
-        let $left = shadowRoot.querySelector(selector);
-        if ($left) {
-          $left.click();
-          $left.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-      return $item;
-    };
-    return {
-      id: "component-common",
-      title: "通用",
-      scrollToDefaultView: true,
-      isDefault() {
-        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "component-common";
-      },
-      clickCallback(data) {
-        StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");
-      },
-      views: [
-        {
-          type: "container",
-          text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
-          views: [
-            UIInfo(() => {
-              return {
-                text: CommonUtil2.escapeHtml(injectDocumentTime),
-                tag: "info",
-              };
-            }),
-          ],
-        },
-        {
-          type: "container",
-          text: "特性",
-          afterAddToUListCallBack(formConfig, container) {
-            container.formHeaderDivElement.style.fontSize = "1.2em";
-            container.formHeaderDivElement.style.fontWeight = "700";
-          },
-          views: [],
-        },
-        {
-          type: "container",
-          text: "不支持列表",
-          afterAddToUListCallBack(formConfig, container) {
-            container.formHeaderDivElement.style.color = "rgb(216, 30, 6)";
-            container.formHeaderDivElement.style.fontWeight = "600";
-            if (notSupportApiNameList.length === 0) {
-              container.formContainerListElement?.remove();
-            }
-          },
-          views: [
-            UIOwn(($li) => {
-              const $container = domUtils.createElement("div", {
-                className: "gm-api-features-not-support",
-              });
-              const $fragment = document.createDocumentFragment();
-              notSupportApiNameList.forEach((config) => {
-                $fragment.append(createFeatureItem(config));
-              });
-              $container.appendChild($fragment);
-              $li.appendChild($container);
-              return $li;
-            }),
-          ],
-        },
-        {
-          type: "container",
-          text: "支持列表",
-          afterAddToUListCallBack(formConfig, container) {
-            container.formHeaderDivElement.style.fontWeight = "600";
-            if (supportApiNameList.length === 0) {
-              container.formContainerListElement?.remove();
-            }
-          },
-          views: [
-            UIOwn(($li) => {
-              const $container = domUtils.createElement("div", {
-                className: "gm-api-features-support",
-              });
-              const $fragment = document.createDocumentFragment();
-              supportApiNameList.forEach((config) => {
-                $fragment.append(createFeatureItem(config));
-              });
-              $container.appendChild($fragment);
-              $li.appendChild($container);
-              return $li;
-            }),
-          ],
-        },
-      ],
-    };
-  };
-  class GrantTest_onurlchange extends ApiTestBase {
-    getApiName() {
-      return "window.onurlchange ";
-    }
-    getAsyncApiOption() {
-      return void 0;
-    }
-    isSupport() {
-      return true;
-    }
-    getUIOption() {
-      let apiName = this.getApiName();
-      let result = {
-        id: "aside-" + apiName,
-        title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
-        scrollToDefaultView: true,
-        isDefault() {
-          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
-        },
-        clickCallback(data) {
-          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
-        },
-        views: [
-          {
-            type: "container",
-            text: "功能测试",
-            views: [
-              UIInfo(() => {
-                try {
-                  return {
-                    text: CommonUtil2.escapeHtml("测试window.onurlchange"),
-                    tag: "info",
-                    description: "点击按钮进行测试",
-                    afterRender(container) {
-                      let $button = domUtils.toElement(
-                        `
-											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="button" data-type="default">
-													<i class="pops-bottom-icon" is-loading="false"></i>
-													<span class="pops-panel-button-text">点击执行</span>
-												</button>
-											</div>
-											`,
-                        false,
-                        false
-                      );
-                      let urlChangeEvent = (info) => {
-                        clearTimeout(timeId);
-                        console.log("urlchange event info ==> ", info);
-                        qmsg.success("urlchange event ==> url is changed");
-                      };
-                      let timeId;
-                      domUtils.on($button, "click", (event) => {
-                        try {
-                          domUtils.preventEvent(event);
-                          clearTimeout(timeId);
-                          if (_monkeyWindow.onurlchange === null) {
-                            _monkeyWindow.removeEventListener("urlchange", urlChangeEvent);
-                            _monkeyWindow.addEventListener("urlchange", urlChangeEvent);
-                            window.history.pushState({}, "", "#/onurlchange");
-                            timeId = setTimeout(() => {
-                              qmsg.error("urlchange event is not trigger");
-                            }, 1e3);
-                          } else {
-                            qmsg.error("window.onurlchange is not null");
-                          }
-                        } catch (error) {
-                          qmsg.error(error.toString(), {
-                            consoleLogContent: true,
-                          });
-                        }
-                      });
-                      domUtils.after(container.$leftContainer, $button);
-                    },
-                  };
-                } catch (error) {
-                  console.error(error);
-                  return {
-                    text: "执行错误 " + error,
-                    tag: "error",
-                  };
-                } finally {
-                }
-              }),
-            ],
-          },
-        ],
-      };
-      return result;
-    }
-  }
   class GrantTest_close extends ApiTestBase {
     getApiName() {
       return "window.close ";
@@ -29889,7 +29794,255 @@ ${err.stack}`);
       return result;
     }
   }
-  if (Panel.isTopWindow()) {
+  class GrantTest_onurlchange extends ApiTestBase {
+    getApiName() {
+      return "window.onurlchange ";
+    }
+    getAsyncApiOption() {
+      return void 0;
+    }
+    isSupport() {
+      return true;
+    }
+    getUIOption() {
+      let apiName = this.getApiName();
+      let result = {
+        id: "aside-" + apiName,
+        title: "" + apiName,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
+        scrollToDefaultView: true,
+        isDefault() {
+          return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
+        },
+        clickCallback(data) {
+          StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
+        },
+        views: [
+          {
+            type: "container",
+            text: "功能测试",
+            views: [
+              UIInfo(() => {
+                try {
+                  return {
+                    text: CommonUtil2.escapeHtml("测试window.onurlchange"),
+                    tag: "info",
+                    description: "点击按钮进行测试",
+                    afterRender(container) {
+                      let $button = domUtils.toElement(
+                        `
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="button" data-type="default">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">点击执行</span>
+												</button>
+											</div>
+											`,
+                        false,
+                        false
+                      );
+                      let urlChangeEvent = (info) => {
+                        clearTimeout(timeId);
+                        console.log("urlchange event info ==> ", info);
+                        qmsg.success("urlchange event ==> url is changed");
+                      };
+                      let timeId;
+                      domUtils.on($button, "click", (event) => {
+                        try {
+                          domUtils.preventEvent(event);
+                          clearTimeout(timeId);
+                          if (_monkeyWindow.onurlchange === null) {
+                            _monkeyWindow.removeEventListener("urlchange", urlChangeEvent);
+                            _monkeyWindow.addEventListener("urlchange", urlChangeEvent);
+                            window.history.pushState({}, "", "#/onurlchange");
+                            timeId = setTimeout(() => {
+                              qmsg.error("urlchange event is not trigger");
+                            }, 1e3);
+                          } else {
+                            qmsg.error("window.onurlchange is not null");
+                          }
+                        } catch (error) {
+                          qmsg.error(error.toString(), {
+                            consoleLogContent: true,
+                          });
+                        }
+                      });
+                      domUtils.after(container.$leftContainer, $button);
+                    },
+                  };
+                } catch (error) {
+                  console.error(error);
+                  return {
+                    text: "执行错误 " + error,
+                    tag: "error",
+                  };
+                } finally {
+                }
+              }),
+            ],
+          },
+        ],
+      };
+      return result;
+    }
+  }
+  const Component_Common = () => {
+    let supportApiNameList = [];
+    let notSupportApiNameList = [];
+    Object.keys(GMTotal).forEach((keyName) => {
+      let value = GMTotal[keyName];
+      let apiName = value.getApiName();
+      let isSupport = value.isSupport();
+      let apiAsyncInfo = value.getAsyncApiOption();
+      if (isSupport) {
+        supportApiNameList.push({
+          name: apiName,
+          isSupport,
+        });
+      } else {
+        notSupportApiNameList.push({
+          name: apiName,
+          isSupport,
+        });
+      }
+      if (apiAsyncInfo) {
+        if (apiAsyncInfo.isSupport) {
+          supportApiNameList.push({
+            name: apiAsyncInfo.name,
+            isSupport: apiAsyncInfo.isSupport,
+            leftTargetSelector: "#aside-" + apiName,
+          });
+        } else {
+          notSupportApiNameList.push({
+            name: apiAsyncInfo.name,
+            isSupport: apiAsyncInfo.isSupport,
+            leftTargetSelector: "#aside-" + apiName,
+          });
+        }
+      }
+    });
+    let createFeatureItem = (config) => {
+      let $item = domUtils.createElement("div", {
+        className: "gm-api-features-item",
+        innerHTML: `
+				<div class="gm-api-features-item__label">${config.name}</div>
+				<div class="gm-api-features-item__value">
+					<span style="font-size: 16px; font-weight: 700;">
+						${
+              config.isSupport
+                ? `
+							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
+								<path d="M448 71.9c-17.3-13.4-41.5-9.3-54.1 9.1L214 344.2l-99.1-107.3c-14.6-16.6-39.1-17.4-54.7-1.8-15.6 15.5-16.4 41.6-1.7 58.1 0 0 120.4 133.6 137.7 147 17.3 13.4 41.5 9.3 54.1-9.1l206.3-301.7c12.6-18.5 8.7-44.2-8.6-57.5z" fill="#3b9f04"></path>
+							</svg>
+						`
+                : `
+							<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor">
+								<path fill="#FF473E" d="m330.443 256l136.765-136.765c14.058-14.058 14.058-36.85 0-50.908l-23.535-23.535c-14.058-14.058-36.85-14.058-50.908 0L256 181.557L119.235 44.792c-14.058-14.058-36.85-14.058-50.908 0L44.792 68.327c-14.058 14.058-14.058 36.85 0 50.908L181.557 256L44.792 392.765c-14.058 14.058-14.058 36.85 0 50.908l23.535 23.535c14.058 14.058 36.85 14.058 50.908 0L256 330.443l136.765 136.765c14.058 14.058 36.85 14.058 50.908 0l23.535-23.535c14.058-14.058 14.058-36.85 0-50.908L330.443 256z"></path>
+							</svg>
+						`
+            }
+						
+					</span>
+				</div>
+			`,
+      });
+      domUtils.on($item, "click", (event) => {
+        domUtils.preventEvent(event);
+        let shadowRoot = $item.getRootNode();
+        let selector = utils.isNotNull(config.leftTargetSelector) ? config.leftTargetSelector : "#aside-" + config.name;
+        let $left = shadowRoot.querySelector(selector);
+        if ($left) {
+          $left.click();
+          $left.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+      return $item;
+    };
+    return {
+      id: "component-common",
+      title: "通用",
+      scrollToDefaultView: true,
+      isDefault() {
+        return StorageApi.get(PanelKeyConfig.asideLastVisit) === "component-common";
+      },
+      clickCallback(data) {
+        StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");
+      },
+      views: [
+        {
+          type: "container",
+          text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
+          views: [
+            UIInfo(() => {
+              return {
+                text: CommonUtil2.escapeHtml(injectDocumentTime),
+                tag: "info",
+              };
+            }),
+          ],
+        },
+        {
+          type: "container",
+          text: "特性",
+          afterAddToUListCallBack(formConfig, container) {
+            container.formHeaderDivElement.style.fontSize = "1.2em";
+            container.formHeaderDivElement.style.fontWeight = "700";
+          },
+          views: [],
+        },
+        {
+          type: "container",
+          text: "不支持列表",
+          afterAddToUListCallBack(formConfig, container) {
+            container.formHeaderDivElement.style.color = "rgb(216, 30, 6)";
+            container.formHeaderDivElement.style.fontWeight = "600";
+            if (notSupportApiNameList.length === 0) {
+              container.formContainerListElement?.remove();
+            }
+          },
+          views: [
+            UIOwn(($li) => {
+              const $container = domUtils.createElement("div", {
+                className: "gm-api-features-not-support",
+              });
+              const $fragment = document.createDocumentFragment();
+              notSupportApiNameList.forEach((config) => {
+                $fragment.append(createFeatureItem(config));
+              });
+              $container.appendChild($fragment);
+              $li.appendChild($container);
+              return $li;
+            }),
+          ],
+        },
+        {
+          type: "container",
+          text: "支持列表",
+          afterAddToUListCallBack(formConfig, container) {
+            container.formHeaderDivElement.style.fontWeight = "600";
+            if (supportApiNameList.length === 0) {
+              container.formContainerListElement?.remove();
+            }
+          },
+          views: [
+            UIOwn(($li) => {
+              const $container = domUtils.createElement("div", {
+                className: "gm-api-features-support",
+              });
+              const $fragment = document.createDocumentFragment();
+              supportApiNameList.forEach((config) => {
+                $fragment.append(createFeatureItem(config));
+              });
+              $container.appendChild($fragment);
+              $li.appendChild($container);
+              return $li;
+            }),
+          ],
+        },
+      ],
+    };
+  };
+  if (CommonUtil2.isTopWindow()) {
     let showPanel = () => {
       Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
     };

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -217,7 +217,7 @@
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -323,6 +323,21 @@
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const utils = Utils.noConflict();
@@ -951,7 +966,7 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -1161,9 +1176,6 @@
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
@@ -1232,7 +1244,7 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1413,6 +1425,7 @@
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1421,13 +1434,16 @@
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -1453,7 +1469,9 @@
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1473,7 +1491,9 @@
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -1519,6 +1539,11 @@
     addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+      return {
+        off: () => {
+          return this.removeUrlChangeWithExecMenuOnceListener(key);
+        },
+      };
     },
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
@@ -1551,48 +1576,46 @@
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -1643,7 +1666,6 @@
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -1738,7 +1760,7 @@
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -1956,7 +1978,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -1964,20 +1986,20 @@
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -1988,27 +2010,27 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },
@@ -2086,8 +2108,8 @@
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkTarget() {
-          let $targetEl = getTarget();
+        const checkTarget = function () {
+          const $targetEl = getTarget();
           if ($targetEl == null) {
             return {
               status: false,
@@ -2096,7 +2118,7 @@
               $el: $targetEl,
             };
           }
-          let vueInst = VueUtils.getVue($targetEl);
+          const vueInst = VueUtils.getVue($targetEl);
           if (vueInst == null) {
             return {
               status: false,
@@ -2105,15 +2127,14 @@
               $el: $targetEl,
             };
           }
-          let checkResult = needSetOption.check(vueInst, $targetEl);
-          checkResult = Boolean(checkResult);
+          const checkResult = Boolean(needSetOption.check(vueInst, $targetEl));
           return {
             status: checkResult,
             isTimeout: false,
             inst: vueInst,
             $el: $targetEl,
           };
-        }
+        };
         utils
           .waitVueByInterval(
             () => {
@@ -2123,10 +2144,10 @@
             250,
             1e4
           )
-          .then((result) => {
-            let checkTargetResult = checkTarget();
+          .then(() => {
+            const checkTargetResult = checkTarget();
             if (checkTargetResult.status) {
-              let vueInst = checkTargetResult.inst;
+              const vueInst = checkTargetResult.inst;
               needSetOption.set(vueInst, checkTargetResult.$el);
             } else {
               if (typeof needSetOption.failWait === "function") {
@@ -2229,7 +2250,7 @@
         if (callbackResult) {
           return;
         }
-        while (1) {
+        while (true) {
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -247,7 +247,7 @@ footer > div > div {
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -353,6 +353,21 @@ footer > div > div {
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const KEY = "GM_Panel";
@@ -855,7 +870,7 @@ footer > div > div {
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -1065,9 +1080,6 @@ footer > div > div {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
@@ -1136,7 +1148,7 @@ footer > div > div {
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1317,6 +1329,7 @@ footer > div > div {
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1325,13 +1338,16 @@ footer > div > div {
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -1357,7 +1373,9 @@ footer > div > div {
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1377,7 +1395,9 @@ footer > div > div {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -1423,6 +1443,11 @@ footer > div > div {
     addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+      return {
+        off: () => {
+          return this.removeUrlChangeWithExecMenuOnceListener(key);
+        },
+      };
     },
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
@@ -1455,48 +1480,46 @@ footer > div > div {
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -1547,7 +1570,6 @@ footer > div > div {
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -1642,7 +1664,7 @@ footer > div > div {
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -1860,7 +1882,7 @@ footer > div > div {
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -1868,20 +1890,20 @@ footer > div > div {
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -1892,27 +1914,27 @@ footer > div > div {
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },

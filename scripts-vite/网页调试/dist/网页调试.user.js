@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.20
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -272,7 +272,7 @@
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -378,6 +378,21 @@
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const utils = Utils.noConflict();
@@ -1007,7 +1022,7 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -1217,9 +1232,6 @@
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
@@ -1288,7 +1300,7 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1469,6 +1481,7 @@
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1477,13 +1490,16 @@
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -1509,7 +1525,9 @@
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1529,7 +1547,9 @@
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -1575,6 +1595,11 @@
     addUrlChangeWithExecMenuOnceListener(key, callback) {
       key = this.transformKey(key);
       this.$data.urlChangeReloadMenuExecOnce.set(key, callback);
+      return {
+        off: () => {
+          return this.removeUrlChangeWithExecMenuOnceListener(key);
+        },
+      };
     },
     removeUrlChangeWithExecMenuOnceListener(key) {
       key = this.transformKey(key);
@@ -1607,48 +1632,46 @@
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -1699,7 +1722,6 @@
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -1794,7 +1816,7 @@
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -2012,7 +2034,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -2020,20 +2042,20 @@
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -2044,27 +2066,27 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },
@@ -2384,6 +2406,109 @@
       key: "chii-embedded-height",
       defaultValue: parseInt((window.innerHeight / 2).toString()),
     },
+  };
+  const ChiiPluginHeight = {
+    $data: {
+      get key() {
+        return GlobalSettingConfig.chii_embedded_height.key;
+      },
+      winHeight: parseInt(window.innerHeight.toString()),
+      get winHalfHeight() {
+        return GlobalSettingConfig.chii_embedded_height.defaultValue;
+      },
+    },
+    init() {
+      let height = this.$data.winHalfHeight;
+      if (!this.isExistGMLocalHeight()) {
+        this.setGMLocalHeight(height);
+      } else {
+        height = this.getGMLocalHeight();
+      }
+      this.setLocalHeight(height);
+    },
+    getLocalHeight() {
+      let value = Number(globalThis.localStorage.getItem(this.$data.key));
+      if (isNaN(value)) {
+        return null;
+      }
+      return value;
+    },
+    setLocalHeight(value) {
+      if (typeof value !== "number") {
+        console.log(value);
+        throw new TypeError(`${this.$data.key}的值必须是number`);
+      }
+      let storageValue = value.toString();
+      globalThis.localStorage.setItem(this.$data.key, storageValue);
+      let localHeight = this.getLocalHeight();
+      if (!localHeight || localHeight.toString() !== storageValue) {
+        globalThis.localStorage[this.$data.key] = storageValue;
+      }
+    },
+    isExistGMLocalHeight() {
+      return typeof this.getGMLocalHeight() === "number";
+    },
+    getGMLocalHeight() {
+      return Panel.getValue(this.$data.key);
+    },
+    setGMLocalHeight(value) {
+      if (typeof value !== "number") {
+        console.log(value);
+        throw new TypeError(`${this.$data.key}的值必须是number`);
+      }
+      Panel.setValue(this.$data.key, value);
+    },
+  };
+  const Chii = () => {
+    const debugUrl = Panel.getValue(
+      GlobalSettingConfig.chii_debug_url.key,
+      GlobalSettingConfig.chii_debug_url.defaultValue
+    );
+    if (
+      window.location.href.startsWith(debugUrl) &&
+      Panel.getValue(
+        GlobalSettingConfig.chii_check_script_load.key,
+        GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
+      )
+    ) {
+      console.log("禁止在调试端运行 ==> href包含debugUrl");
+      return;
+    }
+    Panel.execMenu(GlobalSettingConfig.chii_embedded_height_enable.key, () => {
+      ChiiPluginHeight.init();
+    });
+    if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
+      let checkChiiScriptLoad = function (event) {
+        if (event.target === $script) {
+          globalThis.alert(
+            `调试工具【Chii】脚本加载失败
+      可能原因1：CSP策略阻止了加载第三方域的js文件
+      可能原因2：目标js无效`
+          );
+          unsafeWin.removeEventListener("error", checkChiiScriptLoad, {
+            capture: true,
+          });
+        }
+      };
+      unsafeWin.addEventListener("error", checkChiiScriptLoad, {
+        capture: true,
+      });
+    }
+    const scriptJsUrl = Panel.getValue(
+      GlobalSettingConfig.chii_target_js.key,
+      GlobalSettingConfig.chii_target_js.defaultValue
+    );
+    const scriptEmbedded = Panel.getValue(
+      GlobalSettingConfig.chii_script_embedded.key,
+      GlobalSettingConfig.chii_script_embedded.defaultValue
+    );
+    const $script = document.createElement("script");
+    $script.src = scriptJsUrl;
+    $script.setAttribute("type", "application/javascript");
+    if (scriptEmbedded) {
+      $script.setAttribute("embedded", "true");
+    }
+    (document.head || document.body || document.documentElement).appendChild($script);
   };
   const WebSiteDebugUtil = {
     evalPlugin: async (codeText, exportName) => {
@@ -2777,6 +2902,71 @@
         Eruda2.show(defaultShowName);
       }, 250);
     }
+  };
+  const PageSpy = async () => {
+    const api = Panel.getValue(GlobalSettingConfig.pagespy_api.key, GlobalSettingConfig.pagespy_api.defaultValue);
+    let clientOrigin = Panel.getValue(
+      GlobalSettingConfig.pagespy_clientOrigin.key,
+      GlobalSettingConfig.pagespy_clientOrigin.defaultValue
+    );
+    if (Panel.getValue(GlobalSettingConfig.pagespy_disable_run_in_debug_client.key)) {
+      if (window.location.hostname.includes(api)) {
+        console.log("禁止在调试端运行 ==> hostname包含api");
+        return;
+      }
+      if (window.location.origin.includes(clientOrigin)) {
+        console.log("禁止在调试端运行 ==> origin包含clientOrigin");
+        return;
+      }
+    }
+    const __pageSpy__ = new initPageSpy(unsafeWin);
+    if (!__pageSpy__) {
+      alert("调试工具【PageSpy】获取失败，请反馈开发者");
+      return;
+    }
+    const $pageSpy = new __pageSpy__({
+      api,
+      clientOrigin,
+      project: Panel.getValue(
+        GlobalSettingConfig.pagespy_project.key,
+        GlobalSettingConfig.pagespy_project.defaultValue
+      ),
+
+      title: Panel.getValue(GlobalSettingConfig.pagespy_title.key, GlobalSettingConfig.pagespy_title.defaultValue),
+
+      autoRender: Panel.getValue(
+        GlobalSettingConfig.pagespy_autoRender.key,
+        GlobalSettingConfig.pagespy_autoRender.defaultValue
+      ),
+
+      enableSSL: Panel.getValue(
+        GlobalSettingConfig.pagespy_enableSSL.key,
+        GlobalSettingConfig.pagespy_enableSSL.defaultValue
+      ),
+
+      offline: Panel.getValue(
+        GlobalSettingConfig.pagespy_offline.key,
+        GlobalSettingConfig.pagespy_offline.defaultValue
+      ),
+
+      serializeData: Panel.getValue(
+        GlobalSettingConfig.pagespy_serializeData.key,
+        GlobalSettingConfig.pagespy_serializeData.defaultValue
+      ),
+      useSecret: Panel.getValue(
+        GlobalSettingConfig.pagespy_useSecret.key,
+        GlobalSettingConfig.pagespy_useSecret.defaultValue
+      ),
+
+      messageCapacity: Panel.getValue(
+        GlobalSettingConfig.pagespy_messageCapacity.key,
+        GlobalSettingConfig.pagespy_messageCapacity.defaultValue
+      ),
+    });
+    unsafeWin.$pageSpy = $pageSpy;
+    console.log($pageSpy);
+    DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
+    console.log("PageSpy全局变量：$pageSpy");
   };
   const vConsolePluginState = (vConsole2, VConsole) => {
     const Stats = function () {
@@ -3226,174 +3416,6 @@
       }, 250);
     }
   };
-  const PageSpy = async () => {
-    const api = Panel.getValue(GlobalSettingConfig.pagespy_api.key, GlobalSettingConfig.pagespy_api.defaultValue);
-    let clientOrigin = Panel.getValue(
-      GlobalSettingConfig.pagespy_clientOrigin.key,
-      GlobalSettingConfig.pagespy_clientOrigin.defaultValue
-    );
-    if (Panel.getValue(GlobalSettingConfig.pagespy_disable_run_in_debug_client.key)) {
-      if (window.location.hostname.includes(api)) {
-        console.log("禁止在调试端运行 ==> hostname包含api");
-        return;
-      }
-      if (window.location.origin.includes(clientOrigin)) {
-        console.log("禁止在调试端运行 ==> origin包含clientOrigin");
-        return;
-      }
-    }
-    const __pageSpy__ = new initPageSpy(unsafeWin);
-    if (!__pageSpy__) {
-      alert("调试工具【PageSpy】获取失败，请反馈开发者");
-      return;
-    }
-    const $pageSpy = new __pageSpy__({
-      api,
-      clientOrigin,
-      project: Panel.getValue(
-        GlobalSettingConfig.pagespy_project.key,
-        GlobalSettingConfig.pagespy_project.defaultValue
-      ),
-
-      title: Panel.getValue(GlobalSettingConfig.pagespy_title.key, GlobalSettingConfig.pagespy_title.defaultValue),
-
-      autoRender: Panel.getValue(
-        GlobalSettingConfig.pagespy_autoRender.key,
-        GlobalSettingConfig.pagespy_autoRender.defaultValue
-      ),
-
-      enableSSL: Panel.getValue(
-        GlobalSettingConfig.pagespy_enableSSL.key,
-        GlobalSettingConfig.pagespy_enableSSL.defaultValue
-      ),
-
-      offline: Panel.getValue(
-        GlobalSettingConfig.pagespy_offline.key,
-        GlobalSettingConfig.pagespy_offline.defaultValue
-      ),
-
-      serializeData: Panel.getValue(
-        GlobalSettingConfig.pagespy_serializeData.key,
-        GlobalSettingConfig.pagespy_serializeData.defaultValue
-      ),
-      useSecret: Panel.getValue(
-        GlobalSettingConfig.pagespy_useSecret.key,
-        GlobalSettingConfig.pagespy_useSecret.defaultValue
-      ),
-
-      messageCapacity: Panel.getValue(
-        GlobalSettingConfig.pagespy_messageCapacity.key,
-        GlobalSettingConfig.pagespy_messageCapacity.defaultValue
-      ),
-    });
-    unsafeWin.$pageSpy = $pageSpy;
-    console.log($pageSpy);
-    DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
-    console.log("PageSpy全局变量：$pageSpy");
-  };
-  const ChiiPluginHeight = {
-    $data: {
-      get key() {
-        return GlobalSettingConfig.chii_embedded_height.key;
-      },
-      winHeight: parseInt(window.innerHeight.toString()),
-      get winHalfHeight() {
-        return GlobalSettingConfig.chii_embedded_height.defaultValue;
-      },
-    },
-    init() {
-      let height = this.$data.winHalfHeight;
-      if (!this.isExistGMLocalHeight()) {
-        this.setGMLocalHeight(height);
-      } else {
-        height = this.getGMLocalHeight();
-      }
-      this.setLocalHeight(height);
-    },
-    getLocalHeight() {
-      let value = Number(globalThis.localStorage.getItem(this.$data.key));
-      if (isNaN(value)) {
-        return null;
-      }
-      return value;
-    },
-    setLocalHeight(value) {
-      if (typeof value !== "number") {
-        console.log(value);
-        throw new TypeError(`${this.$data.key}的值必须是number`);
-      }
-      let storageValue = value.toString();
-      globalThis.localStorage.setItem(this.$data.key, storageValue);
-      let localHeight = this.getLocalHeight();
-      if (!localHeight || localHeight.toString() !== storageValue) {
-        globalThis.localStorage[this.$data.key] = storageValue;
-      }
-    },
-    isExistGMLocalHeight() {
-      return typeof this.getGMLocalHeight() === "number";
-    },
-    getGMLocalHeight() {
-      return Panel.getValue(this.$data.key);
-    },
-    setGMLocalHeight(value) {
-      if (typeof value !== "number") {
-        console.log(value);
-        throw new TypeError(`${this.$data.key}的值必须是number`);
-      }
-      Panel.setValue(this.$data.key, value);
-    },
-  };
-  const Chii = () => {
-    const debugUrl = Panel.getValue(
-      GlobalSettingConfig.chii_debug_url.key,
-      GlobalSettingConfig.chii_debug_url.defaultValue
-    );
-    if (
-      window.location.href.startsWith(debugUrl) &&
-      Panel.getValue(
-        GlobalSettingConfig.chii_check_script_load.key,
-        GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
-      )
-    ) {
-      console.log("禁止在调试端运行 ==> href包含debugUrl");
-      return;
-    }
-    Panel.execMenu(GlobalSettingConfig.chii_embedded_height_enable.key, () => {
-      ChiiPluginHeight.init();
-    });
-    if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
-      let checkChiiScriptLoad = function (event) {
-        if (event.target === $script) {
-          globalThis.alert(
-            `调试工具【Chii】脚本加载失败
-      可能原因1：CSP策略阻止了加载第三方域的js文件
-      可能原因2：目标js无效`
-          );
-          unsafeWin.removeEventListener("error", checkChiiScriptLoad, {
-            capture: true,
-          });
-        }
-      };
-      unsafeWin.addEventListener("error", checkChiiScriptLoad, {
-        capture: true,
-      });
-    }
-    const scriptJsUrl = Panel.getValue(
-      GlobalSettingConfig.chii_target_js.key,
-      GlobalSettingConfig.chii_target_js.defaultValue
-    );
-    const scriptEmbedded = Panel.getValue(
-      GlobalSettingConfig.chii_script_embedded.key,
-      GlobalSettingConfig.chii_script_embedded.defaultValue
-    );
-    const $script = document.createElement("script");
-    $script.src = scriptJsUrl;
-    $script.setAttribute("type", "application/javascript");
-    if (scriptEmbedded) {
-      $script.setAttribute("embedded", "true");
-    }
-    (document.head || document.body || document.documentElement).appendChild($script);
-  };
   const DebugTool = {
     $data: {
       isLoadDebugTool: false,
@@ -3404,7 +3426,7 @@
       hideDebugToolCSSNode: void 0,
     },
     handleToolWithIframe() {
-      if (Panel.isTopWindow()) {
+      if (CommonUtil.isTopWindow()) {
         return true;
       }
       if (!Panel.getValue(GlobalSettingConfig.allowRunInIframe.key)) {
@@ -3455,7 +3477,7 @@
       }
     },
     registerDebugToolMenuControls() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         console.warn("不在iframe内重复添加菜单按钮");
         return;
       }
@@ -5045,7 +5067,7 @@
       ) {
         Reflect.set(window, exportName, exportApi);
       }
-      console.log(`Debug Api${Panel.isTopWindow() ? "" : "（iframe）"}：` + exportName);
+      console.log(`Debug Api${CommonUtil.isTopWindow() ? "" : "（iframe）"}：` + exportName);
     },
   };
   PanelContent.addContentConfig([PanelUI_general, PanelUI_eruda, PanelUI_vConsole, PanelUI_pagespy, PanelUI_chii]);
