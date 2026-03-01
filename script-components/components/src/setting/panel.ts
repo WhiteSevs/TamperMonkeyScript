@@ -1028,7 +1028,6 @@ const Panel = {
         return;
       }
       DOMUtils.preventEvent(evt);
-      clickElement = null;
       const $alert = pops.alert({
         title: {
           text: "搜索配置",
@@ -1382,7 +1381,7 @@ const Panel = {
     $asideItems.forEach(($asideItem) => {
       DOMUtils.on($asideItem, "dblclick", dbclick_callback);
     });
-    let clickElement: Element | null = null;
+    let clickMap = new WeakMap<Element, Event>();
     let isDoubleClick = false;
     let timer: number | undefined = void 0;
     /** 是否是移动端点击 */
@@ -1391,14 +1390,14 @@ const Panel = {
       $panel.$shadowRoot,
       "touchend",
       `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-      (evt, selectorTarget) => {
+      (evt, $selector) => {
         isMobileTouch = true;
         clearTimeout(timer);
         timer = void 0;
-        if (isDoubleClick && clickElement === selectorTarget) {
+        if (isDoubleClick && clickMap.has($selector as Element)) {
           isDoubleClick = false;
-          clickElement = null;
           /* 判定为双击 */
+          clickMap.delete($selector);
           dbclick_callback(evt);
         } else {
           timer = setTimeout(() => {
@@ -1406,7 +1405,7 @@ const Panel = {
             // 判断为单击
           }, 200);
           isDoubleClick = true;
-          clickElement = selectorTarget;
+          clickMap.set($selector, evt);
         }
       },
       {
@@ -1417,27 +1416,27 @@ const Panel = {
       DOMUtils.createElement("style", {
         type: "text/css",
         textContent: /*css*/ `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
       })
     );
   },
