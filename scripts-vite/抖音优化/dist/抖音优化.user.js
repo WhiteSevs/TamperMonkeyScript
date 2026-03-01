@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.25
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -202,7 +202,7 @@
           .query({
             name: "clipboard-read",
           })
-          .then((permissionStatus) => {
+          .then(() => {
             readClipboardText(resolve);
           })
           .catch((error) => {
@@ -308,6 +308,21 @@
         2
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
+    },
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    isMobileDevice(size = 768) {
+      const isVerticalScreen = this.isVerticalScreen();
+      if (isVerticalScreen) {
+        return globalThis.innerWidth < size;
+      } else {
+        return globalThis.innerHeight < size;
+      }
+    },
+    isTopWindow() {
+      const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
+      return win.top === win.self;
     },
   };
   const KEY = "GM_Panel";
@@ -810,7 +825,7 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
+      if (!CommonUtil.isTopWindow()) {
         return;
       }
       MenuRegister.add(this.$data.menuOption);
@@ -1020,9 +1035,6 @@
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
@@ -1091,7 +1103,7 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1272,6 +1284,7 @@
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1280,13 +1293,16 @@
         }
         addStoreValueCallback(execFlag, callbackResult);
       };
-      once &&
+      if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
+      }
       await valueChangeCallback();
       const result = {
         reload() {
@@ -1312,7 +1328,9 @@
           });
         },
         clearOnceExecMenuData() {
-          once && that.$data.onceExecMenuData.delete(storageKey);
+          if (once) {
+            that.$data.onceExecMenuData.delete(storageKey);
+          }
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1332,7 +1350,9 @@
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            isReverse && (flag = !flag);
+            if (isReverse) {
+              flag = !flag;
+            }
             return flag;
           });
           return execFlag;
@@ -1415,48 +1435,46 @@
         content.push(...PanelContent.getDefaultBottomContentConfig());
       }
       const $panel = __pops__.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: "",
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              },
-            },
-          },
-          mask: {
+        title: {
+          text: title,
+          position: "center",
+          html: false,
+          style: "",
+        },
+        content,
+        btn: {
+          close: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false,
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
+            callback: (details) => {
+              details.close();
               this.$data.$panel = null;
             },
           },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true,
-          style: `
-        .pops-switch-shortcut-wrapper{
-          margin-right: 5px;
-          display: inline-flex;
-        }
-        .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
-          cursor: pointer;
-        }
-        `,
         },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: true,
+            toHide: false,
+          },
+          clickCallBack: (originalRun) => {
+            originalRun();
+            this.$data.$panel = null;
+          },
+        },
+        width: PanelUISize.setting.width,
+        height: PanelUISize.setting.height,
+        drag: true,
+        only: true,
+        style: `
+      .pops-switch-shortcut-wrapper{
+        margin-right: 5px;
+        display: inline-flex;
+      }
+      .pops-switch-shortcut-wrapper:hover .pops-bottom-icon{
+        cursor: pointer;
+      }
+      `,
         ...this.$data.panelConfig,
       });
       this.$data.$panel = $panel;
@@ -1507,7 +1525,6 @@
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -1602,7 +1619,7 @@
 						`,
           });
           const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-          domUtils.on($item, "click", (clickItemEvent) => {
+          domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
             );
@@ -1820,7 +1837,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -1828,20 +1845,20 @@
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -1852,27 +1869,27 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },
@@ -3484,6 +3501,42 @@
           return webpackExports;
         }
       );
+    },
+    async hookLiveMessageDecoder() {
+      DouYinLiveMessageFilter.init();
+      const decoder = await domUtils.wait(() => {
+        const __MESSAGE_INSTANCE__ = unsafeWindow["__MESSAGE_INSTANCE__"];
+        const decoder2 = __MESSAGE_INSTANCE__?.decoder;
+        return {
+          data: decoder2,
+          success: typeof decoder2?.decode === "function",
+        };
+      }, 5e3);
+      if (!decoder) {
+        log.warn("can't find live message decoder");
+        return DouYinLiveMessage.filterMessage();
+      }
+      log.success("hook live message decode success");
+      const decode = decoder?.decode;
+      decoder.decode = async function (...args2) {
+        const [data, method] = args2;
+        const payload = await Reflect.apply(decode, this, args2);
+        const flag = await DouYinLiveMessage.execFilter(
+          {
+            payload,
+          },
+          method
+        );
+        if (typeof flag === "boolean" && flag) {
+          return {};
+        }
+        return payload;
+      };
+      return [
+        () => {
+          decoder.decode = decode;
+        },
+      ];
     },
   };
   const BlockLeftNavigator = {
@@ -8174,7 +8227,7 @@
           'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
           "#BottomLayout:not([data-multi-camera])",
           ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
-          `div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
+          `[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
         ),
         addStyle(
           `
@@ -8460,6 +8513,15 @@
       `,
       });
     },
+    reloadVideo() {
+      const keydownEvent = new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "R",
+        code: "KeyR",
+      });
+      (document.body || document).dispatchEvent(keydownEvent);
+    },
   };
   const DouYinLiveShortCut = {
     shortCut: new ShortCut("live-short-cut"),
@@ -8596,46 +8658,17 @@
       Panel.execMenu("dy-live-quickGift", () => {
         return this.disableQuickGift();
       });
-      Panel.execMenuOnce("dy-live-doubleClickAction", (option) => {
-        if (option.value === "") return;
-        return this.doubleClickAction(option.value);
+      Panel.execMenuOnce(["dy-live-doubleClickAction", "dy-live-oneClickAction"], (option) => {
+        const doubleClickActionValue = option.value[0];
+        const oneClickActionValue = option.value[1];
+        if (doubleClickActionValue == "" && oneClickActionValue == "") {
+          return;
+        }
+        return this.oneClickOrDoubleClickAction(doubleClickActionValue, oneClickActionValue);
       });
       domUtils.onReady(() => {
         Panel.execMenuOnce("live-danmu-shield-rule-enable", async () => {
-          DouYinLiveMessageFilter.init();
-          const decoder = await domUtils.wait(() => {
-            const __MESSAGE_INSTANCE__ = _unsafeWindow["__MESSAGE_INSTANCE__"];
-            const decoder2 = __MESSAGE_INSTANCE__?.decoder;
-            return {
-              data: decoder2,
-              success: typeof decoder2?.decode === "function",
-            };
-          }, 5e3);
-          if (!decoder) {
-            log.warn("can't find live message decoder");
-            return DouYinLiveMessage.filterMessage();
-          }
-          log.success("hook live message decode success");
-          const decode = decoder?.decode;
-          decoder.decode = async function (...args2) {
-            const [data, method] = args2;
-            const payload = await Reflect.apply(decode, this, args2);
-            const flag = await DouYinLiveMessage.execFilter(
-              {
-                payload,
-              },
-              method
-            );
-            if (typeof flag === "boolean" && flag) {
-              return {};
-            }
-            return payload;
-          };
-          return [
-            () => {
-              decoder.decode = decode;
-            },
-          ];
+          return DouYinHook.hookLiveMessageDecoder();
         });
         Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
           return this.waitToRemovePauseDialog();
@@ -8719,13 +8752,13 @@
         "#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div",
         "reactFiber",
         {
-          check(reactPropInst, $el) {
+          check(reactPropInst) {
             return (
               typeof reactPropInst?.return?.memoizedProps?.qualityHandler?.setCurrentQuality === "function" &&
               Array.isArray(reactPropInst?.return?.memoizedProps?.qualityList)
             );
           },
-          set(reactPropInst, $el) {
+          set(reactPropInst) {
             const qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
             const currentQualityList = reactPropInst?.return?.memoizedProps?.qualityList;
             if (!currentQualityList.includes(quality)) {
@@ -8752,7 +8785,7 @@
         ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${qualityName}")`
         : `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
       ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
-        check(reactPropInst, $el) {
+        check(reactPropInst) {
           return typeof reactPropInst?.onClick === "function";
         },
         set(reactPropInst, $el) {
@@ -8928,15 +8961,6 @@
           const playListener = domUtils.on($video, "play", playCallback, {
             capture: true,
           });
-          const reloadVideo = () => {
-            const keydownEvent = new KeyboardEvent("keydown", {
-              bubbles: true,
-              cancelable: true,
-              key: "R",
-              code: "KeyR",
-            });
-            (document.body || document).dispatchEvent(keydownEvent);
-          };
           const cb = () => {
             playListener.off();
             log.info(`移除监听自动播放`);
@@ -8955,9 +8979,9 @@
               domUtils.on(
                 $video,
                 "play",
-                (evt) => {
+                () => {
                   log.info(`播放-视频重载`);
-                  reloadVideo();
+                  DouYinLivePlayerInstance.reloadVideo();
                 },
                 {
                   once: true,
@@ -8968,7 +8992,7 @@
             domUtils.on(
               $video,
               "pause",
-              (evt) => {
+              () => {
                 listenPlayVideo();
               },
               {
@@ -8998,7 +9022,7 @@
     },
     autoCloseChatRoom() {
       ReactUtils.waitReactPropsToSet("#chatroom .chatroom_close", "reactFiber", {
-        check(reactPropInst, $el) {
+        check(reactPropInst) {
           return typeof reactPropInst?.memoizedProps?.onClick === "function";
         },
         set(reactPropInst, $el) {
@@ -9011,21 +9035,36 @@
       log.info(`禁用快捷键送礼 - localStorage处理`);
       window.localStorage.setItem("disable_shortcut_key_v2", "false");
     },
-    doubleClickAction(action) {
-      let isDouble = false;
-      const isWebSiteFullScreen = action === "website-fullscreen";
-      log.info("双击video动作：" + action);
-      const listener = domUtils.on(document, "click", ['[id^="living_player_container"] .douyin-player'], (event) => {
-        if (isDouble) {
-          isDouble = false;
-          DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
-        } else {
-          isDouble = true;
-          setTimeout(() => {
-            isDouble = false;
-          }, 250);
+    oneClickOrDoubleClickAction(doubleClickAction, oneClickAction) {
+      const isWebSiteFullScreen = doubleClickAction === "website-fullscreen";
+      log.info("双击video动作：" + doubleClickAction);
+      const listener = domUtils.onDoubleClick(
+        document,
+        '[id^="living_player_container"] .douyin-player',
+        (evt, $selector, options) => {
+          domUtils.preventEvent(evt);
+          if (options.isDoubleClick) {
+            DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+          } else {
+            if (oneClickAction == "switch-video-play-state") {
+              const $video = $selector.querySelector("video");
+              if (!$video) {
+                Qmsg.error("未找到video元素");
+                return;
+              }
+              const paused = $video.paused;
+              if (paused) {
+                DouYinLivePlayerInstance.reloadVideo();
+              } else {
+                $video.pause();
+              }
+            }
+          }
+        },
+        {
+          capture: true,
         }
-      });
+      );
       return [
         () => {
           listener.off();
@@ -10073,7 +10112,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -10126,14 +10165,14 @@
               },
               btn: {
                 close: {
-                  callback(details, event) {
+                  callback(details) {
                     details.close();
                     resolve(false);
                   },
                 },
                 ok: {
                   text: "覆盖",
-                  callback(details, event) {
+                  callback(details) {
                     details.close();
                     resolve(true);
                   },
@@ -10189,7 +10228,7 @@
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
+        domUtils.on($input, ["propertychange", "input"], () => {
           if (!$input.files?.length) {
             return;
           }
@@ -10218,13 +10257,13 @@
           btn: {
             close: {
               enable: true,
-              callback(details, event2) {
+              callback(details) {
                 details.close();
               },
             },
             ok: {
               text: "导入",
-              callback: async (details, event2) => {
+              callback: async (details) => {
                 const url = details.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
@@ -10258,7 +10297,7 @@
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
           const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
@@ -10520,13 +10559,13 @@
             enable: this.option?.bottomControls?.add?.enable || true,
             type: "primary",
             text: "添加",
-            callback: async (event) => {
+            callback: async () => {
               this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
             },
           },
           close: {
             enable: true,
-            callback(event) {
+            callback() {
               $popsConfirm.close();
             },
           },
@@ -10537,8 +10576,8 @@
             enable: this.option?.bottomControls?.clear?.enable || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
-            callback: (event) => {
-              let $askDialog = __pops__.confirm({
+            callback: () => {
+              const $askDialog = __pops__.confirm({
                 title: {
                   text: "提示",
                   position: "center",
@@ -10550,12 +10589,12 @@
                 btn: {
                   ok: {
                     enable: true,
-                    callback: async (popsEvent) => {
+                    callback: async () => {
                       log.success("清空所有");
                       if (typeof this.option?.bottomControls?.clear?.callback === "function") {
                         this.option.bottomControls.clear.callback();
                       }
-                      let data = await this.option.data();
+                      const data = await this.option.data();
                       if (data.length) {
                         Qmsg.error("清理失败");
                         return;
@@ -10615,7 +10654,7 @@
             })
           );
         }
-        domUtils.on($externalSelect, "change", async (evt) => {
+        domUtils.on($externalSelect, "change", async () => {
           const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
           if (typeof selectInfo?.selectedCallBack === "function") {
@@ -10624,7 +10663,7 @@
           externalSelectInfo = selectInfo;
           await execFilter(false);
         });
-        domUtils.on($ruleValueSelect, "change", async (evt) => {
+        domUtils.on($ruleValueSelect, "change", async () => {
           const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
           if (typeof selectInfo?.selectedCallBack === "function") {
@@ -10647,7 +10686,9 @@
         };
         const execFilter = async (isUpdateSelectData) => {
           this.clearContent($popsConfirm.$shadowRoot);
-          isUpdateSelectData && updateSelectData();
+          if (isUpdateSelectData) {
+            updateSelectData();
+          }
           const allData = await this.option.data();
           const filteredData = [];
           const searchText = domUtils.val($searchInput);
@@ -10746,13 +10787,13 @@
             text: isEdit ? "修改" : "添加",
           },
           cancel: {
-            callback: async (detail, event) => {
+            callback: async (detail) => {
               detail.close();
               await dialogCloseCallBack(false);
             },
           },
           close: {
-            callback: async (detail, event) => {
+            callback: async (detail) => {
               detail.close();
               await dialogCloseCallBack(false);
             },
@@ -10763,10 +10804,13 @@
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
-              $parentShadowRoot &&
-                (await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot));
+              if ($parentShadowRoot) {
+                await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+              }
             } else {
-              $parentShadowRoot && (await this.appendRuleItemElement($parentShadowRoot, result.data));
+              if ($parentShadowRoot) {
+                await this.appendRuleItemElement($parentShadowRoot, result.data);
+              }
             }
           } else {
             if (isEdit) {
@@ -10844,7 +10888,7 @@
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
       if (this.option.itemControls.enable.enable) {
-        domUtils.on($enableSwitchCore, "click", async (event) => {
+        domUtils.on($enableSwitchCore, "click", async () => {
           let isChecked = false;
           if ($enableSwitch.classList.contains(switchCheckedClassName)) {
             $enableSwitch.classList.remove(switchCheckedClassName);
@@ -10888,9 +10932,9 @@
             btn: {
               ok: {
                 enable: true,
-                callback: async (popsEvent) => {
+                callback: async () => {
                   log.success("删除数据");
-                  let flag = await this.option.itemControls.delete.deleteCallBack(data);
+                  const flag = await this.option.itemControls.delete.deleteCallBack(data);
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();
@@ -10933,7 +10977,6 @@
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      const { $container } = this.parseViewElement($shadowRoot);
       const data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -11940,7 +11983,7 @@
   const DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
-        log.error(`当前仅主站和直播页面支持${Panel.isTopWindow() ? "" : "（iframe）"}`);
+        log.error(`当前仅主站和直播页面支持${CommonUtil.isTopWindow() ? "" : "（iframe）"}`);
         return;
       }
       Panel.onceExec("dy-global-block-css", () => {
@@ -13922,7 +13965,7 @@
                   UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
                   UISelect("双击video动作", "dy-live-doubleClickAction", "", [
                     {
-                      text: "点赞",
+                      text: "点赞（默认）",
                       value: "",
                     },
                     {
@@ -13932,6 +13975,16 @@
                     {
                       text: "全屏",
                       value: "fullscreen",
+                    },
+                  ]),
+                  UISelect("单击video动作", "dy-live-oneClickAction", "", [
+                    {
+                      text: "无（默认）",
+                      value: "",
+                    },
+                    {
+                      text: "切换播放状态",
+                      value: "switch-video-play-state",
                     },
                   ]),
                 ],

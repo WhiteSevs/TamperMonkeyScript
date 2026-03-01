@@ -68,7 +68,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                 UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
                 UISelect("双击video动作", "dy-live-doubleClickAction", "", [
                   {
-                    text: "点赞",
+                    text: "点赞（默认）",
                     value: "",
                   },
                   {
@@ -78,6 +78,16 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   {
                     text: "全屏",
                     value: "fullscreen",
+                  },
+                ]),
+                UISelect("单击video动作", "dy-live-oneClickAction", "", [
+                  {
+                    text: "无（默认）",
+                    value: "",
+                  },
+                  {
+                    text: "切换播放状态",
+                    value: "switch-video-play-state",
                   },
                 ]),
               ],

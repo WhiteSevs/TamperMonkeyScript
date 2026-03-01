@@ -154,4 +154,16 @@ export const DouYinLivePlayerInstance = {
       `,
     });
   },
+  /**
+   * 直播视频重载（默认自动播放视频）
+   */
+  reloadVideo() {
+    const keydownEvent = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "R",
+      code: "KeyR",
+    });
+    (document.body || document).dispatchEvent(keydownEvent);
+  },
 };

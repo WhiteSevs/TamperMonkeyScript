@@ -179,7 +179,7 @@ export const DouYinLiveBlock = {
         // 2025.7.23 新版 全屏下的礼物栏
         ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )",
         // 2025.9.6 新版
-        `div[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
+        `[data-e2e="living-container"] >div div:has(>pace-island>.gitBarOptimizeEnabled)`
       ),
       addStyle(/*css*/ `
       /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */

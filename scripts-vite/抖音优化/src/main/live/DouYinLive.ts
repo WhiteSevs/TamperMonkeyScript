@@ -1,16 +1,14 @@
 import { $$, DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
+import { DouYinHook } from "@/hook/DouYinHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
-import { unsafeWindow } from "ViteGM";
 import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
-import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
-import { DouYinLiveMessageFilter } from "./DouYinLiveMessageFilter";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -101,55 +99,18 @@ export const DouYinLive = {
     Panel.execMenu("dy-live-quickGift", () => {
       return this.disableQuickGift();
     });
-    Panel.execMenuOnce("dy-live-doubleClickAction", (option) => {
-      if (option.value === "") return;
-      return this.doubleClickAction(option.value);
+    Panel.execMenuOnce(["dy-live-doubleClickAction", "dy-live-oneClickAction"], (option) => {
+      const doubleClickActionValue = option.value[0];
+      const oneClickActionValue = option.value[1];
+      // 都是空
+      if (doubleClickActionValue == "" && oneClickActionValue == "") {
+        return;
+      }
+      return this.oneClickOrDoubleClickAction(doubleClickActionValue, oneClickActionValue);
     });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("live-danmu-shield-rule-enable", async () => {
-        DouYinLiveMessageFilter.init();
-        // return DouYinLiveMessage.filterMessage();
-        const decoder = await DOMUtils.wait(() => {
-          // @ts-expect-error
-          const __MESSAGE_INSTANCE__ = unsafeWindow["__MESSAGE_INSTANCE__"];
-          const decoder: {
-            decode: (data: Uint8Array, method: string) => any;
-            encode: Function;
-            loadSchema: Function;
-          } = __MESSAGE_INSTANCE__?.decoder;
-          return {
-            data: decoder,
-            success: typeof decoder?.decode === "function",
-          };
-        }, 5000);
-        if (!decoder) {
-          log.warn("can't find live message decoder");
-          return DouYinLiveMessage.filterMessage();
-        }
-        log.success("hook live message decode success");
-        const decode = decoder?.decode;
-        decoder.decode = async function (...args2: any[]) {
-          const [data, method] = args2;
-          const payload = await Reflect.apply(decode, this, args2);
-          const flag = await DouYinLiveMessage.execFilter(
-            {
-              payload: payload,
-            },
-            method
-          );
-          if (typeof flag === "boolean" && flag) {
-            if (import.meta.env.DEV) {
-              log.success(`过滤：`, payload);
-            }
-            return {};
-          }
-          return payload;
-        };
-        return [
-          () => {
-            decoder.decode = decode;
-          },
-        ];
+        return DouYinHook.hookLiveMessageDecoder();
       });
       Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         return this.waitToRemovePauseDialog();
@@ -240,13 +201,13 @@ export const DouYinLive = {
       "#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div",
       "reactFiber",
       {
-        check(reactPropInst, $el) {
+        check(reactPropInst) {
           return (
             typeof reactPropInst?.return?.memoizedProps?.qualityHandler?.setCurrentQuality === "function" &&
             Array.isArray(reactPropInst?.return?.memoizedProps?.qualityList)
           );
         },
-        set(reactPropInst, $el) {
+        set(reactPropInst) {
           const qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
           // 当前直播可选的画质
           const currentQualityList: string[] = reactPropInst?.return?.memoizedProps?.qualityList;
@@ -275,7 +236,7 @@ export const DouYinLive = {
       : // 排掉第一个画质（自动）
         `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
     ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
-      check(reactPropInst, $el) {
+      check(reactPropInst) {
         return typeof reactPropInst?.onClick === "function";
       },
       set(reactPropInst, $el) {
@@ -480,15 +441,6 @@ export const DouYinLive = {
       const playListener = DOMUtils.on($video, "play", playCallback, {
         capture: true,
       });
-      const reloadVideo = () => {
-        const keydownEvent = new KeyboardEvent("keydown", {
-          bubbles: true,
-          cancelable: true,
-          key: "R",
-          code: "KeyR",
-        });
-        (document.body || document).dispatchEvent(keydownEvent);
-      };
       const cb = () => {
         playListener.off();
         log.info(`移除监听自动播放`);
@@ -507,13 +459,13 @@ export const DouYinLive = {
           DOMUtils.on(
             $video,
             "play",
-            (evt) => {
+            () => {
               // listener remove tag
               // 如果长时间暂停会导致点击播放时不加载直播
               // 此bug仅在firefox上复现
               // 临时解决方法：监听play事件重载视频
               log.info(`播放-视频重载`);
-              reloadVideo();
+              DouYinLivePlayerInstance.reloadVideo();
             },
             {
               once: true,
@@ -524,7 +476,7 @@ export const DouYinLive = {
         DOMUtils.on(
           $video,
           "pause",
-          (evt) => {
+          () => {
             // listener remove tag
             // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
             // 监听暂停，监听播放
@@ -562,7 +514,7 @@ export const DouYinLive = {
    */
   autoCloseChatRoom() {
     ReactUtils.waitReactPropsToSet("#chatroom .chatroom_close", "reactFiber", {
-      check(reactPropInst, $el) {
+      check(reactPropInst) {
         return typeof reactPropInst?.memoizedProps?.onClick === "function";
       },
       set(reactPropInst, $el) {
@@ -581,26 +533,40 @@ export const DouYinLive = {
 
   /**
    * 双击video动作
-   * @param action 动作
+   * @param doubleClickAction 双击动作
+   * @param oneClickAction 单击动作
    */
-  doubleClickAction(action: "website-fullscreen" | "fullscreen") {
-    let isDouble = false;
-    const isWebSiteFullScreen = action === "website-fullscreen";
-    log.info("双击video动作：" + action);
-    const listener = DOMUtils.on<MouseEvent | PointerEvent>(
+  oneClickOrDoubleClickAction(
+    doubleClickAction: "website-fullscreen" | "fullscreen",
+    oneClickAction: "switch-video-play-state"
+  ) {
+    const isWebSiteFullScreen = doubleClickAction === "website-fullscreen";
+    log.info("双击video动作：" + doubleClickAction);
+    const listener = DOMUtils.onDoubleClick(
       document,
-      "click",
-      ['[id^="living_player_container"] .douyin-player'],
-      (event) => {
-        if (isDouble) {
-          isDouble = false;
+      '[id^="living_player_container"] .douyin-player',
+      (evt, $selector, options) => {
+        DOMUtils.preventEvent(evt);
+        if (options.isDoubleClick) {
           DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
         } else {
-          isDouble = true;
-          setTimeout(() => {
-            isDouble = false;
-          }, 250);
+          if (oneClickAction == "switch-video-play-state") {
+            const $video = $selector.querySelector("video");
+            if (!$video) {
+              Qmsg.error("未找到video元素");
+              return;
+            }
+            const paused = $video.paused;
+            if (paused) {
+              DouYinLivePlayerInstance.reloadVideo();
+            } else {
+              $video.pause();
+            }
+          }
         }
+      },
+      {
+        capture: true,
       }
     );
     return [

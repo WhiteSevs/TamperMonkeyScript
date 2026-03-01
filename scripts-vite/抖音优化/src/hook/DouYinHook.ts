@@ -1,5 +1,6 @@
 import { cookieManager, DOMUtils, log, utils } from "@/env";
 import { DouYinLiveMessage } from "@/main/live/DouYinLiveMessage";
+import { DouYinLiveMessageFilter } from "@/main/live/DouYinLiveMessageFilter";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElement } from "@/utils/DouYinElement";
 import { OriginPrototype } from "@components/env.base";
@@ -499,5 +500,53 @@ export const DouYinHook = {
         return webpackExports;
       }
     );
+  },
+  /**
+   * 劫持消息解码函数
+   */
+  async hookLiveMessageDecoder() {
+    DouYinLiveMessageFilter.init();
+    // return DouYinLiveMessage.filterMessage();
+    const decoder = await DOMUtils.wait(() => {
+      // @ts-expect-error
+      const __MESSAGE_INSTANCE__ = unsafeWindow["__MESSAGE_INSTANCE__"];
+      const decoder: {
+        decode: (data: Uint8Array, method: string) => any;
+        encode: Function;
+        loadSchema: Function;
+      } = __MESSAGE_INSTANCE__?.decoder;
+      return {
+        data: decoder,
+        success: typeof decoder?.decode === "function",
+      };
+    }, 5000);
+    if (!decoder) {
+      log.warn("can't find live message decoder");
+      return DouYinLiveMessage.filterMessage();
+    }
+    log.success("hook live message decode success");
+    const decode = decoder?.decode;
+    decoder.decode = async function (...args2: any[]) {
+      const [data, method] = args2;
+      const payload = await Reflect.apply(decode, this, args2);
+      const flag = await DouYinLiveMessage.execFilter(
+        {
+          payload: payload,
+        },
+        method
+      );
+      if (typeof flag === "boolean" && flag) {
+        if (import.meta.env.DEV) {
+          log.success(`过滤：`, payload);
+        }
+        return {};
+      }
+      return payload;
+    };
+    return [
+      () => {
+        decoder.decode = decode;
+      },
+    ];
   },
 };
