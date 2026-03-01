@@ -1454,60 +1454,35 @@ class ElementEvent extends ElementAnimate {
       throw new Error("args length error");
     }
 
-    let $click: Element | null = null;
+    let clickMap = new WeakMap<Element, PointerEvent>();
     let isDoubleClick = false;
     let timer: number | undefined = void 0;
-    /** 是否是移动端点击 */
-    let isMobileTouch = false;
     /** 检测是否是单击的延迟时间 */
     const checkClickTime = 200;
 
-    const dblclick_handler = async (
+    const dblclick_handler = (
       evt: MouseEvent | PointerEvent | TouchEvent,
       option: DOMUtilsDoubleClickOption,
       $selector?: HTMLElement
     ) => {
-      if (evt.type === "dblclick" && isMobileTouch) {
-        // 禁止在移动端触发dblclick事件
-        return;
-      }
       if ($selector) {
-        await (<DOMUtilsDoubleClickHandlerWithSelector>handler)(evt, $selector, option);
+        return (<DOMUtilsDoubleClickHandlerWithSelector>handler)(evt, $selector, option);
       } else {
-        await (<DOMUtilsDoubleClickHandler>handler)(evt, option);
+        return (<DOMUtilsDoubleClickHandler>handler)(evt, option);
       }
     };
 
-    const dblClickListener = this.on(
-      $el,
-      "dblclick",
-      selector,
-      (evt, $selector) => {
-        this.preventEvent(evt);
-        dblclick_handler(
-          evt,
-          {
-            isDoubleClick: true,
-          },
-          $selector
-        );
-      },
-      options
-    );
     const pointerUpListener = this.on(
       $el,
       "pointerup",
       selector,
       (evt, $selector) => {
-        this.preventEvent(evt);
-        if (evt.pointerType === "touch") {
-          isMobileTouch = true;
-        }
+        // this.preventEvent(evt);
         clearTimeout(timer);
         timer = void 0;
-        if (isDoubleClick && $click === $selector) {
+        if (isDoubleClick && clickMap.has($selector as Element)) {
           isDoubleClick = false;
-          $click = null;
+          clickMap.delete($selector);
           /* 判定为双击 */
           dblclick_handler(
             evt,
@@ -1529,7 +1504,7 @@ class ElementEvent extends ElementAnimate {
             );
           }, checkClickTime);
           isDoubleClick = true;
-          $click = $selector;
+          clickMap.set($selector as Element, evt);
         }
       },
       options
@@ -1537,9 +1512,9 @@ class ElementEvent extends ElementAnimate {
 
     return {
       off() {
-        $click = null;
-        dblClickListener.off();
         pointerUpListener.off();
+        // @ts-expect-error
+        clickMap = null;
       },
     };
   }
