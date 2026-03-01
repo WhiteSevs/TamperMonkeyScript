@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.26
+// @version      2026.3.1
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -1174,7 +1174,7 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
+        log.warn("该key已存在，初始化默认值失败: " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1355,6 +1355,7 @@
           const valueList = keyList.map((key) => this.getValue(key));
           callbackResult = await callback({
             key: keyList,
+            triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
               return addStoreValueCallback(execFlag, args);
@@ -1366,7 +1367,9 @@
       if (once) {
         keyList.forEach((key) => {
           const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
-            return valueChangeCallback();
+            return valueChangeCallback({
+              key: key2,
+            });
           });
           listenerIdList.push(listenerId);
         });
@@ -1593,7 +1596,6 @@
           return;
         }
         domUtils.preventEvent(evt);
-        clickElement = null;
         const $alert = __pops__.alert({
           title: {
             text: "搜索配置",
@@ -1906,7 +1908,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickElement = null;
+      let clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -1914,20 +1916,20 @@
         $panel.$shadowRoot,
         "touchend",
         `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           isMobileTouch = true;
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickElement === selectorTarget) {
+          if (isDoubleClick && clickMap.has($selector)) {
             isDoubleClick = false;
-            clickElement = null;
+            clickMap.delete($selector);
             dbclick_callback(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
             isDoubleClick = true;
-            clickElement = selectorTarget;
+            clickMap.set($selector, evt);
           }
         },
         {
@@ -1938,27 +1940,27 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: `
-					.pops-flashing{
-						animation: double-blink 1.5s ease-in-out;
-					}
-					@keyframes double-blink {
-						 0% {
-							background-color: initial;
-						}
-						25% {
-							background-color: yellow;
-						}
-						50% {
-							background-color: initial;
-						}
-						75% {
-							background-color: yellow;
-						}
-						100% {
-							background-color: initial;
-						}
-					}
-				`,
+    			.pops-flashing{
+    				animation: double-blink 1.5s ease-in-out;
+    			}
+    			@keyframes double-blink {
+    				 0% {
+    					background-color: initial;
+    				}
+    				25% {
+    					background-color: yellow;
+    				}
+    				50% {
+    					background-color: initial;
+    				}
+    				75% {
+    					background-color: yellow;
+    				}
+    				100% {
+    					background-color: initial;
+    				}
+    			}
+    		`,
         })
       );
     },
@@ -6101,6 +6103,11 @@
           min-width: auto !important;
           max-width: 50px !important;
         }
+      }
+      `,
+        darkStyle: `
+      .rule-view-container{
+        background: #262626;
       }
       `,
       });
@@ -10679,7 +10686,7 @@
           this.$check.workerInitError = new Error(
             "test Worker postMessage failed, maybe violates Content Security Policy directive"
           );
-          log.error(`page${CommonUtil} has worker CSP`);
+          log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
           this.workerInitFailed();
         } else {
           log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
@@ -12296,7 +12303,9 @@
           const $pops = option.$click.closest(".pops");
           if ($pops) {
             const $close = $pops.querySelector('.pops-header-control[type="close"]');
-            $close && $close.click();
+            if ($close) {
+              $close.click();
+            }
           }
         }
       };
@@ -12354,13 +12363,12 @@
       };
       NetDiskPops.rightClickMenu(config);
     },
-    registerIconGotoPagePosition(targetElement) {
+    registerIconGotoPagePosition($target) {
       let findGenerator = void 0;
       let iterator = void 0;
       let prevSearchShareCode = void 0;
-      DOMUtils.on(targetElement, "click", ".whitesevPop .netdisk-icon .netdisk-icon-img", (event, selectorTarget) => {
-        let $click = selectorTarget;
-        let dataSharecode = $click.getAttribute("data-sharecode");
+      const onClickCallBack = ($click) => {
+        const dataSharecode = $click.getAttribute("data-sharecode");
         if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {
           return;
         }
@@ -12376,18 +12384,18 @@
           iterator = void 0;
           prevSearchShareCode = dataSharecode;
         }
-        if (findGenerator == void 0) {
+        if (findGenerator == null) {
           findGenerator = DOMUtils.findElementsWithText(document.documentElement, dataSharecode);
           iterator = findGenerator.next();
         }
         if (iterator?.value) {
-          log.success("定位元素", iterator);
           if (iterator.value.nodeType === Node.ELEMENT_NODE && iterator.value.getClientRects().length) {
             iterator.value.scrollIntoView({
               behavior: "smooth",
               block: "center",
               inline: "nearest",
             });
+            log.success("已滚动至定位的可见元素", iterator);
             if (
               NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value
             ) {
@@ -12419,6 +12427,7 @@
             iterator.value.nodeType === Node.TEXT_NODE &&
             iterator.value.parentElement.getClientRects().length
           ) {
+            log.success("定位至#text元素", iterator);
             if (
               NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value
             ) {
@@ -12470,29 +12479,24 @@
               }
             }
           } else {
-            log.error("无法定位该元素位置", iterator.value);
-            const tagName = (
-              iterator.value.nodeName ||
-              iterator.value.localName ||
-              iterator.value.tagName
-            ).toLowerCase();
-            Qmsg.error(
-              `无法定位该元素位置，类型：${CommonUtil.escapeHtml("<")}${tagName}${CommonUtil.escapeHtml(">")}`,
-              {
-                isHTML: true,
-              }
-            );
+            log.error("定位元素位置失败，直接获取下一个元素", iterator);
+            iterator = findGenerator.next();
+            onClickCallBack($click);
+            return;
           }
         }
         iterator = findGenerator.next();
         if (iterator.done) {
           if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].value) {
-            Qmsg.info("已经定位至最后一个元素了");
+            Qmsg.info("无其它元素可定位");
             return;
           }
           findGenerator = void 0;
           iterator = void 0;
         }
+      };
+      DOMUtils.on($target, "click", ".whitesevPop .netdisk-icon .netdisk-icon-img", (even_, $click) => {
+        onClickCallBack($click);
       });
     },
   };

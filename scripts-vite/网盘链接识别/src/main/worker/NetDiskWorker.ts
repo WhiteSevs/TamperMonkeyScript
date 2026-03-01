@@ -72,7 +72,7 @@ export const NetDiskWorker = {
         this.$check.workerInitError = new Error(
           "test Worker postMessage failed, maybe violates Content Security Policy directive"
         );
-        log.error(`page${CommonUtil} has worker CSP`);
+        log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
         this.workerInitFailed();
       } else {
         log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);

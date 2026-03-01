@@ -1,3 +1,4 @@
+import { log } from "@/env";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
@@ -5,8 +6,6 @@ import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
-import { log } from "@/env";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
 import type {
   PopsRightClickMenuConfig,
@@ -106,7 +105,9 @@ export const NetDiskLinkViewEvent = {
         const $pops = option.$click.closest<HTMLElement>(".pops");
         if ($pops) {
           const $close = $pops.querySelector<HTMLElement>('.pops-header-control[type="close"]');
-          $close && $close.click();
+          if ($close) {
+            $close.click();
+          }
         }
       }
     };
@@ -188,16 +189,15 @@ export const NetDiskLinkViewEvent = {
   /**
    * 设置点击图标按钮导航至该网盘链接所在网页中位置
    */
-  registerIconGotoPagePosition(targetElement: ShadowRoot | Document | HTMLElement) {
+  registerIconGotoPagePosition($target: ShadowRoot | Document | HTMLElement) {
     let findGenerator: Generator<HTMLElement | ChildNode, void, any> | undefined = void 0;
     let iterator: IteratorResult<HTMLElement | ChildNode, void> | undefined = void 0;
     /**
      * 上一个的shareCode
      */
     let prevSearchShareCode: string | undefined = void 0;
-    DOMUtils.on(targetElement, "click", ".whitesevPop .netdisk-icon .netdisk-icon-img", (event, selectorTarget) => {
-      let $click = selectorTarget;
-      let dataSharecode = $click.getAttribute("data-sharecode")!;
+    const onClickCallBack = ($click: HTMLElement) => {
+      const dataSharecode = $click.getAttribute("data-sharecode")!;
       if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {
         return;
       }
@@ -214,21 +214,21 @@ export const NetDiskLinkViewEvent = {
         iterator = void 0;
         prevSearchShareCode = dataSharecode;
       }
-      if (findGenerator == void 0) {
+      if (findGenerator == null) {
         // 未找到元素或者已迭代完毕
         findGenerator = DOMUtils.findElementsWithText(document.documentElement, dataSharecode);
         iterator = findGenerator.next();
       }
       if (iterator?.value) {
-        log.success("定位元素", iterator);
         if (iterator.value.nodeType === Node.ELEMENT_NODE && (<HTMLElement>iterator.value).getClientRects().length) {
-          // 可见
+          // 可见且是个元素
           // 滚动到该元素
           (<HTMLElement>iterator.value).scrollIntoView({
             behavior: "smooth",
             block: "center",
             inline: "nearest",
           });
+          log.success("已滚动至定位的可见元素", iterator);
           if (NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value) {
             // 开启功能
             let elementText = (<HTMLElement>iterator.value).innerText || (<HTMLElement>iterator.value).textContent!;
@@ -260,6 +260,7 @@ export const NetDiskLinkViewEvent = {
           iterator.value.nodeType === Node.TEXT_NODE &&
           iterator.value!.parentElement!.getClientRects().length
         ) {
+          log.success("定位至#text元素", iterator);
           // #text元素且可见
           if (NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value) {
             let elementText = iterator.value.textContent || iterator.value.nodeValue!;
@@ -312,15 +313,10 @@ export const NetDiskLinkViewEvent = {
             }
           }
         } else {
-          log.error("无法定位该元素位置", iterator.value);
-          const tagName = (
-            iterator.value.nodeName ||
-            (<HTMLElement>iterator.value).localName ||
-            (<HTMLElement>iterator.value).tagName
-          ).toLowerCase();
-          Qmsg.error(`无法定位该元素位置，类型：${CommonUtil.escapeHtml("<")}${tagName}${CommonUtil.escapeHtml(">")}`, {
-            isHTML: true,
-          });
+          log.error("定位元素位置失败，直接获取下一个元素", iterator);
+          iterator = findGenerator.next();
+          onClickCallBack($click);
+          return;
         }
       }
 
@@ -328,12 +324,16 @@ export const NetDiskLinkViewEvent = {
       if (iterator.done) {
         // 循环查找
         if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].value) {
-          Qmsg.info("已经定位至最后一个元素了");
+          // 非循环查找
+          Qmsg.info("无其它元素可定位");
           return;
         }
         findGenerator = void 0;
         iterator = void 0;
       }
+    };
+    DOMUtils.on($target, "click", ".whitesevPop .netdisk-icon .netdisk-icon-img", (even_, $click) => {
+      onClickCallBack($click);
     });
   },
 };
