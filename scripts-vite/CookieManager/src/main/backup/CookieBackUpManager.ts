@@ -1,10 +1,10 @@
-import { DOMUtils, GM_cookie, log, pops, utils } from "@/env";
+import { DOMUtils, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import CryptoJS from "crypto-js";
 import Qmsg from "qmsg";
-import { CookieManagerView } from "../CookieManagerView";
 import { CookieManager } from "../CookieManager";
 import { CookieManagerService, type CookieManagerApiName } from "../CookieManagerService";
+import { CookieManagerView } from "../CookieManagerView";
 
 /**
  * Cookie备份类型
@@ -111,7 +111,7 @@ export const CookieBackUpManager = {
         position: "space-between",
         ok: {
           text: "导出",
-          async callback(eventDetails, event) {
+          async callback(eventDetails) {
             let cookieList = CookieManagerView.$data.cookieList;
             if (cookieList.length === 0) {
               Qmsg.warning("Cookie为空");
@@ -142,7 +142,7 @@ export const CookieBackUpManager = {
           enable: true,
           text: "导出至剪贴板",
           type: "xiaomi-primary",
-          async callback(eventDetails, event) {
+          async callback(eventDetails) {
             let cookieList = CookieManagerView.$data.cookieList;
             if (cookieList.length === 0) {
               Qmsg.warning("Cookie为空");
@@ -164,70 +164,88 @@ export const CookieBackUpManager = {
         },
       },
       style: /*css*/ `
-					${pops.config.cssText.panelCSS}
+      ${pops.config.cssText.panelCSS}
 
-					.pops-content{
-						padding: 20px;
-					}
-					.cookie-format-type-container{
-						display: flex;
-						gap: 10px;
-						margin: 10px 0px;
-						align-items: center;
-						flex-wrap: wrap;
-						justify-content: space-between;
-					}
-					.cookie-format-type-item input[type="radio"]{
-						width: 1rem;
-						height: 1rem;
-					}
-					.export-example-code-text-container{
-						padding: 10px;
-						background-color: rgb(209 213 219 / 1);
-						border-radius: 10px;
-						width: 100%;
-						margin: 1rem 0px;
-					}
-					.export-example-code-text-container pre{
-						font-feature-settings: normal;
-						font-variation-settings: normal;
-						font-size: 1em;
-						margin: 0;
-						white-space: break-spaces;
-					}
-					.cookie-format-type-container label{
-						color: rgb(17 24 39 / 1);
-					}
-					.cookir-format-encode-pwd-container label{
-						color: #111827;
-					}
-					.cookie-format-type-tip-text,
-					.export-example-code-tip-text,
-					.cookir-format-encode-pwd-container label{
-						font-weight: 600;
-					}
-					.cookir-format-encode-pwd-container input{
-						border-radius: 0.5rem;
-						width: 100%;
-						border: 1px solid #d1d5db;
-						background-color: #f9fafb;
-						padding: 0.625rem;
-						margin: 0.65rem 0px;
-						font-size: 12px;
-						color: #111827;
-					}
-					.cookir-format-encode-pwd-container p{
-    					color: #6b7280;
-						font-size: 12px;
-					}
-				`,
+      .pops-content{
+        padding: 20px;
+      }
+      .cookie-format-type-container{
+        display: flex;
+        gap: 10px;
+        margin: 10px 0px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .cookie-format-type-item input[type="radio"]{
+        width: 1rem;
+        height: 1rem;
+      }
+      .export-example-code-text-container{
+        padding: 10px;
+        background: rgb(209 213 219 / 1);
+        border-radius: 10px;
+        width: 100%;
+        margin: 1rem 0px;
+      }
+      .export-example-code-text-container pre{
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        font-size: 1em;
+        margin: 0;
+        white-space: break-spaces;
+      }
+      .cookie-format-type-container label{
+        color: rgb(17 24 39 / 1);
+      }
+      .cookir-format-encode-pwd-container label{
+        color: #111827;
+      }
+      .cookie-format-type-tip-text,
+      .export-example-code-tip-text,
+      .cookir-format-encode-pwd-container label{
+        font-weight: 600;
+      }
+      .cookir-format-encode-pwd-container input{
+        border-radius: 0.5rem;
+        width: 100%;
+        border: 1px solid #d1d5db;
+        background: #f9fafb;
+        padding: 0.625rem;
+        margin: 0.65rem 0px;
+        font-size: 12px;
+        color: #111827;
+      }
+      .cookir-format-encode-pwd-container p{
+          color: #6b7280;
+        font-size: 12px;
+      }
+		  `,
+      darkStyle: /*css*/ `
+      .cookie-format-type-container label{
+        color: rgba(187, 187, 187, 1);
+      }
+      .cookir-format-encode-pwd-container input{
+        background: #333333;
+        border: 1px solid #5b5b5b;
+        color: #ffffff;
+      }
+      .export-example-code-text-container{
+        background: rgba(53,55,59,1);
+      }
+      .cookir-format-encode-pwd-container label{
+        color: #ffffff;
+      }
+      `,
     });
-    let $exampleCodeText = $confirm.$shadowRoot.querySelector(
+    const $exampleCodeText = $confirm.$shadowRoot.querySelector(
       ".export-example-code-text-container pre"
     ) as HTMLParagraphElement;
-    let $format_header_string = $confirm.$shadowRoot.querySelector("#cookie-format-header_string") as HTMLInputElement;
-    let $format_json = $confirm.$shadowRoot.querySelector("#cookie-format-json") as HTMLInputElement;
-    let $encodePwd = $confirm.$shadowRoot.querySelector("#encode-pwd") as HTMLInputElement;
+    const $format_header_string = $confirm.$shadowRoot.querySelector(
+      "#cookie-format-header_string"
+    ) as HTMLInputElement;
+    const $format_json = $confirm.$shadowRoot.querySelector("#cookie-format-json") as HTMLInputElement;
+    const $encodePwd = $confirm.$shadowRoot.querySelector("#encode-pwd") as HTMLInputElement;
 
     const DialogConfigManager = {
       key: "cookie-backup-export-dialog-config",
@@ -377,7 +395,7 @@ export const CookieBackUpManager = {
       btn: {
         ok: {
           text: "导入",
-          async callback(eventDetails, event) {
+          async callback(eventDetails) {
             try {
               const decodePwd = dialogConfig.decodePwd;
               let cookieListStr = dialogConfig.value;
@@ -504,7 +522,7 @@ export const CookieBackUpManager = {
 						line-height: 1.25rem;
 						padding: 0.625rem;
 						color: rgb(17 24 39 / 1);
-						background-color: rgb(249 250 251 / 1);
+						background: rgb(249 250 251 / 1);
 						border: 1px solid rgb(209 213 219 / 1);
 						border-radius: 0.5rem;
 						width: 100%;
@@ -538,20 +556,38 @@ export const CookieBackUpManager = {
 						background-color: #364153;
 					}
 				`,
+      darkStyle: /*css*/ `
+        .import-cookie-type-container label {
+          color: rgba(187, 187, 187, 1);
+        }
+        .import-cookie-value-text textarea{
+          background: rgba(53, 55, 59, 1);
+          border: 1px solid rgba(53, 55, 59, 1);
+          color: #ffffff;
+        }
+        .cookie-format-decode-pwd-container label{
+          color: #ffffff;
+        }
+        .cookie-format-decode-pwd-container input{
+          background: #333333;
+          border: 1px solid #5b5b5b;
+          color: #ffffff;
+        }
+        `,
     });
     let import_file_text = "";
-    let $import_cookie_from_text = $confirm.$shadowRoot.querySelector(
+    const $import_cookie_from_text = $confirm.$shadowRoot.querySelector(
       "#import-cookie-import_from_text"
     ) as HTMLInputElement;
-    let $import_cookie_from_file = $confirm.$shadowRoot.querySelector(
+    const $import_cookie_from_file = $confirm.$shadowRoot.querySelector(
       "#import-cookie-import_from_file"
     ) as HTMLInputElement;
-    let $importContainer = $confirm.$shadowRoot.querySelector(".import-cookie-value-container") as HTMLDivElement;
-    let $importContainer_text = $confirm.$shadowRoot.querySelector(".import-cookie-value-text") as HTMLDivElement;
-    let $import_text = $importContainer_text.querySelector("textarea") as HTMLTextAreaElement;
-    let $importContainer_file = $confirm.$shadowRoot.querySelector(".import-cookie-value-file") as HTMLDivElement;
-    let $import_file = $importContainer_file.querySelector("input") as HTMLInputElement;
-    let $decodePwd = $confirm.$shadowRoot.querySelector("#decode-pwd") as HTMLInputElement;
+    const $importContainer = $confirm.$shadowRoot.querySelector(".import-cookie-value-container") as HTMLDivElement;
+    const $importContainer_text = $confirm.$shadowRoot.querySelector(".import-cookie-value-text") as HTMLDivElement;
+    const $import_text = $importContainer_text.querySelector("textarea") as HTMLTextAreaElement;
+    const $importContainer_file = $confirm.$shadowRoot.querySelector(".import-cookie-value-file") as HTMLDivElement;
+    const $import_file = $importContainer_file.querySelector("input") as HTMLInputElement;
+    const $decodePwd = $confirm.$shadowRoot.querySelector("#decode-pwd") as HTMLInputElement;
 
     const DialogConfigManager = {
       key: "cookie-backup-import-dialog-config",
@@ -607,7 +643,7 @@ export const CookieBackUpManager = {
       })
     );
     // 文件选择框
-    DOMUtils.on($import_file, ["change", "input"], (evt) => {
+    DOMUtils.on($import_file, ["change", "input"], () => {
       const file = $import_file.files?.[0];
       if (file) {
         const reader = new FileReader();
@@ -622,7 +658,7 @@ export const CookieBackUpManager = {
       }
     });
     // 加密密码
-    DOMUtils.on($decodePwd, ["input", "propertychange"], async (evt) => {
+    DOMUtils.on($decodePwd, ["input", "propertychange"], async () => {
       DialogConfigManager.saveConfig();
     });
 

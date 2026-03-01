@@ -1,14 +1,16 @@
 import { DOMUtils, log, MenuRegister, pops, utils } from "@/env";
-import { CookieManager } from "./CookieManager";
+import { CookieBackUpManager } from "@/main/backup/CookieBackUpManager";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { Panel } from "@components/setting/panel";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
-import { UISwitch } from "@components/setting/components/ui-switch";
+import { CookieManager } from "./CookieManager";
 import { CookieManagerEditView } from "./CookieManagerEditView";
-import { UISelect } from "@components/setting/components/ui-select";
-import { CookieRule } from "./CookieRule";
-import { Panel } from "@components/setting/panel";
 import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
-import { CookieBackUpManager } from "@/main/backup/CookieBackUpManager";
+import { CookieRule } from "./CookieRule";
+
+type EmitterFrom = "refreshButton";
 
 export const CookieManagerView = {
   $data: {
@@ -160,7 +162,27 @@ export const CookieManagerView = {
       }
       .cookie-item-group-control svg{
           cursor: pointer;
-      }`,
+      }
+      
+      `,
+      darkStyle: /*css*/ `
+      .cookie-item,
+      #cookie-item-property-expires{
+        background: #232323;
+      }
+      svg path{
+        fill: currentColor;
+      }
+      .cookie-search-inner input{
+        background: #000000;
+        color: #ffffff;
+        border-color: #ffffff;
+      }
+      .cookie-search-inner input::placeholder{
+      }
+      .cookie-search-inner input:focus-visible{
+      }
+      `,
     });
     const $search = $alert.$shadowRoot.querySelector<HTMLInputElement>(".cookie-search-inner input")!;
     const $searchSetting = $alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-search-setting")!;
@@ -391,12 +413,12 @@ export const CookieManagerView = {
     DOMUtils.on(
       $search,
       ["input", "propertychange"],
-      utils.debounce((event) => {
+      utils.debounce(async (event) => {
         const searchText = DOMUtils.val($search);
         // 是否过滤
         const isNotFilter = searchText.trim() === "";
         const enableRegExp = Panel.getValue<boolean>("search-config-use-regexp");
-        updateCookieListGroup((cookieItem) => {
+        await updateCookieListGroup((cookieItem) => {
           if (isNotFilter) {
             return true;
           }
@@ -404,6 +426,11 @@ export const CookieManagerView = {
             ? Boolean(cookieItem.name.match(new RegExp(searchText)))
             : cookieItem.name.includes(searchText);
         });
+        // @ts-expect-error
+        const from = event.from as EmitterFrom;
+        if (from === "refreshButton") {
+          Qmsg.success("刷新成功");
+        }
       })
     );
     // 监听回车事件
@@ -467,7 +494,7 @@ export const CookieManagerView = {
     // 刷新 - 点击事件
     DOMUtils.on($refresh, "click", (event) => {
       DOMUtils.preventEvent(event);
-      emitUpdateCookieListGroupWithSearchFilter();
+      emitUpdateCookieListGroupWithSearchFilter("refreshButton");
     });
     // 添加 - 点击事件
     DOMUtils.on($add, "click", (event) => {
@@ -562,7 +589,7 @@ export const CookieManagerView = {
           }),
           void 0,
           "操作Cookie的Api函数",
-          (event) => {
+          () => {
             emitUpdateCookieListGroupWithSearchFilter();
           }
         )
@@ -595,8 +622,10 @@ export const CookieManagerView = {
     /**
      * 主动触发更新Cookie列表（根据搜索内容）
      */
-    const emitUpdateCookieListGroupWithSearchFilter = () => {
-      DOMUtils.emit($search, "input");
+    const emitUpdateCookieListGroupWithSearchFilter = (from?: EmitterFrom) => {
+      DOMUtils.emit($search, "input", {
+        from: from,
+      });
     };
 
     emitUpdateCookieListGroupWithSearchFilter();
@@ -605,17 +634,16 @@ export const CookieManagerView = {
    * 注册脚本菜单
    */
   registerMenu() {
-    const that = this;
     MenuRegister.add({
       key: "cookie_manager_view",
       text: "⚙ Cookie管理",
       autoReload: false,
       isStoreValue: false,
-      showText(text, enable) {
+      showText(text) {
         return text;
       },
-      callback(data) {
-        that.showView();
+      callback: () => {
+        this.showView();
       },
     });
   },

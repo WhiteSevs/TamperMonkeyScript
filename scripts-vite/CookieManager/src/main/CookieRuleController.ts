@@ -1,6 +1,6 @@
 import { DOMUtils, log } from "@/env";
-import { CookieRule } from "./CookieRule";
 import { CookieManagerService } from "./CookieManagerService";
+import { CookieRule } from "./CookieRule";
 
 export const CookieRuleController = {
   init() {

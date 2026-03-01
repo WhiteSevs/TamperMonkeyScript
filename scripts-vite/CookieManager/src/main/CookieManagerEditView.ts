@@ -132,7 +132,7 @@ export const CookieManagerEditView = {
         position: "center",
         ok: {
           text: isEdit ? "编辑" : "添加",
-          async callback(eventDetails, event) {
+          async callback(eventDetails) {
             const valid = CookieManagerEditView.validCookieInfo(cookieInfo);
             if (!valid.status) {
               if (typeof valid.msg === "string") {
@@ -205,7 +205,7 @@ export const CookieManagerEditView = {
       #cookie-item-property-expires{
         border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
         border-radius: 4px;
-        background-color: #ffffff;
+        background: #ffffff;
         width: 100%;
         height: 32px;
         padding: 0px 8px;
@@ -219,6 +219,20 @@ export const CookieManagerEditView = {
         border: 1px solid #409eff;
         border-radius: 4px;
         box-shadow: none;
+      }
+      `,
+      darkStyle: /*css*/ `
+      #cookie-item-property-expires,
+      .export-example-code-text-container,
+      .cookir-format-encode-pwd-container input{
+        background: #232323;
+      }
+      #cookie-item-property-expires{
+        color: #ffffff;
+        border: 1px solid #414141;
+      }
+      .cookir-format-encode-pwd-container input{
+        color: #ffffff;
       }
       `,
     });
@@ -261,7 +275,7 @@ export const CookieManagerEditView = {
         edit_ui_input(
           "expires",
           () => "会话",
-          (value) => {},
+          () => {},
           true
         )
       ).$el;

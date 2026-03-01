@@ -8,8 +8,8 @@ import { PanelUISize } from "@components/setting/panel-ui-size";
 import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
 import { CookieManager } from "./CookieManager";
+import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
 
 export type CookieRuleData = {
   /** 唯一uuid */
@@ -55,10 +55,10 @@ export const CookieRule = {
         text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
         isStoreValue: false,
         autoReload: false,
-        showText(text, enable) {
+        showText(text) {
           return text;
         },
-        callback(data) {
+        callback() {
           console.log(CookieRule.$data.matchedRuleList);
           alert("以下是命中的规则名：\n" + CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n"));
         },
@@ -99,7 +99,6 @@ export const CookieRule = {
    * 显示视图
    */
   showView() {
-    const that = this;
     let panelHandlerComponents = pops.config.PanelHandlerComponents();
     /**
      * 自定义存储api的配置
@@ -561,7 +560,7 @@ export const CookieRule = {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
@@ -596,7 +595,7 @@ export const CookieRule = {
         },
         btn: {
           ok: {
-            callback: async (eventDetails, event) => {
+            callback: async (eventDetails) => {
               const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");

@@ -103,7 +103,7 @@ export class CookieManagerService {
         delete(cookieInfo: GMCookieInstance, callback: (error?: Error | undefined | null) => void) {
           cookieStore
             .delete(cookieInfo)
-            .then((result) => {
+            .then(() => {
               callback();
             })
             .catch((reason) => {
@@ -213,7 +213,7 @@ export class CookieManagerService {
    * 更新Cookie
    */
   updateCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
-    return new Promise<string | Error | null | undefined>(async (resolve, reject) => {
+    return new Promise<string | Error | null | undefined>(async (resolve) => {
       let result: any;
       try {
         if (this.cookieManagerApiName === "document.cookie" || this.cookieManagerApiName === "cookieStore") {
