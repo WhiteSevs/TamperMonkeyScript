@@ -447,7 +447,7 @@ class ShortCut {
       this.#data.currentWaitEnterPressInstanceHandler = null;
       this.#data.currentWaitEnterPressInstanceHandler = () => {
         this.#flag.isWaitPress = false;
-        keyboardListener.removeListen();
+        keyboardListener.off();
         this.#data.currentWaitEnterPressInstanceHandler = null;
       };
     });
