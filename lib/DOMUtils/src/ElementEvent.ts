@@ -830,20 +830,23 @@ class ElementEvent extends ElementAnimate {
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
-   * @param eventType 需要触发的事件
-   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+   * @param event 触发的事件
+   * @param extraDetails （可选）赋予触发的Event的额外属性
+   * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
    * @example
-   * // 触发元素a.xx的click事件
-   * DOMUtils.emit(document.querySelector("a.xx"),"click")
-   * DOMUtils.emit("a.xx","click")
-   * // 触发元素a.xx的click、tap、hover事件
-   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
-   * DOMUtils.emit("a.xx",["click","tap","hover"])
+   * DOMUtils.emit("a.xx", new Event("click"))
+   * @example
+   * DOMUtils.emit("a.xx", new Event("click"), {
+   *   disableHook: true
+   * })
+   * @example
+   * DOMUtils.emit("a.xx", new Event("click"), {
+   *   disableHook: true
+   * },false)
    */
   emit(
     element: Element | string | NodeList | any[] | Window | Document,
-    eventType: DOMUtils_EventType | DOMUtils_EventType[],
+    event: Event,
     extraDetails?: object,
     useDispatchToTriggerEvent?: boolean
   ): void;
@@ -863,7 +866,7 @@ class ElementEvent extends ElementAnimate {
    */
   emit(
     element: Element | string | NodeList | any[] | Window | Document,
-    eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
+    eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[] | Event,
     extraDetails?: object | boolean,
     useDispatchToTriggerEvent: boolean = true
   ) {
@@ -880,11 +883,33 @@ class ElementEvent extends ElementAnimate {
     } else {
       $elList.push(element);
     }
+
+    /**
+     * 主动添加属性
+     */
+    const addExtraProp = (event: Event, obj: any) => {
+      if (event instanceof Event && typeof obj === "object" && obj != null && !Array.isArray(obj)) {
+        const detailKeys = Object.keys(obj);
+        detailKeys.forEach((keyName) => {
+          const value = Reflect.get(obj, keyName);
+          // 在event上添加属性
+          Reflect.set(event, keyName, value);
+        });
+      }
+    };
+
     let eventTypeList: string[] = [];
+    /**
+     * 主动传递的事件
+     */
+    let __event__: Event | null = null;
     if (Array.isArray(eventType)) {
       eventTypeList = eventType.filter((it) => typeof it === "string" && it.trim() !== "");
     } else if (typeof eventType === "string") {
       eventTypeList = eventType.split(" ");
+    } else if (eventType instanceof Event) {
+      __event__ = eventType;
+      addExtraProp(__event__, extraDetails);
     }
 
     $elList.forEach(($elItem) => {
@@ -892,31 +917,34 @@ class ElementEvent extends ElementAnimate {
       const elementEvents: {
         [key: string]: DOMUtilsEventListenerOptionsAttribute[];
       } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
-      eventTypeList.forEach((eventTypeItem) => {
-        let event: Event = null as any;
-        if (extraDetails && extraDetails instanceof Event) {
-          event = extraDetails;
-        } else {
-          // 构造事件
-          event = new Event(eventTypeItem);
-          if (typeof extraDetails === "object" && extraDetails != null) {
-            const detailKeys = Object.keys(extraDetails);
-            detailKeys.forEach((keyName) => {
-              const value = Reflect.get(extraDetails, keyName);
-              // 在event上添加属性
-              Reflect.set(event, keyName, value);
-            });
-          }
-        }
+
+      /**
+       * 触发事件
+       */
+      const dispatchEvent = (event: Event, eventTypeItem: string) => {
         if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
-          // 直接调用监听的事件
+          // 直接调用.on监听的事件
           elementEvents[eventTypeItem].forEach((eventsItem) => {
             eventsItem.handlerCallBack(event);
           });
         } else {
           $elItem.dispatchEvent(event);
         }
-      });
+      };
+
+      if (__event__) {
+        // 使用主动传递的事件直接触发
+        const event = __event__;
+        const eventTypeItem = event.type;
+        dispatchEvent(event, eventTypeItem);
+      } else {
+        eventTypeList.forEach((eventTypeItem) => {
+          // 构造事件
+          const event = new Event(eventTypeItem);
+          addExtraProp(event, extraDetails);
+          dispatchEvent(event, eventTypeItem);
+        });
+      }
     });
   }
 

@@ -229,18 +229,21 @@ declare class ElementEvent extends ElementAnimate {
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
-     * @param eventType 需要触发的事件
-     * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+     * @param event 触发的事件
+     * @param extraDetails （可选）赋予触发的Event的额外属性
+     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
      * @example
-     * // 触发元素a.xx的click事件
-     * DOMUtils.emit(document.querySelector("a.xx"),"click")
-     * DOMUtils.emit("a.xx","click")
-     * // 触发元素a.xx的click、tap、hover事件
-     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
-     * DOMUtils.emit("a.xx",["click","tap","hover"])
+     * DOMUtils.emit("a.xx", new Event("click"))
+     * @example
+     * DOMUtils.emit("a.xx", new Event("click"), {
+     *   disableHook: true
+     * })
+     * @example
+     * DOMUtils.emit("a.xx", new Event("click"), {
+     *   disableHook: true
+     * },false)
      */
-    emit(element: Element | string | NodeList | any[] | Window | Document, eventType: DOMUtils_EventType | DOMUtils_EventType[], extraDetails?: object, useDispatchToTriggerEvent?: boolean): void;
+    emit(element: Element | string | NodeList | any[] | Window | Document, event: Event, extraDetails?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 监听或触发元素的click事件
      * @param element 目标元素
