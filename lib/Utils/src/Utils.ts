@@ -3959,6 +3959,78 @@ class Utils {
       }
     });
   }
+  /**
+   * 计算两个坐标的直线距离
+   * @param positionX 坐标x信息
+   * @param positionY 坐标y信息
+   * @param otherPositionX 坐标x信息
+   * @param otherPositionY 坐标y信息
+   */
+  calcPositionDistance(
+    positionX: number | string,
+    positionY: number | string,
+    otherPositionX: number | string,
+    otherPositionY: number | string
+  ): number;
+  /**
+   * 计算两个坐标的直线距离
+   * @param position 坐标信息
+   * @param otherPosition 坐标信息
+   */
+  calcPositionDistance(
+    position: { x: number | string; y: number | string },
+    otherPosition: { x: number | string; y: number | string }
+  ): number;
+  calcPositionDistance(...args: any[]) {
+    let position = {
+      x: 0,
+      y: 0,
+    };
+    let otherPosition = {
+      x: 0,
+      y: 0,
+    };
+    if (typeof args[0] === "object" && args[0] != null && typeof args[1] === "object" && args[1] != null) {
+      position = args[0];
+      otherPosition = args[1];
+    } else if (args.length === 4) {
+      position = {
+        x: args[0],
+        y: args[1],
+      };
+      otherPosition = {
+        x: args[2],
+        y: args[3],
+      };
+    } else {
+      throw new Error("Invalid arguments");
+    }
+    if (typeof position.x === "string") {
+      position.x = Number(position.x);
+    }
+    if (isNaN(position.x)) {
+      throw new Error(`Invalid x: ${position.x}`);
+    }
+    if (typeof position.y === "string") {
+      position.y = Number(position.y);
+    }
+    if (isNaN(position.y)) {
+      throw new Error(`Invalid y: ${position.y}`);
+    }
+    if (typeof otherPosition.x === "string") {
+      otherPosition.x = Number(otherPosition.x);
+    }
+    if (isNaN(otherPosition.x)) {
+      throw new Error(`Invalid x: ${otherPosition.x}`);
+    }
+    if (typeof otherPosition.y === "string") {
+      otherPosition.y = Number(otherPosition.y);
+    }
+    if (isNaN(otherPosition.y)) {
+      throw new Error(`Invalid y: ${otherPosition.y}`);
+    }
+    return Math.sqrt(Math.pow(otherPosition.x - position.x, 2) + Math.pow(otherPosition.y - position.y, 2));
+  }
 }
 
 const utils = new Utils();

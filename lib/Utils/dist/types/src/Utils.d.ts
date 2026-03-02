@@ -1620,6 +1620,26 @@ declare class Utils {
      * @param timeout 超时时间，默认为`1500ms`
      */
     hasWorkerCSP(timeout?: number): Promise<boolean>;
+    /**
+     * 计算两个坐标的直线距离
+     * @param positionX 坐标x信息
+     * @param positionY 坐标y信息
+     * @param otherPositionX 坐标x信息
+     * @param otherPositionY 坐标y信息
+     */
+    calcPositionDistance(positionX: number | string, positionY: number | string, otherPositionX: number | string, otherPositionY: number | string): number;
+    /**
+     * 计算两个坐标的直线距离
+     * @param position 坐标信息
+     * @param otherPosition 坐标信息
+     */
+    calcPositionDistance(position: {
+        x: number | string;
+        y: number | string;
+    }, otherPosition: {
+        x: number | string;
+        y: number | string;
+    }): number;
 }
 declare const utils: Utils;
 export { utils as Utils };
