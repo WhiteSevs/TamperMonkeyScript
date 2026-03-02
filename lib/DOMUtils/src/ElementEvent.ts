@@ -957,7 +957,8 @@ class ElementEvent extends ElementAnimate {
     if (handler == null) {
       that.emit(element, "click", details, useDispatchToEmit);
     } else {
-      that.on(element, "click", null, handler);
+      const listener = that.on(element, "click", null, handler);
+      return listener;
     }
   }
   /**
@@ -997,7 +998,8 @@ class ElementEvent extends ElementAnimate {
     if (handler === null) {
       that.emit(element, "blur", details, useDispatchToEmit);
     } else {
-      that.on(element, "blur", null, handler as (event: Event) => void);
+      const listener = that.on(element, "blur", null, handler as (event: Event) => void);
+      return listener;
     }
   }
   /**
@@ -1037,7 +1039,8 @@ class ElementEvent extends ElementAnimate {
     if (handler == null) {
       that.emit(element, "focus", details, useDispatchToEmit);
     } else {
-      that.on(element, "focus", null, handler);
+      const listener = that.on(element, "focus", null, handler);
+      return listener;
     }
   }
   /**
@@ -1068,13 +1071,31 @@ class ElementEvent extends ElementAnimate {
     }
     if (CommonUtils.isNodeList(element)) {
       // 设置
+      const listenerList: (DOMUtilsAddEventListenerResult | undefined)[] = [];
       element.forEach(($ele) => {
-        that.onHover($ele as HTMLElement, handler, option);
+        const listener = that.onHover($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
       });
-      return;
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as DOMUtilsAddEventListenerResult;
     }
-    that.on(element, "mouseenter", null, handler, option);
-    that.on(element, "mouseleave", null, handler, option);
+    const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
+    const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
+
+    return {
+      off() {
+        mouseenter_listener.off();
+        mouseleave_listener.off();
+      },
+    } as DOMUtilsAddEventListenerResult;
   }
   /**
    * 监听动画结束
@@ -1169,12 +1190,23 @@ class ElementEvent extends ElementAnimate {
     }
     if (CommonUtils.isNodeList(element)) {
       // 设置
+      const listenerList: (DOMUtilsAddEventListenerResult | undefined)[] = [];
       element.forEach(($ele) => {
-        that.onKeyup($ele as HTMLElement, handler, option);
+        const listener = that.onKeyup($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
       });
-      return;
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as DOMUtilsAddEventListenerResult;
     }
-    that.on(element, "keyup", null, handler, option);
+    return that.on(element, "keyup", null, handler, option);
   }
   /**
    * 当按键按下时触发事件
@@ -1205,12 +1237,23 @@ class ElementEvent extends ElementAnimate {
     }
     if (CommonUtils.isNodeList(element)) {
       // 设置
+      const listenerList: (DOMUtilsAddEventListenerResult | undefined)[] = [];
       element.forEach(($ele) => {
-        that.onKeydown($ele as HTMLElement, handler, option);
+        const listener = that.onKeydown($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
       });
-      return;
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as DOMUtilsAddEventListenerResult;
     }
-    that.on(element, "keydown", null, handler, option);
+    return that.on(element, "keydown", null, handler, option);
   }
   /**
    * 当按键按下时触发事件
@@ -1241,12 +1284,23 @@ class ElementEvent extends ElementAnimate {
     }
     if (CommonUtils.isNodeList(element)) {
       // 设置
+      const listenerList: (DOMUtilsAddEventListenerResult | undefined)[] = [];
       element.forEach(($ele) => {
-        that.onKeypress($ele as HTMLElement, handler, option);
+        const listener = that.onKeypress($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
       });
-      return;
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as DOMUtilsAddEventListenerResult;
     }
-    that.on(element, "keypress", null, handler, option);
+    return that.on(element, "keypress", null, handler, option);
   }
   /**
    * 监听某个元素键盘按键事件或window全局按键事件
@@ -1316,9 +1370,7 @@ class ElementEvent extends ElementAnimate {
     eventName: "keydown" | "keypress" | "keyup" = "keypress",
     handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void,
     options?: DOMUtilsEventListenerOption | boolean
-  ): {
-    removeListen(): void;
-  } {
+  ): DOMUtilsAddEventListenerResult {
     const that = this;
     if (typeof element === "string") {
       element = that.selectorAll(element);
@@ -1346,12 +1398,8 @@ class ElementEvent extends ElementAnimate {
         handler(keyName, keyValue, otherCodeList, event);
       }
     };
-    that.on(element, eventName, keyboardEventCallBack, options);
-    return {
-      removeListen: () => {
-        that.off(element, eventName, keyboardEventCallBack, options);
-      },
-    };
+    const listener = that.on(element, eventName, keyboardEventCallBack, options);
+    return listener;
   }
   /**
    * 监input、textarea的输入框值改变的事件（当输入法输入时，不会触发该监听）
@@ -1363,7 +1411,7 @@ class ElementEvent extends ElementAnimate {
     $el: HTMLInputElement | HTMLTextAreaElement,
     handler: (evt: InputEvent) => void | Promise<void>,
     option?: DOMUtilsEventListenerOption | boolean
-  ) {
+  ): DOMUtilsAddEventListenerResult {
     /**
      * 是否正在输入中
      */
@@ -1386,10 +1434,13 @@ class ElementEvent extends ElementAnimate {
     const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
 
     return {
-      off: () => {
+      off() {
         inputListener.off();
         compositionStartListener.off();
         compositionEndListener.off();
+      },
+      emit(details?, useDispatchToEmit?) {
+        inputListener.emit(details, useDispatchToEmit);
       },
     };
   }
@@ -1520,45 +1571,149 @@ class ElementEvent extends ElementAnimate {
   }
   /**
    * 阻止事件传递
+   *
+   * + `.preventDefault()`: 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
+   * + `.stopPropagation()`: 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+   * + `.stopImmediatePropagation()`: 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
    * @param event 要阻止传递的事件
    * @example
    * DOMUtils.preventEvent(event);
    */
-  preventEvent(event: Event): boolean;
+  preventEvent(event: Event): false;
+  /**
+   * 阻止事件传递
+   * @param event 要阻止传递的事件
+   * @param onlyStopPropagation （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()`
+   * @example
+   * DOMUtils.preventEvent(event, true);
+   */
+  preventEvent<T extends boolean>(event: Event, onlyStopPropagation: T): T extends true ? void : false;
   /**
    * 通过监听事件来主动阻止事件的传递
    * @param $el 要进行处理的元素
-   * @param eventNameList （可选）要阻止的事件名|列表
-   * @param capture （可选）是否捕获，默认false
+   * @param eventNameList 要阻止的事件名|列表
+   * @param option （可选）配置项
    * @example
-   * DOMUtils.preventEvent(document.querySelector("a"),"click")
+   * DOMUtils.preventEvent(document.querySelector("a"), "click")
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+   *   capture: true,
+   * })
+   * @example
+   * DOMUtils.preventEvent(document, "click", "a.xxx", {
+   *   capture: true,
+   *   onlyStopPropagation: true,
+   * })
    */
-  preventEvent($el: HTMLElement, eventNameList?: string | string[], capture?: boolean): void;
-  preventEvent(...args: any[]) {
+  preventEvent(
+    $el: HTMLElement,
+    eventNameList: string | string[],
+    option?: {
+      /** （可选）是否捕获，默认false */
+      capture?: boolean;
+      /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+      onlyStopPropagation?: boolean;
+    }
+  ): {
+    /** 移除监听事件 */
+    off(): void;
+  };
+  /**
+   * 通过监听事件来主动阻止事件的传递
+   * @param $el 要进行处理的元素
+   * @param eventNameList 要阻止的事件名|列表
+   * @param selector 子元素选择器
+   * @param option （可选）配置项
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click")
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+   *   capture: true,
+   * })
+   * @example
+   * DOMUtils.preventEvent(document, "click", "a.xxx", {
+   *   capture: true,
+   *   onlyStopPropagation: true,
+   * })
+   */
+  preventEvent(
+    $el: HTMLElement,
+    eventNameList: string | string[],
+    selector: string | string[] | null | undefined,
+    option?: {
+      /** （可选）是否捕获，默认false */
+      capture?: boolean;
+      /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+      onlyStopPropagation?: boolean;
+    }
+  ): {
+    /** 移除监听事件 */
+    off(): void;
+  };
+  preventEvent(...args: any[]): boolean | void | { off(): void } {
     /**
      * 阻止事件的默认行为发生，并阻止事件传播
      */
-    const stopEvent = (event: Event) => {
-      /* 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL */
+    const stopEvent = (event: Event, onlyStopPropagation?: boolean) => {
+      if (typeof onlyStopPropagation === "boolean" && onlyStopPropagation) {
+        // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+        event?.stopPropagation();
+        // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
+        event?.stopImmediatePropagation();
+        return;
+      }
+      // 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
       event?.preventDefault();
-      /* 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素 */
-      event?.stopPropagation();
-      /* 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发 */
-      event?.stopImmediatePropagation();
       return false;
     };
-    if (args.length === 1) {
-      /* 直接阻止事件 */
-      return stopEvent(args[0]);
+    if (args[0] instanceof Event) {
+      // 直接阻止事件
+      const onlyStopPropagation: boolean = args[1];
+      return stopEvent(args[0], onlyStopPropagation);
     } else {
       const $el: HTMLElement = args[0];
       let eventNameList: string | string[] = args[1];
-      const capture: boolean = args[2];
-      /* 添加对应的事件来阻止触发 */
+      let selector: string | string[] | null | undefined = void 0;
+      let capture = false;
+      let onlyStopPropagation = false;
+      // 添加对应的事件来阻止触发
       if (typeof eventNameList === "string") {
         eventNameList = [eventNameList];
       }
-      this.on($el, eventNameList, stopEvent, { capture: Boolean(capture) });
+
+      let option:
+        | {
+            capture?: boolean;
+            onlyStopPropagation?: boolean;
+          }
+        | undefined = void 0;
+      if (typeof args[2] === "string" || Array.isArray(args[2])) {
+        // selector
+        selector = args[2];
+        if (typeof args[3] === "object" && args[3] != null) {
+          option = args[3];
+        }
+      } else if (typeof args[2] === "object" && args[2] != null && !Array.isArray(args[2])) {
+        // option
+        option = args[2];
+      } else {
+        throw new TypeError("Invalid argument");
+      }
+      if (option) {
+        capture = Boolean(option.capture);
+        onlyStopPropagation = Boolean(option.onlyStopPropagation);
+      }
+
+      const listener = this.on(
+        $el,
+        eventNameList,
+        selector,
+        (evt) => {
+          return stopEvent(evt, onlyStopPropagation);
+        },
+        { capture: capture }
+      );
+      return listener;
     }
   }
 }

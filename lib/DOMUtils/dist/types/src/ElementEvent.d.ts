@@ -255,7 +255,7 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: object, useDispatchToEmit?: boolean): void;
+    click(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: object, useDispatchToEmit?: boolean): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 监听或触发元素的blur事件
      * @param element 目标元素
@@ -270,7 +270,7 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmit?: boolean): void;
+    blur(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmit?: boolean): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 监听或触发元素的focus事件
      * @param element 目标元素
@@ -285,7 +285,7 @@ declare class ElementEvent extends ElementAnimate {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmit?: boolean): void;
+    focus(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmit?: boolean): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -300,7 +300,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("移入/移除");
      * })
      */
-    onHover(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onHover(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 监听动画结束
      * @param element 监听的元素
@@ -334,7 +334,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键松开");
      * })
      */
-    onKeyup(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeyup(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -350,7 +350,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键按下");
      * })
      */
-    onKeydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -366,7 +366,7 @@ declare class ElementEvent extends ElementAnimate {
      *   console.log("按键按下");
      * })
      */
-    onKeypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    onKeypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
     /**
      * 监听某个元素键盘按键事件或window全局按键事件
      * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
@@ -430,18 +430,14 @@ declare class ElementEvent extends ElementAnimate {
          搜索		170
          收藏		171
       **/
-    onKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keydown" | "keypress" | "keyup" | undefined, handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): {
-        removeListen(): void;
-    };
+    onKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keydown" | "keypress" | "keyup" | undefined, handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 监input、textarea的输入框值改变的事件（当输入法输入时，不会触发该监听）
      * @param $el 输入框元素
      * @param handler 回调函数
      * @param option 配置
      */
-    onInput($el: HTMLInputElement | HTMLTextAreaElement, handler: (evt: InputEvent) => void | Promise<void>, option?: DOMUtilsEventListenerOption | boolean): {
-        off: () => void;
-    };
+    onInput($el: HTMLInputElement | HTMLTextAreaElement, handler: (evt: InputEvent) => void | Promise<void>, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 双击监听，适配移动端
      * @param $el 监听的元素
@@ -463,20 +459,76 @@ declare class ElementEvent extends ElementAnimate {
     };
     /**
      * 阻止事件传递
+     *
+     * + `.preventDefault()`: 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
+     * + `.stopPropagation()`: 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+     * + `.stopImmediatePropagation()`: 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
      * @param event 要阻止传递的事件
      * @example
      * DOMUtils.preventEvent(event);
      */
-    preventEvent(event: Event): boolean;
+    preventEvent(event: Event): false;
+    /**
+     * 阻止事件传递
+     * @param event 要阻止传递的事件
+     * @param onlyStopPropagation （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()`
+     * @example
+     * DOMUtils.preventEvent(event, true);
+     */
+    preventEvent<T extends boolean>(event: Event, onlyStopPropagation: T): T extends true ? void : false;
     /**
      * 通过监听事件来主动阻止事件的传递
      * @param $el 要进行处理的元素
-     * @param eventNameList （可选）要阻止的事件名|列表
-     * @param capture （可选）是否捕获，默认false
+     * @param eventNameList 要阻止的事件名|列表
+     * @param option （可选）配置项
      * @example
-     * DOMUtils.preventEvent(document.querySelector("a"),"click")
+     * DOMUtils.preventEvent(document.querySelector("a"), "click")
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+     *   capture: true,
+     * })
+     * @example
+     * DOMUtils.preventEvent(document, "click", "a.xxx", {
+     *   capture: true,
+     *   onlyStopPropagation: true,
+     * })
      */
-    preventEvent($el: HTMLElement, eventNameList?: string | string[], capture?: boolean): void;
+    preventEvent($el: HTMLElement, eventNameList: string | string[], option?: {
+        /** （可选）是否捕获，默认false */
+        capture?: boolean;
+        /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+        onlyStopPropagation?: boolean;
+    }): {
+        /** 移除监听事件 */
+        off(): void;
+    };
+    /**
+     * 通过监听事件来主动阻止事件的传递
+     * @param $el 要进行处理的元素
+     * @param eventNameList 要阻止的事件名|列表
+     * @param selector 子元素选择器
+     * @param option （可选）配置项
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click")
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+     *   capture: true,
+     * })
+     * @example
+     * DOMUtils.preventEvent(document, "click", "a.xxx", {
+     *   capture: true,
+     *   onlyStopPropagation: true,
+     * })
+     */
+    preventEvent($el: HTMLElement, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
+        /** （可选）是否捕获，默认false */
+        capture?: boolean;
+        /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+        onlyStopPropagation?: boolean;
+    }): {
+        /** 移除监听事件 */
+        off(): void;
+    };
 }
 declare const elementEvent: ElementEvent;
 export { elementEvent, ElementEvent };
