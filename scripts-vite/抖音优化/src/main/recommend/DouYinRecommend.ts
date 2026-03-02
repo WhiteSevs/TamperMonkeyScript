@@ -110,7 +110,9 @@ export const DouYinRecommend = {
           keyCode: 40,
           which: 40,
         });
-        document.body.dispatchEvent(keydownEvent);
+        DOMUtils.emit(document.body || document, keydownEvent, {
+          disableHook: true,
+        });
       }
     };
     /**

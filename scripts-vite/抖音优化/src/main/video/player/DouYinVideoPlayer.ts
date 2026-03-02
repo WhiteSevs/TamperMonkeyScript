@@ -264,7 +264,9 @@ export const DouYinVideoPlayer = {
               code: "KeyH",
             };
         const keydownEvent = new KeyboardEvent("keydown", keyboardEventDict);
-        document.body.dispatchEvent(keydownEvent);
+        DOMUtils.emit(document.body || document, keydownEvent, {
+          disableHook: true,
+        });
         this.$flag.isWaitEnterFullScreen = false;
         log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏:使用快捷键触发的方式`);
       });
@@ -1747,10 +1749,11 @@ export const DouYinVideoPlayer = {
           return;
         }
         $video.currentTime = jumpTimeDuration;
+        const jumpTimeDurationStr = DouYinUtils.parseDuration(jumpTimeDuration);
         if (jumpTimeDuration > $video.duration) {
-          log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${DouYinUtils.parseDuration(jumpTimeDuration)}`);
+          log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${jumpTimeDurationStr}`);
         } else {
-          log.info(`跳转时间至: ${timeStr} => ${jumpTimeDuration}`);
+          log.info(`跳转时间至: ${timeStr} => ${jumpTimeDurationStr}`);
         }
       }
     };

@@ -1,4 +1,4 @@
-import { $, log, MenuRegister, pops, utils } from "@/env";
+import { $, DOMUtils, log, MenuRegister, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 
 type DouYinLivePlayerInstance = {
@@ -164,6 +164,8 @@ export const DouYinLivePlayerInstance = {
       key: "R",
       code: "KeyR",
     });
-    (document.body || document).dispatchEvent(keydownEvent);
+    DOMUtils.emit(document.body || document, keydownEvent, {
+      disableHook: true,
+    });
   },
 };

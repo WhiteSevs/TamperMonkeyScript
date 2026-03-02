@@ -161,8 +161,8 @@ export const DouYin = {
       const beforeUrl = url;
       const currentUrl = window.location.href;
       url = currentUrl;
-      log.info(`Router Change Before：` + beforeUrl);
-      log.info(`Router Change Now：` + currentUrl);
+      log.success(`Router Change Before: ` + beforeUrl);
+      log.success(`Router Change Now: ` + currentUrl);
       Panel.emitUrlChangeWithExecMenuOnceEvent({
         url: currentUrl,
         beforeUrl: beforeUrl,

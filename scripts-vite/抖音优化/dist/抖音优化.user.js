@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -3119,247 +3119,264 @@
         return false;
       };
       let timeId;
-      Hook.document_addEventListener((target, eventName, listener) => {
-        if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
-          return function (...eventArgs) {
-            const keyboardEvent = eventArgs[0];
-            const code = keyboardEvent.code;
-            const otherCodeList = [];
-            if (keyboardEvent.ctrlKey) {
-              otherCodeList.push("ctrl");
-            }
-            if (keyboardEvent.altKey) {
-              otherCodeList.push("alt");
-            }
-            if (keyboardEvent.metaKey) {
-              otherCodeList.push("meta");
-            }
-            if (keyboardEvent.shiftKey) {
-              otherCodeList.push("shift");
-            }
-            const $active = document.activeElement;
-            const $shadowRootActive = $active?.shadowRoot?.activeElement;
-            if (isDisableTriggerKeyboard($shadowRootActive ?? $active)) {
-              return;
-            }
-            let keyboardConfigList = [
-              {
-                enableKey: "dy-keyboard-hook-likeOrDislike",
-                code: ["KeyZ"],
-                callback(evt) {
-                  if (evt.code !== "Space") return;
-                  if (DouYinRouter.isChat()) return;
-                  utils.workerClearTimeout(timeId);
-                  timeId = utils.workerSetTimeout(() => {
-                    const videosInViewVideoList = DouYinElement.getInViewVideo();
-                    const playInViewList = DouYinElement.getInViewPlayButton();
-                    if (!videosInViewVideoList.length && !playInViewList.length) {
-                      log.error("未找到在可视区域内的视频或播放按钮");
-                      return;
-                    }
-                    const video = videosInViewVideoList[0];
-                    const player = playInViewList[0];
-                    if (video) {
-                      const $video = videosInViewVideoList[0].$el;
-                      if ($video.paused) {
-                        log.info(`当前视频处于暂停状态，开始播放`);
-                        $video.play();
-                      } else {
-                        log.info(`当前视频处于播放状态，暂停播放`);
-                        $video.pause();
-                      }
-                    } else {
-                      const $play = player.$el;
-                      log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
-                      $play.click();
-                    }
-                  }, 288);
-                },
-              },
-              {
-                enableKey: "dy-keyboard-hook-comment",
-                code: ["KeyX"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-danmaku-enable",
-                code: ["KeyB"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-collect-enable",
-                code: ["KeyC"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-copyShareLink",
-                code: ["KeyV"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-clearScreen",
-                code: ["KeyJ"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-automaticBroadcast",
-                code: ["KeyK"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-videoInfo",
-                code: ["KeyI"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-notInterested",
-                code: ["KeyR"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-enterAuthorHomePage",
-                code: ["KeyF"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-follow",
-                code: ["KeyG"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-search",
-                code: ["KeyF"],
-                otherCodeList: ["shift"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
-                code: ["KeyQ"],
-                otherCodeList: ["shift"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-pageUpAndDown",
-                code: ["ArrowUp", "ArrowDown"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-fastForwardAndFastBack",
-                code: ["ArrowLeft", "ArrowRight"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-pause",
-                code: ["Space"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-fullScreenInsideThePage",
-                code: ["KeyY"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-fullScreen",
-                code: ["KeyH"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-watchItOutLater",
-                code: ["KeyL"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-volumeAdjustment",
-                code: ["Minus"],
-                otherCodeList: ["shift"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-listOfCallShortcutKeys",
-                code: ["Slash"],
-                otherCodeList: ["shift"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-closeTheShortcutKeyList",
-                code: ["Escape"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-relevantRecommendation",
-                code: ["KeyN"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-listenToDouyin",
-                code: ["KeyT"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-smallWindowPlay",
-                code: ["KeyU"],
-              },
-              {
-                enableKey: "dy-keyboard-hook-recommendVideo",
-                code: ["KeyP"],
-              },
-            ];
-            const otherKeyboardConfigList = [];
-            if (DouYinRouter.isIndex()) {
-              otherKeyboardConfigList.push(
-                {
-                  enableKey: "dy-keyboard-hook-arrowUp-w",
-                  code: ["KeyW"],
-                },
-                {
-                  enableKey: "dy-keyboard-hook-arrowDown-s",
-                  code: ["KeyS"],
-                },
-                {
-                  enableKey: "dy-keyboard-hook-videoRewind",
-                  code: ["KeyA"],
-                },
-                {
-                  enableKey: "dy-keyboard-hook-videoFastForward",
-                  code: ["KeyD"],
+      const callback = (keyboardEvent) => {
+        let flag = true;
+        const code = keyboardEvent.code;
+        const otherCodeList = [];
+        if (keyboardEvent.ctrlKey) {
+          otherCodeList.push("ctrl");
+        }
+        if (keyboardEvent.altKey) {
+          otherCodeList.push("alt");
+        }
+        if (keyboardEvent.metaKey) {
+          otherCodeList.push("meta");
+        }
+        if (keyboardEvent.shiftKey) {
+          otherCodeList.push("shift");
+        }
+        const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
+        const $active = $shadowRootActive ?? document.activeElement;
+        if (isDisableTriggerKeyboard($active)) {
+          flag = false;
+          return flag;
+        }
+        let keyboardConfigList = [
+          {
+            enableKey: "dy-keyboard-hook-likeOrDislike",
+            code: ["KeyZ"],
+            callback(evt) {
+              if (evt.code !== "Space") return;
+              if (DouYinRouter.isChat()) return;
+              utils.workerClearTimeout(timeId);
+              timeId = utils.workerSetTimeout(() => {
+                const videosInViewVideoList = DouYinElement.getInViewVideo();
+                const playInViewList = DouYinElement.getInViewPlayButton();
+                if (!videosInViewVideoList.length && !playInViewList.length) {
+                  log.error("未找到在可视区域内的视频或播放按钮");
+                  return;
                 }
-              );
-            } else if (DouYinRouter.isLive()) {
-              otherKeyboardConfigList.push(
-                {
-                  enableKey: "dy-live-threeScreen",
-                  code: ["KeyS"],
-                },
-                {
-                  enableKey: "dy-live-refresh",
-                  code: ["KeyR"],
-                },
-                {
-                  enableKey: "dy-live-screenRotation",
-                  code: ["KeyD"],
-                },
-                {
-                  enableKey: "dy-live-enableSmallWindowMode",
-                  code: ["KeyU"],
-                },
-                {
-                  enableKey: "dy-live-switchLiveRoom",
-                  code: ["ArrowUp", "ArrowDown"],
-                },
-                {
-                  enableKey: "dy-live-quickGift",
-                  code: ["KeyE"],
-                }
-              );
-              keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
-                const compare1 = it1.code.toSorted().toString();
-                const compare2 = it2.code.toSorted().toString();
-                return compare1 === compare2;
-              });
-            }
-            keyboardConfigList = otherKeyboardConfigList.concat(keyboardConfigList);
-            for (let index = 0; index < keyboardConfigList.length; index++) {
-              const keyboardConfig = keyboardConfigList[index];
-              if (keyboardConfig.code.includes(code)) {
-                if (Array.isArray(keyboardConfig.otherCodeList)) {
-                  const findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
-                  if (findValue) {
-                    continue;
+                const video = videosInViewVideoList[0];
+                const player = playInViewList[0];
+                if (video) {
+                  const $video = videosInViewVideoList[0].$el;
+                  if ($video.paused) {
+                    log.info(`当前视频处于暂停状态，开始播放`);
+                    $video.play();
+                  } else {
+                    log.info(`当前视频处于播放状态，暂停播放`);
+                    $video.pause();
                   }
+                } else {
+                  const $play = player.$el;
+                  log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
+                  $play.click();
                 }
-                if (!Panel.getValue(keyboardConfig.enableKey)) {
-                  continue;
-                }
-                if (typeof keyboardConfig.callback === "function") {
-                  keyboardConfig.callback({
-                    code,
-                    otherCodeList,
-                  });
-                }
-                return;
+              }, 288);
+            },
+          },
+          {
+            enableKey: "dy-keyboard-hook-comment",
+            code: ["KeyX"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-danmaku-enable",
+            code: ["KeyB"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-collect-enable",
+            code: ["KeyC"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-copyShareLink",
+            code: ["KeyV"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-clearScreen",
+            code: ["KeyJ"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-automaticBroadcast",
+            code: ["KeyK"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-videoInfo",
+            code: ["KeyI"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-notInterested",
+            code: ["KeyR"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-enterAuthorHomePage",
+            code: ["KeyF"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-follow",
+            code: ["KeyG"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-search",
+            code: ["KeyF"],
+            otherCodeList: ["shift"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+            code: ["KeyQ"],
+            otherCodeList: ["shift"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-pageUpAndDown",
+            code: ["ArrowUp", "ArrowDown"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-fastForwardAndFastBack",
+            code: ["ArrowLeft", "ArrowRight"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-pause",
+            code: ["Space"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-fullScreenInsideThePage",
+            code: ["KeyY"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-fullScreen",
+            code: ["KeyH"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-watchItOutLater",
+            code: ["KeyL"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-volumeAdjustment",
+            code: ["Minus"],
+            otherCodeList: ["shift"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-listOfCallShortcutKeys",
+            code: ["Slash"],
+            otherCodeList: ["shift"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-closeTheShortcutKeyList",
+            code: ["Escape"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-relevantRecommendation",
+            code: ["KeyN"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-listenToDouyin",
+            code: ["KeyT"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-smallWindowPlay",
+            code: ["KeyU"],
+          },
+          {
+            enableKey: "dy-keyboard-hook-recommendVideo",
+            code: ["KeyP"],
+          },
+        ];
+        const otherKeyboardConfigList = [];
+        if (DouYinRouter.isIndex()) {
+          otherKeyboardConfigList.push(
+            {
+              enableKey: "dy-keyboard-hook-arrowUp-w",
+              code: ["KeyW"],
+            },
+            {
+              enableKey: "dy-keyboard-hook-arrowDown-s",
+              code: ["KeyS"],
+            },
+            {
+              enableKey: "dy-keyboard-hook-videoRewind",
+              code: ["KeyA"],
+            },
+            {
+              enableKey: "dy-keyboard-hook-videoFastForward",
+              code: ["KeyD"],
+            }
+          );
+        } else if (DouYinRouter.isLive()) {
+          otherKeyboardConfigList.push(
+            {
+              enableKey: "dy-live-threeScreen",
+              code: ["KeyS"],
+            },
+            {
+              enableKey: "dy-live-refresh",
+              code: ["KeyR"],
+            },
+            {
+              enableKey: "dy-live-screenRotation",
+              code: ["KeyD"],
+            },
+            {
+              enableKey: "dy-live-enableSmallWindowMode",
+              code: ["KeyU"],
+            },
+            {
+              enableKey: "dy-live-switchLiveRoom",
+              code: ["ArrowUp", "ArrowDown"],
+            },
+            {
+              enableKey: "dy-live-quickGift",
+              code: ["KeyE"],
+            }
+          );
+          keyboardConfigList = utils.uniqueArray(keyboardConfigList, otherKeyboardConfigList, (it1, it2) => {
+            const compare1 = it1.code.toSorted().toString();
+            const compare2 = it2.code.toSorted().toString();
+            return compare1 === compare2;
+          });
+        }
+        keyboardConfigList = otherKeyboardConfigList.concat(keyboardConfigList);
+        for (let index = 0; index < keyboardConfigList.length; index++) {
+          const keyboardConfig = keyboardConfigList[index];
+          if (keyboardConfig.code.includes(code)) {
+            if (Array.isArray(keyboardConfig.otherCodeList)) {
+              const findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
+              if (findValue) {
+                continue;
               }
             }
-            return Reflect.apply(listener, this, eventArgs);
-          };
+            if (!Panel.getValue(keyboardConfig.enableKey)) {
+              continue;
+            }
+            if (typeof keyboardConfig.callback === "function") {
+              keyboardConfig.callback({
+                code,
+                otherCodeList,
+              });
+            }
+            flag = false;
+            break;
+          }
         }
-      });
+        return flag;
+      };
+      const listener = domUtils.on(
+        document,
+        "keydown",
+        (keyboardEvent) => {
+          const disableHook = Reflect.get(keyboardEvent, "disableHook");
+          if (disableHook) {
+            return;
+          }
+          const flag = callback(keyboardEvent);
+          if (!flag) {
+            domUtils.preventEvent(keyboardEvent, true);
+          }
+        },
+        {
+          capture: true,
+          passive: false,
+        }
+      );
+      return listener.off;
     },
     disableDoubleClickLike() {
       let latestClickTime = null;
@@ -6524,7 +6541,7 @@
         this.#data.currentWaitEnterPressInstanceHandler = null;
         this.#data.currentWaitEnterPressInstanceHandler = () => {
           this.#flag.isWaitPress = false;
-          keyboardListener.removeListen();
+          keyboardListener.off();
           this.#data.currentWaitEnterPressInstanceHandler = null;
         };
       });
@@ -6853,7 +6870,9 @@
                 code: "KeyH",
               };
           const keydownEvent = new KeyboardEvent("keydown", keyboardEventDict);
-          document.body.dispatchEvent(keydownEvent);
+          domUtils.emit(document.body || document, keydownEvent, {
+            disableHook: true,
+          });
           this.$flag.isWaitEnterFullScreen = false;
           log.success(`成功自动进入${isWebSiteFullScreen ? "网页" : ""}全屏:使用快捷键触发的方式`);
         });
@@ -8051,10 +8070,11 @@
             return;
           }
           $video.currentTime = jumpTimeDuration;
+          const jumpTimeDurationStr = DouYinUtils.parseDuration(jumpTimeDuration);
           if (jumpTimeDuration > $video.duration) {
-            log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${DouYinUtils.parseDuration(jumpTimeDuration)}`);
+            log.error(`该跳转时间超出视频最大播放时长: ${timeStr} => ${jumpTimeDurationStr}`);
           } else {
-            log.info(`跳转时间至: ${timeStr} => ${jumpTimeDuration}`);
+            log.info(`跳转时间至: ${timeStr} => ${jumpTimeDurationStr}`);
           }
         }
       };
@@ -8520,7 +8540,9 @@
         key: "R",
         code: "KeyR",
       });
-      (document.body || document).dispatchEvent(keydownEvent);
+      domUtils.emit(document.body || document, keydownEvent, {
+        disableHook: true,
+      });
     },
   };
   const DouYinLiveShortCut = {
@@ -9161,7 +9183,9 @@
             keyCode: 40,
             which: 40,
           });
-          document.body.dispatchEvent(keydownEvent);
+          domUtils.emit(document.body || document, keydownEvent, {
+            disableHook: true,
+          });
         }
       };
       const queryRelatedModeInfo = () => {
@@ -12097,8 +12121,8 @@
         const beforeUrl = url;
         const currentUrl = window.location.href;
         url = currentUrl;
-        log.info(`Router Change Before：` + beforeUrl);
-        log.info(`Router Change Now：` + currentUrl);
+        log.success(`Router Change Before: ` + beforeUrl);
+        log.success(`Router Change Now: ` + currentUrl);
         Panel.emitUrlChangeWithExecMenuOnceEvent({
           url: currentUrl,
           beforeUrl,
