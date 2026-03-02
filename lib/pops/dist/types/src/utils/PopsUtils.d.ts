@@ -18,6 +18,11 @@ declare class PopsUtils {
      */
     isDOM(target: any): boolean;
     /**
+     * 判断是否是元素列表
+     * @param $ele
+     */
+    isNodeList($ele: any): $ele is any[] | NodeList;
+    /**
      * 删除对象上的属性
      * @param target
      * @param propName

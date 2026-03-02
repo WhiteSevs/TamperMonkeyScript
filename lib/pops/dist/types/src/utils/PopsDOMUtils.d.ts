@@ -211,7 +211,7 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): void;
+    click(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 绑定或触发元素的blur事件
      * @param element 目标元素
@@ -226,7 +226,7 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
+    blur(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 绑定或触发元素的focus事件
      * @param element 目标元素
@@ -241,7 +241,7 @@ declare class PopsDOMUtilsEvent {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
+    focus(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -256,7 +256,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("移入/移除");
      * })
      */
-    onHover(element: HTMLElement | string, handler: (event: PopsDOMUtils_Event["hover"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onHover(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: PopsDOMUtils_Event["hover"]) => void, option?: boolean | PopsDOMUtilsEventListenerOption): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
@@ -272,7 +272,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键松开");
      * })
      */
-    onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -288,7 +288,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -304,29 +304,79 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
+    onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 阻止事件传递
-     * @param element 要进行处理的元素
-     * @param eventNameList （可选）要阻止的事件名|列表
-     * @param capture （可选）是否捕获，默认false
+     *
+     * + `.preventDefault()`: 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
+     * + `.stopPropagation()`: 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+     * + `.stopImmediatePropagation()`: 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
+     * @param event 要阻止传递的事件
      * @example
-     * Utils.preventEvent(document.querySelector("a"),"click")
-     * @example
-     * Utils.preventEvent(event);
+     * DOMUtils.preventEvent(event);
      */
-    preventEvent(event: Event): boolean;
+    preventEvent(event: Event): false;
     /**
      * 阻止事件传递
-     * @param element 要进行处理的元素
-     * @param eventNameList （可选）要阻止的事件名|列表
-     * @param capture （可选）是否捕获，默认false
+     * @param event 要阻止传递的事件
+     * @param onlyStopPropagation （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()`
      * @example
-     * Utils.preventEvent(document.querySelector("a"),"click")
-     * @example
-     * Utils.preventEvent(event);
+     * DOMUtils.preventEvent(event, true);
      */
-    preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
+    preventEvent<T extends boolean>(event: Event, onlyStopPropagation: T): T extends true ? void : false;
+    /**
+     * 通过监听事件来主动阻止事件的传递
+     * @param $el 要进行处理的元素
+     * @param eventNameList 要阻止的事件名|列表
+     * @param option （可选）配置项
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click")
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+     *   capture: true,
+     * })
+     * @example
+     * DOMUtils.preventEvent(document, "click", "a.xxx", {
+     *   capture: true,
+     *   onlyStopPropagation: true,
+     * })
+     */
+    preventEvent($el: HTMLElement, eventNameList: string | string[], option?: {
+        /** （可选）是否捕获，默认false */
+        capture?: boolean;
+        /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+        onlyStopPropagation?: boolean;
+    }): {
+        /** 移除监听事件 */
+        off(): void;
+    };
+    /**
+     * 通过监听事件来主动阻止事件的传递
+     * @param $el 要进行处理的元素
+     * @param eventNameList 要阻止的事件名|列表
+     * @param selector 子元素选择器
+     * @param option （可选）配置项
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click")
+     * @example
+     * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+     *   capture: true,
+     * })
+     * @example
+     * DOMUtils.preventEvent(document, "click", "a.xxx", {
+     *   capture: true,
+     *   onlyStopPropagation: true,
+     * })
+     */
+    preventEvent($el: HTMLElement, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
+        /** （可选）是否捕获，默认false */
+        capture?: boolean;
+        /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+        onlyStopPropagation?: boolean;
+    }): {
+        /** 移除监听事件 */
+        off(): void;
+    };
     /**
      * 选择器，可使用以下的额外语法
      *
@@ -662,7 +712,7 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * @param content 子元素或HTML字符串
      * @example
      * // 元素a.xx的内部末尾添加一个元素
-     * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
+     * DOMUtils.append(document.querySelector("a.xx"), document.querySelector("b.xx"))
      * DOMUtils.append("a.xx","'<b class="xx"></b>")
      * */
     append(element: Element | Node | ShadowRoot | HTMLElement | string, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;

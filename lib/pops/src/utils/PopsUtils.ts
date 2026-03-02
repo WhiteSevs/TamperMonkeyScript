@@ -56,6 +56,13 @@ class PopsUtils {
     return target instanceof Node;
   }
   /**
+   * 判断是否是元素列表
+   * @param $ele
+   */
+  isNodeList($ele: any): $ele is any[] | NodeList {
+    return Array.isArray($ele) || $ele instanceof NodeList;
+  }
+  /**
    * 删除对象上的属性
    * @param target
    * @param propName

@@ -85,12 +85,13 @@ declare class Pops {
         };
         /** 禁止滚动 */
         forbiddenScroll: {
-            event(event: Event): boolean;
+            event(event: Event): false;
         };
         /** pops使用的工具类 */
         Utils: {
             isWin(target: any): boolean;
             isDOM(target: any): boolean;
+            isNodeList($ele: any): $ele is any[] | NodeList;
             delete(target: any, propName: any): void;
             assign<T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3 | undefined): T3 extends true ? T1 & T2 : T1;
             getRandomGUID(): string;
@@ -172,15 +173,27 @@ declare class Pops {
             onReady<T extends (...args: any[]) => any>(callback: T): void;
             emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: string | string[], details?: object, useDispatchToEmitEvent?: boolean): void;
             emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType | import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType[], details?: object, useDispatchToEmitEvent?: boolean): void;
-            click(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): void;
-            blur(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
-            focus(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): void;
-            onHover(element: HTMLElement | string, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["hover"]) => void, option?: boolean | AddEventListenerOptions): void;
-            onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): void;
-            onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): void;
-            onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): void;
-            preventEvent(event: Event): boolean;
-            preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
+            click(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            blur(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            focus(element: HTMLElement | string | Window, handler?: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            onHover(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["hover"]) => void, option?: boolean | import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
+            preventEvent(event: Event): false;
+            preventEvent<T extends boolean>(event: Event, onlyStopPropagation: T): T extends true ? void : false;
+            preventEvent($el: HTMLElement, eventNameList: string | string[], option?: {
+                capture?: boolean;
+                onlyStopPropagation?: boolean;
+            }): {
+                off(): void;
+            };
+            preventEvent($el: HTMLElement, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
+                capture?: boolean;
+                onlyStopPropagation?: boolean;
+            }): {
+                off(): void;
+            };
             selector<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | undefined;
             selector<E extends Element = Element>(selector: string): E | undefined;
             selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];

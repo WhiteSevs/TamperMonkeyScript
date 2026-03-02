@@ -793,7 +793,7 @@ class PopsDOMUtilsEvent {
     useDispatchToEmitEvent: boolean = true
   ) {
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -858,17 +858,17 @@ class PopsDOMUtilsEvent {
     details?: any,
     useDispatchToEmitEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.emit(element, "click", details, useDispatchToEmitEvent);
+      this.emit(element, "click", details, useDispatchToEmitEvent);
     } else {
-      DOMUtilsContext.on(element, "click", null, handler);
+      const listener = this.on(element, "click", handler);
+      return listener;
     }
   }
   /**
@@ -891,17 +891,17 @@ class PopsDOMUtilsEvent {
     details?: object,
     useDispatchToEmitEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
     }
     if (handler === null) {
-      DOMUtilsContext.emit(element, "blur", details, useDispatchToEmitEvent);
+      this.emit(element, "blur", details, useDispatchToEmitEvent);
     } else {
-      DOMUtilsContext.on(element, "blur", null, handler as (event: Event) => void);
+      const listener = this.on(element, "blur", handler as (event: Event) => void);
+      return listener;
     }
   }
   /**
@@ -924,17 +924,17 @@ class PopsDOMUtilsEvent {
     details?: object,
     useDispatchToEmitEvent?: boolean
   ) {
-    const DOMUtilsContext = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
     }
     if (handler == null) {
-      DOMUtilsContext.emit(element, "focus", details, useDispatchToEmitEvent);
+      this.emit(element, "focus", details, useDispatchToEmitEvent);
     } else {
-      DOMUtilsContext.on(element, "focus", null, handler);
+      const listener = this.on(element, "focus", handler);
+      return listener;
     }
   }
   /**
@@ -952,19 +952,44 @@ class PopsDOMUtilsEvent {
    * })
    */
   onHover(
-    element: HTMLElement | string,
-    handler: (event: PopsDOMUtils_Event["hover"]) => void,
-    option?: boolean | AddEventListenerOptions
+    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Node,
+    handler: (this: HTMLElement, event: PopsDOMUtils_Event["hover"]) => void,
+    option?: boolean | PopsDOMUtilsEventListenerOption
   ) {
-    const DOMUtilsContext = this;
+    const that = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = that.selectorAll(element);
     }
     if (element == null) {
       return;
     }
-    DOMUtilsContext.on(element, "mouseenter", null, handler, option);
-    DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+    if (popsUtils.isNodeList(element)) {
+      // 设置
+      const listenerList: (PopsDOMUtilsAddEventListenerResult | undefined)[] = [];
+      element.forEach(($ele) => {
+        const listener = that.onHover($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
+      });
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as PopsDOMUtilsAddEventListenerResult;
+    }
+    const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
+    const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
+
+    return {
+      off() {
+        mouseenter_listener.off();
+        mouseleave_listener.off();
+      },
+    } as PopsDOMUtilsAddEventListenerResult;
   }
   /**
    * 当按键松开时触发事件
@@ -986,14 +1011,14 @@ class PopsDOMUtilsEvent {
     handler: (event: PopsDOMUtils_Event["keyup"]) => void,
     option?: boolean | AddEventListenerOptions
   ) {
-    const DOMUtilsContext = this;
     if (target == null) {
       return;
     }
     if (typeof target === "string") {
-      target = PopsCore.document.querySelector(target) as HTMLElement;
+      target = this.selector(target) as HTMLElement;
     }
-    DOMUtilsContext.on(target, "keyup", null, handler, option);
+    const listener = this.on(target, "keyup", handler, option);
+    return listener;
   }
   /**
    * 当按键按下时触发事件
@@ -1015,14 +1040,14 @@ class PopsDOMUtilsEvent {
     handler: (event: PopsDOMUtils_Event["keydown"]) => void,
     option?: boolean | AddEventListenerOptions
   ) {
-    const DOMUtilsContext = this;
     if (target == null) {
       return;
     }
     if (typeof target === "string") {
-      target = PopsCore.document.querySelector(target) as HTMLElement;
+      target = this.selector(target) as HTMLElement;
     }
-    DOMUtilsContext.on(target, "keydown", null, handler, option);
+    const listener = this.on(target, "keydown", handler, option);
+    return listener;
   }
   /**
    * 当按键按下时触发事件
@@ -1044,64 +1069,161 @@ class PopsDOMUtilsEvent {
     handler: (event: PopsDOMUtils_Event["keypress"]) => void,
     option?: boolean | AddEventListenerOptions
   ) {
-    const DOMUtilsContext = this;
     if (target == null) {
       return;
     }
     if (typeof target === "string") {
-      target = PopsCore.document.querySelector(target) as HTMLElement;
+      target = this.selector(target) as HTMLElement;
     }
-    DOMUtilsContext.on(target, "keypress", null, handler, option);
+    const listener = this.on(target, "keypress", handler, option);
+    return listener;
   }
 
   /**
    * 阻止事件传递
-   * @param element 要进行处理的元素
-   * @param eventNameList （可选）要阻止的事件名|列表
-   * @param capture （可选）是否捕获，默认false
+   *
+   * + `.preventDefault()`: 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
+   * + `.stopPropagation()`: 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+   * + `.stopImmediatePropagation()`: 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
+   * @param event 要阻止传递的事件
    * @example
-   * Utils.preventEvent(document.querySelector("a"),"click")
-   * @example
-   * Utils.preventEvent(event);
+   * DOMUtils.preventEvent(event);
    */
-  preventEvent(event: Event): boolean;
+  preventEvent(event: Event): false;
   /**
    * 阻止事件传递
-   * @param element 要进行处理的元素
-   * @param eventNameList （可选）要阻止的事件名|列表
-   * @param capture （可选）是否捕获，默认false
+   * @param event 要阻止传递的事件
+   * @param onlyStopPropagation （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()`
    * @example
-   * Utils.preventEvent(document.querySelector("a"),"click")
-   * @example
-   * Utils.preventEvent(event);
+   * DOMUtils.preventEvent(event, true);
    */
-  preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
+  preventEvent<T extends boolean>(event: Event, onlyStopPropagation: T): T extends true ? void : false;
+  /**
+   * 通过监听事件来主动阻止事件的传递
+   * @param $el 要进行处理的元素
+   * @param eventNameList 要阻止的事件名|列表
+   * @param option （可选）配置项
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click")
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+   *   capture: true,
+   * })
+   * @example
+   * DOMUtils.preventEvent(document, "click", "a.xxx", {
+   *   capture: true,
+   *   onlyStopPropagation: true,
+   * })
+   */
   preventEvent(
-    element: HTMLElement | Event,
-    eventNameList: string | string[] = [],
-    capture?: boolean
-  ): boolean | undefined {
-    function stopEvent(event: Event) {
-      // 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL
-      event?.preventDefault();
-      // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
-      event?.stopPropagation();
-      // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
-      event?.stopImmediatePropagation();
-      return false;
+    $el: HTMLElement,
+    eventNameList: string | string[],
+    option?: {
+      /** （可选）是否捕获，默认false */
+      capture?: boolean;
+      /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+      onlyStopPropagation?: boolean;
     }
-    if (arguments.length === 1) {
+  ): {
+    /** 移除监听事件 */
+    off(): void;
+  };
+  /**
+   * 通过监听事件来主动阻止事件的传递
+   * @param $el 要进行处理的元素
+   * @param eventNameList 要阻止的事件名|列表
+   * @param selector 子元素选择器
+   * @param option （可选）配置项
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click")
+   * @example
+   * DOMUtils.preventEvent(document.querySelector("a"), "click", undefined, {
+   *   capture: true,
+   * })
+   * @example
+   * DOMUtils.preventEvent(document, "click", "a.xxx", {
+   *   capture: true,
+   *   onlyStopPropagation: true,
+   * })
+   */
+  preventEvent(
+    $el: HTMLElement,
+    eventNameList: string | string[],
+    selector: string | string[] | null | undefined,
+    option?: {
+      /** （可选）是否捕获，默认false */
+      capture?: boolean;
+      /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
+      onlyStopPropagation?: boolean;
+    }
+  ): {
+    /** 移除监听事件 */
+    off(): void;
+  };
+  preventEvent(...args: any[]): boolean | void | { off(): void } {
+    /**
+     * 阻止事件的默认行为发生，并阻止事件传播
+     */
+    const stopEvent = (event: Event, onlyStopPropagation?: boolean) => {
+      if (typeof onlyStopPropagation === "boolean" && onlyStopPropagation) {
+        // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+        event?.stopPropagation();
+        // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
+        event?.stopImmediatePropagation();
+        return;
+      }
+      // 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
+      event?.preventDefault();
+      return false;
+    };
+    if (args[0] instanceof Event) {
       // 直接阻止事件
-      // eslint-disable-next-line prefer-rest-params
-      return stopEvent(arguments[0]);
+      const onlyStopPropagation: boolean = args[1];
+      return stopEvent(args[0], onlyStopPropagation);
     } else {
+      const $el: HTMLElement = args[0];
+      let eventNameList: string | string[] = args[1];
+      let selector: string | string[] | null | undefined = void 0;
+      let capture = false;
+      let onlyStopPropagation = false;
       // 添加对应的事件来阻止触发
       if (typeof eventNameList === "string") {
         eventNameList = [eventNameList];
       }
-      eventNameList.forEach((eventName) => {
-        this.on(element as HTMLElement, eventName, stopEvent, { capture: Boolean(capture) });
-      });
+
+      let option:
+        | {
+            capture?: boolean;
+            onlyStopPropagation?: boolean;
+          }
+        | undefined = void 0;
+      if (typeof args[2] === "string" || Array.isArray(args[2])) {
+        // selector
+        selector = args[2];
+        if (typeof args[3] === "object" && args[3] != null) {
+          option = args[3];
+        }
+      } else if (typeof args[2] === "object" && args[2] != null && !Array.isArray(args[2])) {
+        // option
+        option = args[2];
+      } else {
+        throw new TypeError("Invalid argument");
+      }
+      if (option) {
+        capture = Boolean(option.capture);
+        onlyStopPropagation = Boolean(option.onlyStopPropagation);
+      }
+
+      const listener = this.on(
+        $el,
+        eventNameList,
+        selector,
+        (evt) => {
+          return stopEvent(evt, onlyStopPropagation);
+        },
+        { capture: capture }
+      );
+      return listener;
     }
   }
   /**
@@ -1381,7 +1503,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
   ) {
     const DOMUtilsContext = this;
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -1468,7 +1590,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       return PopsCore.window.document.documentElement.clientHeight;
     }
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -1547,7 +1669,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       return PopsCore.window.innerWidth;
     }
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -1591,7 +1713,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
       return PopsCore.window.innerHeight;
     }
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     element = element as HTMLElement;
     if (isShow || (!isShow && popsDOMUtils.isShow(element))) {
@@ -2125,7 +2247,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * @param content 子元素或HTML字符串
    * @example
    * // 元素a.xx的内部末尾添加一个元素
-   * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
+   * DOMUtils.append(document.querySelector("a.xx"), document.querySelector("b.xx"))
    * DOMUtils.append("a.xx","'<b class="xx"></b>")
    * */
   append(
@@ -2133,7 +2255,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList
   ) {
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -2262,7 +2384,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * */
   before(element: HTMLElement | Element | string, content: HTMLElement | string) {
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;
@@ -2284,7 +2406,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * */
   after(element: HTMLElement | Element | string, content: HTMLElement | string) {
     if (typeof element === "string") {
-      element = PopsCore.document.querySelector(element) as HTMLElement;
+      element = this.selector(element) as HTMLElement;
     }
     if (element == null) {
       return;

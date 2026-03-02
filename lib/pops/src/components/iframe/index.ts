@@ -1,15 +1,14 @@
-import { PopsCore } from "../../PopsCore";
 import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsInstData } from "../../PopsInst";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsIframeDefaultConfig } from "./defaultConfig";
 import type { PopsIframeClickEventConfig, PopsIframeConfig } from "./types";
-import type { PopsType } from "../../types/main";
 
 export const PopsIframe = {
   init(__config__: PopsIframeConfig) {
@@ -102,7 +101,7 @@ export const PopsIframe = {
       $headerBtnMax: headerMaxBtnElement,
       $headerBtnMise: headerMiseBtnElement,
     } = PopsHandler.handleQueryElement($anim, popsType);
-    let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(".pops-iframe-container");
+    let $iframeContainer = popsDOMUtils.selector<HTMLDivElement>(".pops-iframe-container");
     if (!$iframeContainer) {
       $iframeContainer = popsDOMUtils.createElement("div", {
         className: "pops-iframe-container",
