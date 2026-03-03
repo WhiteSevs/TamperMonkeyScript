@@ -2620,8 +2620,7 @@ class Utils {
       }
       async init() {
         let copyStatus = false;
-        const requestPermissionStatus = await this.requestClipboardPermission();
-        console.log(requestPermissionStatus);
+        await this.requestClipboardPermission();
         if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
           try {
             copyStatus = await this.copyDataByClipboard();
