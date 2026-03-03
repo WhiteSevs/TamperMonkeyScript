@@ -389,16 +389,20 @@ const CommonUtil = {
   /**
    * 使用JSON.stringify转字符串
    *
-   * 额外处理：undefined
+   * 额外处理：`undefined`
+   *
+   * 自动格式化2个空格缩进
+   * @param data 需要转换的数据
+   * @param space 缩进空格数（默认：2）
    */
-  toStr(data: any): string {
-    const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+  toStr(data: any, space: number = 2): string {
+    const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
     const dataStr = JSON.stringify(
       data,
       (key, value) => {
         return value === void 0 ? undefinedReplacedStr : value;
       },
-      2
+      space
     ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
     return dataStr;
   },
