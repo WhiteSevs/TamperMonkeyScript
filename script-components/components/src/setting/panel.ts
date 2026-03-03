@@ -1482,9 +1482,6 @@ const Panel = {
   },
 };
 
-if (import.meta.hot) {
-  Reflect.set(unsafeWindow, "Panel", Panel);
-}
 export {
   Panel,
   type ExecMenuCallBackOption,
