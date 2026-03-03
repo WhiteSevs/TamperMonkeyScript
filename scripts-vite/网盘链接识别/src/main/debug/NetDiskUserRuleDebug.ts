@@ -7,6 +7,7 @@ import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
 import Qmsg from "qmsg";
 import { NetDiskRegularExtractor } from "../NetDiskRegularExtractor";
 import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 调试用户规则
@@ -38,7 +39,7 @@ export const NetDiskUserRuleDebug = {
         text += "\n";
       }
       if (typeof item !== "string") {
-        text += JSON.stringify(item, void 0, 4);
+        text += CommonUtil.toStr(item, 4);
       } else {
         text += item;
       }

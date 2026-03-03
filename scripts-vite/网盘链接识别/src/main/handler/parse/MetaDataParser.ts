@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { NetDiskPops } from "../pops/NetDiskPops";
+import { NetDiskPops } from "../../pops/NetDiskPops";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Viewer from "viewerjs";
 import { CommonUtil } from "@components/utils/CommonUtil";

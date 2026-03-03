@@ -1,5 +1,5 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
 import { NetDiskParse_feijipan } from "./parse";
 import type { FeiJiPanListJSON, FeiJiPanRecommendJSON } from "./Type";
 

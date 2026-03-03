@@ -1,10 +1,10 @@
 import { httpx, log, utils } from "@/env";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { NetDiskView } from "@/main/view/NetDiskView";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import Qmsg from "qmsg";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
-import { NetDiskFilterScheme } from "../../../scheme/NetDiskFilterScheme";
-import { NetDiskView } from "../../../view/NetDiskView";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 import { NetDiskCheckLinkValidity_123pan } from "./checkLinkValidity";
 
@@ -49,6 +49,7 @@ export class NetDiskParse_123pan extends ParseFileCore {
       return;
     }
     if (infoList.length === 1 && infoList[0]["Type"] == 0) {
+      // 单文件
       const fileInfo = infoList[0];
       if (fileInfo["Status"] == 104) {
         $loading.close();
@@ -57,22 +58,22 @@ export class NetDiskParse_123pan extends ParseFileCore {
       }
       let downloadUrl = fileInfo["DownloadUrl"];
       let fileSize = "";
-      if (downloadUrl === "") {
+      if (downloadUrl === "" || true) {
         $loading.setText("正在获取下载链接...");
-        let downloadInfo = await this.getFileDownloadInfo(
+        const downloadInfo = await this.getFileDownloadInfo(
           fileInfo["Etag"],
           fileInfo["FileId"],
           fileInfo["S3KeyFlag"],
           this.shareCode,
           fileInfo["Size"]
         );
-        if (downloadInfo && downloadInfo["code"] === 0) {
-          downloadUrl = downloadInfo["data"]["DownloadURL"];
+        if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
+          downloadUrl = downloadInfo.data.DownloadURL;
           if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
             downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
           }
           fileSize = String(utils.formatByteToSize(fileInfo["Size"]));
-        } else if (downloadInfo && downloadInfo["code"] === 401) {
+        } else if (downloadInfo && downloadInfo.code === 401) {
           downloadUrl = "javascript:;";
           fileSize = "请登录后下载";
         } else {
@@ -110,73 +111,77 @@ export class NetDiskParse_123pan extends ParseFileCore {
   }
   /**
    * 获取文件
-   * @param parentFileId
+   * @param parentFileId 父级文件ID
    */
   async getFiles(parentFileId = 0) {
-    const that = this;
-    const getData = {
+    const queryParamData = {
       limit: 100,
       next: 1,
       orderBy: "share_id",
       orderDirection: "desc",
-      shareKey: that.shareCode,
-      SharePwd: that.accessCode,
+      shareKey: this.shareCode,
+      SharePwd: this.accessCode,
       ParentFileId: parentFileId,
       Page: 1,
     };
-    let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(getData)}`;
-    let getResp = await httpx.get({
+    const url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(queryParamData)}`;
+    const response = await httpx.get({
       url: url,
       headers: {
         Accept: "*/*",
-        Referer: `https://www.123pan.com/s/${that.shareCode}`,
-        ...that.Headers,
+        Referer: `https://www.123pan.com/s/${this.shareCode}`,
+        ...this.Headers,
       },
     });
-    log.info(getResp);
-    if (!getResp.status) {
+    log.info(response);
+    if (!response.status) {
       return;
     }
-    let respData = getResp.data;
-    let json_data = utils.toJSON(respData.responseText);
-    if (json_data["code"] === 0) {
-      let infoList = json_data["data"]["InfoList"] as {
-        Category: number;
-        ContentType: string;
-        CreateAt: number;
-        DownloadUrl: string;
-        Etag: string;
-        FileId: number;
-        FileName: string;
-        ParentFileId: number;
-        PunishFlag: number;
-        S3KeyFlag: number;
-        Size: number;
-        Status: number;
-        StorageNode: string;
-        Type: 0 | 1;
-        UpdateAt: string;
-      }[];
+    const data = utils.toJSON<{
+      code: number;
+      message?: string;
+      data: {
+        InfoList: {
+          Category: number;
+          ContentType: string;
+          CreateAt: number;
+          DownloadUrl: string;
+          Etag: string;
+          FileId: number;
+          FileName: string;
+          ParentFileId: number;
+          PunishFlag: number;
+          S3KeyFlag: number;
+          Size: number;
+          Status: number;
+          StorageNode: string;
+          Type: 0 | 1;
+          UpdateAt: string;
+        }[];
+      };
+    }>(response.data.responseText);
+    if (data.code === 0) {
+      const infoList = data.data.InfoList;
       return infoList;
-    } else if (json_data["code"] === 5103) {
+    } else if (data.code === 5103) {
       NetDiskView.$inst.newAccessCodeView(
         void 0,
         "_123pan",
-        that.ruleIndex,
-        that.shareCode,
-        that.accessCode,
+        this.ruleIndex,
+        this.shareCode,
+        this.accessCode,
         (option) => {
-          that.init({
-            ruleIndex: that.ruleIndex,
-            shareCode: that.shareCode,
+          this.init({
+            ruleIndex: this.ruleIndex,
+            shareCode: this.shareCode,
             accessCode: option.accessCode,
           });
         }
       );
-    } else if (that.code[json_data["code"] as keyof typeof that.code]) {
-      Qmsg.error(that.code[json_data["code"] as keyof typeof that.code]);
-    } else if ("message" in json_data) {
-      Qmsg.error(json_data["message"]);
+    } else if (this.code[data.code as keyof typeof this.code]) {
+      Qmsg.error(this.code[data.code as keyof typeof this.code]);
+    } else if (typeof data.message === "string") {
+      Qmsg.error(data.message);
     } else {
       Qmsg.error("123盘：未知的JSON格式");
     }
@@ -186,39 +191,43 @@ export class NetDiskParse_123pan extends ParseFileCore {
    * @param parentFileId
    */
   async getFilesByRec(parentFileId: string) {
-    const that = this;
-    let getResp = await httpx.get({
-      url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${that.shareCode}&SharePwd=${that.accessCode}&ParentFileId=${parentFileId}&Page=1`,
+    const response = await httpx.get({
+      url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${this.shareCode}&SharePwd=${this.accessCode}&ParentFileId=${parentFileId}&Page=1`,
       headers: {
         Accept: "*/*",
-        Referer: `https://www.123pan.com/s/${that.shareCode}`,
-        ...that.Headers,
+        Referer: `https://www.123pan.com/s/${this.shareCode}`,
+        ...this.Headers,
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let respData = getResp.data;
-    log.info(respData);
-    let jsonData = utils.toJSON(respData.responseText);
-    if (jsonData["code"] == 0) {
-      return jsonData["data"]["InfoList"] as {
-        Category: number;
-        ContentType: string;
-        CreateAt: number;
-        DownloadUrl: string;
-        Etag: string;
-        FileId: number;
-        FileName: string;
-        ParentFileId: number;
-        PunishFlag: number;
-        S3KeyFlag: number;
-        Size: number;
-        Status: number;
-        StorageNode: string;
-        Type: 0 | 1;
-        UpdateAt: string;
-      }[];
+    const data = utils.toJSON<{
+      code: number;
+      message?: string;
+      data: {
+        InfoList: {
+          Category: number;
+          ContentType: string;
+          CreateAt: number;
+          DownloadUrl: string;
+          Etag: string;
+          FileId: number;
+          FileName: string;
+          ParentFileId: number;
+          PunishFlag: number;
+          S3KeyFlag: number;
+          Size: number;
+          Status: number;
+          StorageNode: string;
+          Type: 0 | 1;
+          UpdateAt: string;
+        }[];
+      };
+    }>(response.data.responseText);
+    log.info(data);
+    if (data.code == 0) {
+      return data.data.InfoList;
     }
   }
   /**
@@ -287,16 +296,15 @@ export class NetDiskParse_123pan extends ParseFileCore {
                 this.shareCode,
                 item["Size"]
               );
-              if (downloadInfo && downloadInfo["code"] === 0) {
+              if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
                 return {
-                  url: downloadInfo["data"]["DownloadURL"],
-                  autoDownload: true,
                   mode: "aBlank",
+                  url: downloadInfo.data.DownloadURL,
                 };
-              } else if (downloadInfo && downloadInfo["code"] === 401) {
+              } else if (downloadInfo && downloadInfo.code === 401) {
                 Qmsg.error("请登录后下载");
               } else {
-                Qmsg.error(downloadInfo?.["message"] || "获取下载链接失败");
+                Qmsg.error(downloadInfo?.message || "获取下载链接失败");
               }
             } else {
               let downloadUrl = item.DownloadUrl as string;
@@ -304,9 +312,8 @@ export class NetDiskParse_123pan extends ParseFileCore {
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
               }
               return {
-                url: downloadUrl,
-                autoDownload: true,
                 mode: "aBlank",
+                url: downloadUrl,
               };
             }
           },
@@ -331,9 +338,8 @@ export class NetDiskParse_123pan extends ParseFileCore {
     ShareKey: string,
     Size: string | number
   ) {
-    const that = this;
-    let authK_V = that.getFileDownloadAuth();
-    let headers = {
+    const authK_V = this.getFileDownloadAuth();
+    const headers = {
       // "App-Version": "3",
       // Platform: "web",
       "Content-Type": "application/json;charset=UTF-8",
@@ -341,13 +347,15 @@ export class NetDiskParse_123pan extends ParseFileCore {
       Accept: "*/*",
       Referer: "https://www.123pan.com/s/" + ShareKey,
       Origin: "https://www.123pan.com",
-      ...that.Headers,
+      ...this.Headers,
     };
-    if (that.Authorization) {
-      Reflect.set(headers, "Authorization", "Bearer " + that.Authorization);
+    if (this.Authorization) {
+      Reflect.set(headers, "Authorization", "Bearer " + this.Authorization);
     }
     log.success("获取下载链接加密参数：" + authK_V);
-    let postResp = await httpx.post(`https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`, {
+    const v1ApiUrl = `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`;
+    const v2ApiUrl = `https://www.123pan.com/b/api/v2/share/download/info?${authK_V[0]}=${authK_V[1]}`;
+    const response = await httpx.post(v1ApiUrl, {
       data: JSON.stringify({
         Etag: Etag,
         FileID: FileID,
@@ -358,32 +366,77 @@ export class NetDiskParse_123pan extends ParseFileCore {
       responseType: "json",
       headers: headers,
     });
-    if (!postResp.status) {
+    if (!response.status) {
       return;
     }
-    let postData = postResp.data;
-    let jsonData = utils.toJSON(postData.responseText);
-    log.info(jsonData);
-    if (jsonData["code"] == 0) {
-      jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(jsonData["data"]["DownloadURL"]);
-      return jsonData;
-    } else {
-      return {
-        code: jsonData["code"],
-        message: jsonData["message"],
+    const data = utils.toJSON<{
+      code: number;
+      data: {
+        DownloadURL?: string;
+        dispatchList?: {
+          /**
+           * 下载路线一
+           *
+           * 下载路线二
+           */
+          isp: string;
+          /**
+           * cdn前缀域名
+           *
+           * https://xxx.xxx.xxx
+           */
+          prefix: string;
+        }[];
+        downloadPath?: string;
+        // fileId?: number;
       };
+      message: string;
+    }>(response.data.responseText);
+    log.info(data);
+    if (data.code == 0) {
+      if (utils.isNull(data.data.DownloadURL)) {
+        if (Array.isArray(data.data.dispatchList) && typeof data.data.downloadPath === "string") {
+          const findValue = data.data.dispatchList.find((it) => it?.prefix?.startsWith?.("http"));
+          if (findValue) {
+            const DownloadURL = findValue.prefix + data.data.downloadPath;
+            return {
+              code: data.code,
+              message: data.message,
+              data: {
+                DownloadURL: DownloadURL,
+              },
+            };
+          }
+        }
+      } else {
+        const DownloadURL = this.decodeDownloadUrl(data.data.DownloadURL);
+        return {
+          code: data.code,
+          message: data.message,
+          data: {
+            DownloadURL: DownloadURL,
+          },
+        };
+      }
     }
+    return {
+      code: data.code,
+      message: data.message,
+      data: {
+        DownloadURL: void 0,
+      },
+    };
   }
   /**
    * 获取单文件下载链接的加密参数
    * 感谢：https://github.com/qaiu/netdisk-fast-download/
    */
   getFileDownloadAuth() {
-    const that = this;
     function encry_time(param: any) {
       var param_time,
         param_other = arguments["length"] > 0x2 && void 0x0 !== arguments[0x2] ? arguments[0x2] : 0x8;
       if (0x0 === arguments["length"]) return void 0;
+      // oxlint-disable-next-line no-unused-expressions
       "object" === typeof param
         ? (param_time = param)
         : (0xa === ("" + param)["length"] && (param = 0x3e8 * parseInt(param)), (param_time = new Date(param)));

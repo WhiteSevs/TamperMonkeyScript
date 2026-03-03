@@ -1,5 +1,5 @@
 import { Cryptojs, httpx, log, utils } from "@/env";
-import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
@@ -267,9 +267,8 @@ export class NetDiskParse_Lanzouyx extends ParseFileCore {
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
               }
               return {
-                url: downloadUrl,
-                autoDownload: true,
                 mode: "aBlank",
+                url: downloadUrl,
               };
             }
           },

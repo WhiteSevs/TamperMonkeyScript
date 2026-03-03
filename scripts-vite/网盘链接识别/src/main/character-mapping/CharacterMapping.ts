@@ -10,6 +10,7 @@ import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { CharacterMappingSubscribe } from "./CharacterMappingSubscribe";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 字符映射的存储操作Api */
 const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
@@ -977,7 +978,7 @@ export const CharacterMapping = {
      * 导出文件
      */
     let exportFile = (__fileName__: string, __data__: any) => {
-      let blob = new Blob([JSON.stringify(__data__, null, 4)]);
+      let blob = new Blob([CommonUtil.toStr(__data__, 4)]);
       let blobUrl = window.URL.createObjectURL(blob);
       let $a = document.createElement("a");
       $a.href = blobUrl;

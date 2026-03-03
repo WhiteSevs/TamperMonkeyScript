@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.4
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -358,14 +358,14 @@
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -2720,11 +2720,11 @@
   const NetDiskRule_123pan = {
     rule: [
       {
-        link_innerText: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
-        link_innerHTML: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerText: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: new RegExp(`${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})`, "gi"),
         shareCodeNeedRemoveStr: new RegExp(`${_123pan_Link_Host_Pattern}/s/`, "gi"),
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
+        checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://123pan.com/s/{#shareCode#}",
@@ -3405,6 +3405,16 @@
       },
     },
   };
+  class ParseFileCore {
+    ruleIndex = 0;
+    shareCode = "";
+    accessCode = "";
+    init(netDiskInfo) {
+      this.ruleIndex = netDiskInfo.ruleIndex;
+      this.shareCode = netDiskInfo.shareCode;
+      this.accessCode = netDiskInfo.accessCode;
+    }
+  }
   const NetDiskRuleUtils = {
     getDefaultLinkClickMode() {
       let data = {
@@ -3513,15 +3523,15 @@
     protocol: "jumpwsv",
     pathname: "go",
     parseDataToSchemeUri(key, intentData) {
-      let isEnable = this.isEnableForward(key);
+      let isEnable = NetDiskFilterScheme.isEnableForward(key);
       if (!isEnable) {
         return intentData;
       }
       let schemeUri = NetDiskRuleData.schemeUri.uri(key);
       if (utils.isNull(schemeUri)) {
-        schemeUri = this.getSchemeUri(this.get1DMSchemeUriOption(intentData));
+        schemeUri = NetDiskFilterScheme.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
       }
-      if (schemeUri.startsWith(this.protocol)) {
+      if (schemeUri.startsWith(NetDiskFilterScheme.protocol)) {
         intentData = intentData.replace(/&/g, "{-and-}");
         intentData = intentData.replace(/#/g, "{-number-}");
       }
@@ -3534,13 +3544,13 @@
       return NetDiskRuleData.schemeUri.enable(key);
     },
     isForwardDownloadLink(key) {
-      return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
+      return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
     },
     isForwardBlankLink(key) {
-      return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
+      return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
     },
     getSchemeUri(option) {
-      return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(option)}`;
+      return `${NetDiskFilterScheme.protocol}://${NetDiskFilterScheme.pathname}?${utils.toSearchParamsStr(option)}`;
     },
     get1DMSchemeUriOption(intentData = "") {
       return {
@@ -3552,16 +3562,6 @@
       };
     },
   };
-  class ParseFileCore {
-    ruleIndex = 0;
-    shareCode = "";
-    accessCode = "";
-    init(netDiskInfo) {
-      this.ruleIndex = netDiskInfo.ruleIndex;
-      this.shareCode = netDiskInfo.shareCode;
-      this.accessCode = netDiskInfo.accessCode;
-    }
-  }
   const NetDiskParse_Lanzou_Config = {
     DEFAULT_HOST_NAME: "www.lanzout.com",
     MENU_KEY: "lanzou-host-name",
@@ -3766,9 +3766,8 @@
               }
               $loading.close();
               return {
-                url: fileDownloadInfo.downloadUrl,
-                autoDownload: true,
                 mode: "aBlank",
+                url: fileDownloadInfo.downloadUrl,
               };
             },
           });
@@ -4780,6 +4779,51 @@
       },
     },
   };
+  const NetDiskAccessCodeHandler_baidu = function (handlerConfig, accessCode) {
+    if (window.location.hostname !== "pan.baidu.com" || utils.isNotNull(accessCode)) {
+      return accessCode;
+    }
+    let localKey = handlerConfig.shareCode + "_pwd";
+    if (!localKey.startsWith("1")) {
+      localKey = "1" + localKey;
+    }
+    const local_accessCode = _unsafeWindow.localStorage.getItem(localKey);
+    if (utils.isNotNull(local_accessCode)) {
+      log.success("成功获取localStorage存储的访问码: " + local_accessCode);
+      return local_accessCode;
+    }
+    return accessCode;
+  };
+  const NetDiskHandlerAccessCodeRule = {
+    baidu: NetDiskAccessCodeHandler_baidu,
+  };
+  const NetDiskHandlerAccessCode = {
+    handler(handlerConfig, accessCode) {
+      const handle = NetDiskHandlerAccessCodeRule[handlerConfig.ruleKeyName];
+      if (!handle) {
+        return accessCode;
+      }
+      const accessCodeHandlerResult = handle(handlerConfig, accessCode);
+      if (
+        (typeof accessCodeHandlerResult === "string" && accessCodeHandlerResult.trim() != "") ||
+        accessCodeHandlerResult === null ||
+        accessCodeHandlerResult === void 0
+      ) {
+        return accessCodeHandlerResult;
+      }
+    },
+  };
+  const NetDiskAuthorization_baidu = function () {
+    if (window.location.hostname !== "pan.baidu.com") {
+      return;
+    }
+    Object.keys(_unsafeWindow.localStorage).forEach((keyName) => {
+      if (keyName.endsWith("_bdclnd")) {
+        const shareCode = keyName.replace(/_bdclnd$/, "");
+        _unsafeWindow.localStorage.getItem(`${shareCode}_pwd`);
+      }
+    });
+  };
   const NetDiskAuthorization_123pan_Authorization = {
     KEY: "_123pan_User_Authorization",
     set(value) {
@@ -4804,6 +4848,858 @@
     log.success("获取123网盘已登录用户的authorToken值👇");
     log.success(authorToken);
     NetDiskAuthorization_123pan_Authorization.set(authorToken);
+  };
+  const NetDiskAuthorization_feijipan_appToken = {
+    KEY: "feijipan_appToken",
+    set(value) {
+      _GM_setValue(this.KEY, value);
+    },
+    get() {
+      return _GM_getValue(this.KEY);
+    },
+  };
+  const NetDiskAuthorization_feijipan = function () {
+    if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
+      return;
+    }
+    if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
+      return;
+    }
+    const cookie_appToken = cookieManager.get("appToken");
+    if (cookie_appToken) {
+      const appToken = cookie_appToken.value;
+      log.success("获取小飞机网盘的appToken: " + appToken);
+      NetDiskAuthorization_feijipan_appToken.set(appToken);
+    }
+  };
+  const NetDiskAuthorization_Lanzouyx = function () {
+    return;
+  };
+  const NetDiskAuthorizationRule = {
+    _123pan: NetDiskAuthorization_123pan,
+    lanzouyx: NetDiskAuthorization_Lanzouyx,
+    feijipan: NetDiskAuthorization_feijipan,
+    baidu: NetDiskAuthorization_baidu,
+  };
+  const NetDiskAuthorization = {
+    init() {
+      Object.keys(NetDiskAuthorizationRule).forEach((keyName) => {
+        NetDiskAuthorizationRule[keyName]();
+      });
+    },
+  };
+  const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo) {
+    if (
+      window.location.hostname === "pan.baidu.com" &&
+      window.location.pathname === "/share/init" &&
+      window.location.search.startsWith("?surl=")
+    ) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("div.verify-form #accessCode", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        $("div.verify-form #submitBtn")?.click();
+      });
+    }
+    if (
+      window.location.hostname === "pan.baidu.com" &&
+      window.location.pathname === "/wap/init" &&
+      window.location.search.startsWith("?surl=")
+    ) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils
+        .waitNode("div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]", 1e4)
+        .then(($el) => {
+          if (!$el) return;
+          if (!utils.isVisible($el)) {
+            log.error("输入框不可见，不输入密码");
+            return;
+          }
+          Qmsg.success("自动填充访问码");
+          $el.value = netDiskInfo.accessCode;
+          domUtils.emit($el, "input");
+          $("div.extractWrap div.extract-content button.m-button")?.click();
+        });
+    }
+  };
+  const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo) {
+    if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("#pwd", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        ($("#passwddiv div.passwddiv-input > div") || $el.nextElementSibling)?.click();
+        $("#sub")?.click();
+      });
+      domUtils.waitNode("#f_pwd", 1e4).then(($el) => {
+        if (!$el) return;
+        utils.mutationObserver($el, {
+          config: {
+            attributes: true,
+            attributeFilter: ["style"],
+          },
+          callback: (mutations, observer) => {
+            const $input = $("#f_pwd #pwd");
+            if (!utils.isVisible($input)) {
+              log.error("输入框不可见，不输入密码");
+              return;
+            }
+            observer.disconnect();
+            Qmsg.success("自动填充访问码");
+            $input.value = netDiskInfo.accessCode;
+            domUtils.emit($input, "input");
+            $("#f_pwd #sub")?.click();
+          },
+        });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo) {
+    function loopWaitElementShow(targetElement, callback) {
+      let loopCount = 0;
+      const maxLoopCount = 30;
+      const interval = setInterval(() => {
+        loopCount++;
+        if (loopCount > maxLoopCount) {
+          log.error("结束循环检查，退出。");
+          clearInterval(interval);
+          return;
+        }
+        if (!utils.isVisible(targetElement)) {
+          log.warn(`第 ${loopCount} 次：输入框不可见，不输入密码`);
+          return;
+        }
+        callback();
+        clearInterval(interval);
+      }, 500);
+    }
+    if (window.location.hostname === "cloud.189.cn") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("input#code_txt", 1e4).then(($el) => {
+        if (!$el) return;
+        loopWaitElementShow($el, () => {
+          Qmsg.success("自动填充访问码");
+          const $visit = $(".btn.btn-primary.visit");
+          $el.value = netDiskInfo.accessCode;
+          Reflect.set($el, "_value", netDiskInfo.accessCode);
+          domUtils.emit($el, "input");
+          domUtils.emit($visit, "click");
+        });
+      });
+    }
+    if (window.location.hostname === "h5.cloud.189.cn") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("input.access-code-input", 1e4).then(($el) => {
+        if (!$el) return;
+        loopWaitElementShow($el, () => {
+          Qmsg.success("自动填充访问码");
+          $el.value = netDiskInfo.accessCode;
+          Reflect.set($el, "_value", netDiskInfo.accessCode);
+          domUtils.emit($el, "input");
+          domUtils.emit($("div.button"), "click");
+        });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo) {
+    if (window.location.hostname === "caiyun.139.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("#token-input").then((element) => {
+        if (!utils.isVisible(element)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        element.value = netDiskInfo.accessCode;
+        domUtils.emit(element, "input");
+        $("#homepage div.token div.token-form a").click();
+      });
+      domUtils.waitNode("#app div.token-form input[type=text]").then((element) => {
+        if (!utils.isVisible(element)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        element.value = netDiskInfo.accessCode;
+        domUtils.emit(element, "input");
+        $("div.token-form a.btn-token").click();
+      });
+    }
+  };
+  const ReactUtils = {
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
+        }
+        return __target__;
+      }
+      if (typeof $el === "string") {
+        let __$el = await domUtils.waitNode($el, 1e4);
+        if (!__$el) {
+          return;
+        }
+      }
+      checkOption.forEach((option) => {
+        if (typeof option.msg === "string") {
+          log.info(option.msg);
+        }
+        const checkTarget = function () {
+          let $target = getTarget();
+          if ($target == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const reactInst = utils.getReactInstance($target);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+            const reactPropInst2 = reactInst[__propName__];
+            if (!reactPropInst2) {
+              return false;
+            }
+            const flag = Boolean(option.check(reactPropInst2, $target));
+            return flag;
+          });
+          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          const reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $target,
+          };
+        };
+        utils
+          .waitPropertyByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then(() => {
+            const checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              const reactInst = checkTargetResult.inst;
+              option.set(reactInst, checkTargetResult.$el);
+            } else {
+              if (typeof option.failWait === "function") {
+                option.failWait(checkTargetResult.isTimeout);
+              }
+            }
+          });
+      });
+    },
+  };
+  const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo) {
+    if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils
+          .waitAnyNode(
+            ["#root input.ant-input[placeholder*='提取码']", "#root input[name=pwd][placeholder*='提取码']"],
+            1e4
+          )
+          .then(($el) => {
+            if (!$el) return;
+            ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
+              check(reactPropInst) {
+                return (
+                  typeof reactPropInst?.onChange === "function" ||
+                  typeof reactPropInst?.memoizedProps?.onChange === "function"
+                );
+              },
+              set(reactPropInst) {
+                if (!utils.isVisible($el)) {
+                  log.error("输入框不可见，不输入密码");
+                  return;
+                }
+                $el.value = netDiskInfo.accessCode;
+                const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+                onChange({
+                  currentTarget: $el,
+                  target: $el,
+                });
+                Qmsg.success("自动填充访问码");
+                const $submit = $('#root button[type="submit"]');
+                if (!$submit) {
+                  Qmsg.error("提交按钮不存在");
+                  return;
+                }
+                $submit.click();
+              },
+            });
+          });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_123pan = function (netDiskInfo) {
+    if (window.location.hostname === "www.123pan.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils.waitAnyNode(["input.ant-input[type=text][placeholder*='提取码']"], 1e4).then(($el) => {
+          if (!$el) return;
+          ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
+            check(reactPropInst) {
+              return (
+                typeof reactPropInst?.onChange === "function" ||
+                typeof reactPropInst?.memoizedProps?.onChange === "function"
+              );
+            },
+            async set(reactPropInst) {
+              if (!utils.isVisible($el)) {
+                log.error("输入框不可见，不输入密码");
+                return;
+              }
+              $el.value = netDiskInfo.accessCode;
+              const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+              onChange({
+                currentTarget: $el,
+                target: $el,
+              });
+              Qmsg.success("自动填充访问码");
+              const $submit = $el.nextElementSibling;
+              if (!$submit) {
+                Qmsg.error("提交按钮不存在");
+                return;
+              }
+              await utils.sleep(1e3);
+              $submit.click();
+            },
+          });
+        });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo) {
+    if (window.location.hostname === "share.weiyun.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("#app input.input-txt", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        domUtils.emit($el, "change");
+        setTimeout(() => {
+          $(".form-item button.btn-main").click();
+        }, 500);
+      });
+      domUtils.waitNode(".input-wrap input.pw-input", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        domUtils.emit($el, "change");
+        setTimeout(() => {
+          $(".pw-btn-wrap button.btn").click();
+        }, 500);
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_xunlei = function (netDiskInfo) {
+    if (window.location.hostname === "pan.xunlei.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("#__layout div.pass-input-wrap input.td-input__inner", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        log.error("输入框不可见，不输入密码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        domUtils.emit($el, "change");
+        setTimeout(() => {
+          $("#__layout div.pass-input-wrap button.td-button").click();
+        }, 500);
+      });
+      domUtils.waitNode("#__layout div.pass-wrapper input.td-input__inner", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        log.error("输入框不可见，不输入密码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        domUtils.emit($el, "change");
+        setTimeout(() => {
+          $("#__layout div.pass-wrapper button.td-button").click();
+        }, 500);
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_kuake = function (netDiskInfo) {
+    if (window.location.hostname === "pan.quark.cn") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils
+          .waitNode("#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']", 1e4)
+          .then(($el) => {
+            if (!$el) return;
+            ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactEventHandlers"], {
+              check(reactPropInst) {
+                return (
+                  typeof reactPropInst?.onChange === "function" ||
+                  typeof reactPropInst?.memoizedProps?.onChange === "function"
+                );
+              },
+              set(reactPropInst) {
+                if (!utils.isVisible($el)) {
+                  log.error("输入框不可见，不输入密码");
+                  return;
+                }
+                $el.value = netDiskInfo.accessCode;
+                const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
+                onChange({
+                  currentTarget: $el,
+                  target: $el,
+                });
+                Qmsg.success("自动填充访问码");
+              },
+            });
+          });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_chengtong = function (netDiskInfo) {
+    log.success("自动填写链接", netDiskInfo);
+    domUtils.waitNode("#passcode", 1e4).then(($el) => {
+      if (!$el) return;
+      if (!utils.isVisible($el)) {
+        log.error("输入框不可见，不输入密码");
+        return;
+      }
+      Qmsg.success("自动填充访问码");
+      $el.value = netDiskInfo.accessCode;
+      domUtils.emit($el, "input");
+      $("#main-content .form-group button.btn[type=button]").click();
+    });
+  };
+  const NetDiskAutoFillAccessCode_115pan = function (netDiskInfo) {
+    if (["115.com", "115cdn.com", "anxia.com"].includes(window.location.hostname)) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils.waitNode("input[placeholder*='访问码']", 1e4).then(async ($el) => {
+          if (!$el) return;
+          if (!utils.isVisible($el)) {
+            log.error("输入框不可见，不输入密码");
+            return;
+          }
+          Qmsg.success("自动填充访问码");
+          $el.value = netDiskInfo.accessCode;
+          domUtils.emit($el, "input");
+          ReactUtils.waitReactPropsToSet($el, "reactProps", {
+            check(reactPropInst) {
+              const flag = typeof reactPropInst?.onChange === "function";
+              return flag;
+            },
+            async set(reactPropInst, $el2) {
+              const onChange = reactPropInst?.onChange;
+              onChange({
+                target: $el2,
+              });
+              await utils.sleep(800);
+              const $button = $el2.parentElement?.nextElementSibling;
+              if ($button instanceof HTMLButtonElement) {
+                $button.click();
+              }
+            },
+          });
+        });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo) {
+    if (window.location.hostname.endsWith(".link.yunpan.com")) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode("#extract-bg-container input.pwd-input", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        const $submit = $("#extract-bg-container input.submit-btn");
+        $submit?.click();
+      });
+      domUtils.waitNode("#extractForm input.pwd-input", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        Qmsg.success("自动填充访问码");
+        $el.value = netDiskInfo.accessCode;
+        domUtils.emit($el, "input");
+        const $submit = $("#extractForm input.submit-btn");
+        $submit?.click();
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCode_feijipan = function (netDiskInfo) {
+    if (window.location.hostname === "share.feijipan.com" && window.location.pathname.startsWith("/s/")) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils.waitNode('input.code-input[placeholder*="请输入提取码"]', 1e4).then(($el) => {
+          if (!$el) {
+            return;
+          }
+          if (!utils.isVisible($el)) {
+            log.error("输入框不可见，不输入密码");
+            return;
+          }
+          domUtils.val($el, netDiskInfo.accessCode);
+          domUtils.emit($el, "input");
+          Qmsg.success("自动填充访问码");
+          domUtils.waitNode("button.code-checkafter", 3e3).then(($button) => {
+            if (!$button) {
+              Qmsg.error("查看文件按钮不存在");
+              return;
+            }
+            $button.click();
+          });
+        });
+      });
+    }
+  };
+  const NetDiskAutoFillAccessCodeRule = {
+    baidu: NetDiskAutoFillAccessCode_baidu,
+    lanzou: NetDiskAutoFillAccessCode_lanzou,
+    tianyiyun: NetDiskAutoFillAccessCode_tianyiyun,
+    hecaiyun: NetDiskAutoFillAccessCode_hecaiyun,
+    aliyun: NetDiskAutoFillAccessCode_aliyun,
+    wenshushu: () => {},
+    nainiu: () => {},
+    _123pan: NetDiskAutoFillAccessCode_123pan,
+    weiyun: NetDiskAutoFillAccessCode_weiyun,
+    xunlei: NetDiskAutoFillAccessCode_xunlei,
+    _115pan: NetDiskAutoFillAccessCode_115pan,
+    chengtong: NetDiskAutoFillAccessCode_chengtong,
+    kuake: NetDiskAutoFillAccessCode_kuake,
+    jianguoyun: () => {},
+    onedrive: () => {},
+    "360yunpan": NetDiskAutoFillAccessCode_360yunpan,
+    feijipan: NetDiskAutoFillAccessCode_feijipan,
+  };
+  const NetDiskAutoFillAccessCode = {
+    key: "tempNetDiskInfo",
+    $data: {
+      netDiskInfo: null,
+      get enable() {
+        return NetDiskGlobalData.features.autoFillAccessCode.value;
+      },
+    },
+    init() {
+      if (!this.$data.enable) {
+        return;
+      }
+      this.$data.netDiskInfo = this.getValue();
+      for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
+        const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
+        let autoFillAccessCodeEnable = NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
+          fillAccessCodeNetDiskInfo.ruleKeyName
+        );
+        if (!autoFillAccessCodeEnable) {
+          continue;
+        }
+        let accessCode = fillAccessCodeNetDiskInfo.accessCode;
+        if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
+          continue;
+        }
+        let shareCode = fillAccessCodeNetDiskInfo.shareCode;
+        if (fillAccessCodeNetDiskInfo.ruleKeyName === "baidu" && shareCode.startsWith("1")) {
+          shareCode = shareCode.slice(1, shareCode.length);
+        }
+        let isMatchedFillShareCode = window.location.href.includes(shareCode);
+        if (isMatchedFillShareCode) {
+          let autoFillFn = NetDiskAutoFillAccessCodeRule[fillAccessCodeNetDiskInfo.ruleKeyName];
+          if (typeof autoFillFn === "function") {
+            log.success(`成功匹配到对应的自动填充访问码的网盘信息：`, fillAccessCodeNetDiskInfo);
+            autoFillFn(fillAccessCodeNetDiskInfo);
+          } else {
+            log.warn("自动填充访问码失败：" + fillAccessCodeNetDiskInfo.ruleKeyName + "，原因：该网盘未适配");
+          }
+          break;
+        }
+      }
+    },
+    setValue(value) {
+      _GM_setValue(this.key, value);
+    },
+    addValue(netDiskFillOption) {
+      let accessCode = netDiskFillOption.accessCode;
+      if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
+        return;
+      }
+      let localValue = this.getValue();
+      localValue = localValue.filter((it) => {
+        if (it.ruleKeyName === netDiskFillOption.ruleKeyName && it.shareCode === netDiskFillOption.shareCode) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      localValue.push(netDiskFillOption);
+      this.setValue(localValue);
+    },
+    getValue() {
+      let localValue = _GM_getValue(this.key, []);
+      if (!Array.isArray(localValue)) {
+        localValue = [localValue];
+      }
+      localValue = localValue.filter((it) => Date.now() - it.time < 24 * 60 * 60 * 1e3);
+      this.setValue(localValue);
+      return localValue;
+    },
+  };
+  const NetDiskCheckLinkValidityStatus = {
+    loading: {
+      code: 1,
+      msg: "验证中...",
+      setIcon($el) {
+        domUtils.html($el, __pops__.config.iconSVG.loading);
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? NetDiskCheckLinkValidityStatus.loading.msg);
+        NetDiskCheckLinkValidityStatus.loading.setIcon($el);
+      },
+    },
+    success: {
+      code: 200,
+      msg: "有效",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M874.119618 149.859922A510.816461 510.816461 0 0 0 511.997 0.00208a509.910462 509.910462 0 0 0-362.119618 149.857842c-199.817789 199.679789-199.817789 524.581447 0 724.260236a509.969462 509.969462 0 0 0 362.119618 149.857842A508.872463 508.872463 0 0 0 874.119618 874.120158c199.836789-199.679789 199.836789-524.581447 0-724.260236zM814.94268 378.210681L470.999043 744.132295a15.359984 15.359984 0 0 1-5.887994 4.095996c-1.751998 1.180999-2.913997 2.362998-5.276994 2.913997a34.499964 34.499964 0 0 1-13.469986 2.914997 45.547952 45.547952 0 0 1-12.897986-2.303998l-4.095996-2.363997a45.291952 45.291952 0 0 1-7.009992-4.095996l-196.902793-193.789796a34.126964 34.126964 0 0 1-10.555989-25.186973c0-9.37399 3.583996-18.74698 9.98399-25.186974a36.429962 36.429962 0 0 1 50.372947 0l169.98382 167.423824L763.389735 330.220732a37.059961 37.059961 0 0 1 50.371947-1.732998 33.647965 33.647965 0 0 1 11.165988 25.186973 35.544963 35.544963 0 0 1-9.98399 24.575974v-0.04z m0 0"></path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "success", msg ?? NetDiskCheckLinkValidityStatus.success.msg);
+        NetDiskCheckLinkValidityStatus.success.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    networkError: {
+      code: -404,
+      msg: "网络异常",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M511.808 692.224c-18.048 0-35.136 3.968-50.432 11.392-25.472 12.416-46.528 33.92-57.792 60.032-5.632 14.144-9.024 29.504-9.024 45.952 0 65.152 52.672 117.824 117.248 117.824 65.28 0 117.952-52.672 117.952-117.824 0-64.64-52.672-117.376-117.952-117.376z m0 178.496c-33.408 0-60.608-27.712-60.608-61.12 0-33.472 27.2-60.672 60.608-60.672s61.248 27.2 61.248 60.672c0 33.472-27.776 61.12-61.248 61.12zM286.784 661.632c3.968 3.392 8.512 5.632 12.992 5.632L438.08 523.328c-60.032 14.72-114.432 49.344-155.328 98.624-9.536 11.84-7.872 30.08 4.032 39.68zM622.912 534.656l-43.008 45.312c45.312 13.056 86.72 40.256 117.376 78.208 5.632 6.784 13.568 10.24 22.08 10.24 6.272 0 12.416-2.24 18.176-6.784 11.904-9.6 13.568-27.84 3.392-39.68-31.808-39.104-72.704-69.12-118.016-87.296zM511.808 391.168c17.024 0 33.408 1.216 49.856 3.456l47.68-49.856c-31.744-6.848-64.064-10.24-97.536-10.24-142.784 0-277.12 63.488-367.232 174.656-10.24 11.904-8.576 30.08 3.904 39.68 5.12 4.48 11.328 6.784 18.176 6.784 7.936 0 15.872-3.968 21.568-10.816 79.872-97.536 197.76-153.664 323.584-153.664zM751.616 400.32l-40.256 41.92c47.04 24.96 89.536 60.032 124.096 102.592 10.24 12.48 27.84 14.208 40.256 3.968 11.968-9.6 13.632-27.84 3.968-39.68-36.16-44.8-79.872-81.088-128.064-108.8zM705.152 244.928l42.56-44.672c-73.664-28.992-153.6-44.224-235.904-44.224-196.672 0-380.864 87.872-505.6 239.744-9.6 12.48-7.872 30.08 3.968 40.256 5.632 3.968 11.904 6.208 18.112 6.208 7.936 0 16.448-3.392 22.144-10.176C163.84 292.608 332.096 212.672 511.808 212.672c66.944 0 132.16 10.752 193.344 32.256zM1017.472 395.776c-40.192-49.92-87.296-92.416-139.456-126.976l-39.68 41.344C889.408 343.04 935.36 383.808 973.888 432c9.6 11.904 27.776 13.568 39.68 3.968 11.84-10.176 14.144-27.712 3.904-40.192zM937.408 104.512c-11.328-10.944-29.312-10.496-40.064 0.832L179.008 854.72c-10.816 11.328-10.496 29.248 0.896 40.064 5.44 5.312 12.48 7.872 19.584 7.872 7.488 0 14.848-2.88 20.416-8.704L938.24 144.576c10.88-11.328 10.496-29.248-0.832-40.064z"></path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $el,
+          "error",
+          msg ?? NetDiskCheckLinkValidityStatus.networkError.msg
+        );
+        NetDiskCheckLinkValidityStatus.networkError.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    verify: {
+      code: -405,
+      msg: "触发安全验证",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+					<path 
+						fill="currentColor"
+						d="M514.389 1005.60899999c-269.967 0-489.59499999-219.642-489.595-489.59499999S244.42199999 26.405 514.389 26.405 1003.984 246.047 1003.984 516s-219.62800001 489.60899999-489.595 489.60900001z m0-938.24399999C267.00400001 67.365 65.754 268.615 65.754 516s201.264 448.63499999 448.635 448.635S963.024 763.385 963.024 516 761.774 67.365 514.389 67.365z" p-id="9895"></path><path d="M245.993 621.56800001c41.014-8.138 86.112-18.03600001 135.264-29.71000001-0.355 14.145-0.177 26.69199999 0.532 37.65499999-40.318 8.493-82.93 18.92400001-127.836 31.29400001l-7.959-39.23900001z m78.506-261.50200001l-12.206 145.872h53.57500001l13.78999998-178.763H259.249v-36.073h160.727l-16.438 214.821h33.423c-2.471 74.61499999-4.779 135.973-6.895 184.06100002-1.065 53.754-24.399 80.623-70.01399999 80.62299998-19.101 0-41.547-0.53200001-67.36500001-1.598-1.775-13.079-4.06799999-27.047-6.895-41.902 25.46300001 3.181 48.087 4.779 67.898 4.779 24.753 0 37.834-15.033 39.253-45.084 2.11599999-38.898 3.891-87.163 5.31099998-144.807H270.951l16.971-181.945h36.577z m309.248-98.659l-10.076 16.971c42.789 76.03500001 95.833 131.373 159.13 166.025-11.318 14.145-20.685 26.528-28.112 37.13699999-62.231-45.971-112.981-101.30799999-152.235-166.02499998-36.073 64.006-86.466 121.474-151.17000001 172.38699999-6.363-9.18799999-15.21-20.33-26.52799998-33.423 70.369-48.797 124.30000001-113.158 161.77799999-193.086h47.213zM441.194 718.111h191.488c25.46300001-62.942 48.087-128.723 67.89800001-197.318l40.31799999 12.725c-20.862 63.297-42.96699999 124.832-66.301 184.593h93.361v36.60499999H441.19300001v-36.60499999z m27.047-169.73900001l37.137-11.67399999c17.32599998 50.217 31.82600002 94.945 43.5 134.198l-39.253 13.258c-11.674-45.261-25.46300001-90.522-41.383-135.78200001z m27.06099999-91.76399999h218.53500001v36.605H495.30200001v-36.605z m64.17100001 67.885l37.655-10.076c14.854 53.043 27.047 99.369 36.605 138.977l-38.72099999 11.141c-10.254-48.797-22.091-95.477-35.53900001-140.04300001z">
+					</path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "verify", msg ?? NetDiskCheckLinkValidityStatus.verify.msg);
+        NetDiskCheckLinkValidityStatus.verify.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    failed: {
+      code: 0,
+      msg: "已失效",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+						fill="currentColor"
+						d="M549.044706 512l166.189176-166.249412a26.383059 26.383059 0 0 0 0-36.98447 26.383059 26.383059 0 0 0-37.044706 0L512 475.015529l-166.249412-166.249411a26.383059 26.383059 0 0 0-36.98447 0 26.383059 26.383059 0 0 0 0 37.044706L475.015529 512l-166.249411 166.249412a26.383059 26.383059 0 0 0 0 36.98447 26.383059 26.383059 0 0 0 37.044706 0L512 548.984471l166.249412 166.249411a26.383059 26.383059 0 0 0 36.98447 0 26.383059 26.383059 0 0 0 0-37.044706L548.984471 512zM512 1024a512 512 0 1 1 0-1024 512 512 0 0 1 0 1024z"></path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "failed", msg ?? NetDiskCheckLinkValidityStatus.failed.msg);
+        NetDiskCheckLinkValidityStatus.failed.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    needAccessCode: {
+      code: 201,
+      msg: "需要提取码",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M757.810429 373.751333 325.645708 373.751333l0-83.895759c0-103.694687 81.507362-184.922686 185.559183-184.922686 78.121242 0 146.053424 46.74565 173.062568 119.090329 3.865028 10.352789 15.384385 15.609513 25.742291 11.746532 10.351766-3.866051 15.609513-15.390525 11.744485-25.742291C688.844707 121.877815 606.198405 64.918545 511.204891 64.918545c-61.918211 0-119.246895 23.662933-161.423483 66.63156-41.3692 42.142819-64.151066 98.363262-64.151066 158.305469l0 83.895759-20.007683 0c-60.774155 0-110.042255 49.267077-110.042255 110.042255l0 366.139981c0 60.774155 49.267077 110.042255 110.042255 110.042255l492.187769 0c60.775178 0 110.042255-49.267077 110.042255-110.042255L867.852684 483.793588C867.852684 423.01841 818.585607 373.751333 757.810429 373.751333zM827.837318 849.933569c0 38.674834-31.352055 70.02689-70.02689 70.02689L265.62266 919.960459c-38.674834 0-70.02689-31.352055-70.02689-70.02689L195.59577 483.793588c0-38.674834 31.352055-70.02689 70.02689-70.02689l492.187769 0c38.674834 0 70.02689 31.352055 70.02689 70.02689L827.837318 849.933569z"></path>
+					<path
+					fill="currentColor"
+					d="M509.715981 583.832002c-11.048637 0-20.007683 8.959046-20.007683 20.007683l0 110.042255c0 11.048637 8.958022 20.007683 20.007683 20.007683s20.007683-8.958022 20.007683-20.007683L529.723663 603.839685C529.723663 592.790024 520.765641 583.832002 509.715981 583.832002z"></path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $el,
+          "needAccessCode",
+          msg ?? NetDiskCheckLinkValidityStatus.needAccessCode.msg
+        );
+        NetDiskCheckLinkValidityStatus.needAccessCode.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    partialViolation: {
+      code: 202,
+      msg: "存在部分违规文件",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+					<path 
+					fill="currentColor"
+					d="M954.963 810.267L543.112 96.919c-14.07-24.37-49.245-24.37-63.315 0L67.945 810.267c-14.07 24.37 3.518 54.832 31.657 54.832h823.703c28.141 0 45.728-30.463 31.658-54.832zM476.699 306.55c0-19.115 15.64-34.755 34.755-34.755 19.115 0 34.755 15.64 34.755 34.755v281.817c0 19.115-15.64 34.755-34.755 34.755-19.115 0-34.755-15.64-34.755-34.755V306.55z m34.755 445.293c-23.198 0-42.004-18.806-42.004-42.004s18.806-42.004 42.004-42.004c23.198 0 42.004 18.806 42.004 42.004s-18.806 42.004-42.004 42.004z"></path>
+				</svg>`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid(
+          $el,
+          "partial-violation",
+          msg ?? NetDiskCheckLinkValidityStatus.partialViolation.msg
+        );
+        NetDiskCheckLinkValidityStatus.partialViolation.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+    unknown: {
+      code: -200,
+      msg: "未知检查情况",
+      setIcon($el) {
+        domUtils.html(
+          $el,
+          `
+				<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M512.473172 1023.995242A511.814852 511.814852 0 0 1 313.545134 40.351073a512.244696 512.244696 0 0 1 398.855715 943.658633 508.815937 508.815937 0 0 1-199.927677 39.985536z m0-943.658634C274.559237 80.336608 80.629391 274.266455 80.629391 512.18039s193.929846 431.843781 431.843781 431.843781 431.843781-193.929846 431.843781-431.843781S751.386745 80.336608 512.473172 80.336608z"></path>
+					<path
+					fill="currentColor"
+					d="M506.475342 716.10662a39.985535 39.985535 0 0 1-39.985536-39.985535v-76.972156c0-79.971071 64.976495-144.947566 144.947566-144.947565a77.971794 77.971794 0 0 0 0-155.943588H445.4974a56.979388 56.979388 0 0 0-56.979387 56.979388 39.985535 39.985535 0 0 1-79.971071 0c0-74.972879 60.977941-136.950458 136.950458-136.950459h164.940333c86.968539 0 157.942864 70.974325 157.942865 157.942865s-69.974687 157.942864-157.942865 157.942864a64.976495 64.976495 0 0 0-64.976494 64.976495v76.972156a39.985535 39.985535 0 0 1-38.985897 39.985535zM505.475703 742.097218a48.982281 48.982281 0 1 0 48.982281 48.982281 48.982281 48.982281 0 0 0-48.982281-48.982281z"></path>
+				</svg>
+				`
+        );
+      },
+      setView($el, checkInfo, msg) {
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "unknown", msg ?? NetDiskCheckLinkValidityStatus.unknown.msg);
+        NetDiskCheckLinkValidityStatus.unknown.setIcon($el);
+        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
+      },
+    },
+  };
+  const NetDiskHandlerUtil = {
+    createLinkStorageInst(accessCode, ruleIndex = 0, isForceAccessCode = false, matchText) {
+      return {
+        accessCode,
+        ruleIndex,
+        isForceAccessCode,
+        matchText,
+        matchTime: performance.now(),
+      };
+    },
+    replaceText(matchText, pattern, newText) {
+      if (Array.isArray(pattern)) {
+        for (const patternItem of pattern) {
+          matchText = this.replaceText(matchText, patternItem, newText);
+        }
+      } else {
+        if (typeof pattern === "string") {
+          matchText = matchText.replaceAll(pattern, newText);
+        } else {
+          matchText = matchText.replace(pattern, newText);
+        }
+      }
+      return matchText;
+    },
   };
   const NetDiskCheckLinkValidity_123pan = {
     async init(netDiskInfo) {
@@ -4898,22 +5794,22 @@
         }
         let downloadUrl = fileInfo["DownloadUrl"];
         let fileSize = "";
-        if (downloadUrl === "") {
+        if (downloadUrl === "" || true) {
           $loading.setText("正在获取下载链接...");
-          let downloadInfo = await this.getFileDownloadInfo(
+          const downloadInfo = await this.getFileDownloadInfo(
             fileInfo["Etag"],
             fileInfo["FileId"],
             fileInfo["S3KeyFlag"],
             this.shareCode,
             fileInfo["Size"]
           );
-          if (downloadInfo && downloadInfo["code"] === 0) {
-            downloadUrl = downloadInfo["data"]["DownloadURL"];
+          if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
+            downloadUrl = downloadInfo.data.DownloadURL;
             if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
               downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
             }
             fileSize = String(utils.formatByteToSize(fileInfo["Size"]));
-          } else if (downloadInfo && downloadInfo["code"] === 401) {
+          } else if (downloadInfo && downloadInfo.code === 401) {
             downloadUrl = "javascript:;";
             fileSize = "请登录后下载";
           } else {
@@ -4947,76 +5843,72 @@
       $loading.close();
     }
     async getFiles(parentFileId = 0) {
-      const that = this;
-      const getData = {
+      const queryParamData = {
         limit: 100,
         next: 1,
         orderBy: "share_id",
         orderDirection: "desc",
-        shareKey: that.shareCode,
-        SharePwd: that.accessCode,
+        shareKey: this.shareCode,
+        SharePwd: this.accessCode,
         ParentFileId: parentFileId,
         Page: 1,
       };
-      let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(getData)}`;
-      let getResp = await httpx.get({
+      const url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(queryParamData)}`;
+      const response = await httpx.get({
         url,
         headers: {
           Accept: "*/*",
-          Referer: `https://www.123pan.com/s/${that.shareCode}`,
-          ...that.Headers,
+          Referer: `https://www.123pan.com/s/${this.shareCode}`,
+          ...this.Headers,
         },
       });
-      log.info(getResp);
-      if (!getResp.status) {
+      log.info(response);
+      if (!response.status) {
         return;
       }
-      let respData = getResp.data;
-      let json_data = utils.toJSON(respData.responseText);
-      if (json_data["code"] === 0) {
-        let infoList = json_data["data"]["InfoList"];
+      const data = utils.toJSON(response.data.responseText);
+      if (data.code === 0) {
+        const infoList = data.data.InfoList;
         return infoList;
-      } else if (json_data["code"] === 5103) {
+      } else if (data.code === 5103) {
         NetDiskView.$inst.newAccessCodeView(
           void 0,
           "_123pan",
-          that.ruleIndex,
-          that.shareCode,
-          that.accessCode,
+          this.ruleIndex,
+          this.shareCode,
+          this.accessCode,
           (option) => {
-            that.init({
-              ruleIndex: that.ruleIndex,
-              shareCode: that.shareCode,
+            this.init({
+              ruleIndex: this.ruleIndex,
+              shareCode: this.shareCode,
               accessCode: option.accessCode,
             });
           }
         );
-      } else if (that.code[json_data["code"]]) {
-        Qmsg.error(that.code[json_data["code"]]);
-      } else if ("message" in json_data) {
-        Qmsg.error(json_data["message"]);
+      } else if (this.code[data.code]) {
+        Qmsg.error(this.code[data.code]);
+      } else if (typeof data.message === "string") {
+        Qmsg.error(data.message);
       } else {
         Qmsg.error("123盘：未知的JSON格式");
       }
     }
     async getFilesByRec(parentFileId) {
-      const that = this;
-      let getResp = await httpx.get({
-        url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${that.shareCode}&SharePwd=${that.accessCode}&ParentFileId=${parentFileId}&Page=1`,
+      const response = await httpx.get({
+        url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${this.shareCode}&SharePwd=${this.accessCode}&ParentFileId=${parentFileId}&Page=1`,
         headers: {
           Accept: "*/*",
-          Referer: `https://www.123pan.com/s/${that.shareCode}`,
-          ...that.Headers,
+          Referer: `https://www.123pan.com/s/${this.shareCode}`,
+          ...this.Headers,
         },
       });
-      if (!getResp.status) {
+      if (!response.status) {
         return;
       }
-      let respData = getResp.data;
-      log.info(respData);
-      let jsonData = utils.toJSON(respData.responseText);
-      if (jsonData["code"] == 0) {
-        return jsonData["data"]["InfoList"];
+      const data = utils.toJSON(response.data.responseText);
+      log.info(data);
+      if (data.code == 0) {
+        return data.data.InfoList;
       }
     }
     getFolderInfo(infoList, index) {
@@ -5060,16 +5952,15 @@
                   this.shareCode,
                   item["Size"]
                 );
-                if (downloadInfo && downloadInfo["code"] === 0) {
+                if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
                   return {
-                    url: downloadInfo["data"]["DownloadURL"],
-                    autoDownload: true,
                     mode: "aBlank",
+                    url: downloadInfo.data.DownloadURL,
                   };
-                } else if (downloadInfo && downloadInfo["code"] === 401) {
+                } else if (downloadInfo && downloadInfo.code === 401) {
                   Qmsg.error("请登录后下载");
                 } else {
-                  Qmsg.error(downloadInfo?.["message"] || "获取下载链接失败");
+                  Qmsg.error(downloadInfo?.message || "获取下载链接失败");
                 }
               } else {
                 let downloadUrl = item.DownloadUrl;
@@ -5077,9 +5968,8 @@
                   downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
                 }
                 return {
-                  url: downloadUrl,
-                  autoDownload: true,
                   mode: "aBlank",
+                  url: downloadUrl,
                 };
               }
             },
@@ -5089,21 +5979,22 @@
       return folderInfoList;
     }
     async getFileDownloadInfo(Etag, FileID, S3keyFlag, ShareKey, Size) {
-      const that = this;
-      let authK_V = that.getFileDownloadAuth();
-      let headers = {
+      const authK_V = this.getFileDownloadAuth();
+      const headers = {
         "Content-Type": "application/json;charset=UTF-8",
         Host: "www.123pan.com",
         Accept: "*/*",
         Referer: "https://www.123pan.com/s/" + ShareKey,
         Origin: "https://www.123pan.com",
-        ...that.Headers,
+        ...this.Headers,
       };
-      if (that.Authorization) {
-        Reflect.set(headers, "Authorization", "Bearer " + that.Authorization);
+      if (this.Authorization) {
+        Reflect.set(headers, "Authorization", "Bearer " + this.Authorization);
       }
       log.success("获取下载链接加密参数：" + authK_V);
-      let postResp = await httpx.post(`https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`, {
+      const v1ApiUrl = `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`;
+      `https://www.123pan.com/b/api/v2/share/download/info?${authK_V[0]}=${authK_V[1]}`;
+      const response = await httpx.post(v1ApiUrl, {
         data: JSON.stringify({
           Etag,
           FileID,
@@ -5114,21 +6005,44 @@
         responseType: "json",
         headers,
       });
-      if (!postResp.status) {
+      if (!response.status) {
         return;
       }
-      let postData = postResp.data;
-      let jsonData = utils.toJSON(postData.responseText);
-      log.info(jsonData);
-      if (jsonData["code"] == 0) {
-        jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(jsonData["data"]["DownloadURL"]);
-        return jsonData;
-      } else {
-        return {
-          code: jsonData["code"],
-          message: jsonData["message"],
-        };
+      const data = utils.toJSON(response.data.responseText);
+      log.info(data);
+      if (data.code == 0) {
+        if (utils.isNull(data.data.DownloadURL)) {
+          if (Array.isArray(data.data.dispatchList) && typeof data.data.downloadPath === "string") {
+            const findValue = data.data.dispatchList.find((it) => it?.prefix?.startsWith?.("http"));
+            if (findValue) {
+              const DownloadURL = findValue.prefix + data.data.downloadPath;
+              return {
+                code: data.code,
+                message: data.message,
+                data: {
+                  DownloadURL,
+                },
+              };
+            }
+          }
+        } else {
+          const DownloadURL = this.decodeDownloadUrl(data.data.DownloadURL);
+          return {
+            code: data.code,
+            message: data.message,
+            data: {
+              DownloadURL,
+            },
+          };
+        }
       }
+      return {
+        code: data.code,
+        message: data.message,
+        data: {
+          DownloadURL: void 0,
+        },
+      };
     }
     getFileDownloadAuth() {
       function encry_time(param) {
@@ -5292,7 +6206,6 @@
                 schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("aliyun", schemeDownloadUrl);
               }
               return {
-                autoDownload: true,
                 mode: "aBlank",
                 url: schemeDownloadUrl,
               };
@@ -7846,648 +8759,6 @@
       CharacterMappingSubscribe.updateAllSubscribe();
     },
   };
-  const NetDiskHandlerUtil = {
-    createLinkStorageInst(accessCode, ruleIndex = 0, isForceAccessCode = false, matchText) {
-      return {
-        accessCode,
-        ruleIndex,
-        isForceAccessCode,
-        matchText,
-        matchTime: performance.now(),
-      };
-    },
-    replaceText(matchText, pattern, newText) {
-      if (Array.isArray(pattern)) {
-        for (const patternItem of pattern) {
-          matchText = this.replaceText(matchText, patternItem, newText);
-        }
-      } else {
-        if (typeof pattern === "string") {
-          matchText = matchText.replaceAll(pattern, newText);
-        } else {
-          matchText = matchText.replace(pattern, newText);
-        }
-      }
-      return matchText;
-    },
-  };
-  const NetDiskAutoFillAccessCode_baidu = function (netDiskInfo) {
-    if (
-      window.location.hostname === "pan.baidu.com" &&
-      window.location.pathname === "/share/init" &&
-      window.location.search.startsWith("?surl=")
-    ) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("div.verify-form #accessCode", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        $("div.verify-form #submitBtn")?.click();
-      });
-    }
-    if (
-      window.location.hostname === "pan.baidu.com" &&
-      window.location.pathname === "/wap/init" &&
-      window.location.search.startsWith("?surl=")
-    ) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils
-        .waitNode("div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]", 1e4)
-        .then(($el) => {
-          if (!$el) return;
-          if (!utils.isVisible($el)) {
-            log.error("输入框不可见，不输入密码");
-            return;
-          }
-          Qmsg.success("自动填充访问码");
-          $el.value = netDiskInfo.accessCode;
-          domUtils.emit($el, "input");
-          $("div.extractWrap div.extract-content button.m-button")?.click();
-        });
-    }
-  };
-  const NetDiskAutoFillAccessCode_lanzou = function (netDiskInfo) {
-    if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("#pwd", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        ($("#passwddiv div.passwddiv-input > div") || $el.nextElementSibling)?.click();
-        $("#sub")?.click();
-      });
-      domUtils.waitNode("#f_pwd", 1e4).then(($el) => {
-        if (!$el) return;
-        utils.mutationObserver($el, {
-          config: {
-            attributes: true,
-            attributeFilter: ["style"],
-          },
-          callback: (mutations, observer) => {
-            const $input = $("#f_pwd #pwd");
-            if (!utils.isVisible($input)) {
-              log.error("输入框不可见，不输入密码");
-              return;
-            }
-            observer.disconnect();
-            Qmsg.success("自动填充访问码");
-            $input.value = netDiskInfo.accessCode;
-            domUtils.emit($input, "input");
-            $("#f_pwd #sub")?.click();
-          },
-        });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo) {
-    function loopWaitElementShow(targetElement, callback) {
-      let loopCount = 0;
-      const maxLoopCount = 30;
-      const interval = setInterval(() => {
-        loopCount++;
-        if (loopCount > maxLoopCount) {
-          log.error("结束循环检查，退出。");
-          clearInterval(interval);
-          return;
-        }
-        if (!utils.isVisible(targetElement)) {
-          log.warn(`第 ${loopCount} 次：输入框不可见，不输入密码`);
-          return;
-        }
-        callback();
-        clearInterval(interval);
-      }, 500);
-    }
-    if (window.location.hostname === "cloud.189.cn") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("input#code_txt", 1e4).then(($el) => {
-        if (!$el) return;
-        loopWaitElementShow($el, () => {
-          Qmsg.success("自动填充访问码");
-          const $visit = $(".btn.btn-primary.visit");
-          $el.value = netDiskInfo.accessCode;
-          Reflect.set($el, "_value", netDiskInfo.accessCode);
-          domUtils.emit($el, "input");
-          domUtils.emit($visit, "click");
-        });
-      });
-    }
-    if (window.location.hostname === "h5.cloud.189.cn") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("input.access-code-input", 1e4).then(($el) => {
-        if (!$el) return;
-        loopWaitElementShow($el, () => {
-          Qmsg.success("自动填充访问码");
-          $el.value = netDiskInfo.accessCode;
-          Reflect.set($el, "_value", netDiskInfo.accessCode);
-          domUtils.emit($el, "input");
-          domUtils.emit($("div.button"), "click");
-        });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo) {
-    if (window.location.hostname === "caiyun.139.com") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("#token-input").then((element) => {
-        if (!utils.isVisible(element)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        element.value = netDiskInfo.accessCode;
-        domUtils.emit(element, "input");
-        $("#homepage div.token div.token-form a").click();
-      });
-      domUtils.waitNode("#app div.token-form input[type=text]").then((element) => {
-        if (!utils.isVisible(element)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        element.value = netDiskInfo.accessCode;
-        domUtils.emit(element, "input");
-        $("div.token-form a.btn-token").click();
-      });
-    }
-  };
-  const ReactUtils = {
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
-      if (!Array.isArray(reactPropNameOrNameList)) {
-        reactPropNameOrNameList = [reactPropNameOrNameList];
-      }
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
-        return __target__;
-      }
-      if (typeof $el === "string") {
-        let __$el = await domUtils.waitNode($el, 1e4);
-        if (!__$el) {
-          return;
-        }
-      }
-      checkOption.forEach((option) => {
-        if (typeof option.msg === "string") {
-          log.info(option.msg);
-        }
-        const checkTarget = function () {
-          let $target = getTarget();
-          if ($target == null) {
-            return {
-              status: false,
-              isTimeout: true,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const reactInst = utils.getReactInstance($target);
-          if (reactInst == null) {
-            return {
-              status: false,
-              isTimeout: false,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            const reactPropInst2 = reactInst[__propName__];
-            if (!reactPropInst2) {
-              return false;
-            }
-            const flag = Boolean(option.check(reactPropInst2, $target));
-            return flag;
-          });
-          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          const reactPropInst = reactInst[reactPropName];
-          return {
-            status: findPropNameIndex !== -1,
-            isTimeout: false,
-            inst: reactPropInst,
-            $el: $target,
-          };
-        };
-        utils
-          .waitPropertyByInterval(
-            () => {
-              return getTarget();
-            },
-            () => checkTarget().status,
-            250,
-            1e4
-          )
-          .then(() => {
-            const checkTargetResult = checkTarget();
-            if (checkTargetResult.status) {
-              const reactInst = checkTargetResult.inst;
-              option.set(reactInst, checkTargetResult.$el);
-            } else {
-              if (typeof option.failWait === "function") {
-                option.failWait(checkTargetResult.isTimeout);
-              }
-            }
-          });
-      });
-    },
-  };
-  const NetDiskAutoFillAccessCode_aliyun = function (netDiskInfo) {
-    if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.onReady(() => {
-        domUtils
-          .waitAnyNode(
-            ["#root input.ant-input[placeholder*='提取码']", "#root input[name=pwd][placeholder*='提取码']"],
-            1e4
-          )
-          .then(($el) => {
-            if (!$el) return;
-            ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
-              check(reactPropInst) {
-                return (
-                  typeof reactPropInst?.onChange === "function" ||
-                  typeof reactPropInst?.memoizedProps?.onChange === "function"
-                );
-              },
-              set(reactPropInst) {
-                if (!utils.isVisible($el)) {
-                  log.error("输入框不可见，不输入密码");
-                  return;
-                }
-                $el.value = netDiskInfo.accessCode;
-                const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
-                onChange({
-                  currentTarget: $el,
-                  target: $el,
-                });
-                Qmsg.success("自动填充访问码");
-                const $submit = $('#root button[type="submit"]');
-                if (!$submit) {
-                  Qmsg.error("提交按钮不存在");
-                  return;
-                }
-                $submit.click();
-              },
-            });
-          });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_123pan = function (netDiskInfo) {
-    if (window.location.hostname === "www.123pan.com") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.onReady(() => {
-        domUtils
-          .waitAnyNode(
-            [
-              "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
-              "#app .appinput input.ant-input[type=text][placeholder*='提取码']",
-            ],
-            1e4
-          )
-          .then(($el) => {
-            if (!$el) return;
-            ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
-              check(reactPropInst) {
-                return (
-                  typeof reactPropInst?.onChange === "function" ||
-                  typeof reactPropInst?.memoizedProps?.onChange === "function"
-                );
-              },
-              set(reactPropInst) {
-                if (!utils.isVisible($el)) {
-                  log.error("输入框不可见，不输入密码");
-                  return;
-                }
-                $el.value = netDiskInfo.accessCode;
-                const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
-                onChange({
-                  currentTarget: $el,
-                  target: $el,
-                });
-                Qmsg.success("自动填充访问码");
-                const $submit = $el.nextElementSibling;
-                if (!$submit) {
-                  Qmsg.error("提交按钮不存在");
-                  return;
-                }
-                $submit.click();
-              },
-            });
-          });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo) {
-    if (window.location.hostname === "share.weiyun.com") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("#app input.input-txt", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        domUtils.emit($el, "change");
-        setTimeout(() => {
-          $(".form-item button.btn-main").click();
-        }, 500);
-      });
-      domUtils.waitNode(".input-wrap input.pw-input", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        domUtils.emit($el, "change");
-        setTimeout(() => {
-          $(".pw-btn-wrap button.btn").click();
-        }, 500);
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_xunlei = function (netDiskInfo) {
-    if (window.location.hostname === "pan.xunlei.com") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("#__layout div.pass-input-wrap input.td-input__inner", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        log.error("输入框不可见，不输入密码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        domUtils.emit($el, "change");
-        setTimeout(() => {
-          $("#__layout div.pass-input-wrap button.td-button").click();
-        }, 500);
-      });
-      domUtils.waitNode("#__layout div.pass-wrapper input.td-input__inner", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        log.error("输入框不可见，不输入密码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        domUtils.emit($el, "change");
-        setTimeout(() => {
-          $("#__layout div.pass-wrapper button.td-button").click();
-        }, 500);
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_kuake = function (netDiskInfo) {
-    if (window.location.hostname === "pan.quark.cn") {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.onReady(() => {
-        domUtils
-          .waitNode("#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']", 1e4)
-          .then(($el) => {
-            if (!$el) return;
-            ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactEventHandlers"], {
-              check(reactPropInst) {
-                return (
-                  typeof reactPropInst?.onChange === "function" ||
-                  typeof reactPropInst?.memoizedProps?.onChange === "function"
-                );
-              },
-              set(reactPropInst) {
-                if (!utils.isVisible($el)) {
-                  log.error("输入框不可见，不输入密码");
-                  return;
-                }
-                $el.value = netDiskInfo.accessCode;
-                const onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
-                onChange({
-                  currentTarget: $el,
-                  target: $el,
-                });
-                Qmsg.success("自动填充访问码");
-              },
-            });
-          });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_chengtong = function (netDiskInfo) {
-    log.success("自动填写链接", netDiskInfo);
-    domUtils.waitNode("#passcode", 1e4).then(($el) => {
-      if (!$el) return;
-      if (!utils.isVisible($el)) {
-        log.error("输入框不可见，不输入密码");
-        return;
-      }
-      Qmsg.success("自动填充访问码");
-      $el.value = netDiskInfo.accessCode;
-      domUtils.emit($el, "input");
-      $("#main-content .form-group button.btn[type=button]").click();
-    });
-  };
-  const NetDiskAutoFillAccessCode_115pan = function (netDiskInfo) {
-    if (["115.com", "115cdn.com", "anxia.com"].includes(window.location.hostname)) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.onReady(() => {
-        domUtils.waitNode("input[placeholder*='访问码']", 1e4).then(async ($el) => {
-          if (!$el) return;
-          if (!utils.isVisible($el)) {
-            log.error("输入框不可见，不输入密码");
-            return;
-          }
-          Qmsg.success("自动填充访问码");
-          $el.value = netDiskInfo.accessCode;
-          domUtils.emit($el, "input");
-          ReactUtils.waitReactPropsToSet($el, "reactProps", {
-            check(reactPropInst) {
-              const flag = typeof reactPropInst?.onChange === "function";
-              return flag;
-            },
-            async set(reactPropInst, $el2) {
-              const onChange = reactPropInst?.onChange;
-              onChange({
-                target: $el2,
-              });
-              await utils.sleep(800);
-              const $button = $el2.parentElement?.nextElementSibling;
-              if ($button instanceof HTMLButtonElement) {
-                $button.click();
-              }
-            },
-          });
-        });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_360yunpan = function (netDiskInfo) {
-    if (window.location.hostname.endsWith(".link.yunpan.com")) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.waitNode("#extract-bg-container input.pwd-input", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        const $submit = $("#extract-bg-container input.submit-btn");
-        $submit?.click();
-      });
-      domUtils.waitNode("#extractForm input.pwd-input", 1e4).then(($el) => {
-        if (!$el) return;
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        $el.value = netDiskInfo.accessCode;
-        domUtils.emit($el, "input");
-        const $submit = $("#extractForm input.submit-btn");
-        $submit?.click();
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode_feijipan = function (netDiskInfo) {
-    if (window.location.hostname === "share.feijipan.com" && window.location.pathname.startsWith("/s/")) {
-      log.success("自动填写链接", netDiskInfo);
-      domUtils.onReady(() => {
-        domUtils.waitNode('input.code-input[placeholder*="请输入提取码"]', 1e4).then(($el) => {
-          if (!$el) {
-            return;
-          }
-          if (!utils.isVisible($el)) {
-            log.error("输入框不可见，不输入密码");
-            return;
-          }
-          domUtils.val($el, netDiskInfo.accessCode);
-          domUtils.emit($el, "input");
-          Qmsg.success("自动填充访问码");
-          domUtils.waitNode("button.code-checkafter", 3e3).then(($button) => {
-            if (!$button) {
-              Qmsg.error("查看文件按钮不存在");
-              return;
-            }
-            $button.click();
-          });
-        });
-      });
-    }
-  };
-  const NetDiskAutoFillAccessCode = {
-    key: "tempNetDiskInfo",
-    $data: {
-      netDiskInfo: null,
-      get enable() {
-        return NetDiskGlobalData.features.autoFillAccessCode.value;
-      },
-    },
-    init() {
-      if (!this.$data.enable) {
-        return;
-      }
-      this.$data.netDiskInfo = this.getValue();
-      for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
-        const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
-        let autoFillAccessCodeEnable = NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-          fillAccessCodeNetDiskInfo.ruleKeyName
-        );
-        if (!autoFillAccessCodeEnable) {
-          continue;
-        }
-        let accessCode = fillAccessCodeNetDiskInfo.accessCode;
-        if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
-          continue;
-        }
-        let shareCode = fillAccessCodeNetDiskInfo.shareCode;
-        if (fillAccessCodeNetDiskInfo.ruleKeyName === "baidu" && shareCode.startsWith("1")) {
-          shareCode = shareCode.slice(1, shareCode.length);
-        }
-        let isMatchedFillShareCode = window.location.href.includes(shareCode);
-        if (isMatchedFillShareCode) {
-          let autoFillFn = NetDiskAutoFillAccessCode.netDisk[fillAccessCodeNetDiskInfo.ruleKeyName];
-          if (typeof autoFillFn === "function") {
-            log.success(`成功匹配到对应的自动填充访问码的网盘信息：`, fillAccessCodeNetDiskInfo);
-            autoFillFn(fillAccessCodeNetDiskInfo);
-          } else {
-            log.warn("自动填充访问码失败：" + fillAccessCodeNetDiskInfo.ruleKeyName + "，原因：该网盘未适配");
-          }
-          break;
-        }
-      }
-    },
-    netDisk: {
-      baidu: NetDiskAutoFillAccessCode_baidu,
-      lanzou: NetDiskAutoFillAccessCode_lanzou,
-      tianyiyun: NetDiskAutoFillAccessCode_tianyiyun,
-      hecaiyun: NetDiskAutoFillAccessCode_hecaiyun,
-      aliyun: NetDiskAutoFillAccessCode_aliyun,
-      wenshushu: () => {},
-      nainiu: () => {},
-      _123pan: NetDiskAutoFillAccessCode_123pan,
-      weiyun: NetDiskAutoFillAccessCode_weiyun,
-      xunlei: NetDiskAutoFillAccessCode_xunlei,
-      _115pan: NetDiskAutoFillAccessCode_115pan,
-      chengtong: NetDiskAutoFillAccessCode_chengtong,
-      kuake: NetDiskAutoFillAccessCode_kuake,
-      jianguoyun: () => {},
-      onedrive: () => {},
-      "360yunpan": NetDiskAutoFillAccessCode_360yunpan,
-      feijipan: NetDiskAutoFillAccessCode_feijipan,
-    },
-    setValue(value) {
-      _GM_setValue(this.key, value);
-    },
-    addValue(netDiskFillOption) {
-      let accessCode = netDiskFillOption.accessCode;
-      if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
-        return;
-      }
-      let localValue = this.getValue();
-      localValue = localValue.filter((it) => {
-        if (it.ruleKeyName === netDiskFillOption.ruleKeyName && it.shareCode === netDiskFillOption.shareCode) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      localValue.push(netDiskFillOption);
-      this.setValue(localValue);
-    },
-    getValue() {
-      let localValue = _GM_getValue(this.key, []);
-      if (!Array.isArray(localValue)) {
-        localValue = [localValue];
-      }
-      localValue = localValue.filter((it) => Date.now() - it.time < 24 * 60 * 60 * 1e3);
-      this.setValue(localValue);
-      return localValue;
-    },
-  };
   const NetDiskRegularExtractor = {
     extractShareCode(handlerConfig) {
       const handler = () => {
@@ -8499,7 +8770,7 @@
           ?.filter((item) => utils.isNotNull(item));
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
-          msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", JSON.stringify(shareCodeMatch)],
+          msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", CommonUtil.toStr(shareCodeMatch)],
         });
         if (utils.isNull(shareCodeMatch)) {
           handlerConfig.debugConfig?.logCallBack?.({
@@ -8611,7 +8882,7 @@
             `正则: checkAccessCode`,
             "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
             `结果: `,
-            JSON.stringify(accessCodeMatch),
+            CommonUtil.toStr(accessCodeMatch),
           ],
         });
         if (accessCodeMatch) {
@@ -8636,7 +8907,7 @@
               `正则: accessCode`,
               "作用: 用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码",
               `结果: `,
-              JSON.stringify(accessCodeMatchArray),
+              CommonUtil.toStr(accessCodeMatchArray),
             ],
           });
           if (utils.isNull(accessCodeMatchArray)) {
@@ -8725,7 +8996,7 @@
         }
         const autoFilleDataList = NetDiskAutoFillAccessCode.getValue();
         const findValue = autoFilleDataList.find((it) => {
-          return it.ruleKeyName === handlerConfig.ruleKeyName;
+          return it.ruleKeyName === handlerConfig.ruleKeyName && it.shareCode === handlerConfig.shareCode;
         });
         if (findValue) {
           handlerConfig.debugConfig?.logCallBack?.({
@@ -8737,7 +9008,7 @@
           return __accessCode__ ?? "";
         }
       };
-      const handlerByUserRule = (__accessCode__) => {
+      const handlerByUserRuleCustomAccessCode = (__accessCode__) => {
         const ruleConfigList = WebsiteRule.getUrlMatchedRule();
         for (let index = 0; index < ruleConfigList.length; index++) {
           const ruleConfig = ruleConfigList[index];
@@ -8772,8 +9043,9 @@
       };
       accessCode = handler(accessCode);
       accessCode = handlerByAutoFill(accessCode);
-      accessCode = handlerByUserRule(accessCode);
+      accessCode = handlerByUserRuleCustomAccessCode(accessCode);
       accessCode = handlerOhter(accessCode);
+      accessCode = NetDiskHandlerAccessCode.handler(handlerConfig, accessCode);
       return accessCode;
     },
     extractShowLink(handlerConfig) {
@@ -8838,7 +9110,7 @@
             msg: [
               `正则: paramMatch`,
               `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+              `参数: ` + CommonUtil.toStr(replaceParamData),
               `结果: ${uiLink}`,
             ],
           });
@@ -9719,7 +9991,7 @@
         }
         const dataItem = data[currentIndex];
         const { ruleKeyName, netDiskDictData: netDiskData, shareCode } = dataItem;
-        let uiLink = NetDiskRegularExtractor.extractShowLink({
+        const uiLink = NetDiskRegularExtractor.extractShowLink({
           ruleKeyName,
           ruleIndex: netDiskData.ruleIndex,
           shareCode,
@@ -9730,7 +10002,7 @@
         if (!uiLink) {
           continue;
         }
-        let boxViewInfo = this.createBoxItemInfo(
+        const boxViewInfo = this.createBoxItemInfo(
           NetDiskView.$inst.icon.getIcon(ruleKeyName),
           ruleKeyName,
           netDiskData["ruleIndex"],
@@ -9839,7 +10111,7 @@
     handleBoxAttrRuleInfo(data, $el) {
       let ruleInfoJSON = this.createBoxAttrRuleInfo(data);
       for (const key in ruleInfoJSON) {
-        const value = ruleInfoJSON[key];
+        const value = ruleInfoJSON[key] ?? "";
         if (Array.isArray($el)) {
           $el.forEach(($ele) => {
             $ele.setAttribute(key, value.toString());
@@ -11129,7 +11401,7 @@
           const isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
           if (isFindBlackShareCode) {
             isBlackListShareCode = true;
-            log.warn(`匹配到黑名单分享码，已过滤：${shareCode}`, JSON.stringify(item));
+            log.warn(`匹配到黑名单分享码，已过滤：${shareCode}`, CommonUtil.toStr(item));
           }
         });
         if (isBlackListShareCode) {
@@ -11457,7 +11729,7 @@
           text += "\n";
         }
         if (typeof item !== "string") {
-          text += JSON.stringify(item, void 0, 4);
+          text += CommonUtil.toStr(item, 4);
         } else {
           text += item;
         }
@@ -12706,29 +12978,6 @@
       MetaDataParser.showFileMetaInfoDialog(metaInfo);
     }
   }
-  const NetDiskAuthorization_feijipan_appToken = {
-    KEY: "feijipan_appToken",
-    set(value) {
-      _GM_setValue(this.KEY, value);
-    },
-    get() {
-      return _GM_getValue(this.KEY);
-    },
-  };
-  const NetDiskAuthorization_feijipan = function () {
-    if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
-      return;
-    }
-    if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
-      return;
-    }
-    const cookie_appToken = cookieManager.get("appToken");
-    if (cookie_appToken) {
-      const appToken = cookie_appToken.value;
-      log.success("获取小飞机网盘的appToken: " + appToken);
-      NetDiskAuthorization_feijipan_appToken.set(appToken);
-    }
-  };
   function o() {
     return CryptoJS;
   }
@@ -12999,14 +13248,12 @@
               const checkFlag = this.checkCanDownloadFile(item.fileSize);
               if (checkFlag) {
                 return {
-                  url: downloadUrl,
-                  autoDownload: true,
                   mode: "aBlank",
+                  url: downloadUrl,
                 };
               } else {
                 return {
                   url: downloadUrl,
-                  autoDownload: false,
                 };
               }
             },
@@ -13164,7 +13411,6 @@
             }
             log.info(downloadUrl);
             return {
-              autoDownload: true,
               mode: "aBlank",
               url: downloadUrl,
             };
@@ -13647,9 +13893,8 @@
                   downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
                 }
                 return {
-                  url: downloadUrl,
-                  autoDownload: true,
                   mode: "aBlank",
+                  url: downloadUrl,
                 };
               }
             },
@@ -14231,7 +14476,6 @@
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);
               }
               return {
-                autoDownload: true,
                 mode: "aBlank",
                 url: downloadUrl,
               };
@@ -14583,7 +14827,6 @@
                   this.downloadFile(item.file_name, fileDownloadUrl);
                 } else {
                   return {
-                    autoDownload: true,
                     mode: "aBlank",
                     url: fileDownloadUrl,
                   };
@@ -14802,22 +15045,20 @@
       }
     }
   }
-  const NetDiskParse = {
-    rule: {
-      baidu: NetDiskParse_Baidu,
-      lanzou: NetDiskParse_Lanzou,
-      lanzouyx: NetDiskParse_Lanzouyx,
-      tianyiyun: NetDiskParse_Tianyiyun,
-      wenshushu: NetDiskParse_Wenshushu,
-      _123pan: NetDiskParse_123pan,
-      jianguoyun: NetDiskParse_Jianguoyun,
-      uc: NetDiskParse_UC,
-      aliyun: NetDiskParse_Aliyun,
-      chengtong: NetDiskParse_Chengtong,
-      magnet: NetDiskParse_magnet,
-      ed2k: NetDiskParse_ed2k,
-      feijipan: NetDiskParse_feijipan,
-    },
+  const NetDiskParseRule = {
+    baidu: NetDiskParse_Baidu,
+    lanzou: NetDiskParse_Lanzou,
+    lanzouyx: NetDiskParse_Lanzouyx,
+    tianyiyun: NetDiskParse_Tianyiyun,
+    wenshushu: NetDiskParse_Wenshushu,
+    _123pan: NetDiskParse_123pan,
+    jianguoyun: NetDiskParse_Jianguoyun,
+    uc: NetDiskParse_UC,
+    aliyun: NetDiskParse_Aliyun,
+    chengtong: NetDiskParse_Chengtong,
+    magnet: NetDiskParse_magnet,
+    ed2k: NetDiskParse_ed2k,
+    feijipan: NetDiskParse_feijipan,
   };
   const NetDiskLinkClickModeUtils = {
     getBlankUrl(handlerConfig) {
@@ -14869,7 +15110,7 @@
           msg: [
             `正则: paramMatch`,
             `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-            `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+            `参数: ` + CommonUtil.toStr(replaceParamData, 4),
             `结果: ${blankUrl}`,
           ],
         });
@@ -14925,7 +15166,7 @@
           msg: [
             `正则: paramMatch`,
             `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-            `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+            `参数: ` + CommonUtil.toStr(replaceParamData, 4),
             `结果: ${copyUrl}`,
           ],
         });
@@ -14960,20 +15201,20 @@
         });
     },
     async parseFile(ruleKeyName, ruleIndex, shareCode, accessCode) {
-      log.success(`链接解析：`, JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
-      const ParseInst = NetDiskParse.rule[ruleKeyName];
-      if (ParseInst) {
-        const parseInst = new ParseInst();
+      log.success(`链接解析：`, CommonUtil.toStr({ ruleKeyName, ruleIndex, shareCode, accessCode }));
+      const ParserInst = NetDiskParseRule[ruleKeyName];
+      if (ParserInst) {
         const netDiskInfo = {
           ruleIndex,
           shareCode,
           accessCode: accessCode ?? "",
         };
-        parseInst.ruleIndex = netDiskInfo.ruleIndex;
-        parseInst.shareCode = netDiskInfo.shareCode;
-        parseInst.accessCode = netDiskInfo.accessCode;
+        const parser = new ParserInst();
+        parser.ruleIndex = netDiskInfo.ruleIndex;
+        parser.shareCode = netDiskInfo.shareCode;
+        parser.accessCode = netDiskInfo.accessCode;
         log.info("文件解析：", netDiskInfo);
-        await parseInst.init(netDiskInfo);
+        await parser.init(netDiskInfo);
       } else {
         log.error(`${ruleKeyName} 未配置解析函数`, [ruleKeyName, ruleIndex, shareCode, accessCode]);
         Qmsg.error("该链接未配置解析函数");
@@ -14982,7 +15223,7 @@
     openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd = false) {
       log.success(
         `新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
-        JSON.stringify({ url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd }, null, 2)
+        CommonUtil.toStr({ url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd })
       );
       if (NetDiskAutoFillAccessCode.$data.enable) {
         NetDiskAutoFillAccessCode.addValue({
@@ -15031,7 +15272,7 @@
       }
     },
     openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode) {
-      log.success("scheme新标签页打开", JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
+      log.success("scheme新标签页打开", CommonUtil.toStr({ ruleKeyName, ruleIndex, shareCode, accessCode }));
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName,
         ruleIndex,
@@ -15055,11 +15296,10 @@
         headers: {
           Accept:
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-          "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36`,
           Host: "pan.baidu.com",
           Referer: `https://pan.baidu.com/share/init?surl=${shareCode}&pwd=${accessCode}`,
-          "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
           Origin: "https://pan.baidu.com",
+          "User-Agent": utils.getRandomPCUA(),
         },
         ...NetDiskCheckLinkValidityRequestOption,
       });
@@ -15077,9 +15317,38 @@
       }
       if (!response.status) {
         if (utils.isNull(responseText)) {
+          const response2 = await httpx.get(`https://pan.baidu.com/api/shorturlinfo`, {
+            data: {
+              clienttype: 5,
+              shorturl: netDiskInfo.shareCode,
+              linksource: "",
+
+              requestSource: "share",
+              web: 5,
+              channel: "chunlei",
+              logid: btoa(String(Date.now() * 10)),
+            },
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              "Content-Type": "application/x-www-form-urlencoded",
+              Host: "pan.baidu.com",
+              Referer: url,
+              Origin: "https://pan.baidu.com",
+              "User-Agent": utils.getRandomAndroidUA(),
+            },
+            ...NetDiskCheckLinkValidityRequestOption,
+          });
+          const data = utils.toJSON(response2.data.responseText);
+          if (data.errno === 140) {
+            return {
+              ...NetDiskCheckLinkValidityStatus.failed,
+              msg: typeof data.show_msg === "string" ? data.show_msg : NetDiskCheckLinkValidityStatus.failed.msg,
+              data: response2,
+            };
+          } else if (data.errno === -3 && data.pwd == null);
           return {
             ...NetDiskCheckLinkValidityStatus.networkError,
-            data: response,
+            data: response2,
           };
         }
       }
@@ -15179,7 +15448,7 @@
   const NetDiskCheckLinkValidity_lanzouyx = {
     async init(netDiskInfo) {
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const LanZouYX = new NetDiskParse.rule.lanzouyx();
+      const LanZouYX = new NetDiskParseRule.lanzouyx();
       LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
       const timestamp = LanZouYX.getEncodeTimeStamp();
       const uuid = LanZouYX.getEncodeUUID();
@@ -16015,7 +16284,7 @@
       };
     },
   };
-  const AllCheckLinkValidityFunction = {
+  const NetDiskCheckLinkValidityRule = {
     baidu: NetDiskCheckLinkValidity_baidu,
     lanzou: NetDiskCheckLinkValidity_lanzou,
     lanzouyx: NetDiskCheckLinkValidity_lanzouyx,
@@ -16049,25 +16318,25 @@
     get status() {
       return NetDiskCheckLinkValidityStatus;
     },
-    ruleCheckValidFunction: AllCheckLinkValidityFunction,
+    ruleCheckValidFunction: NetDiskCheckLinkValidityRule,
     async check(checkInfoConfigList) {
       if (!Array.isArray(checkInfoConfigList)) {
         checkInfoConfigList = [checkInfoConfigList];
       }
       for (const checkInfoConfigItem of checkInfoConfigList) {
         const { ruleKeyName } = checkInfoConfigItem;
-        if (!this.$data.subscribeMap.has(ruleKeyName)) {
-          this.$data.subscribeMap.set(ruleKeyName, []);
+        if (!NetDiskCheckLinkValidity.$data.subscribeMap.has(ruleKeyName)) {
+          NetDiskCheckLinkValidity.$data.subscribeMap.set(ruleKeyName, []);
         }
-        let subscribeMapValue = this.$data.subscribeMap.get(ruleKeyName);
+        let subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName);
         subscribeMapValue.push(checkInfoConfigItem);
       }
       let execCheck = async () => {
         let promiseList = [];
-        for (const [ruleKeyName, checkInfoList] of this.$data.subscribeMap.entries()) {
+        for (const [ruleKeyName, checkInfoList] of NetDiskCheckLinkValidity.$data.subscribeMap.entries()) {
           promiseList.push(
             new Promise(async (resolve) => {
-              let isConsuming = this.$data.subscribeMapConsuming.get(ruleKeyName);
+              let isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
               if (isConsuming) {
                 resolve(null);
                 return;
@@ -16077,8 +16346,10 @@
                   try {
                     const checkInfo = checkInfoList[index];
                     if (checkInfo.$urlBox.parentElement) {
-                      const { needAwait } = await this.checkLinkValidity(checkInfo, false);
-                      needAwait && (await utils.sleep(250));
+                      const { needAwait } = await NetDiskCheckLinkValidity.checkLinkValidity(checkInfo, false);
+                      if (needAwait) {
+                        await utils.sleep(250);
+                      }
                     }
                     checkInfoList.splice(index, 1);
                     index--;
@@ -16086,13 +16357,13 @@
                     log.error(error);
                   }
                 }
-                const delayCheckCount = this.$data.subscribeMap.get(ruleKeyName)?.length;
+                const delayCheckCount = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName)?.length;
                 if (delayCheckCount && checkInfoList.length) {
                   await execCheckConfig();
                 }
               };
               await execCheckConfig();
-              this.$data.subscribeMapConsuming.delete(ruleKeyName);
+              NetDiskCheckLinkValidity.$data.subscribeMapConsuming.delete(ruleKeyName);
               resolve(null);
             })
           );
@@ -16102,23 +16373,23 @@
       await execCheck();
     },
     clearAllDelayCheckLinkValidity() {
-      this.$data.subscribeMap.clear();
-      this.$data.subscribeMapConsuming.clear();
+      NetDiskCheckLinkValidity.$data.subscribeMap.clear();
+      NetDiskCheckLinkValidity.$data.subscribeMapConsuming.clear();
     },
     async checkLinkValidity(checkInfo, isForceCheck) {
       const result = {
         needAwait: false,
       };
       const { $checkValidStatus } = NetDiskLinkView.parseBoxItemInfo(checkInfo.$urlBox);
-      if (this.isViewCheckValid($checkValidStatus) && !isForceCheck) {
+      if (NetDiskCheckLinkValidity.isViewCheckValid($checkValidStatus) && !isForceCheck) {
         return result;
       }
-      this.setCheckStatusElementToolTip(checkInfo);
+      NetDiskCheckLinkValidity.setCheckStatusElementToolTip(checkInfo);
       const ruleKeyName = checkInfo.ruleKeyName;
       if (!NetDiskRuleData.function.checkLinkValidity(ruleKeyName)) {
         return result;
       }
-      const netDiskCheck = this.ruleCheckValidFunction[checkInfo.ruleKeyName];
+      const netDiskCheck = NetDiskCheckLinkValidity.ruleCheckValidFunction[checkInfo.ruleKeyName];
       if (!netDiskCheck || (netDiskCheck && typeof netDiskCheck.init !== "function")) {
         log.error("该规则未配置有效性校验函数", checkInfo);
         return result;
@@ -16128,7 +16399,7 @@
         shareCode: checkInfo.shareCode,
         accessCode: checkInfo.accessCode,
       };
-      const checkConfigStr = JSON.stringify(checkConfig);
+      const checkConfigStr = CommonUtil.toStr(checkConfig);
       let checkStatusResult;
       if (!isForceCheck && NetDiskCheckLinkValidity.$data.checkValidStatusMapCache.has(checkConfigStr)) {
         checkStatusResult = NetDiskCheckLinkValidity.$data.checkValidStatusMapCache.get(checkConfigStr);
@@ -16159,7 +16430,7 @@
     },
     setViewAgainCheckClickEvent($el, checkInfo) {
       domUtils.off($el, "click", void 0, void 0, void 0, (value) => {
-        return Boolean(value.option.once) && value.callback.toString().includes("this.checkLinkValidity");
+        return Boolean(value.option.once) && value.callback.toString().includes("checkLinkValidity");
       });
       domUtils.on(
         $el,
@@ -16174,7 +16445,7 @@
             shareCode: ruleInfo.shareCode,
             accessCode: ruleInfo.accessCode,
           };
-          this.checkLinkValidity(newCheckInfo, true);
+          NetDiskCheckLinkValidity.checkLinkValidity(newCheckInfo, true);
         },
         { once: true }
       );
@@ -16250,187 +16521,6 @@
           return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
         },
       });
-    },
-  };
-  const NetDiskCheckLinkValidityStatus = {
-    loading: {
-      code: 1,
-      msg: "验证中...",
-      setIcon($el) {
-        domUtils.html($el, __pops__.config.iconSVG.loading);
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? this.msg);
-        this.setIcon($el);
-      },
-    },
-    success: {
-      code: 200,
-      msg: "有效",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-					<path
-					fill="currentColor"
-					d="M874.119618 149.859922A510.816461 510.816461 0 0 0 511.997 0.00208a509.910462 509.910462 0 0 0-362.119618 149.857842c-199.817789 199.679789-199.817789 524.581447 0 724.260236a509.969462 509.969462 0 0 0 362.119618 149.857842A508.872463 508.872463 0 0 0 874.119618 874.120158c199.836789-199.679789 199.836789-524.581447 0-724.260236zM814.94268 378.210681L470.999043 744.132295a15.359984 15.359984 0 0 1-5.887994 4.095996c-1.751998 1.180999-2.913997 2.362998-5.276994 2.913997a34.499964 34.499964 0 0 1-13.469986 2.914997 45.547952 45.547952 0 0 1-12.897986-2.303998l-4.095996-2.363997a45.291952 45.291952 0 0 1-7.009992-4.095996l-196.902793-193.789796a34.126964 34.126964 0 0 1-10.555989-25.186973c0-9.37399 3.583996-18.74698 9.98399-25.186974a36.429962 36.429962 0 0 1 50.372947 0l169.98382 167.423824L763.389735 330.220732a37.059961 37.059961 0 0 1 50.371947-1.732998 33.647965 33.647965 0 0 1 11.165988 25.186973 35.544963 35.544963 0 0 1-9.98399 24.575974v-0.04z m0 0"></path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "success", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    networkError: {
-      code: -404,
-      msg: "网络异常",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-					<path
-					fill="currentColor"
-					d="M511.808 692.224c-18.048 0-35.136 3.968-50.432 11.392-25.472 12.416-46.528 33.92-57.792 60.032-5.632 14.144-9.024 29.504-9.024 45.952 0 65.152 52.672 117.824 117.248 117.824 65.28 0 117.952-52.672 117.952-117.824 0-64.64-52.672-117.376-117.952-117.376z m0 178.496c-33.408 0-60.608-27.712-60.608-61.12 0-33.472 27.2-60.672 60.608-60.672s61.248 27.2 61.248 60.672c0 33.472-27.776 61.12-61.248 61.12zM286.784 661.632c3.968 3.392 8.512 5.632 12.992 5.632L438.08 523.328c-60.032 14.72-114.432 49.344-155.328 98.624-9.536 11.84-7.872 30.08 4.032 39.68zM622.912 534.656l-43.008 45.312c45.312 13.056 86.72 40.256 117.376 78.208 5.632 6.784 13.568 10.24 22.08 10.24 6.272 0 12.416-2.24 18.176-6.784 11.904-9.6 13.568-27.84 3.392-39.68-31.808-39.104-72.704-69.12-118.016-87.296zM511.808 391.168c17.024 0 33.408 1.216 49.856 3.456l47.68-49.856c-31.744-6.848-64.064-10.24-97.536-10.24-142.784 0-277.12 63.488-367.232 174.656-10.24 11.904-8.576 30.08 3.904 39.68 5.12 4.48 11.328 6.784 18.176 6.784 7.936 0 15.872-3.968 21.568-10.816 79.872-97.536 197.76-153.664 323.584-153.664zM751.616 400.32l-40.256 41.92c47.04 24.96 89.536 60.032 124.096 102.592 10.24 12.48 27.84 14.208 40.256 3.968 11.968-9.6 13.632-27.84 3.968-39.68-36.16-44.8-79.872-81.088-128.064-108.8zM705.152 244.928l42.56-44.672c-73.664-28.992-153.6-44.224-235.904-44.224-196.672 0-380.864 87.872-505.6 239.744-9.6 12.48-7.872 30.08 3.968 40.256 5.632 3.968 11.904 6.208 18.112 6.208 7.936 0 16.448-3.392 22.144-10.176C163.84 292.608 332.096 212.672 511.808 212.672c66.944 0 132.16 10.752 193.344 32.256zM1017.472 395.776c-40.192-49.92-87.296-92.416-139.456-126.976l-39.68 41.344C889.408 343.04 935.36 383.808 973.888 432c9.6 11.904 27.776 13.568 39.68 3.968 11.84-10.176 14.144-27.712 3.904-40.192zM937.408 104.512c-11.328-10.944-29.312-10.496-40.064 0.832L179.008 854.72c-10.816 11.328-10.496 29.248 0.896 40.064 5.44 5.312 12.48 7.872 19.584 7.872 7.488 0 14.848-2.88 20.416-8.704L938.24 144.576c10.88-11.328 10.496-29.248-0.832-40.064z"></path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "error", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    verify: {
-      code: -405,
-      msg: "触发安全验证",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-					<path 
-						fill="currentColor"
-						d="M514.389 1005.60899999c-269.967 0-489.59499999-219.642-489.595-489.59499999S244.42199999 26.405 514.389 26.405 1003.984 246.047 1003.984 516s-219.62800001 489.60899999-489.595 489.60900001z m0-938.24399999C267.00400001 67.365 65.754 268.615 65.754 516s201.264 448.63499999 448.635 448.635S963.024 763.385 963.024 516 761.774 67.365 514.389 67.365z" p-id="9895"></path><path d="M245.993 621.56800001c41.014-8.138 86.112-18.03600001 135.264-29.71000001-0.355 14.145-0.177 26.69199999 0.532 37.65499999-40.318 8.493-82.93 18.92400001-127.836 31.29400001l-7.959-39.23900001z m78.506-261.50200001l-12.206 145.872h53.57500001l13.78999998-178.763H259.249v-36.073h160.727l-16.438 214.821h33.423c-2.471 74.61499999-4.779 135.973-6.895 184.06100002-1.065 53.754-24.399 80.623-70.01399999 80.62299998-19.101 0-41.547-0.53200001-67.36500001-1.598-1.775-13.079-4.06799999-27.047-6.895-41.902 25.46300001 3.181 48.087 4.779 67.898 4.779 24.753 0 37.834-15.033 39.253-45.084 2.11599999-38.898 3.891-87.163 5.31099998-144.807H270.951l16.971-181.945h36.577z m309.248-98.659l-10.076 16.971c42.789 76.03500001 95.833 131.373 159.13 166.025-11.318 14.145-20.685 26.528-28.112 37.13699999-62.231-45.971-112.981-101.30799999-152.235-166.02499998-36.073 64.006-86.466 121.474-151.17000001 172.38699999-6.363-9.18799999-15.21-20.33-26.52799998-33.423 70.369-48.797 124.30000001-113.158 161.77799999-193.086h47.213zM441.194 718.111h191.488c25.46300001-62.942 48.087-128.723 67.89800001-197.318l40.31799999 12.725c-20.862 63.297-42.96699999 124.832-66.301 184.593h93.361v36.60499999H441.19300001v-36.60499999z m27.047-169.73900001l37.137-11.67399999c17.32599998 50.217 31.82600002 94.945 43.5 134.198l-39.253 13.258c-11.674-45.261-25.46300001-90.522-41.383-135.78200001z m27.06099999-91.76399999h218.53500001v36.605H495.30200001v-36.605z m64.17100001 67.885l37.655-10.076c14.854 53.043 27.047 99.369 36.605 138.977l-38.72099999 11.141c-10.254-48.797-22.091-95.477-35.53900001-140.04300001z">
-					</path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "verify", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    failed: {
-      code: 0,
-      msg: "已失效",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-					<path
-						fill="currentColor"
-						d="M549.044706 512l166.189176-166.249412a26.383059 26.383059 0 0 0 0-36.98447 26.383059 26.383059 0 0 0-37.044706 0L512 475.015529l-166.249412-166.249411a26.383059 26.383059 0 0 0-36.98447 0 26.383059 26.383059 0 0 0 0 37.044706L475.015529 512l-166.249411 166.249412a26.383059 26.383059 0 0 0 0 36.98447 26.383059 26.383059 0 0 0 37.044706 0L512 548.984471l166.249412 166.249411a26.383059 26.383059 0 0 0 36.98447 0 26.383059 26.383059 0 0 0 0-37.044706L548.984471 512zM512 1024a512 512 0 1 1 0-1024 512 512 0 0 1 0 1024z"></path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "failed", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    needAccessCode: {
-      code: 201,
-      msg: "需要提取码",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-					<path
-					fill="currentColor"
-					d="M757.810429 373.751333 325.645708 373.751333l0-83.895759c0-103.694687 81.507362-184.922686 185.559183-184.922686 78.121242 0 146.053424 46.74565 173.062568 119.090329 3.865028 10.352789 15.384385 15.609513 25.742291 11.746532 10.351766-3.866051 15.609513-15.390525 11.744485-25.742291C688.844707 121.877815 606.198405 64.918545 511.204891 64.918545c-61.918211 0-119.246895 23.662933-161.423483 66.63156-41.3692 42.142819-64.151066 98.363262-64.151066 158.305469l0 83.895759-20.007683 0c-60.774155 0-110.042255 49.267077-110.042255 110.042255l0 366.139981c0 60.774155 49.267077 110.042255 110.042255 110.042255l492.187769 0c60.775178 0 110.042255-49.267077 110.042255-110.042255L867.852684 483.793588C867.852684 423.01841 818.585607 373.751333 757.810429 373.751333zM827.837318 849.933569c0 38.674834-31.352055 70.02689-70.02689 70.02689L265.62266 919.960459c-38.674834 0-70.02689-31.352055-70.02689-70.02689L195.59577 483.793588c0-38.674834 31.352055-70.02689 70.02689-70.02689l492.187769 0c38.674834 0 70.02689 31.352055 70.02689 70.02689L827.837318 849.933569z"></path>
-					<path
-					fill="currentColor"
-					d="M509.715981 583.832002c-11.048637 0-20.007683 8.959046-20.007683 20.007683l0 110.042255c0 11.048637 8.958022 20.007683 20.007683 20.007683s20.007683-8.958022 20.007683-20.007683L529.723663 603.839685C529.723663 592.790024 520.765641 583.832002 509.715981 583.832002z"></path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "needAccessCode", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    partialViolation: {
-      code: 202,
-      msg: "存在部分违规文件",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-					<path 
-					fill="currentColor"
-					d="M954.963 810.267L543.112 96.919c-14.07-24.37-49.245-24.37-63.315 0L67.945 810.267c-14.07 24.37 3.518 54.832 31.657 54.832h823.703c28.141 0 45.728-30.463 31.658-54.832zM476.699 306.55c0-19.115 15.64-34.755 34.755-34.755 19.115 0 34.755 15.64 34.755 34.755v281.817c0 19.115-15.64 34.755-34.755 34.755-19.115 0-34.755-15.64-34.755-34.755V306.55z m34.755 445.293c-23.198 0-42.004-18.806-42.004-42.004s18.806-42.004 42.004-42.004c23.198 0 42.004 18.806 42.004 42.004s-18.806 42.004-42.004 42.004z"></path>
-				</svg>`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "partial-violation", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-    unknown: {
-      code: -200,
-      msg: "未知检查情况",
-      setIcon($el) {
-        domUtils.html(
-          $el,
-          `
-				<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
-					<path
-					fill="currentColor"
-					d="M512.473172 1023.995242A511.814852 511.814852 0 0 1 313.545134 40.351073a512.244696 512.244696 0 0 1 398.855715 943.658633 508.815937 508.815937 0 0 1-199.927677 39.985536z m0-943.658634C274.559237 80.336608 80.629391 274.266455 80.629391 512.18039s193.929846 431.843781 431.843781 431.843781 431.843781-193.929846 431.843781-431.843781S751.386745 80.336608 512.473172 80.336608z"></path>
-					<path
-					fill="currentColor"
-					d="M506.475342 716.10662a39.985535 39.985535 0 0 1-39.985536-39.985535v-76.972156c0-79.971071 64.976495-144.947566 144.947566-144.947565a77.971794 77.971794 0 0 0 0-155.943588H445.4974a56.979388 56.979388 0 0 0-56.979387 56.979388 39.985535 39.985535 0 0 1-79.971071 0c0-74.972879 60.977941-136.950458 136.950458-136.950459h164.940333c86.968539 0 157.942864 70.974325 157.942865 157.942865s-69.974687 157.942864-157.942865 157.942864a64.976495 64.976495 0 0 0-64.976494 64.976495v76.972156a39.985535 39.985535 0 0 1-38.985897 39.985535zM505.475703 742.097218a48.982281 48.982281 0 1 0 48.982281 48.982281 48.982281 48.982281 0 0 0-48.982281-48.982281z"></path>
-				</svg>
-				`
-        );
-      },
-      setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid($el, "unknown", msg ?? this.msg);
-        this.setIcon($el);
-        NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
-      },
-    },
-  };
-  const NetDiskAuthorization_Lanzouyx = function () {
-    return;
-  };
-  const NetDiskAuthorization = {
-    init() {
-      Object.keys(NetDiskAuthorization.netDisk).forEach((keyName) => {
-        this.netDisk[keyName]();
-      });
-    },
-    netDisk: {
-      _123pan: NetDiskAuthorization_123pan,
-      lanzouyx: NetDiskAuthorization_Lanzouyx,
-      feijipan: NetDiskAuthorization_feijipan,
     },
   };
   const NetDiskRequire = {
@@ -16649,6 +16739,7 @@
     },
     getBindContext(rule) {
       return {
+        subscribeUUID: rule.subscribeUUID,
         rule,
         NetDiskRequire,
         CryptoJS: Cryptojs,
@@ -16659,6 +16750,15 @@
         unsafeWindow: _unsafeWindow,
         NetDiskCheckLinkValidity,
         NetDiskCheckLinkValidityStatus,
+        NetDiskFilterScheme,
+        NetDiskView: {
+          showOneFileView: NetDiskView.$inst.linearChainDialogView.oneFile.bind(
+            NetDiskView.$inst.linearChainDialogView
+          ),
+          showMoreFileView: NetDiskView.$inst.linearChainDialogView.moreFile.bind(
+            NetDiskView.$inst.linearChainDialogView
+          ),
+        },
         log,
         Qmsg,
         pops: __pops__,
@@ -16846,6 +16946,7 @@
               default_value = selectData[0].value;
             }
             this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), default_value);
+            netDiskRuleConfig.setting.configurationInterface.function.linkClickMode = data;
           }
           if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
             this.initDefaultValue(
@@ -16928,22 +17029,37 @@
           let ruleIcon = userRuleItemConfig.icon;
           NetDiskView.$inst.icon.addIcon(ruleKey, ruleIcon);
         }
-        const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+        const toAsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+        const toFunction = Object.getPrototypeOf(function () {}).constructor;
         if (typeof userRuleItemConfig.checkLinkValidityFunction === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
             Reflect.set(NetDiskCheckLinkValidity.ruleCheckValidFunction, ruleKey, {
-              init: new AsyncFunction("netDiskInfo", userRuleItemConfig.checkLinkValidityFunction).bind(context),
+              init: new toAsyncFunction("netDiskInfo", userRuleItemConfig.checkLinkValidityFunction).bind(context),
             });
+          } catch (error) {
+            log.error(error);
+          }
+        }
+        if (typeof userRuleItemConfig.accessCodeHandler === "string") {
+          try {
+            const context = this.getBindContext(userRuleItemConfig);
+            Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
+            NetDiskHandlerAccessCodeRule[ruleKey] = new toAsyncFunction(
+              userRuleItemConfig.accessCodeHandler,
+              "netDiskInfo",
+              "handlerConfig",
+              "accessCode"
+            ).bind(context);
           } catch (error) {
             log.error(error);
           }
         }
         if (typeof userRuleItemConfig.AuthorizationFunction === "string") {
           try {
-            let context = this.getBindContext(userRuleItemConfig);
+            const context = this.getBindContext(userRuleItemConfig);
             Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
-            NetDiskAuthorization.netDisk[ruleKey] = new AsyncFunction(userRuleItemConfig.AuthorizationFunction).bind(
+            NetDiskAuthorizationRule[ruleKey] = new toAsyncFunction(userRuleItemConfig.AuthorizationFunction).bind(
               context
             );
           } catch (error) {
@@ -16952,9 +17068,9 @@
         }
         if (typeof userRuleItemConfig.AutoFillAccessCodeFunction === "string") {
           try {
-            let context = this.getBindContext(userRuleItemConfig);
+            const context = this.getBindContext(userRuleItemConfig);
             Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
-            NetDiskAutoFillAccessCode.netDisk[ruleKey] = new AsyncFunction(
+            NetDiskAutoFillAccessCodeRule[ruleKey] = new toAsyncFunction(
               "netDiskInfo",
               userRuleItemConfig.AutoFillAccessCodeFunction
             ).bind(context);
@@ -16964,18 +17080,37 @@
         }
         if (typeof userRuleItemConfig.parseFunction === "string") {
           try {
-            let context = this.getBindContext(userRuleItemConfig);
+            const context = this.getBindContext(userRuleItemConfig);
             Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
-            Reflect.set(NetDiskParse.rule, ruleKey, new AsyncFunction(userRuleItemConfig.parseFunction).bind(context));
+            const tofn = new toFunction(userRuleItemConfig.parseFunction).bind(context);
+            const fn = tofn();
+            const target = class Parser extends ParseFileCore {
+              async init(netDiskInfo) {
+                super.init(netDiskInfo);
+                if (typeof fn === "object" && fn != null) {
+                  return await fn.init.bind(context)(netDiskInfo);
+                } else if (typeof fn === "function") {
+                  const __fn__ = new fn(netDiskInfo);
+                  return await __fn__.init.bind(context)(netDiskInfo);
+                } else {
+                  log.error({
+                    parserFunctionResult: fn,
+                    parserFunction: userRuleItemConfig.parseFunction,
+                  });
+                  Qmsg.error("解析函数的返回值的类型错误");
+                }
+              }
+            };
+            Reflect.set(NetDiskParseRule, ruleKey, target);
           } catch (error) {
             log.error(error);
           }
         }
         if (typeof userRuleItemConfig.afterRenderUrlBox === "string") {
           try {
-            let context = this.getBindContext(userRuleItemConfig);
+            const context = this.getBindContext(userRuleItemConfig);
             Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
-            netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
+            netDiskRuleConfig.afterRenderUrlBox = new toAsyncFunction(
               "option",
               userRuleItemConfig.afterRenderUrlBox
             ).bind(context);
@@ -17002,7 +17137,7 @@
       }
     },
     getTemplateRule() {
-      let templateRule = {
+      const templateRule = {
         key: "规则名",
         icon: "图标链接字符串或图片的base64字符串",
         regexp: [
@@ -17026,7 +17161,6 @@
       return templateRule;
     },
     getRulePanelViewOption(quickAddData) {
-      const that = this;
       const addData = () => {
         return quickAddData ?? this.getTemplateRule();
       };
@@ -17039,7 +17173,7 @@
             add: {
               enable: true,
               callback(option) {
-                NetDiskUserRuleUI.show(false, void 0, (rule) => {
+                NetDiskUserRuleUI.show(false, void 0, () => {
                   this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
                 });
                 return false;
@@ -17051,15 +17185,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.setting.enable;
                   },
@@ -17067,7 +17201,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.setting.enable;
                   },
@@ -17077,7 +17211,7 @@
                 {
                   name: "规则名",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.setting.name.match(searchText));
                   },
@@ -17085,7 +17219,7 @@
                 {
                   name: "键",
                   value: "key",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.key.match(searchText));
                   },
@@ -17131,7 +17265,7 @@
             ruleDelete: {
               enable: true,
               deleteCallBack: (data) => {
-                return that.deleteRule(data.key);
+                return this.deleteRule(data.key);
               },
             },
           },
@@ -17223,15 +17357,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.data.enable;
                   },
@@ -17239,7 +17373,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.data.enable;
                   },
@@ -17249,7 +17383,7 @@
                 {
                   name: "标题",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     let flag = false;
                     if (typeof data.data.title === "string") {
@@ -17264,7 +17398,7 @@
                 {
                   name: "订阅地址",
                   value: "url",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.data.url.match(searchText));
                   },
@@ -17305,7 +17439,7 @@
                   getDataItemName(data) {
                     return data.setting.name;
                   },
-                  addData(data) {
+                  addData() {
                     return true;
                   },
                   updateData(data) {
@@ -17321,15 +17455,15 @@
                         {
                           name: "无",
                           value: "",
-                          selectedCallBack(config) {},
-                          filterCallBack(data) {
+                          selectedCallBack() {},
+                          filterCallBack() {
                             return true;
                           },
                         },
                         {
                           name: "已启用",
                           value: "enable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return data.setting.enable;
                           },
@@ -17337,7 +17471,7 @@
                         {
                           name: "未启用",
                           value: "notEnable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return !data.setting.enable;
                           },
@@ -17347,7 +17481,7 @@
                         {
                           name: "规则名",
                           value: "name",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             return Boolean(data.setting.name.match(searchText));
                           },
@@ -17355,7 +17489,7 @@
                         {
                           name: "键",
                           value: "key",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             return Boolean(data.key.match(searchText));
                           },
@@ -17483,7 +17617,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -17536,7 +17670,6 @@
       });
       domUtils.on($exportToSubscribe, "click", (event) => {
         domUtils.preventEvent(event);
-        const that = this;
         $alert.close();
         try {
           const allRule = this.getAllRule();
@@ -17550,9 +17683,9 @@
               get(key, defaultValue) {
                 return data[key] ?? defaultValue;
               },
-              set(key, value) {
+              set: (key, value) => {
                 data[key] = value;
-                NetDiskUserRuleStorageApi.set(that.$data.EXPORT_CONFIG_KEY, data);
+                NetDiskUserRuleStorageApi.set(NetDiskUserRule.$data.EXPORT_CONFIG_KEY, data);
               },
             };
           };
@@ -17591,13 +17724,13 @@
               ok: {
                 enable: true,
                 text: "导出",
-                callback(details, event2) {
+                callback() {
                   exportCallBack();
                 },
               },
               close: {
                 enable: true,
-                callback(details, event2) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -17657,7 +17790,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -17731,7 +17864,9 @@
               }
               continue;
             }
-            parseResult.data && checkedData.push(parseResult.data);
+            if (parseResult.data) {
+              checkedData.push(parseResult.data);
+            }
           }
           const notCheckedRuleCount = data.length - checkedData.length;
           if (notCheckedRuleCount > 0) {
@@ -17757,7 +17892,7 @@
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
+        domUtils.on($input, ["propertychange", "input"], () => {
           if (!$input.files?.length) {
             return;
           }
@@ -17786,13 +17921,13 @@
           btn: {
             close: {
               enable: true,
-              callback(details, event2) {
+              callback(details) {
                 details.close();
               },
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
+              callback: async (eventDetails) => {
                 const url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
@@ -17826,7 +17961,7 @@
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
           const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
@@ -19767,48 +19902,52 @@
   const indexCSS$1 =
     ".pops-folder-list .list-name-text {\n  max-width: 300px;\n}\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\n  max-width: 220px;\n}\n.netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {\n  max-width: unset;\n}\n";
   const NetDiskLinearChainDialogView = {
-    oneFile(fileDetails) {
-      log.success("成功获取单文件直链", fileDetails);
+    oneFile(fileConfig) {
+      log.success("成功获取单文件直链", fileConfig);
+      const folderConfig = {
+        fileName: fileConfig.fileName,
+        fileSize: fileConfig.fileSize,
+        fileType: fileConfig.fileType ?? "",
+        createTime: fileConfig.fileUploadTime || fileConfig.fileLatestTime,
+        latestTime: fileConfig.fileLatestTime || fileConfig.fileUploadTime,
+        isFolder: false,
+        index: 0,
+        async clickEvent() {
+          if (typeof fileConfig.clickCallBack === "function") {
+            const flag = await fileConfig.clickCallBack(fileConfig);
+            if (typeof flag === "boolean" && !flag) {
+              return;
+            }
+          }
+          return {
+            mode: "aBlank",
+            url: fileConfig.downloadUrl,
+          };
+        },
+      };
+      if (typeof fileConfig.clickCallBack !== "function" && utils.isNotNull(fileConfig.downloadUrl)) {
+        folderConfig.clickEvent = {
+          mode: "aBlank",
+          url: fileConfig.downloadUrl,
+        };
+      }
       NetDiskPops.folder(
         {
           title: {
-            text: fileDetails.title,
+            text: fileConfig.title,
           },
-          folder: [
-            {
-              fileName: fileDetails.fileName,
-              fileSize: fileDetails.fileSize,
-              fileType: fileDetails.fileType ?? "",
-              createTime: fileDetails.fileUploadTime || fileDetails.fileLatestTime,
-              latestTime: fileDetails.fileLatestTime || fileDetails.fileUploadTime,
-              isFolder: false,
-              index: 0,
-              async clickEvent() {
-                if (typeof fileDetails.clickCallBack === "function") {
-                  const flag = await fileDetails.clickCallBack(fileDetails);
-                  if (typeof flag === "boolean" && !flag) {
-                    return;
-                  }
-                }
-                return {
-                  autoDownload: true,
-                  mode: "aBlank",
-                  url: fileDetails.downloadUrl,
-                };
-              },
-            },
-          ],
+          folder: [folderConfig],
           btn: {
             ok: {
               text: "下载",
               async callback() {
-                if (typeof fileDetails.clickCallBack === "function") {
-                  const flag = await fileDetails.clickCallBack(fileDetails);
+                if (typeof fileConfig.clickCallBack === "function") {
+                  const flag = await fileConfig.clickCallBack(fileConfig);
                   if (typeof flag === "boolean" && !flag) {
                     return;
                   }
                 }
-                window.open(fileDetails.downloadUrl, "_blank");
+                window.open(fileConfig.downloadUrl, "_blank");
               },
             },
           },
@@ -19818,8 +19957,8 @@
         NetDiskView.$config.viewSizeConfig.oneFileStaticView
       );
     },
-    moreFile(title, data = []) {
-      log.success("文件解析信息", data);
+    moreFile(title, folderConfigList = []) {
+      log.success("文件解析信息", folderConfigList);
       let infoList = [];
       let tempFileInfoList = [];
       let tempFolderInfoList = [];
@@ -19855,7 +19994,7 @@
         }
         return time;
       };
-      data.forEach((item) => {
+      folderConfigList.forEach((item) => {
         if (item.isFolder) {
           tempFolderInfoList.push(item);
         } else {
@@ -21031,7 +21170,7 @@
       let $onlyExportRuleList = $alert.$shadowRoot.querySelector(".btn-control[data-mode='only-export-rule-list']");
       let $exportToSubscribe = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-subscribe']");
       let exportFile = (__fileName__, __data__) => {
-        let blob = new Blob([JSON.stringify(__data__, null, 4)]);
+        let blob = new Blob([CommonUtil.toStr(__data__, 4)]);
         let blobUrl = window.URL.createObjectURL(blob);
         let $a = document.createElement("a");
         $a.href = blobUrl;
@@ -21359,6 +21498,7 @@
     },
     $match: {
       matchedInfo: new Utils.Dictionary(),
+      accessCodeMap: new Utils.Dictionary(),
       blackMatchedInfo: new Utils.Dictionary(),
       tempMatchedInfo: new Utils.Dictionary(),
       matchedInfoRuleKey: new Set(),
@@ -21755,7 +21895,7 @@
         this.#data.currentWaitEnterPressInstanceHandler = null;
         this.#data.currentWaitEnterPressInstanceHandler = () => {
           this.#flag.isWaitPress = false;
-          keyboardListener.removeListen();
+          keyboardListener.off();
           this.#data.currentWaitEnterPressInstanceHandler = null;
         };
       });

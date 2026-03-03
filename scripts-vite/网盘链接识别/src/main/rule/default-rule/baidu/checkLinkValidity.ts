@@ -1,6 +1,6 @@
 import { httpx, utils } from "@/env";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
+import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "../../../handler/check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceInstance = {
@@ -16,11 +16,10 @@ export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceIns
       headers: {
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36`,
         Host: "pan.baidu.com",
         Referer: `https://pan.baidu.com/share/init?surl=${shareCode}&pwd=${accessCode}`,
-        "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
         Origin: "https://pan.baidu.com",
+        "User-Agent": utils.getRandomPCUA(),
       },
       ...NetDiskCheckLinkValidityRequestOption,
     });
@@ -40,6 +39,49 @@ export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceIns
     }
     if (!response.status) {
       if (utils.isNull(responseText)) {
+        // 也可能是分享的文件已被删除（在PC上）
+        // 使用其它方式再验证一下
+        const response = await httpx.get(`https://pan.baidu.com/api/shorturlinfo`, {
+          data: {
+            clienttype: 5,
+            shorturl: netDiskInfo.shareCode,
+            linksource: "",
+            // share
+            // error-new
+            requestSource: "share",
+            web: 5,
+            channel: "chunlei",
+            logid: btoa(String(Date.now() * 10)),
+          },
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/x-www-form-urlencoded",
+            Host: "pan.baidu.com",
+            Referer: url,
+            Origin: "https://pan.baidu.com",
+            "User-Agent": utils.getRandomAndroidUA(),
+          },
+          ...NetDiskCheckLinkValidityRequestOption,
+        });
+        const data = utils.toJSON<{
+          errno: number;
+          show_msg: string;
+          pwd?: string;
+        }>(response.data.responseText);
+        if (data.errno === 140) {
+          // 啊哦，链接出错了
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            msg: typeof data.show_msg === "string" ? data.show_msg : NetDiskCheckLinkValidityStatus.failed.msg,
+            data: response,
+          };
+        } else if (data.errno === -3 && data.pwd == null) {
+          // 缺少密码
+          // return {
+          //   ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          //   data: response,
+          // };
+        }
         return {
           ...NetDiskCheckLinkValidityStatus.networkError,
           data: response,

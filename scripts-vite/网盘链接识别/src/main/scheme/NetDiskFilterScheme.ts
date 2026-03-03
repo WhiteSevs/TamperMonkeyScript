@@ -1,6 +1,6 @@
 import { utils } from "@/env";
-import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
+import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 
 type UriOption = {
   /** 包名 @example "idm.internet.download.manager.plus" */
@@ -25,16 +25,16 @@ export const NetDiskFilterScheme = {
    */
   parseDataToSchemeUri(key: string, intentData: string): string {
     /** 是否启用 */
-    let isEnable = this.isEnableForward(key);
+    let isEnable = NetDiskFilterScheme.isEnableForward(key);
     if (!isEnable) {
       return intentData;
     }
     /** 转发的scheme */
     let schemeUri = NetDiskRuleData.schemeUri.uri(key);
     if (utils.isNull(schemeUri)) {
-      schemeUri = this.getSchemeUri(this.get1DMSchemeUriOption(intentData));
+      schemeUri = NetDiskFilterScheme.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
     }
-    if (schemeUri.startsWith(this.protocol)) {
+    if (schemeUri.startsWith(NetDiskFilterScheme.protocol)) {
       intentData = intentData.replace(/&/g, "{-and-}");
       intentData = intentData.replace(/#/g, "{-number-}");
     }
@@ -56,21 +56,21 @@ export const NetDiskFilterScheme = {
    * @param key
    */
   isForwardDownloadLink(key: string) {
-    return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
+    return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
   },
   /**
    * 是否转发新标签页的链接
    * @param key
    */
   isForwardBlankLink(key: string) {
-    return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
+    return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
   },
   /**
    * 获取转发的uri链接
    * @param option
    */
   getSchemeUri(option: UriOption) {
-    return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(option)}`;
+    return `${NetDiskFilterScheme.protocol}://${NetDiskFilterScheme.pathname}?${utils.toSearchParamsStr(option)}`;
   },
   /**
    * 获取1dm的intent的配置

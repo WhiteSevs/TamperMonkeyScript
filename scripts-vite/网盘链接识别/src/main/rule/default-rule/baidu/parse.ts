@@ -3,7 +3,7 @@ import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMod
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 
 export class NetDiskParse_Baidu extends ParseFileCore {
   /**

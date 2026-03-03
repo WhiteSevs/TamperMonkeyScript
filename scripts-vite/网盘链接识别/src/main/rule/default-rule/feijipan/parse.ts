@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types";
@@ -188,14 +188,12 @@ export class NetDiskParse_feijipan extends ParseFileCore {
             const checkFlag = this.checkCanDownloadFile(item.fileSize);
             if (checkFlag) {
               return {
-                url: downloadUrl,
-                autoDownload: true,
                 mode: "aBlank",
+                url: downloadUrl,
               };
             } else {
               return {
                 url: downloadUrl,
-                autoDownload: false,
               };
             }
           },

@@ -945,8 +945,8 @@ export const WebsiteRule = {
   },
   /**
    * 根据url获取匹配的规则
-   * @param [filterUnEnable=true] 是否去除未启用的规则
-   * @param [url=window.location.href] 需要匹配的url
+   * @param [filterUnEnable=true] （默认true）是否去除未启用的规则
+   * @param [url=window.location.href] （默认当前url）需要匹配的url
    */
   getUrlMatchedRule(filterUnEnable = true, url: string = window.location.href) {
     let allRule = this.getAllRule();

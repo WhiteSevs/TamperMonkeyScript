@@ -4,7 +4,7 @@
  * 通过this.xxx访问
  */
 declare interface NetDiskUserCustomRuleContext {
-  subscribeUUID: string | null;
+  subscribeUUID: string | null | undefined;
   /**
    * 当前的规则
    */
@@ -43,6 +43,24 @@ declare interface NetDiskUserCustomRuleContext {
    * 用于返回校验状态
    */
   NetDiskCheckLinkValidity: object;
+  /**
+   * 校验状态
+   */
+  NetDiskCheckLinkValidityStatus: Record<string, NetDiskCheckLinkValidityStatusInstance>;
+  /**
+   * scheme过滤
+   */
+  NetDiskFilterScheme: object;
+  /**
+   * 视图显示
+   */
+  NetDiskView: {
+    showOneFileView(fileDetails: NetDiskOneFileConfig): void;
+    showMoreFileView(
+      title: string,
+      data?: import("@whitesev/pops/dist/types/src/components/folder/types/index").PopsFolderDataConfig[]
+    ): void;
+  };
   /**
    * 日志输出
    */
@@ -219,7 +237,7 @@ declare interface NetDiskUserCustomRuleSetting {
    * 【功能】-【新标签页打开】
    *
    * 键: `${key}-open-enable`
-   * @deprecated 代替 linkClickMode
+   * @deprecated 请在`linkClickMode`中配置
    */
   isBlank?: boolean;
   /**
@@ -331,12 +349,26 @@ declare interface NetDiskUserCustomRule {
    */
   setting: NetDiskUserCustomRuleSetting;
   /**
+   * （可选）处理分享码
+   *
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
+   *
+   * + `参数1`: `netDiskInfo`: [NetDiskCheckLinkValidityEntranceInstance](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCheckLinkValidity.d.ts#L49-L76)
+   * + `参数2`: `handlerConfig`: [NetDiskHandlerAccessCodeOption](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskHandler.d.ts#L17-L33)
+   * + `参数3`: `accessCode`: [AccessCodeType](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDisk.d.ts#L55-L58)
+   *
+   * @returns 返回类型为[AccessCodeType](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDisk.d.ts#L55-L58)
+   * @example
+   *
+   */
+  accessCodeHandler?: string;
+  /**
    * （可选）验证链接有效性的函数
-   * + `参数`: netDiskInfo: [NetDiskCheckLinkValidityEntranceInstance](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCheckLinkValidity.d.ts#L49-L76)
+   * + `参数1`: `netDiskInfo`: [NetDiskCheckLinkValidityEntranceInstance](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCheckLinkValidity.d.ts#L49-L76)
    *
-   * `this`是`NetDiskUserCustomRuleContext`对象:
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
    *
-   * `@returns`返回值必须是NetDiskCheckLinkValidityStatus内的任意属性值
+   * @returns 返回值必须是`NetDiskCheckLinkValidityStatus`内的任意属性值
    * 其中包括
    * + this.NetDiskCheckLinkValidityStatus.loading
    * + this.NetDiskCheckLinkValidityStatus.success
@@ -345,7 +377,7 @@ declare interface NetDiskUserCustomRule {
    * + this.NetDiskCheckLinkValidityStatus.needAccessCode
    * + this.NetDiskCheckLinkValidityStatus.unknown
    * @example
-   * let response = await this.httpx.get("https://.../...",{
+   * const response = await this.httpx.get("https://.../...",{
    *     headers: {
    *         "User-Agent": this.utils.getRandomPCUA(),
    *     },
@@ -355,7 +387,7 @@ declare interface NetDiskUserCustomRule {
    *     // 校验失败
    *     return this.NetDiskCheckLinkValidityStatus.failed;
    * }
-   * let responseText = response.data.responseText;
+   * const responseText = response.data.responseText;
    * if(responseText.includes("请输入访问码")){
    *      return {
    *          ...this.NetDiskCheckLinkValidityStatus.needAccessCode,
@@ -377,6 +409,9 @@ declare interface NetDiskUserCustomRule {
   checkLinkValidityFunction?: string;
   /**
    * （可选）鉴权函数，运行于页面加载完毕，可在这里来获取需要的值并存储
+   *
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
+   *
    * @example
    * if(window.location.hostname === "pan.baidu.com"){
    *     if(typeof this.unsafeWindow.localStorage.getItem("xxxxxx") === "string"){
@@ -387,9 +422,12 @@ declare interface NetDiskUserCustomRule {
   AuthorizationFunction?: string;
   /**
    * （可选）自动添加访问码函数
+   *
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
+   *
    * 通过NetDiskParse.blank函数来打开网盘链接会触发该函数执行
    * 会判断条件，需要满足=>key相同、accessCode不为空、开启自动输入访问码功能、网址中存在该shareCode
-   * + `参数`: netDiskInfo: [NetDiskAutoFillAccessCodeOption](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskAutoFillAccessCode.d.ts)
+   * + `参数1`: `netDiskInfo`: [NetDiskAutoFillAccessCodeOption](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskAutoFillAccessCode.d.ts)
    * @example
    * if (window.location.hostname === "pan.baidu.com") {
    *   this.DOMUtils.ready(()=>{
@@ -400,7 +438,7 @@ declare interface NetDiskUserCustomRule {
    *		    }
    *          $input && ($input.value = netDiskInfo.accessCode);
    *          this.Qmsg.success("自动填充访问码");
-   *          let $submit = document.querySelector("button[type='submit']");
+   *          const $submit = document.querySelector("button[type='submit']");
    *          if(!$submit){
    *              this.Qmsg.error("提交按钮不存在");
    *              return;
@@ -413,23 +451,42 @@ declare interface NetDiskUserCustomRule {
   AutoFillAccessCodeFunction?: string;
   /**
    * （可选）解析网盘链接函数
-   * 需要强制返回this
-   * 入口函数为`init`
-   * + `参数`：netDiskInfo: [ParseFileInitConfig](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskParseFile.d.ts)
+   *
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
+   *
+   * 入口函数为`init`，执行时会自动调用`.init()`并传入参数
+   * + `参数1`: `netDiskInfo`: [ParseFileInitConfig](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskParseFile.d.ts)
+   * @returns 返回值类型为对象/函数，必须内部有`.init()`函数，该对象/函数内部会强制赋值`ParseFileInitConfig`内的属性
    * @example
-   * let that = this;
-   * this.init = async function(netDiskInfo){
-   *      console.log(netDiskInfo);
+   * // 这里不建议用class，而是使用下面的函数示例
+   * class Parser{
+   *   async init(netDiskInfo){
+   *     // 这里的this并不是Parser，而是变成了NetDiskUserCustomRuleContext对象
+   *     console.log(this, netDiskInfo);
+   *   }
    * }
-   * return this;
+   * return Parser;
+   * @example
+   * const parser = {
+   *   async init(netDiskInfo){
+   *     // 这里的this指向变成了NetDiskUserCustomRuleContext对象
+   *     console.log(this, netDiskInfo);
+   *     const fileInfo = await parser.getFile();
+   *   }
+   *   async getFile(){
+   *     ...
+   *   }
+   * }
+   * return parser;
    */
   parseFunction?: string;
   /**
    * （可选）渲染后的链接元素触发的回调
    *
-   * + `参数1`：`option: NetDiskRuleAfterRenderUrlBoxOption`
-   * @example
+   *  `this`是[NetDiskUserCustomRuleContext](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCustomRule.d.ts#L1-L71)对象
    *
+   * + `参数1`: `option`: [NetDiskRuleAfterRenderUrlBoxOption](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskRule.d.ts#L119-L152)
+   * @example
    * this.DOMUtils.on(option.$urlBox, "click", (evt) => {
    *     this.DOMUtils.preventEvent(evt);
    * 	   // ...

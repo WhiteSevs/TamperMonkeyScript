@@ -1,5 +1,5 @@
-import { cookieManager, log, utils } from "@/env";
-import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { cookieManager, log } from "@/env";
+import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskRuleData } from "../../../data/NetDiskRuleData";
 import { NetDiskRule_feijipan } from "./rule";
 

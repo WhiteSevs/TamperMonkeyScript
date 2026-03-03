@@ -3,11 +3,11 @@ import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
 import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
 import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
+import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
 import {
   NetDiskCheckLinkValidity,
   type NetDiskCheckLinkValidityInfoConfig,
-} from "../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+} from "../../handler/check-valid/NetDiskCheckLinkValidity";
 import { NetDisk } from "../../NetDisk";
 import { NetDiskPops } from "../../pops/NetDiskPops";
 import { NetDiskView } from "../NetDiskView";
@@ -550,7 +550,7 @@ export const NetDiskLinkView = {
       const dataItem = data[currentIndex];
 
       const { ruleKeyName, netDiskDictData: netDiskData, shareCode } = dataItem;
-      let uiLink = NetDiskRegularExtractor.extractShowLink({
+      const uiLink = NetDiskRegularExtractor.extractShowLink({
         ruleKeyName: ruleKeyName,
         ruleIndex: netDiskData.ruleIndex!,
         shareCode: shareCode,
@@ -561,7 +561,7 @@ export const NetDiskLinkView = {
       if (!uiLink) {
         continue;
       }
-      let boxViewInfo = this.createBoxItemInfo(
+      const boxViewInfo = this.createBoxItemInfo(
         NetDiskView.$inst.icon.getIcon(ruleKeyName),
         ruleKeyName,
         netDiskData["ruleIndex"]!,
@@ -724,7 +724,7 @@ export const NetDiskLinkView = {
   handleBoxAttrRuleInfo(data: LinkViewRuleData, $el: HTMLElement | HTMLElement[]) {
     let ruleInfoJSON = this.createBoxAttrRuleInfo(data);
     for (const key in ruleInfoJSON) {
-      const value = ruleInfoJSON[key as keyof typeof ruleInfoJSON]!;
+      const value = ruleInfoJSON[key as keyof typeof ruleInfoJSON] ?? "";
       if (Array.isArray($el)) {
         $el.forEach(($ele) => {
           $ele.setAttribute(key, value.toString());

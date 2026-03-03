@@ -5,7 +5,7 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
-import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 
 export class NetDiskParse_UC extends ParseFileCore {
@@ -445,7 +445,6 @@ export class NetDiskParse_UC extends ParseFileCore {
                 this.downloadFile(item.file_name, fileDownloadUrl);
               } else {
                 return {
-                  autoDownload: true,
                   mode: "aBlank",
                   url: fileDownloadUrl,
                 };

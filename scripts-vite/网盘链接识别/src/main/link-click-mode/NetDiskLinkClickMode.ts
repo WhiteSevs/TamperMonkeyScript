@@ -1,14 +1,15 @@
-import { $, DOMUtils, httpx, log, utils } from "@/env";
-import { NetDiskParse } from "../parse/NetDiskParse";
-import Qmsg from "qmsg";
-import { NetDiskAutoFillAccessCode } from "../auto-fill-accesscode/NetDiskAutoFillAccessCode";
-import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
-import { NetDiskRuleData } from "../data/NetDiskRuleData";
-import { NetDisk } from "../NetDisk";
-import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
+import { $, DOMUtils, log, utils } from "@/env";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
+import Qmsg from "qmsg";
 import { GM_openInTab } from "ViteGM";
-import type { NetDiskDebugHandlerConfig } from "../debug/NetDiskDebug";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
+import type { NetDiskDebugHandlerConfig } from "@/main/debug/NetDiskDebug";
+import { NetDisk } from "@/main/NetDisk";
+import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
+import { NetDiskAutoFillAccessCode } from "@/main/handler/auto-fill-accesscode/NetDiskAutoFillAccessCode";
+import { NetDiskParseRule } from "@/main/handler/parse/NetDiskParse";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const NetDiskLinkClickModeUtils = {
   /**
@@ -81,7 +82,7 @@ export const NetDiskLinkClickModeUtils = {
         msg: [
           `正则: paramMatch`,
           `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-          `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+          `参数: ` + CommonUtil.toStr(replaceParamData, 4),
           `结果: ${blankUrl}`,
         ],
       });
@@ -158,7 +159,7 @@ export const NetDiskLinkClickModeUtils = {
         msg: [
           `正则: paramMatch`,
           `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-          `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+          `参数: ` + CommonUtil.toStr(replaceParamData, 4),
           `结果: ${copyUrl}`,
         ],
       });
@@ -217,22 +218,21 @@ export const NetDiskLinkClickMode = {
    * @param accessCode 提取码
    */
   async parseFile(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
-    log.success(`链接解析：`, JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
-    const ParseInst = NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule];
-    if (ParseInst) {
-      const parseInst = new ParseInst();
+    log.success(`链接解析：`, CommonUtil.toStr({ ruleKeyName, ruleIndex, shareCode, accessCode }));
+    const ParserInst = NetDiskParseRule[ruleKeyName as keyof typeof NetDiskParseRule];
+    if (ParserInst) {
       const netDiskInfo: ParseFileInitConfig = {
         ruleIndex,
         shareCode,
         accessCode: accessCode ?? "",
       };
+      const parser = new ParserInst();
       // 参数初始化
-      parseInst.ruleIndex = netDiskInfo.ruleIndex;
-      parseInst.shareCode = netDiskInfo.shareCode;
-      parseInst.accessCode = netDiskInfo.accessCode;
+      parser.ruleIndex = netDiskInfo.ruleIndex;
+      parser.shareCode = netDiskInfo.shareCode;
+      parser.accessCode = netDiskInfo.accessCode;
       log.info("文件解析：", netDiskInfo);
-
-      await parseInst.init(netDiskInfo);
+      await parser.init(netDiskInfo);
     } else {
       log.error(`${ruleKeyName} 未配置解析函数`, [ruleKeyName, ruleIndex, shareCode, accessCode]);
       Qmsg.error("该链接未配置解析函数");
@@ -257,7 +257,7 @@ export const NetDiskLinkClickMode = {
   ) {
     log.success(
       `新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
-      JSON.stringify({ url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd }, null, 2)
+      CommonUtil.toStr({ url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd })
     );
     if (NetDiskAutoFillAccessCode.$data.enable) {
       // 自动填充访问码
@@ -322,7 +322,7 @@ export const NetDiskLinkClickMode = {
    * @param accessCode
    */
   openBlankWithScheme(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
-    log.success("scheme新标签页打开", JSON.stringify({ ruleKeyName, ruleIndex, shareCode, accessCode }, null, 2));
+    log.success("scheme新标签页打开", CommonUtil.toStr({ ruleKeyName, ruleIndex, shareCode, accessCode }));
     let url = NetDiskLinkClickModeUtils.getBlankUrl({
       ruleKeyName,
       ruleIndex,

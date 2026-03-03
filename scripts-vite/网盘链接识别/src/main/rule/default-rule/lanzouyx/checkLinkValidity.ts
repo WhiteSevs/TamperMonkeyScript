@@ -1,12 +1,12 @@
 import { httpx, log, utils } from "@/env";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidityRequestOption } from "../../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskParse } from "../../../parse/NetDiskParse";
+import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskCheckLinkValidityRequestOption } from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskParseRule } from "@/main/handler/parse/NetDiskParse";
 
 export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-    const LanZouYX = new NetDiskParse.rule.lanzouyx();
+    const LanZouYX = new NetDiskParseRule.lanzouyx();
     LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
     const timestamp = LanZouYX.getEncodeTimeStamp();
     const uuid = LanZouYX.getEncodeUUID();

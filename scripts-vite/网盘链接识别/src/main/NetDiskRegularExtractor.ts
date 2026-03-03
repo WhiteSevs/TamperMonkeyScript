@@ -1,31 +1,21 @@
 import { DEBUG, log, utils } from "@/env";
-import type { NetDiskDebugHandlerConfig } from "./debug/NetDiskDebug";
-import { NetDisk } from "./NetDisk";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
-import { NetDiskAutoFillAccessCode } from "./auto-fill-accesscode/NetDiskAutoFillAccessCode";
+import Qmsg from "qmsg";
 import { NetDiskGlobalData } from "./data/NetDiskGlobalData";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
-import { WebsiteRule } from "./website-rule/WebsiteRule";
-import Qmsg from "qmsg";
+import { NetDiskHandlerAccessCode } from "./handler/accesscode-handler/NetDiskHandlerAccessCode";
+import { NetDiskAutoFillAccessCode } from "./handler/auto-fill-accesscode/NetDiskAutoFillAccessCode";
+import { NetDisk } from "./NetDisk";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
+import { WebsiteRule } from "./website-rule/WebsiteRule";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const NetDiskRegularExtractor = {
   /**
    * 对传入的url进行处理，返回shareCode
    * @param handlerConfig 配置
    */
-  extractShareCode(handlerConfig: {
-    /** 规则键名 */
-    ruleKeyName: string;
-    /** 规则的索引下标 */
-    ruleIndex: number;
-    /** 正在进行匹配的文本 */
-    matchText: string;
-    /**
-     * （可选）当前调试的配置
-     */
-    debugConfig?: NetDiskDebugHandlerConfig;
-  }) {
+  extractShareCode(handlerConfig: NetDiskHandlerShareCodeOption) {
     const handler = () => {
       // 当前执行的规则
       const ruleConfig =
@@ -36,7 +26,7 @@ export const NetDiskRegularExtractor = {
         ?.filter((item) => utils.isNotNull(item));
       handlerConfig.debugConfig?.logCallBack?.({
         status: true,
-        msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", JSON.stringify(shareCodeMatch)],
+        msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", CommonUtil.toStr(shareCodeMatch)],
       });
       if (utils.isNull(shareCodeMatch)) {
         if (DEBUG) {
@@ -156,20 +146,7 @@ export const NetDiskRegularExtractor = {
    * @param handlerConfig 配置
    * @returns "xxxx" || ""
    */
-  extractAccessCode(handlerConfig: {
-    /** 规则键名 */
-    ruleKeyName: string;
-    /** 规则的索引下标 */
-    ruleIndex: number;
-    /** 获取到的访问码 */
-    shareCode: string;
-    /** 正在进行匹配的文本 */
-    matchText: string;
-    /**
-     * （可选）当前调试的配置
-     */
-    debugConfig?: NetDiskDebugHandlerConfig;
-  }) {
+  extractAccessCode(handlerConfig: NetDiskHandlerAccessCodeOption) {
     let accessCode: AccessCodeType;
     /**
      * 处理函数
@@ -194,7 +171,7 @@ export const NetDiskRegularExtractor = {
           `正则: checkAccessCode`,
           "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
           `结果: `,
-          JSON.stringify(accessCodeMatch),
+          CommonUtil.toStr(accessCodeMatch),
         ],
       });
       if (accessCodeMatch) {
@@ -221,7 +198,7 @@ export const NetDiskRegularExtractor = {
             `正则: accessCode`,
             "作用: 用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码",
             `结果: `,
-            JSON.stringify(accessCodeMatchArray),
+            CommonUtil.toStr(accessCodeMatchArray),
           ],
         });
         if (utils.isNull(accessCodeMatchArray)) {
@@ -311,7 +288,7 @@ export const NetDiskRegularExtractor = {
       return __accessCode__;
     };
     /**
-     * 处理函数（从自动填入访问码中处理）
+     * 处理函数（从自动填入访问码存储的数据中获取）
      */
     const handlerByAutoFill = (__accessCode__: AccessCodeType) => {
       if (utils.isNotNull(__accessCode__)) {
@@ -320,7 +297,8 @@ export const NetDiskRegularExtractor = {
       }
       const autoFilleDataList = NetDiskAutoFillAccessCode.getValue();
       const findValue = autoFilleDataList.find((it) => {
-        return it.ruleKeyName === handlerConfig.ruleKeyName;
+        // 规则相同且分享码相同
+        return it.ruleKeyName === handlerConfig.ruleKeyName && it.shareCode === handlerConfig.shareCode;
       });
       if (findValue) {
         handlerConfig.debugConfig?.logCallBack?.({
@@ -333,9 +311,9 @@ export const NetDiskRegularExtractor = {
       }
     };
     /**
-     * 处理函数（从自定义访问码规则中处理）
+     * 处理函数（从规则中获取自定义访问码）
      */
-    const handlerByUserRule = (__accessCode__: AccessCodeType) => {
+    const handlerByUserRuleCustomAccessCode = (__accessCode__: AccessCodeType) => {
       // 当前执行正则匹配的规则
       const ruleConfigList = WebsiteRule.getUrlMatchedRule();
 
@@ -347,7 +325,7 @@ export const NetDiskRegularExtractor = {
           ruleData,
           WebsiteRuleDataKey.features.customAccessCode(handlerConfig.ruleKeyName)
         );
-        /** 是否启用 */
+        /** 判断是否启用自定义访问码 */
         const customAccessCodeEnable = Reflect.get(
           ruleData,
           WebsiteRuleDataKey.features.customAccessCodeEnable(handlerConfig.ruleKeyName)
@@ -370,7 +348,8 @@ export const NetDiskRegularExtractor = {
      */
     const handlerOhter = (__accessCode__: AccessCodeType) => {
       if (__accessCode__ === handlerConfig.shareCode) {
-        // 访问码和分享码相同，则不处理
+        // 访问码和分享码相同
+        // 置空
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: "最终结果判定访问码为空，因为分享码和提取到的访问码相同: " + __accessCode__,
@@ -381,8 +360,9 @@ export const NetDiskRegularExtractor = {
     };
     accessCode = handler(accessCode);
     accessCode = handlerByAutoFill(accessCode);
-    accessCode = handlerByUserRule(accessCode);
+    accessCode = handlerByUserRuleCustomAccessCode(accessCode);
     accessCode = handlerOhter(accessCode);
+    accessCode = NetDiskHandlerAccessCode.handler(handlerConfig, accessCode);
 
     return accessCode;
   },
@@ -390,24 +370,7 @@ export const NetDiskRegularExtractor = {
    * 获取在弹窗中显示出的链接
    * @param handlerConfig 配置
    */
-  extractShowLink(handlerConfig: {
-    /** 规则键名 */
-    ruleKeyName: string;
-    /** 规则的索引下标 */
-    ruleIndex: number;
-    /** 分享码 */
-    shareCode: string;
-    /** 访问码 */
-    accessCode: AccessCodeType;
-    /** （可选）匹配到的文本 */
-    matchText?: string;
-    /** （可选）如果规则不存在，会进行Toast提示，默认true */
-    showToast?: boolean;
-    /**
-     * （可选）当前调试的配置
-     */
-    debugConfig?: NetDiskDebugHandlerConfig;
-  }) {
+  extractShowLink(handlerConfig: NetDiskHandlerShowLinkOption) {
     const checkFlag = handlerConfig.debugConfig?.config
       ? true
       : NetDisk.checkHasRuleOption(handlerConfig.ruleKeyName, handlerConfig.ruleIndex);
@@ -475,7 +438,7 @@ export const NetDiskRegularExtractor = {
           msg: [
             `正则: paramMatch`,
             `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-            `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+            `参数: ` + CommonUtil.toStr(replaceParamData),
             `结果: ${uiLink}`,
           ],
         });

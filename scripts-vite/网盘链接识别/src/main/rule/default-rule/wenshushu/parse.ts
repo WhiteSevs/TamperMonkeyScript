@@ -1,9 +1,9 @@
 import { httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
+import Qmsg from "qmsg";
 
 export class NetDiskParse_Wenshushu extends ParseFileCore {
   /**

@@ -73,6 +73,4 @@ declare interface NetDiskCheckLinkValidityEntranceInstance {
   init(netDiskInfo: NetDiskCheckLinkValidityInitConfig): IPromise<NetDiskCheckLinkValidityStatusInstanceResult>;
 }
 
-declare interface NetDiskCheckLinkValidityEntrance {
-  [key: string]: NetDiskCheckLinkValidityEntranceInstance;
-}
+declare type NetDiskCheckLinkValidityRuleOption = Record<string, NetDiskCheckLinkValidityEntranceInstance>;

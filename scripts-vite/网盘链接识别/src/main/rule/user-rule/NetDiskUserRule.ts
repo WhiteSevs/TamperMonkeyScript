@@ -1,7 +1,14 @@
 import { Cryptojs, DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
-import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
+import { NetDiskHandlerAccessCodeRule } from "@/main/handler/accesscode-handler/NetDiskHandlerAccessCode";
+import { NetDiskAuthorizationRule } from "@/main/handler/authorization/NetDiskAuthorization";
+import { NetDiskAutoFillAccessCodeRule } from "@/main/handler/auto-fill-accesscode/NetDiskAutoFillAccessCode";
+import { NetDiskCheckLinkValidity } from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
+import { NetDiskParseRule } from "@/main/handler/parse/NetDiskParse";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
+import { NetDiskView } from "@/main/view/NetDiskView";
 import { UIInput } from "@components/setting/components/ui-input";
 import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { PanelUISize } from "@components/setting/panel-ui-size";
@@ -10,12 +17,6 @@ import { StorageUtils } from "@components/utils/StorageUtils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { NetDiskAuthorization } from "../../authorization/NetDiskAuthorization";
-import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAutoFillAccessCode";
-import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkValidity";
-import { NetDiskParse } from "../../parse/NetDiskParse";
-import { NetDiskView } from "../../view/NetDiskView";
-import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
 import { NetDiskRequire } from "./NetDiskRequire";
 import {
   NetDiskUserRuleReplaceParam_matchRange_html,
@@ -23,6 +24,8 @@ import {
 } from "./NetDiskUserRuleReplaceParam";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
 import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 
 const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
 
@@ -221,8 +224,9 @@ export const NetDiskUserRule = {
    * 上下文环境
    * @param rule
    */
-  getBindContext(rule: NetDiskUserCustomRule) {
+  getBindContext(rule: NetDiskUserCustomRule): NetDiskUserCustomRuleContext {
     return {
+      subscribeUUID: rule.subscribeUUID,
       rule: rule,
       NetDiskRequire: NetDiskRequire,
       CryptoJS: Cryptojs,
@@ -233,6 +237,13 @@ export const NetDiskUserRule = {
       unsafeWindow: unsafeWindow,
       NetDiskCheckLinkValidity: NetDiskCheckLinkValidity,
       NetDiskCheckLinkValidityStatus: NetDiskCheckLinkValidityStatus,
+      NetDiskFilterScheme: NetDiskFilterScheme,
+      NetDiskView: {
+        showOneFileView: NetDiskView.$inst.linearChainDialogView.oneFile.bind(NetDiskView.$inst.linearChainDialogView),
+        showMoreFileView: NetDiskView.$inst.linearChainDialogView.moreFile.bind(
+          NetDiskView.$inst.linearChainDialogView
+        ),
+      },
       log: log,
       Qmsg: Qmsg,
       pops: pops,
@@ -466,6 +477,7 @@ export const NetDiskUserRule = {
             default_value = selectData[0].value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
           }
           this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), default_value);
+          netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode = data;
         }
         if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
           // 跳转时复制访问码
@@ -562,14 +574,15 @@ export const NetDiskUserRule = {
         NetDiskView.$inst.icon.addIcon(ruleKey, ruleIcon);
       }
 
-      // 4. 把规则的自定义解析函数进行转换
-      const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+      // 把规则的自定义解析函数进行转换
+      const toAsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+      const toFunction = Object.getPrototypeOf(function () {}).constructor;
       if (typeof userRuleItemConfig.checkLinkValidityFunction === "string") {
         // 自定义校验链接有效性函数
         try {
           let context = this.getBindContext(userRuleItemConfig);
           Reflect.set(NetDiskCheckLinkValidity.ruleCheckValidFunction, ruleKey, {
-            init: new AsyncFunction(
+            init: new toAsyncFunction(
               "netDiskInfo",
               userRuleItemConfig.checkLinkValidityFunction
               // 绑定作用域
@@ -579,14 +592,35 @@ export const NetDiskUserRule = {
           log.error(error);
         }
       }
-      if (typeof userRuleItemConfig.AuthorizationFunction === "string") {
-        // 自定义鉴权函数
+      if (typeof userRuleItemConfig.accessCodeHandler === "string") {
+        // 自定义处理提取码函数
         try {
-          let context = this.getBindContext(userRuleItemConfig);
+          const context = this.getBindContext(userRuleItemConfig);
           // 删除没必要的属性
           // NetDiskCheckLinkValidity是有效性校验函数中需要的
           Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
-          NetDiskAuthorization.netDisk[ruleKey] = new AsyncFunction(userRuleItemConfig.AuthorizationFunction).bind(
+          NetDiskHandlerAccessCodeRule[ruleKey] = new toAsyncFunction(
+            userRuleItemConfig.accessCodeHandler,
+            "netDiskInfo",
+            "handlerConfig",
+            "accessCode"
+          ).bind(
+            // 绑定作用域
+            context
+          );
+        } catch (error) {
+          log.error(error);
+        }
+      }
+
+      if (typeof userRuleItemConfig.AuthorizationFunction === "string") {
+        // 自定义鉴权函数
+        try {
+          const context = this.getBindContext(userRuleItemConfig);
+          // 删除没必要的属性
+          // NetDiskCheckLinkValidity是有效性校验函数中需要的，这里不需要
+          Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
+          NetDiskAuthorizationRule[ruleKey] = new toAsyncFunction(userRuleItemConfig.AuthorizationFunction).bind(
             // 绑定作用域
             context
           );
@@ -597,11 +631,11 @@ export const NetDiskUserRule = {
       if (typeof userRuleItemConfig.AutoFillAccessCodeFunction === "string") {
         // 自定义填充访问码函数
         try {
-          let context = this.getBindContext(userRuleItemConfig);
+          const context = this.getBindContext(userRuleItemConfig);
           // 删除没必要的属性
           // NetDiskCheckLinkValidity是有效性校验函数中需要的
           Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
-          NetDiskAutoFillAccessCode.netDisk[ruleKey] = new AsyncFunction(
+          NetDiskAutoFillAccessCodeRule[ruleKey] = new toAsyncFunction(
             "netDiskInfo",
             userRuleItemConfig.AutoFillAccessCodeFunction
             // 绑定作用域
@@ -613,11 +647,34 @@ export const NetDiskUserRule = {
       if (typeof userRuleItemConfig.parseFunction === "string") {
         // 自定义文件解析函数
         try {
-          let context = this.getBindContext(userRuleItemConfig);
+          const context = this.getBindContext(userRuleItemConfig);
           // 删除没必要的属性
           // NetDiskCheckLinkValidity是有效性校验函数中需要的
           Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
-          Reflect.set(NetDiskParse.rule, ruleKey, new AsyncFunction(userRuleItemConfig.parseFunction).bind(context));
+          const tofn: () => any = new toFunction(userRuleItemConfig.parseFunction).bind(context);
+          const fn: Function | object = tofn();
+          const target = class Parser extends ParseFileCore {
+            async init(netDiskInfo: ParseFileInitConfig) {
+              super.init(netDiskInfo);
+              if (typeof fn === "object" && fn != null) {
+                // @ts-expect-error
+                return await fn.init.bind(context)(netDiskInfo);
+              } else if (typeof fn === "function") {
+                // 先new
+                // @ts-expect-error
+                const __fn__: Function = new fn(netDiskInfo);
+                // @ts-expect-error
+                return await __fn__.init.bind(context)(netDiskInfo);
+              } else {
+                log.error({
+                  parserFunctionResult: fn,
+                  parserFunction: userRuleItemConfig.parseFunction,
+                });
+                Qmsg.error("解析函数的返回值的类型错误");
+              }
+            }
+          };
+          Reflect.set(NetDiskParseRule, ruleKey, target);
         } catch (error) {
           log.error(error);
         }
@@ -626,11 +683,11 @@ export const NetDiskUserRule = {
       if (typeof userRuleItemConfig.afterRenderUrlBox === "string") {
         // 渲染后的链接元素触发的回调
         try {
-          let context = this.getBindContext(userRuleItemConfig);
+          const context = this.getBindContext(userRuleItemConfig);
           // 删除没必要的属性
           // NetDiskCheckLinkValidity是有效性校验函数中需要的
           Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
-          netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
+          netDiskRuleConfig.afterRenderUrlBox = new toAsyncFunction(
             "option",
             userRuleItemConfig.afterRenderUrlBox
             // 绑定作用域
@@ -671,7 +728,7 @@ export const NetDiskUserRule = {
    * 获取模板规则
    */
   getTemplateRule() {
-    let templateRule = <NetDiskUserCustomRule>{
+    const templateRule = <NetDiskUserCustomRule>{
       key: "规则名",
       icon: "图标链接字符串或图片的base64字符串",
       regexp: [
@@ -699,7 +756,6 @@ export const NetDiskUserRule = {
    * @param quickAddData 用于快速添加数据
    */
   getRulePanelViewOption(quickAddData?: NetDiskUserCustomRule) {
-    const that = this;
     const addData = () => {
       return quickAddData ?? this.getTemplateRule();
     };
@@ -713,7 +769,7 @@ export const NetDiskUserRule = {
           add: {
             enable: true,
             callback(option) {
-              NetDiskUserRuleUI.show(false, void 0, (rule) => {
+              NetDiskUserRuleUI.show(false, void 0, () => {
                 this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
               });
               return false;
@@ -725,17 +781,17 @@ export const NetDiskUserRule = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -745,7 +801,7 @@ export const NetDiskUserRule = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -757,7 +813,7 @@ export const NetDiskUserRule = {
               {
                 name: "规则名",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -767,7 +823,7 @@ export const NetDiskUserRule = {
               {
                 name: "键",
                 value: "key",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -815,7 +871,7 @@ export const NetDiskUserRule = {
           ruleDelete: {
             enable: true,
             deleteCallBack: (data) => {
-              return that.deleteRule(data.key);
+              return this.deleteRule(data.key);
             },
           },
         },
@@ -917,17 +973,17 @@ export const NetDiskUserRule = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -937,7 +993,7 @@ export const NetDiskUserRule = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -949,7 +1005,7 @@ export const NetDiskUserRule = {
               {
                 name: "标题",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -966,7 +1022,7 @@ export const NetDiskUserRule = {
               {
                 name: "订阅地址",
                 value: "url",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -1014,7 +1070,7 @@ export const NetDiskUserRule = {
                 getDataItemName(data) {
                   return data.setting.name;
                 },
-                addData(data) {
+                addData() {
                   // TODO
                   return true;
                 },
@@ -1031,17 +1087,17 @@ export const NetDiskUserRule = {
                       {
                         name: "无",
                         value: "",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
-                        filterCallBack(data) {
+                        filterCallBack() {
                           return true;
                         },
                       },
                       {
                         name: "已启用",
                         value: "enable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -1051,7 +1107,7 @@ export const NetDiskUserRule = {
                       {
                         name: "未启用",
                         value: "notEnable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -1063,7 +1119,7 @@ export const NetDiskUserRule = {
                       {
                         name: "规则名",
                         value: "name",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -1073,7 +1129,7 @@ export const NetDiskUserRule = {
                       {
                         name: "键",
                         value: "key",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -1236,7 +1292,7 @@ export const NetDiskUserRule = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1300,7 +1356,6 @@ export const NetDiskUserRule = {
     // 导出为订阅规则
     DOMUtils.on($exportToSubscribe, "click", (event) => {
       DOMUtils.preventEvent(event);
-      const that = this;
       $alert.close();
       try {
         const allRule = this.getAllRule();
@@ -1318,9 +1373,9 @@ export const NetDiskUserRule = {
             get(key: string, defaultValue: any) {
               return data[key] ?? defaultValue;
             },
-            set(key: string, value: any) {
+            set: (key: string, value: any) => {
               data[key] = value;
-              NetDiskUserRuleStorageApi.set(that.$data.EXPORT_CONFIG_KEY, data);
+              NetDiskUserRuleStorageApi.set(NetDiskUserRule.$data.EXPORT_CONFIG_KEY, data);
             },
           };
         };
@@ -1365,13 +1420,13 @@ export const NetDiskUserRule = {
             ok: {
               enable: true,
               text: "导出",
-              callback(details, event) {
+              callback() {
                 exportCallBack();
               },
             },
             close: {
               enable: true,
-              callback(details, event) {
+              callback(details) {
                 details.close();
               },
             },
@@ -1443,7 +1498,7 @@ export const NetDiskUserRule = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1529,7 +1584,9 @@ export const NetDiskUserRule = {
             }
             continue;
           }
-          parseResult.data && checkedData.push(parseResult.data);
+          if (parseResult.data) {
+            checkedData.push(parseResult.data);
+          }
         }
         const notCheckedRuleCount = data.length - checkedData.length;
         if (notCheckedRuleCount > 0) {
@@ -1556,7 +1613,7 @@ export const NetDiskUserRule = {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
@@ -1586,13 +1643,13 @@ export const NetDiskUserRule = {
         btn: {
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
           ok: {
             text: "导入",
-            callback: async (eventDetails, event) => {
+            callback: async (eventDetails) => {
               const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
@@ -1626,7 +1683,7 @@ export const NetDiskUserRule = {
       });
       const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-      DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+      DOMUtils.on($promptInput, ["input", "propertychange"], () => {
         const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");

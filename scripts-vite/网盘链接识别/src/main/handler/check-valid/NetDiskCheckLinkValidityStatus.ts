@@ -15,8 +15,8 @@ export const NetDiskCheckLinkValidityStatus = {
       DOMUtils.html($el, pops.config.iconSVG.loading);
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? NetDiskCheckLinkValidityStatus.loading.msg);
+      NetDiskCheckLinkValidityStatus.loading.setIcon($el);
     },
   },
   /**
@@ -38,8 +38,8 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "success", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "success", msg ?? NetDiskCheckLinkValidityStatus.success.msg);
+      NetDiskCheckLinkValidityStatus.success.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -62,8 +62,8 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "error", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "error", msg ?? NetDiskCheckLinkValidityStatus.networkError.msg);
+      NetDiskCheckLinkValidityStatus.networkError.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -87,8 +87,8 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "verify", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "verify", msg ?? NetDiskCheckLinkValidityStatus.verify.msg);
+      NetDiskCheckLinkValidityStatus.verify.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -111,8 +111,8 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "failed", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "failed", msg ?? NetDiskCheckLinkValidityStatus.failed.msg);
+      NetDiskCheckLinkValidityStatus.failed.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -138,8 +138,12 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "needAccessCode", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid(
+        $el,
+        "needAccessCode",
+        msg ?? NetDiskCheckLinkValidityStatus.needAccessCode.msg
+      );
+      NetDiskCheckLinkValidityStatus.needAccessCode.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -161,8 +165,12 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "partial-violation", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid(
+        $el,
+        "partial-violation",
+        msg ?? NetDiskCheckLinkValidityStatus.partialViolation.msg
+      );
+      NetDiskCheckLinkValidityStatus.partialViolation.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },
@@ -188,8 +196,8 @@ export const NetDiskCheckLinkValidityStatus = {
       );
     },
     setView($el, checkInfo, msg?: string) {
-      NetDiskCheckLinkValidity.setViewCheckValid($el, "unknown", msg ?? this.msg);
-      this.setIcon($el);
+      NetDiskCheckLinkValidity.setViewCheckValid($el, "unknown", msg ?? NetDiskCheckLinkValidityStatus.unknown.msg);
+      NetDiskCheckLinkValidityStatus.unknown.setIcon($el);
       NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
     },
   },

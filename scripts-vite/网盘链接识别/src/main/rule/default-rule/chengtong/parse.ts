@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskLinkViewEvent } from "@/main/view/link-view/NetDiskLinkViewEvent";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";

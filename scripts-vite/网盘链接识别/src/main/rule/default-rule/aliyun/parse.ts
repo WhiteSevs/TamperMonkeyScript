@@ -1,4 +1,5 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
@@ -6,7 +7,6 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 
 /**
  * 阿里云解析下载已失效
@@ -107,7 +107,6 @@ export class NetDiskParse_Aliyun extends ParseFileCore {
               schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("aliyun", schemeDownloadUrl);
             }
             return {
-              autoDownload: true,
               mode: "aBlank",
               url: schemeDownloadUrl,
             };

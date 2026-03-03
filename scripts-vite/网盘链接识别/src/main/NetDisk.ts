@@ -29,6 +29,10 @@ export const NetDisk = {
      */
     matchedInfo: new Utils.Dictionary<string, UtilsDictionary<string, NetDiskDictData>>(),
     /**
+     * 额外获取的分享码，一般是规则执行后将获取到的分享码存储在这儿
+     */
+    accessCodeMap: new Utils.Dictionary<string, string>(),
+    /**
      * 黑名单-识别到的信息
      *
      * 如果Worker识别到的信息能在这里面找到对应的shareCode，则不会被识别

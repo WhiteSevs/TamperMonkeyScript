@@ -1,28 +1,29 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import { NetDiskCheckLinkValidity_baidu } from "../rule/default-rule/baidu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzou } from "../rule/default-rule/lanzou/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzouyx } from "../rule/default-rule/lanzouyx/checkLinkValidity";
-import { NetDiskCheckLinkValidity_tianyiyun } from "../rule/default-rule/tianyiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_aliyun } from "../rule/default-rule/aliyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_wenshushu } from "../rule/default-rule/wenshushu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_123pan } from "../rule/default-rule/123pan/checkLinkValidity";
-import { NetDiskCheckLinkValidity_weiyun } from "../rule/default-rule/weiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_xunlei } from "../rule/default-rule/xunlei/checkLinkValidity";
-import { NetDiskCheckLinkValidity_chengtong } from "../rule/default-rule/chengtong/checkLinkValidity";
-import { NetDiskCheckLinkValidity_kuake } from "../rule/default-rule/kuake/checkLinkValidity";
-import { NetDiskCheckLinkValidity_jianguoyun } from "../rule/default-rule/jianguoyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_onedrive } from "../rule/default-rule/onedrive/checkLinkValidity";
-import { NetDiskCheckLinkValidity_uc } from "../rule/default-rule/uc/checkLinkValidity";
-import { NetDiskLinkView } from "../view/link-view/NetDiskLinkView";
-import { NetDiskCheckLinkValidity_115pan } from "../rule/default-rule/115pan/checkLinkValidity";
-import { NetDiskRuleData } from "../data/NetDiskRuleData";
+import { NetDiskCheckLinkValidity_baidu } from "../../rule/default-rule/baidu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzou } from "../../rule/default-rule/lanzou/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzouyx } from "../../rule/default-rule/lanzouyx/checkLinkValidity";
+import { NetDiskCheckLinkValidity_tianyiyun } from "../../rule/default-rule/tianyiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_aliyun } from "../../rule/default-rule/aliyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_wenshushu } from "../../rule/default-rule/wenshushu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_123pan } from "../../rule/default-rule/123pan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_weiyun } from "../../rule/default-rule/weiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_xunlei } from "../../rule/default-rule/xunlei/checkLinkValidity";
+import { NetDiskCheckLinkValidity_chengtong } from "../../rule/default-rule/chengtong/checkLinkValidity";
+import { NetDiskCheckLinkValidity_kuake } from "../../rule/default-rule/kuake/checkLinkValidity";
+import { NetDiskCheckLinkValidity_jianguoyun } from "../../rule/default-rule/jianguoyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_onedrive } from "../../rule/default-rule/onedrive/checkLinkValidity";
+import { NetDiskCheckLinkValidity_uc } from "../../rule/default-rule/uc/checkLinkValidity";
+import { NetDiskLinkView } from "../../view/link-view/NetDiskLinkView";
+import { NetDiskCheckLinkValidity_115pan } from "../../rule/default-rule/115pan/checkLinkValidity";
+import { NetDiskRuleData } from "../../data/NetDiskRuleData";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
-import { NetDiskCheckLinkValidity_360yunpan } from "../rule/default-rule/360yunpan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_360yunpan } from "../../rule/default-rule/360yunpan/checkLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "./NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidity_feijipan } from "../rule/default-rule/feijipan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_feijipan } from "../../rule/default-rule/feijipan/checkLinkValidity";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 // 配置的需要校验的网盘
-const AllCheckLinkValidityFunction: NetDiskCheckLinkValidityEntrance = {
+const NetDiskCheckLinkValidityRule: NetDiskCheckLinkValidityRuleOption = {
   baidu: NetDiskCheckLinkValidity_baidu,
   lanzou: NetDiskCheckLinkValidity_lanzou,
   lanzouyx: NetDiskCheckLinkValidity_lanzouyx,
@@ -83,7 +84,7 @@ export const NetDiskCheckLinkValidity = {
   /**
    * 所有的规则的校验函数
    */
-  ruleCheckValidFunction: AllCheckLinkValidityFunction,
+  ruleCheckValidFunction: NetDiskCheckLinkValidityRule,
   /**
    * 校验链接的有效性，这里是用于订阅-消费
    * @param $urlBox
@@ -98,18 +99,18 @@ export const NetDiskCheckLinkValidity = {
     }
     for (const checkInfoConfigItem of checkInfoConfigList) {
       const { ruleKeyName } = checkInfoConfigItem;
-      if (!this.$data.subscribeMap.has(ruleKeyName)) {
-        this.$data.subscribeMap.set(ruleKeyName, []);
+      if (!NetDiskCheckLinkValidity.$data.subscribeMap.has(ruleKeyName)) {
+        NetDiskCheckLinkValidity.$data.subscribeMap.set(ruleKeyName, []);
       }
-      let subscribeMapValue = this.$data.subscribeMap.get(ruleKeyName)!;
+      let subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName)!;
       subscribeMapValue.push(checkInfoConfigItem);
     }
     let execCheck = async () => {
       let promiseList: Promise<null>[] = [];
-      for (const [ruleKeyName, checkInfoList] of this.$data.subscribeMap.entries()) {
+      for (const [ruleKeyName, checkInfoList] of NetDiskCheckLinkValidity.$data.subscribeMap.entries()) {
         promiseList.push(
           new Promise(async (resolve) => {
-            let isConsuming = this.$data.subscribeMapConsuming.get(ruleKeyName);
+            let isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
             if (isConsuming) {
               // 当前单个规则的有效性校验正在执行中...
               resolve(null);
@@ -120,8 +121,10 @@ export const NetDiskCheckLinkValidity = {
                 try {
                   const checkInfo = checkInfoList[index];
                   if (checkInfo.$urlBox.parentElement) {
-                    const { needAwait } = await this.checkLinkValidity(checkInfo, false);
-                    needAwait && (await utils.sleep(250));
+                    const { needAwait } = await NetDiskCheckLinkValidity.checkLinkValidity(checkInfo, false);
+                    if (needAwait) {
+                      await utils.sleep(250);
+                    }
                   }
                   checkInfoList.splice(index, 1);
                   index--;
@@ -129,14 +132,14 @@ export const NetDiskCheckLinkValidity = {
                   log.error(error);
                 }
               }
-              const delayCheckCount = this.$data.subscribeMap.get(ruleKeyName)?.length;
+              const delayCheckCount = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName)?.length;
               if (delayCheckCount && checkInfoList.length) {
                 // 仍有剩余，继续执行
                 await execCheckConfig();
               }
             };
             await execCheckConfig();
-            this.$data.subscribeMapConsuming.delete(ruleKeyName);
+            NetDiskCheckLinkValidity.$data.subscribeMapConsuming.delete(ruleKeyName);
             resolve(null);
           })
         );
@@ -149,8 +152,8 @@ export const NetDiskCheckLinkValidity = {
    * 清空所有待检测的链接
    */
   clearAllDelayCheckLinkValidity() {
-    this.$data.subscribeMap.clear();
-    this.$data.subscribeMapConsuming.clear();
+    NetDiskCheckLinkValidity.$data.subscribeMap.clear();
+    NetDiskCheckLinkValidity.$data.subscribeMapConsuming.clear();
   },
   /**
    * 开始校验链接的有效性
@@ -162,10 +165,10 @@ export const NetDiskCheckLinkValidity = {
       needAwait: false,
     };
     const { $checkValidStatus } = NetDiskLinkView.parseBoxItemInfo(checkInfo.$urlBox);
-    if (this.isViewCheckValid($checkValidStatus) && !isForceCheck) {
+    if (NetDiskCheckLinkValidity.isViewCheckValid($checkValidStatus) && !isForceCheck) {
       return result;
     }
-    this.setCheckStatusElementToolTip(checkInfo);
+    NetDiskCheckLinkValidity.setCheckStatusElementToolTip(checkInfo);
     // 网盘键
     const ruleKeyName = checkInfo.ruleKeyName;
     if (!NetDiskRuleData.function.checkLinkValidity(ruleKeyName)) {
@@ -174,7 +177,7 @@ export const NetDiskCheckLinkValidity = {
       }
       return result;
     }
-    const netDiskCheck = this.ruleCheckValidFunction[checkInfo.ruleKeyName];
+    const netDiskCheck = NetDiskCheckLinkValidity.ruleCheckValidFunction[checkInfo.ruleKeyName];
     if (!netDiskCheck || (netDiskCheck && typeof netDiskCheck.init !== "function")) {
       // 没有配置该网盘的校验有效性
       log.error("该规则未配置有效性校验函数", checkInfo);
@@ -185,7 +188,7 @@ export const NetDiskCheckLinkValidity = {
       shareCode: checkInfo.shareCode,
       accessCode: checkInfo.accessCode,
     };
-    const checkConfigStr = JSON.stringify(checkConfig);
+    const checkConfigStr = CommonUtil.toStr(checkConfig);
     let checkStatusResult: NetDiskCheckLinkValidityStatusInstanceResult;
     if (!isForceCheck && NetDiskCheckLinkValidity.$data.checkValidStatusMapCache.has(checkConfigStr)) {
       // 命中缓存
@@ -225,7 +228,7 @@ export const NetDiskCheckLinkValidity = {
    */
   setViewAgainCheckClickEvent($el: HTMLElement, checkInfo: NetDiskCheckLinkValidityOption) {
     DOMUtils.off($el, "click", void 0, void 0, void 0, (value) => {
-      return Boolean(value.option.once) && value.callback.toString().includes("this.checkLinkValidity");
+      return Boolean(value.option.once) && value.callback.toString().includes("checkLinkValidity");
     });
     DOMUtils.on(
       $el,
@@ -242,7 +245,7 @@ export const NetDiskCheckLinkValidity = {
           shareCode: ruleInfo.shareCode,
           accessCode: ruleInfo.accessCode,
         };
-        this.checkLinkValidity(newCheckInfo, true);
+        NetDiskCheckLinkValidity.checkLinkValidity(newCheckInfo, true);
       },
       { once: true }
     );

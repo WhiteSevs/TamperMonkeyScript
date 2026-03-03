@@ -609,7 +609,7 @@ export const NetDiskWorker = {
         if (isFindBlackShareCode) {
           // 黑名单的分享码相同
           isBlackListShareCode = true;
-          log.warn(`匹配到黑名单分享码，已过滤：${shareCode}`, JSON.stringify(item));
+          log.warn(`匹配到黑名单分享码，已过滤：${shareCode}`, CommonUtil.toStr(item));
         }
       });
       if (isBlackListShareCode) {

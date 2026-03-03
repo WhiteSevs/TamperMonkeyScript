@@ -1,10 +1,10 @@
 import { httpx, log, utils } from "@/env";
-import Qmsg from "qmsg";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
-import { NetDiskView } from "@/main/view/NetDiskView";
-import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
+import { NetDiskView } from "@/main/view/NetDiskView";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import Qmsg from "qmsg";
 
 export class NetDiskParse_Tianyiyun extends ParseFileCore {
   shareId = void 0 as any as number;
@@ -431,7 +431,6 @@ export class NetDiskParse_Tianyiyun extends ParseFileCore {
             }
 
             return {
-              autoDownload: true,
               mode: "aBlank",
               url: downloadUrl,
             };

@@ -1,88 +1,62 @@
 import { log, utils } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
-
-/** 单文件配置 */
-type NetDiskOneFileConfig = {
-  /** 文件标题 */
-  title: string;
-  /** 文件名 */
-  fileName: string;
-  /** 文件类型（可选） */
-  fileType?: string;
-  /** 文件大小（可选），可以是字符串或数字形式 */
-  fileSize?: string | number;
-  /** 文件下载链接 */
-  downloadUrl: string;
-  /** 文件上传时间（可选），可以是字符串或数字形式 */
-  fileUploadTime?: string | number;
-  /** 文件最新时间（可选），可以是字符串或数字形式 */
-  fileLatestTime?: string | number;
-  /**
-   * 点击回调函数（可选）
-   * @returns
-   *
-   * + `false`: 阻止默认下载行为
-   */
-  clickCallBack?: (
-    /**
-     * 当前文件的详细信息
-     */
-    fileInfo: Omit<NetDiskOneFileConfig, "clickCallBack">
-  ) => void | boolean | Promise<boolean | void>;
-};
 
 export const NetDiskLinearChainDialogView = {
   /**
    * 单文件直链弹窗
-   * @param fileDetails 配置
+   * @param fileConfig 文件配置信息
    */
-  oneFile(fileDetails: NetDiskOneFileConfig) {
-    log.success("成功获取单文件直链", fileDetails);
+  oneFile(fileConfig: NetDiskOneFileConfig) {
+    log.success("成功获取单文件直链", fileConfig);
+    const folderConfig: PopsFolderDataConfig = {
+      fileName: fileConfig.fileName,
+      fileSize: fileConfig.fileSize!,
+      fileType: fileConfig.fileType ?? "",
+      // @ts-expect-error
+      createTime: fileConfig.fileUploadTime! || fileConfig.fileLatestTime!,
+      // @ts-expect-error
+      latestTime: fileConfig.fileLatestTime! || fileConfig.fileUploadTime!,
+      isFolder: false,
+      index: 0,
+      async clickEvent() {
+        if (typeof fileConfig.clickCallBack === "function") {
+          const flag = await fileConfig.clickCallBack(fileConfig);
+          if (typeof flag === "boolean" && !flag) {
+            return;
+          }
+        }
+        return {
+          mode: "aBlank",
+          url: fileConfig.downloadUrl,
+        };
+      },
+    };
+    if (typeof fileConfig.clickCallBack !== "function" && utils.isNotNull(fileConfig.downloadUrl)) {
+      folderConfig.clickEvent = {
+        mode: "aBlank",
+        url: fileConfig.downloadUrl,
+      };
+    }
     NetDiskPops.folder(
       {
         title: {
-          text: fileDetails.title,
+          text: fileConfig.title,
         },
-        folder: [
-          {
-            fileName: fileDetails.fileName,
-            fileSize: fileDetails.fileSize!,
-            fileType: fileDetails.fileType ?? "",
-            // @ts-expect-error
-            createTime: fileDetails.fileUploadTime! || fileDetails.fileLatestTime!,
-            // @ts-expect-error
-            latestTime: fileDetails.fileLatestTime! || fileDetails.fileUploadTime!,
-            isFolder: false,
-            index: 0,
-            async clickEvent() {
-              if (typeof fileDetails.clickCallBack === "function") {
-                const flag = await fileDetails.clickCallBack(fileDetails);
-                if (typeof flag === "boolean" && !flag) {
-                  return;
-                }
-              }
-              return {
-                autoDownload: true,
-                mode: "aBlank",
-                url: fileDetails.downloadUrl,
-              };
-            },
-          },
-        ],
+        folder: [folderConfig],
         btn: {
           ok: {
             text: "下载",
             async callback() {
-              if (typeof fileDetails.clickCallBack === "function") {
-                const flag = await fileDetails.clickCallBack(fileDetails);
+              if (typeof fileConfig.clickCallBack === "function") {
+                const flag = await fileConfig.clickCallBack(fileConfig);
                 if (typeof flag === "boolean" && !flag) {
                   return;
                 }
               }
-              window.open(fileDetails.downloadUrl, "_blank");
+              window.open(fileConfig.downloadUrl, "_blank");
             },
           },
         },
@@ -97,8 +71,8 @@ export const NetDiskLinearChainDialogView = {
    * @param title 标题
    * @param folderInfoList文件夹信息
    */
-  moreFile(title: string, data: PopsFolderDataConfig[] = []) {
-    log.success("文件解析信息", data);
+  moreFile(title: string, folderConfigList: PopsFolderDataConfig[] = []) {
+    log.success("文件解析信息", folderConfigList);
 
     // 重构后新的
     let infoList: PopsFolderDataConfig[] = [];
@@ -143,7 +117,7 @@ export const NetDiskLinearChainDialogView = {
       }
       return time;
     };
-    data.forEach((item) => {
+    folderConfigList.forEach((item) => {
       if (item.isFolder) {
         // 文件夹
         tempFolderInfoList.push(item);

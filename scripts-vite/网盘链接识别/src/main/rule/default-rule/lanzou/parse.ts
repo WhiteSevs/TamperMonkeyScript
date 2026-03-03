@@ -1,11 +1,11 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
+import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import type { HttpxResponseData } from "@whitesev/utils/src/types/Httpx";
 import Qmsg from "qmsg";
-import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 
 export const NetDiskParse_Lanzou_Config = {
   /** 蓝奏云默认域名 */
@@ -336,9 +336,8 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
             }
             $loading.close();
             return {
-              url: fileDownloadInfo.downloadUrl,
-              autoDownload: true,
               mode: "aBlank",
+              url: fileDownloadInfo.downloadUrl,
             };
           },
         });
