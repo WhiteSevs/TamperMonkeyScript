@@ -4,18 +4,7 @@ import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig, PopsMoreButton
  */
 export type PopsFolderDownloadOption = {
     /**
-     * 是否点击后自动触发下载
-     *
-     * + `true`: 自动根据设置的`mode`值来选择下载方式
-     * + `false`: 不触发下载
-     */
-    autoDownload: boolean;
-    /**
-     * 触发下载后会根据提供的url链接进行下载
-     */
-    url: string;
-    /**
-     * 下载方式
+     * 下载方式，不传入就不下载（不做任何处理）
      *
      * + `a`: 使用`a标签`进行下载
      * + `aBlank`: 使用`a标签`进行下载（添加属性`target="_blank"`）
@@ -26,6 +15,10 @@ export type PopsFolderDownloadOption = {
      * @default "aBlank"
      */
     mode?: "a" | "aBlank" | "iframe" | "open" | "openBlank";
+    /**
+     * 触发下载后会根据提供的url链接进行下载
+     */
+    url: string;
 };
 /**
  * pops.folder的folder配置信息
@@ -86,13 +79,21 @@ export interface PopsFolderDataConfig {
      */
     index: number;
     /**
+     * 列表项的点击事件回调
+     *
+     * 如果是配置项，则自动根据配置项来创建下载事件，也可以自定义函数
+     *
+     * 如果是自定义函数的话，根据返回值来判断，如果为空则什么都不做
+     */
+    clickEvent?: ((
+    /**
      * 点击事件
      */
-    clickEvent?: (event: MouseEvent | PointerEvent, 
+    event: MouseEvent | PointerEvent, 
     /**
      * 当前层级的文件|文件夹信息配置
      */
-    config: PopsFolderDataConfig) => IPromise<PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void>;
+    config: PopsFolderDataConfig) => IPromise<PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void>) | PopsFolderDownloadOption | PopsFolderDataConfig[] | null | undefined | void;
 }
 /**
  * pops.folder

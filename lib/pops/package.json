@@ -1,6 +1,6 @@
 {
   "name": "@whitesev/pops",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "弹窗库，包含了alert、confirm、prompt、drawer、folder、loading、iframe、panel、tooltip、searchSuggestion、rightClickMenu组件",
   "keywords": [
     "ScriptCat",
