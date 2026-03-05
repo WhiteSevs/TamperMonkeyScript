@@ -215,6 +215,13 @@ export interface PopsGeneralConfig {
    */
   darkStyle?: string | null;
   /**
+   * （可选）是否阻止`keydown`事件传播
+   *
+   * 主要是阻止当`keydown`触发来源为输入框时，即在输入框内按下按键不会触发页面的快捷键
+   * @default true
+   */
+  stopKeyDownEventPropagation?: boolean;
+  /**
    * 在元素添加到页面前的事件
    * @param $shadowRoot 根元素
    * @param $shadowContainer 容器

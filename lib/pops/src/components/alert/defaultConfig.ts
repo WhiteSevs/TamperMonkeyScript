@@ -60,5 +60,6 @@ export const PopsAlertDefaultConfig = (): DeepRequired<PopsAlertConfig> => {
     lightStyle: null,
     darkStyle: null,
     beforeAppendToPageCallBack() {},
+    stopKeyDownEventPropagation: true,
   } as DeepRequired<PopsAlertConfig>;
 };

@@ -21,22 +21,46 @@ export const PopsHandler = {
   /**
    * 创建shadow
    */
-  handlerShadow(config: Pick<PopsGeneralConfig, "useShadowRoot">) {
+  handlerShadow(config: Pick<PopsGeneralConfig, "useShadowRoot" | "stopKeyDownEventPropagation">) {
     const $shadowContainer = popsDOMUtils.createElement("div", {
       className: "pops-shadow-container",
     });
+    let $shadowRoot: ShadowRoot | HTMLElement;
     if (config.useShadowRoot) {
-      const $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-      return {
-        $shadowContainer,
-        $shadowRoot,
-      };
+      $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
     } else {
-      return {
-        $shadowContainer,
-        $shadowRoot: $shadowContainer,
-      };
+      $shadowRoot = $shadowContainer;
     }
+    // 添加键盘监听
+    // rightClickMenu
+    // searchSuggestion
+    // tooltip
+    // 以上都不需要添加该事件监听
+    if (config.stopKeyDownEventPropagation) {
+      popsDOMUtils.on(
+        $shadowRoot,
+        "keydown",
+        [
+          'input[type="text"]',
+          'input[type="password"]',
+          'input[type="number"]',
+          'input[type="email"]',
+          'input[type="url"]',
+          'input[type="search"]',
+          "input:not([type])",
+          "textarea",
+        ],
+        (evt) => {
+          evt.stopImmediatePropagation();
+          evt.stopPropagation();
+        },
+        { capture: true }
+      );
+    }
+    return {
+      $shadowContainer,
+      $shadowRoot,
+    };
   },
   /**
    * 处理初始化

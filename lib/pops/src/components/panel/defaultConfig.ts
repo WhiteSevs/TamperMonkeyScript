@@ -866,5 +866,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
     lightStyle: null,
     darkStyle: null,
     beforeAppendToPageCallBack() {},
+    stopKeyDownEventPropagation: true,
   };
 };

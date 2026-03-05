@@ -88,5 +88,6 @@ export const PopsConfirmDefaultConfig = (): DeepRequired<PopsConfirmConfig> => {
     lightStyle: null,
     darkStyle: null,
     beforeAppendToPageCallBack() {},
+    stopKeyDownEventPropagation: true,
   } as DeepRequired<PopsConfirmConfig>;
 };

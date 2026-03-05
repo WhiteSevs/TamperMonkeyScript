@@ -4,7 +4,11 @@ import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig, PopsMoreButton
  */
 export type PopsFolderDownloadOption = {
     /**
+     *
+     * 前置条件：url不为空
+     *
      * 下载方式，不传入就不下载（不做任何处理）
+     *
      *
      * + `a`: 使用`a标签`进行下载
      * + `aBlank`: 使用`a标签`进行下载（添加属性`target="_blank"`）

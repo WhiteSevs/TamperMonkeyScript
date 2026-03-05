@@ -58,5 +58,6 @@ export const PopsIframeDefaultConfig = (): DeepRequired<PopsIframeConfig> => {
     lightStyle: null,
     darkStyle: null,
     beforeAppendToPageCallBack() {},
+    stopKeyDownEventPropagation: true,
   };
 };

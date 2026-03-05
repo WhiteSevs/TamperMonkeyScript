@@ -14,12 +14,9 @@ export declare const PopsHandler: {
     /**
      * 创建shadow
      */
-    handlerShadow(config: Pick<PopsGeneralConfig, "useShadowRoot">): {
+    handlerShadow(config: Pick<PopsGeneralConfig, "useShadowRoot" | "stopKeyDownEventPropagation">): {
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot;
-    } | {
-        $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement;
+        $shadowRoot: HTMLElement | ShadowRoot;
     };
     /**
      * 处理初始化

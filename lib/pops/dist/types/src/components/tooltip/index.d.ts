@@ -213,7 +213,7 @@ export declare const PopsTooltip: {
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: HTMLElement | ShadowRoot;
         toolTip: ToolTip;
     };
 };

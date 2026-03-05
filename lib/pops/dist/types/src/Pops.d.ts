@@ -37,16 +37,16 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
-            loading: string;
             min: string;
-            max: string;
-            search: string;
             mise: string;
+            max: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
+            search: string;
             upload: string;
+            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -72,14 +72,14 @@ declare class Pops {
         };
         /** 存储已创建的元素 */
         instData: {
-            iframe: import("./types/inst").PopsInstGeneralConfig[];
-            folder: import("./types/inst").PopsInstGeneralConfig[];
             loading: import("./types/inst").PopsInstGeneralConfig[];
             alert: import("./types/inst").PopsInstGeneralConfig[];
             confirm: import("./types/inst").PopsInstGeneralConfig[];
             prompt: import("./types/inst").PopsInstGeneralConfig[];
+            iframe: import("./types/inst").PopsInstGeneralConfig[];
             tooltip: import("./types/inst").PopsInstGeneralConfig[];
             drawer: import("./types/inst").PopsInstGeneralConfig[];
+            folder: import("./types/inst").PopsInstGeneralConfig[];
             panel: import("./types/inst").PopsInstGeneralConfig[];
             rightClickMenu: import("./types/inst").PopsInstGeneralConfig[];
         };
@@ -726,6 +726,7 @@ declare class Pops {
             forbiddenScroll?: boolean | undefined;
             lightStyle?: string | undefined;
             darkStyle?: string | undefined;
+            stopKeyDownEventPropagation?: boolean | undefined;
             beforeAppendToPageCallBack?: void;
             drag?: boolean | undefined;
             dragLimit?: boolean | undefined;
@@ -788,16 +789,16 @@ declare class Pops {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
-            useShadowRoot: boolean;
-            only: boolean;
             zIndex: IFunction<number>;
             style: string | null;
+            useShadowRoot: boolean;
+            only: boolean;
             lightStyle: string | null;
             darkStyle: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLElement;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -817,9 +818,9 @@ declare class Pops {
     panel: (config: PopsPanelConfig) => {
         addEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
         removeEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
-        mode: import("./types/main").PopsType;
         close: () => Promise<void>;
         hide: () => Promise<void>;
+        mode: import("./types/main").PopsType;
         show: ($parent?: HTMLElement | Document | ShadowRoot) => Promise<void>;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
@@ -907,7 +908,7 @@ declare class Pops {
      * searchSuggestion.setAllEvent();
      */
     searchSuggestion: <T = any>(config: PopsSearchSuggestionConfig<T>) => {
-        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
+        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
         $el: {
             root: HTMLElement;
             $dropdownWrapper: HTMLElement;

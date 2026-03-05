@@ -149,5 +149,6 @@ export const PopsFolderDefaultConfig = (): DeepRequired<PopsFolderConfig> => {
     lightStyle: null,
     darkStyle: null,
     beforeAppendToPageCallBack() {},
+    stopKeyDownEventPropagation: true,
   };
 };

@@ -27,6 +27,7 @@ export declare const GlobalConfig: {
         forbiddenScroll?: boolean | undefined;
         lightStyle?: string | undefined;
         darkStyle?: string | undefined;
+        stopKeyDownEventPropagation?: boolean | undefined;
         beforeAppendToPageCallBack?: void;
         drag?: boolean | undefined;
         dragLimit?: boolean | undefined;

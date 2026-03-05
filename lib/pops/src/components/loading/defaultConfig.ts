@@ -27,5 +27,6 @@ export const PopsLoadingDefaultConfig = (): DeepRequired<PopsLoadingConfig> => {
     lightStyle: null,
     darkStyle: null,
     addIndexCSS: true,
+    stopKeyDownEventPropagation: true,
   };
 };
