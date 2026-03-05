@@ -1715,7 +1715,9 @@ class ElementEvent extends ElementAnimate {
             onlyStopPropagation?: boolean;
           }
         | undefined = void 0;
-      if (typeof args[2] === "string" || Array.isArray(args[2])) {
+      if (args.length === 2) {
+        // ignore
+      } else if (typeof args[2] === "string" || Array.isArray(args[2])) {
         // selector
         selector = args[2];
         if (typeof args[3] === "object" && args[3] != null) {
