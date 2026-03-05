@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.5
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -298,14 +298,14 @@
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -2146,6 +2146,11 @@
             cookieStore
               .getAll()
               .then((result) => {
+                result.forEach((it) => {
+                  if (it.domain == null) {
+                    it.domain = globalThis.location.hostname;
+                  }
+                });
                 callback(result);
               })
               .catch((reason) => {
@@ -2907,49 +2912,6 @@
     });
     return result;
   };
-  const UIInput = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    inputType = "text",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType,
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
-      },
-      callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      },
-    });
-    return result;
-  };
   const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
@@ -2961,6 +2923,49 @@
     {
       Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
     }
+    return result;
+  };
+  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) {
+          return;
+        }
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
+        if (typeof selectCallBack === "function") {
+          const result2 = selectCallBack(isSelectedInfo);
+          if (result2) {
+            return;
+          }
+        }
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") {
+          valueChangeCallBack(isSelectedInfo);
+        }
+      },
+      data,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      },
+    });
     return result;
   };
   const UISwitch = function (
@@ -3092,40 +3097,40 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  const UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
     const result = {
       text,
-      type: "select",
-      description,
+      type: "input",
+      inputType,
       attributes: {},
       props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
       getValue() {
         const storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
-        const value = isSelectedInfo.value;
-        log.info(`选择：${isSelectedInfo.text}`);
-        if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
-        }
+      callback(event, value) {
+        const $input = event.target;
+        $input.validity.valid;
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-        if (typeof valueChangeCallBack === "function") {
-          valueChangeCallBack(isSelectedInfo);
-        }
       },
-      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
+    PanelComponents.initComponentsStorageApi("input", result, {
       get(key2, defaultValue2) {
         return Panel.getValue(key2, defaultValue2);
       },
@@ -3134,399 +3139,6 @@
       },
     });
     return result;
-  };
-  const CookieInfoTransform = {
-    beforeEdit(cookieInfo, isEdit) {
-      const cookieManagerApiName = CookieManager.cookieManagerApiName;
-      if (cookieManagerApiName === "cookieStore") {
-        if (typeof cookieInfo.expires === "number") {
-          cookieInfo.expirationDate = cookieInfo.expires;
-        }
-      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
-        if (isEdit) {
-          if (typeof cookieInfo.expirationDate === "number") {
-            cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
-          }
-        }
-      }
-      return cookieInfo;
-    },
-    afterEdit(cookieInfo) {
-      const cookieManagerApiName = CookieManager.cookieManagerApiName;
-      if (cookieManagerApiName === "document.cookie") {
-        cookieInfo.domain = "";
-      } else if (cookieManagerApiName === "cookieStore") {
-        if (typeof cookieInfo.expirationDate === "number") {
-          cookieInfo.expires = cookieInfo.expirationDate;
-        }
-      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
-        if (typeof cookieInfo.expirationDate === "number") {
-          cookieInfo.expirationDate = Math.floor(cookieInfo.expirationDate / 1e3);
-        }
-      }
-      return cookieInfo;
-    },
-  };
-  const edit_ui_input = (text, getValue, setValue, disabled) => {
-    const config = {
-      text,
-      type: "input",
-      props: {},
-      attributes: {},
-      description: "",
-      getValue() {
-        return getValue();
-      },
-      callback(event, value) {
-        setValue(value);
-      },
-      placeholder: "",
-      disabled: Boolean(disabled),
-    };
-    return config;
-  };
-  const edit_ui_textarea = (text, getValue, setValue, disabled) => {
-    const config = {
-      text,
-      type: "textarea",
-      props: {},
-      attributes: {},
-      description: "",
-      placeholder: "",
-      getValue() {
-        return getValue();
-      },
-      disabled,
-      callback: function (event, value) {
-        setValue(value);
-      },
-    };
-    return config;
-  };
-  const edit_ui_select = (text, data, getValue, setValue, disabled) => {
-    const config = {
-      text,
-      type: "select",
-      description: "",
-      attributes: {},
-      props: {},
-      getValue() {
-        return getValue();
-      },
-      callback(isSelectedInfo) {
-        const value = isSelectedInfo.value;
-        setValue(value);
-      },
-      data: typeof data === "function" ? data() : data,
-      disabled: Boolean(disabled),
-      width: "100%",
-    };
-    return config;
-  };
-  const CookieManagerEditView = {
-    init() {},
-    showView(__cookieInfo__, dialogCloseCallBack) {
-      let isEdit = !!__cookieInfo__;
-      let defaultCookieInfo = {
-        name: "",
-        value: "",
-        domain: window.location.hostname,
-        path: "/",
-        secure: false,
-        session: false,
-        hostOnly: false,
-        httpOnly: false,
-        sameSite: "lax",
-
-        expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1e3,
-      };
-      let cookieInfo = utils.assign({}, defaultCookieInfo, true);
-      utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
-      cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
-      const $dialog = __pops__.confirm({
-        title: {
-          text: isEdit ? "编辑Cookie" : "添加Cookie",
-          position: "center",
-        },
-        content: {
-          text: "",
-          html: true,
-        },
-        drag: true,
-        btn: {
-          position: "center",
-          ok: {
-            text: isEdit ? "编辑" : "添加",
-            async callback(eventDetails) {
-              const valid = CookieManagerEditView.validCookieInfo(cookieInfo);
-              if (!valid.status) {
-                if (typeof valid.msg === "string") {
-                  Qmsg.error(valid.msg);
-                }
-                return;
-              }
-              cookieInfo.value = encodeURIComponent(cookieInfo.value);
-              cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
-              if (isEdit) {
-                const result = await CookieManager.updateCookie(cookieInfo);
-                if (result) {
-                  Qmsg.error(result.toString());
-                } else {
-                  Qmsg.success("修改成功");
-                  eventDetails.close();
-                }
-              } else {
-                const result = await CookieManager.addCookie(cookieInfo);
-                if (result) {
-                  Qmsg.error(result.toString());
-                } else {
-                  Qmsg.success("添加成功");
-                  eventDetails.close();
-                }
-              }
-              if (typeof dialogCloseCallBack === "function") {
-                dialogCloseCallBack(cookieInfo);
-              }
-            },
-          },
-          cancel: {
-            text: "取消",
-          },
-        },
-        mask: {
-          enable: true,
-        },
-        width: PanelUISize.settingMiddle.width,
-        height: "auto",
-        style: `
-      ${__pops__.config.cssText.panelCSS}
-
-      .pops-panel-input input:disabled{
-          color: #b4b4b4;
-      }
-      .pops-confirm-content{
-          padding: 10px;
-      }
-      .pops-confirm-content li{
-          display: flex;
-          flex-direction: column;
-      }
-      .pops-panel-item-left-text{
-          margin-bottom: 5px;
-      }
-      .pops-panel-input.pops-input-disabled{
-          border: 1px solid #dcdfe6;
-      }
-      .pops-panel-textarea textarea{
-        resize: auto;
-        border-radius: 4px;
-      }
-      .pops-panel-input{
-        width: 100%;
-      }
-      #cookie-item-property-expires{
-        border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
-        border-radius: 4px;
-        background: #ffffff;
-        width: 100%;
-        height: 32px;
-        padding: 0px 8px;
-      }
-      #cookie-item-property-expires:hover{
-        border: 1px solid #c0c4cc
-      }
-      #cookie-item-property-expires:focus,
-      #cookie-item-property-expires:focus-within{
-        outline: 0;
-        border: 1px solid #409eff;
-        border-radius: 4px;
-        box-shadow: none;
-      }
-      `,
-        darkStyle: `
-      #cookie-item-property-expires,
-      .export-example-code-text-container,
-      .cookir-format-encode-pwd-container input{
-        background: #232323;
-      }
-      #cookie-item-property-expires{
-        color: #ffffff;
-        border: 1px solid #414141;
-      }
-      .cookir-format-encode-pwd-container input{
-        color: #ffffff;
-      }
-      `,
-      });
-      const $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
-      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-      const $name = panelHandlerComponents.createSectionContainerItem_input(
-        edit_ui_input(
-          "name",
-          () => cookieInfo.name,
-          (value) => (cookieInfo.name = value),
-          isEdit
-        )
-      ).$el;
-      const $value = panelHandlerComponents.createSectionContainerItem_textarea(
-        edit_ui_textarea(
-          "value",
-          () => cookieInfo.value,
-          (value) => (cookieInfo.value = value)
-        )
-      ).$el;
-      const $domain = panelHandlerComponents.createSectionContainerItem_input(
-        edit_ui_input(
-          "domain",
-          () => cookieInfo.domain,
-          (value) => (cookieInfo.domain = value)
-        )
-      ).$el;
-      const $path = panelHandlerComponents.createSectionContainerItem_input(
-        edit_ui_input(
-          "path",
-          () => cookieInfo.path,
-          (value) => (cookieInfo.path = value)
-        )
-      ).$el;
-      let $expires;
-      if (cookieInfo.session) {
-        $expires = panelHandlerComponents.createSectionContainerItem_input(
-          edit_ui_input(
-            "expires",
-            () => "会话",
-            () => {},
-            true
-          )
-        ).$el;
-      } else {
-        const expiresTemplate = UIOwn(() => {
-          const $li = domUtils.createElement("li", {
-            innerHTML: `
-							<div class="pops-panel-item-left-text">
-								<p class="pops-panel-item-left-main-text">expires</p>
-							</div>
-							<div class="pops-panel-item-right-wrapper">
-								<input type="datetime-local" id="cookie-item-property-expires">
-							</div>
-						`,
-          });
-          const $dateTime = $li.querySelector("#cookie-item-property-expires");
-          $dateTime.valueAsNumber = cookieInfo.expirationDate;
-          domUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
-            domUtils.preventEvent(event);
-            cookieInfo.expirationDate = $dateTime.valueAsNumber;
-          });
-          return $li;
-        });
-        $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate).$el;
-      }
-      const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
-        edit_ui_select(
-          "httpOnly",
-          [
-            {
-              text: "true",
-              value: true,
-            },
-            {
-              text: "false",
-              value: false,
-            },
-          ],
-          () => cookieInfo.httpOnly,
-          (value) => (cookieInfo.httpOnly = value)
-        )
-      ).$el;
-      const $secure = panelHandlerComponents.createSectionContainerItem_select(
-        edit_ui_select(
-          "secure",
-          [
-            {
-              text: "true",
-              value: true,
-            },
-            {
-              text: "false",
-              value: false,
-            },
-          ],
-          () => cookieInfo.secure,
-          (value) => (cookieInfo.secure = value)
-        )
-      ).$el;
-      let sameSiteData = [
-        {
-          text: "no_restriction",
-          value: "no_restriction",
-        },
-        {
-          text: "lax",
-          value: "lax",
-        },
-        {
-          text: "strict",
-          value: "strict",
-        },
-        {
-          text: "unspecified",
-          value: "unspecified",
-        },
-      ];
-      if (CookieManager.cookieManagerApiName === "cookieStore") {
-        sameSiteData = [
-          {
-            text: "lax",
-            value: "lax",
-          },
-          {
-            text: "strict",
-            value: "strict",
-          },
-          {
-            text: "none",
-            value: "none",
-          },
-        ];
-      }
-      const $sameSite = panelHandlerComponents.createSectionContainerItem_select(
-        edit_ui_select(
-          "sameSite",
-          sameSiteData,
-          () => cookieInfo.sameSite,
-          (value) => (cookieInfo.sameSite = value)
-        )
-      ).$el;
-      domUtils.append($editContent, [$name, $value]);
-      if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
-        domUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
-      } else if (CookieManager.cookieManagerApiName === "cookieStore") {
-        domUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
-      }
-    },
-    validCookieInfo(cookieInfo) {
-      if (cookieInfo.name == null || cookieInfo.name == "") {
-        return {
-          status: false,
-          msg: "name不能为空",
-        };
-      }
-      if (cookieInfo.domain == null || cookieInfo.domain == "") {
-        return {
-          status: false,
-          msg: "domain不能为空",
-        };
-      }
-      if (cookieInfo.path == null || cookieInfo.path == "") {
-        return {
-          status: false,
-          msg: "path不能为空",
-        };
-      }
-      return {
-        status: true,
-      };
-    },
   };
   class RuleEditView {
     option;
@@ -4218,16 +3830,15 @@
         if (!data.enable) {
           return;
         }
-        let url2 = window.location.href;
         let ruleUrl = data.data.url;
         let enableRegExpToMatchUrl = data.data.enableRegExpToMatchUrl;
         if (enableRegExpToMatchUrl) {
           let regExpUrl = new RegExp(ruleUrl, "i");
-          if (!regExpUrl.test(url2)) {
+          if (!regExpUrl.test(url)) {
             return;
           }
         } else {
-          if (!url2.includes(ruleUrl)) {
+          if (!url.includes(ruleUrl)) {
             return;
           }
         }
@@ -4237,7 +3848,7 @@
     },
     showView() {
       let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
-      function generateStorageApi(data, handler) {
+      function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
             return Reflect.get(data, key) ?? defaultValue;
@@ -4712,6 +4323,399 @@
       });
     },
   };
+  const CookieInfoTransform = {
+    beforeEdit(cookieInfo, isEdit) {
+      const cookieManagerApiName = CookieManager.cookieManagerApiName;
+      if (cookieManagerApiName === "cookieStore") {
+        if (typeof cookieInfo.expires === "number") {
+          cookieInfo.expirationDate = cookieInfo.expires;
+        }
+      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
+        if (isEdit) {
+          if (typeof cookieInfo.expirationDate === "number") {
+            cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
+          }
+        }
+      }
+      return cookieInfo;
+    },
+    afterEdit(cookieInfo) {
+      const cookieManagerApiName = CookieManager.cookieManagerApiName;
+      if (cookieManagerApiName === "document.cookie") {
+        cookieInfo.domain = "";
+      } else if (cookieManagerApiName === "cookieStore") {
+        if (typeof cookieInfo.expirationDate === "number") {
+          cookieInfo.expires = cookieInfo.expirationDate;
+        }
+      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
+        if (typeof cookieInfo.expirationDate === "number") {
+          cookieInfo.expirationDate = Math.floor(cookieInfo.expirationDate / 1e3);
+        }
+      }
+      return cookieInfo;
+    },
+  };
+  const edit_ui_input = (text, getValue, setValue, disabled) => {
+    const config = {
+      text,
+      type: "input",
+      props: {},
+      attributes: {},
+      description: "",
+      getValue() {
+        return getValue();
+      },
+      callback(event, value) {
+        setValue(value);
+      },
+      placeholder: "",
+      disabled: Boolean(disabled),
+    };
+    return config;
+  };
+  const edit_ui_textarea = (text, getValue, setValue, disabled) => {
+    const config = {
+      text,
+      type: "textarea",
+      props: {},
+      attributes: {},
+      description: "",
+      placeholder: "",
+      getValue() {
+        return getValue();
+      },
+      disabled,
+      callback: function (event, value) {
+        setValue(value);
+      },
+    };
+    return config;
+  };
+  const edit_ui_select = (text, data, getValue, setValue, disabled) => {
+    const config = {
+      text,
+      type: "select",
+      description: "",
+      attributes: {},
+      props: {},
+      getValue() {
+        return getValue();
+      },
+      callback(isSelectedInfo) {
+        const value = isSelectedInfo.value;
+        setValue(value);
+      },
+      data: typeof data === "function" ? data() : data,
+      disabled: Boolean(disabled),
+      width: "100%",
+    };
+    return config;
+  };
+  const CookieManagerEditView = {
+    init() {},
+    showView(__cookieInfo__, dialogCloseCallBack) {
+      let isEdit = !!__cookieInfo__;
+      let defaultCookieInfo = {
+        name: "",
+        value: "",
+        domain: window.location.hostname,
+        path: "/",
+        secure: false,
+        session: false,
+        hostOnly: false,
+        httpOnly: false,
+        sameSite: "lax",
+
+        expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1e3,
+      };
+      let cookieInfo = utils.assign({}, defaultCookieInfo, true);
+      utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
+      cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
+      const $dialog = __pops__.confirm({
+        title: {
+          text: isEdit ? "编辑Cookie" : "添加Cookie",
+          position: "center",
+        },
+        content: {
+          text: "",
+          html: true,
+        },
+        drag: true,
+        btn: {
+          position: "center",
+          ok: {
+            text: isEdit ? "编辑" : "添加",
+            async callback(eventDetails) {
+              const valid = CookieManagerEditView.validCookieInfo(cookieInfo);
+              if (!valid.status) {
+                if (typeof valid.msg === "string") {
+                  Qmsg.error(valid.msg);
+                }
+                return;
+              }
+              cookieInfo.value = encodeURIComponent(cookieInfo.value);
+              cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
+              if (isEdit) {
+                const result = await CookieManager.updateCookie(cookieInfo);
+                if (result) {
+                  Qmsg.error(result.toString());
+                } else {
+                  Qmsg.success("修改成功");
+                  eventDetails.close();
+                }
+              } else {
+                const result = await CookieManager.addCookie(cookieInfo);
+                if (result) {
+                  Qmsg.error(result.toString());
+                } else {
+                  Qmsg.success("添加成功");
+                  eventDetails.close();
+                }
+              }
+              if (typeof dialogCloseCallBack === "function") {
+                dialogCloseCallBack(cookieInfo);
+              }
+            },
+          },
+          cancel: {
+            text: "取消",
+          },
+        },
+        mask: {
+          enable: true,
+        },
+        width: PanelUISize.settingMiddle.width,
+        height: "auto",
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .pops-panel-input input:disabled{
+          color: #b4b4b4;
+      }
+      .pops-confirm-content{
+          padding: 10px;
+      }
+      .pops-confirm-content li{
+          display: flex;
+          flex-direction: column;
+      }
+      .pops-panel-item-left-text{
+          margin-bottom: 5px;
+      }
+      .pops-panel-input.pops-input-disabled{
+          border: 1px solid #dcdfe6;
+      }
+      .pops-panel-textarea textarea{
+        resize: auto;
+        border-radius: 4px;
+      }
+      .pops-panel-input{
+        width: 100%;
+      }
+      #cookie-item-property-expires{
+        border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
+        border-radius: 4px;
+        background: #ffffff;
+        width: 100%;
+        height: 32px;
+        padding: 0px 8px;
+      }
+      #cookie-item-property-expires:hover{
+        border: 1px solid #c0c4cc
+      }
+      #cookie-item-property-expires:focus,
+      #cookie-item-property-expires:focus-within{
+        outline: 0;
+        border: 1px solid #409eff;
+        border-radius: 4px;
+        box-shadow: none;
+      }
+      `,
+        darkStyle: `
+      #cookie-item-property-expires,
+      .export-example-code-text-container,
+      .cookir-format-encode-pwd-container input{
+        background: #232323;
+      }
+      #cookie-item-property-expires{
+        color: #ffffff;
+        border: 1px solid #414141;
+      }
+      .cookir-format-encode-pwd-container input{
+        color: #ffffff;
+      }
+      `,
+      });
+      const $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
+      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      const $name = panelHandlerComponents.createSectionContainerItem_input(
+        edit_ui_input(
+          "name",
+          () => cookieInfo.name,
+          (value) => (cookieInfo.name = value),
+          isEdit
+        )
+      ).$el;
+      const $value = panelHandlerComponents.createSectionContainerItem_textarea(
+        edit_ui_textarea(
+          "value",
+          () => cookieInfo.value,
+          (value) => (cookieInfo.value = value)
+        )
+      ).$el;
+      const $domain = panelHandlerComponents.createSectionContainerItem_input(
+        edit_ui_input(
+          "domain",
+          () => cookieInfo.domain,
+          (value) => (cookieInfo.domain = value)
+        )
+      ).$el;
+      const $path = panelHandlerComponents.createSectionContainerItem_input(
+        edit_ui_input(
+          "path",
+          () => cookieInfo.path,
+          (value) => (cookieInfo.path = value)
+        )
+      ).$el;
+      let $expires;
+      if (cookieInfo.session) {
+        $expires = panelHandlerComponents.createSectionContainerItem_input(
+          edit_ui_input(
+            "expires",
+            () => "会话",
+            () => {},
+            true
+          )
+        ).$el;
+      } else {
+        const expiresTemplate = UIOwn(() => {
+          const $li = domUtils.createElement("li", {
+            innerHTML: `
+							<div class="pops-panel-item-left-text">
+								<p class="pops-panel-item-left-main-text">expires</p>
+							</div>
+							<div class="pops-panel-item-right-wrapper">
+								<input type="datetime-local" id="cookie-item-property-expires">
+							</div>
+						`,
+          });
+          const $dateTime = $li.querySelector("#cookie-item-property-expires");
+          $dateTime.valueAsNumber = cookieInfo.expirationDate;
+          domUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
+            domUtils.preventEvent(event);
+            cookieInfo.expirationDate = $dateTime.valueAsNumber;
+          });
+          return $li;
+        });
+        $expires = panelHandlerComponents.createSectionContainerItem_own(expiresTemplate).$el;
+      }
+      const $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
+        edit_ui_select(
+          "httpOnly",
+          [
+            {
+              text: "true",
+              value: true,
+            },
+            {
+              text: "false",
+              value: false,
+            },
+          ],
+          () => cookieInfo.httpOnly,
+          (value) => (cookieInfo.httpOnly = value)
+        )
+      ).$el;
+      const $secure = panelHandlerComponents.createSectionContainerItem_select(
+        edit_ui_select(
+          "secure",
+          [
+            {
+              text: "true",
+              value: true,
+            },
+            {
+              text: "false",
+              value: false,
+            },
+          ],
+          () => cookieInfo.secure,
+          (value) => (cookieInfo.secure = value)
+        )
+      ).$el;
+      let sameSiteData = [
+        {
+          text: "no_restriction",
+          value: "no_restriction",
+        },
+        {
+          text: "lax",
+          value: "lax",
+        },
+        {
+          text: "strict",
+          value: "strict",
+        },
+        {
+          text: "unspecified",
+          value: "unspecified",
+        },
+      ];
+      if (CookieManager.cookieManagerApiName === "cookieStore") {
+        sameSiteData = [
+          {
+            text: "lax",
+            value: "lax",
+          },
+          {
+            text: "strict",
+            value: "strict",
+          },
+          {
+            text: "none",
+            value: "none",
+          },
+        ];
+      }
+      const $sameSite = panelHandlerComponents.createSectionContainerItem_select(
+        edit_ui_select(
+          "sameSite",
+          sameSiteData,
+          () => cookieInfo.sameSite,
+          (value) => (cookieInfo.sameSite = value)
+        )
+      ).$el;
+      domUtils.append($editContent, [$name, $value]);
+      if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
+        domUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
+      } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+        domUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
+      }
+    },
+    validCookieInfo(cookieInfo) {
+      if (cookieInfo.name == null || cookieInfo.name == "") {
+        return {
+          status: false,
+          msg: "name不能为空",
+        };
+      }
+      if (cookieInfo.domain == null || cookieInfo.domain == "") {
+        return {
+          status: false,
+          msg: "domain不能为空",
+        };
+      }
+      if (cookieInfo.path == null || cookieInfo.path == "") {
+        return {
+          status: false,
+          msg: "path不能为空",
+        };
+      }
+      return {
+        status: true,
+      };
+    },
+  };
   const CookieManagerView = {
     $data: {
       cookieList: [],
@@ -4728,7 +4732,7 @@
         },
         content: {
           text: `
-        <div class="cookie-wrapper">
+        <div class="cookie-controls">
             <div class="cookie-search-wrapper">
                 <div class="cookie-search-inner">
                     <input type="text" placeholder="搜索Cookie名称">
@@ -4752,6 +4756,8 @@
                     </svg>
                 </div>
             </div>
+        </div>
+        <div class="cookie-wrapper">
             <div class="cookie-list-wrapper">
             </div>
         </div>`,
@@ -4770,18 +4776,34 @@
         height: PanelUISize.setting.height,
         style: `
       ${__pops__.config.cssText.panelCSS}
+
+      .pops .pops-content{
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .cookie-controls{
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+      }
       .cookie-wrapper{
           display: flex;
           flex-direction: column;
           padding: 10px;
+          padding-top: 0px;
           gap: 10px;
+          overflow: auto;
+          height: 100%;
       }
       .cookie-control-wrapper{
+          --button-margin-left: 0px;
           display: flex;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           padding: 0px 10px;
           gap: 5px;
-          --button-margin-left: 0px;
+          overflow-x: auto;
       }
       .cookie-search-wrapper{
           display: flex;
@@ -4831,13 +4853,16 @@
       }
       .cookie-item-group{
           display: flex;
-          align-items: center;
+          align-items: stretch;
       }
       .cookie-item-group-left{
           width: 100px;
           min-width: 100px;
           max-width: 100px;
           text-transform: capitalize
+      }
+      .cookie-item-group-control{
+          align-items: center;
       }
       .cookie-item-group-control .cookie-item-group-right{
           display: flex;
@@ -4984,6 +5009,8 @@
                         </div>
                     `,
           });
+          Reflect.set($cookieItemGroup, "data-key", it.leftText);
+          Reflect.set($cookieItemGroup, "data-value", it.rightText);
           domUtils.append($cookieItem, $cookieItemGroup);
         });
         const $cookieItemGroupControl = domUtils.createElement("div", {
@@ -5093,6 +5120,34 @@
             Qmsg.success("刷新成功");
           }
         })
+      );
+      domUtils.on(
+        $alert.$shadowRoot,
+        "click",
+        ".cookie-item-group:has(.cookie-item-group-right > p)",
+        (evt, $click) => {
+          const selectRange = $alert.$shadowRoot?.getSelection?.();
+          if (selectRange?.type === "Range") {
+            return;
+          }
+          const key = Reflect.get($click, "data-key");
+          const value = Reflect.get($click, "data-value");
+          if (!key) {
+            log.error("该项上未获取到data-key值");
+            return;
+          }
+          if (!value) {
+            log.error("该项上未获取到data-value值");
+            return;
+          }
+          utils.copy(value).then((status) => {
+            if (status) {
+              Qmsg.success(`复制 ${key} 成功`);
+            } else {
+              Qmsg.error(`复制 ${key} 失败`);
+            }
+          });
+        }
       );
       domUtils.onKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {

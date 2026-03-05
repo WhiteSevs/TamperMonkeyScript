@@ -3,8 +3,6 @@ import { Panel } from "@components/setting/panel";
 import { GM, unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 
-export type CookieManagerApiName = "document.cookie" | "cookieStore" | "GM_cookie" | "GM.cookie";
-
 export const CookieManagerApiNameList: CookieManagerApiName[] = [
   "document.cookie",
   "cookieStore",
@@ -83,6 +81,13 @@ export class CookieManagerService {
           cookieStore
             .getAll()
             .then((result) => {
+              // domain可能为空
+              // 设置window.location.hostname
+              result.forEach((it) => {
+                if ((<CookieStoreData>it).domain == null) {
+                  (<CookieStoreData>it).domain = globalThis.location.hostname;
+                }
+              });
               callback(result as CookieStoreData[]);
             })
             .catch((reason) => {

@@ -1,26 +1,10 @@
 import { DOMUtils, log, pops, utils } from "@/env";
+import { CookieManager } from "@/main/cookie/manager/CookieManager";
+import { CookieManagerService } from "@/main/cookie/manager/CookieManagerService";
+import { CookieManagerView } from "@/main/cookie/manager/view/CookieManagerView";
 import { Panel } from "@components/setting/panel";
 import CryptoJS from "crypto-js";
 import Qmsg from "qmsg";
-import { CookieManager } from "../CookieManager";
-import { CookieManagerService, type CookieManagerApiName } from "../CookieManagerService";
-import { CookieManagerView } from "../CookieManagerView";
-
-/**
- * Cookie备份类型
- */
-type CookieFormatType = "header_string" | "json";
-/**
- * Cookie导入类型
- */
-type CookieImportType = "import_from_text" | "import_from_file";
-/**
- * Cookie导出的类型
- */
-type CookieExportObject = {
-  api: CookieManagerApiName;
-  data: (CookieStoreData | GMCookieInstance)[];
-};
 
 export const CookieBackUpManager = {
   /**

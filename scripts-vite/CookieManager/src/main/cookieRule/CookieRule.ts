@@ -1,4 +1,6 @@
 import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
+import { CookieManager } from "@/main/cookie/manager/CookieManager";
+import { CookieManagerApiNameList } from "@/main/cookie/manager/CookieManagerService";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -8,33 +10,6 @@ import { PanelUISize } from "@components/setting/panel-ui-size";
 import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { CookieManager } from "./CookieManager";
-import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
-
-export type CookieRuleData = {
-  /** 唯一uuid */
-  uuid: string;
-  /** 是否启用 */
-  enable: boolean;
-  /** 规则名 */
-  name: string;
-  data: {
-    /** 使用的api名，默认使用当前全局的Api */
-    execApiName?: "use-global" | CookieManagerApiName;
-    /** 匹配的网站 */
-    url: string;
-    /** 是否使用正则来匹配网站 */
-    enableRegExpToMatchUrl: boolean;
-    /** 匹配的Cookie名 */
-    cookieName: string;
-    /** 是否使用正则来匹配Cookie名 */
-    enableRegExpToMatchCookieName: boolean;
-    /** 对Cookie使用的操作模式，删除|延长 */
-    operationMode: "delete" | "extended" | "extended-90" | "extended-180" | "extended-360";
-    /** 备注 */
-    remark: string;
-  };
-};
 
 export const CookieRule = {
   $key: {
@@ -76,7 +51,6 @@ export const CookieRule = {
         // 未启用
         return;
       }
-      let url = window.location.href;
       let ruleUrl = data.data.url;
       let enableRegExpToMatchUrl = data.data.enableRegExpToMatchUrl;
       if (enableRegExpToMatchUrl) {
@@ -104,7 +78,7 @@ export const CookieRule = {
      * 自定义存储api的配置
      * @param uuid
      */
-    function generateStorageApi(data: any, handler?: (value: any) => any) {
+    function generateStorageApi(data: any) {
       return {
         get(key: string, defaultValue: any) {
           return Reflect.get(data, key) ?? defaultValue;

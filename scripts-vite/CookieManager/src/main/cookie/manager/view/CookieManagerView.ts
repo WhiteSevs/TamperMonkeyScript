@@ -1,14 +1,14 @@
 import { DOMUtils, log, MenuRegister, pops, utils } from "@/env";
-import { CookieBackUpManager } from "@/main/backup/CookieBackUpManager";
+import { CookieBackUpManager } from "@/main/cookie/backup/CookieBackUpManager";
+import { CookieRule } from "@/main/cookieRule/CookieRule";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { Panel } from "@components/setting/panel";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
-import { CookieManager } from "./CookieManager";
+import { CookieManager } from "../CookieManager";
+import { CookieManagerApiNameList } from "../CookieManagerService";
 import { CookieManagerEditView } from "./CookieManagerEditView";
-import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
-import { CookieRule } from "./CookieRule";
 
 type EmitterFrom = "refreshButton";
 
@@ -34,7 +34,7 @@ export const CookieManagerView = {
       },
       content: {
         text: /*html*/ `
-        <div class="cookie-wrapper">
+        <div class="cookie-controls">
             <div class="cookie-search-wrapper">
                 <div class="cookie-search-inner">
                     <input type="text" placeholder="搜索Cookie名称">
@@ -58,6 +58,8 @@ export const CookieManagerView = {
                     </svg>
                 </div>
             </div>
+        </div>
+        <div class="cookie-wrapper">
             <div class="cookie-list-wrapper">
             </div>
         </div>`,
@@ -76,18 +78,34 @@ export const CookieManagerView = {
       height: PanelUISize.setting.height,
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
+
+      .pops .pops-content{
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .cookie-controls{
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+      }
       .cookie-wrapper{
           display: flex;
           flex-direction: column;
           padding: 10px;
+          padding-top: 0px;
           gap: 10px;
+          overflow: auto;
+          height: 100%;
       }
       .cookie-control-wrapper{
+          --button-margin-left: 0px;
           display: flex;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           padding: 0px 10px;
           gap: 5px;
-          --button-margin-left: 0px;
+          overflow-x: auto;
       }
       .cookie-search-wrapper{
           display: flex;
@@ -137,13 +155,16 @@ export const CookieManagerView = {
       }
       .cookie-item-group{
           display: flex;
-          align-items: center;
+          align-items: stretch;
       }
       .cookie-item-group-left{
           width: 100px;
           min-width: 100px;
           max-width: 100px;
           text-transform: capitalize
+      }
+      .cookie-item-group-control{
+          align-items: center;
       }
       .cookie-item-group-control .cookie-item-group-right{
           display: flex;
@@ -298,6 +319,8 @@ export const CookieManagerView = {
                         </div>
                     `,
         });
+        Reflect.set($cookieItemGroup, "data-key", it.leftText);
+        Reflect.set($cookieItemGroup, "data-value", it.rightText);
         DOMUtils.append($cookieItem, $cookieItemGroup);
       });
 
@@ -433,6 +456,32 @@ export const CookieManagerView = {
         }
       })
     );
+    // 点击某个属性的时候复制值
+    DOMUtils.on($alert.$shadowRoot, "click", ".cookie-item-group:has(.cookie-item-group-right > p)", (evt, $click) => {
+      // @ts-expect-error
+      const selectRange: Selection | null = $alert.$shadowRoot?.getSelection?.();
+      if (selectRange?.type === "Range") {
+        // 光标选中，不复制
+        return;
+      }
+      const key = Reflect.get($click, "data-key");
+      const value = Reflect.get($click, "data-value");
+      if (!key) {
+        log.error("该项上未获取到data-key值");
+        return;
+      }
+      if (!value) {
+        log.error("该项上未获取到data-value值");
+        return;
+      }
+      utils.copy(value).then((status) => {
+        if (status) {
+          Qmsg.success(`复制 ${key} 成功`);
+        } else {
+          Qmsg.error(`复制 ${key} 失败`);
+        }
+      });
+    });
     // 监听回车事件
     DOMUtils.onKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
       if (keyName === "Enter" && otherCodeList.length === 0) {

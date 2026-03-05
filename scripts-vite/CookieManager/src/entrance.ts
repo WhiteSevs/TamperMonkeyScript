@@ -1,7 +1,7 @@
 import { PanelContent } from "@components/setting/panel-content";
-import { CookieManagerView } from "./main/CookieManagerView";
-import { CookieRule } from "./main/CookieRule";
-import { CookieRuleController } from "./main/CookieRuleController";
+import { CookieManagerView } from "@/main/cookie/manager/view/CookieManagerView";
+import { CookieRule } from "@/main/cookieRule/CookieRule";
+import { CookieRuleController } from "@/main/cookieRule/CookieRuleController";
 import { Panel } from "@components/setting/panel";
 import { Component_Rule } from "./setting/view/rule";
 import { Component_Common } from "./setting/view/general";

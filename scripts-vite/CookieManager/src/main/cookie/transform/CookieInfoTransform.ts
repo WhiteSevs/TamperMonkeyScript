@@ -1,4 +1,4 @@
-import { CookieManager } from "@/main/CookieManager";
+import { CookieManager } from "@/main/cookie/manager/CookieManager";
 
 export const CookieInfoTransform = {
   /**
