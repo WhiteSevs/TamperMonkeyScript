@@ -1,10 +1,10 @@
 import type { PopsGeneralConfig, PopsDragConfig } from "../types/components";
 
-type EnterReturnType<T> = null | T | (() => T);
+type NullOrFunctionReturnType<T> = null | undefined | IFunction<T>;
 
 type GlobalConfigOption = {
-  style?: EnterReturnType<string>;
-  zIndex?: EnterReturnType<number> | EnterReturnType<string>;
+  style?: NullOrFunctionReturnType<string>;
+  zIndex?: NullOrFunctionReturnType<number | string>;
 } & Partial<PopsGeneralConfig> &
   Partial<PopsDragConfig>;
 
@@ -25,7 +25,11 @@ export const GlobalConfig = {
    */
   getGlobalConfig() {
     const result: {
-      [P in keyof GlobalConfigOption]: ResultGlobalConfigOption<GlobalConfigOption[P]>;
+      [P in keyof GlobalConfigOption]:
+        | ResultGlobalConfigOption<Omit<GlobalConfigOption[P], "zIndex">>
+        | {
+            zIndex: GlobalConfigOption["zIndex"];
+          };
     } = {};
     Object.keys(GlobalConfig.config).forEach((keyName) => {
       const configValue = Reflect.get(GlobalConfig.config, keyName);
@@ -38,17 +42,20 @@ export const GlobalConfig = {
         }
       } else if (keyName === "zIndex") {
         // 设置zIndex属性
-        let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
-        if (typeof zIndex === "string") {
-          const newIndex = (zIndex = Number(zIndex));
-          if (!isNaN(newIndex)) {
-            result.zIndex = newIndex;
+        result.zIndex = () => {
+          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+          if (typeof zIndex === "string") {
+            const newIndex = (zIndex = Number(zIndex));
+            if (!Number.isNaN(newIndex)) {
+              return newIndex;
+            }
+          } else {
+            if (!Number.isNaN(zIndex)) {
+              return zIndex as number;
+            }
           }
-        } else {
-          if (!isNaN(zIndex)) {
-            result.zIndex = zIndex;
-          }
-        }
+          return 0;
+        };
       } else if (keyName === "mask") {
         const mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
         if (typeof mask === "object" && mask != null) {

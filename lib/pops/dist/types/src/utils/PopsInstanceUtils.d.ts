@@ -5,7 +5,7 @@ export declare const PopsInstanceUtils: {
      */
     getPopsMaxZIndex(deviation?: number): {
         zIndex: number;
-        animElement: HTMLDivElement | null;
+        animElement: HTMLElement | null;
         isOverMaxZIndex: boolean;
     };
     /**

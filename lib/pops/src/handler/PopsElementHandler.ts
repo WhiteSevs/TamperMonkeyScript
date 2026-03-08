@@ -328,7 +328,7 @@ export const PopsElementHandler = {
   addLightStyle($parent: HTMLElement | ShadowRoot, style?: string | null) {
     const darkCSS = /*css*/ `
       @media (prefers-color-scheme: light) {
-        ${style}
+        ${style ?? ""}
       }
     `;
     const $css = this.addStyle($parent, darkCSS);
@@ -344,7 +344,7 @@ export const PopsElementHandler = {
   addDarkStyle($parent: HTMLElement | ShadowRoot, style?: string | null) {
     const darkCSS = /*css*/ `
       @media (prefers-color-scheme: dark) {
-        ${style}
+        ${style ?? ""}
       }
     `;
     const $css = this.addStyle($parent, darkCSS);

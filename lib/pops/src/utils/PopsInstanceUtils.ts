@@ -1,5 +1,6 @@
 import { PopsInstData } from "../PopsInst";
 import type { PopsInstStoreType } from "../types/main";
+import { popsUtils } from "./PopsUtils";
 
 export const PopsInstanceUtils = {
   /**
@@ -15,43 +16,21 @@ export const PopsInstanceUtils = {
     // 当前页面最大的z-index
     let zIndex = 0;
     // 当前的最大z-index的元素，调试使用
-    let maxZIndexNode = null as HTMLDivElement | null;
+    let maxZIndexNode = null as HTMLElement | null;
 
-    /**
-     * 元素是否可见
-     * @param $el
-     * @param $css
-     */
-    function isVisibleNode($el: Element, $css: CSSStyleDeclaration): boolean {
-      let flag = true;
-      if (typeof $el.checkVisibility === "function") {
-        flag = $el.checkVisibility();
-      } else {
-        flag =
-          $css.position !== "static" && $css.display !== "none" && $css.visibility !== "hidden" && $css.opacity !== "0";
-      }
-      if (flag) {
-        // css样式上可见
-        // 再判断宽高
-        const rect = $el.getBoundingClientRect();
-        // 确保该元素的中心点在屏幕内
-        flag = rect.width > 0 && rect.height > 0 && rect.x > 0 && rect.y > 0;
-      }
-      return flag;
-    }
     Object.keys(PopsInstData).forEach((instKeyName) => {
       const instData = PopsInstData[instKeyName as PopsInstStoreType];
       for (let index = 0; index < instData.length; index++) {
         const inst = instData[index];
-        const nodeStyle = window.getComputedStyle(inst.$anim);
         // 不对position为static和display为none的元素进行获取它们的z-index
-        if (isVisibleNode(inst.$anim, nodeStyle)) {
-          const nodeZIndex = parseInt(nodeStyle.zIndex);
-          if (!isNaN(nodeZIndex)) {
-            if (nodeZIndex > zIndex) {
-              zIndex = nodeZIndex;
-              maxZIndexNode = inst.$anim;
-            }
+        const $elList = [inst.$anim, inst.$pops, inst.$mask].filter((it) => it instanceof HTMLElement);
+        const nodeZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint($elList);
+        const maxNodeZIndexInfo = nodeZIndexInfoList[0];
+        if (maxNodeZIndexInfo) {
+          const nodeZIndex = maxNodeZIndexInfo.zIndex;
+          if (nodeZIndex > zIndex) {
+            zIndex = nodeZIndex;
+            maxZIndexNode = maxNodeZIndexInfo.node! || maxNodeZIndexInfo.positionNode!;
           }
         }
       }

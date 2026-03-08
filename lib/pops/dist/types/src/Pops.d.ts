@@ -223,7 +223,7 @@ declare class Pops {
         InstanceUtils: {
             getPopsMaxZIndex(deviation?: number): {
                 zIndex: number;
-                animElement: HTMLDivElement | null;
+                animElement: HTMLElement | null;
                 isOverMaxZIndex: boolean;
             };
             sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
@@ -727,34 +727,74 @@ declare class Pops {
      */
     GlobalConfig: {
         config: {
-            style?: string | (() => string) | null;
-            zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
+            style?: IFunction<string> | null | undefined;
+            zIndex?: IFunction<string | number> | null | undefined;
         } & Partial<import("./types/components").PopsGeneralConfig> & Partial<import("./types/components").PopsDragConfig>;
         setGlobalConfig(config: {
-            style?: string | (() => string) | null;
-            zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
+            style?: IFunction<string> | null | undefined;
+            zIndex?: IFunction<string | number> | null | undefined;
         } & Partial<import("./types/components").PopsGeneralConfig> & Partial<import("./types/components").PopsDragConfig>): void;
         getGlobalConfig(): {
-            style?: string | undefined;
-            zIndex?: string | number | undefined;
-            useShadowRoot?: boolean | undefined;
-            class?: string | undefined;
-            only?: boolean | undefined;
-            width?: string | undefined;
-            height?: string | undefined;
-            position?: import("./types/position").PopsPosition | undefined;
-            animation?: import("./types/animation").PopsAnimation | undefined;
-            mask?: import("./types/mask").PopsMaskConfig | undefined;
-            forbiddenScroll?: boolean | undefined;
-            lightStyle?: string | undefined;
-            darkStyle?: string | undefined;
-            stopKeyDownEventPropagation?: boolean | undefined;
-            beforeAppendToPageCallBack?: void;
-            drag?: boolean | undefined;
-            dragLimit?: boolean | undefined;
-            dragExtraDistance?: number | undefined;
-            dragMoveCallBack?: void;
-            dragEndCallBack?: void;
+            style?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<(IFunction<string> & string) | null | undefined, "zIndex"> | undefined;
+            zIndex?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<((IFunction<string | number> | null) & IFunction<number>) | undefined, "zIndex"> | undefined;
+            useShadowRoot?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            class?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<string | undefined, "zIndex"> | undefined;
+            only?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            width?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<string | undefined, "zIndex"> | undefined;
+            height?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<string | undefined, "zIndex"> | undefined;
+            position?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<import("./types/position").PopsPosition | undefined, "zIndex"> | undefined;
+            animation?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<import("./types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
+            mask?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<import("./types/mask").PopsMaskConfig | undefined, "zIndex"> | undefined;
+            forbiddenScroll?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            lightStyle?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<string | null | undefined, "zIndex"> | undefined;
+            darkStyle?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<string | null | undefined, "zIndex"> | undefined;
+            stopKeyDownEventPropagation?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            beforeAppendToPageCallBack?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<(($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void) | undefined, "zIndex"> | undefined;
+            drag?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            dragLimit?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<boolean | undefined, "zIndex"> | undefined;
+            dragExtraDistance?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<number | undefined, "zIndex"> | undefined;
+            dragMoveCallBack?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<((moveElement: HTMLElement, left: number, top: number) => void) | undefined, "zIndex"> | undefined;
+            dragEndCallBack?: {
+                zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
+            } | Omit<((moveElement: HTMLElement, left: number, top: number) => void) | undefined, "zIndex"> | undefined;
         };
     };
     /**

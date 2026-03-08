@@ -1,8 +1,8 @@
 import type { PopsGeneralConfig, PopsDragConfig } from "../types/components";
-type EnterReturnType<T> = null | T | (() => T);
+type NullOrFunctionReturnType<T> = null | undefined | IFunction<T>;
 type GlobalConfigOption = {
-    style?: EnterReturnType<string>;
-    zIndex?: EnterReturnType<number> | EnterReturnType<string>;
+    style?: NullOrFunctionReturnType<string>;
+    zIndex?: NullOrFunctionReturnType<number | string>;
 } & Partial<PopsGeneralConfig> & Partial<PopsDragConfig>;
 export declare const GlobalConfig: {
     config: GlobalConfigOption;
@@ -14,26 +14,66 @@ export declare const GlobalConfig: {
      * 获取全局配置
      */
     getGlobalConfig(): {
-        style?: string | undefined;
-        zIndex?: string | number | undefined;
-        useShadowRoot?: boolean | undefined;
-        class?: string | undefined;
-        only?: boolean | undefined;
-        width?: string | undefined;
-        height?: string | undefined;
-        position?: import("../types/position").PopsPosition | undefined;
-        animation?: import("../types/animation").PopsAnimation | undefined;
-        mask?: import("../types/mask").PopsMaskConfig | undefined;
-        forbiddenScroll?: boolean | undefined;
-        lightStyle?: string | undefined;
-        darkStyle?: string | undefined;
-        stopKeyDownEventPropagation?: boolean | undefined;
-        beforeAppendToPageCallBack?: void;
-        drag?: boolean | undefined;
-        dragLimit?: boolean | undefined;
-        dragExtraDistance?: number | undefined;
-        dragMoveCallBack?: void;
-        dragEndCallBack?: void;
+        style?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<(IFunction<string> & string) | null | undefined, "zIndex"> | undefined;
+        zIndex?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<((IFunction<string | number> | null) & IFunction<number>) | undefined, "zIndex"> | undefined;
+        useShadowRoot?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        class?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<string | undefined, "zIndex"> | undefined;
+        only?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        width?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<string | undefined, "zIndex"> | undefined;
+        height?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<string | undefined, "zIndex"> | undefined;
+        position?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<import("../types/position").PopsPosition | undefined, "zIndex"> | undefined;
+        animation?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<import("../types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
+        mask?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<import("../types/mask").PopsMaskConfig | undefined, "zIndex"> | undefined;
+        forbiddenScroll?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        lightStyle?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<string | null | undefined, "zIndex"> | undefined;
+        darkStyle?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<string | null | undefined, "zIndex"> | undefined;
+        stopKeyDownEventPropagation?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        beforeAppendToPageCallBack?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<(($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void) | undefined, "zIndex"> | undefined;
+        drag?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        dragLimit?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<boolean | undefined, "zIndex"> | undefined;
+        dragExtraDistance?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<number | undefined, "zIndex"> | undefined;
+        dragMoveCallBack?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<((moveElement: HTMLElement, left: number, top: number) => void) | undefined, "zIndex"> | undefined;
+        dragEndCallBack?: {
+            zIndex: GlobalConfigOption["zIndex"];
+        } | Omit<((moveElement: HTMLElement, left: number, top: number) => void) | undefined, "zIndex"> | undefined;
     };
 };
 export {};

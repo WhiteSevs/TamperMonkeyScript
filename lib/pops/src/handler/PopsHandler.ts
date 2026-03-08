@@ -615,7 +615,10 @@ export const PopsHandler = {
         );
       }
     }
-    config = this.handleZIndex(config);
+    if (type !== "rightClickMenu") {
+      // rightClickMenu在配置处理时就处理了一次，这里不需要重复处理
+      config = this.handleZIndex(config);
+    }
 
     return config;
   },
@@ -629,15 +632,11 @@ export const PopsHandler = {
     const originZIndex = config.zIndex;
     const handler = () => {
       let deviation = 100;
-      if (originZIndex.toString() !== handler.toString()) {
-        // 避免叠加覆盖
-        deviation += PopsHandler.getTargerOrFunctionValue(originZIndex) ?? 0;
-      }
+      deviation += PopsHandler.getTargerOrFunctionValue(originZIndex) ?? 0;
       let maxZIndex = deviation;
-      const pointZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint(deviation);
-      const pointZIndexInfo = pointZIndexInfoList[0];
-      maxZIndex = Math.max(maxZIndex, pointZIndexInfo?.zIndex ?? deviation);
-      return maxZIndex;
+      const pointZIndex = popsUtils.getMaxZIndexNodeInfoFromPoint(deviation)[0]?.zIndex ?? 0;
+      maxZIndex = Math.max(maxZIndex, pointZIndex);
+      return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
     };
     config.zIndex = handler;
     return config;
