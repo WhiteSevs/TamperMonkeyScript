@@ -425,59 +425,58 @@ class RulePanelView<T> {
             DOMUtils.preventEvent(event);
             // 订阅
             await subscribeOption?.callback?.();
-            const deepMenuElementInfo = await this.enterDeepMenu(
+            // 进入订阅内部菜单
+            await this.enterDeepMenu(
               $panelRightContainer,
               subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
-              () => {
-                // 触发渲染更新
-                this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
-              }
-            );
-            /** 订阅容器 */
-            const $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
-            const subscribeCreateViewElementInfo = await this.createButtonControls(
-              $subscribeRightContainer,
-              $subscribeRightContainer,
-              subscribeOption,
-              async () => {
-                let $prompt = pops.prompt({
-                  title: {
-                    text: "添加订阅",
-                    position: "center",
-                  },
-                  content: {
-                    text: "",
-                    focus: true,
-                    placeholder: "输入URL",
-                  },
-                  btn: {
-                    cancel: {
-                      enable: false,
-                    },
-                    ok: {
-                      enable: true,
-                      text: "下一步",
-                      async callback(eventDetails) {
-                        let subscribeUrl = DOMUtils.val($promptInput).trim();
-                        if (subscribeUrl === "") {
-                          return;
-                        }
-                        log.info(`订阅：` + subscribeUrl);
-                        let $loading = Qmsg.loading("正在获取订阅信息...");
-                        try {
-                          let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
-                          if (subscribeInfoResult.data) {
-                            eventDetails.close();
-                            let subscribeInfo = subscribeInfoResult.data;
-                            let title =
-                              subscribeInfo.data.title || subscribeInfo.subscribeData.title || subscribeInfo.data.url;
-                            let $subscribeNetworkAddDialog = pops.alert({
-                              title: {
-                                text: "添加订阅",
-                                position: "center",
-                              },
-                              content: {
-                                text: /*html*/ `
+              async ($elInfo) => {
+                /** 订阅容器 */
+                const $subscribeRightContainer = $elInfo.$rightRuleContainer;
+                const subscribeCreateViewElementInfo = await this.createButtonControls(
+                  $subscribeRightContainer,
+                  $subscribeRightContainer,
+                  subscribeOption,
+                  async () => {
+                    let $prompt = pops.prompt({
+                      title: {
+                        text: "添加订阅",
+                        position: "center",
+                      },
+                      content: {
+                        text: "",
+                        focus: true,
+                        placeholder: "输入URL",
+                      },
+                      btn: {
+                        cancel: {
+                          enable: false,
+                        },
+                        ok: {
+                          enable: true,
+                          text: "下一步",
+                          async callback(eventDetails) {
+                            let subscribeUrl = DOMUtils.val($promptInput).trim();
+                            if (subscribeUrl === "") {
+                              return;
+                            }
+                            log.info(`订阅：` + subscribeUrl);
+                            let $loading = Qmsg.loading("正在获取订阅信息...");
+                            try {
+                              let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
+                              if (subscribeInfoResult.data) {
+                                eventDetails.close();
+                                let subscribeInfo = subscribeInfoResult.data;
+                                let title =
+                                  subscribeInfo.data.title ||
+                                  subscribeInfo.subscribeData.title ||
+                                  subscribeInfo.data.url;
+                                let $subscribeNetworkAddDialog = pops.alert({
+                                  title: {
+                                    text: "添加订阅",
+                                    position: "center",
+                                  },
+                                  content: {
+                                    text: /*html*/ `
 																	<div class="subscribe-network-title">
 																		<span>订阅链接名称：</span>
 																		<input type="text" placeholder="输入订阅链接的名称">
@@ -488,35 +487,35 @@ class RulePanelView<T> {
 																	<div class="subscribe-network-version"></div>
 																	<div class="subscribe-network-last-modified"></div>
 																`,
-                                html: true,
-                              },
-                              btn: {
-                                ok: {
-                                  text: "添加",
-                                  type: "subscribe",
-                                  callback: async (eventDetails) => {
-                                    let addFlag = await subscribeOption.addData(subscribeInfo);
-                                    if (!addFlag) {
-                                      Qmsg.error("该订阅已存在", {
-                                        consoleLogContent: true,
-                                      });
-                                    }
-                                    that.updateRuleContaienrElement(
-                                      subscribeOption,
-                                      subscribeOption,
-                                      deepMenuElementInfo.$section
-                                    );
-                                    eventDetails.close();
+                                    html: true,
                                   },
-                                },
-                              },
-                              drag: true,
-                              mask: {
-                                enable: true,
-                              },
-                              width: PanelUISize.setting.width,
-                              height: "auto",
-                              style: /*css*/ `
+                                  btn: {
+                                    ok: {
+                                      text: "添加",
+                                      type: "subscribe",
+                                      callback: async (eventDetails) => {
+                                        let addFlag = await subscribeOption.addData(subscribeInfo);
+                                        if (!addFlag) {
+                                          Qmsg.error("该订阅已存在", {
+                                            consoleLogContent: true,
+                                          });
+                                        }
+                                        that.updateRuleContaienrElement(
+                                          subscribeOption,
+                                          subscribeOption,
+                                          $elInfo.$section
+                                        );
+                                        eventDetails.close();
+                                      },
+                                    },
+                                  },
+                                  drag: true,
+                                  mask: {
+                                    enable: true,
+                                  },
+                                  width: PanelUISize.setting.width,
+                                  height: "auto",
+                                  style: /*css*/ `
 																.pops button[data-type="subscribe"]{
 																	--button-color: #ffffff;
 																	--button-bd-color: #67b279;
@@ -559,134 +558,140 @@ class RulePanelView<T> {
 
 																}
 															`,
-                            });
-                            const $subscribeNetworkAddDialog_title_input =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
-                                ".subscribe-network-title input"
-                              )!;
-                            const $subscribeNetworkAddDialog_count =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
-                                ".subscribe-network-data-count"
-                              )!;
-                            const $subscribeNetworkAddDialog_homeUrl =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
-                                ".subscribe-network-home-url"
-                              )!;
-                            const $subscribeNetworkAddDialog_url =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
-                                ".subscribe-network-url"
-                              )!;
-                            const $subscribeNetworkAddDialog_version =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
-                                ".subscribe-network-version"
-                              )!;
-                            const $subscribeNetworkAddDialog_lastModified =
-                              $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
-                                ".subscribe-network-last-modified"
-                              )!;
+                                });
+                                const $subscribeNetworkAddDialog_title_input =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
+                                    ".subscribe-network-title input"
+                                  )!;
+                                const $subscribeNetworkAddDialog_count =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
+                                    ".subscribe-network-data-count"
+                                  )!;
+                                const $subscribeNetworkAddDialog_homeUrl =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
+                                    ".subscribe-network-home-url"
+                                  )!;
+                                const $subscribeNetworkAddDialog_url =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLElement>(
+                                    ".subscribe-network-url"
+                                  )!;
+                                const $subscribeNetworkAddDialog_version =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
+                                    ".subscribe-network-version"
+                                  )!;
+                                const $subscribeNetworkAddDialog_lastModified =
+                                  $subscribeNetworkAddDialog.$shadowRoot.querySelector<HTMLInputElement>(
+                                    ".subscribe-network-last-modified"
+                                  )!;
 
-                            DOMUtils.val($subscribeNetworkAddDialog_title_input, title);
-                            DOMUtils.on($subscribeNetworkAddDialog_title_input, ["input", "propertychange"], () => {
-                              const inputValue = DOMUtils.val($subscribeNetworkAddDialog_title_input);
-                              subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
-                            });
-                            DOMUtils.html(
-                              $subscribeNetworkAddDialog_count,
-                              /*html*/ `
+                                DOMUtils.val($subscribeNetworkAddDialog_title_input, title);
+                                DOMUtils.on($subscribeNetworkAddDialog_title_input, ["input", "propertychange"], () => {
+                                  const inputValue = DOMUtils.val($subscribeNetworkAddDialog_title_input);
+                                  subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
+                                });
+                                DOMUtils.html(
+                                  $subscribeNetworkAddDialog_count,
+                                  /*html*/ `
 																<span>规则数量：</span>
 																<span>${subscribeInfo.subscribeData.ruleData.length}</span>
 															`
-                            );
-                            // 主页地址
-                            if (typeof subscribeInfo.subscribeData.homePage === "string") {
-                              DOMUtils.html(
-                                $subscribeNetworkAddDialog_homeUrl,
-                                /*html*/ `
+                                );
+                                // 主页地址
+                                if (typeof subscribeInfo.subscribeData.homePage === "string") {
+                                  DOMUtils.html(
+                                    $subscribeNetworkAddDialog_homeUrl,
+                                    /*html*/ `
 																<span>主页：</span>
 																<a href="${subscribeInfo.subscribeData.homePage}" target="_blank">${subscribeInfo.subscribeData.homePage}</a>
 															`
-                              );
-                            } else {
-                              $subscribeNetworkAddDialog_homeUrl.remove();
-                            }
-                            // 链接
-                            DOMUtils.html(
-                              $subscribeNetworkAddDialog_url,
-                              /*html*/ `
+                                  );
+                                } else {
+                                  $subscribeNetworkAddDialog_homeUrl.remove();
+                                }
+                                // 链接
+                                DOMUtils.html(
+                                  $subscribeNetworkAddDialog_url,
+                                  /*html*/ `
 																<span>URL：</span>
 																<a href="${subscribeInfo.data.url}" target="_blank">${subscribeInfo.data.url}</a>
 															`
-                            );
-                            // 版本
-                            if (subscribeInfo.subscribeData.version != null) {
-                              DOMUtils.html(
-                                $subscribeNetworkAddDialog_version,
-                                /*html*/ `
+                                );
+                                // 版本
+                                if (subscribeInfo.subscribeData.version != null) {
+                                  DOMUtils.html(
+                                    $subscribeNetworkAddDialog_version,
+                                    /*html*/ `
 																	<span>版本：</span>
 																	<span>${subscribeInfo.subscribeData.version}</span>
 																`
-                              );
-                            } else {
-                              $subscribeNetworkAddDialog_version.remove();
-                            }
-                            if (subscribeInfo.subscribeData.lastModified != null) {
-                              DOMUtils.html(
-                                $subscribeNetworkAddDialog_lastModified,
-                                /*html*/ `
+                                  );
+                                } else {
+                                  $subscribeNetworkAddDialog_version.remove();
+                                }
+                                if (subscribeInfo.subscribeData.lastModified != null) {
+                                  DOMUtils.html(
+                                    $subscribeNetworkAddDialog_lastModified,
+                                    /*html*/ `
 																	<span>更新时间：</span>
 																	<span>${utils.formatTime(subscribeInfo.subscribeData.lastModified)}</span>
 																`
-                              );
-                            } else {
-                              $subscribeNetworkAddDialog_lastModified.remove();
+                                  );
+                                } else {
+                                  $subscribeNetworkAddDialog_lastModified.remove();
+                                }
+                              } else {
+                                Qmsg.error(subscribeInfoResult.msg, {
+                                  consoleLogContent: true,
+                                });
+                              }
+                            } catch (error: any) {
+                              Qmsg.error(error.toString(), {
+                                consoleLogContent: true,
+                              });
+                            } finally {
+                              $loading.close();
                             }
-                          } else {
-                            Qmsg.error(subscribeInfoResult.msg, {
-                              consoleLogContent: true,
-                            });
-                          }
-                        } catch (error: any) {
-                          Qmsg.error(error.toString(), {
-                            consoleLogContent: true,
-                          });
-                        } finally {
-                          $loading.close();
-                        }
+                          },
+                        },
                       },
-                    },
-                  },
-                  drag: true,
-                  mask: {
-                    enable: true,
-                  },
-                  width: PanelUISize.info.width,
-                  height: "auto",
-                });
-                let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-                let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok ")!;
-                // 添加输入监听
-                DOMUtils.on($promptInput, ["input", "propertychange"], () => {
-                  let promptValue = DOMUtils.val($promptInput);
-                  if (promptValue === "") {
-                    DOMUtils.attr($promptOk, "disabled", "true");
-                  } else {
-                    DOMUtils.removeAttr($promptOk, "disabled");
+                      drag: true,
+                      mask: {
+                        enable: true,
+                      },
+                      width: PanelUISize.info.width,
+                      height: "auto",
+                    });
+                    let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+                    let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok ")!;
+                    // 添加输入监听
+                    DOMUtils.on($promptInput, ["input", "propertychange"], () => {
+                      let promptValue = DOMUtils.val($promptInput);
+                      if (promptValue === "") {
+                        DOMUtils.attr($promptOk, "disabled", "true");
+                      } else {
+                        DOMUtils.removeAttr($promptOk, "disabled");
+                      }
+                    });
+                    DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
+                      if (keyName === "Enter" && otherCodeList.length === 0) {
+                        DOMUtils.preventEvent(event);
+                        // 添加
+                        DOMUtils.emit($promptOk, "click");
+                      }
+                    });
+                    // 触发input事件
+                    DOMUtils.emit($promptInput, "input");
                   }
-                });
-                DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event) => {
-                  if (keyName === "Enter" && otherCodeList.length === 0) {
-                    DOMUtils.preventEvent(event);
-                    // 添加
-                    DOMUtils.emit($promptOk, "click");
-                  }
-                });
-                // 触发input事件
-                DOMUtils.emit($promptInput, "input");
+                );
+
+                // 渲染订阅列表
+                subscribeCreateViewElementInfo.execFilter(true);
+              },
+              () => {
+                // 触发渲染更新
+                this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
               }
             );
-
-            // 渲染订阅列表
-            subscribeCreateViewElementInfo.execFilter(true);
           });
         }
 
@@ -707,13 +712,12 @@ class RulePanelView<T> {
         await ruleCreateViewElementInfo.execFilter(true);
       };
     });
-    const $panel = pops.panel({
+    pops.panel({
       title: {
         text: typeof this.option.title === "function" ? this.option.title() : this.option.title,
         position: "center",
       },
-      // @ts-expect-error
-      content: contentConfigList,
+      content: contentConfigList as any as PopsPanelContentConfig[],
       btn: {
         close: {
           enable: true,
@@ -853,11 +857,11 @@ class RulePanelView<T> {
         }
       }
       `,
-      darkStyle: /*css*/`
+      darkStyle: /*css*/ `
       .rule-view-container{
         background: #262626;
       }
-      `
+      `,
     });
   }
   /**
@@ -868,13 +872,18 @@ class RulePanelView<T> {
    * @param headerTitle 标题
    * @param quiteDeepMenuCallBack 返回上一层回调，一般用于触发外部的渲染更新
    */
-  async enterDeepMenu($el: HTMLElement, headerTitle: string, quiteDeepMenuCallBack: () => void) {
+  async enterDeepMenu(
+    $el: HTMLElement,
+    headerTitle: string,
+    enterRender: ($elInfo: {
+      $section: HTMLElement;
+      $headerContainer: HTMLElement;
+      $arrowLeft: HTMLElement;
+      $rightRuleContainer: HTMLElement;
+    }) => IPromise<void>,
+    quiteDeepMenuCallBack: () => void
+  ) {
     // 动画配置
-    const animOptions: KeyframeAnimationOptions = {
-      // 150 220 300
-      duration: 220,
-      easing: "ease-in-out",
-    };
     /** 前一个菜单元素 */
     const $currentSection = $el.matches("section") ? $el : $el.closest("section")!;
     const $deepMenuSection = DOMUtils.createElement("section", {
@@ -895,94 +904,33 @@ class RulePanelView<T> {
     const $arrowLeft = $deepMenuSection.querySelector<HTMLElement>(".pops-panel-deepMenu-container-left-arrow-icon")!;
     /** 右侧规则容器 */
     const $rightRuleContainer = $deepMenuSection.querySelector<HTMLElement>(".pops-panel-container-main-ul")!;
-
-    DOMUtils.on($arrowLeft, "click", async (event) => {
-      DOMUtils.preventEvent(event);
-      // 回退
-      // 返回动画
-      const leaveViewTransition = () => {
-        const $prev = $currentSection;
-        DOMUtils.removeClass($prev, "pops-hide-important");
-        DOMUtils.remove($deepMenuSection);
-        quiteDeepMenuCallBack();
-      };
-      if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
-        const leaveTransition = document.startViewTransition(leaveViewTransition);
-        await leaveTransition.ready;
-        // 向右移出
-        await Promise.all([
-          $deepMenuSection.animate(
-            [
-              {
-                // from
-                transform: "translateX(0)",
-              },
-              {
-                // to
-                transform: "translateX(100%)",
-              },
-            ],
-            animOptions
-          ).finished,
-          // 向右移入
-          $currentSection.animate(
-            [
-              {
-                // from
-                transform: "translateX(-100%)",
-              },
-              {
-                // to
-                transform: "translateX(0)",
-              },
-            ],
-            animOptions
-          ).finished,
-        ]);
-        await leaveTransition.finished;
-      } else {
-        leaveViewTransition();
-      }
-    });
-    // 进入动画
-    const enterViewTransition = () => {
-      // 二级菜单，先隐藏旧的
-      DOMUtils.addClass($currentSection, "pops-hide-important");
-      // 添加新的
-      DOMUtils.after($currentSection, $deepMenuSection);
-    };
-
-    if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
-      const transition = document.startViewTransition(enterViewTransition);
-      await transition.ready;
-      await $deepMenuSection.animate(
-        [
-          {
-            // from
-            transform: "translateX(100%)",
-          },
-          {
-            // to
-            transform: "translateX(0)",
-          },
-        ],
-        animOptions
-      ).finished;
-      await transition.finished;
-    } else {
-      enterViewTransition();
-    }
-    return {
+    const elInfo = {
       $section: $deepMenuSection,
       $headerContainer,
       $arrowLeft,
       $rightRuleContainer,
-      /**
-       * 退出菜单
-       */
-      quiteDeepMenu: () => {
-        $arrowLeft.click();
+    };
+    const switchAnim = pops.config.PopsAnimation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
+      enterToAddElementCallback: async () => {
+        // 添加新的
+        DOMUtils.after($currentSection, $deepMenuSection);
+        DOMUtils.on($arrowLeft, "click", async (event) => {
+          DOMUtils.preventEvent(event);
+          // 回退
+          // 返回动画
+          await switchAnim.exit();
+        });
+        await enterRender(elInfo);
       },
+      exitToRemoveElementCallback() {
+        quiteDeepMenuCallBack();
+      },
+    });
+    await switchAnim.enter();
+
+    return {
+      $el: elInfo,
+      switchAnim,
     };
   }
   /**
@@ -1498,26 +1446,28 @@ class RulePanelView<T> {
             $section: $el as HTMLElement,
             $ruleItem: $ruleItem,
             enterDeepMenu: async (deepMenuOption) => {
-              const deepMenuElementInfo = await this.enterDeepMenu(
+              await this.enterDeepMenu(
                 $el as HTMLElement,
                 deepMenuOption.headerTitle || "",
+                async ($elInfo) => {
+                  // 二级菜单容器
+                  const $deepMenuRightContainer = $elInfo.$rightRuleContainer;
+                  const deepMenuCreateViewElementInfo = await this.createButtonControls(
+                    $deepMenuRightContainer,
+                    $elInfo.$rightRuleContainer,
+                    // @ts-expect-error
+                    deepMenuOption,
+                    void 0
+                  );
+
+                  // 渲染规则列表
+                  await deepMenuCreateViewElementInfo.execFilter(true);
+                },
                 () => {
                   // 触发渲染更新
                   this.updateRuleContaienrElement(option, subscribeOption, $el);
                 }
               );
-              // 二级菜单容器
-              const $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
-              const deepMenuCreateViewElementInfo = await this.createButtonControls(
-                $deepMenuRightContainer,
-                deepMenuElementInfo.$rightRuleContainer,
-                // @ts-expect-error
-                deepMenuOption,
-                void 0
-              );
-
-              // 渲染规则列表
-              await deepMenuCreateViewElementInfo.execFilter(true);
             },
           });
           if (typeof result === "boolean" && !result) {
@@ -1755,7 +1705,7 @@ class RulePanelView<T> {
         },
       },
       onsubmit: async ($form, data) => {
-        let result = await option?.btnControls?.ruleEdit?.onsubmit?.(
+        const result = await option?.btnControls?.ruleEdit?.onsubmit?.(
           $form,
           isEdit,
           data as T & RuleSubscribeOption<T>
