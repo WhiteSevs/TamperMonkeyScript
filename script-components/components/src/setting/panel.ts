@@ -7,7 +7,6 @@ import type {
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import Qmsg from "qmsg";
-import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "./../utils/CommonUtil";
 import type { UIOwnSearchConfig } from "./components/ui-own";
