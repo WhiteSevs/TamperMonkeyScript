@@ -735,26 +735,33 @@ class Utils {
   /**
    * 获取最大值
    * @example
-   * Utils.getMaxValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
+   * Utils.getMaxValue([{1:123},{2:345},{3:456}],(value,index,value)=>{return parseInt(index)})
    * > 2
    */
+  getMaxValue<T>(val: T[], handler: (index: number, value: T, array: T[]) => number): number;
   getMaxValue(...args: any[]): number {
     const result = [...args];
-    let newResult: number[] = [];
+    const newResult: number[] = [];
     if (result.length === 0) {
       return void 0 as any as number;
     }
     if (result.length > 1) {
       if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
         const data = result[0];
-        const handleDataFunc = result[1];
+        const handleDataFunc: (keyName: string, value: any) => number = result[1];
         Object.keys(data).forEach((keyName) => {
-          newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
+          newResult.push(handleDataFunc(keyName, data[keyName]));
+        });
+      } else if (result.length === 2 && Array.isArray(result[0]) && typeof result[1] === "function") {
+        const data = result[0];
+        const handleDataFunc: (value: any, index: number, data: any[]) => number = result[1];
+        data.forEach((value, index, __data__) => {
+          newResult.push(handleDataFunc(value, index, __data__));
         });
       } else {
         result.forEach((item) => {
           if (!isNaN(parseFloat(item))) {
-            newResult = [...newResult, parseFloat(item)];
+            newResult.push(parseFloat(item));
           }
         });
       }
@@ -762,7 +769,7 @@ class Utils {
     } else {
       result[0].forEach((item: any) => {
         if (!isNaN(parseFloat(item))) {
-          newResult = [...newResult, parseFloat(item)];
+          newResult.push(parseFloat(item));
         }
       });
       return Math.max(...newResult);
@@ -782,7 +789,7 @@ class Utils {
    **/
   getMaxZIndexNodeInfo(
     deviation?: number,
-    target?: Element | ShadowRoot | Document,
+    target?: Element | ShadowRoot | Document | null,
     ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
   ): {
     node: Element;
@@ -808,45 +815,60 @@ class Utils {
     let maxZIndexNode: Element | null = null;
     /**
      * 元素是否可见
+     * @param $el
      * @param $css
      */
-    function isVisibleNode($css: CSSStyleDeclaration): boolean {
-      return $css.position !== "static" && $css.display !== "none";
+    function isVisibleNode($el: Element, $css: CSSStyleDeclaration): boolean {
+      let flag = true;
+      if (typeof $el.checkVisibility === "function") {
+        flag = $el.checkVisibility();
+      } else {
+        flag =
+          $css.position !== "static" && $css.display !== "none" && $css.visibility !== "hidden" && $css.opacity !== "0";
+      }
+      if (flag) {
+        // css样式上可见
+        // 再判断宽高
+        const rect = $el.getBoundingClientRect();
+        // 确保该元素的中心点在屏幕内
+        flag = rect.width > 0 && rect.height > 0 && rect.x > 0 && rect.y > 0;
+      }
+      return flag;
     }
     /**
      * 查询元素的z-index
      * 并比较值是否是已获取的最大值
-     * @param $ele
+     * @param $el
      */
-    function queryMaxZIndex($ele: Element) {
+    function queryMaxZIndex($el: Element) {
       if (typeof ignoreCallBack === "function") {
-        const ignoreResult = ignoreCallBack($ele);
+        const ignoreResult = ignoreCallBack($el);
         if (typeof ignoreResult === "boolean" && !ignoreResult) {
           return;
         }
       }
       /** 元素的样式 */
-      const nodeStyle = that.windowApi.window.getComputedStyle($ele);
+      const nodeStyle = that.windowApi.window.getComputedStyle($el);
       /* 不对position为static和display为none的元素进行获取它们的z-index */
-      if (isVisibleNode(nodeStyle)) {
+      if (isVisibleNode($el, nodeStyle)) {
         const nodeZIndex = parseInt(nodeStyle.zIndex);
         if (!isNaN(nodeZIndex)) {
           if (nodeZIndex > zIndex) {
             // 赋值到全局
             zIndex = nodeZIndex;
-            maxZIndexNode = $ele;
+            maxZIndexNode = $el;
           }
         }
         // 判断shadowRoot
-        if ($ele.shadowRoot != null && $ele instanceof ShadowRoot) {
-          $ele.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
+        if ($el.shadowRoot != null && $el instanceof ShadowRoot) {
+          $el.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
             queryMaxZIndex($shadowEle);
           });
         }
       }
     }
-    target.querySelectorAll("*").forEach(($ele) => {
-      queryMaxZIndex($ele);
+    target.querySelectorAll("*").forEach(($elItem) => {
+      queryMaxZIndex($elItem);
     });
     zIndex += deviation;
     if (zIndex >= maxZIndexCompare) {
@@ -857,6 +879,187 @@ class Utils {
       node: maxZIndexNode!,
       zIndex: zIndex,
     };
+  }
+  /**
+   * 获取页面的坐标中最大的z-index的元素信息
+   *
+   * 其中坐标为
+   *
+   * + 左上角（宽: 1/8，高: 1/8）
+   * + 右上角（宽: 7/8，高: 1/8）
+   * + 左下角（宽: 1/8，高: 7/8）
+   * + 右下角（宽: 7/8，高: 7/8）
+   * + 中间（宽: 1/2，高: 1/2）
+   * @param $el 仅检测目标元素最大的z-index（自动往上层找）
+   * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
+   */
+  getMaxZIndexNodeInfoFromPoint(
+    $el?: HTMLElement | HTMLElement[],
+    deviation?: number
+  ): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[];
+  /**
+   * 获取页面的坐标中最大的z-index的元素信息
+   *
+   * 其中坐标为
+   *
+   * + 左上角（宽: 1/8，高: 1/8）
+   * + 右上角（宽: 7/8，高: 1/8）
+   * + 左下角（宽: 1/8，高: 7/8）
+   * + 右下角（宽: 7/8，高: 7/8）
+   * + 中间（宽: 1/2，高: 1/2）
+   * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
+   */
+  getMaxZIndexNodeInfoFromPoint(deviation: number): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[];
+  getMaxZIndexNodeInfoFromPoint(
+    $el?: HTMLElement | HTMLElement[] | number,
+    deviation?: number
+  ): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[] {
+    if (typeof $el === "number") {
+      deviation = $el;
+      $el = void 0;
+    }
+    if (typeof deviation !== "number" || Number.isNaN(deviation)) {
+      deviation = 10;
+    }
+    const leftTop = {
+      x: globalThis.innerWidth * (1 / 8),
+      y: globalThis.innerHeight * (1 / 8),
+    };
+    const leftBottom = {
+      x: globalThis.innerWidth * (1 / 8),
+      y: globalThis.innerHeight * (7 / 8),
+    };
+    const rightTop = {
+      x: globalThis.innerWidth * (7 / 8),
+      y: globalThis.innerHeight * (1 / 8),
+    };
+    const rightBottom = {
+      x: globalThis.innerWidth * (7 / 8),
+      y: globalThis.innerHeight * (7 / 8),
+    };
+    const center = {
+      x: globalThis.innerWidth / 2,
+      y: globalThis.innerHeight / 2,
+    };
+    const delayHandlerElementPostionList: ({ x: number; y: number } | HTMLElement)[] = [
+      leftTop,
+      leftBottom,
+      rightTop,
+      rightBottom,
+      center,
+    ];
+    if ($el) {
+      delayHandlerElementPostionList.length = 0;
+      if (Array.isArray($el)) {
+        delayHandlerElementPostionList.push(...$el);
+      } else {
+        delayHandlerElementPostionList.push($el);
+      }
+    }
+    const positionInfoList = delayHandlerElementPostionList
+      .map((position) => {
+        let positionNode: Element | null;
+        let positionX: number;
+        let positionY: number;
+        if (position instanceof HTMLElement) {
+          positionNode = position;
+          const nodeRect = position.getBoundingClientRect();
+          positionX = nodeRect.x + nodeRect.width / 2;
+          positionY = nodeRect.y + nodeRect.height / 2;
+        } else {
+          positionNode = document.elementFromPoint(position.x, position.y);
+          positionX = position.x;
+          positionY = position.y;
+        }
+        const shadowRoot = positionNode?.shadowRoot;
+        if (shadowRoot) {
+          positionNode = shadowRoot.elementFromPoint(positionX, positionY);
+        }
+        if (positionNode instanceof HTMLStyleElement) return;
+        if (positionNode instanceof HTMLScriptElement) return;
+        if (positionNode instanceof HTMLMetaElement) return;
+        if (positionNode instanceof HTMLHeadElement) return;
+        if (!(positionNode instanceof HTMLElement)) return;
+        let parent: HTMLElement | null = positionNode;
+        let zIndex = 0;
+        let maxZIndexNode: HTMLElement | null = null;
+        while (parent) {
+          const nodeStyle = globalThis.getComputedStyle(parent);
+          const nodeZIndex = parseInt(nodeStyle.zIndex);
+          if (nodeStyle.position !== "static" && !isNaN(nodeZIndex)) {
+            if (nodeZIndex > zIndex) {
+              zIndex = nodeZIndex;
+              maxZIndexNode = parent;
+            }
+          }
+          parent = parent.parentElement;
+        }
+        return {
+          /** 处理了偏移量后的z-index值 */
+          zIndex: zIndex + deviation,
+          /** 原始z-index值 */
+          originZIndex: zIndex,
+          /** 拥有最大z-index的元素 */
+          node: maxZIndexNode,
+          /** 目标坐标元素 */
+          positionNode: positionNode,
+          /** x坐标 */
+          positionX: positionX,
+          /** y坐标 */
+          positionY: positionY,
+        };
+      })
+      .filter((it) => it != null);
+    // 降序排序
+    positionInfoList.sort((a, b) => {
+      if (a.zIndex < b.zIndex) {
+        return 1;
+      } else if (a.zIndex > b.zIndex) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+    return positionInfoList;
   }
   /**
    * 获取页面中最大的z-index
@@ -1542,7 +1745,6 @@ class Utils {
         "is",
         "jquery",
         "keydown",
-        "keypress",
         "keyup",
         "last",
         "load",
