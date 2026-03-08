@@ -894,7 +894,7 @@ class Utils {
    * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
    */
   getMaxZIndexNodeInfoFromPoint(
-    $el?: HTMLElement | HTMLElement[],
+    $el?: IFunction<HTMLElement | HTMLElement[]>,
     deviation?: number
   ): {
     /** 处理了偏移量后的z-index值 */
@@ -922,7 +922,7 @@ class Utils {
    * + 中间（宽: 1/2，高: 1/2）
    * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
    */
-  getMaxZIndexNodeInfoFromPoint(deviation: number): {
+  getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
     /** 处理了偏移量后的z-index值 */
     zIndex: number;
     /** 原始z-index值 */
@@ -937,7 +937,7 @@ class Utils {
     positionY: number;
   }[];
   getMaxZIndexNodeInfoFromPoint(
-    $el?: HTMLElement | HTMLElement[] | number,
+    $el?: IFunction<HTMLElement | HTMLElement[] | number>,
     deviation?: number
   ): {
     /** 处理了偏移量后的z-index值 */
@@ -953,6 +953,9 @@ class Utils {
     /** y坐标 */
     positionY: number;
   }[] {
+    if (typeof $el === "function") {
+      $el = $el();
+    }
     if (typeof $el === "number") {
       deviation = $el;
       $el = void 0;

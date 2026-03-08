@@ -361,7 +361,7 @@ declare class Utils {
      * @param $el 仅检测目标元素最大的z-index（自动往上层找）
      * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
      */
-    getMaxZIndexNodeInfoFromPoint($el?: HTMLElement | HTMLElement[], deviation?: number): {
+    getMaxZIndexNodeInfoFromPoint($el?: IFunction<HTMLElement | HTMLElement[]>, deviation?: number): {
         /** 处理了偏移量后的z-index值 */
         zIndex: number;
         /** 原始z-index值 */
@@ -387,7 +387,7 @@ declare class Utils {
      * + 中间（宽: 1/2，高: 1/2）
      * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
      */
-    getMaxZIndexNodeInfoFromPoint(deviation: number): {
+    getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
         /** 处理了偏移量后的z-index值 */
         zIndex: number;
         /** 原始z-index值 */
