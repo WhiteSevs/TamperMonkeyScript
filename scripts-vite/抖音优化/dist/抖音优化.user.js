@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.2
+// @version      2026.3.8
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -298,14 +298,14 @@
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -1987,23 +1987,22 @@
       );
     },
     get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      const deviation = 100;
+      let maxZIndex = deviation;
+      const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+      return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      const deviation = 100;
+      let maxZIndex = deviation;
+      const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+      return maxZIndex;
     },
     mask: {
       enable: true,
@@ -3106,15 +3105,11 @@
       });
     },
     hookKeyboard() {
-      const isDisableTriggerKeyboard = ($el) => {
-        if ($el == null) return false;
-        const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
-        if (isInputNode) return true;
-        const isCommentEditor = Boolean(
-          $el?.closest(".DraftEditor-editorContainer") || $el?.closest(".im-richtext-container")
-        );
-        if (isCommentEditor) return true;
-        const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
+      const isDisableTriggerKeyboard = () => {
+        const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
+        const $active = $shadowRootActive ?? document.activeElement;
+        if ($active == null) return false;
+        const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
         if (isInPops) return true;
         return false;
       };
@@ -3135,9 +3130,7 @@
         if (keyboardEvent.shiftKey) {
           otherCodeList.push("shift");
         }
-        const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
-        const $active = $shadowRootActive ?? document.activeElement;
-        if (isDisableTriggerKeyboard($active)) {
+        if (isDisableTriggerKeyboard()) {
           flag = false;
           return flag;
         }

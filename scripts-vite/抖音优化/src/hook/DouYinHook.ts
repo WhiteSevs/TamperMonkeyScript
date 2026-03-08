@@ -72,15 +72,18 @@ export const DouYinHook = {
      *
      * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者评论区输入框等...
      */
-    const isDisableTriggerKeyboard = ($el: Element | null | undefined) => {
-      if ($el == null) return false;
-      const isInputNode = ["input", "textarea"].includes($el?.tagName?.toLowerCase());
-      if (isInputNode) return true;
-      const isCommentEditor = Boolean(
-        $el?.closest(".DraftEditor-editorContainer") || $el?.closest(".im-richtext-container")
-      );
-      if (isCommentEditor) return true;
-      const isInPops = $el?.closest(".pops") && $el?.getRootNode() instanceof ShadowRoot;
+    const isDisableTriggerKeyboard = () => {
+      const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
+      const $active = $shadowRootActive ?? document.activeElement;
+      if ($active == null) return false;
+      // 仅判断是否是pops弹窗库内部的
+      // const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
+      // if (isInputNode) return true;
+      // const isCommentEditor = Boolean(
+      //   $active?.closest(".DraftEditor-editorContainer") || $active?.closest(".im-richtext-container")
+      // );
+      // if (isCommentEditor) return true;
+      const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
       if (isInPops) return true;
       return false;
     };
@@ -117,9 +120,7 @@ export const DouYinHook = {
       //   return flag;
       // }
 
-      const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
-      const $active = $shadowRootActive ?? document.activeElement;
-      if (isDisableTriggerKeyboard($active)) {
+      if (isDisableTriggerKeyboard()) {
         // 在输入框内时，禁止触发快捷键
         flag = false;
         return flag;
