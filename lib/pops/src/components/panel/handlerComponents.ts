@@ -1,8 +1,9 @@
 import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
+import type { EventEmiter } from "../../event/EventEmiter";
+import { PopsAnimation } from "../../PopsAnimation";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -74,6 +75,7 @@ export const PanelHandlerComponents = () => {
       nodeStoreConfigKey: "data-view-config",
     },
     $config: {} as Required<PopsPanelConfig>,
+    emitter: null as any as EventEmiter<PopsPanelEventType>,
     /**
      * 初始化
      * @param data
@@ -91,12 +93,14 @@ export const PanelHandlerComponents = () => {
         $panelBottomLeftContainer: HTMLElement;
         $panelBottomRightContainer: HTMLElement;
       };
+      emitter: EventEmiter<PopsPanelEventType>;
     }) {
       const PopsType = "panel";
       this.$el = {
         ...data.$el,
       };
       this.$config = data.config;
+      this.emitter = data.emitter;
 
       this.asideULElement = this.$el.$panelLeftAside.querySelector<HTMLUListElement>(
         `ul.pops-${PopsType}-aside-top-container`
@@ -1022,7 +1026,8 @@ export const PanelHandlerComponents = () => {
             $target: this.$ele.button,
             content: getToolTipContent,
             zIndex: () => {
-              return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
+              // return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
+              return popsUtils.getMaxZIndexNodeInfoFromPoint(this.$ele.button)[0].zIndex;
             },
             isFixed: true,
             className: "github-tooltip",
@@ -3654,104 +3659,37 @@ export const PanelHandlerComponents = () => {
             className: "pops-panel-deepMenu-container-left-arrow-icon",
             innerHTML: PopsIcon.getIcon("arrowLeft")!,
           });
-          // 动画配置
-          const animOptions: KeyframeAnimationOptions = {
-            // 150 220 300
-            duration: 220,
-            easing: "ease-in-out",
-          };
-          // 进入动画
-          const enterViewTransition = () => {
-            // 隐藏旧的容器
-            popsDOMUtils.cssHide($currentSection, true);
-            popsDOMUtils.on(
-              $headerLeftArrow,
-              "click",
-              async (event) => {
-                popsDOMUtils.preventEvent(event);
-                // 返回动画
-                const leaveViewTransition = () => {
-                  const $prev = $currentSection;
-                  popsDOMUtils.cssShow($prev);
-                  $deepMenuSection.remove();
-                };
-                // 返回上一层菜单
-                if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
-                  const leaveTransition = document.startViewTransition(leaveViewTransition);
-                  await leaveTransition.ready;
-                  // 向右移出
-                  await Promise.all([
-                    $deepMenuSection.animate(
-                      [
-                        {
-                          // from
-                          transform: "translateX(0)",
-                        },
-                        {
-                          // to
-                          transform: "translateX(100%)",
-                        },
-                      ],
-                      animOptions
-                    ).finished,
-                    // 向右移入
-                    $currentSection.animate(
-                      [
-                        {
-                          // from
-                          transform: "translateX(-100%)",
-                        },
-                        {
-                          // to
-                          transform: "translateX(0)",
-                        },
-                      ],
-                      animOptions
-                    ).finished,
-                  ]);
-                  await leaveTransition.finished;
-                } else {
-                  leaveViewTransition();
+          const switchAnim = PopsAnimation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
+            useAnimation: that.$config.useDeepMenuSwtichAnimation,
+            enterToAddElementCallback: () => {
+              popsDOMUtils.on(
+                $headerLeftArrow,
+                "click",
+                async (event) => {
+                  popsDOMUtils.preventEvent(event);
+                  // 返回动画
+                  await switchAnim.exit();
+                  that.emitRenderRightContainer($currentSection);
+                },
+                {
+                  once: true,
                 }
-                that.emitRenderRightContainer($currentSection);
-              },
-              {
-                once: true,
-              }
-            );
-            popsDOMUtils.before($header.firstElementChild!, $headerLeftArrow);
-            $deepMenuHeaderUL.appendChild($header);
-            $deepMenuSection.appendChild($deepMenuHeaderUL);
-            $deepMenuSection.appendChild($deepMenuMain);
+              );
+              popsDOMUtils.before($header.firstElementChild!, $headerLeftArrow);
+              $deepMenuHeaderUL.appendChild($header);
+              $deepMenuSection.appendChild($deepMenuHeaderUL);
+              $deepMenuSection.appendChild($deepMenuMain);
 
-            if (viewConfig.views && Array.isArray(viewConfig.views)) {
-              for (let index = 0; index < viewConfig.views.length; index++) {
-                const formItemConfig = viewConfig.views[index];
-                this.initContainerItem($deepMenuMain, formItemConfig);
+              if (viewConfig.views && Array.isArray(viewConfig.views)) {
+                for (let index = 0; index < viewConfig.views.length; index++) {
+                  const formItemConfig = viewConfig.views[index];
+                  this.initContainerItem($deepMenuMain, formItemConfig);
+                }
               }
-            }
-            that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
-          };
-          if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
-            const transition = document.startViewTransition(enterViewTransition);
-            await transition.ready;
-            await $deepMenuSection.animate(
-              [
-                {
-                  // from
-                  transform: "translateX(100%)",
-                },
-                {
-                  // to
-                  transform: "translateX(0)",
-                },
-              ],
-              animOptions
-            ).finished;
-            await transition.finished;
-          } else {
-            enterViewTransition();
-          }
+              that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
+            },
+          });
+          await switchAnim.enter();
           if (typeof viewConfig.afterEnterDeepMenuCallBack === "function") {
             viewConfig.afterEnterDeepMenuCallBack(viewConfig, {
               $sectionContainer: $deepMenuSection,
@@ -3916,20 +3854,12 @@ export const PanelHandlerComponents = () => {
      * @param $container 容器
      */
     emitRenderRightContainer($container: HTMLElement) {
-      const dataViewConfig: PopsPanelEventType["pops:renderRightContainer"]["viewConfig"] = Reflect.get(
-        $container,
-        this.$data.nodeStoreConfigKey
-      );
-      this.$el.$pops.dispatchEvent(
-        new CustomEvent<PopsPanelEventType["pops:renderRightContainer"]>(
-          <keyof PopsPanelEventType>"pops:renderRightContainer",
-          {
-            detail: {
-              viewConfig: dataViewConfig,
-            },
-          }
-        )
-      );
+      const dataViewConfig: Parameters<PopsPanelEventType["pops:renderRightContainer"]>["0"]["viewConfig"] =
+        Reflect.get($container, this.$data.nodeStoreConfigKey);
+
+      this.emitter.emit("pops:renderRightContainer", {
+        viewConfig: dataViewConfig,
+      });
     },
     /**
      *

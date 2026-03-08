@@ -1,3 +1,4 @@
+import { version } from "../package.json";
 import { PopsAlert } from "./components/alert";
 import type { PopsAlertConfig } from "./components/alert/types";
 import { PopsConfirm } from "./components/confirm";
@@ -22,6 +23,7 @@ import type { PopsSearchSuggestionConfig } from "./components/searchSuggestion/t
 import { PopsTooltip } from "./components/tooltip";
 import type { PopsToolTipConfig } from "./components/tooltip/types/index";
 import { GlobalConfig } from "./config/GlobalConfig";
+import { EventEmiter } from "./event/EventEmiter";
 import { PopsAnimation } from "./PopsAnimation";
 import { PopsCore } from "./PopsCore";
 import { PopsCSS } from "./PopsCSS";
@@ -31,7 +33,6 @@ import { popsDOMUtils } from "./utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "./utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { popsUtils } from "./utils/PopsUtils";
-import { version } from "../package.json";
 
 class Pops {
   /** 配置 */
@@ -60,7 +61,11 @@ class Pops {
     /** pops处理float类型使用的工具类 */
     MathFloatUtils: PopsMathFloatUtils,
     /** pops.panel中用于处理各个类型的工具 */
-    PanelHandlerComponents: PanelHandlerComponents,
+    PanelHandlerComponents,
+    /** pops.panel中的动画 */
+    PopsAnimation,
+    /** 事件类 */
+    EventEmiter,
   };
   init() {}
   /**

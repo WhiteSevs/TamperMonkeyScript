@@ -1,7 +1,9 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { EventMap } from "../../types/EventEmitter";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoadingDefaultConfig } from "./defaultConfig";
@@ -12,14 +14,15 @@ export const PopsLoading = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const PopsType = "loading";
+    const emitter = new EventEmiter<EventMap>(PopsType);
+
     let config = PopsLoadingDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
-
     config = PopsHandler.handleOnly(PopsType, config);
 
     // 先把z-index提取出来
-    const zIndex = PopsHandler.handleZIndex(config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex);
 
     const { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
@@ -76,17 +79,20 @@ export const PopsLoading = {
       $mask = handleMask.maskElement;
       $elList.push($mask);
     }
-    const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
+    const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, emitter, $mask);
     popsDOMUtils.append(config.$parent, $elList);
     if ($mask != null) {
       $anim.after($mask);
     }
-    // @ts-ignore
     PopsHandler.handlePush(PopsType, {
+      $shadowContainer: $pops,
+      $shadowRoot: $pops,
       guid: guid,
       $anim: $anim,
-      $pops: $pops!,
-      $mask: $mask!,
+      $pops: $pops,
+      $mask: $mask,
+      emitter: emitter,
+      config: config,
     });
 
     if (config.isAbsolute) {

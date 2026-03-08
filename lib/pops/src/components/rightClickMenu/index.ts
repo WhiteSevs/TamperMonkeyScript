@@ -1,6 +1,12 @@
+import { PopsCSS } from "../../PopsCSS";
 import { OriginPrototype } from "../../PopsCore";
+import { PopsIcon } from "../../PopsIcon";
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
+import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
+import type { EventMap } from "../../types/EventEmitter";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -12,16 +18,13 @@ import type {
   PopsRightClickMenuItemStoreNodeValue,
   PopsRightClickMenuRootStoreNodeValue,
 } from "./types";
-import { PopsCSS } from "../../PopsCSS";
-import { PopsIcon } from "../../PopsIcon";
-import type { PopsType } from "../../types/main";
-import { PopsElementHandler } from "../../handler/PopsElementHandler";
 
 export const PopsRightClickMenu = {
   init(__config__: PopsRightClickMenuConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "rightClickMenu";
+    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsRightClickMenuDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -154,13 +157,14 @@ export const PopsRightClickMenu = {
             guid: guid,
             $anim: rootElement,
             $pops: rootElement,
-            beforeRemoveCallBack(instCommonConfig) {
-              PopsContextMenu.closeAllMenu(instCommonConfig.$pops);
-            },
             config: config,
-            destory: () => {
-              PopsContextMenu.closeAllMenu(rootElement);
-            },
+            emitter,
+          });
+          emitter.on("pops:before-destory", () => {
+            PopsContextMenu.closeAllMenu(rootElement);
+          });
+          emitter.on("pops:destory", () => {
+            PopsContextMenu.closeAllMenu(rootElement);
           });
         }
       },
@@ -254,6 +258,7 @@ export const PopsRightClickMenu = {
         );
         const zIndex = this.getMenuZIndex();
         if (zIndex > 10000) {
+          // 大于默认值
           $menu.style.zIndex = zIndex.toString();
         }
         if (isChildren) {
@@ -274,7 +279,7 @@ export const PopsRightClickMenu = {
        * 动态获取配的z-index
        */
       getMenuZIndex() {
-        return PopsHandler.handleZIndex(config.zIndex);
+        return PopsHandler.getTargerOrFunctionValue(config.zIndex);
       },
       /**
        * 获取left、top偏移
@@ -395,9 +400,7 @@ export const PopsRightClickMenu = {
         popsDOMUtils.append($shadowRoot, menuElement);
         // 判断容器是否存在
         if (!document.contains($shadowContainer)) {
-          if (typeof config.beforeAppendToPageCallBack === "function") {
-            config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-          }
+          emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
           popsDOMUtils.appendBody($shadowContainer);
         }
         this.handlerShowMenuCSS(menuElement, menuEvent);

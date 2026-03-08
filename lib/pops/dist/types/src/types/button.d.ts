@@ -1,3 +1,4 @@
+import type { EventEmiter } from "../event/EventEmiter";
 import type { PopsEventConfig, PopsHandlerEventConfig } from "./event";
 import type { PopsIconType } from "./icon";
 
@@ -63,7 +64,7 @@ export interface PopsGlobalButtonConfig<T = object> {
    *
    * 如果传入该值，那么将不会自动关闭弹窗
    */
-  callback(eventConfig: PopsHandlerEventConfig & T, event: PointerEvent | MouseEvent): void;
+  callback(eventConfig: PopsHandlerEventConfig<EventEmiter> & T, event: PointerEvent | MouseEvent): void;
 }
 
 /**

@@ -1,8 +1,10 @@
 import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
@@ -15,6 +17,7 @@ export const PopsSearchSuggestion = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "searchSuggestion";
+    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsSearchSuggestionDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -54,6 +57,7 @@ export const PopsSearchSuggestion = {
       passive: true,
     };
     const SearchSuggestion = {
+      emitter: emitter,
       /**
        * 当前的环境，可以是document，可以是shadowroot，默认是document
        */
@@ -282,7 +286,7 @@ export const PopsSearchSuggestion = {
 					border: initial;
 					overflow: initial;
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
-					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
+					z-index: ${PopsHandler.getTargerOrFunctionValue(config.zIndex)};
 				}
         .pops-${popsType}-search-suggestion-dropdown-wrapper{
 					max-height: ${config.maxHeight};

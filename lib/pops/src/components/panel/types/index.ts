@@ -36,12 +36,12 @@ export type PopsPanelEventType = {
   /**
    * 该事件在右侧容器内的元素改变时触发
    */
-  "pops:renderRightContainer": {
+  "pops:renderRightContainer": (data: {
     /**
      * 视图配置
      */
     viewConfig: PopsPanelContentConfig[] | PopsPanelDeepViewConfig;
-  };
+  }) => void;
 };
 
 /**
@@ -241,4 +241,9 @@ export interface PopsPanelConfig extends PopsTitleConfig, PopsDragConfig, PopsGe
    * @default true
    */
   useDeepMenuSwtichAnimation?: true;
+  /**
+   * 监听按键按下Esc来退出内部菜单
+   * @default true
+   */
+  listenEscapeKeyUpToExitDeepMenu?: boolean;
 }

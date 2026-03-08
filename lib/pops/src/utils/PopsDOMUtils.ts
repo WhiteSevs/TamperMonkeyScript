@@ -526,15 +526,6 @@ class PopsDOMUtilsEvent {
       // 这是存在selector的情况
       listenerOption = getOption(args, 4, listenerOption);
     }
-    // 是否移除所有事件
-    let isRemoveAll = false;
-    if (args.length === 2) {
-      // 目标函数、事件名
-      isRemoveAll = true;
-    } else if ((args.length === 3 && typeof args[2] === "string") || Array.isArray(args[2])) {
-      // 目标函数、事件名、子元素选择器
-      isRemoveAll = true;
-    }
     if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
       // 目标函数、事件名、回调函数、事件配置、过滤函数
       filter = option as (
@@ -572,7 +563,7 @@ class PopsDOMUtilsEvent {
             // 事件的配置项不同
             flag = false;
           }
-          if (flag || isRemoveAll) {
+          if (flag) {
             elementItem.removeEventListener(eventName, handler.callback, handler.option);
             const findIndex = handlers.findIndex((item) => item === handler);
             if (findIndex !== -1) {
@@ -1049,36 +1040,6 @@ class PopsDOMUtilsEvent {
     const listener = this.on(target, "keydown", handler, option);
     return listener;
   }
-  /**
-   * 当按键按下时触发事件
-   * keydown - > keypress - > keyup
-   * @param target 目标
-   * @param handler 事件处理函数
-   * @param option 配置
-   * @example
-   * // 监听a.xx元素的按键按下
-   * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-   *   console.log("按键按下");
-   * })
-   * DOMUtils.keypress("a.xx",()=>{
-   *   console.log("按键按下");
-   * })
-   */
-  onKeypress(
-    target: HTMLElement | Window | typeof globalThis | string,
-    handler: (event: PopsDOMUtils_Event["keypress"]) => void,
-    option?: boolean | AddEventListenerOptions
-  ) {
-    if (target == null) {
-      return;
-    }
-    if (typeof target === "string") {
-      target = this.selector(target) as HTMLElement;
-    }
-    const listener = this.on(target, "keypress", handler, option);
-    return listener;
-  }
-
   /**
    * 阻止事件传递
    *

@@ -2,6 +2,10 @@ import AnyTouch from "any-touch";
 import doubletap from "@any-touch/doubletap";
 declare class PopsUtils {
     /**
+     * 超时时间
+     */
+    sleep(timeout: number): Promise<unknown>;
+    /**
      * 判断是否是window，例如window、self、globalThis
      * @param target
      */
@@ -151,6 +155,59 @@ declare class PopsUtils {
      * 覆盖对象中的数组新值
      */
     setArray<T>(target: T, key: keyof T, newArr: any[]): void;
+    /**
+     * 获取页面的坐标中最大的z-index的元素信息
+     *
+     * 其中坐标为
+     *
+     * + 左上角（宽: 1/8，高: 1/8）
+     * + 右上角（宽: 7/8，高: 1/8）
+     * + 左下角（宽: 1/8，高: 7/8）
+     * + 右下角（宽: 7/8，高: 7/8）
+     * + 中间（宽: 1/2，高: 1/2）
+     * @param $el 仅检测目标元素最大的z-index（自动往上层找）
+     * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
+     */
+    getMaxZIndexNodeInfoFromPoint($el?: IFunction<HTMLElement | HTMLElement[]>, deviation?: number): {
+        /** 处理了偏移量后的z-index值 */
+        zIndex: number;
+        /** 原始z-index值 */
+        originZIndex: number;
+        /** 拥有最大z-index的元素 */
+        node: HTMLElement | null;
+        /** 目标坐标元素 */
+        positionNode: HTMLElement;
+        /** x坐标 */
+        positionX: number;
+        /** y坐标 */
+        positionY: number;
+    }[];
+    /**
+     * 获取页面的坐标中最大的z-index的元素信息
+     *
+     * 其中坐标为
+     *
+     * + 左上角（宽: 1/8，高: 1/8）
+     * + 右上角（宽: 7/8，高: 1/8）
+     * + 左下角（宽: 1/8，高: 7/8）
+     * + 右下角（宽: 7/8，高: 7/8）
+     * + 中间（宽: 1/2，高: 1/2）
+     * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
+     */
+    getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
+        /** 处理了偏移量后的z-index值 */
+        zIndex: number;
+        /** 原始z-index值 */
+        originZIndex: number;
+        /** 拥有最大z-index的元素 */
+        node: HTMLElement | null;
+        /** 目标坐标元素 */
+        positionNode: HTMLElement;
+        /** x坐标 */
+        positionX: number;
+        /** y坐标 */
+        positionY: number;
+    }[];
 }
 declare const popsUtils: PopsUtils;
 export { popsUtils };

@@ -5,6 +5,16 @@ import type { PopsUtilsOwnObject } from "../types/main";
 
 class PopsUtils {
   /**
+   * 超时时间
+   */
+  sleep(timeout: number) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true);
+      }, timeout);
+    });
+  }
+  /**
    * 判断是否是window，例如window、self、globalThis
    * @param target
    */
@@ -400,6 +410,190 @@ class PopsUtils {
       (<any>target)[key] = [];
     }
     (<any>target)[key] = newArr;
+  }
+  /**
+   * 获取页面的坐标中最大的z-index的元素信息
+   *
+   * 其中坐标为
+   *
+   * + 左上角（宽: 1/8，高: 1/8）
+   * + 右上角（宽: 7/8，高: 1/8）
+   * + 左下角（宽: 1/8，高: 7/8）
+   * + 右下角（宽: 7/8，高: 7/8）
+   * + 中间（宽: 1/2，高: 1/2）
+   * @param $el 仅检测目标元素最大的z-index（自动往上层找）
+   * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
+   */
+  getMaxZIndexNodeInfoFromPoint(
+    $el?: IFunction<HTMLElement | HTMLElement[]>,
+    deviation?: number
+  ): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[];
+  /**
+   * 获取页面的坐标中最大的z-index的元素信息
+   *
+   * 其中坐标为
+   *
+   * + 左上角（宽: 1/8，高: 1/8）
+   * + 右上角（宽: 7/8，高: 1/8）
+   * + 左下角（宽: 1/8，高: 7/8）
+   * + 右下角（宽: 7/8，高: 7/8）
+   * + 中间（宽: 1/2，高: 1/2）
+   * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
+   */
+  getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[];
+  getMaxZIndexNodeInfoFromPoint(
+    $el?: IFunction<HTMLElement | HTMLElement[] | number>,
+    deviation?: number
+  ): {
+    /** 处理了偏移量后的z-index值 */
+    zIndex: number;
+    /** 原始z-index值 */
+    originZIndex: number;
+    /** 拥有最大z-index的元素 */
+    node: HTMLElement | null;
+    /** 目标坐标元素 */
+    positionNode: HTMLElement;
+    /** x坐标 */
+    positionX: number;
+    /** y坐标 */
+    positionY: number;
+  }[] {
+    if (typeof $el === "function") {
+      $el = $el();
+    }
+    if (typeof $el === "number") {
+      deviation = $el;
+      $el = void 0;
+    }
+    if (typeof deviation !== "number" || Number.isNaN(deviation)) {
+      deviation = 10;
+    }
+    const leftTop = {
+      x: globalThis.innerWidth * (1 / 8),
+      y: globalThis.innerHeight * (1 / 8),
+    };
+    const leftBottom = {
+      x: globalThis.innerWidth * (1 / 8),
+      y: globalThis.innerHeight * (7 / 8),
+    };
+    const rightTop = {
+      x: globalThis.innerWidth * (7 / 8),
+      y: globalThis.innerHeight * (1 / 8),
+    };
+    const rightBottom = {
+      x: globalThis.innerWidth * (7 / 8),
+      y: globalThis.innerHeight * (7 / 8),
+    };
+    const center = {
+      x: globalThis.innerWidth / 2,
+      y: globalThis.innerHeight / 2,
+    };
+    const delayHandlerElementPostionList: ({ x: number; y: number } | HTMLElement)[] = [
+      leftTop,
+      leftBottom,
+      rightTop,
+      rightBottom,
+      center,
+    ];
+    if ($el) {
+      delayHandlerElementPostionList.length = 0;
+      if (Array.isArray($el)) {
+        delayHandlerElementPostionList.push(...$el);
+      } else {
+        delayHandlerElementPostionList.push($el);
+      }
+    }
+    const positionInfoList = delayHandlerElementPostionList
+      .map((position) => {
+        let positionNode: Element | null;
+        let positionX: number;
+        let positionY: number;
+        if (position instanceof HTMLElement) {
+          positionNode = position;
+          const nodeRect = position.getBoundingClientRect();
+          positionX = nodeRect.x + nodeRect.width / 2;
+          positionY = nodeRect.y + nodeRect.height / 2;
+        } else {
+          positionNode = document.elementFromPoint(position.x, position.y);
+          positionX = position.x;
+          positionY = position.y;
+        }
+        const shadowRoot = positionNode?.shadowRoot;
+        if (shadowRoot) {
+          positionNode = shadowRoot.elementFromPoint(positionX, positionY);
+        }
+        if (positionNode instanceof HTMLStyleElement) return;
+        if (positionNode instanceof HTMLScriptElement) return;
+        if (positionNode instanceof HTMLMetaElement) return;
+        if (positionNode instanceof HTMLHeadElement) return;
+        if (!(positionNode instanceof HTMLElement)) return;
+        let parent: HTMLElement | null = positionNode;
+        let zIndex = 0;
+        let maxZIndexNode: HTMLElement | null = null;
+        while (parent) {
+          const nodeStyle = globalThis.getComputedStyle(parent);
+          const nodeZIndex = parseInt(nodeStyle.zIndex);
+          if (nodeStyle.position !== "static" && !isNaN(nodeZIndex)) {
+            if (nodeZIndex > zIndex) {
+              zIndex = nodeZIndex;
+              maxZIndexNode = parent;
+            }
+          }
+          parent = parent.parentElement;
+        }
+        return {
+          /** 处理了偏移量后的z-index值 */
+          zIndex: zIndex + deviation,
+          /** 原始z-index值 */
+          originZIndex: zIndex,
+          /** 拥有最大z-index的元素 */
+          node: maxZIndexNode,
+          /** 目标坐标元素 */
+          positionNode: positionNode,
+          /** x坐标 */
+          positionX: positionX,
+          /** y坐标 */
+          positionY: positionY,
+        };
+      })
+      .filter((it) => it != null);
+    // 降序排序
+    positionInfoList.sort((a, b) => {
+      if (a.zIndex < b.zIndex) {
+        return 1;
+      } else if (a.zIndex > b.zIndex) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+    return positionInfoList;
   }
 }
 

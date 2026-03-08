@@ -1,11 +1,12 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
+import { PopsInstHandler } from "../../handler/PopsInstHandler";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsInstData } from "../../PopsInst";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsIframeDefaultConfig } from "./defaultConfig";
 import type { PopsIframeClickEventConfig, PopsIframeConfig } from "./types";
@@ -15,7 +16,11 @@ export const PopsIframe = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "iframe";
-
+    const emitter = new EventEmiter<{
+      "pops:iframe-min": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+      "pops:iframe-mise": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+      "pops:iframe-max": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+    }>(popsType);
     let config = PopsIframeDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
@@ -55,7 +60,7 @@ export const PopsIframe = {
     const maskExtraStyle = config.animation != null && <string>config.animation != "" ? "position:absolute;" : "";
 
     // 先把z-index提取出来
-    const zIndex = PopsHandler.handleZIndex(config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
 
     const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
@@ -140,10 +145,11 @@ export const PopsIframe = {
       popsType,
       $anim,
       $pops,
+      emitter,
       $mask
-    ) as PopsIframeClickEventConfig;
+    ) as PopsIframeClickEventConfig<typeof emitter>;
     // 赋值额外的$iframe参数
-    evtConfig.$iframe = $iframe!;
+    evtConfig.$iframe = $iframe;
 
     const result = PopsHandler.handleResultConfig(evtConfig);
 
@@ -172,17 +178,14 @@ export const PopsIframe = {
     // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
-    if (typeof config.beforeAppendToPageCallBack === "function") {
-      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-    }
-
+    emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
     $iframeContainer.appendChild($shadowContainer);
     if ($mask != null) {
       $anim.after($mask);
     }
     // 拖拽
     if (config.drag) {
-      PopsInstanceUtils.drag($pops!, {
+      PopsInstHandler.drag($pops!, {
         dragElement: $title!,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
@@ -217,6 +220,7 @@ export const PopsIframe = {
         if (typeof config?.btn?.min?.callback === "function") {
           config.btn.min.callback(evtConfig, event);
         }
+        emitter.emit("pops:iframe-min", evtConfig, event);
       },
       {
         capture: true,
@@ -251,6 +255,7 @@ export const PopsIframe = {
         if (typeof config?.btn?.max?.callback === "function") {
           config.btn.max.callback(evtConfig, event);
         }
+        emitter.emit("pops:iframe-max", evtConfig, event);
       },
       {
         capture: true,
@@ -293,6 +298,7 @@ export const PopsIframe = {
         if (typeof config?.btn?.mise?.callback === "function") {
           config.btn.mise.callback(evtConfig, event);
         }
+        emitter.emit("pops:iframe-mise", evtConfig, event);
       },
       {
         capture: true,
@@ -305,7 +311,7 @@ export const PopsIframe = {
       async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        await PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
+        await PopsInstHandler.removeInstance([PopsInstData.iframe], guid, false);
         if (typeof config?.btn?.close?.callback === "function") {
           config.btn.close.callback(evtConfig, event);
         }
@@ -323,7 +329,7 @@ export const PopsIframe = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
       config: config,
-      destory: result.close,
+      emitter,
     });
     return result;
   },

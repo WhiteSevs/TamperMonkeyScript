@@ -867,5 +867,6 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
     darkStyle: null,
     beforeAppendToPageCallBack() {},
     stopKeyDownEventPropagation: true,
+    listenEscapeKeyUpToExitDeepMenu: true,
   };
 };

@@ -1,10 +1,12 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
+import { PopsInstHandler } from "../../handler/PopsInstHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertDefaultConfig } from "./defaultConfig";
 import type { PopsAlertConfig } from "./types";
@@ -14,6 +16,7 @@ export const PopsAlert = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "alert";
+    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsAlertDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -53,7 +56,7 @@ export const PopsAlert = {
     ]);
 
     // 先把z-index提取出来
-    const zIndex = PopsHandler.handleZIndex(config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex);
     const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
     const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -116,6 +119,7 @@ export const PopsAlert = {
       popsType,
       $anim,
       $pops,
+      emitter,
       $mask
     );
     const result = PopsHandler.handleResultConfig(evtConfig);
@@ -125,12 +129,8 @@ export const PopsAlert = {
     PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok?.callback);
 
     // 创建到页面中
-
     popsDOMUtils.append($shadowRoot, $elList);
-    if (typeof config.beforeAppendToPageCallBack === "function") {
-      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-    }
-
+    emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
     popsDOMUtils.appendBody($shadowContainer);
     if ($mask != null) {
       // 添加遮罩层
@@ -145,11 +145,11 @@ export const PopsAlert = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
       config: config,
-      destory: result.close,
+      emitter,
     });
     // 拖拽
     if (config.drag) {
-      PopsInstanceUtils.drag($pops!, {
+      PopsInstHandler.drag($pops!, {
         dragElement: $title!,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance!,

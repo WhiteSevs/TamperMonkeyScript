@@ -6,10 +6,12 @@ import type { PopsIframeConfig } from "../components/iframe/types";
 import type { PopsLoadingConfig } from "../components/loading/types";
 import type { PopsPanelConfig } from "../components/panel/types";
 import type { PopsPromptConfig } from "../components/prompt/types/index";
+import type { EventEmiter } from "../event/EventEmiter";
 import type { PopsGeneralConfig } from "../types/components";
 import type { PopsEventConfig, PopsHandlerEventConfig } from "../types/event";
+import type { CustomEventMap } from "../types/EventEmitter";
 import type { PopsInstGeneralConfig } from "../types/inst";
-import type { PopsInstStoreType, PopsType, PopsSupportAnimConfigType, PopsSupportOnlyConfig } from "../types/main";
+import type { PopsInstStoreType, PopsSupportAnimConfigType, PopsSupportOnlyConfig, PopsType } from "../types/main";
 export declare const PopsHandler: {
     /**
      * 创建shadow
@@ -180,7 +182,7 @@ export declare const PopsHandler: {
      * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, type: PopsInstStoreType, $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): PopsEventConfig;
+    handleEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, type: PopsInstStoreType, $anim: HTMLDivElement, $pops: HTMLDivElement, emitter: E, $mask?: HTMLDivElement): PopsEventConfig<E>;
     /**
      * 获取loading的事件配置
      * @param guid
@@ -190,7 +192,7 @@ export declare const PopsHandler: {
      * @param $mask 遮罩层
      * @param config 当前配置
      */
-    handleLoadingEventConfig(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, type: "loading", $anim: HTMLDivElement, $pops: HTMLDivElement, $mask?: HTMLDivElement): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot">;
+    handleLoadingEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, guid: string, type: "loading", $anim: HTMLDivElement, $pops: HTMLDivElement, emitter: E, $mask?: HTMLDivElement): Omit<PopsEventConfig<E>, "$shadowContainer" | "$shadowRoot">;
     /**
      * 处理返回的配置，针对popsHandler.handleEventConfig
      * @param config 配置
@@ -203,16 +205,14 @@ export declare const PopsHandler: {
      * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
      * @param callback 点击回调
      */
-    handleClickEvent(type: PopsHandlerEventConfig["type"], $btn: HTMLElement, eventConfig: PopsEventConfig, callback?: (details: PopsHandlerEventConfig, event: PointerEvent | MouseEvent) => void): void;
+    handleClickEvent<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(type: PopsHandlerEventConfig<E>["type"], $btn: HTMLElement, eventConfig: PopsEventConfig<E>, callback?: (details: PopsHandlerEventConfig<E>, event: PointerEvent | MouseEvent) => void): import("../types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 全局监听键盘事件
      * @param keyName 键名|键值
      * @param otherKeyList 组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
      * @param callback 回调函数
      */
-    handleKeyboardEvent(keyName: string | number, otherKeyList: string[] | undefined, callback: (event: KeyboardEvent) => void): {
-        removeKeyboardEvent(): void;
-    };
+    handleKeyboardEvent(keyName: string | number, otherKeyList: string[] | undefined, callback: (event: KeyboardEvent) => void): import("../types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult;
     /**
      * 处理prompt的点击事件
      * @param type 触发事件类型
@@ -221,21 +221,26 @@ export declare const PopsHandler: {
      * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
      * @param callback 点击回调
      */
-    handlePromptClickEvent(type: PopsHandlerEventConfig["type"], inputElement: HTMLInputElement | HTMLTextAreaElement, $btn: HTMLElement, eventConfig: PopsEventConfig, callback: (details: PopsEventConfig & {
+    handlePromptClickEvent<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(type: PopsHandlerEventConfig<E>["type"], inputElement: HTMLInputElement | HTMLTextAreaElement, $btn: HTMLElement, eventConfig: PopsEventConfig<E>, callback: (details: PopsEventConfig<E> & {
         type: any;
         text: string;
     }, event: MouseEvent | PointerEvent) => void): void;
     /**
-     * 把配置的z-index配置转为数字
-     * @param zIndex
+     * 获取数值
+     * @param target
      */
-    handleZIndex(zIndex: number | (() => number)): number;
+    getTargerOrFunctionValue<T>(target: T | (() => T)): T;
     /**
      * 处理config.only
      * @param type 当前弹窗类型
      * @param config 配置
      */
     handleOnly<T extends Required<PopsSupportOnlyConfig[keyof PopsSupportOnlyConfig]>>(type: PopsType, config: T): T;
+    /**
+     * 处理z-index
+     * @param config 配置
+     */
+    handleZIndex<T extends Required<PopsSupportOnlyConfig[keyof PopsSupportOnlyConfig]>>(config: T): T;
     /**
      * 处理把已创建的元素保存到内部环境中
      * @param type 当前弹窗类型

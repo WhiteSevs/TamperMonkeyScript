@@ -34,6 +34,10 @@ export type PopsDOMUtils_MouseEventType = keyof PopsDOMUtils_MouseEvent;
  */
 export interface PopsDOMUtils_KeyboardEvent {
   keydown: KeyboardEvent;
+  /**
+   * @link https://developer.mozilla.org/zh-CN/docs/Web/API/Element/keypress_event
+   * @deprecated
+   */
   keypress: KeyboardEvent;
   keyup: KeyboardEvent;
 }

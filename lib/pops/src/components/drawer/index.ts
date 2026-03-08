@@ -1,8 +1,10 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsHandlerEventConfig } from "../../types/event";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -14,12 +16,12 @@ export const PopsDrawer = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "drawer";
+    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsDrawerDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
-
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {
@@ -53,7 +55,7 @@ export const PopsDrawer = {
     ]);
 
     // 先把z-index提取出来
-    const zIndex = PopsHandler.handleZIndex(config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex);
 
     const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
@@ -126,6 +128,7 @@ export const PopsDrawer = {
       popsType,
       $anim,
       $pops,
+      emitter,
       $mask
     );
     const result = PopsHandler.handleResultConfig(evtConfig);
@@ -155,13 +158,16 @@ export const PopsDrawer = {
 
     // 按下Esc键触发关闭
     if (config.closeOnPressEscape) {
-      PopsHandler.handleKeyboardEvent("Escape", [], function () {
+      const listener = PopsHandler.handleKeyboardEvent("Escape", [], function () {
         evtConfig.close();
+      });
+      emitter.on("pops:destory", () => {
+        listener.off();
       });
     }
     // 待处理的点击事件列表
     const needHandleClickEventList: {
-      type: PopsHandlerEventConfig["type"];
+      type: PopsHandlerEventConfig<typeof emitter>["type"];
       ele: HTMLElement;
     }[] = [
       {
@@ -215,10 +221,7 @@ export const PopsDrawer = {
     // 创建到页面中
 
     popsDOMUtils.append($shadowRoot, $elList);
-    if (typeof config.beforeAppendToPageCallBack === "function") {
-      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-    }
-
+    emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
     popsDOMUtils.appendBody($shadowContainer);
     popsUtils.setTimeout(() => {
       popsUtils.setTimeout(() => {
@@ -238,7 +241,7 @@ export const PopsDrawer = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
       config: config,
-      destory: result.close,
+      emitter: emitter,
     });
     return result;
   },

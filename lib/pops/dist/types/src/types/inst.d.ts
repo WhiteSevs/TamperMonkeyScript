@@ -1,3 +1,5 @@
+import type { EventEmiter } from "../event/EventEmiter";
+
 /**
  * config实例配置
  */
@@ -19,10 +21,8 @@ export interface PopsInstGeneralConfig extends PopsInstConfig {
   $shadowContainer: HTMLDivElement;
   /** shadow容器的shandowRoot */
   $shadowRoot: ShadowRoot | HTMLElement;
-  /** 移除实例前的回调函数 */
-  beforeRemoveCallBack?: (instCommonConfig: PopsInstGeneralConfig) => void;
   /** 配置 */
   config: any;
-  /** 销毁元素 */
-  destory(): void | Promise<void>;
+  /** 事件发送器 */
+  emitter: EventEmiter;
 }

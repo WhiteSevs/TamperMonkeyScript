@@ -1,10 +1,13 @@
+import { EventEmiter } from "../../event/EventEmiter";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsSearchSuggestionConfig, PopsSearchSuggestionData } from "./types/index";
 export declare const PopsSearchSuggestion: {
     init<T>(__config__: PopsSearchSuggestionConfig<T>): {
+        emitter: EventEmiter<EventMap>;
         /**
          * 当前的环境，可以是document，可以是shadowroot，默认是document
          */
-        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
+        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
         $el: {
             /** 根元素 */
             root: HTMLElement;

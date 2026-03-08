@@ -1,20 +1,22 @@
+import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
-import { popsUtils } from "../../utils/PopsUtils";
-import type { PopsPanelConfig, PopsPanelEventType } from "./types";
-import { PopsPanelDefaultConfig } from "./defaultConfig";
-import { PanelHandlerComponents } from "./handlerComponents";
-import { GlobalConfig } from "../../config/GlobalConfig";
+import { PopsInstHandler } from "../../handler/PopsInstHandler";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
+import { popsDOMUtils } from "../../utils/PopsDOMUtils";
+import { popsUtils } from "../../utils/PopsUtils";
+import { PopsPanelDefaultConfig } from "./defaultConfig";
+import { PanelHandlerComponents } from "./handlerComponents";
+import type { PopsPanelConfig, PopsPanelEventType } from "./types";
 
 export const PopsPanel = {
   init(__config__: PopsPanelConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "panel";
+    const emitter = new EventEmiter<PopsPanelEventType>(popsType);
 
     let config: Required<PopsPanelConfig> = PopsPanelDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -54,7 +56,7 @@ export const PopsPanel = {
     ]);
 
     // 先把z-index提取出来
-    const zIndex = PopsHandler.handleZIndex(config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex);
 
     const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
@@ -144,6 +146,7 @@ export const PopsPanel = {
       popsType,
       $anim,
       $pops,
+      emitter,
       $mask
     );
     const result = PopsHandler.handleResultConfig(evtConfig);
@@ -152,9 +155,7 @@ export const PopsPanel = {
 
     // 创建到页面中
     popsDOMUtils.append($shadowRoot, $elList);
-    if (typeof config.beforeAppendToPageCallBack === "function") {
-      config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-    }
+    emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
     popsDOMUtils.appendBody($shadowContainer);
     // 追加遮罩层元素
     if ($mask != null) {
@@ -177,6 +178,7 @@ export const PopsPanel = {
         $panelBottomLeftContainer,
         $panelBottomRightContainer,
       },
+      emitter,
     });
 
     PopsHandler.handlePush(popsType, {
@@ -187,11 +189,11 @@ export const PopsPanel = {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
       config: config,
-      destory: result.close,
+      emitter,
     });
     // 拖拽
     if (config.drag) {
-      PopsInstanceUtils.drag($pops, {
+      PopsInstHandler.drag($pops, {
         dragElement: $title,
         limit: config.dragLimit,
         extraDistance: config.dragExtraDistance,
@@ -199,23 +201,27 @@ export const PopsPanel = {
         endCallBack: config.dragEndCallBack,
       });
     }
+    if (config.listenEscapeKeyUpToExitDeepMenu) {
+      const escapeListener = popsDOMUtils.onKeyup(
+        globalThis,
+        (evt) => {
+          if (evt.key === "Escape" && !evt.ctrlKey && !evt.shiftKey && !evt.altKey && !evt.metaKey) {
+            // Esc
+            const $exitBtn = $panelRightSectionWrapper.querySelector<HTMLLIElement>(
+              ".pops-panel-deepMenu-container-left-arrow-icon"
+            );
+            if ($exitBtn) {
+              $exitBtn.click();
+            }
+          }
+        },
+        { capture: true }
+      );
+      emitter.on("pops:before-destory", () => {
+        escapeListener?.off();
+      });
+    }
 
-    return {
-      ...result,
-      addEventListener: <K extends keyof PopsPanelEventType>(
-        event: K,
-        listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void,
-        options?: boolean | EventListenerOptions
-      ) => {
-        $pops.addEventListener(event, listener as any, options);
-      },
-      removeEventListener: <K extends keyof PopsPanelEventType>(
-        event: K,
-        listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void,
-        options?: boolean | EventListenerOptions
-      ) => {
-        $pops.removeEventListener(event, listener as any, options);
-      },
-    };
+    return result;
   },
 };

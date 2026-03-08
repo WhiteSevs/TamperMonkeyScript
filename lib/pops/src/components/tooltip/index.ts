@@ -1,7 +1,9 @@
 import { GlobalConfig } from "../../config/GlobalConfig";
+import { EventEmiter } from "../../event/EventEmiter";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
@@ -19,6 +21,7 @@ export class ToolTip {
     $content: null as unknown as HTMLElement,
     $arrow: null as unknown as HTMLElement,
   };
+  emitter: EventEmiter<EventMap>;
   $data = {
     config: null as any as Required<PopsToolTipConfig>,
     guid: null as any as string,
@@ -31,8 +34,10 @@ export class ToolTip {
     ShadowInfo: {
       $shadowContainer: HTMLDivElement;
       $shadowRoot: ShadowRoot | HTMLElement;
-    }
+    },
+    emitter: EventEmiter<EventMap>
   ) {
+    this.emitter = emitter;
     this.$data.config = config;
     this.$data.guid = guid;
     this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
@@ -85,7 +90,7 @@ export class ToolTip {
     // 处理className
     popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
     // 添加z-index
-    $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
+    $toolTipContainer.style.zIndex = PopsHandler.getTargerOrFunctionValue(this.$data.config.zIndex).toString();
     // 添加自定义style
     PopsElementHandler.addStyle($toolTipContainer, this.$data.config.style);
     // 添加自定义浅色style
@@ -133,7 +138,7 @@ export class ToolTip {
    * 获取z-index
    */
   getZIndex() {
-    const zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex);
+    const zIndex = PopsHandler.getTargerOrFunctionValue(this.$data.config.zIndex);
     return zIndex;
   }
   /**
@@ -328,9 +333,7 @@ export class ToolTip {
 
     if (!popsUtils.contains(this.$el.$shadowContainer)) {
       // 页面不存在Shadow，添加
-      if (typeof this.$data.config.beforeAppendToPageCallBack === "function") {
-        this.$data.config.beforeAppendToPageCallBack(this.$el.$shadowRoot, this.$el.$shadowContainer);
-      }
+      this.emitter.emit("pops:before-append-to-page", this.$el.$shadowRoot, this.$el.$shadowContainer);
       popsDOMUtils.append(document.body, this.$el.$shadowContainer);
     }
 
@@ -555,6 +558,7 @@ export const PopsTooltip = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "tooltip";
+    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsTooltipDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -593,10 +597,15 @@ export const PopsTooltip = {
       },
     ]);
 
-    const toolTip = new ToolTip(config, guid, {
-      $shadowContainer,
-      $shadowRoot,
-    });
+    const toolTip = new ToolTip(
+      config,
+      guid,
+      {
+        $shadowContainer,
+        $shadowRoot,
+      },
+      emitter
+    );
     if (config.alwaysShow) {
       // 总是显示
       // 直接显示
@@ -611,6 +620,7 @@ export const PopsTooltip = {
       $shadowContainer,
       $shadowRoot,
       toolTip,
+      emitter,
     };
   },
 };

@@ -1,16 +1,18 @@
-import type { PopsTitleConfig, PopsDragConfig, PopsGeneralConfig } from "../../../types/components";
-
+import type { EventEmiter } from "../../../event/EventEmiter";
+import type { PopsDragConfig, PopsGeneralConfig, PopsTitleConfig } from "../../../types/components";
 import type { PopsEventConfig } from "../../../types/event";
+import type { CustomEventMap } from "../../../types/EventEmitter";
 
 /**
  * pops.iframe的按钮点击事件回调的配置参数
  */
-export type PopsIframeClickEventConfig = PopsEventConfig & {
-  /**
-   * iframe元素
-   */
-  $iframe: HTMLIFrameElement;
-};
+export type PopsIframeClickEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>> =
+  PopsEventConfig<E> & {
+    /**
+     * iframe元素
+     */
+    $iframe: HTMLIFrameElement;
+  };
 
 /**
  * pops.iframe

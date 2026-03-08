@@ -290,22 +290,6 @@ declare class PopsDOMUtilsEvent {
      */
     onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param target 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keypress("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    onKeypress(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keypress"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
-    /**
      * 阻止事件传递
      *
      * + `.preventDefault()`: 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字

@@ -52,7 +52,7 @@ export const PopsElementHandler = {
     const popsPosition = __config__.position || "";
     if (config.zIndex != null) {
       popsAnimStyle += `z-index: ${zIndex};`;
-      popsStyle += `z-index: ${zIndex};`;
+      // popsStyle += `z-index: ${zIndex};`;
     }
     if (__config__.width != null) {
       popsStyle += `width: ${__config__.width};`;
@@ -61,15 +61,17 @@ export const PopsElementHandler = {
       popsStyle += `height: ${__config__.height};`;
     }
     const hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
+    const popsClassNameList = ["pops"];
+    if (config.class) {
+      popsClassNameList.push(...config.class.split(" "));
+    }
     return /*html*/ `
 		<div class="pops-anim" anim="${__config__.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
       config.style != null ? /*html*/ `<style tyle="text/css" data-name="style">${config.style}</style>` : ""
     }
     ${config.lightStyle != null ? /*html*/ `<style tyle="text/css" data-name="lightStyle">@media (prefers-color-scheme: light) {${config.lightStyle}}</style>` : ""}
     ${config.darkStyle != null ? /*html*/ `<style tyle="text/css" data-name="darkStyle">@media (prefers-color-scheme: dark) {${config.darkStyle}}</style>` : ""}
-			<div class="pops ${
-        config.class || ""
-      }" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
+			<div class="${popsClassNameList.join(" ")}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`;
   },
   /**

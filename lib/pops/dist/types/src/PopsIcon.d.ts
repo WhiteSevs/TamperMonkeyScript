@@ -1,11 +1,11 @@
 export declare const PopsIcon: {
     $data: {
         loading: string;
+        close: string;
         min: string;
         max: string;
         search: string;
         mise: string;
-        close: string;
         edit: string;
         share: string;
         delete: string;

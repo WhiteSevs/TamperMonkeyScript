@@ -6,16 +6,18 @@ import type { PopsIframeConfig } from "../components/iframe/types";
 import type { PopsLoadingConfig } from "../components/loading/types";
 import type { PopsPanelConfig } from "../components/panel/types";
 import type { PopsPromptConfig } from "../components/prompt/types/index";
-import { PopsCore } from "../PopsCore";
+import type { EventEmiter } from "../event/EventEmiter";
 import { PopsAnimation } from "../PopsAnimation";
+import { PopsCore } from "../PopsCore";
 import { PopsInstData } from "../PopsInst";
 import type { PopsGeneralConfig } from "../types/components";
 import type { PopsEventConfig, PopsHandlerEventConfig } from "../types/event";
+import type { CustomEventMap } from "../types/EventEmitter";
 import type { PopsInstGeneralConfig } from "../types/inst";
-import type { PopsInstStoreType, PopsType, PopsSupportAnimConfigType, PopsSupportOnlyConfig } from "../types/main";
+import type { PopsInstStoreType, PopsSupportAnimConfigType, PopsSupportOnlyConfig, PopsType } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
-import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
+import { PopsInstHandler } from "./PopsInstHandler";
 
 export const PopsHandler = {
   /**
@@ -159,10 +161,10 @@ export const PopsHandler = {
       function originalRun() {
         if (config.config.mask!.clickEvent!.toClose) {
           // 关闭
-          return PopsInstanceUtils.close(config.config, config.type, targetInst, config.guid, config.animElement);
+          return PopsInstHandler.close(config.config, config.type, targetInst, config.guid, config.animElement);
         } else if (config.config.mask!.clickEvent!.toHide) {
           // 隐藏
-          return PopsInstanceUtils.hide(
+          return PopsInstHandler.hide(
             config.config,
             config.type,
             targetInst,
@@ -373,7 +375,7 @@ export const PopsHandler = {
    * @param $mask 遮罩层
    * @param config 当前配置
    */
-  handleEventConfig(
+  handleEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(
     config:
       | PopsAlertConfig
       | PopsDrawerConfig
@@ -389,8 +391,9 @@ export const PopsHandler = {
     type: PopsInstStoreType,
     $anim: HTMLDivElement,
     $pops: HTMLDivElement,
+    emitter: E,
     $mask?: HTMLDivElement
-  ): PopsEventConfig {
+  ): PopsEventConfig<E> {
     return {
       $shadowContainer: $shadowContainer,
       $shadowRoot: $shadowRoot,
@@ -400,17 +403,18 @@ export const PopsHandler = {
       $mask: $mask,
       mode: type,
       guid: guid,
+      emitter: emitter,
       close() {
-        return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
+        return PopsInstHandler.close(config, type, PopsInstData[type], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
+        return PopsInstHandler.hide(config, type, PopsInstData[type], guid, $anim, $mask);
       },
       show($parent?: HTMLElement | Document | ShadowRoot) {
         if ($parent) {
           $parent.appendChild(PopsInstData[type][0].$shadowRoot);
         }
-        return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
+        return PopsInstHandler.show(config, type, PopsInstData[type], guid, $anim, $mask);
       },
     };
   },
@@ -423,7 +427,7 @@ export const PopsHandler = {
    * @param $mask 遮罩层
    * @param config 当前配置
    */
-  handleLoadingEventConfig(
+  handleLoadingEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(
     config:
       | PopsAlertConfig
       | PopsDrawerConfig
@@ -437,8 +441,9 @@ export const PopsHandler = {
     type: "loading",
     $anim: HTMLDivElement,
     $pops: HTMLDivElement,
+    emitter: E,
     $mask?: HTMLDivElement
-  ): Omit<PopsEventConfig, "$shadowContainer" | "$shadowRoot"> {
+  ): Omit<PopsEventConfig<E>, "$shadowContainer" | "$shadowRoot"> {
     return {
       $el: $anim,
       $anim: $anim,
@@ -446,14 +451,15 @@ export const PopsHandler = {
       $mask: $mask,
       mode: type,
       guid: guid,
+      emitter,
       close() {
-        return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
+        return PopsInstHandler.close(config, type, PopsInstData[type], guid, $anim);
       },
       hide() {
-        return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
+        return PopsInstHandler.hide(config, type, PopsInstData[type], guid, $anim, $mask);
       },
       show() {
-        return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
+        return PopsInstHandler.show(config, type, PopsInstData[type], guid, $anim, $mask);
       },
     };
   },
@@ -474,14 +480,14 @@ export const PopsHandler = {
    * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
    * @param callback 点击回调
    */
-  handleClickEvent(
-    type: PopsHandlerEventConfig["type"],
+  handleClickEvent<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(
+    type: PopsHandlerEventConfig<E>["type"],
     $btn: HTMLElement,
-    eventConfig: PopsEventConfig,
-    callback?: (details: PopsHandlerEventConfig, event: PointerEvent | MouseEvent) => void
+    eventConfig: PopsEventConfig<E>,
+    callback?: (details: PopsHandlerEventConfig<E>, event: PointerEvent | MouseEvent) => void
   ) {
     if (typeof callback !== "function") return;
-    popsDOMUtils.on<PointerEvent | MouseEvent>(
+    return popsDOMUtils.on<PointerEvent | MouseEvent>(
       $btn,
       "click",
       (event) => {
@@ -523,16 +529,10 @@ export const PopsHandler = {
         callback && callback(event);
       }
     };
-    popsDOMUtils.on(PopsCore.globalThis, "keydown", keyboardEvent, {
+    const listener = popsDOMUtils.on(PopsCore.globalThis, "keydown", keyboardEvent, {
       capture: true,
     });
-    return {
-      removeKeyboardEvent() {
-        popsDOMUtils.off(globalThis, "keydown", keyboardEvent, {
-          capture: true,
-        });
-      },
-    };
+    return listener;
   },
   /**
    * 处理prompt的点击事件
@@ -542,13 +542,13 @@ export const PopsHandler = {
    * @param eventConfig 事件配置，由popsHandler.handleEventConfig创建的
    * @param callback 点击回调
    */
-  handlePromptClickEvent(
-    type: PopsHandlerEventConfig["type"],
+  handlePromptClickEvent<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>>(
+    type: PopsHandlerEventConfig<E>["type"],
     inputElement: HTMLInputElement | HTMLTextAreaElement,
     $btn: HTMLElement,
-    eventConfig: PopsEventConfig,
+    eventConfig: PopsEventConfig<E>,
     callback: (
-      details: PopsEventConfig & {
+      details: PopsEventConfig<E> & {
         type: any;
         text: string;
       },
@@ -572,14 +572,15 @@ export const PopsHandler = {
     );
   },
   /**
-   * 把配置的z-index配置转为数字
-   * @param zIndex
+   * 获取数值
+   * @param target
    */
-  handleZIndex(zIndex: number | (() => number)): number {
-    if (typeof zIndex === "function") {
-      return zIndex();
+  getTargerOrFunctionValue<T>(target: T | (() => T)): T {
+    if (typeof target === "function") {
+      const result = (target as () => T)();
+      return result;
     } else {
-      return zIndex;
+      return target;
     }
   },
   /**
@@ -596,10 +597,10 @@ export const PopsHandler = {
       if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
         const inst = PopsInstData[type as keyof typeof PopsInstData];
         if (inst) {
-          PopsInstanceUtils.removeInstance([inst], "", true);
+          PopsInstHandler.removeInstance([inst], "", true);
         }
       } else {
-        PopsInstanceUtils.removeInstance(
+        PopsInstHandler.removeInstance(
           [
             PopsInstData.alert,
             PopsInstData.confirm,
@@ -613,15 +614,32 @@ export const PopsHandler = {
           true
         );
       }
-    } else {
-      // 对配置进行处理
-      // 选择配置的z-index和已有的pops实例的最大z-index值
-      const originZIndex = config.zIndex;
-      config.zIndex = () => {
-        const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(PopsHandler.handleZIndex(originZIndex) + 100);
-        return maxZIndex;
-      };
     }
+    config = this.handleZIndex(config);
+
+    return config;
+  },
+  /**
+   * 处理z-index
+   * @param config 配置
+   */
+  handleZIndex<T extends Required<PopsSupportOnlyConfig[keyof PopsSupportOnlyConfig]>>(config: T): T {
+    // 对配置进行处理
+    // 选择配置的z-index和已有的pops实例的最大z-index值
+    const originZIndex = config.zIndex;
+    const handler = () => {
+      let deviation = 100;
+      if (originZIndex.toString() !== handler.toString()) {
+        // 避免叠加覆盖
+        deviation += PopsHandler.getTargerOrFunctionValue(originZIndex) ?? 0;
+      }
+      let maxZIndex = deviation;
+      const pointZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint(deviation);
+      const pointZIndexInfo = pointZIndexInfoList[0];
+      maxZIndex = Math.max(maxZIndex, pointZIndexInfo?.zIndex ?? deviation);
+      return maxZIndex;
+    };
+    config.zIndex = handler;
     return config;
   },
   /**

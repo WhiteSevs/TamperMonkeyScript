@@ -1,9 +1,11 @@
+import type { EventEmiter } from "../event/EventEmiter";
+import type { CustomEventMap } from "./EventEmitter";
 import type { PopsType } from "./main";
 
 /**
  * 事件配置
  */
-export interface PopsEventConfig {
+export interface PopsEventConfig<E extends EventEmiter<CustomEventMap> = EventEmiter<CustomEventMap>> {
   /** 最外层包裹的元素 */
   $shadowContainer: HTMLDivElement;
   /** ShadowRoot */
@@ -20,6 +22,8 @@ export interface PopsEventConfig {
   mode: PopsType;
   /** 唯一id */
   guid: string;
+  /** 事件发送器 */
+  emitter: E;
   /**
    * 关闭弹窗
    */
@@ -37,7 +41,7 @@ export interface PopsEventConfig {
 /**
  * 处理过的事件配置
  */
-export interface PopsHandlerEventConfig extends PopsEventConfig {
+export interface PopsHandlerEventConfig<E extends EventEmiter<CustomEventMap>> extends PopsEventConfig<E> {
   /** 当前按钮类型 */
   type: "cancel" | "close" | "ok" | "other";
 }

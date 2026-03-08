@@ -1,3 +1,5 @@
+import { EventEmiter } from "../../event/EventEmiter";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsToolTipConfig } from "./types/index";
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
@@ -8,6 +10,7 @@ export declare class ToolTip {
         $content: HTMLElement;
         $arrow: HTMLElement;
     };
+    emitter: EventEmiter<EventMap>;
     $data: {
         config: Required<PopsToolTipConfig>;
         guid: string;
@@ -17,7 +20,7 @@ export declare class ToolTip {
     constructor(config: Required<PopsToolTipConfig>, guid: string, ShadowInfo: {
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
-    });
+    }, emitter: EventEmiter<EventMap>);
     init(): void;
     /**
      * 创建提示元素
@@ -215,6 +218,7 @@ export declare const PopsTooltip: {
         $shadowContainer: HTMLDivElement;
         $shadowRoot: HTMLElement | ShadowRoot;
         toolTip: ToolTip;
+        emitter: EventEmiter<EventMap>;
     };
 };
 export {};

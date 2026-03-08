@@ -1,6 +1,7 @@
+import type { EventEmiter } from "../../event/EventEmiter";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsTooltip } from "../tooltip";
-import type { PopsPanelBottomContentConfig, PopsPanelConfig, PopsPanelContentConfig, PopsPanelViewConfig } from "./types";
+import type { PopsPanelBottomContentConfig, PopsPanelConfig, PopsPanelContentConfig, PopsPanelEventType, PopsPanelViewConfig } from "./types";
 import type { PopsPanelButtonConfig } from "./types/components-button";
 import type { PopsPanelGeneralConfig, PopsPanelRightAsideContainerConfig } from "./types/components-common";
 import type { PopsPanelContainerConfig } from "./types/components-container";
@@ -55,6 +56,7 @@ export declare const PanelHandlerComponents: () => {
         nodeStoreConfigKey: string;
     };
     $config: Required<PopsPanelConfig>;
+    emitter: EventEmiter<PopsPanelEventType>;
     /**
      * 初始化
      * @param data
@@ -72,6 +74,7 @@ export declare const PanelHandlerComponents: () => {
             $panelBottomLeftContainer: HTMLElement;
             $panelBottomRightContainer: HTMLElement;
         };
+        emitter: EventEmiter<PopsPanelEventType>;
     }): void;
     /**
      * 清空container容器的元素
