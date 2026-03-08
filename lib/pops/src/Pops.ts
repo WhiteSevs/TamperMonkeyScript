@@ -24,6 +24,7 @@ import { PopsTooltip } from "./components/tooltip";
 import type { PopsToolTipConfig } from "./components/tooltip/types/index";
 import { GlobalConfig } from "./config/GlobalConfig";
 import { EventEmiter } from "./event/EventEmiter";
+import { PopsInstHandler } from "./handler/PopsInstHandler";
 import { PopsAnimation } from "./PopsAnimation";
 import { PopsCore } from "./PopsCore";
 import { PopsCSS } from "./PopsCSS";
@@ -60,6 +61,8 @@ class Pops {
     InstanceUtils: PopsInstanceUtils,
     /** pops处理float类型使用的工具类 */
     MathFloatUtils: PopsMathFloatUtils,
+    /** 实例处理函数 */
+    PopsInstHandler,
     /** pops.panel中用于处理各个类型的工具 */
     PanelHandlerComponents,
     /** pops.panel中的动画 */

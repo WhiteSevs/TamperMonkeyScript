@@ -235,6 +235,24 @@ declare class Pops {
             sub(number1: number, number2: number): string;
             division(number1: number, number2: number): number;
         };
+        /** 实例处理函数 */
+        PopsInstHandler: {
+            removeInstance(totalInstConfigList: import("./types/inst").PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<import("./types/inst").PopsInstGeneralConfig[][]>;
+            hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+            show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+            close(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: string, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement): Promise<void>;
+            drag($move: HTMLElement, options: {
+                dragElement: HTMLElement;
+                limit: boolean;
+                emitClick?: boolean;
+                extraDistance: number;
+                container?: Window | typeof globalThis | HTMLElement;
+                startCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+                moveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+                endCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+                preventEvent?: (event: TouchEvent | PointerEvent) => boolean;
+            }): void;
+        };
         /** pops.panel中用于处理各个类型的工具 */
         PanelHandlerComponents: () => {
             asideULElement: HTMLUListElement;
