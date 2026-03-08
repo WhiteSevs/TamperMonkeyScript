@@ -103,7 +103,6 @@ class Utils {
         "is",
         "jquery",
         "keydown",
-        "keypress",
         "keyup",
         "last",
         "load",

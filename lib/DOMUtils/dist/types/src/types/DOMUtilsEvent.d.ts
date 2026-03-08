@@ -47,7 +47,12 @@ export type DOMUtils_MouseEventType = keyof DOMUtils_MouseEvent;
 export interface DOMUtils_KeyboardEvent {
   /** 键盘按下事件 */
   keydown: KeyboardEvent;
-  /** 键盘按压事件(字符键) */
+  /**
+   * 键盘按压事件(字符键)
+   *
+   * @link https://developer.mozilla.org/zh-CN/docs/Web/API/Element/keypress_event
+   * @deprecated
+   */
   keypress: KeyboardEvent;
   /** 键盘释放事件 */
   keyup: KeyboardEvent;

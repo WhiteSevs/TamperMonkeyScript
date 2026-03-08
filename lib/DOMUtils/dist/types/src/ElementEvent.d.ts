@@ -355,22 +355,6 @@ declare class ElementEvent extends ElementAnimate {
      */
     onKeydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
     /**
-     * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param element 目标
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的按键按下
-     * DOMUtils.keypress(document.querySelector("a.xx"),()=>{
-     *   console.log("按键按下");
-     * })
-     * DOMUtils.keypress("a.xx",()=>{
-     *   console.log("按键按下");
-     * })
-     */
-    onKeypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): DOMUtilsAddEventListenerResult | undefined;
-    /**
      * 监听某个元素键盘按键事件或window全局按键事件
      * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
      * @param element 需要监听的对象，可以是全局Window或者某个元素
@@ -433,7 +417,7 @@ declare class ElementEvent extends ElementAnimate {
          搜索		170
          收藏		171
       **/
-    onKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keydown" | "keypress" | "keyup" | undefined, handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
+    onKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keydown" | "keyup" | undefined, handler: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
      * 监input、textarea的输入框值改变的事件（当输入法输入时，不会触发该监听）
      * @param $el 输入框元素
