@@ -87,25 +87,24 @@ Qmsg.config({
     );
   },
   get zIndex() {
-    let maxZIndex = Utils.getMaxZIndex();
-    let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-    return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
   },
 });
 
 /* 配置pops的默认选项 */
 __pops__.GlobalConfig.setGlobalConfig({
   zIndex: () => {
-    const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-      if (($ele as HTMLElement)?.classList?.contains("qmsg-shadow-container")) {
-        return false;
-      }
-      if (($ele as HTMLElement)?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-        return false;
-      }
-    });
-    const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-    return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
   },
   mask: {
     // 开启遮罩层
