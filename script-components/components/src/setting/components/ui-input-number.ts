@@ -54,8 +54,11 @@ export const UIInputNumber = function (
       return storageApiValue.get<any>(key, defaultValue);
     },
     callback(event, value, valueAsNumber) {
+      if (valueAsNumber === null || valueAsNumber === void 0) {
+        valueAsNumber = Number(defaultValue);
+      }
       if (typeof changeCallback === "function") {
-        const result = changeCallback(event, value, valueAsNumber!);
+        const result = changeCallback(event, value, valueAsNumber);
         if (result) {
           return;
         }
@@ -66,7 +69,7 @@ export const UIInputNumber = function (
       storageApiValue.set(key, value);
 
       if (typeof valueChangeCallback === "function") {
-        valueChangeCallback(event, value, valueAsNumber!);
+        valueChangeCallback(event, value, valueAsNumber);
       }
     },
   };
