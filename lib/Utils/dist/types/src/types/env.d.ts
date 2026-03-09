@@ -9,3 +9,5 @@ declare var msIndexedDB: IDBFactory | null;
 declare type IPromise<T> = T | Promise<T>;
 
 declare type IFunction<T> = T | (() => T);
+
+declare type IArray<T> = T | Array<T>;
