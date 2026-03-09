@@ -1,5 +1,5 @@
-import AnyTouch from "any-touch";
 import doubletap from "@any-touch/doubletap";
+import AnyTouch from "any-touch";
 declare class PopsUtils {
     /**
      * 超时时间

@@ -1963,12 +1963,12 @@ export const PanelHandlerComponents = () => {
                   },
                   mask: {
                     enable: true,
-                    clickCallBack(originalRun) {
+                    clickCallBack(continueExec) {
                       const ret = dialogCloseCallback();
                       if (typeof ret === "boolean" && !ret) {
                         return;
                       }
-                      originalRun();
+                      continueExec();
                     },
                     clickEvent: {
                       toClose: true,
@@ -3171,8 +3171,8 @@ export const PanelHandlerComponents = () => {
                 },
                 mask: {
                   enable: true,
-                  clickCallBack(originalRun) {
-                    originalRun();
+                  clickCallBack(continueExec) {
+                    continueExec();
                     dialogCloseCallback();
                   },
                   clickEvent: {

@@ -1,3 +1,4 @@
+import { PopsCommonCSSClassName } from "../config/CommonCSSClassName";
 import { PopsInstData } from "../PopsInst";
 import type { PopsInstStoreType } from "../types/main";
 import { popsUtils } from "./PopsUtils";
@@ -81,5 +82,54 @@ export const PopsInstanceUtils = {
         }
       }
     };
+  },
+  /**
+   * 是否是隐藏状态
+   *
+   * 检测以下项：
+   *
+   * + `display`: none
+   * + `visibility`: hidden
+   * + `opacity`: 0
+   * + `使用了pops的自定义的隐藏class类`
+   * @param $el 需要检测的元素
+   */
+  isHide($el: Element) {
+    let flag = false;
+    if (
+      $el?.classList?.contains(PopsCommonCSSClassName.hide) ||
+      $el?.classList?.contains(PopsCommonCSSClassName.hideImportant)
+    ) {
+      flag = true;
+    } else {
+      if ($el instanceof HTMLElement) {
+        const style = $el.style;
+        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+      }
+      if (!flag) {
+        const style = globalThis.getComputedStyle($el);
+        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+      }
+    }
+    return flag;
+  },
+  /**
+   * 判断元素是否是在`.pops`内
+   * @param $el 目标元素
+   */
+  isNodeInPopsNode($el: Element) {
+    return !!($el.closest(".pops") || $el.matches(".pops"));
+  },
+  /**
+   * 判断是否是`.pops-anim`元素
+   * @param $el 目标元素
+   */
+  isAnimNode($el: Element) {
+    return !!(
+      $el?.localName?.toLowerCase() === "div" &&
+      $el.className &&
+      $el.className === "pops-anim" &&
+      $el.hasAttribute("anim")
+    );
   },
 };

@@ -16,28 +16,28 @@ export interface PopsMaskConfig {
    */
   enable?: boolean;
   /**
-   * 点击事件
+   * 点击事件配置
    */
   clickEvent?: {
     /**
-     * 点击遮罩层是否触发关闭事件
+     * （可选）点击遮罩层是否触发关闭事件，默认false
      * @default false
      */
     toClose?: boolean;
     /**
-     * 点击遮罩层是否触发隐藏事件
+     * （可选）点击遮罩层是否触发隐藏事件，默认false
      * @default false
      */
     toHide?: boolean;
   };
   /**
    * 遮罩层自定义的点击事件
-   * @param originalRun 当toClose为true，它是关闭弹窗，当toHide为true，它是隐藏弹窗
-   * @param config 配置信息
    */
   clickCallBack?:
     | ((
-        originalRun: () => void | Promise<void>,
+        /** 当toClose为true，它是关闭弹窗，当toHide为true，它是隐藏弹窗 */
+        continueExec: () => void | Promise<void>,
+        /** 配置信息 */
         config:
           | PopsAlertConfig
           | PopsDrawerConfig

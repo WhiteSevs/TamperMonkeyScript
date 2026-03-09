@@ -14,6 +14,7 @@ import { PopsInstData } from "../PopsInst";
 import type { PopsInstGeneralConfig } from "../types/inst";
 import type { PopsInstStoreType } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
+import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
 
 export const PopsInstHandler = {
@@ -117,7 +118,7 @@ export const PopsInstHandler = {
         // 先设置好动画状态
         // 再显示，会自执行动画
         const checkVisible = () => {
-          if (!popsDOMUtils.isHide($anim)) {
+          if (!PopsInstanceUtils.isHide($anim)) {
             return true;
           } else {
             return false;
@@ -221,7 +222,7 @@ export const PopsInstHandler = {
         // 再隐藏
         // 存在实例
         const checkVisible = () => {
-          if (!popsDOMUtils.isHide($anim)) {
+          if (!PopsInstanceUtils.isHide($anim)) {
             return true;
           } else {
             return false;

@@ -454,18 +454,6 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 获取 transitionend 在各个浏览器的兼容名 */
     getTransitionEndNameList(): string[];
     /**
-     * 是否是隐藏状态
-     *
-     * 检测以下项：
-     *
-     * + `display`: none
-     * + `visibility`: hidden
-     * + `opacity`: 0
-     * + `使用了pops的自定义的隐藏class类`
-     * @param $el 需要检测的元素
-     */
-    isHide($el: Element): boolean;
-    /**
      * 实现jQuery中的$().offset();
      * @param element
      * @param calcScroll 计算滚动距离

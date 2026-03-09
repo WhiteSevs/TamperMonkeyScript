@@ -17,6 +17,7 @@ declare class Pops {
     config: {
         /** 版本号 */
         version: string;
+        /** 样式配置 */
         cssText: {
             index: string;
             ninePalaceGridPosition: string;
@@ -84,10 +85,9 @@ declare class Pops {
             panel: import("./types/inst").PopsInstGeneralConfig[];
             rightClickMenu: import("./types/inst").PopsInstGeneralConfig[];
         };
-        /** 禁止滚动 */
-        forbiddenScroll: {
-            event(event: Event): false;
-        };
+    };
+    /** 导出的函数 */
+    fn: {
         /** pops使用的工具类 */
         Utils: {
             sleep(timeout: number): Promise<unknown>;
@@ -134,7 +134,6 @@ declare class Pops {
         DOMUtils: {
             getAnimationEndNameList(): string[];
             getTransitionEndNameList(): string[];
-            isHide($el: Element): boolean;
             offset(element: HTMLElement, calcScroll?: boolean): DOMRect;
             width(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
@@ -230,7 +229,10 @@ declare class Pops {
                 animElement: HTMLElement | null;
                 isOverMaxZIndex: boolean;
             };
-            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T /** 配置 */) => 1 | 0 | -1;
+            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+            isHide($el: Element): boolean;
+            isNodeInPopsNode($el: Element): boolean;
+            isAnimNode($el: Element): boolean;
         };
         /** pops处理float类型使用的工具类 */
         MathFloatUtils: {
@@ -240,7 +242,7 @@ declare class Pops {
             division(number1: number, number2: number): number;
         };
         /** 实例处理函数 */
-        PopsInstHandler: {
+        InstHandler: {
             removeInstance(totalInstConfigList: import("./types/inst").PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<import("./types/inst").PopsInstGeneralConfig[][]>;
             show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
             hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
@@ -710,7 +712,7 @@ declare class Pops {
             onAsideItemClick($asideItem: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
         };
         /** pops.panel中的动画 */
-        PopsAnimation: {
+        Animation: {
             $data: {
                 [key: string]: CSSKeyframesRule;
             };
@@ -732,7 +734,7 @@ declare class Pops {
         /** 事件类 */
         EventEmiter: typeof EventEmiter;
         /** 通用的CSS类名 */
-        PopsCommonCSSClassName: {
+        CommonCSSClassName: {
             flexCenter: string;
             flexYCenter: string;
             flexXCenter: string;
@@ -747,7 +749,6 @@ declare class Pops {
             textIsDisabledImportant: string;
         };
     };
-    init(): void;
     /**
      * 释放原有的pops控制权
      * @example

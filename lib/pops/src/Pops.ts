@@ -41,6 +41,7 @@ class Pops {
   config = {
     /** 版本号 */
     version: version,
+    /** 样式配置 */
     cssText: PopsCSS,
     /** icon图标的svg代码 */
     iconSVG: PopsIcon.$data,
@@ -48,12 +49,9 @@ class Pops {
     animation: PopsAnimation.$data,
     /** 存储已创建的元素 */
     instData: PopsInstData,
-    /** 禁止滚动 */
-    forbiddenScroll: {
-      event(event: Event) {
-        return popsDOMUtils.preventEvent(event);
-      },
-    },
+  };
+  /** 导出的函数 */
+  fn = {
     /** pops使用的工具类 */
     Utils: popsUtils,
     /** pops使用的DOM工具类 */
@@ -63,17 +61,16 @@ class Pops {
     /** pops处理float类型使用的工具类 */
     MathFloatUtils: PopsMathFloatUtils,
     /** 实例处理函数 */
-    PopsInstHandler,
+    InstHandler: PopsInstHandler,
     /** pops.panel中用于处理各个类型的工具 */
-    PanelHandlerComponents,
+    PanelHandlerComponents: PanelHandlerComponents,
     /** pops.panel中的动画 */
-    PopsAnimation,
+    Animation: PopsAnimation,
     /** 事件类 */
-    EventEmiter,
+    EventEmiter: EventEmiter,
     /** 通用的CSS类名 */
-    PopsCommonCSSClassName,
+    CommonCSSClassName: PopsCommonCSSClassName,
   };
-  init() {}
   /**
    * 释放原有的pops控制权
    * @example

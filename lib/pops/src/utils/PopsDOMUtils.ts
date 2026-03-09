@@ -11,11 +11,14 @@ import type {
   PopsDOMUtilsCSSPropertyType,
   PopsDOMUtilsTargetElementType,
 } from "../types/PopsDOMUtilsEventType";
-import { SymbolEvents } from "./PopsDOMUtilsEventsConfig";
 import { OriginPrototype, PopsCore } from "../PopsCore";
 import { popsUtils } from "./PopsUtils";
 import { PopsSafeUtils } from "./PopsSafeUtils";
 import { PopsCommonCSSClassName } from "../config/CommonCSSClassName";
+/**
+ * 存储在元素属性上的事件名
+ */
+const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1));
 
 class PopsDOMUtilsEvent {
   /**
@@ -1416,36 +1419,6 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
   /** 获取 transitionend 在各个浏览器的兼容名 */
   getTransitionEndNameList() {
     return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
-  }
-  /**
-   * 是否是隐藏状态
-   *
-   * 检测以下项：
-   *
-   * + `display`: none
-   * + `visibility`: hidden
-   * + `opacity`: 0
-   * + `使用了pops的自定义的隐藏class类`
-   * @param $el 需要检测的元素
-   */
-  isHide($el: Element) {
-    let flag = false;
-    if (
-      this.containsClassName($el, PopsCommonCSSClassName.hide) ||
-      this.containsClassName($el, PopsCommonCSSClassName.hideImportant)
-    ) {
-      flag = true;
-    } else {
-      if ($el instanceof HTMLElement) {
-        const style = $el.style;
-        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
-      }
-      if (!flag) {
-        const style = globalThis.getComputedStyle($el);
-        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
-      }
-    }
-    return flag;
   }
   /**
    * 实现jQuery中的$().offset();

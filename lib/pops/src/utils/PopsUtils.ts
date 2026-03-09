@@ -1,8 +1,8 @@
-import AnyTouch from "any-touch";
 import doubletap from "@any-touch/doubletap";
+import AnyTouch from "any-touch";
+import { EventEmiter } from "../event/EventEmiter";
 import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
-import { EventEmiter } from "../event/EventEmiter";
 
 class PopsUtils {
   /**

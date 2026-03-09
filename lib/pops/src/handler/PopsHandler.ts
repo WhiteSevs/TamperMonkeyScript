@@ -16,6 +16,7 @@ import type { CustomEventMap } from "../types/EventEmitter";
 import type { PopsInstGeneralConfig } from "../types/inst";
 import type { PopsInstStoreType, PopsSupportAnimConfigType, PopsSupportOnlyConfig, PopsType } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
+import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
 import { popsUtils } from "../utils/PopsUtils";
 import { PopsInstHandler } from "./PopsInstHandler";
 
@@ -154,11 +155,11 @@ export const PopsHandler = {
      * 点击其它区域的事件
      * @param event
      */
-    function clickEvent(event: MouseEvent | PointerEvent) {
+    const clickEvent = (event: MouseEvent | PointerEvent) => {
       popsDOMUtils.preventEvent(event);
       // 获取该类型实例存储列表
       const targetInst = PopsInstData[config.type];
-      function originalRun() {
+      const continueExec = () => {
         if (config.config.mask!.clickEvent!.toClose) {
           // 关闭
           return PopsInstHandler.close(config.config, config.type, targetInst, config.guid, config.animElement);
@@ -173,38 +174,25 @@ export const PopsHandler = {
             result.maskElement
           );
         }
-      }
+      };
       if (typeof config.config.mask.clickCallBack === "function") {
-        config.config.mask.clickCallBack(originalRun, config.config);
+        config.config.mask.clickCallBack(continueExec, config.config);
       } else {
-        originalRun();
+        continueExec();
       }
       return false;
-    }
+    };
     // 判断是否启用了遮罩层点击动作
     if (config.config.mask.clickEvent!.toClose || config.config.mask.clickEvent!.toHide) {
-      /**
-       * 判断点击的元素是否是动画层的元素
-       * @param element
-       * @returns
-       */
-      function isAnimElement(element: HTMLElement) {
-        return Boolean(
-          element?.localName?.toLowerCase() === "div" &&
-          element.className &&
-          element.className === "pops-anim" &&
-          element.hasAttribute("anim")
-        );
-      }
       // 判断按下的元素是否是pops-anim
       popsDOMUtils.on(config.animElement, "pointerup", (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
-        isMaskClick = isAnimElement($click);
+        isMaskClick = PopsInstanceUtils.isAnimNode($click);
       });
       // 如果有动画层，在动画层上监听点击事件
       popsDOMUtils.on<MouseEvent | PointerEvent>(config.animElement, "click", (event) => {
         const $click = event.composedPath()[0] as HTMLElement;
-        if (isMaskClick && isAnimElement($click)) {
+        if (isMaskClick && PopsInstanceUtils.isAnimNode($click)) {
           return clickEvent(event);
         }
       });
