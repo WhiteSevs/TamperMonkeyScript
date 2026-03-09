@@ -2,6 +2,8 @@ import type { PopsAnimation } from "./animation";
 import type { PopsPosition, PopsTextAlign, PopsJustifyContent } from "./position";
 import type { PopsGlobalButtonConfig, PopsButtonConfigAnyType, PopsHeaderCloseButtonConfig } from "./button";
 import type { PopsMaskConfig } from "./mask";
+import type { EventEmiter } from "../event/EventEmiter";
+import type { EventMap } from "./EventEmitter";
 
 /**
  * 标题配置
@@ -139,49 +141,41 @@ export interface PopsDragConfig {
 export interface PopsGeneralConfig {
   /**
    * 是否使用shadowRoot
-   *
    * @default true
    */
   useShadowRoot?: boolean;
   /**
    * 自定义的className
-   *
    * @default ""
    */
   class?: string;
   /**
    * 是否是唯一的
-   *
    * @default false
    */
   only?: boolean;
   /**
    *  宽度
-   *
    * @default "350px"
    */
   width: string;
   /**
    *  高度
-   *
    * @default "200px"
    */
   height: string;
   /**
    * 位置
-   *
    * @default "center"
    */
   position?: PopsPosition;
   /**
    * 动画
-   *
    * @default "pops-anim-fadein-zoom"
    */
-  animation?: PopsAnimation;
+  animation?: PopsAnimation | false;
   /**
    * z-index显示层级
-   *
    * @default 10000
    */
   zIndex?: IFunction<number>;
@@ -193,38 +187,41 @@ export interface PopsGeneralConfig {
    * 是否禁用页面滚动
    *
    * 暂时不会生效
-   *
    * @default false
    */
   forbiddenScroll?: boolean;
   /**
    * （可选）自定义style
-   * @default ""
+   * @default null
    */
   style?: string | null;
   /**
    * （可选）自定义浅色模式的style
    *
-   * 传入的css都在dark内
+   * css都在`@media (prefers-color-scheme: light)`内
+   * @default null
    */
   lightStyle?: string | null;
   /**
    * （可选）自定义深色模式的style
    *
-   * 传入的css都在dark内
+   * css都在`@media (prefers-color-scheme: dark)`内
+   * @default null
    */
   darkStyle?: string | null;
   /**
    * （可选）是否阻止`keydown`事件传播
    *
    * 主要是阻止当`keydown`触发来源为输入框时，即在输入框内按下按键不会触发页面的快捷键
-   * @default true
+   * @default true 阻止
    */
   stopKeyDownEventPropagation?: boolean;
   /**
-   * 在元素添加到页面前的事件
-   * @param $shadowRoot 根元素
-   * @param $shadowContainer 容器
+   * 可传入自定义事件监听器代替内部的eventEmitter
+   *
+   * 一般用于监听内部处理的事件
+   *
+   * 某些事件如：`pops:before-append-to-page`会提前触发，那么就需要自定义的监听器来监听
    */
-  beforeAppendToPageCallBack?: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
+  emitter?: EventEmiter | null | undefined;
 }

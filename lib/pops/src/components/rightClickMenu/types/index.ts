@@ -70,7 +70,7 @@ export interface PopsRightClickMenuDataConfig {
  */
 export interface PopsRightClickMenuConfig extends Pick<
   PopsGeneralConfig,
-  "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "lightStyle" | "darkStyle" | "only"
+  "useShadowRoot" | "zIndex" | "style" | "lightStyle" | "darkStyle" | "only" | "emitter"
 > {
   /**
    * 目标元素

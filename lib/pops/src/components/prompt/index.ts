@@ -16,13 +16,13 @@ export const PopsPrompt = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "prompt";
-    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsPromptDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
+    const emitter = config.emitter ?? new EventEmiter<EventMap>(popsType);
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {

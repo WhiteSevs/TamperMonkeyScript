@@ -4,25 +4,26 @@ import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsInstHandler } from "../../handler/PopsInstHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { EventMap } from "../../types/EventEmitter";
 import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsPanelDefaultConfig } from "./defaultConfig";
 import { PanelHandlerComponents } from "./handlerComponents";
-import type { PopsPanelConfig, PopsPanelEventType } from "./types";
+import type { PopsPanelConfig } from "./types";
 
 export const PopsPanel = {
   init(__config__: PopsPanelConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "panel";
-    const emitter = new EventEmiter<PopsPanelEventType>(popsType);
 
     let config: Required<PopsPanelConfig> = PopsPanelDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
     config = PopsHandler.handleOnly(popsType, config);
 
+    const emitter = config.emitter ?? new EventEmiter<EventMap>(popsType);
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {

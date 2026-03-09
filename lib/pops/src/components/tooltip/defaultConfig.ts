@@ -30,6 +30,6 @@ export const PopsTooltipDefaultConfig = (): DeepRequired<PopsToolTipConfig> => {
     style: "",
     lightStyle: null,
     darkStyle: null,
-    beforeAppendToPageCallBack() {},
+    emitter: null,
   };
 };

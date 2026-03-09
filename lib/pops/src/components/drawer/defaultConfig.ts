@@ -85,8 +85,8 @@ export const PopsDrawerDefaultConfig = (): DeepRequired<PopsDrawerConfig> => {
     style: null,
     lightStyle: null,
     darkStyle: null,
-    beforeAppendToPageCallBack() {},
     forbiddenScroll: false,
     stopKeyDownEventPropagation: true,
+    emitter: null,
   };
 };

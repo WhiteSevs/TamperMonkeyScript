@@ -97,9 +97,9 @@ export const PopsRightClickMenuDefaultConfig = (): DeepRequired<PopsRightClickMe
     style: null,
     lightStyle: null,
     darkStyle: null,
-    beforeAppendToPageCallBack() {},
     limitPositionXInView: true,
     limitPositionYInView: true,
     beforeShowCallBack() {},
+    emitter: null,
   };
 };

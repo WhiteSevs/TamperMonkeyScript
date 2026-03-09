@@ -17,7 +17,6 @@ export const PopsSearchSuggestion = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "searchSuggestion";
-    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsSearchSuggestionDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -27,6 +26,7 @@ export const PopsSearchSuggestion = {
       config.$inputTarget = config.$target as HTMLInputElement;
     }
 
+    const emitter = config.emitter ?? new EventEmiter<EventMap>(popsType);
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {

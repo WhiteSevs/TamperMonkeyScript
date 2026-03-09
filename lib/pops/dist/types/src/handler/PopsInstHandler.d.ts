@@ -17,16 +17,6 @@ export declare const PopsInstHandler: {
      */
     removeInstance(totalInstConfigList: PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<PopsInstGeneralConfig[][]>;
     /**
-     * 隐藏
-     * @param popsType
-     * @param instConfigList
-     * @param guid
-     * @param config
-     * @param $anim
-     * @param $mask
-     */
-    hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: PopsInstStoreType, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
-    /**
      * 显示
      * @param popsType
      * @param instConfigList
@@ -36,6 +26,16 @@ export declare const PopsInstHandler: {
      * @param $mask
      */
     show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: PopsInstStoreType, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+    /**
+     * 隐藏
+     * @param popsType
+     * @param instConfigList
+     * @param guid
+     * @param config
+     * @param $anim
+     * @param $mask
+     */
+    hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: PopsInstStoreType, instConfigList: PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
     /**
      * 关闭
      * @param popsType

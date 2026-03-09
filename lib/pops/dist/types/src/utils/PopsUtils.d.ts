@@ -158,17 +158,26 @@ declare class PopsUtils {
     /**
      * 获取页面的坐标中最大的z-index的元素信息
      *
-     * 其中坐标为
-     *
-     * + 左上角（宽: 1/8，高: 1/8）
-     * + 右上角（宽: 7/8，高: 1/8）
-     * + 左下角（宽: 1/8，高: 7/8）
-     * + 右下角（宽: 7/8，高: 7/8）
-     * + 中间（宽: 1/2，高: 1/2）
+     * 矩阵坐标计算
      * @param $el 仅检测目标元素最大的z-index（自动往上层找）
      * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint(document.querySelector("a"));
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint(document.querySelector("a"), 20);
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint([document.querySelector("a"), document.querySelector("div")]);
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint({x: 500, y: 500});
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint({x: 500, y: 500}, 20);
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint(() => {x: 500, y: 500}, 20);
      */
-    getMaxZIndexNodeInfoFromPoint($el?: IFunction<HTMLElement | HTMLElement[]>, deviation?: number): {
+    getMaxZIndexNodeInfoFromPoint($el?: IFunction<IArray<HTMLElement> | IArray<{
+        x: number;
+        y: number;
+    }>>, deviation?: number): {
         /** 处理了偏移量后的z-index值 */
         zIndex: number;
         /** 原始z-index值 */
@@ -185,14 +194,10 @@ declare class PopsUtils {
     /**
      * 获取页面的坐标中最大的z-index的元素信息
      *
-     * 其中坐标为
-     *
-     * + 左上角（宽: 1/8，高: 1/8）
-     * + 右上角（宽: 7/8，高: 1/8）
-     * + 左下角（宽: 1/8，高: 7/8）
-     * + 右下角（宽: 7/8，高: 7/8）
-     * + 中间（宽: 1/2，高: 1/2）
+     * 矩阵坐标计算
      * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
+     * @example
+     * Utils.getMaxZIndexNodeInfoFromPoint(20);
      */
     getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
         /** 处理了偏移量后的z-index值 */

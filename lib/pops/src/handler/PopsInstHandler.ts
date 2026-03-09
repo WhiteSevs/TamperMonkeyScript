@@ -83,103 +83,6 @@ export const PopsInstHandler = {
     return totalInstConfigList;
   },
   /**
-   * 隐藏
-   * @param popsType
-   * @param instConfigList
-   * @param guid
-   * @param config
-   * @param $anim
-   * @param $mask
-   */
-  hide(
-    config:
-      | PopsAlertConfig
-      | PopsDrawerConfig
-      | PopsPromptConfig
-      | PopsConfirmConfig
-      | PopsIframeConfig
-      | PopsLoadingConfig
-      | PopsPanelConfig
-      | PopsFolderConfig,
-    popsType: PopsInstStoreType,
-    instConfigList: PopsInstGeneralConfig[],
-    guid: string,
-    $anim: HTMLElement,
-    $mask?: HTMLElement
-  ) {
-    // oxlint-disable-next-line no-async-promise-executor
-    return new Promise<void>(async (resolve) => {
-      const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
-      const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
-      if (fintInst) {
-        // 存在实例
-        const startAnim = async () => {
-          if (popsType === "drawer") {
-            // drawer是抽屉
-            // 单独处理动画
-            const drawerConfig = config as Required<PopsDrawerConfig>;
-            await popsUtils.sleep(drawerConfig.closeDelay ?? 0);
-            if ($mask) {
-              popsDOMUtils.css($mask, "display", "none");
-            }
-            const direction = drawerConfig.direction!;
-            const size = "0";
-            if (["top", "bottom"].includes(direction)) {
-              $pops.style.setProperty("height", size);
-            } else if (["left", "right"].includes(direction)) {
-              $pops.style.setProperty("width", size);
-            } else {
-              console.error("未知direction: ", direction);
-            }
-          } else {
-            instConfigItem.$anim.style.width = "100%";
-            instConfigItem.$anim.style.height = "100%";
-            Reflect.set(
-              instConfigItem.$anim.style,
-              "animation-name",
-              instConfigItem.$anim.getAttribute("anim") + "-reverse"
-            );
-          }
-        };
-        const endCallback = () => {
-          instConfigItem.$anim.style.display = "none";
-          if (instConfigItem.$mask) {
-            instConfigItem.$mask.style.display = "none";
-          }
-          fintInst.emitter.emit("pops:hide", instConfigItem);
-        };
-        const instConfigItem = fintInst;
-        fintInst.emitter.emit("pops:before-hide", instConfigItem);
-        await startAnim();
-        if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
-          /**
-           * 动画结束的回调
-           */
-          const animationendCallBack = () => {
-            listener.off();
-            endCallback();
-            resolve();
-          };
-          const listener = popsDOMUtils.on(
-            instConfigItem.$anim,
-            popsDOMUtils.getAnimationEndNameList(),
-            animationendCallBack,
-            {
-              capture: true,
-              once: true,
-            }
-          );
-        } else {
-          endCallback();
-          resolve();
-        }
-      } else {
-        console.error("hide-error: 该实例未存储");
-        resolve();
-      }
-    });
-  },
-  /**
    * 显示
    * @param popsType
    * @param instConfigList
@@ -210,6 +113,16 @@ export const PopsInstHandler = {
 
       const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
       if (fintInst) {
+        // 由于是隐蔽状态
+        // 先设置好动画状态
+        // 再显示，会自执行动画
+        const checkVisible = () => {
+          if (!popsDOMUtils.isHide($anim)) {
+            return true;
+          } else {
+            return false;
+          }
+        };
         const startAnim = async () => {
           if (popsType === "drawer") {
             // drawer是抽屉
@@ -231,24 +144,20 @@ export const PopsInstHandler = {
           } else {
             instConfigItem.$anim.style.width = "";
             instConfigItem.$anim.style.height = "";
-            Reflect.set(
-              instConfigItem.$anim.style,
-              "animation-name",
-              instConfigItem.$anim!.getAttribute("anim")!.replace("-reverse", "")
-            );
+            Reflect.set(instConfigItem.$anim.style, "animation-name", animName);
           }
-        };
-        const endCallback = () => {
           instConfigItem.$anim.style.display = "";
           if (instConfigItem.$mask) {
             instConfigItem.$mask.style.display = "";
           }
+        };
+        const endCallback = () => {
           fintInst.emitter.emit("pops:show", instConfigItem);
         };
         const instConfigItem = fintInst;
+        const animName = instConfigItem.$anim!.getAttribute("anim")!.replace("-reverse", "");
         fintInst.emitter.emit("pops:before-show", instConfigItem);
-        await startAnim();
-        if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
+        if (checkVisible() && PopsAnimation.hasAnim(animName)) {
           /**
            * 动画结束的回调
            */
@@ -265,12 +174,120 @@ export const PopsInstHandler = {
               capture: true,
             }
           );
+          await startAnim();
         } else {
+          await startAnim();
           endCallback();
           resolve();
         }
       } else {
         console.error("show-error: 该实例未存储");
+        resolve();
+      }
+    });
+  },
+  /**
+   * 隐藏
+   * @param popsType
+   * @param instConfigList
+   * @param guid
+   * @param config
+   * @param $anim
+   * @param $mask
+   */
+  hide(
+    config:
+      | PopsAlertConfig
+      | PopsDrawerConfig
+      | PopsPromptConfig
+      | PopsConfirmConfig
+      | PopsIframeConfig
+      | PopsLoadingConfig
+      | PopsPanelConfig
+      | PopsFolderConfig,
+    popsType: PopsInstStoreType,
+    instConfigList: PopsInstGeneralConfig[],
+    guid: string,
+    $anim: HTMLElement,
+    $mask?: HTMLElement
+  ) {
+    // oxlint-disable-next-line no-async-promise-executor
+    return new Promise<void>(async (resolve) => {
+      const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
+      const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+      if (fintInst) {
+        // 由于是已显示状态
+        // 先执行动画
+        // 再隐藏
+        // 存在实例
+        const checkVisible = () => {
+          if (!popsDOMUtils.isHide($anim)) {
+            return true;
+          } else {
+            return false;
+          }
+        };
+        const startAnim = async () => {
+          if (popsType === "drawer") {
+            // drawer是抽屉
+            // 单独处理动画
+            const drawerConfig = config as Required<PopsDrawerConfig>;
+            await popsUtils.sleep(drawerConfig.closeDelay ?? 0);
+            if ($mask) {
+              popsDOMUtils.css($mask, "display", "none");
+            }
+            const direction = drawerConfig.direction!;
+            const size = "0";
+            if (["top", "bottom"].includes(direction)) {
+              $pops.style.setProperty("height", size);
+            } else if (["left", "right"].includes(direction)) {
+              $pops.style.setProperty("width", size);
+            } else {
+              console.error("未知direction: ", direction);
+            }
+          } else {
+            instConfigItem.$anim.style.width = "100%";
+            instConfigItem.$anim.style.height = "100%";
+            Reflect.set(instConfigItem.$anim.style, "animation-name", reverseAnimName);
+          }
+        };
+        const endCallback = () => {
+          instConfigItem.$anim.style.display = "none";
+          if (instConfigItem.$mask) {
+            instConfigItem.$mask.style.display = "none";
+          }
+          fintInst.emitter.emit("pops:hide", instConfigItem);
+        };
+        const instConfigItem = fintInst;
+        const animName = instConfigItem.$anim!.getAttribute("anim")!.replace("-reverse", "");
+        const reverseAnimName = animName + "-reverse";
+        fintInst.emitter.emit("pops:before-hide", instConfigItem);
+        if (!checkVisible() && PopsAnimation.hasAnim(reverseAnimName)) {
+          /**
+           * 动画结束的回调
+           */
+          const animationendCallBack = () => {
+            listener.off();
+            endCallback();
+            resolve();
+          };
+          const listener = popsDOMUtils.on(
+            instConfigItem.$anim,
+            popsDOMUtils.getAnimationEndNameList(),
+            animationendCallBack,
+            {
+              capture: true,
+              once: true,
+            }
+          );
+          await startAnim();
+        } else {
+          await startAnim();
+          endCallback();
+          resolve();
+        }
+      } else {
+        console.error("hide-error: 该实例未存储");
         resolve();
       }
     });
@@ -324,7 +341,7 @@ export const PopsInstHandler = {
     await new Promise<void>(async (resolve) => {
       const $pops = $anim.querySelector<HTMLDivElement>(".pops[type-value]")!;
       const drawerConfig = config as Required<PopsDrawerConfig>;
-      const start = () => {
+      const startAnim = () => {
         /**
          * 弹窗已关闭的回调
          */
@@ -361,7 +378,7 @@ export const PopsInstHandler = {
       };
       if (popsType === "drawer") {
         await popsUtils.sleep(drawerConfig.closeDelay ?? 0);
-        start();
+        startAnim();
       } else {
         await PopsInstHandler.removeInstance([instConfigList], guid);
         resolve();

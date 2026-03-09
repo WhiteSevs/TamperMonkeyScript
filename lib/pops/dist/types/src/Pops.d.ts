@@ -110,7 +110,10 @@ declare class Pops {
             setInterval(callback: (...args: any[]) => any, timeout?: number): number;
             clearInterval(timeId: number | undefined): void;
             setArray<T>(target: T, key: keyof T, newArr: any[]): void;
-            getMaxZIndexNodeInfoFromPoint($el?: IFunction<HTMLElement | HTMLElement[]>, deviation?: number): {
+            getMaxZIndexNodeInfoFromPoint($el?: IFunction<IArray<HTMLElement> | IArray<{
+                x: number;
+                y: number;
+            }>>, deviation?: number): {
                 zIndex: number;
                 originZIndex: number;
                 node: HTMLElement | null;
@@ -131,14 +134,15 @@ declare class Pops {
         DOMUtils: {
             getAnimationEndNameList(): string[];
             getTransitionEndNameList(): string[];
+            isHide($el: Element): boolean;
             offset(element: HTMLElement, calcScroll?: boolean): DOMRect;
             width(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
-            addClassName($el: Element | undefined | null | undefined, className: string | string[] | (() => string | string[]) | undefined | null): void;
+            addClassName($el: Element | undefined | null, className: string | string[] | (() => string | string[]) | undefined | null): void;
             removeClassName($el: Element | undefined | null, className: string): void;
-            containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
+            containsClassName($el: Element | undefined | null, className: string): boolean;
             css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSPropertyType): string;
             css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: string): string;
             css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSPropertyType & string, value: string | number): string;
@@ -226,7 +230,7 @@ declare class Pops {
                 animElement: HTMLElement | null;
                 isOverMaxZIndex: boolean;
             };
-            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T /** 配置 */) => 1 | 0 | -1;
         };
         /** pops处理float类型使用的工具类 */
         MathFloatUtils: {
@@ -238,8 +242,8 @@ declare class Pops {
         /** 实例处理函数 */
         PopsInstHandler: {
             removeInstance(totalInstConfigList: import("./types/inst").PopsInstGeneralConfig[][], guid?: string, isAll?: boolean): Promise<import("./types/inst").PopsInstGeneralConfig[][]>;
-            hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
             show(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
+            hide(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement, $mask?: HTMLElement): Promise<void>;
             close(config: PopsAlertConfig | PopsDrawerConfig | PopsPromptConfig | PopsConfirmConfig | PopsIframeConfig | PopsLoadingConfig | PopsPanelConfig | PopsFolderConfig, popsType: string, instConfigList: import("./types/inst").PopsInstGeneralConfig[], guid: string, $anim: HTMLElement): Promise<void>;
             drag($move: HTMLElement, options: {
                 dragElement: HTMLElement;
@@ -727,6 +731,21 @@ declare class Pops {
         };
         /** 事件类 */
         EventEmiter: typeof EventEmiter;
+        /** 通用的CSS类名 */
+        PopsCommonCSSClassName: {
+            flexCenter: string;
+            flexYCenter: string;
+            flexXCenter: string;
+            hide: string;
+            hideImportant: string;
+            noBorder: string;
+            noBorderImportant: string;
+            userSelectNone: string;
+            lineHeightCenter: string;
+            widthFill: string;
+            textIsDisabled: string;
+            textIsDisabledImportant: string;
+        };
     };
     init(): void;
     /**
@@ -779,7 +798,7 @@ declare class Pops {
             } | Omit<import("./types/position").PopsPosition | undefined, "zIndex"> | undefined;
             animation?: {
                 zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
-            } | Omit<import("./types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
+            } | Omit<false | import("./types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
             mask?: {
                 zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
             } | Omit<import("./types/mask").PopsMaskConfig | undefined, "zIndex"> | undefined;
@@ -795,9 +814,9 @@ declare class Pops {
             stopKeyDownEventPropagation?: {
                 zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
             } | Omit<boolean | undefined, "zIndex"> | undefined;
-            beforeAppendToPageCallBack?: {
+            emitter?: {
                 zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
-            } | Omit<(($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void) | undefined, "zIndex"> | undefined;
+            } | Omit<EventEmiter<import("./types/EventEmitter").CustomEventMap> | null | undefined, "zIndex"> | undefined;
             drag?: {
                 zIndex: ((IFunction<string | number> | null) & IFunction<number>) | undefined;
             } | Omit<boolean | undefined, "zIndex"> | undefined;
@@ -879,7 +898,87 @@ declare class Pops {
             style: string | null;
             lightStyle: string | null;
             darkStyle: string | null;
-            beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
+            emitter: {
+                type: import("./types/main").PopsType;
+                data: {
+                    clear: () => void;
+                    delete: (key: string) => boolean;
+                    forEach: (callbackfn: (value: {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[], key: string, map: Map<string, {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>) => void, thisArg?: any) => void;
+                    get: (key: string) => {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[] | undefined;
+                    has: (key: string) => boolean;
+                    set: (key: string, value: {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => Map<string, {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>;
+                    readonly size: number;
+                    entries: () => MapIterator<[string, {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]]>;
+                    keys: () => MapIterator<string>;
+                    values: () => MapIterator<{
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>;
+                    [Symbol.iterator]: () => MapIterator<[string, {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]]>;
+                    readonly [Symbol.toStringTag]: string;
+                };
+                on: {
+                    <P extends keyof import("./types/EventEmitter").EventMap>(eventName: P, callback: import("./types/EventEmitter").EventMap[P]): {
+                        off: () => IPromise<void>;
+                        emit: (...args: any[]) => IPromise<void>;
+                    };
+                    <P extends string>(eventName: P, callback: (...args: any[]) => IPromise<void>): {
+                        off: () => IPromise<void>;
+                        emit: (...args: any[]) => IPromise<void>;
+                    };
+                };
+                off: {
+                    <P extends keyof import("./types/EventEmitter").EventMap>(eventName: P, callback: import("./types/EventEmitter").EventMap[P]): IPromise<void>;
+                    <P extends string>(eventName: P, callback: (...args: any[]) => IPromise<void>): IPromise<void>;
+                };
+                emit: {
+                    <P extends string>(eventName: P, ...args: any[]): IPromise<void>;
+                    <P extends keyof import("./types/EventEmitter").EventMap>(eventName: P, ...args: Parameters<import("./types/EventEmitter").EventMap[P]>): IPromise<void>;
+                };
+                offAll: {
+                    <P extends keyof import("./types/EventEmitter").EventMap>(eventName?: P | undefined): IPromise<void>;
+                    <P extends string>(eventName?: P | undefined): IPromise<void>;
+                };
+                getAllEvents: (eventName?: string) => {
+                    type: import("./types/main").PopsType;
+                    time: number;
+                    callback: (...args: any[]) => IPromise<void>;
+                }[] | {
+                    type: import("./types/main").PopsType;
+                    time: number;
+                    callback: (...args: any[]) => IPromise<void>;
+                }[][] | undefined;
+                [Symbol.toStringTag]: string;
+            } | null;
         };
         $shadowContainer: HTMLDivElement;
         $shadowRoot: HTMLElement | ShadowRoot;
@@ -900,7 +999,7 @@ declare class Pops {
      * 配置面板
      * @param config 配置
      */
-    panel: (config: PopsPanelConfig) => Omit<import("./types/event").PopsEventConfig<EventEmiter<import("./components/panel/types").PopsPanelEventType>>, "function" | "type">;
+    panel: (config: PopsPanelConfig) => Omit<import("./types/event").PopsEventConfig<EventEmiter<import("./types/EventEmitter").EventMap>>, "function" | "type">;
     /**
      * 右键菜单
      * @param config 配置

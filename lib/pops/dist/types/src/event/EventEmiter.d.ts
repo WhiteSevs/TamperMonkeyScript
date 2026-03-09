@@ -1,7 +1,13 @@
 import type { EventMap, CustomEventMap } from "../types/EventEmitter";
 import type { PopsType } from "../types/main";
 declare class EventEmiter<T extends CustomEventMap = CustomEventMap> {
-    #private;
+    [Symbol.toStringTag]: string;
+    type: PopsType;
+    data: Map<string, {
+        type: PopsType;
+        time: number;
+        callback: (...args: any[]) => IPromise<void>;
+    }[]>;
     constructor(type: PopsType);
     on<P extends keyof EventMap>(eventName: P, callback: EventMap[P]): {
         off: () => IPromise<void>;

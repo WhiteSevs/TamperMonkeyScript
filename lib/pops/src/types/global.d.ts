@@ -29,3 +29,5 @@ declare type DeepRequired<T> = T extends any[]
 declare type IPromise<T> = T | Promise<T>;
 
 declare type IFunction<T> = T | (() => T);
+
+declare type IArray<T> = T | T[];

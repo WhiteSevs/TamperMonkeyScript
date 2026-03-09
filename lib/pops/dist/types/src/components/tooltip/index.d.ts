@@ -1,5 +1,6 @@
 import { EventEmiter } from "../../event/EventEmiter";
 import type { EventMap } from "../../types/EventEmitter";
+import type { PopsType } from "../../types/main";
 import type { PopsToolTipConfig } from "./types/index";
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
@@ -213,7 +214,87 @@ export declare const PopsTooltip: {
             style: string | null;
             lightStyle: string | null;
             darkStyle: string | null;
-            beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
+            emitter: {
+                type: PopsType;
+                data: {
+                    clear: () => void;
+                    delete: (key: string) => boolean;
+                    forEach: (callbackfn: (value: {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[], key: string, map: Map<string, {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>) => void, thisArg?: any) => void;
+                    get: (key: string) => {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[] | undefined;
+                    has: (key: string) => boolean;
+                    set: (key: string, value: {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => Map<string, {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>;
+                    readonly size: number;
+                    entries: () => MapIterator<[string, {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]]>;
+                    keys: () => MapIterator<string>;
+                    values: () => MapIterator<{
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]>;
+                    [Symbol.iterator]: () => MapIterator<[string, {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]]>;
+                    readonly [Symbol.toStringTag]: string;
+                };
+                on: {
+                    <P extends keyof EventMap>(eventName: P, callback: EventMap[P]): {
+                        off: () => IPromise<void>;
+                        emit: (...args: any[]) => IPromise<void>;
+                    };
+                    <P extends string>(eventName: P, callback: (...args: any[]) => IPromise<void>): {
+                        off: () => IPromise<void>;
+                        emit: (...args: any[]) => IPromise<void>;
+                    };
+                };
+                off: {
+                    <P extends keyof EventMap>(eventName: P, callback: EventMap[P]): IPromise<void>;
+                    <P extends string>(eventName: P, callback: (...args: any[]) => IPromise<void>): IPromise<void>;
+                };
+                emit: {
+                    <P extends string>(eventName: P, ...args: any[]): IPromise<void>;
+                    <P extends keyof EventMap>(eventName: P, ...args: Parameters<EventMap[P]>): IPromise<void>;
+                };
+                offAll: {
+                    <P extends keyof EventMap>(eventName?: P | undefined): IPromise<void>;
+                    <P extends string>(eventName?: P | undefined): IPromise<void>;
+                };
+                getAllEvents: (eventName?: string) => {
+                    type: PopsType;
+                    time: number;
+                    callback: (...args: any[]) => IPromise<void>;
+                }[] | {
+                    type: PopsType;
+                    time: number;
+                    callback: (...args: any[]) => IPromise<void>;
+                }[][] | undefined;
+                [Symbol.toStringTag]: string;
+            } | null;
         };
         $shadowContainer: HTMLDivElement;
         $shadowRoot: HTMLElement | ShadowRoot;

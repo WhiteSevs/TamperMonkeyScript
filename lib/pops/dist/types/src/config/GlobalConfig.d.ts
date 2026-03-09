@@ -40,7 +40,7 @@ export declare const GlobalConfig: {
         } | Omit<import("../types/position").PopsPosition | undefined, "zIndex"> | undefined;
         animation?: {
             zIndex: GlobalConfigOption["zIndex"];
-        } | Omit<import("../types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
+        } | Omit<false | import("../types/animation").PopsAnimation | undefined, "zIndex"> | undefined;
         mask?: {
             zIndex: GlobalConfigOption["zIndex"];
         } | Omit<import("../types/mask").PopsMaskConfig | undefined, "zIndex"> | undefined;
@@ -56,9 +56,9 @@ export declare const GlobalConfig: {
         stopKeyDownEventPropagation?: {
             zIndex: GlobalConfigOption["zIndex"];
         } | Omit<boolean | undefined, "zIndex"> | undefined;
-        beforeAppendToPageCallBack?: {
+        emitter?: {
             zIndex: GlobalConfigOption["zIndex"];
-        } | Omit<(($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void) | undefined, "zIndex"> | undefined;
+        } | Omit<import("../event/EventEmiter").EventEmiter<import("../types/EventEmitter").CustomEventMap> | null | undefined, "zIndex"> | undefined;
         drag?: {
             zIndex: GlobalConfigOption["zIndex"];
         } | Omit<boolean | undefined, "zIndex"> | undefined;

@@ -277,7 +277,7 @@ export declare type PopsDOMUtilsEventListenerOption = AddEventListenerOptions & 
   isComposedPath?: boolean;
 };
 
-export type PopsDOMUtilsTargetElementType = HTMLElement | string | NodeList | HTMLElement[];
+export type PopsDOMUtilsTargetElementType = IArray<HTMLElement> | string | NodeList;
 
 /**
  * 属性转驼峰

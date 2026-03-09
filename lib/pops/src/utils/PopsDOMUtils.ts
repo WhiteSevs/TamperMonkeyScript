@@ -1418,6 +1418,36 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
   }
   /**
+   * 是否是隐藏状态
+   *
+   * 检测以下项：
+   *
+   * + `display`: none
+   * + `visibility`: hidden
+   * + `opacity`: 0
+   * + `使用了pops的自定义的隐藏class类`
+   * @param $el 需要检测的元素
+   */
+  isHide($el: Element) {
+    let flag = false;
+    if (
+      this.containsClassName($el, PopsCommonCSSClassName.hide) ||
+      this.containsClassName($el, PopsCommonCSSClassName.hideImportant)
+    ) {
+      flag = true;
+    } else {
+      if ($el instanceof HTMLElement) {
+        const style = $el.style;
+        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+      }
+      if (!flag) {
+        const style = globalThis.getComputedStyle($el);
+        flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+      }
+    }
+    return flag;
+  }
+  /**
    * 实现jQuery中的$().offset();
    * @param element
    * @param calcScroll 计算滚动距离
@@ -1695,7 +1725,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * @param className className属性
    */
   addClassName(
-    $el: Element | undefined | null | undefined,
+    $el: Element | undefined | null,
     className: string | string[] | (() => string | string[]) | undefined | null
   ) {
     if ($el == null) return;
@@ -1743,7 +1773,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
    * @param $el 目标元素
    * @param className className属性
    */
-  containsClassName($el: HTMLElement | undefined | null, className: string): boolean {
+  containsClassName($el: Element | undefined | null, className: string): boolean {
     if ($el == null) {
       return false;
     }

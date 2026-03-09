@@ -558,7 +558,6 @@ export const PopsTooltip = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "tooltip";
-    const emitter = new EventEmiter<EventMap>(popsType);
 
     let config = PopsTooltipDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -577,6 +576,7 @@ export const PopsTooltip = {
       });
     }
 
+    const emitter = config.emitter ?? new EventEmiter<EventMap>(popsType);
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {

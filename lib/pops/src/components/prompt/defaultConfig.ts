@@ -91,7 +91,7 @@ export const PopsPromptDefaultConfig = (): DeepRequired<PopsPromptConfig> => {
     style: null,
     lightStyle: null,
     darkStyle: null,
-    beforeAppendToPageCallBack() {},
     stopKeyDownEventPropagation: true,
+    emitter: null,
   };
 };

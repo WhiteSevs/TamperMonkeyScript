@@ -13,14 +13,14 @@ export const PopsLoading = {
   init(__config__: PopsLoadingConfig) {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
-    const PopsType = "loading";
-    const emitter = new EventEmiter<EventMap>(PopsType);
+    const popsType = "loading";
 
     let config = PopsLoadingDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
-    config = PopsHandler.handleOnly(PopsType, config);
+    config = PopsHandler.handleOnly(popsType, config);
 
+    const emitter = config.emitter ?? new EventEmiter<EventMap>(popsType);
     // 先把z-index提取出来
     const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
     const maskHTML = PopsElementHandler.createMask(guid, zIndex);
@@ -28,10 +28,10 @@ export const PopsLoading = {
     const { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
     const animHTML = PopsElementHandler.createAnim(
       guid,
-      PopsType,
+      popsType,
       config,
       /*html*/ `
-            <div class="pops-content pops-${PopsType}-content">${
+            <div class="pops-content pops-${popsType}-content">${
               config.addIndexCSS
                 ? /*html*/ `
                 <style data-model-name="index">${PopsCSS.index}</style>
@@ -44,7 +44,7 @@ export const PopsLoading = {
                     ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
+            	<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
             </div>`,
       "",
       zIndex
@@ -56,7 +56,7 @@ export const PopsLoading = {
 
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
 
-    const { $pops: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
+    const { $pops: $pops } = PopsHandler.handleQueryElement($anim, popsType);
     /**
      * 遮罩层元素
      */
@@ -69,7 +69,7 @@ export const PopsLoading = {
     if (config.mask.enable) {
       // 创建遮罩层
       const handleMask = PopsHandler.handleMask({
-        type: PopsType,
+        type: popsType,
         guid: guid,
 
         config: config,
@@ -79,12 +79,12 @@ export const PopsLoading = {
       $mask = handleMask.maskElement;
       $elList.push($mask);
     }
-    const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, emitter, $mask);
+    const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, popsType, $anim, $pops, emitter, $mask);
     popsDOMUtils.append(config.$parent, $elList);
     if ($mask != null) {
       $anim.after($mask);
     }
-    PopsHandler.handlePush(PopsType, {
+    PopsHandler.handlePush(popsType, {
       $shadowContainer: $pops,
       $shadowRoot: $pops,
       guid: guid,

@@ -16,11 +16,7 @@ export const PopsIframe = {
     const guid = popsUtils.getRandomGUID();
     // 设置当前类型
     const popsType: PopsType = "iframe";
-    const emitter = new EventEmiter<{
-      "pops:iframe-min": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
-      "pops:iframe-mise": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
-      "pops:iframe-max": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
-    }>(popsType);
+
     let config = PopsIframeDefaultConfig();
     config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
     config = popsUtils.assign(config, __config__);
@@ -29,6 +25,13 @@ export const PopsIframe = {
     }
     config = PopsHandler.handleOnly(popsType, config);
 
+    const emitter =
+      config.emitter ??
+      new EventEmiter<{
+        "pops:iframe-min": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+        "pops:iframe-mise": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+        "pops:iframe-max": (eventConfig: PopsIframeClickEventConfig, event: MouseEvent | PointerEvent) => void;
+      }>(popsType);
     const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
     PopsHandler.handleInit($shadowRoot, [
       {
@@ -57,7 +60,8 @@ export const PopsIframe = {
       },
     ]);
 
-    const maskExtraStyle = config.animation != null && <string>config.animation != "" ? "position:absolute;" : "";
+    const maskExtraStyle =
+      config.animation != null && <string>config.animation != "" && config.animation ? "position:absolute;" : "";
 
     // 先把z-index提取出来
     const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);

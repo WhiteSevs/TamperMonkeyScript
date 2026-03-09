@@ -2,7 +2,7 @@ import type { PopsGeneralConfig, PopsContentConfig } from "../../../types/compon
 /**
  * pops.loading
  */
-export interface PopsLoadingConfig extends Omit<PopsGeneralConfig, "width" | "height" | "position" | "beforeAppendToPageCallBack"> {
+export interface PopsLoadingConfig extends Omit<PopsGeneralConfig, "width" | "height" | "position"> {
     /**
      * 父元素，默认为document.body
      * @default document.body || document.documentElement

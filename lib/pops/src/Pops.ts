@@ -22,6 +22,7 @@ import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import type { PopsSearchSuggestionConfig } from "./components/searchSuggestion/types/index";
 import { PopsTooltip } from "./components/tooltip";
 import type { PopsToolTipConfig } from "./components/tooltip/types/index";
+import { PopsCommonCSSClassName } from "./config/CommonCSSClassName";
 import { GlobalConfig } from "./config/GlobalConfig";
 import { EventEmiter } from "./event/EventEmiter";
 import { PopsInstHandler } from "./handler/PopsInstHandler";
@@ -69,6 +70,8 @@ class Pops {
     PopsAnimation,
     /** 事件类 */
     EventEmiter,
+    /** 通用的CSS类名 */
+    PopsCommonCSSClassName,
   };
   init() {}
   /**

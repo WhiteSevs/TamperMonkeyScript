@@ -2,6 +2,7 @@ import AnyTouch from "any-touch";
 import doubletap from "@any-touch/doubletap";
 import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
+import { EventEmiter } from "../event/EventEmiter";
 
 class PopsUtils {
   /**
@@ -136,7 +137,8 @@ class PopsUtils {
         typeof sourceValue === "object" &&
         sourceValue != null &&
         keyName in target &&
-        !UtilsContext.isDOM(sourceValue)
+        !UtilsContext.isDOM(sourceValue) &&
+        !(sourceValue instanceof EventEmiter)
       ) {
         // 源端的值是object类型，且不是元素节点
         // 如果是数组，那此数组中有值，清空旧的数组再赋值
@@ -151,7 +153,7 @@ class PopsUtils {
         }
         Reflect.set(target, keyName, childObjectValue);
       } else {
-        /* 直接赋值 */
+        // 直接赋值
         Reflect.set(target, keyName, sourceValue);
       }
     }
@@ -414,18 +416,24 @@ class PopsUtils {
   /**
    * 获取页面的坐标中最大的z-index的元素信息
    *
-   * 其中坐标为
-   *
-   * + 左上角（宽: 1/8，高: 1/8）
-   * + 右上角（宽: 7/8，高: 1/8）
-   * + 左下角（宽: 1/8，高: 7/8）
-   * + 右下角（宽: 7/8，高: 7/8）
-   * + 中间（宽: 1/2，高: 1/2）
+   * 矩阵坐标计算
    * @param $el 仅检测目标元素最大的z-index（自动往上层找）
    * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少），默认为10
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint(document.querySelector("a"));
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint(document.querySelector("a"), 20);
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint([document.querySelector("a"), document.querySelector("div")]);
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint({x: 500, y: 500});
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint({x: 500, y: 500}, 20);
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint(() => {x: 500, y: 500}, 20);
    */
   getMaxZIndexNodeInfoFromPoint(
-    $el?: IFunction<HTMLElement | HTMLElement[]>,
+    $el?: IFunction<IArray<HTMLElement> | IArray<{ x: number; y: number }>>,
     deviation?: number
   ): {
     /** 处理了偏移量后的z-index值 */
@@ -444,14 +452,10 @@ class PopsUtils {
   /**
    * 获取页面的坐标中最大的z-index的元素信息
    *
-   * 其中坐标为
-   *
-   * + 左上角（宽: 1/8，高: 1/8）
-   * + 右上角（宽: 7/8，高: 1/8）
-   * + 左下角（宽: 1/8，高: 7/8）
-   * + 右下角（宽: 7/8，高: 7/8）
-   * + 中间（宽: 1/2，高: 1/2）
+   * 矩阵坐标计算
    * @param deviation 将对所有获取到的z-index处理偏移量（增加或减少）
+   * @example
+   * Utils.getMaxZIndexNodeInfoFromPoint(20);
    */
   getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
     /** 处理了偏移量后的z-index值 */
@@ -468,7 +472,7 @@ class PopsUtils {
     positionY: number;
   }[];
   getMaxZIndexNodeInfoFromPoint(
-    $el?: IFunction<HTMLElement | HTMLElement[] | number>,
+    $el?: IFunction<IArray<HTMLElement> | number | IArray<{ x: number; y: number }>>,
     deviation?: number
   ): {
     /** 处理了偏移量后的z-index值 */
@@ -494,33 +498,34 @@ class PopsUtils {
     if (typeof deviation !== "number" || Number.isNaN(deviation)) {
       deviation = 10;
     }
-    const leftTop = {
-      x: globalThis.innerWidth * (1 / 8),
-      y: globalThis.innerHeight * (1 / 8),
-    };
-    const leftBottom = {
-      x: globalThis.innerWidth * (1 / 8),
-      y: globalThis.innerHeight * (7 / 8),
-    };
-    const rightTop = {
-      x: globalThis.innerWidth * (7 / 8),
-      y: globalThis.innerHeight * (1 / 8),
-    };
-    const rightBottom = {
-      x: globalThis.innerWidth * (7 / 8),
-      y: globalThis.innerHeight * (7 / 8),
-    };
-    const center = {
-      x: globalThis.innerWidth / 2,
-      y: globalThis.innerHeight / 2,
-    };
-    const delayHandlerElementPostionList: ({ x: number; y: number } | HTMLElement)[] = [
-      leftTop,
-      leftBottom,
-      rightTop,
-      rightBottom,
-      center,
-    ];
+    /** 坐标偏移 */
+    const positionDistance = 10;
+    const defaultCalcPostion: {
+      x: number;
+      y: number;
+    }[] = [];
+    const maxPostionX = globalThis.innerWidth;
+    const maxPostionY = globalThis.innerHeight;
+    const gridXCount = 8;
+    const gridYCount = 8;
+    for (let i = 0; i < gridXCount; i++) {
+      for (let j = 0; j < gridYCount; j++) {
+        const positionX = globalThis.innerWidth * (i / gridXCount) + positionDistance;
+        const positionY = globalThis.innerHeight * (j / gridYCount) + positionDistance;
+        const position: (typeof defaultCalcPostion)[0] = {
+          x: positionX,
+          y: positionY,
+        };
+        if (position.x > maxPostionX) {
+          position.x = maxPostionX;
+        }
+        if (position.y > maxPostionY) {
+          position.y = maxPostionY;
+        }
+        defaultCalcPostion.push(position);
+      }
+    }
+    const delayHandlerElementPostionList: ({ x: number; y: number } | HTMLElement)[] = defaultCalcPostion;
     if ($el) {
       delayHandlerElementPostionList.length = 0;
       if (Array.isArray($el)) {
@@ -531,55 +536,77 @@ class PopsUtils {
     }
     const positionInfoList = delayHandlerElementPostionList
       .map((position) => {
-        let positionNode: Element | null;
+        let $position: Element | null;
         let positionX: number;
         let positionY: number;
         if (position instanceof HTMLElement) {
-          positionNode = position;
+          $position = position;
           const nodeRect = position.getBoundingClientRect();
           positionX = nodeRect.x + nodeRect.width / 2;
           positionY = nodeRect.y + nodeRect.height / 2;
         } else {
-          positionNode = document.elementFromPoint(position.x, position.y);
+          $position = document.elementFromPoint(position.x, position.y);
           positionX = position.x;
           positionY = position.y;
         }
-        const shadowRoot = positionNode?.shadowRoot;
+        const shadowRoot = $position?.shadowRoot;
         if (shadowRoot) {
-          positionNode = shadowRoot.elementFromPoint(positionX, positionY);
+          // 处理ShadowRoot
+          $position = shadowRoot.elementFromPoint(positionX, positionY);
         }
-        if (positionNode instanceof HTMLStyleElement) return;
-        if (positionNode instanceof HTMLScriptElement) return;
-        if (positionNode instanceof HTMLMetaElement) return;
-        if (positionNode instanceof HTMLHeadElement) return;
-        if (!(positionNode instanceof HTMLElement)) return;
-        let parent: HTMLElement | null = positionNode;
+        if (!($position instanceof HTMLElement)) return;
+        let $parent: HTMLElement | null = $position;
         let zIndex = 0;
-        let maxZIndexNode: HTMLElement | null = null;
-        while (parent) {
-          const nodeStyle = globalThis.getComputedStyle(parent);
+        let $maxZIndexNode: HTMLElement | null = null;
+        let rect = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+        } as Omit<DOMRect, "toJSON">;
+        while ($parent) {
+          const nodeStyle = globalThis.getComputedStyle($parent);
           const nodeZIndex = parseInt(nodeStyle.zIndex);
           if (nodeStyle.position !== "static" && !isNaN(nodeZIndex)) {
             if (nodeZIndex > zIndex) {
               zIndex = nodeZIndex;
-              maxZIndexNode = parent;
+              $maxZIndexNode = $parent;
             }
           }
-          parent = parent.parentElement;
+          $parent = $parent.parentElement;
+        }
+        if ($maxZIndexNode) {
+          const maxRect = $maxZIndexNode.getBoundingClientRect();
+          rect = {
+            x: maxRect.x,
+            y: maxRect.y,
+            width: maxRect.width,
+            height: maxRect.height,
+            top: maxRect.top,
+            right: maxRect.right,
+            bottom: maxRect.bottom,
+            left: maxRect.left,
+          };
         }
         return {
-          /** 处理了偏移量后的z-index值 */
+          /** 计算偏移量后的z-index值 */
           zIndex: zIndex + deviation,
-          /** 原始z-index值 */
+          /** 获取到的最大的z-index值 */
           originZIndex: zIndex,
           /** 拥有最大z-index的元素 */
-          node: maxZIndexNode,
+          node: $maxZIndexNode,
           /** 目标坐标元素 */
-          positionNode: positionNode,
-          /** x坐标 */
+          positionNode: $position,
+          /** 目标x坐标 */
           positionX: positionX,
-          /** y坐标 */
+          /** 目标y坐标 */
           positionY: positionY,
+          /** node位置信息 */
+          rect,
         };
       })
       .filter((it) => it != null);

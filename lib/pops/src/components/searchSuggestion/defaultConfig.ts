@@ -61,5 +61,6 @@ export const PopsSearchSuggestionDefaultConfig = (): DeepRequired<PopsSearchSugg
     style: "",
     lightStyle: null,
     darkStyle: null,
+    emitter: null,
   };
 };
