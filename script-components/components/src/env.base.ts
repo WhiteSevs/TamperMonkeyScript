@@ -48,6 +48,15 @@ log.config({
   tag: true,
 });
 
+const getPageMaxZIndex = () => {
+  const deviation = 100;
+  let maxZIndex = deviation;
+  const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+  const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+  maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+  return maxZIndex;
+};
+
 // 配置Toast
 Qmsg.config({
   isHTML: true,
@@ -87,24 +96,14 @@ Qmsg.config({
     );
   },
   get zIndex() {
-    const deviation = 100;
-    let maxZIndex = deviation;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
-    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
-    return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
+    return getPageMaxZIndex();
   },
 });
 
 /* 配置pops的默认选项 */
 __pops__.GlobalConfig.setGlobalConfig({
   zIndex: () => {
-    const deviation = 100;
-    let maxZIndex = deviation;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
-    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
-    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return getPageMaxZIndex();
   },
   mask: {
     // 开启遮罩层
@@ -258,4 +257,5 @@ export {
   SCRIPT_NAME,
   utils,
   VUE_ROOT_ID,
+  getPageMaxZIndex,
 };
