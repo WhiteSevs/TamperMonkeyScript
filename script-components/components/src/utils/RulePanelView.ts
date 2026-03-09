@@ -910,7 +910,7 @@ class RulePanelView<T> {
       $arrowLeft,
       $rightRuleContainer,
     };
-    const switchAnim = pops.config.PopsAnimation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
+    const switchAnim = pops.fn.Animation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
       enterToAddElementCallback: async () => {
         // 添加新的
         DOMUtils.after($currentSection, $deepMenuSection);

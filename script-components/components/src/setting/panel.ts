@@ -1130,7 +1130,7 @@ const Panel = {
 						`,
         });
         // 点击进行定位项
-        const panelHandlerComponents = pops.config.PanelHandlerComponents();
+        const panelHandlerComponents = pops.fn.PanelHandlerComponents();
         DOMUtils.on($item, "click", () => {
           const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
             "aside.pops-panel-aside .pops-panel-aside-top-container li"

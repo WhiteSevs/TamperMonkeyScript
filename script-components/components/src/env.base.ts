@@ -32,7 +32,7 @@ const SCRIPT_NAME = GM_info?.script?.name || import.meta.env.SCRIPT_NAME;
 /**
  * 手势库
  */
-const AnyTouch = pops.config.Utils.AnyTouch();
+const AnyTouch = pops.fn.Utils.AnyTouch();
 /**
  * 是否为调试模式
  *
@@ -89,7 +89,7 @@ Qmsg.config({
   get zIndex() {
     const deviation = 100;
     let maxZIndex = deviation;
-    const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
     maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
     return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
@@ -101,7 +101,7 @@ __pops__.GlobalConfig.setGlobalConfig({
   zIndex: () => {
     const deviation = 100;
     let maxZIndex = deviation;
-    const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
     const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
     maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
     return maxZIndex;
