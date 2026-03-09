@@ -162,7 +162,7 @@ class ElementEvent extends ElementAnimate {
      * @param startIndex
      * @param option
      */
-    function getOption(args: IArguments, startIndex: number, option: DOMUtilsEventListenerOption) {
+    const getOption = function (args: IArguments, startIndex: number, option: DOMUtilsEventListenerOption) {
       const currentParam = args[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
@@ -185,7 +185,7 @@ class ElementEvent extends ElementAnimate {
         option.isComposedPath = currentParam.isComposedPath;
       }
       return option;
-    }
+    };
 
     const that = this;
     // eslint-disable-next-line prefer-rest-params
@@ -220,7 +220,11 @@ class ElementEvent extends ElementAnimate {
       selectorList.push(selector);
     }
     // 事件回调
-    let listenerCallBack: (this: HTMLElement, event: Event, $selector?: HTMLElement) => void = callback as any;
+    let listenerCallBack: (this: Element, event: Event, $selector?: HTMLElement) => void | boolean = callback as (
+      this: Element,
+      event: Event,
+      $selector?: HTMLElement
+    ) => void | boolean;
     // 事件配置
     let listenerOption: DOMUtilsEventListenerOption = {
       capture: false,
@@ -240,39 +244,51 @@ class ElementEvent extends ElementAnimate {
     /**
      * 如果是once，那么删除该监听和元素上的事件和监听
      */
-    const checkOptionOnceToRemoveEventListener = () => {
+    const checkOptionOnceToRemoveEventListener = ($el: DOMUtilsElementEventType) => {
       if (listenerOption.once) {
-        that.off(element, eventType as any, selector as any, callback as any, option);
+        this.off($el, eventTypeList, selector as any, callback as any, option);
       }
     };
-    $elList.forEach((elementItem) => {
+    $elList.forEach(($elItem) => {
       /**
        * 事件回调
        * @param event
        */
       const handlerCallBack = function (event: Event) {
+        let call_this: Element | undefined = void 0;
+        let call_event: Event | undefined = void 0;
+        let call_$selector: HTMLElement | undefined = void 0;
+        let execCallback = false;
         if (selectorList.length) {
-          /* 存在子元素选择器 */
+          // 存在子元素选择器
           // 这时候的this和target都是子元素选择器的元素
-          let eventTarget = listenerOption.isComposedPath
-            ? (event.composedPath()[0] as HTMLElement)
-            : (event.target as HTMLElement);
-          let totalParent = elementItem;
-          if (CommonUtils.isWin(totalParent)) {
-            if (totalParent === (that.windowApi.document as any as HTMLElement)) {
-              totalParent = that.windowApi.document.documentElement;
+          let $target: HTMLElement;
+          if (listenerOption.isComposedPath) {
+            // 可能为空
+            const composedPath = event.composedPath();
+            if (!composedPath.length && event.target) {
+              composedPath.push(event.target);
             }
+            $target = composedPath[0] as HTMLElement;
+          } else {
+            $target = event.target as HTMLElement;
           }
-          const findValue = selectorList.find((selectorItem) => {
+          let $parent = $elItem;
+          if (CommonUtils.isWin($parent)) {
+            // window和document共用一个对象
+            // 这样就能处理子元素选择器无法匹配的问题
+            $parent = that.windowApi.document.documentElement;
+          }
+          const findValue = selectorList.find((selectors) => {
             // 判断目标元素是否匹配选择器
-            if (that.matches(eventTarget, selectorItem)) {
-              /* 当前目标可以被selector所匹配到 */
+            if (that.matches($target, selectors)) {
+              // 当前目标可以被selector所匹配到
               return true;
             }
-            /* 在上层与主元素之间寻找可以被selector所匹配到的 */
-            const $closestMatches = that.closest<HTMLElement>(eventTarget, selectorItem);
-            if ($closestMatches && (<HTMLElement>totalParent)?.contains?.($closestMatches)) {
-              eventTarget = $closestMatches;
+            // 在上层与主元素之间寻找可以被selector所匹配到的
+            const $closestMatches = that.closest<HTMLElement>($target, selectors);
+            if ($closestMatches && (<HTMLElement>$parent)?.contains?.($closestMatches)) {
+              $target = $closestMatches;
               return true;
             }
             return false;
@@ -282,30 +298,39 @@ class ElementEvent extends ElementAnimate {
             try {
               OriginPrototype.Object.defineProperty(event, "target", {
                 get() {
-                  return eventTarget;
+                  return $target;
                 },
               });
-            } catch {
-              // TODO
-            }
-            listenerCallBack.call(eventTarget, event as any, eventTarget);
-            checkOptionOnceToRemoveEventListener();
+              // oxlint-disable-next-line no-empty
+            } catch {}
+            execCallback = true;
+            call_this = $target;
+            call_event = event;
+            call_$selector = $target;
           }
         } else {
-          // 这时候的this指向监听的元素
-          listenerCallBack.call(elementItem as HTMLElement, event as any);
-          checkOptionOnceToRemoveEventListener();
+          execCallback = true;
+          call_this = $elItem as Element;
+          call_event = event;
+        }
+        if (execCallback) {
+          const result = listenerCallBack.call(call_this!, call_event!, call_$selector!);
+          checkOptionOnceToRemoveEventListener($elItem);
+          if (typeof result === "boolean" && !result) {
+            return false;
+          }
         }
       };
 
-      /* 遍历事件名设置元素事件 */
+      // 遍历事件名设置元素事件
       eventTypeList.forEach((eventName) => {
-        elementItem.addEventListener(eventName, handlerCallBack, listenerOption);
-        /* 获取对象上的事件 */
+        // add listener
+        $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
+        // 获取对象上的事件
         const elementEvents: {
           [k: string]: DOMUtilsEventListenerOptionsAttribute[];
-        } = Reflect.get(elementItem, GlobalData.domEventSymbol) || {};
-        /* 初始化对象上的xx事件 */
+        } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+        // 初始化对象上的xx事件
         elementEvents[eventName] = elementEvents[eventName] || [];
         elementEvents[eventName].push({
           selector: selectorList,
@@ -313,8 +338,8 @@ class ElementEvent extends ElementAnimate {
           handlerCallBack: handlerCallBack,
           callback: listenerCallBack,
         });
-        /* 覆盖事件 */
-        Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
+        // 覆盖事件
+        Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
       });
     });
 
@@ -335,7 +360,7 @@ class ElementEvent extends ElementAnimate {
       /**
        * 主动触发事件
        * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-       * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了$selector的没有值
+       * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用callback，但是这种会让使用了`$selector`的没有值
        */
       emit: (extraDetails?: object, useDispatchToTriggerEvent?: boolean) => {
         that.emit($elList, eventTypeList, extraDetails, useDispatchToTriggerEvent);
@@ -475,7 +500,7 @@ class ElementEvent extends ElementAnimate {
      * @param startIndex
      * @param option
      */
-    function getOption(args1: IArguments, startIndex: number, option: EventListenerOptions) {
+    const getOption = function (args1: IArguments, startIndex: number, option: EventListenerOptions) {
       const currentParam: EventListenerOptions | boolean = args1[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
@@ -483,7 +508,7 @@ class ElementEvent extends ElementAnimate {
         option.capture = currentParam.capture;
       }
       return option;
-    }
+    };
     const that = this;
     // eslint-disable-next-line prefer-rest-params
     const args = arguments;
@@ -542,7 +567,7 @@ class ElementEvent extends ElementAnimate {
       ) => boolean;
     }
     $elList.forEach(($elItem) => {
-      /* 获取对象上的事件 */
+      // 获取对象上的事件
       const elementEvents: {
         [key: string]: DOMUtilsEventListenerOptionsAttribute[];
       } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
@@ -579,7 +604,7 @@ class ElementEvent extends ElementAnimate {
           }
         }
         if (handlers.length === 0) {
-          /* 如果没有任意的handler，那么删除该属性 */
+          // 如果没有任意的handler，那么删除该属性
           CommonUtils.delete(elementEvents, eventType);
         }
       });
@@ -1578,7 +1603,7 @@ class ElementEvent extends ElementAnimate {
    * })
    */
   preventEvent(
-    $el: HTMLElement,
+    $el: Element | Document | ShadowRoot,
     eventNameList: string | string[],
     option?: {
       /** （可选）是否捕获，默认false */
@@ -1609,7 +1634,7 @@ class ElementEvent extends ElementAnimate {
    * })
    */
   preventEvent(
-    $el: HTMLElement,
+    $el: Element | Document | ShadowRoot,
     eventNameList: string | string[],
     selector: string | string[] | null | undefined,
     option?: {
@@ -1627,11 +1652,11 @@ class ElementEvent extends ElementAnimate {
      * 阻止事件的默认行为发生，并阻止事件传播
      */
     const stopEvent = (event: Event, onlyStopPropagation?: boolean) => {
+      // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
+      event?.stopPropagation();
+      // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
+      event?.stopImmediatePropagation();
       if (typeof onlyStopPropagation === "boolean" && onlyStopPropagation) {
-        // 停止事件的传播，阻止它继续向更上层的元素冒泡，事件将不会再传播给其他的元素
-        event?.stopPropagation();
-        // 阻止事件传播，并且还能阻止元素上的其他事件处理程序被触发
-        event?.stopImmediatePropagation();
         return;
       }
       // 阻止事件的默认行为发生。例如，当点击一个链接时，浏览器会默认打开链接的URL，或者在输入框内输入文字
@@ -1643,7 +1668,7 @@ class ElementEvent extends ElementAnimate {
       const onlyStopPropagation: boolean = args[1];
       return stopEvent(args[0], onlyStopPropagation);
     } else {
-      const $el: HTMLElement = args[0];
+      const $el: Element | Document | ShadowRoot = args[0];
       let eventNameList: string | string[] = args[1];
       let selector: string | string[] | null | undefined = void 0;
       let capture = false;

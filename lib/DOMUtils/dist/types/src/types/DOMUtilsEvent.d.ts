@@ -369,6 +369,7 @@ export declare type DOMUtilsEventListenerOption = AddEventListenerOptions & {
    * 是否使用 event.composedPath() 来代替 event.target
    *
    * 一般用于设置了selector参数
+   * @default false
    */
   isComposedPath?: boolean;
 };

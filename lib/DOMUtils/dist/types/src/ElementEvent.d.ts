@@ -480,7 +480,7 @@ declare class ElementEvent extends ElementAnimate {
      *   onlyStopPropagation: true,
      * })
      */
-    preventEvent($el: HTMLElement, eventNameList: string | string[], option?: {
+    preventEvent($el: Element | Document | ShadowRoot, eventNameList: string | string[], option?: {
         /** （可选）是否捕获，默认false */
         capture?: boolean;
         /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
@@ -507,7 +507,7 @@ declare class ElementEvent extends ElementAnimate {
      *   onlyStopPropagation: true,
      * })
      */
-    preventEvent($el: HTMLElement, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
+    preventEvent($el: Element | Document | ShadowRoot, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
         /** （可选）是否捕获，默认false */
         capture?: boolean;
         /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */

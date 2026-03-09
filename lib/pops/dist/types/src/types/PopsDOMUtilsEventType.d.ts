@@ -209,9 +209,9 @@ export type PopsDOMUtils_EventType = keyof PopsDOMUtils_Event;
  */
 export declare interface PopsDOMUtilsEventListenerOptionsAttribute {
   /**
-   * DOMUtils的ownCallBack，元素上的监听事件就是它，移除事件时也需要传入这个函数
+   * DOMUtils的handlerCallBack，元素上的监听事件就是它，移除事件时也需要传入这个函数
    */
-  callback: (event: Event) => void;
+  handlerCallBack: (event: Event, $selector?: HTMLElement) => void;
   /**
    * 属性配置
    */
@@ -219,7 +219,7 @@ export declare interface PopsDOMUtilsEventListenerOptionsAttribute {
   /**
    * 用户添加的事件
    */
-  originCallBack: (event: Event, selectorTarget?: HTMLElement) => void;
+  callback: (event: Event, $selector?: HTMLElement) => void;
   /**
    * 子元素选择器
    */

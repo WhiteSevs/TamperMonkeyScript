@@ -101,7 +101,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -115,7 +115,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: (this: HTMLElement, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -130,7 +130,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T], $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -145,7 +145,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
@@ -325,7 +325,7 @@ declare class PopsDOMUtilsEvent {
      *   onlyStopPropagation: true,
      * })
      */
-    preventEvent($el: HTMLElement, eventNameList: string | string[], option?: {
+    preventEvent($el: Element | Document | ShadowRoot, eventNameList: string | string[], option?: {
         /** （可选）是否捕获，默认false */
         capture?: boolean;
         /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
@@ -352,7 +352,7 @@ declare class PopsDOMUtilsEvent {
      *   onlyStopPropagation: true,
      * })
      */
-    preventEvent($el: HTMLElement, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
+    preventEvent($el: Element | Document | ShadowRoot, eventNameList: string | string[], selector: string | string[] | null | undefined, option?: {
         /** （可选）是否捕获，默认false */
         capture?: boolean;
         /** （可选）是否仅阻止事件的传播，默认false，不调用`.preventDefault()` */
