@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.4
+// @version      2026.3.9
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -85,7 +85,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, Utils, Qmsg, CryptoJS, DataPaging, Viewer) {
+(function (DOMUtils, pops, Utils, Qmsg, DataPaging, CryptoJS, Viewer) {
   "use strict";
 
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -1689,7 +1689,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -2012,7 +2012,7 @@
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -2058,23 +2058,22 @@
       );
     },
     get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      const deviation = 100;
+      let maxZIndex = deviation;
+      const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+      return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      const deviation = 100;
+      let maxZIndex = deviation;
+      const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+      return maxZIndex;
     },
     mask: {
       enable: true,
@@ -2246,6 +2245,9 @@
         return storageApiValue.get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
+        if (valueAsNumber === null || valueAsNumber === void 0) {
+          valueAsNumber = Number(defaultValue);
+        }
         if (typeof changeCallback === "function") {
           const result2 = changeCallback(event, value, valueAsNumber);
           if (result2) {
@@ -6613,57 +6615,56 @@
             domUtils.on($subscribe, "click", async (event2) => {
               domUtils.preventEvent(event2);
               await subscribeOption?.callback?.();
-              const deepMenuElementInfo = await this.enterDeepMenu(
+              await this.enterDeepMenu(
                 $panelRightContainer,
                 subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
-                () => {
-                  this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
-                }
-              );
-              const $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
-              const subscribeCreateViewElementInfo = await this.createButtonControls(
-                $subscribeRightContainer,
-                $subscribeRightContainer,
-                subscribeOption,
-                async () => {
-                  let $prompt = __pops__.prompt({
-                    title: {
-                      text: "添加订阅",
-                      position: "center",
-                    },
-                    content: {
-                      text: "",
-                      focus: true,
-                      placeholder: "输入URL",
-                    },
-                    btn: {
-                      cancel: {
-                        enable: false,
-                      },
-                      ok: {
-                        enable: true,
-                        text: "下一步",
-                        async callback(eventDetails) {
-                          let subscribeUrl = domUtils.val($promptInput).trim();
-                          if (subscribeUrl === "") {
-                            return;
-                          }
-                          log.info(`订阅：` + subscribeUrl);
-                          let $loading = Qmsg.loading("正在获取订阅信息...");
-                          try {
-                            let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
-                            if (subscribeInfoResult.data) {
-                              eventDetails.close();
-                              let subscribeInfo = subscribeInfoResult.data;
-                              let title =
-                                subscribeInfo.data.title || subscribeInfo.subscribeData.title || subscribeInfo.data.url;
-                              let $subscribeNetworkAddDialog = __pops__.alert({
-                                title: {
-                                  text: "添加订阅",
-                                  position: "center",
-                                },
-                                content: {
-                                  text: `
+                async ($elInfo) => {
+                  const $subscribeRightContainer = $elInfo.$rightRuleContainer;
+                  const subscribeCreateViewElementInfo = await this.createButtonControls(
+                    $subscribeRightContainer,
+                    $subscribeRightContainer,
+                    subscribeOption,
+                    async () => {
+                      let $prompt = __pops__.prompt({
+                        title: {
+                          text: "添加订阅",
+                          position: "center",
+                        },
+                        content: {
+                          text: "",
+                          focus: true,
+                          placeholder: "输入URL",
+                        },
+                        btn: {
+                          cancel: {
+                            enable: false,
+                          },
+                          ok: {
+                            enable: true,
+                            text: "下一步",
+                            async callback(eventDetails) {
+                              let subscribeUrl = domUtils.val($promptInput).trim();
+                              if (subscribeUrl === "") {
+                                return;
+                              }
+                              log.info(`订阅：` + subscribeUrl);
+                              let $loading = Qmsg.loading("正在获取订阅信息...");
+                              try {
+                                let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(subscribeUrl);
+                                if (subscribeInfoResult.data) {
+                                  eventDetails.close();
+                                  let subscribeInfo = subscribeInfoResult.data;
+                                  let title =
+                                    subscribeInfo.data.title ||
+                                    subscribeInfo.subscribeData.title ||
+                                    subscribeInfo.data.url;
+                                  let $subscribeNetworkAddDialog = __pops__.alert({
+                                    title: {
+                                      text: "添加订阅",
+                                      position: "center",
+                                    },
+                                    content: {
+                                      text: `
 																	<div class="subscribe-network-title">
 																		<span>订阅链接名称：</span>
 																		<input type="text" placeholder="输入订阅链接的名称">
@@ -6674,35 +6675,35 @@
 																	<div class="subscribe-network-version"></div>
 																	<div class="subscribe-network-last-modified"></div>
 																`,
-                                  html: true,
-                                },
-                                btn: {
-                                  ok: {
-                                    text: "添加",
-                                    type: "subscribe",
-                                    callback: async (eventDetails2) => {
-                                      let addFlag = await subscribeOption.addData(subscribeInfo);
-                                      if (!addFlag) {
-                                        Qmsg.error("该订阅已存在", {
-                                          consoleLogContent: true,
-                                        });
-                                      }
-                                      that.updateRuleContaienrElement(
-                                        subscribeOption,
-                                        subscribeOption,
-                                        deepMenuElementInfo.$section
-                                      );
-                                      eventDetails2.close();
+                                      html: true,
                                     },
-                                  },
-                                },
-                                drag: true,
-                                mask: {
-                                  enable: true,
-                                },
-                                width: PanelUISize.setting.width,
-                                height: "auto",
-                                style: `
+                                    btn: {
+                                      ok: {
+                                        text: "添加",
+                                        type: "subscribe",
+                                        callback: async (eventDetails2) => {
+                                          let addFlag = await subscribeOption.addData(subscribeInfo);
+                                          if (!addFlag) {
+                                            Qmsg.error("该订阅已存在", {
+                                              consoleLogContent: true,
+                                            });
+                                          }
+                                          that.updateRuleContaienrElement(
+                                            subscribeOption,
+                                            subscribeOption,
+                                            $elInfo.$section
+                                          );
+                                          eventDetails2.close();
+                                        },
+                                      },
+                                    },
+                                    drag: true,
+                                    mask: {
+                                      enable: true,
+                                    },
+                                    width: PanelUISize.setting.width,
+                                    height: "auto",
+                                    style: `
 																.pops button[data-type="subscribe"]{
 																	--button-color: #ffffff;
 																	--button-bd-color: #67b279;
@@ -6745,115 +6746,128 @@
 
 																}
 															`,
-                              });
-                              const $subscribeNetworkAddDialog_title_input =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-title input");
-                              const $subscribeNetworkAddDialog_count =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-data-count");
-                              const $subscribeNetworkAddDialog_homeUrl =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-home-url");
-                              const $subscribeNetworkAddDialog_url =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-url");
-                              const $subscribeNetworkAddDialog_version =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-version");
-                              const $subscribeNetworkAddDialog_lastModified =
-                                $subscribeNetworkAddDialog.$shadowRoot.querySelector(
-                                  ".subscribe-network-last-modified"
-                                );
-                              domUtils.val($subscribeNetworkAddDialog_title_input, title);
-                              domUtils.on($subscribeNetworkAddDialog_title_input, ["input", "propertychange"], () => {
-                                const inputValue = domUtils.val($subscribeNetworkAddDialog_title_input);
-                                subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
-                              });
-                              domUtils.html(
-                                $subscribeNetworkAddDialog_count,
-                                `
+                                  });
+                                  const $subscribeNetworkAddDialog_title_input =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(
+                                      ".subscribe-network-title input"
+                                    );
+                                  const $subscribeNetworkAddDialog_count =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(
+                                      ".subscribe-network-data-count"
+                                    );
+                                  const $subscribeNetworkAddDialog_homeUrl =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-home-url");
+                                  const $subscribeNetworkAddDialog_url =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-url");
+                                  const $subscribeNetworkAddDialog_version =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(".subscribe-network-version");
+                                  const $subscribeNetworkAddDialog_lastModified =
+                                    $subscribeNetworkAddDialog.$shadowRoot.querySelector(
+                                      ".subscribe-network-last-modified"
+                                    );
+                                  domUtils.val($subscribeNetworkAddDialog_title_input, title);
+                                  domUtils.on(
+                                    $subscribeNetworkAddDialog_title_input,
+                                    ["input", "propertychange"],
+                                    () => {
+                                      const inputValue = domUtils.val($subscribeNetworkAddDialog_title_input);
+                                      subscribeInfo.data.title = inputValue === "" ? void 0 : inputValue;
+                                    }
+                                  );
+                                  domUtils.html(
+                                    $subscribeNetworkAddDialog_count,
+                                    `
 																<span>规则数量：</span>
 																<span>${subscribeInfo.subscribeData.ruleData.length}</span>
 															`
-                              );
-                              if (typeof subscribeInfo.subscribeData.homePage === "string") {
-                                domUtils.html(
-                                  $subscribeNetworkAddDialog_homeUrl,
-                                  `
+                                  );
+                                  if (typeof subscribeInfo.subscribeData.homePage === "string") {
+                                    domUtils.html(
+                                      $subscribeNetworkAddDialog_homeUrl,
+                                      `
 																<span>主页：</span>
 																<a href="${subscribeInfo.subscribeData.homePage}" target="_blank">${subscribeInfo.subscribeData.homePage}</a>
 															`
-                                );
-                              } else {
-                                $subscribeNetworkAddDialog_homeUrl.remove();
-                              }
-                              domUtils.html(
-                                $subscribeNetworkAddDialog_url,
-                                `
+                                    );
+                                  } else {
+                                    $subscribeNetworkAddDialog_homeUrl.remove();
+                                  }
+                                  domUtils.html(
+                                    $subscribeNetworkAddDialog_url,
+                                    `
 																<span>URL：</span>
 																<a href="${subscribeInfo.data.url}" target="_blank">${subscribeInfo.data.url}</a>
 															`
-                              );
-                              if (subscribeInfo.subscribeData.version != null) {
-                                domUtils.html(
-                                  $subscribeNetworkAddDialog_version,
-                                  `
+                                  );
+                                  if (subscribeInfo.subscribeData.version != null) {
+                                    domUtils.html(
+                                      $subscribeNetworkAddDialog_version,
+                                      `
 																	<span>版本：</span>
 																	<span>${subscribeInfo.subscribeData.version}</span>
 																`
-                                );
-                              } else {
-                                $subscribeNetworkAddDialog_version.remove();
-                              }
-                              if (subscribeInfo.subscribeData.lastModified != null) {
-                                domUtils.html(
-                                  $subscribeNetworkAddDialog_lastModified,
-                                  `
+                                    );
+                                  } else {
+                                    $subscribeNetworkAddDialog_version.remove();
+                                  }
+                                  if (subscribeInfo.subscribeData.lastModified != null) {
+                                    domUtils.html(
+                                      $subscribeNetworkAddDialog_lastModified,
+                                      `
 																	<span>更新时间：</span>
 																	<span>${utils.formatTime(subscribeInfo.subscribeData.lastModified)}</span>
 																`
-                                );
-                              } else {
-                                $subscribeNetworkAddDialog_lastModified.remove();
+                                    );
+                                  } else {
+                                    $subscribeNetworkAddDialog_lastModified.remove();
+                                  }
+                                } else {
+                                  Qmsg.error(subscribeInfoResult.msg, {
+                                    consoleLogContent: true,
+                                  });
+                                }
+                              } catch (error) {
+                                Qmsg.error(error.toString(), {
+                                  consoleLogContent: true,
+                                });
+                              } finally {
+                                $loading.close();
                               }
-                            } else {
-                              Qmsg.error(subscribeInfoResult.msg, {
-                                consoleLogContent: true,
-                              });
-                            }
-                          } catch (error) {
-                            Qmsg.error(error.toString(), {
-                              consoleLogContent: true,
-                            });
-                          } finally {
-                            $loading.close();
-                          }
+                            },
+                          },
                         },
-                      },
-                    },
-                    drag: true,
-                    mask: {
-                      enable: true,
-                    },
-                    width: PanelUISize.info.width,
-                    height: "auto",
-                  });
-                  let $promptInput = $prompt.$shadowRoot.querySelector("input");
-                  let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok ");
-                  domUtils.on($promptInput, ["input", "propertychange"], () => {
-                    let promptValue = domUtils.val($promptInput);
-                    if (promptValue === "") {
-                      domUtils.attr($promptOk, "disabled", "true");
-                    } else {
-                      domUtils.removeAttr($promptOk, "disabled");
+                        drag: true,
+                        mask: {
+                          enable: true,
+                        },
+                        width: PanelUISize.info.width,
+                        height: "auto",
+                      });
+                      let $promptInput = $prompt.$shadowRoot.querySelector("input");
+                      let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok ");
+                      domUtils.on($promptInput, ["input", "propertychange"], () => {
+                        let promptValue = domUtils.val($promptInput);
+                        if (promptValue === "") {
+                          domUtils.attr($promptOk, "disabled", "true");
+                        } else {
+                          domUtils.removeAttr($promptOk, "disabled");
+                        }
+                      });
+                      domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event3) => {
+                        if (keyName === "Enter" && otherCodeList.length === 0) {
+                          domUtils.preventEvent(event3);
+                          domUtils.emit($promptOk, "click");
+                        }
+                      });
+                      domUtils.emit($promptInput, "input");
                     }
-                  });
-                  domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList, event3) => {
-                    if (keyName === "Enter" && otherCodeList.length === 0) {
-                      domUtils.preventEvent(event3);
-                      domUtils.emit($promptOk, "click");
-                    }
-                  });
-                  domUtils.emit($promptInput, "input");
+                  );
+                  subscribeCreateViewElementInfo.execFilter(true);
+                },
+                () => {
+                  this.updateRuleContaienrElement(config.ruleOption, subscribeOption, $panelRightContainer);
                 }
               );
-              subscribeCreateViewElementInfo.execFilter(true);
             });
           }
           const ruleCreateViewElementInfo = await this.createButtonControls(
@@ -7025,11 +7039,7 @@
       `,
       });
     }
-    async enterDeepMenu($el, headerTitle, quiteDeepMenuCallBack) {
-      const animOptions = {
-        duration: 220,
-        easing: "ease-in-out",
-      };
+    async enterDeepMenu($el, headerTitle, enterRender, quiteDeepMenuCallBack) {
       const $currentSection = $el.matches("section") ? $el : $el.closest("section");
       const $deepMenuSection = domUtils.createElement("section", {
         className: "pops-panel-container pops-panel-deepMenu-container",
@@ -7046,76 +7056,29 @@
       const $headerContainer = $deepMenuSection.querySelector(".pops-panel-deepMenu-container-header-ul");
       const $arrowLeft = $deepMenuSection.querySelector(".pops-panel-deepMenu-container-left-arrow-icon");
       const $rightRuleContainer = $deepMenuSection.querySelector(".pops-panel-container-main-ul");
-      domUtils.on($arrowLeft, "click", async (event) => {
-        domUtils.preventEvent(event);
-        const leaveViewTransition = () => {
-          const $prev = $currentSection;
-          domUtils.removeClass($prev, "pops-hide-important");
-          domUtils.remove($deepMenuSection);
-          quiteDeepMenuCallBack();
-        };
-        if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
-          const leaveTransition = document.startViewTransition(leaveViewTransition);
-          await leaveTransition.ready;
-          await Promise.all([
-            $deepMenuSection.animate(
-              [
-                {
-                  transform: "translateX(0)",
-                },
-                {
-                  transform: "translateX(100%)",
-                },
-              ],
-              animOptions
-            ).finished,
-            $currentSection.animate(
-              [
-                {
-                  transform: "translateX(-100%)",
-                },
-                {
-                  transform: "translateX(0)",
-                },
-              ],
-              animOptions
-            ).finished,
-          ]);
-          await leaveTransition.finished;
-        } else {
-          leaveViewTransition();
-        }
-      });
-      const enterViewTransition = () => {
-        domUtils.addClass($currentSection, "pops-hide-important");
-        domUtils.after($currentSection, $deepMenuSection);
-      };
-      if (this.option.useDeepMenuSwtichAnimation && document.startViewTransition) {
-        const transition = document.startViewTransition(enterViewTransition);
-        await transition.ready;
-        await $deepMenuSection.animate(
-          [
-            {
-              transform: "translateX(100%)",
-            },
-            {
-              transform: "translateX(0)",
-            },
-          ],
-          animOptions
-        ).finished;
-        await transition.finished;
-      } else {
-        enterViewTransition();
-      }
-      return {
+      const elInfo = {
         $section: $deepMenuSection,
         $headerContainer,
         $arrowLeft,
         $rightRuleContainer,
-        quiteDeepMenu: () => {
-          $arrowLeft.click();
+      };
+      const switchAnim = __pops__.fn.Animation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
+        enterToAddElementCallback: async () => {
+          domUtils.after($currentSection, $deepMenuSection);
+          domUtils.on($arrowLeft, "click", async (event) => {
+            domUtils.preventEvent(event);
+            await switchAnim.exit();
+          });
+          await enterRender(elInfo);
         },
+        exitToRemoveElementCallback() {
+          quiteDeepMenuCallBack();
+        },
+      });
+      await switchAnim.enter();
+      return {
+        $el: elInfo,
+        switchAnim,
       };
     }
     async createButtonControls($controlsParent, $rightContainer, option, addButtonOnClickCallBack) {
@@ -7516,17 +7479,23 @@
               $section: $el,
               $ruleItem,
               enterDeepMenu: async (deepMenuOption) => {
-                const deepMenuElementInfo = await this.enterDeepMenu($el, deepMenuOption.headerTitle || "", () => {
-                  this.updateRuleContaienrElement(option, subscribeOption, $el);
-                });
-                const $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
-                const deepMenuCreateViewElementInfo = await this.createButtonControls(
-                  $deepMenuRightContainer,
-                  deepMenuElementInfo.$rightRuleContainer,
-                  deepMenuOption,
-                  void 0
+                await this.enterDeepMenu(
+                  $el,
+                  deepMenuOption.headerTitle || "",
+                  async ($elInfo) => {
+                    const $deepMenuRightContainer = $elInfo.$rightRuleContainer;
+                    const deepMenuCreateViewElementInfo = await this.createButtonControls(
+                      $deepMenuRightContainer,
+                      $elInfo.$rightRuleContainer,
+                      deepMenuOption,
+                      void 0
+                    );
+                    await deepMenuCreateViewElementInfo.execFilter(true);
+                  },
+                  () => {
+                    this.updateRuleContaienrElement(option, subscribeOption, $el);
+                  }
                 );
-                await deepMenuCreateViewElementInfo.execFilter(true);
               },
             });
             if (typeof result === "boolean" && !result) {
@@ -7679,7 +7648,7 @@
           },
         },
         onsubmit: async ($form, data) => {
-          let result = await option?.btnControls?.ruleEdit?.onsubmit?.($form, isEdit, data);
+          const result = await option?.btnControls?.ruleEdit?.onsubmit?.($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
@@ -9350,7 +9319,6 @@
       (document.body || document.documentElement).appendChild($shadowContainer);
     },
     setAllEvent() {
-      const that = this;
       const needDragElement = NetDiskView.$inst.suspension.$el.$suspension;
       const $drag = new AnyTouch(needDragElement);
       let netDiskLinkViewTimer = void 0;
@@ -9358,7 +9326,7 @@
       let isDouble = false;
       let clickElementLeftOffset = 0;
       let clickElementTopOffset = 0;
-      $drag.on("pan", function (event) {
+      $drag.on("pan", (event) => {
         if (!moveFlag) {
           moveFlag = true;
           let rect = needDragElement.getBoundingClientRect();
@@ -9370,7 +9338,7 @@
           });
         }
         if (event.phase === "start") {
-          that.updateZIndex();
+          this.updateZIndex();
         }
         if (event.phase === "move") {
           const maxLeftOffset = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
@@ -9420,10 +9388,10 @@
           DOMUtils.css(needDragElement, {
             transition: "left 300ms ease 0s",
           });
-          that.updateZIndex();
+          this.updateZIndex();
         }
       });
-      $drag.on("tap", function (event) {
+      $drag.on("tap", function () {
         clearTimeout(netDiskLinkViewTimer);
         netDiskLinkViewTimer = void 0;
         if (isDouble) {
@@ -9432,9 +9400,12 @@
         } else {
           netDiskLinkViewTimer = setTimeout(() => {
             isDouble = false;
-            if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.includes("smallwindow")) {
-              NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
-              NetDiskView.$inst.suspension.hide();
+            NetDiskView.$inst.suspension.hide();
+            const behaviorModeIsSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
+              .toLowerCase()
+              .includes("smallwindow");
+            if (behaviorModeIsSmallWindow !== NetDiskView.$inst.linkView.$data.isSmallWindow) {
+              NetDiskView.$inst.linkView.destory();
             }
             NetDiskView.$inst.linkView.show();
           }, 200);
@@ -9617,6 +9588,7 @@
     },
     $data: {
       dataPagingEnable: false,
+      isSmallWindow: false,
     },
     show() {
       const dataPagingEnable = NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-enable"].value;
@@ -9636,8 +9608,20 @@
           this.$data.dataPagingEnable = dataPagingEnable;
         }
       }
+      if (this.$data.isSmallWindow) {
+        NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
+      } else {
+        NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "window";
+      }
+    },
+    destory() {
+      NetDiskView.$el.$linkView?.close();
+      NetDiskView.$el.$linkView = void 0;
     },
     createLinkView() {
+      this.$data.isSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
+        .toLowerCase()
+        .includes("smallwindow");
       const NetDiskViewConfig = {
         view: {
           "netdisl-small-window-shrink-status": GenerateData("netdisl-small-window-shrink-status", false),
@@ -9653,16 +9637,92 @@
           NetDiskView.$el.$linkView.hide();
           NetDiskView.$inst.suspension.init();
         } else {
-          NetDiskView.$el.$linkView.close();
-          NetDiskView.$el.$linkView = void 0;
+          this.destory();
         }
       };
-      const isSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
-        .toLowerCase()
-        .includes("smallwindow");
-      if (isSmallWindow) {
+      if (this.$data.isSmallWindow) {
+        const emitter = new __pops__.fn.EventEmiter("alert");
+        emitter.on("pops:before-append-to-page", ($shadowRoot) => {
+          const $headerControl = $shadowRoot.querySelector(".pops-header-control");
+          const $title = $shadowRoot.querySelector(".pops-alert-title");
+          const $content = $shadowRoot.querySelector(".pops-alert-content");
+          const $launchIcon = domUtils.createElement(
+            "button",
+            {
+              className: "pops-header-control",
+              innerHTML: `
+            <i class="pops-icon">
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+                </path>
+              </svg>
+            </i>
+            `,
+            },
+            {
+              type: "button",
+              "data-type": "launch",
+              "data-header": true,
+            }
+          );
+          const $shrinkIcon = domUtils.createElement(
+            "button",
+            {
+              className: "pops-header-control",
+              innerHTML: `
+            <i class="pops-icon">
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+                </path>
+              </svg>
+            </i>
+            `,
+            },
+            {
+              type: "button",
+              "data-type": "shrink",
+              "data-header": true,
+            }
+          );
+          domUtils.before($headerControl, $launchIcon);
+          domUtils.before($headerControl, $shrinkIcon);
+          domUtils.on(
+            $launchIcon,
+            "click",
+            function () {
+              domUtils.addClass($launchIcon, "pops-hide-important");
+              domUtils.removeClass($shrinkIcon, "pops-hide-important");
+              domUtils.removeClass($title, "pops-no-border-important");
+              domUtils.removeClass($content, "pops-hide-important");
+              NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
+            },
+            {
+              capture: true,
+            }
+          );
+          domUtils.on(
+            $shrinkIcon,
+            "click",
+            function () {
+              domUtils.removeClass($launchIcon, "pops-hide-important");
+              domUtils.addClass($shrinkIcon, "pops-hide-important");
+              domUtils.addClass($title, "pops-no-border-important");
+              domUtils.addClass($content, "pops-hide-important");
+              NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
+            },
+            {
+              capture: true,
+            }
+          );
+          if (NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value) {
+            $shrinkIcon.click();
+          } else {
+            $launchIcon.click();
+          }
+        });
         NetDiskView.$el.$linkView = NetDiskPops.alert(
           {
+            emitter,
             title: {
               text: "网盘",
               position: "center",
@@ -9684,85 +9744,7 @@
             mask: {
               enable: false,
             },
-            animation: "",
-            beforeAppendToPageCallBack($shadowRoot) {
-              let $headerControl = $shadowRoot.querySelector(".pops-header-control");
-              let $title = $shadowRoot.querySelector(".pops-alert-title");
-              let $content = $shadowRoot.querySelector(".pops-alert-content");
-              let launchIcon = domUtils.createElement(
-                "button",
-                {
-                  className: "pops-header-control",
-                  innerHTML: `
-                                <i class="pops-icon">
-									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-										</path>
-									</svg>
-                                </i>
-                                `,
-                },
-                {
-                  type: "button",
-                  "data-type": "launch",
-                  "data-header": true,
-                }
-              );
-              let shrinkIcon = domUtils.createElement(
-                "button",
-                {
-                  className: "pops-header-control",
-                  innerHTML: `
-                                <i class="pops-icon">
-									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-										</path>
-									</svg>
-                                </i>
-                                `,
-                },
-                {
-                  type: "button",
-                  "data-type": "shrink",
-                  "data-header": true,
-                }
-              );
-              domUtils.before($headerControl, launchIcon);
-              domUtils.before($headerControl, shrinkIcon);
-              domUtils.on(
-                launchIcon,
-                "click",
-                function () {
-                  domUtils.addClass(launchIcon, "pops-hide-important");
-                  domUtils.removeClass(shrinkIcon, "pops-hide-important");
-                  domUtils.removeClass($title, "pops-no-border-important");
-                  domUtils.removeClass($content, "pops-hide-important");
-                  NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
-                },
-                {
-                  capture: true,
-                }
-              );
-              domUtils.on(
-                shrinkIcon,
-                "click",
-                function () {
-                  domUtils.removeClass(launchIcon, "pops-hide-important");
-                  domUtils.addClass(shrinkIcon, "pops-hide-important");
-                  domUtils.addClass($title, "pops-no-border-important");
-                  domUtils.addClass($content, "pops-hide-important");
-                  NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
-                },
-                {
-                  capture: true,
-                }
-              );
-              if (NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value) {
-                shrinkIcon.click();
-              } else {
-                launchIcon.click();
-              }
-            },
+            animation: false,
             dragMoveCallBack(moveElement, left, top2) {
               NetDiskViewConfig.view["netdisk-ui-small-window-position"].value = {
                 left,
@@ -9771,43 +9753,43 @@
             },
             class: "whitesevPop netdisk-link-view-small-window",
             style: `
-                    ${indexCSS$3}
+          ${indexCSS$3}
 
-                    .pops {
-                        --container-title-height: 35px;
-                        --content-max-height: ${NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].value}px;
-                        --netdisk-line-space: 8px;
-                        --netdisk-icon-size: 24px;
-                    }
-                    .pops[type-value="alert"]{
-                        transform: none;
-                    }
-                    .pops {
-                        max-height: var(--content-max-height);
-                    }
-                    .pops[type-value=alert] .pops-alert-content{
-                        max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
-                    }
-                    .pops-header-controls button.pops-header-control[type][data-header]{
-                        padding: 0px 5px;
-                    }
-                    .netdisk-url-div{
-                        padding: 0px;
-                    }
-                    .netdisk-icon .netdisk-icon-img{
-                        width: var(--netdisk-icon-size);
-                        height: var(--netdisk-icon-size);
-                        min-width: var(--netdisk-icon-size);
-                        min-height: var(--netdisk-icon-size);
-                        margin: 0px var(--netdisk-line-space);
-                    }
-                    .netdisk-status{
-                        margin-right: var(--netdisk-line-space);
-                    }
-                    .netdisk-url{
-                        padding: 2px 0px;
-                    }
-                    `,
+          .pops {
+              --container-title-height: 35px;
+              --content-max-height: ${NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].value}px;
+              --netdisk-line-space: 8px;
+              --netdisk-icon-size: 24px;
+          }
+          .pops[type-value="alert"]{
+              transform: none;
+          }
+          .pops {
+              max-height: var(--content-max-height);
+          }
+          .pops[type-value=alert] .pops-alert-content{
+              max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
+          }
+          .pops-header-controls button.pops-header-control[type][data-header]{
+              padding: 0px 5px;
+          }
+          .netdisk-url-div{
+              padding: 0px;
+          }
+          .netdisk-icon .netdisk-icon-img{
+              width: var(--netdisk-icon-size);
+              height: var(--netdisk-icon-size);
+              min-width: var(--netdisk-icon-size);
+              min-height: var(--netdisk-icon-size);
+              margin: 0px var(--netdisk-line-space);
+          }
+          .netdisk-status{
+              margin-right: var(--netdisk-line-space);
+          }
+          .netdisk-url{
+              padding: 2px 0px;
+          }
+          `,
           },
           NetDiskView.$config.viewSizeConfig.mainViewSmallWindow
         );
@@ -9868,7 +9850,7 @@
             },
             class: "whitesevPop netdisk-link-view-window",
             style: `
-                    ${indexCSS$3}
+          ${indexCSS$3}
 
           .pops {
               max-height: 60vh;
@@ -9878,7 +9860,7 @@
                 max-height: 50vh;
             }
 					}
-                    `,
+          `,
           },
           NetDiskView.$config.viewSizeConfig.mainView
         );
@@ -9890,7 +9872,7 @@
       this.$inst.dataPaging = new __DataPaging({
         data,
         pageShowDataMaxCount,
-        pageMaxStep: isSmallWindow ? 2 : 4,
+        pageMaxStep: this.$data.isSmallWindow ? 2 : 4,
         currentPage: 1,
         pageChangeCallBack: async (page) => {
           NetDiskCheckLinkValidity.clearAllDelayCheckLinkValidity();
@@ -9907,39 +9889,40 @@
       const $style = domUtils.createElement("style", {
         type: "text/css",
         textContent: `
-          .pops-content:has(.netdisk-url-pagination-wrapper){
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-          }
-          .pops-content:has(.netdisk-url-pagination-wrapper) .netdisk-url-box-all{
-            flex: 1;
-            overflow: auto;
-          }
-          .pops-content .netdisk-url-pagination-wrapper{
-            flex: 0;
-            display: flex;
-            justify-content: center;
-            padding: 4px 0px;
-          }
-          .pops-content #data-paging-wrapper{
+      .pops-content:has(.netdisk-url-pagination-wrapper){
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .pops-content:has(.netdisk-url-pagination-wrapper) .netdisk-url-box-all{
+        flex: 1;
+        overflow: auto;
+      }
+      .pops-content .netdisk-url-pagination-wrapper{
+        flex: 0;
+        display: flex;
+        justify-content: center;
+        padding: 4px 0px;
+      }
+      .pops-content #data-paging-wrapper{
+        display: flex;
+        align-items: center;
+      }
+      .pops-content #data-paging-wrapper a{
 
-          }
-          .pops-content #data-paging-wrapper a{
+      }
 
-          }
-
-          // 小窗
-          .netdisk-link-view-small-window #data-paging-wrapper{
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-          }
-          .netdisk-link-view-small-window .pops-content .netdisk-url-pagination-wrapper{
-            scale: 0.7;
-            padding: 0px;
-          }
-        `,
+      // 小窗
+      .netdisk-link-view-small-window #data-paging-wrapper{
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+      .netdisk-link-view-small-window .pops-content .netdisk-url-pagination-wrapper{
+        scale: 0.7;
+        padding: 0px;
+      }
+    `,
       });
       NetDiskView.$el.$linkView.$shadowRoot.appendChild($style);
       if (NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-enable"].value);
@@ -10200,18 +10183,17 @@
     show() {
       let data = this.getStorageData();
       let dataHTML = "";
-      let that = this;
       data = this.orderNetDiskHistoryMatchData(data);
       dataHTML = `
-        <div class="netdiskrecord-search">
-            <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
-        </div>
-        <div class="netdiskrecord-table">
-			<ul></ul>
+    <div class="netdiskrecord-search">
+        <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
+    </div>
+    <div class="netdiskrecord-table">
+      <ul></ul>
 		</div>
-        <div class="netdiskrecord-page">
+    <div class="netdiskrecord-page">
 
-        </div>`;
+    </div>`;
       NetDiskView.$el.$historyView = NetDiskPops.confirm(
         {
           title: {
@@ -10226,24 +10208,21 @@
             reverse: true,
             position: "space-between",
             close: {
-              callback(details) {
-                details.close();
-                NetDiskView.$el.$historyView = void 0;
+              callback: () => {
+                this.destory();
               },
             },
             ok: {
               enable: false,
-              callback(details) {
-                details.close();
-                NetDiskView.$el.$historyView = void 0;
+              callback: () => {
+                this.destory();
               },
             },
             cancel: {
               enable: true,
               text: "关闭",
-              callback(details) {
-                details.close();
-                NetDiskView.$el.$historyView = void 0;
+              callback: () => {
+                this.destory();
               },
             },
             other: {
@@ -10263,13 +10242,14 @@
                   btn: {
                     ok: {
                       enable: true,
-                      callback(clearAllDialog) {
-                        that.clearStorageData();
-                        that.clearLinkElements();
-                        that.clearPageNavigator();
+                      callback: (clearAllDialog) => {
+                        this.clearStorageData();
+                        this.clearLinkElements();
+                        this.clearPageNavigator();
                         clearAllDialog.close();
-                        let $recordPage = NetDiskView.$el.$historyView.$shadowRoot.querySelector(".netdiskrecord-page");
-                        let $btnOther =
+                        const $recordPage =
+                          NetDiskView.$el.$historyView.$shadowRoot.querySelector(".netdiskrecord-page");
+                        const $btnOther =
                           NetDiskView.$el.$historyView.$shadowRoot.querySelector(".pops-confirm-btn-other");
                         domUtils.html($recordPage, "");
                         domUtils.text($btnOther, domUtils.text($btnOther).replace(/[\d]+/gi, "0"));
@@ -10285,9 +10265,11 @@
             },
           },
           mask: {
-            clickCallBack(originalRun) {
-              originalRun();
-              NetDiskView.$el.$historyView = null;
+            clickEvent: {
+              toClose: false,
+            },
+            clickCallBack: () => {
+              this.destory();
             },
           },
           class: "whitesevPopNetDiskHistoryMatch",
@@ -10304,6 +10286,10 @@
         ".netdiskrecord-link a",
         true
       );
+    },
+    destory() {
+      NetDiskView.$el.$historyView?.close();
+      NetDiskView.$el.$historyView = void 0;
     },
     getLinkContainer() {
       let $linkContainer = NetDiskView.$el.$historyView.$shadowRoot.querySelector(".netdiskrecord-table ul");
@@ -10537,7 +10523,7 @@
         NetDiskView.$el.$historyView.$shadowRoot.querySelector(
           ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
         ),
-        "keypress",
+        "keyup",
         (keyName) => {
           if (keyName === "Enter") {
             searchEvent();
@@ -11460,7 +11446,11 @@
             }
             break;
           case "suspension_window".toLowerCase():
-            NetDiskView.$inst.suspension.init();
+            if (NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value === "suspension") {
+              NetDiskView.$inst.suspension.init();
+            } else {
+              NetDiskView.$inst.linkView.show();
+            }
             break;
           case "smallwindow".toLowerCase():
             NetDiskView.$inst.linkView.show();
@@ -16516,9 +16506,7 @@
           }
         },
         zIndex() {
-          const maxZIndex = utils.getMaxZIndex(10);
-          const popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
-          return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          return utils.getMaxZIndexNodeInfoFromPoint($netDiskStatus)[0].zIndex;
         },
       });
     },
@@ -17677,7 +17665,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           const generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -18482,7 +18470,7 @@
     },
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       let addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -18744,15 +18732,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.data.enable;
                   },
@@ -18760,7 +18748,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.data.enable;
                   },
@@ -18768,7 +18756,7 @@
                 {
                   name: "在当前网址生效",
                   value: "workInCurrentUrl",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return that.checkRuleMatch(data);
                   },
@@ -18778,7 +18766,7 @@
                 {
                   name: "规则名",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     const name = data.name;
                     if (typeof name === "string") {
@@ -18791,7 +18779,7 @@
                 {
                   name: "网址",
                   value: "url",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.url.match(searchText));
                   },
@@ -18929,15 +18917,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.data.enable;
                   },
@@ -18945,7 +18933,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.data.enable;
                   },
@@ -18955,7 +18943,7 @@
                 {
                   name: "标题",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     let flag = false;
                     if (typeof data.data.title === "string") {
@@ -18970,7 +18958,7 @@
                 {
                   name: "订阅地址",
                   value: "url",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.data.url.match(searchText));
                   },
@@ -19011,7 +18999,7 @@
                   getDataItemName(data) {
                     return data.name ?? data.url;
                   },
-                  addData(data) {
+                  addData() {
                     return true;
                   },
                   updateData(data) {
@@ -19027,15 +19015,15 @@
                         {
                           name: "无",
                           value: "",
-                          selectedCallBack(config) {},
-                          filterCallBack(data) {
+                          selectedCallBack() {},
+                          filterCallBack() {
                             return true;
                           },
                         },
                         {
                           name: "已启用",
                           value: "enable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return data.data.enable;
                           },
@@ -19043,7 +19031,7 @@
                         {
                           name: "未启用",
                           value: "notEnable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return !data.data.enable;
                           },
@@ -19053,7 +19041,7 @@
                         {
                           name: "规则名",
                           value: "name",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             const name = data.name;
                             if (typeof name === "string") {
@@ -19066,7 +19054,7 @@
                         {
                           name: "网址",
                           value: "url",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             return Boolean(data.url.match(searchText));
                           },
@@ -19247,7 +19235,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -19309,7 +19297,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           let generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -19356,13 +19344,13 @@
               ok: {
                 enable: true,
                 text: "导出",
-                callback(details, event2) {
+                callback() {
                   exportCallBack();
                 },
               },
               close: {
                 enable: true,
-                callback(details, event2) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -19422,7 +19410,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -19495,7 +19483,7 @@
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
+        domUtils.on($input, ["propertychange", "input"], () => {
           if (!$input.files?.length) {
             return;
           }
@@ -19524,13 +19512,13 @@
           btn: {
             close: {
               enable: true,
-              callback(details, event2) {
+              callback(details) {
                 details.close();
               },
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
+              callback: async (eventDetails) => {
                 let url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
@@ -19564,7 +19552,7 @@
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
         let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
           let value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
@@ -20137,7 +20125,7 @@
         },
         NetDiskView.$config.viewSizeConfig.inputNewAccessCodeView
       );
-      domUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+      domUtils.onKeyboard(accessCodeConfirm.$shadowRoot, "keyup", (keyName) => {
         if (keyName === "Enter") {
           const $ok = accessCodeConfirm.$shadowRoot.querySelector(".pops-prompt-btn-ok");
           $ok.click();
@@ -20349,13 +20337,6 @@
           details.style = acrylicCSS;
         }
       }
-      details.zIndex = () => {
-        const deviation = 10;
-        let maxZIndex = utils.getMaxZIndex(deviation);
-        let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
-        let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
-        return zIndex;
-      };
       return details;
     },
   };
@@ -20383,7 +20364,7 @@
     },
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       const addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -20648,15 +20629,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.enable;
                   },
@@ -20664,7 +20645,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.enable;
                   },
@@ -20672,7 +20653,7 @@
                 {
                   name: "在当前网址生效",
                   value: "workInCurrentUrl",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return that.checkRuleMatch(data);
                   },
@@ -20682,7 +20663,7 @@
                 {
                   name: "规则名",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     const name = data.name;
                     if (typeof name === "string") {
@@ -20695,7 +20676,7 @@
                 {
                   name: "网址",
                   value: "url",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.data.url.match(searchText));
                   },
@@ -20832,15 +20813,15 @@
                 {
                   name: "无",
                   value: "",
-                  selectedCallBack(config) {},
-                  filterCallBack(data) {
+                  selectedCallBack() {},
+                  filterCallBack() {
                     return true;
                   },
                 },
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.data.enable;
                   },
@@ -20848,7 +20829,7 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.data.enable;
                   },
@@ -20858,7 +20839,7 @@
                 {
                   name: "标题",
                   value: "name",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     let flag = false;
                     if (typeof data.data.title === "string") {
@@ -20873,7 +20854,7 @@
                 {
                   name: "订阅地址",
                   value: "url",
-                  selectedCallBack(config) {},
+                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.data.url.match(searchText));
                   },
@@ -20914,7 +20895,7 @@
                   getDataItemName(data) {
                     return data.name ?? data.data.url;
                   },
-                  addData(data) {
+                  addData() {
                     return true;
                   },
                   updateData(data) {
@@ -20930,15 +20911,15 @@
                         {
                           name: "无",
                           value: "",
-                          selectedCallBack(config) {},
-                          filterCallBack(data) {
+                          selectedCallBack() {},
+                          filterCallBack() {
                             return true;
                           },
                         },
                         {
                           name: "已启用",
                           value: "enable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return data.enable;
                           },
@@ -20946,7 +20927,7 @@
                         {
                           name: "未启用",
                           value: "notEnable",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return !data.enable;
                           },
@@ -20954,7 +20935,7 @@
                         {
                           name: "在当前网址生效",
                           value: "workInCurrentUrl",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data) {
                             return that.checkRuleMatch(data);
                           },
@@ -20964,7 +20945,7 @@
                         {
                           name: "规则名",
                           value: "name",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             const name = data.name;
                             if (typeof name === "string") {
@@ -20977,7 +20958,7 @@
                         {
                           name: "网址",
                           value: "url",
-                          selectedCallBack(config) {},
+                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             return Boolean(data.data.url.match(searchText));
                           },
@@ -21142,7 +21123,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -21204,7 +21185,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           const generateStorageApi = function (data) {
             return {
               get(key, defaultValue) {
@@ -21251,13 +21232,13 @@
               ok: {
                 enable: true,
                 text: "导出",
-                callback(details, event2) {
+                callback() {
                   exportCallBack();
                 },
               },
               close: {
                 enable: true,
-                callback(details, event2) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -21317,7 +21298,7 @@
           ok: { enable: false },
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
@@ -21385,7 +21366,7 @@
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
+        domUtils.on($input, ["propertychange", "input"], () => {
           if (!$input.files?.length) {
             return;
           }
@@ -21414,13 +21395,13 @@
           btn: {
             close: {
               enable: true,
-              callback(details, event2) {
+              callback(details) {
                 details.close();
               },
             },
             ok: {
               text: "导入",
-              callback: async (eventDetails, event2) => {
+              callback: async (eventDetails) => {
                 const url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
@@ -21454,7 +21435,7 @@
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
           const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
@@ -22880,7 +22861,7 @@
   ["input", "select-multiple", "select", "slider", "switch", "textarea"].forEach((type) => {
     PanelComponents.setStorageApi(type, {
       get(key, defaultValue) {
-        return _GM_getValue(key, defaultValue);
+        return _GM_getValue(key, defaultValue) ?? defaultValue;
       },
       set(key, value) {
         _GM_setValue(key, value);
@@ -22956,4 +22937,4 @@
     NetDiskWorker.init();
     NetDiskRuleManager.init();
   });
-})(DOMUtils, pops, Utils, Qmsg, CryptoJS, DataPaging, Viewer);
+})(DOMUtils, pops, Utils, Qmsg, DataPaging, CryptoJS, Viewer);

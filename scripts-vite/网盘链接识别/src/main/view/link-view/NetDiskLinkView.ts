@@ -1,4 +1,4 @@
-import { DataPaging, DOMUtils, log } from "@/env";
+import { DataPaging, DOMUtils, log, pops } from "@/env";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
 import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
@@ -91,6 +91,7 @@ export const NetDiskLinkView = {
   },
   $data: {
     dataPagingEnable: false,
+    isSmallWindow: false,
   },
   /**
    * 显示视图
@@ -118,11 +119,27 @@ export const NetDiskLinkView = {
         this.$data.dataPagingEnable = dataPagingEnable;
       }
     }
+    if (this.$data.isSmallWindow) {
+      NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
+    } else {
+      NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "window";
+    }
+  },
+  /**
+   * 销毁视图
+   */
+  destory() {
+    NetDiskView.$el.$linkView?.close();
+    // @ts-expect-error
+    NetDiskView.$el.$linkView = void 0;
   },
   /**
    * 创建视图
    */
   createLinkView() {
+    this.$data.isSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
+      .toLowerCase()
+      .includes("smallwindow");
     const NetDiskViewConfig = {
       view: {
         "netdisl-small-window-shrink-status": GenerateData("netdisl-small-window-shrink-status", false),
@@ -144,23 +161,103 @@ export const NetDiskLinkView = {
     const closeView = () => {
       if (hasSuspension()) {
         // 存在悬浮按钮
-        // 仅隐藏并显示悬浮按钮
+        // 仅隐藏弹窗并显示悬浮按钮
         NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "suspension";
         NetDiskView.$el.$linkView.hide();
         NetDiskView.$inst.suspension.init();
       } else {
-        NetDiskView.$el.$linkView.close();
-        // @ts-expect-error
-        NetDiskView.$el.$linkView = void 0;
+        this.destory();
       }
     };
-    const isSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
-      .toLowerCase()
-      .includes("smallwindow");
-    if (isSmallWindow) {
+    if (this.$data.isSmallWindow) {
       // 小窗
+      const emitter = new pops.fn.EventEmiter("alert");
+      // 再右上角添加展开|收起按钮
+      emitter.on("pops:before-append-to-page", ($shadowRoot) => {
+        const $headerControl = $shadowRoot.querySelector<HTMLElement>(".pops-header-control")!;
+        const $title = $shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
+        const $content = $shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
+        // 展开
+        const $launchIcon = DOMUtils.createElement(
+          "button",
+          {
+            className: "pops-header-control",
+            innerHTML: /*html*/ `
+            <i class="pops-icon">
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+                </path>
+              </svg>
+            </i>
+            `,
+          },
+          {
+            type: "button",
+            "data-type": "launch",
+            "data-header": true,
+          }
+        );
+        // 收起
+        const $shrinkIcon = DOMUtils.createElement(
+          "button",
+          {
+            className: "pops-header-control",
+            innerHTML: /*html*/ `
+            <i class="pops-icon">
+              <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+                </path>
+              </svg>
+            </i>
+            `,
+          },
+          {
+            type: "button",
+            "data-type": "shrink",
+            "data-header": true,
+          }
+        );
+        DOMUtils.before($headerControl, $launchIcon);
+        DOMUtils.before($headerControl, $shrinkIcon);
+        DOMUtils.on(
+          $launchIcon,
+          "click",
+          function () {
+            // 展开-切换为收缩图标
+            DOMUtils.addClass($launchIcon, "pops-hide-important");
+            DOMUtils.removeClass($shrinkIcon, "pops-hide-important");
+            DOMUtils.removeClass($title, "pops-no-border-important");
+            DOMUtils.removeClass($content, "pops-hide-important");
+            NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
+          },
+          {
+            capture: true,
+          }
+        );
+        DOMUtils.on(
+          $shrinkIcon,
+          "click",
+          function () {
+            // 收缩-切换为展开图标
+            DOMUtils.removeClass($launchIcon, "pops-hide-important");
+            DOMUtils.addClass($shrinkIcon, "pops-hide-important");
+            DOMUtils.addClass($title, "pops-no-border-important");
+            DOMUtils.addClass($content, "pops-hide-important");
+            NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
+          },
+          {
+            capture: true,
+          }
+        );
+        if (NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value) {
+          $shrinkIcon.click();
+        } else {
+          $launchIcon.click();
+        }
+      });
       NetDiskView.$el.$linkView = NetDiskPops.alert(
         {
+          emitter: emitter,
           title: {
             text: "网盘",
             position: "center",
@@ -180,93 +277,11 @@ export const NetDiskLinkView = {
             },
           },
           mask: {
-            // 没有遮罩层
+            // 小窗没有遮罩层
             enable: false,
           },
-          // @ts-expect-error
-          animation: "",
-          beforeAppendToPageCallBack($shadowRoot) {
-            let $headerControl = $shadowRoot.querySelector<HTMLElement>(".pops-header-control")!;
-            let $title = $shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
-            let $content = $shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
-            // 展开
-            let launchIcon = DOMUtils.createElement(
-              "button",
-              {
-                className: "pops-header-control",
-                innerHTML: /*html*/ `
-                                <i class="pops-icon">
-									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-										</path>
-									</svg>
-                                </i>
-                                `,
-              },
-              {
-                type: "button",
-                "data-type": "launch",
-                "data-header": true,
-              }
-            );
-            // 收起
-            let shrinkIcon = DOMUtils.createElement(
-              "button",
-              {
-                className: "pops-header-control",
-                innerHTML: /*html*/ `
-                                <i class="pops-icon">
-									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-										<path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-										</path>
-									</svg>
-                                </i>
-                                `,
-              },
-              {
-                type: "button",
-                "data-type": "shrink",
-                "data-header": true,
-              }
-            );
-            DOMUtils.before($headerControl, launchIcon);
-            DOMUtils.before($headerControl, shrinkIcon);
-            DOMUtils.on(
-              launchIcon,
-              "click",
-              function () {
-                // 展开-切换为收缩图标
-                DOMUtils.addClass(launchIcon, "pops-hide-important");
-                DOMUtils.removeClass(shrinkIcon, "pops-hide-important");
-                DOMUtils.removeClass($title, "pops-no-border-important");
-                DOMUtils.removeClass($content, "pops-hide-important");
-                NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
-              },
-              {
-                capture: true,
-              }
-            );
-            DOMUtils.on(
-              shrinkIcon,
-              "click",
-              function () {
-                // 收缩-切换为展开图标
-                DOMUtils.removeClass(launchIcon, "pops-hide-important");
-                DOMUtils.addClass(shrinkIcon, "pops-hide-important");
-                DOMUtils.addClass($title, "pops-no-border-important");
-                DOMUtils.addClass($content, "pops-hide-important");
-                NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
-              },
-              {
-                capture: true,
-              }
-            );
-            if (NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value) {
-              shrinkIcon.click();
-            } else {
-              launchIcon.click();
-            }
-          },
+          // 不需要动画
+          animation: false,
           dragMoveCallBack(moveElement, left, top) {
             NetDiskViewConfig.view["netdisk-ui-small-window-position"].value = {
               left: left,
@@ -275,43 +290,43 @@ export const NetDiskLinkView = {
           },
           class: "whitesevPop netdisk-link-view-small-window",
           style: /*css*/ `
-                    ${indexCSS}
+          ${indexCSS}
 
-                    .pops {
-                        --container-title-height: 35px;
-                        --content-max-height: ${NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].value}px;
-                        --netdisk-line-space: 8px;
-                        --netdisk-icon-size: 24px;
-                    }
-                    .pops[type-value="alert"]{
-                        transform: none;
-                    }
-                    .pops {
-                        max-height: var(--content-max-height);
-                    }
-                    .pops[type-value=alert] .pops-alert-content{
-                        max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
-                    }
-                    .pops-header-controls button.pops-header-control[type][data-header]{
-                        padding: 0px 5px;
-                    }
-                    .netdisk-url-div{
-                        padding: 0px;
-                    }
-                    .netdisk-icon .netdisk-icon-img{
-                        width: var(--netdisk-icon-size);
-                        height: var(--netdisk-icon-size);
-                        min-width: var(--netdisk-icon-size);
-                        min-height: var(--netdisk-icon-size);
-                        margin: 0px var(--netdisk-line-space);
-                    }
-                    .netdisk-status{
-                        margin-right: var(--netdisk-line-space);
-                    }
-                    .netdisk-url{
-                        padding: 2px 0px;
-                    }
-                    `,
+          .pops {
+              --container-title-height: 35px;
+              --content-max-height: ${NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].value}px;
+              --netdisk-line-space: 8px;
+              --netdisk-icon-size: 24px;
+          }
+          .pops[type-value="alert"]{
+              transform: none;
+          }
+          .pops {
+              max-height: var(--content-max-height);
+          }
+          .pops[type-value=alert] .pops-alert-content{
+              max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
+          }
+          .pops-header-controls button.pops-header-control[type][data-header]{
+              padding: 0px 5px;
+          }
+          .netdisk-url-div{
+              padding: 0px;
+          }
+          .netdisk-icon .netdisk-icon-img{
+              width: var(--netdisk-icon-size);
+              height: var(--netdisk-icon-size);
+              min-width: var(--netdisk-icon-size);
+              min-height: var(--netdisk-icon-size);
+              margin: 0px var(--netdisk-line-space);
+          }
+          .netdisk-status{
+              margin-right: var(--netdisk-line-space);
+          }
+          .netdisk-url{
+              padding: 2px 0px;
+          }
+          `,
         },
         NetDiskView.$config.viewSizeConfig.mainViewSmallWindow
       );
@@ -377,7 +392,7 @@ export const NetDiskLinkView = {
           },
           class: "whitesevPop netdisk-link-view-window",
           style: /*css*/ `
-                    ${indexCSS}
+          ${indexCSS}
 
           .pops {
               max-height: 60vh;
@@ -387,7 +402,7 @@ export const NetDiskLinkView = {
                 max-height: 50vh;
             }
 					}
-                    `,
+          `,
         },
         NetDiskView.$config.viewSizeConfig.mainView
       );
@@ -405,7 +420,7 @@ export const NetDiskLinkView = {
     this.$inst.dataPaging = new DataPaging<LinkViewData>({
       data: data,
       pageShowDataMaxCount: pageShowDataMaxCount,
-      pageMaxStep: isSmallWindow ? 2 : 4,
+      pageMaxStep: this.$data.isSmallWindow ? 2 : 4,
       currentPage: 1,
       pageChangeCallBack: async (page) => {
         NetDiskCheckLinkValidity.clearAllDelayCheckLinkValidity();
@@ -422,39 +437,40 @@ export const NetDiskLinkView = {
     const $style = DOMUtils.createElement("style", {
       type: "text/css",
       textContent: /*css*/ `
-          .pops-content:has(.netdisk-url-pagination-wrapper){
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-          }
-          .pops-content:has(.netdisk-url-pagination-wrapper) .netdisk-url-box-all{
-            flex: 1;
-            overflow: auto;
-          }
-          .pops-content .netdisk-url-pagination-wrapper{
-            flex: 0;
-            display: flex;
-            justify-content: center;
-            padding: 4px 0px;
-          }
-          .pops-content #data-paging-wrapper{
+      .pops-content:has(.netdisk-url-pagination-wrapper){
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .pops-content:has(.netdisk-url-pagination-wrapper) .netdisk-url-box-all{
+        flex: 1;
+        overflow: auto;
+      }
+      .pops-content .netdisk-url-pagination-wrapper{
+        flex: 0;
+        display: flex;
+        justify-content: center;
+        padding: 4px 0px;
+      }
+      .pops-content #data-paging-wrapper{
+        display: flex;
+        align-items: center;
+      }
+      .pops-content #data-paging-wrapper a{
 
-          }
-          .pops-content #data-paging-wrapper a{
+      }
 
-          }
-
-          // 小窗
-          .netdisk-link-view-small-window #data-paging-wrapper{
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-          }
-          .netdisk-link-view-small-window .pops-content .netdisk-url-pagination-wrapper{
-            scale: 0.7;
-            padding: 0px;
-          }
-        `,
+      // 小窗
+      .netdisk-link-view-small-window #data-paging-wrapper{
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+      .netdisk-link-view-small-window .pops-content .netdisk-url-pagination-wrapper{
+        scale: 0.7;
+        padding: 0px;
+      }
+    `,
     });
     NetDiskView.$el.$linkView.$shadowRoot.appendChild($style);
     if (NetDiskGlobalData.smallWindow["netdisk-ui-link-view-data-paging-enable"].value) {
@@ -476,11 +492,12 @@ export const NetDiskLinkView = {
    * 刷新视图
    */
   refreshLinkView() {
+    // 分页刷新
     const currentPage = this.$inst.dataPaging.PAGE_CONFIG.currentPage();
     this.$inst.dataPaging.CONFIG.pageChangeCallBack(currentPage);
   },
   /**
-   * 情空视图
+   * 清空视图
    */
   clearLinkView() {
     DOMUtils.empty(this.$el.$urlBoxAll);

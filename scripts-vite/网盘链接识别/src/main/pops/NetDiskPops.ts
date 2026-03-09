@@ -186,15 +186,6 @@ export const NetDiskPops = {
         (<any>details).style = acrylicCSS;
       }
     }
-    // 设置z-index获取方式
-    (<any>details).zIndex = () => {
-      /** 偏移量 */
-      const deviation = 10;
-      let maxZIndex = utils.getMaxZIndex(deviation);
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
-      let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
-      return zIndex;
-    };
     return <any>details;
   },
 };

@@ -1,18 +1,17 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { UISelect } from "@components/setting/components/ui-select";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
-import { UISlider } from "@components/setting/components/ui-slider";
-import Qmsg from "qmsg";
-import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
-import { UIButton } from "@components/setting/components/ui-button";
-import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
-import { UIInput } from "@components/setting/components/ui-input";
-import DOMUtils from "@whitesev/domutils";
+import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskSuspension } from "@/main/view/suspension/NetDiskSuspensionView";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UIInputNumber } from "@components/setting/components/ui-input-number";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
+import { UISlider } from "@components/setting/components/ui-slider";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import DOMUtils from "@whitesev/domutils";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import Qmsg from "qmsg";
 
 export const PanelUI_allSetting = (): PopsPanelContentConfig => {
   return {
@@ -374,9 +373,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                     NetDiskGlobalData.suspension["suspended-z-index"].KEY,
                     NetDiskGlobalData.suspension["suspended-z-index"].default,
                     "值小于等于0则为动态获取z-index",
-
                     (event, value, valueAsNumber) => {
-                      NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber!;
+                      NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber;
                       return true;
                     }
                   ),

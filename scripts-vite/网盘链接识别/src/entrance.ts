@@ -31,11 +31,11 @@ try {
 } catch (error) {
   log.error("init NetDisk icon error", error);
 }
-// 更新面板组件存储Api
+// 替换面板组件存储Api（原先的是Panel内部储存）
 (["input", "select-multiple", "select", "slider", "switch", "textarea"] as PanelComponentsType[]).forEach((type) => {
   PanelComponents.setStorageApi(type as PanelComponentsType, {
     get<T>(key: string, defaultValue: T) {
-      return GM_getValue(key, defaultValue);
+      return GM_getValue(key, defaultValue) ?? defaultValue;
     },
     set(key: string, value: any) {
       GM_setValue(key, value);

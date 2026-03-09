@@ -355,9 +355,7 @@ export const NetDiskCheckLinkValidity = {
         }
       },
       zIndex() {
-        const maxZIndex = utils.getMaxZIndex(10);
-        const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(10).zIndex;
-        return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        return utils.getMaxZIndexNodeInfoFromPoint($netDiskStatus)[0].zIndex;
       },
     });
   },

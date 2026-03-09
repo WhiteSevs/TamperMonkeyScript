@@ -22,9 +22,10 @@ export const NetDiskSuspensionConfig = {
     isRight: GenerateData("isRight", false),
   },
   mode: {
+    /** 当前悬浮按钮调用弹窗的模式 */
     current_suspension_smallwindow_mode: GenerateData(
       "current_suspension_smallwindow_mode",
-      "suspension" as "smallwindow" | "suspension"
+      "suspension" as "suspension" | "smallwindow" | "window"
     ),
   },
 };
@@ -114,6 +115,7 @@ export const NetDiskSuspension = {
         </div>
       </div>`,
     });
+    // 设置位置信息
     DOMUtils.css(this.$el.$suspension, {
       width: `${NetDiskGlobalData.suspension.size.value}px`,
       height: `${NetDiskGlobalData.suspension.size.value}px`,
@@ -127,7 +129,6 @@ export const NetDiskSuspension = {
    * 设置 悬浮按钮所有事件
    */
   setAllEvent() {
-    const that = this;
     const needDragElement = NetDiskView.$inst.suspension.$el.$suspension;
     const $drag = new AnyTouch(needDragElement);
     let netDiskLinkViewTimer: number | undefined = void 0;
@@ -139,7 +140,7 @@ export const NetDiskSuspension = {
     // 点击元素，top偏移
     let clickElementTopOffset = 0;
     // 设置悬浮按钮 按下事件
-    $drag.on("pan", function (event) {
+    $drag.on("pan", (event) => {
       if (!moveFlag) {
         moveFlag = true;
         let rect = needDragElement.getBoundingClientRect();
@@ -153,7 +154,7 @@ export const NetDiskSuspension = {
       // 按下
       if (event.phase === "start") {
         // 更新z-index
-        that.updateZIndex();
+        this.updateZIndex();
       }
       // 移动
       if (event.phase === "move") {
@@ -219,11 +220,11 @@ export const NetDiskSuspension = {
           transition: "left 300ms ease 0s",
         });
         // 更新z-index
-        that.updateZIndex();
+        this.updateZIndex();
       }
     });
     // 设置悬浮按钮 点击/按下事件
-    $drag.on("tap", function (event) {
+    $drag.on("tap", function () {
       clearTimeout(netDiskLinkViewTimer);
       netDiskLinkViewTimer = void 0;
       if (isDouble) {
@@ -233,9 +234,13 @@ export const NetDiskSuspension = {
       } else {
         netDiskLinkViewTimer = setTimeout(() => {
           isDouble = false;
-          if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.includes("smallwindow")) {
-            NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
-            NetDiskView.$inst.suspension.hide();
+          // 隐藏悬浮按钮
+          NetDiskView.$inst.suspension.hide();
+          const behaviorModeIsSmallWindow = NetDiskGlobalData.features["netdisk-behavior-mode"].value
+            .toLowerCase()
+            .includes("smallwindow");
+          if (behaviorModeIsSmallWindow !== NetDiskView.$inst.linkView.$data.isSmallWindow) {
+            NetDiskView.$inst.linkView.destory();
           }
           NetDiskView.$inst.linkView.show();
         }, 200);
@@ -425,9 +430,10 @@ export const NetDiskSuspension = {
     // 悬浮按钮的z-index
     let suspendedZIndex = NetDiskGlobalData.suspension["suspended-z-index"].value;
     if (suspendedZIndex <= 0) {
+      // 自行计算
       suspendedZIndex = utils.getMaxValue(40000, utils.getMaxZIndex(10));
     }
-    // 动态生成z-index
+    // 更新z-index
     DOMUtils.html(
       this.$el.$suspensionZIndexStyle,
       /*css*/ `

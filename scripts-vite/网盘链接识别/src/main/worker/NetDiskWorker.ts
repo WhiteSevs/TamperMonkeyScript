@@ -686,7 +686,11 @@ export const NetDiskWorker = {
           }
           break;
         case "suspension_window".toLowerCase():
-          NetDiskView.$inst.suspension.init();
+          if (NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value === "suspension") {
+            NetDiskView.$inst.suspension.init();
+          } else {
+            NetDiskView.$inst.linkView.show();
+          }
           break;
         case "smallwindow".toLowerCase():
           NetDiskView.$inst.linkView.show();

@@ -4,13 +4,13 @@ import { UISelectMultiple } from "@components/setting/components/ui-select-multi
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { PanelUISize } from "@components/setting/panel-ui-size";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
 import { StorageUtils } from "@components/utils/StorageUtils";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { CharacterMappingSubscribe } from "./CharacterMappingSubscribe";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 字符映射的存储操作Api */
 const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
@@ -48,7 +48,7 @@ export const CharacterMapping = {
    */
   getRulePanelViewOption(quickAddData?: CharacterMappingOption) {
     const that = this;
-    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
     const addData = () => {
       return quickAddData ?? this.getTemplateData();
     };
@@ -353,17 +353,17 @@ export const CharacterMapping = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -373,7 +373,7 @@ export const CharacterMapping = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -383,7 +383,7 @@ export const CharacterMapping = {
               {
                 name: "在当前网址生效",
                 value: "workInCurrentUrl",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -395,7 +395,7 @@ export const CharacterMapping = {
               {
                 name: "规则名",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -410,7 +410,7 @@ export const CharacterMapping = {
               {
                 name: "网址",
                 value: "url",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -559,17 +559,17 @@ export const CharacterMapping = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -579,7 +579,7 @@ export const CharacterMapping = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -591,7 +591,7 @@ export const CharacterMapping = {
               {
                 name: "标题",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -608,7 +608,7 @@ export const CharacterMapping = {
               {
                 name: "订阅地址",
                 value: "url",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -656,7 +656,7 @@ export const CharacterMapping = {
                 getDataItemName(data) {
                   return data.name ?? data.data.url;
                 },
-                addData(data) {
+                addData() {
                   // TODO
                   return true;
                 },
@@ -673,17 +673,17 @@ export const CharacterMapping = {
                       {
                         name: "无",
                         value: "",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
                         },
-                        filterCallBack(data) {
+                        filterCallBack() {
                           return true;
                         },
                       },
                       {
                         name: "已启用",
                         value: "enable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -693,7 +693,7 @@ export const CharacterMapping = {
                       {
                         name: "未启用",
                         value: "notEnable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -703,7 +703,7 @@ export const CharacterMapping = {
                       {
                         name: "在当前网址生效",
                         value: "workInCurrentUrl",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -715,7 +715,7 @@ export const CharacterMapping = {
                       {
                         name: "规则名",
                         value: "name",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -730,7 +730,7 @@ export const CharacterMapping = {
                       {
                         name: "网址",
                         value: "url",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -941,7 +941,7 @@ export const CharacterMapping = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1014,7 +1014,7 @@ export const CharacterMapping = {
           Qmsg.warning("规则为空，无需导出");
           return;
         }
-        let panelHandlerComponents = pops.config.PanelHandlerComponents();
+        let panelHandlerComponents = pops.fn.PanelHandlerComponents();
         /**
          * 自定义存储api的配置
          * @param uuid
@@ -1071,13 +1071,13 @@ export const CharacterMapping = {
             ok: {
               enable: true,
               text: "导出",
-              callback(details, event) {
+              callback() {
                 exportCallBack();
               },
             },
             close: {
               enable: true,
-              callback(details, event) {
+              callback(details) {
                 details.close();
               },
             },
@@ -1149,7 +1149,7 @@ export const CharacterMapping = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1232,7 +1232,7 @@ export const CharacterMapping = {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
@@ -1262,13 +1262,13 @@ export const CharacterMapping = {
         btn: {
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
           ok: {
             text: "导入",
-            callback: async (eventDetails, event) => {
+            callback: async (eventDetails) => {
               const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
@@ -1302,7 +1302,7 @@ export const CharacterMapping = {
       });
       const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-      DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+      DOMUtils.on($promptInput, ["input", "propertychange"], () => {
         const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");

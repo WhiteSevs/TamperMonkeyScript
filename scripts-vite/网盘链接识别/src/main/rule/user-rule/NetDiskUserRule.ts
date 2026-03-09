@@ -1363,7 +1363,7 @@ export const NetDiskUserRule = {
           Qmsg.warning("规则为空，无需导出");
           return;
         }
-        const panelHandlerComponents = pops.config.PanelHandlerComponents();
+        const panelHandlerComponents = pops.fn.PanelHandlerComponents();
         /**
          * 自定义存储api的配置
          * @param uuid

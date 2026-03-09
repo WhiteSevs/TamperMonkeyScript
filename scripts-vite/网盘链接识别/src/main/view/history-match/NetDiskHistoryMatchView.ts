@@ -28,18 +28,17 @@ export const NetDiskHistoryMatchView = {
   show() {
     let data = this.getStorageData();
     let dataHTML = "";
-    let that = this;
     data = this.orderNetDiskHistoryMatchData(data);
     dataHTML = /*html*/ `
-        <div class="netdiskrecord-search">
-            <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
-        </div>
-        <div class="netdiskrecord-table">
-			<ul></ul>
+    <div class="netdiskrecord-search">
+        <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
+    </div>
+    <div class="netdiskrecord-table">
+      <ul></ul>
 		</div>
-        <div class="netdiskrecord-page">
+    <div class="netdiskrecord-page">
 
-        </div>`;
+    </div>`;
     NetDiskView.$el.$historyView = NetDiskPops.confirm(
       {
         title: {
@@ -54,27 +53,21 @@ export const NetDiskHistoryMatchView = {
           reverse: true,
           position: "space-between",
           close: {
-            callback(details) {
-              details.close();
-              // @ts-expect-error
-              NetDiskView.$el.$historyView = void 0;
+            callback: () => {
+              this.destory();
             },
           },
           ok: {
             enable: false,
-            callback(details) {
-              details.close();
-              // @ts-expect-error
-              NetDiskView.$el.$historyView = void 0;
+            callback: () => {
+              this.destory();
             },
           },
           cancel: {
             enable: true,
             text: "关闭",
-            callback(details) {
-              details.close();
-              // @ts-expect-error
-              NetDiskView.$el.$historyView = void 0;
+            callback: () => {
+              this.destory();
             },
           },
           other: {
@@ -94,14 +87,14 @@ export const NetDiskHistoryMatchView = {
                 btn: {
                   ok: {
                     enable: true,
-                    callback(clearAllDialog) {
-                      that.clearStorageData();
-                      that.clearLinkElements();
-                      that.clearPageNavigator();
+                    callback: (clearAllDialog) => {
+                      this.clearStorageData();
+                      this.clearLinkElements();
+                      this.clearPageNavigator();
                       clearAllDialog.close();
-                      let $recordPage =
+                      const $recordPage =
                         NetDiskView.$el.$historyView.$shadowRoot.querySelector<HTMLElement>(".netdiskrecord-page")!;
-                      let $btnOther =
+                      const $btnOther =
                         NetDiskView.$el.$historyView.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-btn-other")!;
                       DOMUtils.html($recordPage, "");
                       DOMUtils.text($btnOther, DOMUtils.text($btnOther).replace(/[\d]+/gi, "0"));
@@ -117,10 +110,11 @@ export const NetDiskHistoryMatchView = {
           },
         },
         mask: {
-          clickCallBack(originalRun) {
-            originalRun();
-            // @ts-expect-error
-            NetDiskView.$el.$historyView = null;
+          clickEvent: {
+            toClose: false,
+          },
+          clickCallBack: () => {
+            this.destory();
           },
         },
         class: "whitesevPopNetDiskHistoryMatch",
@@ -137,6 +131,14 @@ export const NetDiskHistoryMatchView = {
       ".netdiskrecord-link a",
       true
     );
+  },
+  /**
+   * 销毁弹窗
+   */
+  destory() {
+    NetDiskView.$el.$historyView?.close();
+    // @ts-expect-error
+    NetDiskView.$el.$historyView = void 0;
   },
   /**
    * 获取链接项的容器
@@ -421,7 +423,7 @@ export const NetDiskHistoryMatchView = {
       NetDiskView.$el.$historyView.$shadowRoot.querySelector<HTMLInputElement>(
         ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
       )!,
-      "keypress",
+      "keyup",
       (keyName) => {
         if (keyName === "Enter") {
           searchEvent();

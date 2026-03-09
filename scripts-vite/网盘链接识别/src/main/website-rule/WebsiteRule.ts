@@ -1,27 +1,23 @@
 import { DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
-import { UISwitch } from "@components/setting/components/ui-switch";
-import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
-import { UIInput } from "@components/setting/components/ui-input";
 import { UIButton } from "@components/setting/components/ui-button";
-import Qmsg from "qmsg";
-import { NetDiskView } from "../view/NetDiskView";
-import { NetDiskPops } from "../pops/NetDiskPops";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { Panel } from "@components/setting/panel";
-import { NetDiskRule } from "../rule/NetDiskRule";
-import type {
-  PopsPanelContentConfig,
-  PopsPanelViewConfig,
-} from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { NetDiskRuleDataKEY, WebsiteRuleDataKey } from "../data/NetDiskRuleDataKey";
-import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
-import panelSettingCSS from "./css/index.css?raw";
-import panelIndexCSS from "./../view/setting/index.css?raw";
-import { type RulePanelContentOption, type RuleSubscribeOption } from "@components/utils/RulePanelView";
-import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
-import { PanelUISize } from "@components/setting/panel-ui-size";
-import { StorageUtils } from "@components/utils/StorageUtils";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { PanelContent } from "@components/setting/panel-content";
-import { GM_setValue } from "ViteGM";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { type RulePanelContentOption, type RuleSubscribeOption } from "@components/utils/RulePanelView";
+import { StorageUtils } from "@components/utils/StorageUtils";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import Qmsg from "qmsg";
+import { NetDiskRuleDataKEY, WebsiteRuleDataKey } from "../data/NetDiskRuleDataKey";
+import { NetDiskPops } from "../pops/NetDiskPops";
+import { NetDiskRule } from "../rule/NetDiskRule";
+import { NetDiskView } from "../view/NetDiskView";
+import panelIndexCSS from "./../view/setting/index.css?raw";
+import panelSettingCSS from "./css/index.css?raw";
+import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -70,7 +66,7 @@ export const WebsiteRule = {
    */
   getRulePanelViewOption(quickAddData?: WebsiteRuleOption) {
     const that = this;
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
+    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
     let addData = () => {
       return quickAddData ?? this.getTemplateData();
     };
@@ -258,7 +254,7 @@ export const WebsiteRule = {
 
           // 然后显示出来
 
-          let $panel = NetDiskPops.panel(
+          NetDiskPops.panel(
             {
               title: {
                 text: `覆盖设置`,
@@ -379,17 +375,17 @@ export const WebsiteRule = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -399,7 +395,7 @@ export const WebsiteRule = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -409,7 +405,7 @@ export const WebsiteRule = {
               {
                 name: "在当前网址生效",
                 value: "workInCurrentUrl",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -421,7 +417,7 @@ export const WebsiteRule = {
               {
                 name: "规则名",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -436,7 +432,7 @@ export const WebsiteRule = {
               {
                 name: "网址",
                 value: "url",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -586,17 +582,17 @@ export const WebsiteRule = {
               {
                 name: "无",
                 value: "",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
-                filterCallBack(data) {
+                filterCallBack() {
                   return true;
                 },
               },
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -606,7 +602,7 @@ export const WebsiteRule = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
                 },
                 filterCallBack(data) {
@@ -618,7 +614,7 @@ export const WebsiteRule = {
               {
                 name: "标题",
                 value: "name",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -635,7 +631,7 @@ export const WebsiteRule = {
               {
                 name: "订阅地址",
                 value: "url",
-                selectedCallBack(config) {
+                selectedCallBack() {
                   // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
                 },
                 filterCallBack(data, searchText) {
@@ -683,7 +679,7 @@ export const WebsiteRule = {
                 getDataItemName(data) {
                   return data.name ?? data.url;
                 },
-                addData(data) {
+                addData() {
                   // TODO
                   return true;
                 },
@@ -700,17 +696,17 @@ export const WebsiteRule = {
                       {
                         name: "无",
                         value: "",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
-                        filterCallBack(data) {
+                        filterCallBack() {
                           return true;
                         },
                       },
                       {
                         name: "已启用",
                         value: "enable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -720,7 +716,7 @@ export const WebsiteRule = {
                       {
                         name: "未启用",
                         value: "notEnable",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
                         },
                         filterCallBack(data) {
@@ -732,7 +728,7 @@ export const WebsiteRule = {
                       {
                         name: "规则名",
                         value: "name",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -747,7 +743,7 @@ export const WebsiteRule = {
                       {
                         name: "网址",
                         value: "url",
-                        selectedCallBack(config) {
+                        selectedCallBack() {
                           // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
                         },
                         filterCallBack(data, searchText) {
@@ -981,7 +977,7 @@ export const WebsiteRule = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1054,7 +1050,7 @@ export const WebsiteRule = {
           Qmsg.warning("规则为空，无需导出");
           return;
         }
-        let panelHandlerComponents = pops.config.PanelHandlerComponents();
+        let panelHandlerComponents = pops.fn.PanelHandlerComponents();
         /**
          * 自定义存储api的配置
          * @param uuid
@@ -1112,13 +1108,13 @@ export const WebsiteRule = {
             ok: {
               enable: true,
               text: "导出",
-              callback(details, event) {
+              callback() {
                 exportCallBack();
               },
             },
             close: {
               enable: true,
-              callback(details, event) {
+              callback(details) {
                 details.close();
               },
             },
@@ -1191,7 +1187,7 @@ export const WebsiteRule = {
         ok: { enable: false },
         close: {
           enable: true,
-          callback(details, event) {
+          callback(details) {
             details.close();
           },
         },
@@ -1279,7 +1275,7 @@ export const WebsiteRule = {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
@@ -1309,13 +1305,13 @@ export const WebsiteRule = {
         btn: {
           close: {
             enable: true,
-            callback(details, event) {
+            callback(details) {
               details.close();
             },
           },
           ok: {
             text: "导入",
-            callback: async (eventDetails, event) => {
+            callback: async (eventDetails) => {
               let url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
@@ -1349,7 +1345,7 @@ export const WebsiteRule = {
       });
       let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-      DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+      DOMUtils.on($promptInput, ["input", "propertychange"], () => {
         let value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
