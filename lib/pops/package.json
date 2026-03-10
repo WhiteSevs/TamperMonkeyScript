@@ -1,6 +1,6 @@
 {
   "name": "@whitesev/pops",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "description": "弹窗库，包含了alert、confirm、prompt、drawer、folder、loading、iframe、panel、tooltip、searchSuggestion、rightClickMenu组件",
   "keywords": [
     "ScriptCat",
@@ -64,8 +64,8 @@
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
-    "oxfmt": "^0.36.0",
-    "oxlint": "1.51.0",
+    "oxfmt": "^0.37.0",
+    "oxlint": "1.52.0",
     "rollup": "^4.54.0",
     "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-import-css": "^4.1.2",

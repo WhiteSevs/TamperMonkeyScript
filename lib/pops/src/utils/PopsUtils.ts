@@ -436,7 +436,7 @@ class PopsUtils {
     $el?: IFunction<IArray<HTMLElement> | IArray<{ x: number; y: number }>>,
     deviation?: number
   ): {
-    /** 处理了偏移量后的z-index值 */
+    /** 处理了偏移量和阈值比较后的z-index值 */
     zIndex: number;
     /** 原始z-index值 */
     originZIndex: number;
@@ -458,7 +458,7 @@ class PopsUtils {
    * Utils.getMaxZIndexNodeInfoFromPoint(20);
    */
   getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
-    /** 处理了偏移量后的z-index值 */
+    /** 处理了偏移量和阈值比较后的z-index值 */
     zIndex: number;
     /** 原始z-index值 */
     originZIndex: number;
@@ -475,7 +475,7 @@ class PopsUtils {
     $el?: IFunction<IArray<HTMLElement> | number | IArray<{ x: number; y: number }>>,
     deviation?: number
   ): {
-    /** 处理了偏移量后的z-index值 */
+    /** 处理了偏移量和阈值比较后的z-index值 */
     zIndex: number;
     /** 原始z-index值 */
     originZIndex: number;
@@ -498,6 +498,10 @@ class PopsUtils {
     if (typeof deviation !== "number" || Number.isNaN(deviation)) {
       deviation = 10;
     }
+    // 最大值 2147483647
+    // const maxZIndex = Math.pow(2, 31) - 1;
+    // 比较值 2000000000
+    const maxZIndexCompare = 2 * Math.pow(10, 9);
     /** 坐标偏移 */
     const positionDistance = 10;
     const defaultCalcPostion: {
@@ -592,9 +596,14 @@ class PopsUtils {
             left: maxRect.left,
           };
         }
+        const calcZIndex = zIndex + deviation;
+        if (calcZIndex >= maxZIndexCompare) {
+          // 不要超过最大值
+          return;
+        }
         return {
           /** 计算偏移量后的z-index值 */
-          zIndex: zIndex + deviation,
+          zIndex: calcZIndex,
           /** 获取到的最大的z-index值 */
           originZIndex: zIndex,
           /** 拥有最大z-index的元素 */

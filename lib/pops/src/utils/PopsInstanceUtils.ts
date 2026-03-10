@@ -8,8 +8,8 @@ export const PopsInstanceUtils = {
    * 获取pops所有弹窗中的最大的z-index
    * @param deviation
    */
-  getPopsMaxZIndex(deviation: number = 1) {
-    deviation = Number.isNaN(deviation) ? 1 : deviation;
+  getPopsMaxZIndex(deviation: number = 10) {
+    deviation = Number.isNaN(deviation) ? 10 : deviation;
     // 最大值 2147483647
     // const browserMaxZIndex = Math.pow(2, 31) - 1;
     // 比较值 2000000000
@@ -25,8 +25,7 @@ export const PopsInstanceUtils = {
         const inst = instData[index];
         // 不对position为static和display为none的元素进行获取它们的z-index
         const $elList = [inst.$anim, inst.$pops, inst.$mask].filter((it) => it instanceof HTMLElement);
-        const nodeZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint($elList);
-        const maxNodeZIndexInfo = nodeZIndexInfoList[0];
+        const maxNodeZIndexInfo = popsUtils.getMaxZIndexNodeInfoFromPoint($elList)[0];
         if (maxNodeZIndexInfo) {
           const nodeZIndex = maxNodeZIndexInfo.zIndex;
           if (nodeZIndex > zIndex) {

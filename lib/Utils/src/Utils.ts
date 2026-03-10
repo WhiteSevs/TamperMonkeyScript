@@ -1066,10 +1066,11 @@ class Utils {
             left: maxRect.left,
           };
         }
-        let calcZIndex = zIndex + deviation;
+        const calcZIndex = zIndex + deviation;
         if (calcZIndex >= maxZIndexCompare) {
           // 不要超过最大值
-          calcZIndex = maxZIndexCompare;
+          // 超过就忽略
+          return;
         }
         return {
           /** 计算偏移量后的z-index值 */
