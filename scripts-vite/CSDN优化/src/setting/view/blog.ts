@@ -16,17 +16,6 @@ export const SettingUIBlog: PopsPanelContentConfig = {
       type: "container",
       views: [
         {
-          text: "全局布局屏蔽",
-          type: "deepMenu",
-          views: [
-            {
-              text: "",
-              type: "container",
-              views: [UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false)],
-            },
-          ],
-        },
-        {
           text: "劫持/拦截",
           type: "deepMenu",
           views: [
@@ -55,9 +44,13 @@ export const SettingUIBlog: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
+                UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false),
                 UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
                 UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
+                UISwitch("【屏蔽】评论区", "csdn-blog-blockComment", false),
+                UISwitch("【屏蔽】底部文章", "csdn-blog-blockBottomRecommendArticle", false),
                 UISwitch("【屏蔽】底部的悬浮工具栏", "csdn-blog-shieldBottomFloatingToolbar", false),
+                UISwitch("【屏蔽】底部的AI伴读", "csdn-blog-blockBottomAskAIToolbar", false),
               ],
             },
           ],
@@ -71,47 +64,37 @@ export const SettingUIBlog: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UISwitch(
-                  "启用",
-                  "csdn-blog-rightToolbarEnable",
-                  true,
-                  void 0,
-                  "创作中心，隐藏/显示侧栏，新手引导，客服、举报..."
-                ),
-                UISwitch(
                   "【添加按钮】前往评论",
                   "csdn-blog-addGotoRecommandButton",
                   true,
                   void 0,
                   "在悬浮工具栏最后面添加"
                 ),
-                UISlider(
-                  "right偏移",
-                  "csdn-blog-rightToolbarRightOffset",
-                  90,
-                  0,
-                  document.documentElement.clientWidth,
-                  (event, value) => {
-                    let csdnSideToolbar = document.querySelector(".csdn-side-toolbar") as HTMLDivElement;
-                    DOMUtils.css(csdnSideToolbar, {
-                      right: value + "px",
-                    });
-                  },
-                  (value) => {
-                    return `当前：${value}px，默认：90px`;
-                  }
-                ),
+              ],
+            },
+            {
+              text: "坐标偏移",
+              type: "container",
+              views: [
+                UISwitch("启用", "csdn-blog-coverRightToolOffSet", false),
                 UISlider(
                   "top偏移",
                   "csdn-blog-rightToolbarTopOffset",
                   140,
                   0,
-                  document.documentElement.clientHeight,
-                  (event, value) => {
-                    let csdnSideToolbar = document.querySelector(".csdn-side-toolbar") as HTMLDivElement;
-                    DOMUtils.css(csdnSideToolbar, {
-                      top: value + "px",
-                    });
-                  },
+                  Math.max(document.documentElement.clientHeight / 2, 400),
+                  void 0,
+                  (value) => {
+                    return `当前：${value}px，默认：140px`;
+                  }
+                ),
+                UISlider(
+                  "right偏移",
+                  "csdn-blog-rightToolbarRightOffset",
+                  90,
+                  0,
+                  Math.max(document.documentElement.clientWidth / 2, 400),
+                  void 0,
                   (value) => {
                     return `当前：${value}px，默认：90px`;
                   }
@@ -122,12 +105,61 @@ export const SettingUIBlog: PopsPanelContentConfig = {
               text: "屏蔽",
               type: "container",
               views: [
+                UISwitch("【屏蔽】右侧工具栏", "csdn-blog-rightToolbarEnable", false),
                 UISwitch("【屏蔽】创作中心", "csdn-blog-rightToolbarCreativeCenter", false),
                 UISwitch("【屏蔽】显示/隐藏侧栏", "csdn-blog-rightToolbarShowOrSidebar", false),
                 UISwitch("【屏蔽】新手引导", "csdn-blog-rightToolbarBeginnerGuidance", false),
                 UISwitch("【屏蔽】客服", "csdn-blog-rightToolbarCustomerService", false),
                 UISwitch("【屏蔽】举报", "csdn-blog-rightToolbarReport", false),
                 UISwitch("【屏蔽】返回顶部", "csdn-blog-rightToolbarBackToTop", false),
+              ],
+            },
+          ],
+        },
+        {
+          text: "右侧悬浮工具栏（AI助读版）",
+          type: "deepMenu",
+          views: [
+            {
+              text: "坐标偏移",
+              type: "container",
+              views: [
+                UISwitch("启用", "csdn-blog-ai-coverRightToolOffSet", false),
+                UISlider(
+                  "top偏移",
+                  "csdn-blog-ai-coverRightToolOffSet-top",
+                  48,
+                  0,
+                  Math.max(document.documentElement.clientHeight / 2, 400),
+                  void 0,
+                  (value) => {
+                    return `当前：${value}px，默认：48px`;
+                  }
+                ),
+                UISlider(
+                  "right偏移",
+                  "csdn-blog-ai-coverRightToolOffSet-right",
+                  150,
+                  0,
+                  Math.max(document.documentElement.clientWidth / 2, 400),
+                  void 0,
+                  (value) => {
+                    return `当前：${value}px，默认：150px`;
+                  }
+                ),
+              ],
+            },
+            {
+              text: "屏蔽",
+              type: "container",
+              views: [
+                UISwitch("【屏蔽】右侧工具栏", "csdn-blog-ai-blockRightToolbar", false),
+                UISwitch("【屏蔽】目录", "csdn-blog-ai-blockRightToolbarCatalogue", false),
+                UISwitch("【屏蔽】点赞", "csdn-blog-ai-blockRightToolbarLike", false),
+                UISwitch("【屏蔽】评论", "csdn-blog-ai-blockRightToolbarComment", false),
+                UISwitch("【屏蔽】收藏", "csdn-blog-ai-blockRightToolbarCollect", false),
+                UISwitch("【屏蔽】分享", "csdn-blog-ai-blockRightToolbarShare", false),
+                UISwitch("【屏蔽】...", "csdn-blog-ai-blockRightToolbarMore", false),
               ],
             },
           ],
@@ -183,16 +215,7 @@ export const SettingUIBlog: PopsPanelContentConfig = {
             {
               text: "",
               type: "container",
-              views: [
-                UISwitch(
-                  "启用",
-                  "csdn-blog-blockComment",
-                  true,
-                  void 0,
-                  "<code>开启</code>是允许出现评论，<code>关闭</code>是屏蔽评论区"
-                ),
-                UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true),
-              ],
+              views: [UISwitch("优化评论区的位置", "csdn-blog-restoreComments", true)],
             },
           ],
         },
@@ -204,13 +227,6 @@ export const SettingUIBlog: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
-                UISwitch(
-                  "启用",
-                  "csdn-blog-bottomRecommendArticleEnable",
-                  true,
-                  void 0,
-                  "<code>开启</code>是允许出现推荐文章，<code>关闭</code>是屏蔽底部文章"
-                ),
                 UISwitch("标识CSDN下载", "csdn-blog-identityCSDNDownload", true, void 0, "使用红框标识"),
                 UISwitch(
                   "移除资源下载的文章",

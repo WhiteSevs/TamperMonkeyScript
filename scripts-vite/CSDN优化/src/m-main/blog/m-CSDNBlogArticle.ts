@@ -1,16 +1,10 @@
-import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
+import { DOMUtils, addStyle, log } from "@/env";
+import { CSDNBlog } from "@/main/blog/CSDNBlog";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import { M_CSDNBlogArticleRightToolBar } from "./m-CSDNBlogArticleRightToolBar";
-import { CSDNFavoriteApi, type CSDNFavoriteDataOption } from "@/api/CSDNFavoriteApi";
-import { CSDNArticleStatusApi } from "@/api/CSDNArticleStatusApi";
-import { unsafeWindow } from "ViteGM";
-import { CSDNBlog } from "@/main/blog/CSDNBlog";
-import Qmsg from "qmsg";
-import { PanelUISize } from "@components/setting/panel-ui-size";
-import { M_CSDNBlogArticleComment } from "./m-CSDNBlogArticleComment";
 import { M_CSDNBlogArticleBottomRecommend } from "./m-CSDNBlogArticleBottomRecommend";
 import { M_CSDNBlogArticleBottomToolBar } from "./m-CSDNBlogArticleBottomToolBar";
+import { M_CSDNBlogArticleComment } from "./m-CSDNBlogArticleComment";
 
 export const M_CSDNBlogArticle = {
   init() {
@@ -18,16 +12,9 @@ export const M_CSDNBlogArticle = {
     M_CSDNBlogArticleComment.init();
     M_CSDNBlogArticleBottomRecommend.init();
     M_CSDNBlogArticleBottomToolBar.init();
-    Panel.exec(
-      "m-csdn-blog-shieldTopToolbar",
-      () => {
-        return this.shieldTopToolbar();
-      },
-      (keyList) => {
-        return !Panel.getValue(keyList[0]);
-      },
-      true
-    );
+    Panel.execMenuOnce("m-csdn-blog-blockTopToolbar", () => {
+      return this.blockTopToolbar();
+    });
     Panel.execMenuOnce("m-csdn-blog-removeAds", () => {
       return this.removeAds();
     });
@@ -50,7 +37,7 @@ export const M_CSDNBlogArticle = {
   /**
    * 屏蔽顶部Toolbar
    */
-  shieldTopToolbar() {
+  blockTopToolbar() {
     log.info("屏蔽顶部Toolbar");
     return [
       CommonUtil.addBlockCSS("#csdn-toolbar"),

@@ -15,7 +15,7 @@ export const SettingUIHuaWeiCloud: PopsPanelContentConfig = {
       views: [UISwitch("自动展开全文", "csdn-hua-wei-cloud-autoExpandContent", true)],
     },
     {
-      text: "屏蔽",
+      text: "布局屏蔽",
       type: "container",
       views: [
         UISwitch("【屏蔽】云开发者任务挑战活动", "csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent", true),

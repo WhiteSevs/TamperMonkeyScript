@@ -36,7 +36,11 @@ export const CSDNBlogArticleRightToolBarBlock = {
    */
   shieldRightToolbar() {
     log.info("启用/关闭 右侧工具栏");
-    return CommonUtil.addBlockCSS(`div.csdn-side-toolbar`);
+    return CommonUtil.addBlockCSS(
+      `div.csdn-side-toolbar`,
+      // 新版页面的右侧工具栏
+      ".article-aside-container"
+    );
   },
   /**
    * 【屏蔽】创作中心

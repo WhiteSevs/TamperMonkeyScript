@@ -90,33 +90,5 @@ export const SettingUICommon: PopsPanelContentConfig = {
         UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序"),
       ],
     },
-    // {
-    // 	text: "Cookie配置",
-    // 	type: "container",
-    // 	views: [
-    // 		UISwitch(
-    // 			"启用",
-    // 			"httpx-use-cookie-enable",
-    // 			false,
-    // 			void 0,
-    // 			"启用后，将根据下面的配置进行添加cookie"
-    // 		),
-    // 		UISwitch(
-    // 			"使用document.cookie",
-    // 			"httpx-use-document-cookie",
-    // 			false,
-    // 			void 0,
-    // 			"自动根据请求的域名来设置对应的cookie"
-    // 		),
-    // 		UITextArea(
-    // 			"tieba.baidu.com",
-    // 			"httpx-cookie-tieba.baidu.com",
-    // 			"",
-    // 			void 0,
-    // 			void 0,
-    // 			"Cookie格式：xxx=xxxx;xxx=xxxx"
-    // 		),
-    // 	],
-    // },
   ],
 };

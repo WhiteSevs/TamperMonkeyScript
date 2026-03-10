@@ -23,7 +23,7 @@ export const MSettingUIDownload: PopsPanelContentConfig = {
       ],
     },
     {
-      text: "屏蔽",
+      text: "布局屏蔽",
       type: "container",
       views: [UISwitch("【屏蔽】广告", "m-csdn-download-removeAds", true, void 0, "包括：登录弹窗、会员降价等")],
     },

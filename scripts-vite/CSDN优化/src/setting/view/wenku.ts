@@ -10,7 +10,7 @@ export const SettingUIWenKu: PopsPanelContentConfig = {
   },
   views: [
     {
-      text: "屏蔽",
+      text: "布局屏蔽",
       type: "container",
       views: [
         UISwitch("【屏蔽】资源推荐", "csdn-wenku-shieldResourceRecommend", false),

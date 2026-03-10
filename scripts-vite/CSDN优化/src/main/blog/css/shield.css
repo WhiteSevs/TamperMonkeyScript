@@ -31,6 +31,8 @@ div.csdn-side-toolbar .activity-swiper-box,
 #recommendAdBox,
 /* 顶部导航栏的vip推广 */
 #csdn-plugin-vip,
+/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */
+#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],
 /* 侧栏的【点击体验 DeepSeekR1满血版】 */
 #sidecolumn-deepseek,
 /* 侧栏的【下载APP、公众号、视频号】 */

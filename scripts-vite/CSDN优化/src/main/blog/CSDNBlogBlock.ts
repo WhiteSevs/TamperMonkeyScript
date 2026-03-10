@@ -24,6 +24,9 @@ export const CSDNBlogBlock = {
     Panel.execMenuOnce("csdn-blog-shieldBottomFloatingToolbar", () => {
       return this.shieldBottomFloatingToolbar();
     });
+    Panel.execMenuOnce("csdn-blog-blockBottomAskAIToolbar", () => {
+      return this.blockBottomAskAIToolbar();
+    });
   },
   /**
    * 添加屏蔽CSS和功能CSS
@@ -66,5 +69,12 @@ export const CSDNBlogBlock = {
   shieldBottomFloatingToolbar() {
     log.info("屏蔽底部悬浮工具栏");
     return CommonUtil.addBlockCSS(`#toolBarBox`);
+  },
+  /**
+   * 【屏蔽】底部的AI伴读
+   */
+  blockBottomAskAIToolbar() {
+    log.info(`【屏蔽】底部的AI伴读`);
+    return CommonUtil.addBlockCSS(`[class*="Container_"]:has([class^="chatMain"])`);
   },
 };

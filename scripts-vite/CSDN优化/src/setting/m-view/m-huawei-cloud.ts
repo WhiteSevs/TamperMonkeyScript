@@ -15,7 +15,7 @@ export const MSettingUIHuaWeiCloud: PopsPanelContentConfig = {
       views: [UISwitch("自动展开全文", "m-csdn-hua-wei-cloud-autoExpandContent", true)],
     },
     {
-      text: "屏蔽",
+      text: "布局屏蔽",
       type: "container",
       views: [UISwitch("【屏蔽】底部加入社区", "m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity", true)],
     },

@@ -4,14 +4,9 @@ import { Panel } from "@components/setting/panel";
 
 export const CSDNBlogArticleComment = {
   init() {
-    Panel.exec(
-      "csdn-blog-blockComment",
-      () => {
-        return this.blockComment();
-      },
-      (keyList) => !Panel.getValue(keyList[0]),
-      true
-    );
+    Panel.execMenuOnce("csdn-blog-blockComment", () => {
+      return this.blockComment();
+    });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-restoreComments", () => {
         this.restoreComments();
@@ -20,10 +15,10 @@ export const CSDNBlogArticleComment = {
   },
 
   /**
-   * 屏蔽评论区
+   * 【屏蔽】评论区
    */
   blockComment() {
-    log.info("屏蔽评论区");
+    log.info("【屏蔽】评论区");
     return CommonUtil.addBlockCSS(`#pcCommentBox`);
   },
   /**

@@ -4,14 +4,9 @@ import { Panel } from "@components/setting/panel";
 
 export const CSDNBlogArticleBottomRecommend = {
   init() {
-    Panel.exec(
-      "csdn-blog-bottomRecommendArticleEnable",
-      () => {
-        return this.shieldBottomRecommendArticle();
-      },
-      (keyList) => !Panel.getValue(keyList[0]),
-      true
-    );
+    Panel.execMenuOnce("csdn-blog-blockBottomRecommendArticle", () => {
+      return this.blockBottomRecommendArticle();
+    });
     Panel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
       return this.identityCSDNDownload();
     });
@@ -20,10 +15,10 @@ export const CSDNBlogArticleBottomRecommend = {
     });
   },
   /**
-   * 启用/关闭 底部文章
+   * 【屏蔽】底部文章
    */
-  shieldBottomRecommendArticle() {
-    log.info("启用/关闭 底部文章");
+  blockBottomRecommendArticle() {
+    log.info("【屏蔽】底部文章");
     return CommonUtil.addBlockCSS(`main > div.recommend-box`);
   },
   /**

@@ -5,16 +5,9 @@ import Qmsg from "qmsg";
 
 export const M_CSDNBlogArticleBottomRecommend = {
   init() {
-    Panel.exec(
-      "m-csdn-blog-bottomArticleEnable",
-      () => {
-        return this.blockBottomArticle();
-      },
-      (keyList) => {
-        return !Panel.getValue(keyList[0]);
-      },
-      true
-    );
+    Panel.execMenuOnce("m-csdn-blog-blockBottomArticle", () => {
+      return this.blockBottomArticle();
+    });
     Panel.execMenuOnce("m-csdn-blog-removeResourceArticle", () => {
       return this.removeResourceArticle();
     });
@@ -29,10 +22,10 @@ export const M_CSDNBlogArticleBottomRecommend = {
     });
   },
   /**
-   * 启用/关闭 底部文章
+   * 【屏蔽】底部文章
    */
   blockBottomArticle() {
-    log.info("启用/关闭 底部文章");
+    log.info("【屏蔽】底部文章");
     return CommonUtil.addBlockCSS("#recommend");
   },
   /**

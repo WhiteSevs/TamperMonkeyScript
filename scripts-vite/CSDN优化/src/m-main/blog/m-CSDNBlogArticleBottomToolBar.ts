@@ -8,16 +8,9 @@ import { unsafeWindow } from "ViteGM";
 
 export const M_CSDNBlogArticleBottomToolBar = {
   init() {
-    Panel.exec(
-      "m-csdn-blog-bottom-toolbar-enable",
-      () => {
-        return this.blockBottomToolBar();
-      },
-      (keyList) => {
-        return !Panel.getValue(keyList[0]);
-      },
-      true
-    );
+    Panel.execMenuOnce("m-csdn-blog-blockBottomToolbar", () => {
+      return this.blockBottomToolbar();
+    });
     Panel.execMenuOnce("m-csdn-blog-bottom-toolbar-always-bottom", () => {
       return this.bottomToolBarAlwaysShow();
     });
@@ -29,10 +22,10 @@ export const M_CSDNBlogArticleBottomToolBar = {
     });
   },
   /**
-   * 屏蔽底部工具栏
+   * 【屏蔽】底部工具栏
    */
-  blockBottomToolBar() {
-    log.info(`屏蔽底部工具栏`);
+  blockBottomToolbar() {
+    log.info(`【屏蔽】底部工具栏`);
     return CommonUtil.addBlockCSS("#operate");
   },
   /**

@@ -1,13 +1,17 @@
-import { $, DOMUtils, addStyle, log, utils } from "@/env";
+import { $, DOMUtils, addStyle, log } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CSDNBlogArticleRightToolBarBlock } from "./CSDNBlogArticleRightToolBarBlock";
 
 export const CSDNBlogArticleRightToolBar = {
   init() {
     CSDNBlogArticleRightToolBarBlock.init();
-    Panel.onceExec("csdn-blog-initRightToolbarOffset", () => {
-      return this.initRightToolbarOffset();
-    });
+    Panel.execMenuOnce(
+      ["csdn-blog-coverRightToolOffSet", "csdn-blog-rightToolbarTopOffset", "csdn-blog-rightToolbarRightOffset"],
+      (option) => {
+        if (!option.value[0]) return;
+        return this.initRightToolbarOffset(option.value[1], option.value[2]);
+      }
+    );
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
         this.addGotoRecommandButton();
@@ -59,18 +63,14 @@ export const CSDNBlogArticleRightToolBar = {
   /**
    * 初始化右侧工具栏的偏移（top、right）
    */
-  initRightToolbarOffset() {
+  async initRightToolbarOffset(top: number, right: number) {
     log.info("初始化右侧工具栏的偏移（top、right）");
-    addStyle(/*css*/ `
+    return addStyle(/*css*/ `
     .csdn-side-toolbar{
       left: unset !important;
+      top: ${top}px !important;
+      right: ${right}px !important;
     }
     `);
-    DOMUtils.waitNode<HTMLDivElement>(".csdn-side-toolbar").then(($sideToolbar) => {
-      DOMUtils.css($sideToolbar, {
-        top: parseInt(Panel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
-        right: parseInt(Panel.getValue("csdn-blog-rightToolbarRightOffset")) + "px",
-      });
-    });
   },
 };

@@ -14,26 +14,6 @@ export const MSettingUIBlog: PopsPanelContentConfig = {
       type: "container",
       views: [
         {
-          text: "全局布局屏蔽",
-          type: "deepMenu",
-          views: [
-            {
-              text: "",
-              type: "container",
-              views: [
-                UISwitch("启用", "m-csdn-blog-shieldTopToolbar", false, void 0, "关闭是屏蔽顶部工具栏"),
-                UISwitch(
-                  "【屏蔽】广告",
-                  "m-csdn-blog-removeAds",
-                  true,
-                  void 0,
-                  "包括：登录弹窗、打开APP、ios版本提示等"
-                ),
-              ],
-            },
-          ],
-        },
-        {
           text: "劫持/拦截",
           type: "deepMenu",
           views: [
@@ -50,6 +30,30 @@ export const MSettingUIBlog: PopsPanelContentConfig = {
       type: "container",
       text: "文章",
       views: [
+        {
+          text: "布局屏蔽",
+          type: "deepMenu",
+          views: [
+            {
+              text: "",
+              type: "container",
+              views: [
+                UISwitch(
+                  "【屏蔽】广告",
+                  "m-csdn-blog-removeAds",
+                  true,
+                  void 0,
+                  "包括：登录弹窗、打开APP、ios版本提示等"
+                ),
+                UISwitch("【屏蔽】顶部工具栏", "m-csdn-blog-blockTopToolbar", false),
+                UISwitch("【屏蔽】评论区", "m-csdn-blog-blockComment", false),
+                UISwitch("【屏蔽】底部文章", "m-csdn-blog-blockBottomArticle", false),
+                UISwitch("【屏蔽】底部工具栏", "m-csdn-blog-blockBottomToolbar", false),
+                UISwitch("【屏蔽】底部的AI伴读", "m-csdn-blog-blockBottomAskAIToolbar", false),
+              ],
+            },
+          ],
+        },
         {
           text: "内容",
           type: "deepMenu",
@@ -86,13 +90,6 @@ export const MSettingUIBlog: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UISwitch(
-                  "启用",
-                  "m-csdn-blog-comment-enable",
-                  true,
-                  void 0,
-                  "<code>开启</code>是允许出现评论，<code>关闭</code>是屏蔽评论区"
-                ),
-                UISwitch(
                   "不限制评论区的最大高度",
                   "m-csdn-blog-notLimitCommentMaxHeight",
                   true,
@@ -111,13 +108,6 @@ export const MSettingUIBlog: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
-                UISwitch(
-                  "启用",
-                  "m-csdn-blog-bottomArticleEnable",
-                  true,
-                  void 0,
-                  "<code>开启</code>是允许出现推荐文章，<code>关闭</code>是屏蔽底部文章"
-                ),
                 UISwitch("重构", "m-csdn-blog-refactoringRecommendation", true, void 0, "文章的样式统一"),
                 UISwitch(
                   "移除资源下载的文章",
@@ -139,13 +129,6 @@ export const MSettingUIBlog: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
-                UISwitch(
-                  "启用",
-                  "m-csdn-blog-bottom-toolbar-enable",
-                  false,
-                  void 0,
-                  "<code>开启</code>是允许出现底部工具栏，<code>关闭</code>是屏蔽底部工具栏"
-                ),
                 UISwitch(
                   "常驻底部",
                   "m-csdn-blog-bottom-toolbar-always-bottom",

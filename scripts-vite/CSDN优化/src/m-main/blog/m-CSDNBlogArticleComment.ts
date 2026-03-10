@@ -4,25 +4,18 @@ import { Panel } from "@components/setting/panel";
 
 export const M_CSDNBlogArticleComment = {
   init() {
-    Panel.exec(
-      "m-csdn-blog-comment-enable",
-      () => {
-        return this.blockComment();
-      },
-      (keyList) => {
-        return !Panel.getValue(keyList[0]);
-      },
-      true
-    );
+    Panel.execMenuOnce("m-csdn-blog-blockComment", () => {
+      return this.blockComment();
+    });
     Panel.execMenuOnce("m-csdn-blog-notLimitCommentMaxHeight", () => {
       return this.notLimitCommentMaxHeight();
     });
   },
   /**
-   * 启用/关闭 评论区
+   * 【屏蔽】评论区
    */
   blockComment() {
-    log.info("启用/关闭 评论区");
+    log.info("【屏蔽】评论区");
     return CommonUtil.addBlockCSS("#comment");
   },
   /**

@@ -7,6 +7,7 @@ import BlogArticleCenterCSS from "./css/articleCenter.css?raw";
 import { CSDNBlogArticleComment } from "./CSDNBlogArticleComment";
 import { CSDNBlogArticleBottomRecommend } from "./CSDNBlogArticleBottomRecommend";
 import { CSDNBlogArticleRightToolBar } from "./CSDNBlogArticleRightToolBar";
+import { CSDNBlogArticleAISupportRightToolBar } from "./CSDNBlogArticleAISupportRightToolBar";
 
 export const CSDNBlogArticle = {
   init() {
@@ -14,6 +15,7 @@ export const CSDNBlogArticle = {
     CSDNBlogArticleComment.init();
     CSDNBlogArticleBottomRecommend.init();
     CSDNBlogArticleRightToolBar.init();
+    CSDNBlogArticleAISupportRightToolBar.init();
     Panel.execMenuOnce("csdn-blog-articleCenter", () => {
       return this.articleCenter();
     });
@@ -70,6 +72,18 @@ export const CSDNBlogArticle = {
       #mainBox {
         margin-left: 0px;
       }`)
+    );
+    // 新版的内容
+    result.push(
+      addStyle(/*css*/ `
+    html body .main_father #mainBox{
+      padding-right: 0px !important;
+    }
+    .article-aside-container{
+      left: unset !important;
+      right: 150px !important;
+    }
+    `)
     );
     return result;
   },

@@ -10,7 +10,7 @@ export const MSettingUIWenKu: PopsPanelContentConfig = {
   },
   views: [
     {
-      text: "屏蔽",
+      text: "布局屏蔽",
       type: "container",
       views: [UISwitch("【屏蔽】底部工具栏", "m-csdn-wenku-shieldBottomToolbar", false)],
     },
