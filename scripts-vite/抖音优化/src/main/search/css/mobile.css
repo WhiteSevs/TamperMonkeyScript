@@ -19,7 +19,7 @@ ul[data-e2e="scroll-list"] {
 }
 /* 距离是顶部导航栏的高度 */
 #search-content-area {
-  margin-top: 65px;
+  margin-top: var(--header-height, 56px);
 }
 /* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */
 #douyin-header header {

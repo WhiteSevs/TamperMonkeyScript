@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.8
+// @version      2026.3.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -1618,7 +1618,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1941,7 +1941,7 @@
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -1949,6 +1949,14 @@
     autoClearConsole: true,
     tag: true,
   });
+  const getPageMaxZIndex = () => {
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
+  };
   Qmsg.config({
     isHTML: true,
     autoClose: true,
@@ -1987,22 +1995,12 @@
       );
     },
     get zIndex() {
-      const deviation = 100;
-      let maxZIndex = deviation;
-      const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
-      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
-      return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
+      return getPageMaxZIndex();
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const deviation = 100;
-      let maxZIndex = deviation;
-      const popsZIndex = pops.config.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
-      const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
-      maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
-      return maxZIndex;
+      return getPageMaxZIndex();
     },
     mask: {
       enable: true,
@@ -7470,10 +7468,33 @@
           return;
         }
         try {
-          const awemeInfo =
-            parentReactFilber?.return?.memoizedProps?.awemeInfo ||
-            parentReactFilber?.return?.return?.return?.memoizedProps?.awemeInfo ||
-            basePlayerContainerReactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
+          const awemeInfo = utils.queryProperty(parentReactFilber || basePlayerContainerReactFiber, (target) => {
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null) {
+              if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null) {
+                return {
+                  isFind: true,
+                  data: target.memoizedProps.awemeInfo,
+                };
+              } else {
+                if (typeof target.return === "object" && target.return != null) {
+                  return {
+                    isFind: false,
+                    data: target.return,
+                  };
+                } else {
+                  return {
+                    isFind: false,
+                    data: null,
+                  };
+                }
+              }
+            } else {
+              return {
+                isFind: false,
+                data: null,
+              };
+            }
+          });
           if (!awemeInfo) {
             log.error($click, parentReactFilber, basePlayerContainerReactFiber);
             Qmsg.error("获取awemeInfo属性失败");
@@ -8935,22 +8956,59 @@
         waitToRemovePauseDialog.destory,
       ];
     },
-    disableVideoAutoPlay() {
-      domUtils
-        .waitAnyNode(['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"], 1e4)
-        .then(($video) => {
-          if (!$video) {
-            return;
-          }
-          $video.autoplay = false;
-          $video.pause();
-          const timeout = 3e3;
-          const playCallback = (evt) => {
-            domUtils.preventEvent(evt);
-            $video.autoplay = false;
-            $video.pause();
-            log.success("成功禁止自动播放视频(直播)");
-          };
+    async disableVideoAutoPlay() {
+      log.info(`禁止自动播放视频`);
+      const selector = ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"];
+      const $video = await domUtils.waitAnyNode(selector, 1e4);
+      if (!$video) {
+        return;
+      }
+      $video.autoplay = false;
+      $video.pause();
+      const timeout = 3e3;
+      domUtils.off(
+        $video,
+        "play",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("disable autoplay listener remove tag");
+        }
+      );
+      domUtils.off(
+        $video,
+        "pause",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("disable autoplay listener remove tag");
+        }
+      );
+      domUtils.off($video.parentElement, "click", void 0, {}, (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      });
+      domUtils.off(
+        window,
+        "keydown",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("disable autoplay listener remove tag");
+        }
+      );
+      const offAllListener = () => {
+        clearTimeout(timeId);
+        playListener.off();
+        clickListener.off();
+        keyboardListener.off();
+        log.info(`已移除监听自动播放`);
+        const listenPlayVideo = () => {
           domUtils.off(
             $video,
             "play",
@@ -8959,65 +9017,85 @@
               capture: true,
             },
             (value) => {
-              return value.callback.toString().includes("listener remove tag");
+              return value.callback.toString().includes("disable autoplay listener remove tag");
             }
           );
-          domUtils.off(
+          domUtils.on(
             $video,
-            "pause",
-            void 0,
-            {
-              capture: true,
+            "play",
+            () => {
+              log.info(`播放-视频重载`);
+              DouYinLivePlayerInstance.reloadVideo();
             },
-            (value) => {
-              return value.callback.toString().includes("listener remove tag");
+            {
+              once: true,
+              capture: true,
             }
           );
-          const playListener = domUtils.on($video, "play", playCallback, {
-            capture: true,
-          });
-          const cb = () => {
-            playListener.off();
-            log.info(`移除监听自动播放`);
-            const listenPlayVideo = () => {
-              domUtils.off(
-                $video,
-                "play",
-                void 0,
-                {
-                  capture: true,
-                },
-                (value) => {
-                  return value.callback.toString().includes("listener remove tag");
-                }
-              );
-              domUtils.on(
-                $video,
-                "play",
-                () => {
-                  log.info(`播放-视频重载`);
-                  DouYinLivePlayerInstance.reloadVideo();
-                },
-                {
-                  once: true,
-                  capture: true,
-                }
-              );
-            };
-            domUtils.on(
-              $video,
-              "pause",
-              () => {
-                listenPlayVideo();
-              },
-              {
-                capture: true,
-              }
-            );
+        };
+        domUtils.on(
+          $video,
+          "pause",
+          () => {
             listenPlayVideo();
-          };
-          setTimeout(cb, timeout);
-        });
+          },
+          {
+            capture: true,
+          }
+        );
+        listenPlayVideo();
+      };
+      const playCallback = (evt) => {
+        domUtils.preventEvent(evt);
+        $video.autoplay = false;
+        $video.pause();
+        log.success("成功禁止自动播放视频(直播)");
+      };
+      const playListener = domUtils.on($video, "play", playCallback, {
+        capture: true,
+      });
+      const clickListener = domUtils.on(
+        $video.parentElement,
+        "click",
+        (evt) => {
+          domUtils.preventEvent(evt);
+          offAllListener();
+          if ($video.paused) {
+            $video.play();
+          } else {
+            $video.pause();
+          }
+        },
+        {
+          capture: true,
+          once: true,
+        }
+      );
+      const keyboardListener = domUtils.on(
+        window,
+        "keydown",
+        (evt) => {
+          if (evt.code === "Space" && !evt.ctrlKey && !evt.altKey && !evt.shiftKey && !evt.metaKey) {
+            domUtils.preventEvent(evt);
+            offAllListener();
+            if ($video.paused) {
+              $video.play();
+            } else {
+              $video.pause();
+            }
+          }
+        },
+        {
+          capture: true,
+          once: true,
+        }
+      );
+      const timeId = setTimeout(offAllListener, timeout);
+      return [
+        () => {
+          offAllListener();
+        },
+      ];
     },
     changeBackgroundColor() {
       log.info("修改视频背景颜色");
@@ -9119,12 +9197,6 @@
       $video.autoplay = false;
       $video.pause();
       const timeout = 3e3;
-      const playCallback = (evt) => {
-        domUtils.preventEvent(evt);
-        $video.autoplay = false;
-        $video.pause();
-        log.success("成功禁止自动播放视频");
-      };
       domUtils.off(
         $video,
         "play",
@@ -9133,17 +9205,75 @@
           capture: true,
         },
         (value) => {
-          return value.callback.toString().includes("listener remove tag");
+          return value.callback.toString().includes("disable autoplay listener remove tag");
         }
       );
+      domUtils.off($video.parentElement, "click", void 0, {}, (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      });
+      domUtils.off(
+        window,
+        "keydown",
+        void 0,
+        {
+          capture: true,
+        },
+        (value) => {
+          return value.callback.toString().includes("disable autoplay listener remove tag");
+        }
+      );
+      const offAllListener = () => {
+        clearTimeout(timeId);
+        playListener.off();
+        clickListener.off();
+        keyboardListener?.off();
+        log.info(`已移除监听自动播放`);
+      };
+      const playCallback = (evt) => {
+        domUtils.preventEvent(evt);
+        $video.autoplay = false;
+        $video.pause();
+        log.success("成功禁止自动播放视频");
+      };
       const playListener = domUtils.on($video, "play", playCallback, {
         capture: true,
       });
-      const offAllListener = () => {
-        clearTimeout(timeId);
-        log.info(`已移除监听自动播放`);
-        playListener.off();
-      };
+      const clickListener = domUtils.on(
+        $video.parentElement,
+        "click",
+        (evt) => {
+          domUtils.preventEvent(evt);
+          offAllListener();
+          if ($video.paused) {
+            $video.play();
+          } else {
+            $video.pause();
+          }
+        },
+        {
+          capture: true,
+          once: true,
+        }
+      );
+      const keyboardListener = domUtils.on(
+        window,
+        "keydown",
+        (evt) => {
+          if (evt.code === "Space" && !evt.ctrlKey && !evt.altKey && !evt.shiftKey && !evt.metaKey) {
+            domUtils.preventEvent(evt);
+            offAllListener();
+            if ($video.paused) {
+              $video.play();
+            } else {
+              $video.pause();
+            }
+          }
+        },
+        {
+          capture: true,
+          once: true,
+        }
+      );
       const timeId = setTimeout(offAllListener, timeout);
       return [
         () => {
@@ -9309,7 +9439,7 @@
     },
   };
   const MobileCSS =
-    '/* 去除顶部的padding距离 */\n#douyin-right-container {\n  padding-top: 0;\n}\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\n  width: 100vw;\n}\n/* 放大顶部的综合、视频、用户等header */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\n  transform: scale(0.8);\n}\n/* 视频宽度 */\nul[data-e2e="scroll-list"] {\n  padding: 0px 10px;\n}\n#sliderVideo {\n  width: -webkit-fill-available;\n}\n/* 距离是顶部导航栏的高度 */\n#search-content-area {\n  margin-top: 65px;\n}\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\n#douyin-header header {\n  flex-direction: row-reverse !important;\n}\n#douyin-header header > div:nth-child(2) {\n  position: unset !important;\n}\n/* 调整视频列表的宽度 */\n@media screen and (max-width: 550px) {\n  #sliderVideo {\n    width: 100%;\n  }\n  /* 调整顶部搜索框的宽度 */\n  #component-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: -webkit-fill-available;\n    width: -moz-available;\n    padding-right: 0;\n  }\n}\n';
+    '/* 去除顶部的padding距离 */\n#douyin-right-container {\n  padding-top: 0;\n}\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\n  width: 100vw;\n}\n/* 放大顶部的综合、视频、用户等header */\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\n  transform: scale(0.8);\n}\n/* 视频宽度 */\nul[data-e2e="scroll-list"] {\n  padding: 0px 10px;\n}\n#sliderVideo {\n  width: -webkit-fill-available;\n}\n/* 距离是顶部导航栏的高度 */\n#search-content-area {\n  margin-top: var(--header-height, 56px);\n}\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\n#douyin-header header {\n  flex-direction: row-reverse !important;\n}\n#douyin-header header > div:nth-child(2) {\n  position: unset !important;\n}\n/* 调整视频列表的宽度 */\n@media screen and (max-width: 550px) {\n  #sliderVideo {\n    width: 100%;\n  }\n  /* 调整顶部搜索框的宽度 */\n  #component-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: -webkit-fill-available;\n    width: -moz-available;\n    padding-right: 0;\n  }\n}\n';
   const DouYinSearchBlock = {
     init() {
       Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
@@ -11515,7 +11645,7 @@
       ];
     },
     getRuleViewInstance() {
-      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       const generateStorageApi = (data) => {
         return {
           get(key, defaultValue) {
@@ -12131,20 +12261,20 @@
         const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
         return url;
       };
-      const result1 = domUtils.on(
+      const listener_1 = domUtils.on(
         document,
         "click",
         [
-          'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
+          '[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
           'a[href*="douyin.com/search/"]',
         ],
-        (evt, selectorTarget) => {
+        (evt, $click) => {
           domUtils.preventEvent(evt);
           let url;
-          if (selectorTarget instanceof HTMLAnchorElement) {
-            url = selectorTarget.href;
+          if ($click instanceof HTMLAnchorElement) {
+            url = $click.href;
           } else {
-            const $doubleClick = selectorTarget.closest('div[data-click="doubleClick"]');
+            const $doubleClick = $click.closest('[data-click="doubleClick"]');
             if (!$doubleClick) {
               Qmsg.error("未找到搜索框元素");
               return;
@@ -12170,33 +12300,41 @@
           }
           log.info(`新标签页打开搜索：${url}`);
           window.open(url, "_blank");
+          return false;
         },
         {
           capture: true,
         }
       );
-      const result2 = domUtils.on(
+      const listener_2 = domUtils.on(
         document,
         "click",
         '[data-e2e="searchbar-button"] + div [data-text][data-index]',
-        (evt, selectorTarget) => {
+        (evt, $selector) => {
           const $click = evt.composedPath()[0];
           if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
             return;
           }
+          const closeIconSelector =
+            'svg:has(path[d="M7.93 8.7a.545.545 0 1 0 .77-.772L6.773 5.999 8.7 4.071a.545.545 0 0 0-.771-.771L6 5.228 4.072 3.3a.545.545 0 1 0-.771.771l1.928 1.928L3.3 7.93a.545.545 0 0 0 .772.77L6 6.772l1.928 1.928z"])';
+          const $closeSVG = $click.matches(closeIconSelector) ? $click : $click.closest(closeIconSelector);
+          if ($closeSVG) {
+            return;
+          }
           domUtils.preventEvent(evt);
-          const searchText = selectorTarget.getAttribute("data-text");
+          const searchText = $selector.getAttribute("data-text");
           if (!searchText) {
-            log.error("未找到搜索建议内容", selectorTarget);
+            log.error("未找到搜索建议内容", $selector);
             Qmsg.error("未找到搜索建议内容");
             return;
           }
           const url = getSearchUrl(searchText);
           window.open(url, "_blank");
+          return false;
         },
-        { capture: true }
+        { capture: true, isComposedPath: true }
       );
-      return [result1.off, result2.off];
+      return [listener_1.off, listener_2.off];
     },
   };
   const MDouYinRouter = {
@@ -13977,7 +14115,7 @@
                     void 0,
                     "自动监听并检测弹窗"
                   ),
-                  UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
+                  UISwitch("禁止自动播放", "live-pauseVideo", false),
                   UISwitch("自动关闭聊天室", "dy-live-autoCloseChatRoom", false, void 0, "自动点击关闭聊天室按钮"),
                   UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
                   UISelect("双击video动作", "dy-live-doubleClickAction", "", [
@@ -14440,7 +14578,7 @@
         text: "功能",
         type: "container",
         views: [
-          UISwitch("禁止自动播放", "dy-recommend-pauseVideo", false, void 0, "3秒内禁止任何形式的播放（仅第一个视频）"),
+          UISwitch("禁止自动播放", "dy-recommend-pauseVideo", false),
           UISelect(
             "自动连播",
             "dy-recommend-automaticContinuousPlayback",

@@ -5,6 +5,7 @@ import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
+import type { ReactFiberNode } from "@whitesev/utils/dist/types/src/types/React";
 import Qmsg from "qmsg";
 import { GM_download, unsafeWindow } from "ViteGM";
 import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoConversionInfo } from "../../../../types/DouYinVideoType";
@@ -1064,10 +1065,36 @@ export const DouYinVideoPlayer = {
         return;
       }
       try {
-        const awemeInfo =
-          parentReactFilber?.return?.memoizedProps?.awemeInfo ||
-          parentReactFilber?.return?.return?.return?.memoizedProps?.awemeInfo ||
-          basePlayerContainerReactFiber?.return?.memoizedProps?.xgplayerConfig?.awemeInfo;
+        const awemeInfo = utils.queryProperty<ReactFiberNode, DouYinVideoAwemeInfoWithDOM>(
+          parentReactFilber || basePlayerContainerReactFiber,
+          (target) => {
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null) {
+              if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null) {
+                return {
+                  isFind: true,
+                  data: target.memoizedProps.awemeInfo,
+                };
+              } else {
+                if (typeof target.return === "object" && target.return != null) {
+                  return {
+                    isFind: false,
+                    data: target.return,
+                  };
+                } else {
+                  return {
+                    isFind: false,
+                    data: null,
+                  };
+                }
+              }
+            } else {
+              return {
+                isFind: false,
+                data: null,
+              };
+            }
+          }
+        );
         if (!awemeInfo) {
           log.error($click, parentReactFilber, basePlayerContainerReactFiber);
           Qmsg.error("获取awemeInfo属性失败");

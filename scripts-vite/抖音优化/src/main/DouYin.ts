@@ -182,22 +182,22 @@ export const DouYin = {
       return url;
     };
     // 搜索框点击
-    const result1 = DOMUtils.on(
+    const listener_1 = DOMUtils.on(
       document,
       "click",
       [
-        'div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
+        '[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]) button[data-e2e="searchbar-button"]',
         'a[href*="douyin.com/search/"]',
       ],
-      (evt, selectorTarget) => {
+      (evt, $click) => {
         DOMUtils.preventEvent(evt);
         let url: string | undefined;
-        if (selectorTarget instanceof HTMLAnchorElement) {
+        if ($click instanceof HTMLAnchorElement) {
           // 视频区域的点击信息
-          url = selectorTarget.href;
+          url = $click.href;
         } else {
           // 顶部搜索框的搜索按钮
-          const $doubleClick = selectorTarget.closest<HTMLElement>('div[data-click="doubleClick"]');
+          const $doubleClick = $click.closest<HTMLElement>('[data-click="doubleClick"]');
           if (!$doubleClick) {
             Qmsg.error("未找到搜索框元素");
             return;
@@ -225,34 +225,45 @@ export const DouYin = {
         }
         log.info(`新标签页打开搜索：${url}`);
         window.open(url, "_blank");
+        return false;
       },
       {
         capture: true,
       }
     );
     // 搜索建议
-    const result2 = DOMUtils.on(
+    const listener_2 = DOMUtils.on(
       document,
       "click",
       '[data-e2e="searchbar-button"] + div [data-text][data-index]',
-      (evt, selectorTarget) => {
+      (evt, $selector) => {
         const $click = evt.composedPath()[0] as HTMLElement;
         if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
           // 忽略点击填入输入框的图标
           return;
         }
+        const closeIconSelector =
+          'svg:has(path[d="M7.93 8.7a.545.545 0 1 0 .77-.772L6.773 5.999 8.7 4.071a.545.545 0 0 0-.771-.771L6 5.228 4.072 3.3a.545.545 0 1 0-.771.771l1.928 1.928L3.3 7.93a.545.545 0 0 0 .772.77L6 6.772l1.928 1.928z"])';
+
+        const $closeSVG = $click.matches(closeIconSelector) ? $click : $click.closest<HTMLElement>(closeIconSelector);
+        if ($closeSVG) {
+          // 忽略点击关闭图标
+          // 但是好像依旧不生效
+          return;
+        }
         DOMUtils.preventEvent(evt);
-        const searchText = selectorTarget.getAttribute("data-text");
+        const searchText = $selector.getAttribute("data-text");
         if (!searchText) {
-          log.error("未找到搜索建议内容", selectorTarget);
+          log.error("未找到搜索建议内容", $selector);
           Qmsg.error("未找到搜索建议内容");
           return;
         }
         const url = getSearchUrl(searchText);
         window.open(url, "_blank");
+        return false;
       },
-      { capture: true }
+      { capture: true, isComposedPath: true }
     );
-    return [result1.off, result2.off];
+    return [listener_1.off, listener_2.off];
   },
 };

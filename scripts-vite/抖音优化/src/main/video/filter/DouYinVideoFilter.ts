@@ -695,7 +695,7 @@ export const DouYinVideoFilter = {
    * 获取规则视图实例
    */
   getRuleViewInstance() {
-    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
     /**
      * 存储配置
      */

@@ -33,14 +33,6 @@ export const DouYinRecommend = {
     $video.autoplay = false;
     $video.pause();
     const timeout = 3000;
-    // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
-    const playCallback = (evt: Event) => {
-      // listener remove tag
-      DOMUtils.preventEvent(evt);
-      $video.autoplay = false;
-      $video.pause();
-      log.success("成功禁止自动播放视频");
-    };
     DOMUtils.off(
       $video,
       "play",
@@ -49,17 +41,79 @@ export const DouYinRecommend = {
         capture: true,
       },
       (value) => {
-        return value.callback.toString().includes("listener remove tag");
+        return value.callback.toString().includes("disable autoplay listener remove tag");
       }
     );
+    DOMUtils.off($video.parentElement, "click", void 0, {}, (value) => {
+      return value.callback.toString().includes("disable autoplay listener remove tag");
+    });
+    DOMUtils.off(
+      window,
+      "keydown",
+      void 0,
+      {
+        capture: true,
+      },
+      (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      }
+    );
+    const offAllListener = () => {
+      clearTimeout(timeId);
+      playListener.off();
+      clickListener.off();
+      keyboardListener?.off();
+      log.info(`已移除监听自动播放`);
+    };
+    // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
+    const playCallback = (evt: Event) => {
+      // disable autoplay listener remove tag
+      DOMUtils.preventEvent(evt);
+      $video.autoplay = false;
+      $video.pause();
+      log.success("成功禁止自动播放视频");
+    };
     const playListener = DOMUtils.on($video, "play", playCallback, {
       capture: true,
     });
-    const offAllListener = () => {
-      clearTimeout(timeId);
-      log.info(`已移除监听自动播放`);
-      playListener.off();
-    };
+    const clickListener = DOMUtils.on(
+      $video.parentElement,
+      "click",
+      (evt) => {
+        // disable autoplay listener remove tag
+        DOMUtils.preventEvent(evt);
+        offAllListener();
+        if ($video.paused) {
+          $video.play();
+        } else {
+          $video.pause();
+        }
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
+    const keyboardListener = DOMUtils.on(
+      window,
+      "keydown",
+      (evt) => {
+        // disable autoplay listener remove tag
+        if (evt.code === "Space" && !evt.ctrlKey && !evt.altKey && !evt.shiftKey && !evt.metaKey) {
+          DOMUtils.preventEvent(evt);
+          offAllListener();
+          if ($video.paused) {
+            $video.play();
+          } else {
+            $video.pause();
+          }
+        }
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
     const timeId = setTimeout(offAllListener, timeout);
     return [
       () => {

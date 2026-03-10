@@ -396,100 +396,159 @@ export const DouYinLive = {
   /**
    * 禁止自动播放视频
    */
-  disableVideoAutoPlay() {
-    DOMUtils.waitAnyNode<HTMLVideoElement>(
-      ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
-      10000
-    ).then(($video) => {
-      if (!$video) {
-        return;
-      }
-      $video.autoplay = false;
-      $video.pause();
-      const timeout = 3000;
-      // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
-      const playCallback = (evt: Event) => {
-        // listener remove tag
-        DOMUtils.preventEvent(evt);
-        $video.autoplay = false;
-        $video.pause();
-        log.success("成功禁止自动播放视频(直播)");
-      };
-      // 移除旧的监听
-      DOMUtils.off(
-        $video,
-        "play",
-        void 0,
-        {
-          capture: true,
-        },
-        (value) => {
-          return value.callback.toString().includes("listener remove tag");
-        }
-      );
-      DOMUtils.off(
-        $video,
-        "pause",
-        void 0,
-        {
-          capture: true,
-        },
-        (value) => {
-          return value.callback.toString().includes("listener remove tag");
-        }
-      );
-      const playListener = DOMUtils.on($video, "play", playCallback, {
+  async disableVideoAutoPlay() {
+    log.info(`禁止自动播放视频`);
+    const selector = ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"];
+    const $video = await DOMUtils.waitAnyNode<HTMLVideoElement>(selector, 10000);
+    if (!$video) {
+      return;
+    }
+
+    $video.autoplay = false;
+    $video.pause();
+    const timeout = 3000;
+    // 移除旧的监听
+    DOMUtils.off(
+      $video,
+      "play",
+      void 0,
+      {
         capture: true,
-      });
-      const cb = () => {
-        playListener.off();
-        log.info(`移除监听自动播放`);
-        const listenPlayVideo = () => {
-          DOMUtils.off(
-            $video,
-            "play",
-            void 0,
-            {
-              capture: true,
-            },
-            (value) => {
-              return value.callback.toString().includes("listener remove tag");
-            }
-          );
-          DOMUtils.on(
-            $video,
-            "play",
-            () => {
-              // listener remove tag
-              // 如果长时间暂停会导致点击播放时不加载直播
-              // 此bug仅在firefox上复现
-              // 临时解决方法：监听play事件重载视频
-              log.info(`播放-视频重载`);
-              DouYinLivePlayerInstance.reloadVideo();
-            },
-            {
-              once: true,
-              capture: true,
-            }
-          );
-        };
+      },
+      (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      }
+    );
+    DOMUtils.off(
+      $video,
+      "pause",
+      void 0,
+      {
+        capture: true,
+      },
+      (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      }
+    );
+    DOMUtils.off($video.parentElement, "click", void 0, {}, (value) => {
+      return value.callback.toString().includes("disable autoplay listener remove tag");
+    });
+    DOMUtils.off(
+      window,
+      "keydown",
+      void 0,
+      {
+        capture: true,
+      },
+      (value) => {
+        return value.callback.toString().includes("disable autoplay listener remove tag");
+      }
+    );
+    const offAllListener = () => {
+      clearTimeout(timeId);
+      playListener.off();
+      clickListener.off();
+      keyboardListener.off();
+      log.info(`已移除监听自动播放`);
+      const listenPlayVideo = () => {
+        DOMUtils.off(
+          $video,
+          "play",
+          void 0,
+          {
+            capture: true,
+          },
+          (value) => {
+            return value.callback.toString().includes("disable autoplay listener remove tag");
+          }
+        );
         DOMUtils.on(
           $video,
-          "pause",
+          "play",
           () => {
-            // listener remove tag
-            // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
-            // 监听暂停，监听播放
-            listenPlayVideo();
+            // disable autoplay listener remove tag
+            // 如果长时间暂停会导致点击播放时不加载直播
+            // 此bug仅在firefox上复现
+            // 临时解决方法：监听play事件重载视频
+            log.info(`播放-视频重载`);
+            DouYinLivePlayerInstance.reloadVideo();
           },
           {
+            once: true,
             capture: true,
           }
         );
-        listenPlayVideo();
       };
-      setTimeout(cb, timeout);
+      DOMUtils.on(
+        $video,
+        "pause",
+        () => {
+          // disable autoplay listener remove tag
+          // 第2、3、4...次暂停一段时间后再播放依旧卡屏（不加载，依旧firefox）
+          // 监听暂停，监听播放
+          listenPlayVideo();
+        },
+        {
+          capture: true,
+        }
+      );
+      listenPlayVideo();
+    };
+    // 在firefox中video会重载，如果只触发一次，它依旧会自动播放
+    const playCallback = (evt: Event) => {
+      // disable autoplay listener remove tag
+      DOMUtils.preventEvent(evt);
+      $video.autoplay = false;
+      $video.pause();
+      log.success("成功禁止自动播放视频(直播)");
+    };
+    const playListener = DOMUtils.on($video, "play", playCallback, {
+      capture: true,
     });
+    const clickListener = DOMUtils.on(
+      $video.parentElement,
+      "click",
+      (evt) => {
+        // disable autoplay listener remove tag
+        DOMUtils.preventEvent(evt);
+        offAllListener();
+        if ($video.paused) {
+          $video.play();
+        } else {
+          $video.pause();
+        }
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
+    const keyboardListener = DOMUtils.on(
+      window,
+      "keydown",
+      (evt) => {
+        // disable autoplay listener remove tag
+        if (evt.code === "Space" && !evt.ctrlKey && !evt.altKey && !evt.shiftKey && !evt.metaKey) {
+          DOMUtils.preventEvent(evt);
+          offAllListener();
+          if ($video.paused) {
+            $video.play();
+          } else {
+            $video.pause();
+          }
+        }
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
+    const timeId = setTimeout(offAllListener, timeout);
+    return [
+      () => {
+        offAllListener();
+      },
+    ];
   },
   /**
    * 修改视频背景颜色

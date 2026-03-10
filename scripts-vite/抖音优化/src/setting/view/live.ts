@@ -63,7 +63,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   void 0,
                   "自动监听并检测弹窗"
                 ),
-                UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
+                UISwitch("禁止自动播放", "live-pauseVideo", false),
                 UISwitch("自动关闭聊天室", "dy-live-autoCloseChatRoom", false, void 0, "自动点击关闭聊天室按钮"),
                 UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
                 UISelect("双击video动作", "dy-live-doubleClickAction", "", [
