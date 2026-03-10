@@ -3,19 +3,6 @@ import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/component
 import { ATTRIBUTE_INIT, ATTRIBUTE_INIT_MORE_VALUE, ATTRIBUTE_PLUGIN_SEARCH_CONFIG } from "../panel-config";
 
 /**
- * 搜索配置项
- */
-export type UIOwnSearchConfig = {
-  /**
-   * 左侧文字
-   */
-  text: string;
-  /**
-   * （可选）左侧下面的描述文字
-   */
-  desc?: string;
-};
-/**
  * 自定义配置
  * @param createLIElement
  * @param initConfig （可选）初始化的配置，{"键": "默认值", "键2": "默认值2"}
@@ -27,7 +14,7 @@ export type UIOwnSearchConfig = {
 export const UIOwn = function (
   createLIElement: ($li: HTMLLIElement) => HTMLLIElement,
   initConfig?: { [key: string]: any },
-  searchConfig?: UIOwnSearchConfig,
+  searchConfig?: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG,
   attr?: {
     [key: string]: string | number | boolean;
   },

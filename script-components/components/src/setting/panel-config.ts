@@ -36,6 +36,11 @@ const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
  *   text: "左侧文字",
  *   desc: "左侧描述文字",
  * })
+ * @example
+ * Reflect.set(result.attributes!, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, ()=>{
+ *   text: "左侧文字",
+ *   desc: "左侧描述文字",
+ * })
  */
 const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
 /**

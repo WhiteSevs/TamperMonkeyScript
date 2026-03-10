@@ -9,7 +9,6 @@ import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary"
 import Qmsg from "qmsg";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "./../utils/CommonUtil";
-import type { UIOwnSearchConfig } from "./components/ui-own";
 import {
   ATTRIBUTE_DEFAULT_VALUE,
   ATTRIBUTE_INIT,
@@ -1248,12 +1247,15 @@ const Panel = {
               let text: string | undefined;
               let description: string | undefined;
               if (configItem.type === "own") {
-                // own有自己的搜索配置
-                const searchConfig: UIOwnSearchConfig | undefined = Reflect.get(
+                // 处理搜索配置
+                let searchConfig: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG | undefined = Reflect.get(
                   configItem.attributes || {},
                   ATTRIBUTE_PLUGIN_SEARCH_CONFIG
                 );
                 if (searchConfig) {
+                  if (typeof searchConfig === "function") {
+                    searchConfig = searchConfig();
+                  }
                   // 左侧文字
                   if (typeof searchConfig.text === "string") {
                     text = searchConfig.text;

@@ -13,12 +13,12 @@ declare type PanelData_ATTRIBUTE_INIT_MORE_VALUE = Record<string, PanelData_ATTR
 /**
  * panel面板的搜索插件的配置项
  */
-declare type PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG = {
+declare type PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG = IFunction<{
   /** 左侧文字 */
   text: string;
-  /** 左侧描述文字 */
+  /** （可选）左侧描述文字 */
   desc?: string;
-};
+}>;
 /**
  * 存储值的api
  */
