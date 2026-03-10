@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ImageViewer
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10
+// @version      2026.3.10.22
 // @author       WhiteSevs
 // @description  Viewer看图工具，支持图片翻转、旋转、缩放
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -29,10 +29,10 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (E, O, ie, Y, ye) {
+(function (E, O, oe, ie, ye) {
   "use strict";
 
-  var ee = typeof GM_deleteValue < "u" ? GM_deleteValue : void 0,
+  var X = typeof GM_deleteValue < "u" ? GM_deleteValue : void 0,
     de = typeof GM_getResourceText < "u" ? GM_getResourceText : void 0,
     Z = typeof GM_getValue < "u" ? GM_getValue : void 0,
     j = typeof GM_info < "u" ? GM_info : void 0,
@@ -262,19 +262,18 @@
         return e.top === e.self;
       },
     },
-    m = Y.noConflict(),
+    m = ie.noConflict(),
     l = O.noConflict(),
-    P = ie,
+    P = oe,
     R = new m.Log(j, k.console || we.console),
-    te = j?.script?.name || void 0,
-    ve = ie.fn.Utils.AnyTouch(),
+    ee = j?.script?.name || void 0,
+    ve = oe.fn.Utils.AnyTouch(),
     _e = false;
   R.config({ debug: false, logMaxCount: 250, autoClearConsole: true, tag: true });
   const pe = () => {
-    let t = 100;
-    const n = ie.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 100,
-      a = Y.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 100;
-    return ((t = Math.max(t, n, a)), t);
+    const t = oe.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0,
+      n = m.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+    return Math.max(100, t, n);
   };
   E.config({
     isHTML: true,
@@ -342,11 +341,11 @@
   new m.GM_Cookie();
   const J = "GM_Panel",
     Me = "data-init",
-    ne = "data-key",
-    ae = "data-default-value",
+    te = "data-key",
+    ne = "data-default-value",
     ke = "data-init-more-value",
     Re = "data-plugin-search-config",
-    oe = "data-storage-api",
+    ae = "data-storage-api",
     B = {
       get width() {
         return globalThis.innerWidth;
@@ -452,12 +451,12 @@
                   g = c.$shadowRoot.querySelector(".btn-control[data-mode='local']"),
                   $ = c.$shadowRoot.querySelector(".btn-control[data-mode='network']"),
                   G = c.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']"),
-                  A = async (S) => {
+                  L = async (S) => {
                     (confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）") &&
                       (typeof z == "function"
-                        ? typeof ee == "function"
+                        ? typeof X == "function"
                           ? (z().forEach((s) => {
-                              ee(s);
+                              X(s);
                             }),
                             E.success("已清空脚本存储的配置"))
                           : E.error("不支持GM_deleteValue函数，无法执行删除脚本配置")
@@ -470,10 +469,10 @@
                           }),
                       E.success("配置导入完毕"));
                   },
-                  D = (S) =>
+                  I = (S) =>
                     new Promise(async (x) => {
                       const v = m.toJSON(S);
-                      (Object.keys(v).length === 0 ? E.warning("解析为空配置，不导入") : await A(v), x(true));
+                      (Object.keys(v).length === 0 ? E.warning("解析为空配置，不导入") : await L(v), x(true));
                     });
                 (l.on(g, "click", (S) => {
                   (l.preventEvent(S), c.close());
@@ -483,7 +482,7 @@
                     const s = x.files[0],
                       d = new FileReader();
                     ((d.onload = () => {
-                      D(d.result);
+                      I(d.result);
                     }),
                       d.readAsText(s, "UTF-8"));
                   }),
@@ -515,7 +514,7 @@
                                 (R.error(_), E.error("获取配置失败", { consoleLogContent: true }));
                                 return;
                               }
-                              (await D(_.data.responseText)) && d.close();
+                              (await I(_.data.responseText)) && d.close();
                             },
                           },
                           cancel: { enable: false },
@@ -542,10 +541,10 @@
                       E.warning("获取到的剪贴板内容为空");
                       return;
                     }
-                    await D(x);
+                    await I(x);
                   }));
               },
-              i = (C = `${te}_panel-setting-${m.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`, c) => {
+              i = (C = `${ee}_panel-setting-${m.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`, c) => {
                 const g = P.alert({
                     title: { text: "请选择导出方式", position: "center" },
                     content: {
@@ -559,8 +558,8 @@
                       ok: { enable: false },
                       close: {
                         enable: true,
-                        callback(A, D) {
-                          A.close();
+                        callback(L, I) {
+                          L.close();
                         },
                       },
                     },
@@ -585,15 +584,15 @@
                   }),
                   $ = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']"),
                   G = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
-                (l.on($, "click", (A) => {
-                  l.preventEvent(A);
+                (l.on($, "click", (L) => {
+                  l.preventEvent(L);
                   try {
                     (n(C, c), g.close());
-                  } catch (D) {
-                    E.error(D.toString(), { consoleLogContent: true });
+                  } catch (I) {
+                    E.error(I.toString(), { consoleLogContent: true });
                   }
                 }),
-                  l.on(G, "click", async (A) => {
+                  l.on(G, "click", async (L) => {
                     (await m.copy(c)) ? (E.success("复制成功"), g.close()) : E.error("复制失败");
                   }));
               },
@@ -755,7 +754,7 @@
         if (n == "") throw new Error("key参数不能为空字符串");
         this.storageKey = n;
       } else throw new Error("key参数类型错误，必须是字符串");
-      ((this.listenerData = new Y.Dictionary()),
+      ((this.listenerData = new ie.Dictionary()),
         (this.getLocalValue = this.getLocalValue.bind(this)),
         (this.set = this.set.bind(this)),
         (this.get = this.get.bind(this)),
@@ -806,7 +805,7 @@
       return Reflect.ownKeys(t).map((n) => Reflect.get(t, n));
     }
     clear() {
-      ee(this.storageKey);
+      X(this.storageKey);
     }
     addValueChangeListener(t, n) {
       const a = Math.random(),
@@ -871,7 +870,7 @@
           return (this.__onceExecData == null && (this.__onceExecData = new m.Dictionary()), this.__onceExecData);
         },
         get scriptName() {
-          return te;
+          return ee;
         },
         get panelConfig() {
           return this.__panelConfig;
@@ -880,8 +879,8 @@
           this.__panelConfig = e;
         },
         key: J,
-        attributeKeyName: ne,
-        attributeDefaultValueName: ae,
+        attributeKeyName: te,
+        attributeDefaultValueName: ne,
       },
       init() {
         (this.initContentDefaultValue(), Se.init());
@@ -896,9 +895,9 @@
               if (typeof f == "boolean" && !f) return;
             }
             let i = new Map(),
-              y = o[ne];
+              y = o[te];
             if (y != null) {
-              const f = o[ae];
+              const f = o[ne];
               i.set(y, f);
             }
             let u = o[ke];
@@ -1001,9 +1000,9 @@
                 if (typeof V == "object" && V != null)
                   if (V instanceof Element) h.push(V);
                   else {
-                    const { $css: L, destory: I } = V;
-                    (L != null && (Array.isArray(L) ? (h = h.concat(L)) : h.push(L)),
-                      typeof I == "function" && h.push(I));
+                    const { $css: D, destory: T } = V;
+                    (D != null && (Array.isArray(D) ? (h = h.concat(D)) : h.push(D)),
+                      typeof T == "function" && h.push(T));
                   }
                 else h.push(V);
               };
@@ -1026,18 +1025,18 @@
               const V = _(p);
               if (typeof V == "boolean" && !V) break;
               if (Array.isArray(p))
-                for (const L of p) {
-                  const I = _(L);
-                  if (typeof I == "boolean" && !I) break;
+                for (const D of p) {
+                  const T = _(D);
+                  if (typeof T == "boolean" && !T) break;
                 }
             }
-            (A(), D(), s && ((C = C.concat(M)), (g = g.concat(b))));
+            (L(), I(), s && ((C = C.concat(M)), (g = g.concat(b))));
           },
           G = (s) => !!this.getValue(s),
-          A = () => {
+          L = () => {
             for (let s = 0; s < C.length; s++) (C[s]?.remove(), C.splice(s, 1), s--);
           },
-          D = () => {
+          I = () => {
             for (let s = 0; s < g.length; s++) {
               const d = g[s];
               (d(), g.splice(s, 1), s--);
@@ -1072,9 +1071,9 @@
               this.removeValueChangeListener(),
               this.clearOnceExecMenuData());
           },
-          clearStoreStyleElements: () => A(),
+          clearStoreStyleElements: () => L(),
           destory() {
-            return D();
+            return I();
           },
           removeValueChangeListener: () => {
             c.forEach((s) => {
@@ -1146,7 +1145,7 @@
         const t = this.$data.urlChangeReloadMenuExecOnce.values();
         for (const n of t) await n(e);
       },
-      showPanel(e, t = `${te}-设置`, n = false, a = false) {
+      showPanel(e, t = `${ee}-设置`, n = false, a = false) {
         ((this.$data.$panel = null), (this.$data.panelContent = []));
         const o =
           e.findIndex(
@@ -1200,8 +1199,8 @@
           o = (c, g) => {
             const $ = new IntersectionObserver(
               (G) => {
-                G.forEach((A) => {
-                  A.isIntersecting && (g?.(), $.disconnect());
+                G.forEach((L) => {
+                  L.isIntersecting && (g?.(), $.disconnect());
                 });
               },
               { root: null, threshold: 1 }
@@ -1278,10 +1277,10 @@
             const $ = g.$shadowRoot.querySelector(".search-config-text"),
               G = g.$shadowRoot.querySelector(".search-result-wrapper");
             $.focus();
-            const A = () => {
+            const L = () => {
                 l.empty(G);
               },
-              D = (x) => {
+              I = (x) => {
                 const v = m.queryProperty(x, (M) =>
                     M?.next ? { isFind: false, data: M.next } : { isFind: true, data: M }
                   ),
@@ -1348,43 +1347,46 @@
                       const p = b[_],
                         V = p.views;
                       if (V && Array.isArray(V)) {
-                        const L = m.deepClone(h);
+                        const D = m.deepClone(h);
                         if (p.type === "deepMenu") {
-                          const I = m.queryProperty(L, (N) =>
+                          const T = m.queryProperty(D, (N) =>
                             N?.next ? { isFind: false, data: N.next } : { isFind: true, data: N }
                           );
-                          I.next = { name: p.text };
+                          T.next = { name: p.text };
                         }
-                        d(V, L);
+                        d(V, D);
                       } else {
-                        let L, I;
+                        let D, T;
                         if (p.type === "own") {
-                          const T = Reflect.get(p.attributes || {}, Re);
-                          T && (typeof T.text == "string" && (L = T.text), typeof T.desc == "string" && (I = T.desc));
-                        } else ((L = p.text), (I = Reflect.get(p, "description")));
-                        const N = [L, I],
-                          le = N.findIndex((T) => {
-                            if (typeof T == "string") return T.match(v);
+                          let A = Reflect.get(p.attributes || {}, Re);
+                          A &&
+                            (typeof A == "function" && (A = A()),
+                            typeof A.text == "string" && (D = A.text),
+                            typeof A.desc == "string" && (T = A.desc));
+                        } else ((D = p.text), (T = Reflect.get(p, "description")));
+                        const N = [D, T],
+                          le = N.findIndex((A) => {
+                            if (typeof A == "string") return A.match(v);
                           });
                         if (le !== -1) {
-                          const T = m.deepClone(h),
-                            ce = m.queryProperty(T, (F) =>
+                          const A = m.deepClone(h),
+                            ce = m.queryProperty(A, (F) =>
                               F?.next ? { isFind: false, data: F.next } : { isFind: true, data: F }
                             );
                           ce.next = {
-                            name: L,
-                            matchedData: { path: "", formConfig: p, matchedText: N[le], description: I },
+                            name: D,
+                            matchedData: { path: "", formConfig: p, matchedText: N[le], description: T },
                           };
                           const ue = [];
-                          m.queryProperty(T, (F) => {
-                            const X = F?.name;
+                          m.queryProperty(A, (F) => {
+                            const Y = F?.name;
                             return (
-                              typeof X == "string" && X.trim() !== "" && ue.push(X),
+                              typeof Y == "string" && Y.trim() !== "" && ue.push(Y),
                               F?.next ? { isFind: false, data: F.next } : { isFind: true, data: F }
                             );
                           });
                           const me = ue.join(H.escapeHtml(" - "));
-                          ((ce.next.matchedData.path = me), s.push(T));
+                          ((ce.next.matchedData.path = me), s.push(A));
                         }
                       }
                     }
@@ -1400,10 +1402,10 @@
                 }
                 const M = document.createDocumentFragment();
                 for (const b of s) {
-                  let h = D(b);
+                  let h = I(b);
                   M.appendChild(h);
                 }
-                (A(), G.append(M));
+                (L(), G.append(M));
               };
             l.on(
               $,
@@ -1412,7 +1414,7 @@
                 l.preventEvent(x);
                 let v = l.val($).trim();
                 if (v === "") {
-                  A();
+                  L();
                   return;
                 }
                 S(v);
@@ -1501,7 +1503,7 @@
       $data: {
         __storeApiFn: null,
         get storeApiValue() {
-          return (this.__storeApiFn || (this.__storeApiFn = new Y.Dictionary()), this.__storeApiFn);
+          return (this.__storeApiFn || (this.__storeApiFn = new ie.Dictionary()), this.__storeApiFn);
         },
       },
       getStorageApi(e) {
@@ -1518,7 +1520,7 @@
         (this.hasStorageApi(e) ? (a = this.getStorageApi(e)) : (a = n), this.setComponentsStorageApiProperty(t, a));
       },
       setComponentsStorageApiProperty(e, t) {
-        Reflect.set(e.props, oe, t);
+        Reflect.set(e.props, ae, t);
       },
     },
     Le = function (e, t, n, a, o, r, i, y, u) {
@@ -1530,17 +1532,17 @@
         attributes: {},
         props: {},
         getValue() {
-          return this.props[oe].get(t, n);
+          return this.props[ae].get(t, n);
         },
         callback(w, C) {
           const c = !!C;
-          (R.success(`${c ? "开启" : "关闭"} ${e}`), this.props[oe].set(t, c));
+          (R.success(`${c ? "开启" : "关闭"} ${e}`), this.props[ae].set(t, c));
         },
         afterAddToUListCallBack: (...w) => {},
       };
       return (
-        Reflect.set(f.attributes, ne, t),
-        Reflect.set(f.attributes, ae, n),
+        Reflect.set(f.attributes, te, t),
+        Reflect.set(f.attributes, ne, n),
         Ae.initComponentsStorageApi("switch", f, {
           get(w, C) {
             return U.getValue(w, C);

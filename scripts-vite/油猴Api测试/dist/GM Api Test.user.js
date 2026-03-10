@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10
+// @version      2026.3.10.22
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -3931,7 +3931,7 @@
     }
   };
   const domUtils$2 = new DOMUtils$1();
-  const version$1 = "4.2.2";
+  const version$1 = "4.2.3";
   const GlobalConfig = {
     config: {},
     setGlobalConfig(config) {
@@ -5111,6 +5111,7 @@
       if (typeof deviation !== "number" || Number.isNaN(deviation)) {
         deviation = 10;
       }
+      const maxZIndexCompare = 2 * Math.pow(10, 9);
       const positionDistance = 10;
       const defaultCalcPostion = [];
       const maxPostionX = globalThis.innerWidth;
@@ -5200,8 +5201,12 @@
               left: maxRect.left,
             };
           }
+          const calcZIndex = zIndex + deviation;
+          if (calcZIndex >= maxZIndexCompare) {
+            return;
+          }
           return {
-            zIndex: zIndex + deviation,
+            zIndex: calcZIndex,
             originZIndex: zIndex,
             node: $maxZIndexNode,
             positionNode: $position,
@@ -7044,8 +7049,8 @@
     tooltip: [],
   };
   const PopsInstanceUtils = {
-    getPopsMaxZIndex(deviation = 1) {
-      deviation = Number.isNaN(deviation) ? 1 : deviation;
+    getPopsMaxZIndex(deviation = 10) {
+      deviation = Number.isNaN(deviation) ? 10 : deviation;
       const maxZIndex = 2 * Math.pow(10, 9);
       let zIndex = 0;
       let maxZIndexNode = null;
@@ -7054,8 +7059,7 @@
         for (let index = 0; index < instData.length; index++) {
           const inst = instData[index];
           const $elList = [inst.$anim, inst.$pops, inst.$mask].filter((it) => it instanceof HTMLElement);
-          const nodeZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint($elList);
-          const maxNodeZIndexInfo = nodeZIndexInfoList[0];
+          const maxNodeZIndexInfo = popsUtils.getMaxZIndexNodeInfoFromPoint($elList)[0];
           if (maxNodeZIndexInfo) {
             const nodeZIndex = maxNodeZIndexInfo.zIndex;
             if (nodeZIndex > zIndex) {
@@ -15971,7 +15975,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.11.9";
+  const version = "2.11.11";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -20530,6 +20534,7 @@ ${err.stack}`);
       if (typeof deviation !== "number" || Number.isNaN(deviation)) {
         deviation = 10;
       }
+      const maxZIndexCompare = 2 * Math.pow(10, 9);
       const positionDistance = 10;
       const defaultCalcPostion = [];
       const maxPostionX = globalThis.innerWidth;
@@ -20619,8 +20624,12 @@ ${err.stack}`);
               left: maxRect.left,
             };
           }
+          const calcZIndex = zIndex + deviation;
+          if (calcZIndex >= maxZIndexCompare) {
+            return;
+          }
           return {
-            zIndex: zIndex + deviation,
+            zIndex: calcZIndex,
             originZIndex: zIndex,
             node: $maxZIndexNode,
             positionNode: $position,
@@ -22638,10 +22647,9 @@ ${err.stack}`);
   });
   const getPageMaxZIndex = () => {
     const deviation = 100;
-    let maxZIndex = deviation;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
-    const pointZIndex = utils$1.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
-    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
     return maxZIndex;
   };
   qmsg.config({
@@ -24151,8 +24159,11 @@ ${err.stack}`);
                 let text;
                 let description;
                 if (configItem.type === "own") {
-                  const searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                  let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
+                    if (typeof searchConfig === "function") {
+                      searchConfig = searchConfig();
+                    }
                     if (typeof searchConfig.text === "string") {
                       text = searchConfig.text;
                     }

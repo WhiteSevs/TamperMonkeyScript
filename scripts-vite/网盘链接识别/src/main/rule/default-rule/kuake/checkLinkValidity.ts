@@ -80,17 +80,21 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
       const detailJSON = utils.toJSON(detailResponse.data.responseText);
       if (detailJSON["data"]["share"]["status"] == 1) {
         // 判断是否存在部分违规文件
-        if (detailJSON["data"]["share"]["partial_violation"]) {
-          return {
-            ...NetDiskCheckLinkValidityStatus.partialViolation,
-            data: [data, detailJSON],
-          };
-        } else {
-          return {
-            ...NetDiskCheckLinkValidityStatus.success,
-            data: [data, detailJSON],
-          };
-        }
+        // if (detailJSON["data"]["share"]["partial_violation"]) {
+        //   return {
+        //     ...NetDiskCheckLinkValidityStatus.partialViolation,
+        //     data: [data, detailJSON],
+        //   };
+        // } else {
+        //   return {
+        //     ...NetDiskCheckLinkValidityStatus.success,
+        //     data: [data, detailJSON],
+        //   };
+        // }
+        return {
+          ...NetDiskCheckLinkValidityStatus.success,
+          data: [data, detailJSON],
+        };
       } else {
         return {
           ...NetDiskCheckLinkValidityStatus.failed,
