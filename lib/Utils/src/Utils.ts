@@ -3816,8 +3816,22 @@ class Utils {
    * 深度获取对象的某个属性
    * @param target 待获取的对象
    * @param handler 获取属性的回调
+   * @example
+   * Utils.queryProperty(window,(target)=>{
+   *   if(target.xxx){
+   *     return {
+   *       isFind: true,
+   *       data: target.xxx,
+   *     }
+   *   }else{
+   *     return {
+   *       isFind: false,
+   *       data: target.aabbcc,
+   *     }
+   *   }
+   * })
    */
-  queryProperty<T = any>(
+  queryProperty<T = any, R = any>(
     target: any,
     handler: (
       /**
@@ -3833,16 +3847,20 @@ class Utils {
       isFind: boolean;
       /**
        * 对象/目标值
+       *
+       * 若`isFind`为true，那该值为返回的结果
+       *
+       * 若`isFind`为false，那该值为下次迭代传入的`target`
        */
-      data: any;
+      data: T | R | null | void;
     }
-  ): any {
+  ): R | void | null {
     if (target == null) {
       return;
     }
     const handleResult = handler(target);
     if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-      return handleResult.data;
+      return handleResult.data as R | void | null;
     }
     return this.queryProperty(handleResult.data, handler);
   }
@@ -3850,54 +3868,63 @@ class Utils {
    * 异步-深度获取对象属性
    * @param target 待获取的对象
    * @param handler 获取属性的回调
+   * @example
+   * Utils.asyncQueryProperty(window, async (target)=>{
+   *   if(target.xxx){
+   *     return {
+   *       isFind: true,
+   *       data: target.xxx,
+   *     }
+   *   }else{
+   *     return {
+   *       isFind: false,
+   *       data: target.aabbcc,
+   *     }
+   *   }
+   * })
    */
-  async asyncQueryProperty<T = any>(
+  async asyncQueryProperty<T = any, R = any>(
     target: any,
-    handler: (target: T) =>
-      | {
-          /**
-           * 是否是需要的属性
-           * + true 将目标值赋值给data
-           * + false 不是需要的，data为下一个处理的对象
-           */
-          isFind: boolean;
-          /**
-           * 对象/目标值
-           */
-          data: any;
-        }
-      | Promise<{
-          /**
-           * 是否是需要的属性
-           * + true 将目标值赋值给data
-           * + false 不是需要的，data为下一个处理的对象
-           */
-          isFind: boolean;
-          /**
-           * 对象/目标值
-           */
-          data: any;
-        }>
-  ): Promise<Awaited<T>> {
+    handler: (
+      /**
+       * 该值为返回的data值
+       */
+      target: T
+    ) => IPromise<{
+      /**
+       * 是否是需要的属性
+       * + true 将目标值赋值给data
+       * + false 不是需要的，data为下一个处理的对象
+       */
+      isFind: boolean;
+      /**
+       * 对象/目标值
+       *
+       * 若`isFind`为true，那该值为返回的结果
+       *
+       * 若`isFind`为false，那该值为下次迭代传入的`target`
+       */
+      data: T | R | null | void;
+    }>
+  ): Promise<R | void | null> {
     if (target == null) {
-      // @ts-expect-error 空返回
       return;
     }
     const handleResult = await handler(target);
     if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-      return handleResult.data;
+      return handleResult.data as R | void | null;
     }
     return await this.asyncQueryProperty(handleResult.data, handler);
   }
   /**
    * 创建一个新的Utils实例
    * @param option
-   * @returns
+   * @example
+   * Utils.createUtils();
    */
   createUtils(option?: WindowApiOption) {
     return new Utils(option);
   }
-
   /**
    * 将对象转换为FormData
    * @param data 待转换的对象
@@ -3963,7 +3990,9 @@ class Utils {
   /**
    * 覆盖对象中的函数this指向
    * @param target 需要覆盖的对象
-   * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+   * @param objectThis 覆盖的this指向，如果为传入，则默认为对象本身
+   * @example
+   * Utils.coverObjectFunctionThis({})
    */
   coverObjectFunctionThis = CommonUtil.coverObjectFunctionThis.bind(CommonUtil);
   /**
@@ -4014,7 +4043,7 @@ class Utils {
   /**
    * 自动使用 Worker 执行 setTimeout
    * @param callback 回调函数
-   * @param [timeout=0] 延迟时间，默认为0
+   * @param timeout 延迟时间，默认为0
    */
   workerSetTimeout(callback: (...args: any[]) => any, timeout: number = 0) {
     try {
@@ -4115,6 +4144,10 @@ class Utils {
   /**
    * 判断页面中是否存在`worker-src`的CSP规则
    * @param timeout 超时时间，默认为`1500ms`
+   * @example
+   * Utils.hasWorkerCSP().then((hasCSP) => {
+   *   console.log(hasCSP);
+   * })
    */
   hasWorkerCSP(timeout: number = 1500) {
     return new Promise<boolean>((resolve) => {
@@ -4197,6 +4230,9 @@ class Utils {
    * @param positionY 坐标y信息
    * @param otherPositionX 坐标x信息
    * @param otherPositionY 坐标y信息
+   * @example
+   * Utils.calcPositionDistance(1, 2, 3, 4);
+   * > 2.8284271247461903
    */
   calcPositionDistance(
     positionX: number | string,
@@ -4208,6 +4244,9 @@ class Utils {
    * 计算两个坐标的直线距离
    * @param position 坐标信息
    * @param otherPosition 坐标信息
+   * @example
+   * Utils.calcPositionDistance({x: 1, y: 2}, {x: 3, y: 4});
+   * > 2.8284271247461903
    */
   calcPositionDistance(
     position: { x: number | string; y: number | string },
