@@ -371,7 +371,7 @@ declare class Utils {
         x: number;
         y: number;
     }>>, deviation?: number): {
-        /** 处理了偏移量后的z-index值 */
+        /** 处理了偏移量和阈值比较后的z-index值 */
         zIndex: number;
         /** 原始z-index值 */
         originZIndex: number;
@@ -393,7 +393,7 @@ declare class Utils {
      * Utils.getMaxZIndexNodeInfoFromPoint(20);
      */
     getMaxZIndexNodeInfoFromPoint(deviation: IFunction<number>): {
-        /** 处理了偏移量后的z-index值 */
+        /** 处理了偏移量和阈值比较后的z-index值 */
         zIndex: number;
         /** 原始z-index值 */
         originZIndex: number;
