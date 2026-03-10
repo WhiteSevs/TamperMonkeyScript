@@ -50,10 +50,9 @@ log.config({
 
 const getPageMaxZIndex = () => {
   const deviation = 100;
-  let maxZIndex = deviation;
-  const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
-  const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
-  maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+  const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+  const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+  const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
   return maxZIndex;
 };
 
