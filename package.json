@@ -20,9 +20,9 @@
   "dependencies": {
     "@mgdn/bvid": "^0.4.0",
     "@whitesev/data-paging": "^0.0.4",
-    "@whitesev/domutils": "^1.9.7",
-    "@whitesev/pops": "^3.3.5",
-    "@whitesev/utils": "^2.11.5",
+    "@whitesev/domutils": "^1.9.11",
+    "@whitesev/pops": "^4.2.2",
+    "@whitesev/utils": "^2.11.9",
     "artplayer": "^5.3.0",
     "artplayer-plugin-danmuku": "^5.2.0",
     "crypto-js": "^4.2.0",
