@@ -1,4 +1,4 @@
-import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType, PopsDOMUtilsAddEventListenerResult, PopsDOMUtilsCSSProperty, PopsDOMUtilsCSSPropertyType, PopsDOMUtilsTargetElementType } from "../types/PopsDOMUtilsEventType";
+import type { ParseHTMLReturnType, PopsDOMUtils_Event, PopsDOMUtils_EventType, PopsDOMUtilsAddEventListenerResult, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsCSSProperty, PopsDOMUtilsCSSPropertyType, PopsDOMUtilsElementEventType, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtilsTargetElementType } from "../types/PopsDOMUtilsEventType";
 declare class PopsDOMUtilsEvent {
     /**
      * 绑定事件
@@ -18,7 +18,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -37,7 +37,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -62,7 +62,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -87,7 +87,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -101,7 +101,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -115,7 +115,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -130,7 +130,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T], $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T], $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -145,7 +145,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组

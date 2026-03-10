@@ -49,7 +49,7 @@ class ElementEvent extends ElementAnimate {
    *    console.log("事件触发",event)
    * })
    */
-  on<T extends DOMUtils_EventType>(
+  on<T extends DOMUtils_EventType = DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     handler: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void,
@@ -73,7 +73,7 @@ class ElementEvent extends ElementAnimate {
    *    console.log("事件触发",event)
    * })
    */
-  on<T extends Event>(
+  on<T extends Event = Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void,
@@ -103,7 +103,7 @@ class ElementEvent extends ElementAnimate {
    *    console.log("事件触发", event, $selector)
    * })
    */
-  on<T extends DOMUtils_EventType>(
+  on<T extends DOMUtils_EventType = DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector: string | string[] | undefined | null,
@@ -134,14 +134,14 @@ class ElementEvent extends ElementAnimate {
    *    console.log("事件触发", event, $selector)
    * })
    */
-  on<T extends Event>(
+  on<T extends Event = Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector: string | string[] | undefined | null,
     handler: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void,
     option?: DOMUtilsEventListenerOption | boolean
   ): DOMUtilsAddEventListenerResult;
-  on<T extends Event>(
+  on<T extends Event = Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
     selector:
@@ -241,89 +241,88 @@ class ElementEvent extends ElementAnimate {
       // 这是存在selector的情况
       listenerOption = getOption(args, 4, listenerOption);
     }
-    /**
-     * 如果是once，那么删除该监听和元素上的事件和监听
-     */
-    const checkOptionOnceToRemoveEventListener = ($el: DOMUtilsElementEventType) => {
-      if (listenerOption.once) {
-        this.off($el, eventTypeList, selector as any, callback as any, option);
-      }
-    };
     $elList.forEach(($elItem) => {
-      /**
-       * 事件回调
-       * @param event
-       */
-      const handlerCallBack = function (event: Event) {
-        let call_this: Element | undefined = void 0;
-        let call_event: Event | undefined = void 0;
-        let call_$selector: HTMLElement | undefined = void 0;
-        let execCallback = false;
-        if (selectorList.length) {
-          // 存在子元素选择器
-          // 这时候的this和target都是子元素选择器的元素
-          let $target: HTMLElement;
-          if (listenerOption.isComposedPath) {
-            // 可能为空
-            const composedPath = event.composedPath();
-            if (!composedPath.length && event.target) {
-              composedPath.push(event.target);
-            }
-            $target = composedPath[0] as HTMLElement;
-          } else {
-            $target = event.target as HTMLElement;
-          }
-          let $parent = $elItem;
-          if (CommonUtils.isWin($parent)) {
-            // window和document共用一个对象
-            // 这样就能处理子元素选择器无法匹配的问题
-            $parent = that.windowApi.document.documentElement;
-          }
-          const findValue = selectorList.find((selectors) => {
-            // 判断目标元素是否匹配选择器
-            if (that.matches($target, selectors)) {
-              // 当前目标可以被selector所匹配到
-              return true;
-            }
-            // 在上层与主元素之间寻找可以被selector所匹配到的
-            const $closestMatches = that.closest<HTMLElement>($target, selectors);
-            if ($closestMatches && (<HTMLElement>$parent)?.contains?.($closestMatches)) {
-              $target = $closestMatches;
-              return true;
-            }
-            return false;
-          });
-          if (findValue) {
-            // 这里尝试使用defineProperty修改event的target值
-            try {
-              OriginPrototype.Object.defineProperty(event, "target", {
-                get() {
-                  return $target;
-                },
-              });
-              // oxlint-disable-next-line no-empty
-            } catch {}
-            execCallback = true;
-            call_this = $target;
-            call_event = event;
-            call_$selector = $target;
-          }
-        } else {
-          execCallback = true;
-          call_this = $elItem as Element;
-          call_event = event;
-        }
-        if (execCallback) {
-          const result = listenerCallBack.call(call_this!, call_event!, call_$selector!);
-          checkOptionOnceToRemoveEventListener($elItem);
-          if (typeof result === "boolean" && !result) {
-            return false;
-          }
-        }
-      };
-
       // 遍历事件名设置元素事件
       eventTypeList.forEach((eventName) => {
+        /**
+         * 如果是option.once，那么删除该监听和元素上的事件和监听
+         */
+        const checkOptionOnceToRemoveEventListener = () => {
+          if (listenerOption.once) {
+            this.off($elItem, eventName, selector as any, callback as any, option);
+          }
+        };
+        /**
+         * 事件回调
+         * @param event
+         */
+        const handlerCallBack = function (event: Event) {
+          let call_this: Element | undefined = void 0;
+          let call_event: Event | undefined = void 0;
+          let call_$selector: HTMLElement | undefined = void 0;
+          let execCallback = false;
+          if (selectorList.length) {
+            // 存在子元素选择器
+            // 这时候的this和target都是子元素选择器的元素
+            let $target: HTMLElement;
+            if (listenerOption.isComposedPath) {
+              // 可能为空
+              const composedPath = event.composedPath();
+              if (!composedPath.length && event.target) {
+                composedPath.push(event.target);
+              }
+              $target = composedPath[0] as HTMLElement;
+            } else {
+              $target = event.target as HTMLElement;
+            }
+            let $parent = $elItem;
+            if (CommonUtils.isWin($parent)) {
+              // window和document共用一个对象
+              // 这样就能处理子元素选择器无法匹配的问题
+              $parent = that.windowApi.document.documentElement;
+            }
+            const findValue = selectorList.find((selectors) => {
+              // 判断目标元素是否匹配选择器
+              if (that.matches($target, selectors)) {
+                // 当前目标可以被selector所匹配到
+                return true;
+              }
+              // 在上层与主元素之间寻找可以被selector所匹配到的
+              const $closestMatches = that.closest<HTMLElement>($target, selectors);
+              if ($closestMatches && (<HTMLElement>$parent)?.contains?.($closestMatches)) {
+                $target = $closestMatches;
+                return true;
+              }
+              return false;
+            });
+            if (findValue) {
+              // 这里尝试使用defineProperty修改event的target值
+              try {
+                OriginPrototype.Object.defineProperty(event, "target", {
+                  get() {
+                    return $target;
+                  },
+                });
+                // oxlint-disable-next-line no-empty
+              } catch {}
+              execCallback = true;
+              call_this = $target;
+              call_event = event;
+              call_$selector = $target;
+            }
+          } else {
+            execCallback = true;
+            call_this = $elItem as Element;
+            call_event = event;
+          }
+          if (execCallback) {
+            const result = listenerCallBack.call(call_this!, call_event!, call_$selector!);
+            checkOptionOnceToRemoveEventListener();
+            if (typeof result === "boolean" && !result) {
+              return false;
+            }
+          }
+        };
         // add listener
         $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
         // 获取对象上的事件
@@ -380,7 +379,7 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.off(document.querySelector("a.xx"),"click")
    * DOMUtils.off("a.xx","click")
    */
-  off<T extends DOMUtils_EventType>(
+  off<T extends DOMUtils_EventType = DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     callback?: <E extends HTMLElement = HTMLElement>(this: E, event: DOMUtils_Event[T]) => void,
@@ -404,7 +403,7 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.off(document.querySelector("a.xx"),"click")
    * DOMUtils.off("a.xx","click")
    */
-  off<T extends Event>(
+  off<T extends Event = Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     callback?: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void,
@@ -429,7 +428,7 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
    * DOMUtils.off("a.xx",["click","tap","hover"])
    */
-  off<T extends DOMUtils_EventType>(
+  off<T extends DOMUtils_EventType = DOMUtils_EventType>(
     element: DOMUtilsElementEventType,
     eventType: T | T[],
     selector?: string | string[] | undefined | null,
@@ -455,7 +454,7 @@ class ElementEvent extends ElementAnimate {
    * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
    * DOMUtils.off("a.xx",["click","tap","hover"])
    */
-  off<T extends Event>(
+  off<T extends Event = Event>(
     element: DOMUtilsElementEventType,
     eventType: string | string[],
     selector?: string | string[] | undefined | null,
@@ -467,7 +466,7 @@ class ElementEvent extends ElementAnimate {
       array: DOMUtilsEventListenerOptionsAttribute[]
     ) => boolean
   ): void;
-  off<T extends Event>(
+  off<T extends Event = Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
     selector:
@@ -541,7 +540,11 @@ class ElementEvent extends ElementAnimate {
     /**
      * 事件的回调函数
      */
-    let listenerCallBack: (this: HTMLElement, event: T, $selector: HTMLElement) => void = callback as any;
+    let listenerCallBack: (this: HTMLElement, event: T, $selector: HTMLElement) => void = callback as (
+      this: HTMLElement,
+      event: Event,
+      $selector?: HTMLElement
+    ) => void | boolean;
 
     /**
      * 事件的配置
@@ -573,17 +576,20 @@ class ElementEvent extends ElementAnimate {
       } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
       eventTypeList.forEach((eventName) => {
         const handlers = elementEvents[eventName] || [];
-        const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
-        for (let index = 0; index < filterHandler.length; index++) {
-          const handler = filterHandler[index];
+        // 过滤出需要删除的事件
+        const handlersFiltered = typeof filter === "function" ? handlers.filter(filter) : handlers;
+        for (let index = 0; index < handlersFiltered.length; index++) {
+          const handler = handlersFiltered[index];
+          // 过滤出的事件再根据下面的条件进行判断处理移除
+          // 1. callback内存地址必须相同
+          // 2. selector必须相同
+          // 3. option.capture必须相同
           let flag = true;
           if (flag && listenerCallBack && handler.callback !== listenerCallBack) {
-            // callback不同
             flag = false;
           }
           if (flag && selectorList.length && Array.isArray(handler.selector)) {
             if (JSON.stringify(handler.selector) !== JSON.stringify(selectorList)) {
-              // 子元素选择器不同
               flag = false;
             }
           }
@@ -592,14 +598,14 @@ class ElementEvent extends ElementAnimate {
             typeof handler.option.capture === "boolean" &&
             listenerOption.capture !== handler.option.capture
           ) {
-            // 事件的配置项不同
             flag = false;
           }
           if (flag) {
             $elItem.removeEventListener(eventName, handler.handlerCallBack, handler.option);
-            const findIndex = handlers.findIndex((item) => item === handler);
-            if (findIndex !== -1) {
-              handlers.splice(findIndex, 1);
+            for (let i = handlers.length - 1; i >= 0; i--) {
+              if (handlers[i] === handler) {
+                handlers.splice(i, 1);
+              }
             }
           }
         }
