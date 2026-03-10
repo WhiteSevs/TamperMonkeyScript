@@ -136,7 +136,7 @@ export const GreasyforkScriptsSearch = {
    * 添加过滤项
    */
   addFilterControlsItem($search: HTMLElement, $filterControlsContainer: HTMLElement) {
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
+    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
     let controlsConfig: {
       /** 名称 */
       name: string;

@@ -234,7 +234,7 @@ export const MTCommentFilter = {
         },
       };
     };
-    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
     const view = new RuleEditView({
       title: "评论过滤器",
       data: () => {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.5
+// @version      2026.3.10
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -1195,7 +1195,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -1518,7 +1518,7 @@
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -1526,6 +1526,14 @@
     autoClearConsole: true,
     tag: true,
   });
+  const getPageMaxZIndex = () => {
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
+  };
   Qmsg.config({
     isHTML: true,
     autoClose: true,
@@ -1564,23 +1572,12 @@
       );
     },
     get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
     mask: {
       enable: true,
@@ -3847,7 +3844,7 @@
       return matchedRuleList;
     },
     showView() {
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -4547,7 +4544,7 @@
       `,
       });
       const $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
-      const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       const $name = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
           "name",
@@ -5149,7 +5146,7 @@
           });
         }
       );
-      domUtils.onKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
+      domUtils.onKeyboard($search, "keyup", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
           emitUpdateCookieListGroupWithSearchFilter();
         }
@@ -5196,7 +5193,7 @@
         `,
         });
         const $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
-        const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+        const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
         const $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
             emitUpdateCookieListGroupWithSearchFilter();
@@ -5281,7 +5278,7 @@
         }`,
         });
         const $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
-        const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+        const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
         const $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
           UISelect(
             "CookieManager Api",

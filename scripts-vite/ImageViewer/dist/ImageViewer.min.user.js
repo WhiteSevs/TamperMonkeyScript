@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ImageViewer
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.10
 // @author       WhiteSevs
 // @description  Viewer看图工具，支持图片翻转、旋转、缩放
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -29,27 +29,27 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (E, O, X, N, me) {
+(function (E, O, ie, Y, ye) {
   "use strict";
 
-  var te = typeof GM_deleteValue < "u" ? GM_deleteValue : void 0,
+  var ee = typeof GM_deleteValue < "u" ? GM_deleteValue : void 0,
     de = typeof GM_getResourceText < "u" ? GM_getResourceText : void 0,
-    J = typeof GM_getValue < "u" ? GM_getValue : void 0,
-    z = typeof GM_info < "u" ? GM_info : void 0,
-    Z = typeof GM_listValues < "u" ? GM_listValues : void 0,
-    ye = typeof GM_registerMenuCommand < "u" ? GM_registerMenuCommand : void 0,
+    Z = typeof GM_getValue < "u" ? GM_getValue : void 0,
+    j = typeof GM_info < "u" ? GM_info : void 0,
+    z = typeof GM_listValues < "u" ? GM_listValues : void 0,
+    xe = typeof GM_registerMenuCommand < "u" ? GM_registerMenuCommand : void 0,
     re = typeof GM_setValue < "u" ? GM_setValue : void 0,
     fe = typeof GM_setValues < "u" ? GM_setValues : void 0,
-    xe = typeof GM_unregisterMenuCommand < "u" ? GM_unregisterMenuCommand : void 0,
-    Ce = typeof GM_xmlhttpRequest < "u" ? GM_xmlhttpRequest : void 0,
+    Ce = typeof GM_unregisterMenuCommand < "u" ? GM_unregisterMenuCommand : void 0,
+    be = typeof GM_xmlhttpRequest < "u" ? GM_xmlhttpRequest : void 0,
     k = typeof unsafeWindow < "u" ? unsafeWindow : void 0,
-    be = window;
-  const H = {
+    we = window;
+  const W = {
       qmsg_config_position: { key: "qmsg-config-position", defaultValue: "bottom" },
       qmsg_config_maxnums: { key: "qmsg-config-maxnums", defaultValue: 3 },
       qmsg_config_showreverse: { key: "qmsg-config-showreverse", defaultValue: false },
     },
-    j = {
+    H = {
       waitRemove(...e) {
         e.forEach((t) => {
           typeof t == "string" &&
@@ -87,7 +87,7 @@
       },
       setGMResourceCSS(e) {
         const t = typeof de == "function" ? de(e.keyName) : null;
-        return typeof t == "string" && t ? he(t) : j.loadStyleLink(e.url);
+        return typeof t == "string" && t ? he(t) : H.loadStyleLink(e.url);
       },
       async loadStyleLink(e) {
         let t = document.createElement("link");
@@ -247,9 +247,9 @@
           if (a) return a.querySelector(t);
         } else return O.matches(e, t) ? e : O.closest(e, t);
       },
-      toStr(e) {
-        const t = "__undefined__placeholder__replaced__str__";
-        return JSON.stringify(e, (a, o) => (o === void 0 ? t : o), 2).replace(new RegExp(`"${t}"`, "g"), "undefined");
+      toStr(e, t = 2) {
+        const n = "__undefined__placeholder__replaced__str__" + performance.now();
+        return JSON.stringify(e, (o, r) => (r === void 0 ? n : r), t).replace(new RegExp(`"${n}"`, "g"), "undefined");
       },
       isVerticalScreen() {
         return !globalThis.screen.orientation.type.includes("landscape");
@@ -262,14 +262,20 @@
         return e.top === e.self;
       },
     },
-    m = N.noConflict(),
+    m = Y.noConflict(),
     l = O.noConflict(),
-    q = X,
-    R = new m.Log(z, k.console || be.console),
-    ne = z?.script?.name || void 0,
-    we = X.config.Utils.AnyTouch(),
-    ve = false;
+    P = ie,
+    R = new m.Log(j, k.console || we.console),
+    te = j?.script?.name || void 0,
+    ve = ie.fn.Utils.AnyTouch(),
+    _e = false;
   R.config({ debug: false, logMaxCount: 250, autoClearConsole: true, tag: true });
+  const pe = () => {
+    let t = 100;
+    const n = ie.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 100,
+      a = Y.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 100;
+    return ((t = Math.max(t, n, a)), t);
+  };
   E.config({
     isHTML: true,
     autoClose: true,
@@ -281,42 +287,30 @@
       return (t === "warning" ? R.warn(n) : t === "error" ? R.error(n) : R.info(n), false);
     },
     get position() {
-      return G.getValue(H.qmsg_config_position.key, H.qmsg_config_position.defaultValue);
+      return U.getValue(W.qmsg_config_position.key, W.qmsg_config_position.defaultValue);
     },
     get maxNums() {
-      return G.getValue(H.qmsg_config_maxnums.key, H.qmsg_config_maxnums.defaultValue);
+      return U.getValue(W.qmsg_config_maxnums.key, W.qmsg_config_maxnums.defaultValue);
     },
     get showReverse() {
-      return G.getValue(H.qmsg_config_showreverse.key, H.qmsg_config_showreverse.defaultValue);
+      return U.getValue(W.qmsg_config_showreverse.key, W.qmsg_config_showreverse.defaultValue);
     },
     get zIndex() {
-      let e = N.getMaxZIndex(),
-        t = X.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return N.getMaxValue(e, t) + 100;
+      return pe();
     },
   });
-  q.GlobalConfig.setGlobalConfig({
-    zIndex: () => {
-      const e = N.getMaxZIndex(void 0, void 0, (n) => {
-          if (
-            n?.classList?.contains("qmsg-shadow-container") ||
-            (n?.closest("qmsg") && n.getRootNode() instanceof ShadowRoot)
-          )
-            return false;
-        }),
-        t = X.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return N.getMaxValue(e, t) + 100;
-    },
+  P.GlobalConfig.setGlobalConfig({
+    zIndex: () => pe(),
     mask: { enable: true, clickEvent: { toClose: false, toHide: false } },
     drag: true,
   });
-  const _e = new m.GM_Menu({
-      GM_getValue: J,
+  const Ve = new m.GM_Menu({
+      GM_getValue: Z,
       GM_setValue: re,
-      GM_registerMenuCommand: ye,
-      GM_unregisterMenuCommand: xe,
+      GM_registerMenuCommand: xe,
+      GM_unregisterMenuCommand: Ce,
     }),
-    se = new m.Httpx({ xmlHttpRequest: Ce, logDetails: ve });
+    se = new m.Httpx({ xmlHttpRequest: be, logDetails: _e });
   se.interceptors.request.use((e) => e);
   se.interceptors.response.use(
     void 0,
@@ -343,16 +337,16 @@
     k.setInterval.bind(k),
     k.clearInterval.bind(k));
   const he = l.addStyle.bind(l),
-    Ve = O.selector.bind(O),
-    Ee = O.selectorAll.bind(O);
+    Ee = O.selector.bind(O),
+    $e = O.selectorAll.bind(O);
   new m.GM_Cookie();
-  const Q = "GM_Panel",
+  const J = "GM_Panel",
     Me = "data-init",
-    ae = "data-key",
-    oe = "data-default-value",
-    $e = "data-init-more-value",
-    ke = "data-plugin-search-config",
-    ie = "data-storage-api",
+    ne = "data-key",
+    ae = "data-default-value",
+    ke = "data-init-more-value",
+    Re = "data-plugin-search-config",
+    oe = "data-storage-api",
     B = {
       get width() {
         return globalThis.innerWidth;
@@ -384,7 +378,7 @@
         },
       },
     },
-    Y = {
+    Q = {
       $data: {
         __contentConfig: null,
         get contentConfig() {
@@ -408,7 +402,7 @@
         let e = false,
           t;
         const n = (r, i) => {
-            typeof i != "string" && (i = j.toStr(i));
+            typeof i != "string" && (i = H.toStr(i));
             const y = new Blob([i]),
               u = globalThis.URL.createObjectURL(y);
             (l.createElement("a", { href: u, download: r }).click(),
@@ -418,7 +412,7 @@
           },
           a = () => {
             const r = (C) => {
-                const c = q.alert({
+                const c = P.alert({
                     title: { text: "请选择导入方式", position: "center" },
                     content: {
                       text: `
@@ -456,14 +450,14 @@
           }`,
                   }),
                   g = c.$shadowRoot.querySelector(".btn-control[data-mode='local']"),
-                  M = c.$shadowRoot.querySelector(".btn-control[data-mode='network']"),
-                  U = c.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']"),
-                  L = async (S) => {
+                  $ = c.$shadowRoot.querySelector(".btn-control[data-mode='network']"),
+                  G = c.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']"),
+                  A = async (S) => {
                     (confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）") &&
-                      (typeof Z == "function"
-                        ? typeof te == "function"
-                          ? (Z().forEach((s) => {
-                              te(s);
+                      (typeof z == "function"
+                        ? typeof ee == "function"
+                          ? (z().forEach((s) => {
+                              ee(s);
                             }),
                             E.success("已清空脚本存储的配置"))
                           : E.error("不支持GM_deleteValue函数，无法执行删除脚本配置")
@@ -479,7 +473,7 @@
                   D = (S) =>
                     new Promise(async (x) => {
                       const v = m.toJSON(S);
-                      (Object.keys(v).length === 0 ? E.warning("解析为空配置，不导入") : await L(v), x(true));
+                      (Object.keys(v).length === 0 ? E.warning("解析为空配置，不导入") : await A(v), x(true));
                     });
                 (l.on(g, "click", (S) => {
                   (l.preventEvent(S), c.close());
@@ -495,21 +489,21 @@
                   }),
                     x.click());
                 }),
-                  l.on(M, "click", (S) => {
+                  l.on($, "click", (S) => {
                     (l.preventEvent(S), c.close());
-                    const x = q.prompt({
+                    const x = P.prompt({
                         title: { text: "网络导入", position: "center" },
                         content: { text: "", placeholder: "请填写URL", focus: true },
                         btn: {
                           close: {
                             enable: true,
-                            callback(d, $) {
+                            callback(d, M) {
                               d.close();
                             },
                           },
                           ok: {
                             text: "导入",
-                            callback: async (d, $) => {
+                            callback: async (d, M) => {
                               const b = d.text;
                               if (m.isNull(b)) {
                                 E.error("请填入完整的url");
@@ -536,14 +530,14 @@
                     (l.on(v, ["input", "propertychange"], (d) => {
                       l.val(v) === "" ? l.attr(s, "disabled", "true") : l.removeAttr(s, "disabled");
                     }),
-                      l.onKeyboard(v, "keydown", (d, $, b) => {
+                      l.onKeyboard(v, "keydown", (d, M, b) => {
                         d === "Enter" && b.length === 0 && l.val(v) !== "" && l.emit(s, "click");
                       }),
                       l.emit(v, "input"));
                   }),
-                  l.on(U, "click", async (S) => {
+                  l.on(G, "click", async (S) => {
                     (l.preventEvent(S), c.close());
-                    let x = await j.getClipboardText();
+                    let x = await H.getClipboardText();
                     if (x.trim() === "") {
                       E.warning("获取到的剪贴板内容为空");
                       return;
@@ -551,8 +545,8 @@
                     await D(x);
                   }));
               },
-              i = (C = `${ne}_panel-setting-${m.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`, c) => {
-                const g = q.alert({
+              i = (C = `${te}_panel-setting-${m.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`, c) => {
+                const g = P.alert({
                     title: { text: "请选择导出方式", position: "center" },
                     content: {
                       text: `
@@ -565,8 +559,8 @@
                       ok: { enable: false },
                       close: {
                         enable: true,
-                        callback(L, D) {
-                          L.close();
+                        callback(A, D) {
+                          A.close();
                         },
                       },
                     },
@@ -589,49 +583,48 @@
             background-color: #ecf5ff;
           }`,
                   }),
-                  M = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']"),
-                  U = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
-                (l.on(M, "click", (L) => {
-                  l.preventEvent(L);
+                  $ = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']"),
+                  G = g.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
+                (l.on($, "click", (A) => {
+                  l.preventEvent(A);
                   try {
                     (n(C, c), g.close());
                   } catch (D) {
                     E.error(D.toString(), { consoleLogContent: true });
                   }
                 }),
-                  l.on(U, "click", async (L) => {
+                  l.on(G, "click", async (A) => {
                     (await m.copy(c)) ? (E.success("复制成功"), g.close()) : E.error("复制失败");
                   }));
               },
-              u = q
-                .confirm({
-                  title: { text: "配置", position: "center" },
-                  content: {
-                    text: `
+              u = P.confirm({
+                title: { text: "配置", position: "center" },
+                content: {
+                  text: `
             <textarea name="config-value" id="config" readonly></textarea>
           `,
-                    html: true,
-                  },
-                  btn: {
-                    ok: {
-                      enable: true,
-                      type: "primary",
-                      text: "导入",
-                      callback(C, c) {
-                        r();
-                      },
-                    },
-                    cancel: {
-                      enable: true,
-                      text: "导出",
-                      callback(C, c) {
-                        i(void 0, w);
-                      },
+                  html: true,
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    type: "primary",
+                    text: "导入",
+                    callback(C, c) {
+                      r();
                     },
                   },
-                  width: B.width < 450 ? "90vw" : "450px",
-                  height: "auto",
-                  style: `
+                  cancel: {
+                    enable: true,
+                    text: "导出",
+                    callback(C, c) {
+                      i(void 0, w);
+                    },
+                  },
+                },
+                width: B.width < 450 ? "90vw" : "450px",
+                height: "auto",
+                style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -663,37 +656,36 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-                })
-                .$shadowRoot.querySelector("textarea"),
+              }).$shadowRoot.querySelector("textarea"),
               f = {};
-            if (typeof Z == "function")
-              Z().forEach((c) => {
-                const g = J(c);
+            if (typeof z == "function")
+              z().forEach((c) => {
+                const g = Z(c);
                 Reflect.set(f, c, g);
               });
             else {
               E.warning("不支持函数GM_listValues，仅导出菜单配置");
-              const C = J(Q);
-              Reflect.set(f, Q, C);
+              const C = Z(J);
+              Reflect.set(f, J, C);
             }
-            const w = j.toStr(f);
+            const w = H.toStr(f);
             u.value = w;
           },
           o = () => {
-            let r = z?.script?.supportURL || z?.script?.namespace;
+            let r = j?.script?.supportURL || j?.script?.namespace;
             typeof r == "string" && m.isNotNull(r) && window.open(r, "_blank");
           };
         return [
           {
             id: "script-version",
-            title: `版本：${z?.script?.version || "未知"}`,
+            title: `版本：${j?.script?.version || "未知"}`,
             isBottom: true,
             views: [],
             clickFirstCallback() {
               return false;
             },
             afterRender(r) {
-              new we(r.$asideLiElement).on("tap", function (y) {
+              new ve(r.$asideLiElement).on("tap", function (y) {
                 (clearTimeout(t),
                   (t = void 0),
                   e
@@ -711,7 +703,7 @@
         this.$data.__defaultBottomContentConfig = e;
       },
     },
-    Re = {
+    Se = {
       $data: {
         __menuOption: [
           {
@@ -723,7 +715,7 @@
               return e;
             },
             callback: () => {
-              G.showPanel(Y.getConfig(0));
+              U.showPanel(Q.getConfig(0));
             },
           },
         ],
@@ -735,7 +727,7 @@
         this.initExtensionsMenu();
       },
       initExtensionsMenu() {
-        j.isTopWindow() && _e.add(this.$data.menuOption);
+        H.isTopWindow() && Ve.add(this.$data.menuOption);
       },
       addMenuOption(e) {
         (Array.isArray(e) || (e = [e]), this.$data.menuOption.push(...e));
@@ -754,7 +746,7 @@
         this.$data.menuOption.splice(e, 1);
       },
     };
-  class pe {
+  class ge {
     storageKey;
     listenerData;
     constructor(t) {
@@ -763,7 +755,7 @@
         if (n == "") throw new Error("key参数不能为空字符串");
         this.storageKey = n;
       } else throw new Error("key参数类型错误，必须是字符串");
-      ((this.listenerData = new N.Dictionary()),
+      ((this.listenerData = new Y.Dictionary()),
         (this.getLocalValue = this.getLocalValue.bind(this)),
         (this.set = this.set.bind(this)),
         (this.get = this.get.bind(this)),
@@ -778,7 +770,7 @@
         (this.emitValueChangeListener = this.emitValueChangeListener.bind(this)));
     }
     getLocalValue() {
-      let t = J(this.storageKey);
+      let t = Z(this.storageKey);
       return (t == null && ((t = {}), this.setLocalValue(t)), t);
     }
     setLocalValue(t) {
@@ -814,7 +806,7 @@
       return Reflect.ownKeys(t).map((n) => Reflect.get(t, n));
     }
     clear() {
-      te(this.storageKey);
+      ee(this.storageKey);
     }
     addValueChangeListener(t, n) {
       const a = Math.random(),
@@ -847,8 +839,8 @@
       }
     }
   }
-  const F = new pe(Q),
-    G = {
+  const q = new ge(J),
+    U = {
       $data: {
         __contentConfigInitDefaultValue: null,
         __onceExecMenuData: null,
@@ -879,7 +871,7 @@
           return (this.__onceExecData == null && (this.__onceExecData = new m.Dictionary()), this.__onceExecData);
         },
         get scriptName() {
-          return ne;
+          return te;
         },
         get panelConfig() {
           return this.__panelConfig;
@@ -887,12 +879,12 @@
         set panelConfig(e) {
           this.__panelConfig = e;
         },
-        key: Q,
-        attributeKeyName: ae,
-        attributeDefaultValueName: oe,
+        key: J,
+        attributeKeyName: ne,
+        attributeDefaultValueName: ae,
       },
       init() {
-        (this.initContentDefaultValue(), Re.init());
+        (this.initContentDefaultValue(), Se.init());
       },
       initContentDefaultValue() {
         const e = (a) => {
@@ -904,12 +896,12 @@
               if (typeof f == "boolean" && !f) return;
             }
             let i = new Map(),
-              y = o[ae];
+              y = o[ne];
             if (y != null) {
-              const f = o[oe];
+              const f = o[ae];
               i.set(y, f);
             }
-            let u = o[$e];
+            let u = o[ke];
             if (
               (typeof u == "object" &&
                 u &&
@@ -936,7 +928,7 @@
               i && Array.isArray(i) && t(i);
             }
           },
-          n = [...Y.getAllContentConfig()];
+          n = [...Q.getAllContentConfig()];
         for (let a = 0; a < n.length; a++) {
           let o = n[a];
           if (!o.views) continue;
@@ -953,33 +945,33 @@
         return this.$data.contentConfigInitDefaultValue.get(e);
       },
       setValue(e, t) {
-        F.set(e, t);
+        q.set(e, t);
       },
       getValue(e, t) {
-        const n = F.get(e);
+        const n = q.get(e);
         return (
           n ?? (this.$data.contentConfigInitDefaultValue.has(e) ? this.$data.contentConfigInitDefaultValue.get(e) : t)
         );
       },
       deleteValue(e) {
-        F.delete(e);
+        q.delete(e);
       },
       hasKey(e) {
-        return F.has(e);
+        return q.has(e);
       },
       addValueChangeListener(e, t, n) {
-        const a = F.addValueChangeListener(e, t);
+        const a = q.addValueChangeListener(e, t);
         if (n?.immediate || n?.immediateAll) {
           const o = this.getValue(e);
-          n?.immediate ? t(e, o, o) : n?.immediateAll && G.emitMenuValueChange(e, o, o);
+          n?.immediate ? t(e, o, o) : n?.immediateAll && U.emitMenuValueChange(e, o, o);
         }
         return a;
       },
       removeValueChangeListener(e) {
-        F.removeValueChangeListener(e);
+        q.removeValueChangeListener(e);
       },
       emitMenuValueChange(e, t, n) {
-        F.emitValueChangeListener(e, t, n);
+        q.emitValueChangeListener(e, t, n);
       },
       async exec(e, t, n, a = true) {
         const o = this;
@@ -999,8 +991,8 @@
         let C = [];
         const c = [];
         let g = [];
-        const M = (s, d) => {
-            let $ = [],
+        const $ = (s, d) => {
+            let M = [],
               b = [],
               h = [];
             if (Array.isArray(d)) h = h.concat(d);
@@ -1009,8 +1001,8 @@
                 if (typeof V == "object" && V != null)
                   if (V instanceof Element) h.push(V);
                   else {
-                    const { $css: A, destory: I } = V;
-                    (A != null && (Array.isArray(A) ? (h = h.concat(A)) : h.push(A)),
+                    const { $css: L, destory: I } = V;
+                    (L != null && (Array.isArray(L) ? (h = h.concat(L)) : h.push(L)),
                       typeof I == "function" && h.push(I));
                   }
                 else h.push(V);
@@ -1021,7 +1013,7 @@
             const _ = (p) => {
               if (p != null) {
                 if (p instanceof Element) {
-                  $.push(p);
+                  M.push(p);
                   return;
                 }
                 if (typeof p == "function") {
@@ -1034,15 +1026,15 @@
               const V = _(p);
               if (typeof V == "boolean" && !V) break;
               if (Array.isArray(p))
-                for (const A of p) {
-                  const I = _(A);
+                for (const L of p) {
+                  const I = _(L);
                   if (typeof I == "boolean" && !I) break;
                 }
             }
-            (L(), D(), s && ((C = C.concat($)), (g = g.concat(b))));
+            (A(), D(), s && ((C = C.concat(M)), (g = g.concat(b))));
           },
-          U = (s) => !!this.getValue(s),
-          L = () => {
+          G = (s) => !!this.getValue(s),
+          A = () => {
             for (let s = 0; s < C.length; s++) (C[s]?.remove(), C.splice(s, 1), s--);
           },
           D = () => {
@@ -1053,20 +1045,20 @@
           },
           S = () => {
             let s = false;
-            return (typeof n == "function" ? (s = n(u)) : (s = u.every((d) => U(d))), s);
+            return (typeof n == "function" ? (s = n(u)) : (s = u.every((d) => G(d))), s);
           },
           x = async (s) => {
             const d = S();
-            let $ = [];
+            let M = [];
             if (d) {
               const b = u.map((h) => this.getValue(h));
-              $ = await t({ key: u, triggerKey: s?.key, value: i ? b : b[0], addStoreValue: (...h) => M(d, h) });
+              M = await t({ key: u, triggerKey: s?.key, value: i ? b : b[0], addStoreValue: (...h) => $(d, h) });
             }
-            M(d, $);
+            $(d, M);
           };
         (a &&
           u.forEach((s) => {
-            const d = this.addValueChangeListener(s, ($, b, h) => x({ key: $ }));
+            const d = this.addValueChangeListener(s, (M, b, h) => x({ key: M }));
             c.push(d);
           }),
           await x());
@@ -1080,7 +1072,7 @@
               this.removeValueChangeListener(),
               this.clearOnceExecMenuData());
           },
-          clearStoreStyleElements: () => L(),
+          clearStoreStyleElements: () => A(),
           destory() {
             return D();
           },
@@ -1103,7 +1095,7 @@
             o.every((i) => {
               let y = !!this.getValue(i);
               return (
-                G.$data.contentConfigInitDisabledKeys.includes(i) &&
+                U.$data.contentConfigInitDisabledKeys.includes(i) &&
                   ((y = false), R.warn(`.execMenu${a ? "Once" : ""} ${i} 被禁用`)),
                 n && (y = !y),
                 y
@@ -1127,7 +1119,7 @@
           (e = this.transformKey(e)),
           this.$data.onceExecMenuData.delete(e),
           this.$data.urlChangeReloadMenuExecOnce.delete(e),
-          F.removeValueChangeListener(e)
+          q.removeValueChangeListener(e)
         );
       },
       onceExec(e, t) {
@@ -1154,14 +1146,14 @@
         const t = this.$data.urlChangeReloadMenuExecOnce.values();
         for (const n of t) await n(e);
       },
-      showPanel(e, t = `${ne}-设置`, n = false, a = false) {
+      showPanel(e, t = `${te}-设置`, n = false, a = false) {
         ((this.$data.$panel = null), (this.$data.panelContent = []));
         const o =
           e.findIndex(
             (i) => (typeof i.isBottom == "function" ? i.isBottom() : !!i.isBottom) && i.id === "script-version"
           ) !== -1;
-        !n && !o && e.push(...Y.getDefaultBottomContentConfig());
-        const r = q.panel({
+        !n && !o && e.push(...Q.getDefaultBottomContentConfig());
+        const r = P.panel({
           title: { text: t, position: "center", html: false, style: "" },
           content: e,
           btn: {
@@ -1202,19 +1194,19 @@
         const { $panel: t, content: n } = e,
           a = async (c, g) => {
             if (c == null) return;
-            const M = await g(c);
-            return M && typeof M.isFind == "boolean" && M.isFind ? M.data : await a(M.data, g);
+            const $ = await g(c);
+            return $ && typeof $.isFind == "boolean" && $.isFind ? $.data : await a($.data, g);
           },
           o = (c, g) => {
-            const M = new IntersectionObserver(
-              (U) => {
-                U.forEach((L) => {
-                  L.isIntersecting && (g?.(), M.disconnect());
+            const $ = new IntersectionObserver(
+              (G) => {
+                G.forEach((A) => {
+                  A.isIntersecting && (g?.(), $.disconnect());
                 });
               },
               { root: null, threshold: 1 }
             );
-            (M.observe(c), c.scrollIntoView({ behavior: "smooth", block: "center" }));
+            ($.observe(c), c.scrollIntoView({ behavior: "smooth", block: "center" }));
           },
           r = (c) => {
             const g = "pops-flashing";
@@ -1226,7 +1218,7 @@
           i = (c) => {
             if (c.type === "dblclick" && C) return;
             l.preventEvent(c);
-            const g = q.alert({
+            const g = P.alert({
               title: { text: "搜索配置", position: "center" },
               content: {
                 text: `
@@ -1243,7 +1235,7 @@
               height: "auto",
               drag: true,
               style: `
-					${q.config.cssText.panelCSS}
+					${P.config.cssText.panelCSS}
 
 					.search-wrapper{
 						border-bottom: 1px solid rgb(235, 238, 245, 1);
@@ -1283,15 +1275,15 @@
 				`,
             });
             g.$shadowRoot.querySelector(".search-wrapper");
-            const M = g.$shadowRoot.querySelector(".search-config-text"),
-              U = g.$shadowRoot.querySelector(".search-result-wrapper");
-            M.focus();
-            const L = () => {
-                l.empty(U);
+            const $ = g.$shadowRoot.querySelector(".search-config-text"),
+              G = g.$shadowRoot.querySelector(".search-result-wrapper");
+            $.focus();
+            const A = () => {
+                l.empty(G);
               },
               D = (x) => {
-                const v = m.queryProperty(x, ($) =>
-                    $?.next ? { isFind: false, data: $.next } : { isFind: true, data: $ }
+                const v = m.queryProperty(x, (M) =>
+                    M?.next ? { isFind: false, data: M.next } : { isFind: true, data: M }
                   ),
                   s = l.createElement("div", {
                     className: "search-result-item",
@@ -1300,7 +1292,7 @@
 							<div class="search-result-item-description">${v.matchedData?.description ?? ""}</div>
 						`,
                   }),
-                  d = q.config.PanelHandlerComponents();
+                  d = P.fn.PanelHandlerComponents();
                 return (
                   l.on(s, "click", () => {
                     const b = t.$shadowRoot.querySelectorAll(
@@ -1356,43 +1348,43 @@
                       const p = b[_],
                         V = p.views;
                       if (V && Array.isArray(V)) {
-                        const A = m.deepClone(h);
+                        const L = m.deepClone(h);
                         if (p.type === "deepMenu") {
-                          const I = m.queryProperty(A, (W) =>
-                            W?.next ? { isFind: false, data: W.next } : { isFind: true, data: W }
+                          const I = m.queryProperty(L, (N) =>
+                            N?.next ? { isFind: false, data: N.next } : { isFind: true, data: N }
                           );
                           I.next = { name: p.text };
                         }
-                        d(V, A);
+                        d(V, L);
                       } else {
-                        let A, I;
+                        let L, I;
                         if (p.type === "own") {
-                          const T = Reflect.get(p.attributes || {}, ke);
-                          T && (typeof T.text == "string" && (A = T.text), typeof T.desc == "string" && (I = T.desc));
-                        } else ((A = p.text), (I = Reflect.get(p, "description")));
-                        const W = [A, I],
-                          le = W.findIndex((T) => {
+                          const T = Reflect.get(p.attributes || {}, Re);
+                          T && (typeof T.text == "string" && (L = T.text), typeof T.desc == "string" && (I = T.desc));
+                        } else ((L = p.text), (I = Reflect.get(p, "description")));
+                        const N = [L, I],
+                          le = N.findIndex((T) => {
                             if (typeof T == "string") return T.match(v);
                           });
                         if (le !== -1) {
                           const T = m.deepClone(h),
-                            ce = m.queryProperty(T, (P) =>
-                              P?.next ? { isFind: false, data: P.next } : { isFind: true, data: P }
+                            ce = m.queryProperty(T, (F) =>
+                              F?.next ? { isFind: false, data: F.next } : { isFind: true, data: F }
                             );
                           ce.next = {
-                            name: A,
-                            matchedData: { path: "", formConfig: p, matchedText: W[le], description: I },
+                            name: L,
+                            matchedData: { path: "", formConfig: p, matchedText: N[le], description: I },
                           };
                           const ue = [];
-                          m.queryProperty(T, (P) => {
-                            const ee = P?.name;
+                          m.queryProperty(T, (F) => {
+                            const X = F?.name;
                             return (
-                              typeof ee == "string" && ee.trim() !== "" && ue.push(ee),
-                              P?.next ? { isFind: false, data: P.next } : { isFind: true, data: P }
+                              typeof X == "string" && X.trim() !== "" && ue.push(X),
+                              F?.next ? { isFind: false, data: F.next } : { isFind: true, data: F }
                             );
                           });
-                          const ge = ue.join(j.escapeHtml(" - "));
-                          ((ce.next.matchedData.path = ge), s.push(T));
+                          const me = ue.join(H.escapeHtml(" - "));
+                          ((ce.next.matchedData.path = me), s.push(T));
                         }
                       }
                     }
@@ -1406,21 +1398,21 @@
                     (typeof p == "function" && (p = p()), d(_, { index: b, name: p }));
                   }
                 }
-                const $ = document.createDocumentFragment();
+                const M = document.createDocumentFragment();
                 for (const b of s) {
                   let h = D(b);
-                  $.appendChild(h);
+                  M.appendChild(h);
                 }
-                (L(), U.append($));
+                (A(), G.append(M));
               };
             l.on(
-              M,
+              $,
               "input",
               m.debounce((x) => {
                 l.preventEvent(x);
-                let v = l.val(M).trim();
+                let v = l.val($).trim();
                 if (v === "") {
-                  L();
+                  A();
                   return;
                 }
                 S(v);
@@ -1505,11 +1497,11 @@
         };
       },
     },
-    Se = {
+    Ae = {
       $data: {
         __storeApiFn: null,
         get storeApiValue() {
-          return (this.__storeApiFn || (this.__storeApiFn = new N.Dictionary()), this.__storeApiFn);
+          return (this.__storeApiFn || (this.__storeApiFn = new Y.Dictionary()), this.__storeApiFn);
         },
       },
       getStorageApi(e) {
@@ -1526,7 +1518,7 @@
         (this.hasStorageApi(e) ? (a = this.getStorageApi(e)) : (a = n), this.setComponentsStorageApiProperty(t, a));
       },
       setComponentsStorageApiProperty(e, t) {
-        Reflect.set(e.props, ie, t);
+        Reflect.set(e.props, oe, t);
       },
     },
     Le = function (e, t, n, a, o, r, i, y, u) {
@@ -1538,29 +1530,29 @@
         attributes: {},
         props: {},
         getValue() {
-          return this.props[ie].get(t, n);
+          return this.props[oe].get(t, n);
         },
         callback(w, C) {
           const c = !!C;
-          (R.success(`${c ? "开启" : "关闭"} ${e}`), this.props[ie].set(t, c));
+          (R.success(`${c ? "开启" : "关闭"} ${e}`), this.props[oe].set(t, c));
         },
         afterAddToUListCallBack: (...w) => {},
       };
       return (
-        Reflect.set(f.attributes, ae, t),
-        Reflect.set(f.attributes, oe, n),
-        Se.initComponentsStorageApi("switch", f, {
+        Reflect.set(f.attributes, ne, t),
+        Reflect.set(f.attributes, ae, n),
+        Ae.initComponentsStorageApi("switch", f, {
           get(w, C) {
-            return G.getValue(w, C);
+            return U.getValue(w, C);
           },
           set(w, C) {
-            G.setValue(w, C);
+            U.setValue(w, C);
           },
         }),
         f
       );
     },
-    Ae = {
+    De = {
       id: "view-general",
       title: "通用",
       views: [
@@ -1573,8 +1565,8 @@
         },
       ],
     },
-    De = new pe("user-rule-data"),
-    Ie = () => ({
+    Ie = new ge("user-rule-data"),
+    Te = () => ({
       url: "*://*/*",
       selector: "img",
       mode: "handleClickEvent",
@@ -1588,7 +1580,7 @@
       });
       `,
     }),
-    Te = {
+    Oe = {
       getImageElementUrl(e) {
         function t(a) {
           return a.trim() === "null" || a.trim() === "undefined" || a.trim() === "";
@@ -1604,7 +1596,7 @@
           return n;
       },
     },
-    Oe = {
+    Ge = {
       viewIMG(e, t = 0) {
         R.info(["查看图片", [e, t]]);
         let n = "";
@@ -1612,7 +1604,7 @@
           n += `<li><img data-src="${r}" loading="lazy"></li>`;
         });
         let a = l.createElement("ul", { innerHTML: n }),
-          o = new me(a, {
+          o = new ye(a, {
             inline: false,
             url: "data-src",
             zIndex: m.getMaxZIndex() + 100,
@@ -1626,10 +1618,10 @@
     Ue = {
       $data: {
         get defaultRule() {
-          return Ie();
+          return Te();
         },
         get userRule() {
-          return De.get("user-rule", []);
+          return Ie.get("user-rule", []);
         },
         currentRule: [],
       },
@@ -1643,7 +1635,7 @@
             new RegExp(e.url, "gi").test(window.location.href) && this.$data.currentRule.push(e);
           }),
           this.$data.currentRule.length === 0 &&
-            G.getValue("user-rule-default-enable") &&
+            U.getValue("user-rule-default-enable") &&
             this.$data.currentRule.push(this.$data.defaultRule),
           R.success(["当前的看图规则", this.$data.currentRule]),
           this.$data.currentRule.forEach((e) => {
@@ -1671,7 +1663,7 @@
                   let u = await (function (f) {
                     return new Promise((w, C) => {
                       new Function("event", "resolve", "reject", e.clickEvent).bind({
-                        ImageUtils: Te,
+                        ImageUtils: Oe,
                         utils: m,
                         DOMUtils: l,
                       })(f, w, C);
@@ -1681,21 +1673,21 @@
                   (Array.isArray(u.imageList) && (r = u.imageList),
                     typeof u.imageIndex == "number" && ((i = u.imageIndex), (i < 0 || i >= r.length) && (i = 0)));
                 }
-                Oe.viewIMG(r, i);
+                Ge.viewIMG(r, i);
               },
               { capture: true }
             );
         }
         typeof e.context == "string"
           ? l.waitNode(e.context).then((n) => {
-              e.useSelector === "querySelector" ? t(Ve(e.context)) : t(Ee(e.context));
+              e.useSelector === "querySelector" ? t(Ee(e.context)) : t($e(e.context));
             })
           : t(document);
       },
       handleElement(e) {},
     };
-  Y.addContentConfig([Ae]);
-  G.init();
+  Q.addContentConfig([De]);
+  U.init();
   O.onReady(() => {
     Ue.execRule();
   });

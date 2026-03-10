@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.10
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -337,14 +337,14 @@
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -369,7 +369,7 @@
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -377,6 +377,14 @@
     autoClearConsole: true,
     tag: true,
   });
+  const getPageMaxZIndex = () => {
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
+  };
   Qmsg.config({
     isHTML: true,
     autoClose: true,
@@ -415,23 +423,12 @@
       );
     },
     get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
     mask: {
       enable: true,
@@ -1783,7 +1780,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -6863,8 +6860,6 @@
       _GM_setValue(this.$key.tipData, data);
     },
   };
-  const smallWindowCSS =
-    ".pops {\n  --icon-width: 24px;\n  --right-btn-width: 115px;\n}\n\n.small-window-drag {\n  width: 100%;\n  position: relative;\n  height: 10px;\n}\n.small-window-drag div {\n  width: 50px;\n  margin: 0 auto;\n  height: 4px;\n  background: #d9d9d9;\n  border-radius: 15px;\n  bottom: 3px;\n  position: relative;\n}\n\n.pops[type-value] .pops-drawer-title {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0px;\n  border-bottom: 1px solid #d6d6d6;\n}\n\n.small-window-title-container {\n  display: flex;\n  justify-content: space-between;\n  padding: 0px 16px;\n}\n.small-window-website-icon {\n  width: var(--icon-width);\n  height: var(--icon-width);\n  align-self: center;\n  border-radius: 3px;\n}\n.small-window-title-text-container {\n  margin-right: auto;\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n  padding: 0px 16px;\n}\n.small-window-title-text,\n.small-window-website-host {\n  min-width: 150px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.xtiper_sheet_tit.xtiper_sheet_left {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n}\n.small-window-protocol-info {\n  display: flex;\n  align-items: center;\n}\n.small-window-control {\n  display: flex;\n  align-items: center;\n  align-content: center;\n  width: var(--right-btn-width);\n  justify-content: center;\n  gap: 12px;\n}\n.small-window-control-image-view,\n.small-window-control-open-blank,\n.small-window-control-close {\n  width: 2rem;\n  height: 2rem;\n  text-align: center;\n  margin: 0 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.refresh-icon {\n  width: 40px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0px 16px;\n}\n.refresh-icon-in,\n.refresh-icon-out {\n  position: absolute;\n  border: 5px solid rgba(0, 183, 229, 0.9);\n  opacity: 0.9;\n  border-radius: 50px;\n  box-shadow: 0 0 15px #2187e7;\n  width: 20px;\n  height: 20px;\n  margin: 0 auto;\n}\n.refresh-icon-out {\n  background-color: rgba(0, 0, 0, 0);\n  border-right: 5px solid transparent;\n  border-left: 5px solid transparent;\n  -moz-animation: spinPulse 1s infinite ease-in-out;\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\n  -o-animation: spinPulse 1s infinite ease-in-out;\n  -ms-animation: spinPulse 1s infinite ease-in-out;\n}\n.refresh-icon-in {\n  background: rgba(0, 0, 0, 0) no-repeat center center;\n  border-top: 5px solid transparent;\n  border-bottom: 5px solid transparent;\n  -moz-animation: spinoffPulse 3s infinite linear;\n  -webkit-animation: spinoffPulse 3s infinite linear;\n  -o-animation: spinoffPulse 3s infinite linear;\n  -ms-animation: spinoffPulse 3s infinite linear;\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n";
   class GestureBack {
     isBacking = false;
     config;
@@ -6939,6 +6934,8 @@
       }
     }
   }
+  const smallWindowCSS =
+    ".pops {\n  --icon-width: 24px;\n  --right-btn-width: 115px;\n}\n\n.small-window-drag {\n  width: 100%;\n  position: relative;\n  height: 10px;\n}\n.small-window-drag div {\n  width: 50px;\n  margin: 0 auto;\n  height: 4px;\n  background: #d9d9d9;\n  border-radius: 15px;\n  bottom: 3px;\n  position: relative;\n}\n\n.pops[type-value] .pops-drawer-title {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0px;\n  border-bottom: 1px solid #d6d6d6;\n}\n\n.small-window-title-container {\n  display: flex;\n  justify-content: space-between;\n  padding: 0px 16px;\n}\n.small-window-website-icon {\n  width: var(--icon-width);\n  height: var(--icon-width);\n  align-self: center;\n  border-radius: 3px;\n}\n.small-window-title-text-container {\n  margin-right: auto;\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n  padding: 0px 16px;\n}\n.small-window-title-text,\n.small-window-website-host {\n  min-width: 150px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.xtiper_sheet_tit.xtiper_sheet_left {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n}\n.small-window-protocol-info {\n  display: flex;\n  align-items: center;\n}\n.small-window-control {\n  display: flex;\n  align-items: center;\n  align-content: center;\n  width: var(--right-btn-width);\n  justify-content: center;\n  gap: 12px;\n}\n.small-window-control-image-view,\n.small-window-control-open-blank,\n.small-window-control-close {\n  width: 2rem;\n  height: 2rem;\n  text-align: center;\n  margin: 0 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.refresh-icon {\n  width: 40px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0px 16px;\n}\n.refresh-icon-in,\n.refresh-icon-out {\n  position: absolute;\n  border: 5px solid rgba(0, 183, 229, 0.9);\n  opacity: 0.9;\n  border-radius: 50px;\n  box-shadow: 0 0 15px #2187e7;\n  width: 20px;\n  height: 20px;\n  margin: 0 auto;\n}\n.refresh-icon-out {\n  background-color: rgba(0, 0, 0, 0);\n  border-right: 5px solid transparent;\n  border-left: 5px solid transparent;\n  -moz-animation: spinPulse 1s infinite ease-in-out;\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\n  -o-animation: spinPulse 1s infinite ease-in-out;\n  -ms-animation: spinPulse 1s infinite ease-in-out;\n}\n.refresh-icon-in {\n  background: rgba(0, 0, 0, 0) no-repeat center center;\n  border-top: 5px solid transparent;\n  border-bottom: 5px solid transparent;\n  -moz-animation: spinoffPulse 3s infinite linear;\n  -webkit-animation: spinoffPulse 3s infinite linear;\n  -o-animation: spinoffPulse 3s infinite linear;\n  -ms-animation: spinoffPulse 3s infinite linear;\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n";
   const MTSmallWindowIcon = {
     https: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="margin: 0px 6px 0px 2px;">
@@ -7087,7 +7084,7 @@
       this.$el.$webSiteIcon = $webSiteIcon;
       let $iframe = $drawer.$shadowRoot.querySelector("iframe");
       let $drag = $drawer.$shadowRoot.querySelector(".small-window-drag");
-      let AnyTouch2 = __pops__.config.Utils.AnyTouch();
+      let AnyTouch2 = __pops__.fn.Utils.AnyTouch();
       let dragNode = new AnyTouch2($drag);
       let smallWidowNode = $drawer.$pops;
       let smallWidowNormalHeight = domUtils.height(smallWidowNode);
@@ -7131,9 +7128,7 @@
           inline: false,
           url: "data-src",
           zIndex: (() => {
-            let maxZIndex = utils.getMaxZIndex();
-            let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+            return getPageMaxZIndex();
           })(),
           hidden: () => {
             viewer.destroy();
@@ -8374,7 +8369,7 @@
       };
     },
     showView() {
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8784,7 +8779,7 @@
           },
         };
       }
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       let view = new RuleEditView({
         title: "评论过滤器",
         data: () => {
@@ -9053,7 +9048,7 @@
       };
     },
     showView() {
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -9251,7 +9246,7 @@
       });
     },
     showView() {
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {

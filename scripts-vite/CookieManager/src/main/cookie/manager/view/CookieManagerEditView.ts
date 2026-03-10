@@ -238,7 +238,7 @@ export const CookieManagerEditView = {
     });
     const $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-content")!;
 
-    const panelHandlerComponents = pops.config.PanelHandlerComponents();
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
     const $name = panelHandlerComponents.createSectionContainerItem_input(
       edit_ui_input(
         "name",

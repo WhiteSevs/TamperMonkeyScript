@@ -73,7 +73,7 @@ export const CookieRule = {
    * 显示视图
    */
   showView() {
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
+    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
     /**
      * 自定义存储api的配置
      * @param uuid

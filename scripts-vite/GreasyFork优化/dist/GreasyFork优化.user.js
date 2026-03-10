@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.3.1
+// @version            2026.3.10
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,9 +13,9 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.3/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@3.3.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.9/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.7.3/i18next.min.js
@@ -363,14 +363,14 @@
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -395,7 +395,7 @@
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -403,6 +403,14 @@
     autoClearConsole: true,
     tag: true,
   });
+  const getPageMaxZIndex = () => {
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = Utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
+  };
   Qmsg.config({
     isHTML: true,
     autoClose: true,
@@ -441,23 +449,12 @@
       );
     },
     get zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
     mask: {
       enable: true,
@@ -1820,7 +1817,7 @@
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
@@ -4302,7 +4299,7 @@
         this.#data.currentWaitEnterPressInstanceHandler = null;
         this.#data.currentWaitEnterPressInstanceHandler = () => {
           this.#flag.isWaitPress = false;
-          keyboardListener.removeListen();
+          keyboardListener.off();
           this.#data.currentWaitEnterPressInstanceHandler = null;
         };
       });
@@ -5205,8 +5202,8 @@
               }
               compareLeftText = compareLeftResponse.data.responseText;
               compareRightText = compareRightResponse.data.responseText;
-              let { recovery } = CommonUtil.lockScroll();
-              let $alert = __pops__.alert({
+              const { recovery } = CommonUtil.lockScroll();
+              const $alert = __pops__.alert({
                 title: {
                   text: i18next.t("代码对比"),
                   html: false,
@@ -5232,16 +5229,11 @@
                     enable: false,
                   },
                   close: {
-                    callback(details, event2) {
+                    callback(details) {
                       details.close();
                       recovery();
                     },
                   },
-                },
-                zIndex() {
-                  let maxZIndex = utils.getMaxZIndex();
-                  let popsMaxZIndex = __pops__.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-                  return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
                 },
                 useShadowRoot: false,
                 width: "90vw",
@@ -5265,8 +5257,8 @@
 						`,
               });
               $alert.$shadowRoot.querySelector(".monaco-editor-diff-container");
-              let $monacoEditor = $alert.$shadowRoot.querySelector(".monaco-editor-diff");
-              let monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
+              const $monacoEditor = $alert.$shadowRoot.querySelector(".monaco-editor-diff");
+              const monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
                 hideUnchangedRegions: {
                   enabled: true,
                 },
@@ -6418,7 +6410,7 @@
       });
     },
     addFilterControlsItem($search, $filterControlsContainer) {
-      let panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       let controlsConfig = [
         {
           name: i18next.t("名称"),

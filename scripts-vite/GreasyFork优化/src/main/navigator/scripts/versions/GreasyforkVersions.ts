@@ -164,8 +164,8 @@ export const GreasyforkVersions = {
             }
             compareLeftText = compareLeftResponse.data.responseText;
             compareRightText = compareRightResponse.data.responseText;
-            let { recovery } = CommonUtil.lockScroll();
-            let $alert = pops.alert({
+            const { recovery } = CommonUtil.lockScroll();
+            const $alert = pops.alert({
               title: {
                 text: i18next.t("代码对比"),
                 html: false,
@@ -191,16 +191,11 @@ export const GreasyforkVersions = {
                   enable: false,
                 },
                 close: {
-                  callback(details, event) {
+                  callback(details) {
                     details.close();
                     recovery();
                   },
                 },
-              },
-              zIndex() {
-                let maxZIndex = utils.getMaxZIndex();
-                let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-                return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
               },
               useShadowRoot: false,
               width: "90vw",
@@ -223,11 +218,11 @@ export const GreasyforkVersions = {
 							}
 						`,
             });
-            let $monacoEditorContainer = $alert.$shadowRoot.querySelector<HTMLElement>(
+            const $monacoEditorContainer = $alert.$shadowRoot.querySelector<HTMLElement>(
               ".monaco-editor-diff-container"
             )!;
-            let $monacoEditor = $alert.$shadowRoot.querySelector<HTMLElement>(".monaco-editor-diff")!;
-            let monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
+            const $monacoEditor = $alert.$shadowRoot.querySelector<HTMLElement>(".monaco-editor-diff")!;
+            const monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
               hideUnchangedRegions: {
                 enabled: true,
               },

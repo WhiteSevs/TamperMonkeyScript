@@ -483,7 +483,7 @@ export const CookieManagerView = {
       });
     });
     // 监听回车事件
-    DOMUtils.onKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
+    DOMUtils.onKeyboard($search, "keyup", (keyName, keyValue, otherCodeList) => {
       if (keyName === "Enter" && otherCodeList.length === 0) {
         emitUpdateCookieListGroupWithSearchFilter();
       }
@@ -531,7 +531,7 @@ export const CookieManagerView = {
         `,
       });
       const $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
-      const panelHandlerComponents = pops.config.PanelHandlerComponents();
+      const panelHandlerComponents = pops.fn.PanelHandlerComponents();
       const $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
         UISwitch("启用正则表达式", "search-config-use-regexp", false, void 0, "使用正则表达式搜索Cookie名称", () => {
           emitUpdateCookieListGroupWithSearchFilter();
@@ -624,7 +624,7 @@ export const CookieManagerView = {
         }`,
       });
       const $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
-      const panelHandlerComponents = pops.config.PanelHandlerComponents();
+      const panelHandlerComponents = pops.fn.PanelHandlerComponents();
       const $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
         UISelect<CookieManagerApiName>(
           "CookieManager Api",

@@ -41,30 +41,30 @@
     "script",
     {
       innerHTML: `
-                import { Editor } from 'https://fastly.jsdelivr.net/npm/@tiptap/core@2.2.0/+esm'
-                import StarterKit from 'https://fastly.jsdelivr.net/npm/@tiptap/starter-kit@2.2.0/+esm'
-                import Placeholder from 'https://fastly.jsdelivr.net/npm/@tiptap/extension-placeholder@2.2.0/+esm'
-                import Image from "https://fastly.jsdelivr.net/npm/@tiptap/extension-image@2.2.0/+esm";
-                const editor = new Editor({
-                element: document.querySelector('#reply-editor'),
-                extensions: [
-                    StarterKit,
-                    Placeholder.configure({
-                        placeholder: "发帖千百度 文明第一步",
-                    }),
-                    Image.configure({
-                        allowBase64: true,
-                        HTMLAttributes: {
-                            class: "tiptap-input-image",
-                        },
-                        inline: true,
-                    }),
-                ],
-                content: '',
-                });
-                window.tiptapEditor = editor;
-				window.dispatchEvent(new Event("tiptap-ready"));
-                `,
+                                import { Editor } from 'https://fastly.jsdelivr.net/npm/@tiptap/core@2.2.0/+esm'
+                                import StarterKit from 'https://fastly.jsdelivr.net/npm/@tiptap/starter-kit@2.2.0/+esm'
+                                import Placeholder from 'https://fastly.jsdelivr.net/npm/@tiptap/extension-placeholder@2.2.0/+esm'
+                                import Image from "https://fastly.jsdelivr.net/npm/@tiptap/extension-image@2.2.0/+esm";
+                                const editor = new Editor({
+                                element: document.querySelector('#reply-editor'),
+                                extensions: [
+                                    StarterKit,
+                                    Placeholder.configure({
+                                        placeholder: "发帖千百度 文明第一步",
+                                    }),
+                                    Image.configure({
+                                        allowBase64: true,
+                                        HTMLAttributes: {
+                                            class: "tiptap-input-image",
+                                        },
+                                        inline: true,
+                                    }),
+                                ],
+                                content: '',
+                                });
+                                window.tiptapEditor = editor;
+                				window.dispatchEvent(new Event("tiptap-ready"));
+                                `,
     },
     {
       type: "module",

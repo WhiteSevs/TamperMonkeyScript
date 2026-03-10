@@ -15,9 +15,7 @@
   let isFirstLoad = ref(false);
   let isLoading = ref(false);
   let hasMore = ref(true);
-  let postList = ref<Required<Exclude<Awaited<ReturnType<typeof TiebaSmallAppApi.atme>>, undefined>>["at_list"][0][]>(
-    []
-  );
+  let postList = ref<Required<Exclude<Awaited<ReturnType<typeof TiebaSmallAppApi.atme>>, undefined>>["at_list"][0][]>([]);
 
   let observe = new IntersectionObserver(
     (entries) => {

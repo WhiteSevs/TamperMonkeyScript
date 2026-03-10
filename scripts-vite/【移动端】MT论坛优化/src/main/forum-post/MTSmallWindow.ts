@@ -1,10 +1,11 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import { ElementUtils } from "@/utils/ElementUtils";
-import smallWindowCSS from "./css/small-window.css?raw";
+import { getPageMaxZIndex } from "@components/env.base";
+import { GestureBack } from "@components/utils/GestureBack";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
-import { GestureBack } from "@components/utils/GestureBack";
 import { unsafeWindow } from "ViteGM";
+import smallWindowCSS from "./css/small-window.css?raw";
 
 const MTSmallWindowIcon = {
   /** 锁图标 */
@@ -175,7 +176,7 @@ export const MTSmallWindow = {
     let $iframe = $drawer.$shadowRoot.querySelector<HTMLIFrameElement>("iframe")!;
 
     let $drag = $drawer.$shadowRoot.querySelector<HTMLElement>(".small-window-drag")!;
-    let AnyTouch = pops.config.Utils.AnyTouch();
+    let AnyTouch = pops.fn.Utils.AnyTouch();
     let dragNode = new AnyTouch($drag);
     let smallWidowNode = $drawer.$pops;
     /* 小窗原始高度 */
@@ -225,9 +226,7 @@ export const MTSmallWindow = {
         inline: false,
         url: "data-src",
         zIndex: (() => {
-          let maxZIndex = utils.getMaxZIndex();
-          let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-          return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          return getPageMaxZIndex();
         })(),
         hidden: () => {
           viewer.destroy();

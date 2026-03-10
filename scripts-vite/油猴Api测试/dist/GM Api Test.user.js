@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.1
+// @version      2026.3.10
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -897,42 +897,7 @@
     }
   }
   const qmsg = new Qmsg();
-  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
-  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
-  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
-  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
-  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
-  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
-  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
-  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
-  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const version$2 = "1.9.5";
+  const version$2 = "1.9.11";
   let WindowApi$1 = class WindowApi {
     defaultApi = {
       document,
@@ -1343,7 +1308,6 @@
           "is",
           "jquery",
           "keydown",
-          "keypress",
           "keyup",
           "last",
           "load",
@@ -1396,10 +1360,7 @@
           "slideDown",
           "slideToggle",
           "slideUp",
-          "sort",
-          "splice",
           "text",
-          "toArray",
           "toggle",
           "toggleClass",
           "trigger",
@@ -1986,7 +1947,7 @@
       return CommonUtils.getTransitionEndNameList();
     }
     on(element, eventType, selector, callback, option) {
-      function getOption(args2, startIndex, option2) {
+      const getOption = function (args2, startIndex, option2) {
         const currentParam = args2[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
@@ -2009,7 +1970,7 @@
           option2.isComposedPath = currentParam.isComposedPath;
         }
         return option2;
-      }
+      };
       const that = this;
       const args = arguments;
       if (typeof element === "string") {
@@ -2052,51 +2013,72 @@
       } else {
         listenerOption = getOption(args, 4, listenerOption);
       }
-      const checkOptionOnceToRemoveEventListener = () => {
-        if (listenerOption.once) {
-          that.off(element, eventType, selector, callback, option);
-        }
-      };
-      $elList.forEach((elementItem) => {
-        const handlerCallBack = function (event) {
-          if (selectorList.length) {
-            let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
-            let totalParent = elementItem;
-            if (CommonUtils.isWin(totalParent)) {
-              if (totalParent === that.windowApi.document) {
-                totalParent = that.windowApi.document.documentElement;
-              }
-            }
-            const findValue = selectorList.find((selectorItem) => {
-              if (that.matches(eventTarget, selectorItem)) {
-                return true;
-              }
-              const $closestMatches = that.closest(eventTarget, selectorItem);
-              if ($closestMatches && totalParent?.contains?.($closestMatches)) {
-                eventTarget = $closestMatches;
-                return true;
-              }
-              return false;
-            });
-            if (findValue) {
-              try {
-                OriginPrototype$1.Object.defineProperty(event, "target", {
-                  get() {
-                    return eventTarget;
-                  },
-                });
-              } catch {}
-              listenerCallBack.call(eventTarget, event, eventTarget);
-              checkOptionOnceToRemoveEventListener();
-            }
-          } else {
-            listenerCallBack.call(elementItem, event);
-            checkOptionOnceToRemoveEventListener();
-          }
-        };
+      $elList.forEach(($elItem) => {
         eventTypeList.forEach((eventName) => {
-          elementItem.addEventListener(eventName, handlerCallBack, listenerOption);
-          const elementEvents = Reflect.get(elementItem, GlobalData.domEventSymbol) || {};
+          const checkOptionOnceToRemoveEventListener = () => {
+            if (listenerOption.once) {
+              this.off($elItem, eventName, selector, callback, option);
+            }
+          };
+          const handlerCallBack = function (event) {
+            let call_this = void 0;
+            let call_event = void 0;
+            let call_$selector = void 0;
+            let execCallback = false;
+            if (selectorList.length) {
+              let $target;
+              if (listenerOption.isComposedPath) {
+                const composedPath = event.composedPath();
+                if (!composedPath.length && event.target) {
+                  composedPath.push(event.target);
+                }
+                $target = composedPath[0];
+              } else {
+                $target = event.target;
+              }
+              let $parent = $elItem;
+              if (CommonUtils.isWin($parent)) {
+                $parent = that.windowApi.document.documentElement;
+              }
+              const findValue = selectorList.find((selectors) => {
+                if (that.matches($target, selectors)) {
+                  return true;
+                }
+                const $closestMatches = that.closest($target, selectors);
+                if ($closestMatches && $parent?.contains?.($closestMatches)) {
+                  $target = $closestMatches;
+                  return true;
+                }
+                return false;
+              });
+              if (findValue) {
+                try {
+                  OriginPrototype$1.Object.defineProperty(event, "target", {
+                    get() {
+                      return $target;
+                    },
+                  });
+                } catch {}
+                execCallback = true;
+                call_this = $target;
+                call_event = event;
+                call_$selector = $target;
+              }
+            } else {
+              execCallback = true;
+              call_this = $elItem;
+              call_event = event;
+            }
+            if (execCallback) {
+              const result = listenerCallBack.call(call_this, call_event, call_$selector);
+              checkOptionOnceToRemoveEventListener();
+              if (typeof result === "boolean" && !result) {
+                return false;
+              }
+            }
+          };
+          $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
+          const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -2104,7 +2086,7 @@
             handlerCallBack,
             callback: listenerCallBack,
           });
-          Reflect.set(elementItem, GlobalData.domEventSymbol, elementEvents);
+          Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
         });
       });
       return {
@@ -2117,7 +2099,7 @@
       };
     }
     off(element, eventType, selector, callback, option, filter) {
-      function getOption(args1, startIndex, option2) {
+      const getOption = function (args1, startIndex, option2) {
         const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
@@ -2125,7 +2107,7 @@
           option2.capture = currentParam.capture;
         }
         return option2;
-      }
+      };
       const that = this;
       const args = arguments;
       if (typeof element === "string") {
@@ -2163,12 +2145,6 @@
       } else {
         listenerOption = getOption(args, 4, listenerOption);
       }
-      let isRemoveAll = false;
-      if (args.length === 2) {
-        isRemoveAll = true;
-      } else if ((args.length === 3 && typeof args[2] === "string") || Array.isArray(args[2])) {
-        isRemoveAll = true;
-      }
       if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
         filter = option;
       }
@@ -2176,9 +2152,9 @@
         const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
         eventTypeList.forEach((eventName) => {
           const handlers = elementEvents[eventName] || [];
-          const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
-          for (let index = 0; index < filterHandler.length; index++) {
-            const handler = filterHandler[index];
+          const handlersFiltered = typeof filter === "function" ? handlers.filter(filter) : handlers;
+          for (let index = 0; index < handlersFiltered.length; index++) {
+            const handler = handlersFiltered[index];
             let flag = true;
             if (flag && listenerCallBack && handler.callback !== listenerCallBack) {
               flag = false;
@@ -2195,11 +2171,12 @@
             ) {
               flag = false;
             }
-            if (flag || isRemoveAll) {
+            if (flag) {
               $elItem.removeEventListener(eventName, handler.handlerCallBack, handler.option);
-              const findIndex = handlers.findIndex((item) => item === handler);
-              if (findIndex !== -1) {
-                handlers.splice(findIndex, 1);
+              for (let i2 = handlers.length - 1; i2 >= 0; i2--) {
+                if (handlers[i2] === handler) {
+                  handlers.splice(i2, 1);
+                }
               }
             }
           }
@@ -2344,28 +2321,28 @@
       } else {
         $elList.push(element);
       }
+      const addExtraProp = (event, obj) => {
+        if (event instanceof Event && typeof obj === "object" && obj != null && !Array.isArray(obj)) {
+          const detailKeys = Object.keys(obj);
+          detailKeys.forEach((keyName) => {
+            const value = Reflect.get(obj, keyName);
+            Reflect.set(event, keyName, value);
+          });
+        }
+      };
       let eventTypeList = [];
+      let __event__ = null;
       if (Array.isArray(eventType)) {
         eventTypeList = eventType.filter((it) => typeof it === "string" && it.trim() !== "");
       } else if (typeof eventType === "string") {
         eventTypeList = eventType.split(" ");
+      } else if (eventType instanceof Event) {
+        __event__ = eventType;
+        addExtraProp(__event__, extraDetails);
       }
       $elList.forEach(($elItem) => {
         const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
-        eventTypeList.forEach((eventTypeItem) => {
-          let event = null;
-          if (extraDetails && extraDetails instanceof Event) {
-            event = extraDetails;
-          } else {
-            event = new Event(eventTypeItem);
-            if (typeof extraDetails === "object" && extraDetails != null) {
-              const detailKeys = Object.keys(extraDetails);
-              detailKeys.forEach((keyName) => {
-                const value = Reflect.get(extraDetails, keyName);
-                Reflect.set(event, keyName, value);
-              });
-            }
-          }
+        const dispatchEvent = (event, eventTypeItem) => {
           if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
             elementEvents[eventTypeItem].forEach((eventsItem) => {
               eventsItem.handlerCallBack(event);
@@ -2373,7 +2350,18 @@
           } else {
             $elItem.dispatchEvent(event);
           }
-        });
+        };
+        if (__event__) {
+          const event = __event__;
+          const eventTypeItem = event.type;
+          dispatchEvent(event, eventTypeItem);
+        } else {
+          eventTypeList.forEach((eventTypeItem) => {
+            const event = new Event(eventTypeItem);
+            addExtraProp(event, extraDetails);
+            dispatchEvent(event, eventTypeItem);
+          });
+        }
       });
     }
     click(element, handler, details, useDispatchToEmit) {
@@ -2393,7 +2381,8 @@
       if (handler == null) {
         that.emit(element, "click", details, useDispatchToEmit);
       } else {
-        that.on(element, "click", null, handler);
+        const listener = that.on(element, "click", null, handler);
+        return listener;
       }
     }
     blur(element, handler, details, useDispatchToEmit) {
@@ -2413,7 +2402,8 @@
       if (handler === null) {
         that.emit(element, "blur", details, useDispatchToEmit);
       } else {
-        that.on(element, "blur", null, handler);
+        const listener = that.on(element, "blur", null, handler);
+        return listener;
       }
     }
     focus(element, handler, details, useDispatchToEmit) {
@@ -2433,7 +2423,8 @@
       if (handler == null) {
         that.emit(element, "focus", details, useDispatchToEmit);
       } else {
-        that.on(element, "focus", null, handler);
+        const listener = that.on(element, "focus", null, handler);
+        return listener;
       }
     }
     onHover(element, handler, option) {
@@ -2445,13 +2436,30 @@
         return;
       }
       if (CommonUtils.isNodeList(element)) {
+        const listenerList = [];
         element.forEach(($ele) => {
-          that.onHover($ele, handler, option);
+          const listener = that.onHover($ele, handler, option);
+          listenerList.push(listener);
         });
-        return;
+        return {
+          off() {
+            listenerList.forEach((listener) => {
+              if (!listener) {
+                return;
+              }
+              listener.off();
+            });
+          },
+        };
       }
-      that.on(element, "mouseenter", null, handler, option);
-      that.on(element, "mouseleave", null, handler, option);
+      const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
+      const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
+      return {
+        off() {
+          mouseenter_listener.off();
+          mouseleave_listener.off();
+        },
+      };
     }
     onAnimationend(element, handler, option) {
       const that = this;
@@ -2506,12 +2514,23 @@
         element = that.selectorAll(element);
       }
       if (CommonUtils.isNodeList(element)) {
+        const listenerList = [];
         element.forEach(($ele) => {
-          that.onKeyup($ele, handler, option);
+          const listener = that.onKeyup($ele, handler, option);
+          listenerList.push(listener);
         });
-        return;
+        return {
+          off() {
+            listenerList.forEach((listener) => {
+              if (!listener) {
+                return;
+              }
+              listener.off();
+            });
+          },
+        };
       }
-      that.on(element, "keyup", null, handler, option);
+      return that.on(element, "keyup", null, handler, option);
     }
     onKeydown(element, handler, option) {
       const that = this;
@@ -2522,30 +2541,25 @@
         element = that.selectorAll(element);
       }
       if (CommonUtils.isNodeList(element)) {
+        const listenerList = [];
         element.forEach(($ele) => {
-          that.onKeydown($ele, handler, option);
+          const listener = that.onKeydown($ele, handler, option);
+          listenerList.push(listener);
         });
-        return;
+        return {
+          off() {
+            listenerList.forEach((listener) => {
+              if (!listener) {
+                return;
+              }
+              listener.off();
+            });
+          },
+        };
       }
-      that.on(element, "keydown", null, handler, option);
+      return that.on(element, "keydown", null, handler, option);
     }
-    onKeypress(element, handler, option) {
-      const that = this;
-      if (element == null) {
-        return;
-      }
-      if (typeof element === "string") {
-        element = that.selectorAll(element);
-      }
-      if (CommonUtils.isNodeList(element)) {
-        element.forEach(($ele) => {
-          that.onKeypress($ele, handler, option);
-        });
-        return;
-      }
-      that.on(element, "keypress", null, handler, option);
-    }
-    onKeyboard(element, eventName = "keypress", handler, options) {
+    onKeyboard(element, eventName = "keydown", handler, options) {
       const that = this;
       if (typeof element === "string") {
         element = that.selectorAll(element);
@@ -2570,12 +2584,8 @@
           handler(keyName, keyValue, otherCodeList, event);
         }
       };
-      that.on(element, eventName, keyboardEventCallBack, options);
-      return {
-        removeListen: () => {
-          that.off(element, eventName, keyboardEventCallBack, options);
-        },
-      };
+      const listener = that.on(element, eventName, keyboardEventCallBack, options);
+      return listener;
     }
     onInput($el, handler, option) {
       let isComposite = false;
@@ -2596,10 +2606,13 @@
       const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
       const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
       return {
-        off: () => {
+        off() {
           inputListener.off();
           compositionStartListener.off();
           compositionEndListener.off();
+        },
+        emit(details, useDispatchToEmit) {
+          inputListener.emit(details, useDispatchToEmit);
         },
       };
     }
@@ -2682,22 +2695,53 @@
       };
     }
     preventEvent(...args) {
-      const stopEvent = (event) => {
-        event?.preventDefault();
+      const stopEvent = (event, onlyStopPropagation) => {
         event?.stopPropagation();
         event?.stopImmediatePropagation();
+        if (typeof onlyStopPropagation === "boolean" && onlyStopPropagation) {
+          return;
+        }
+        event?.preventDefault();
         return false;
       };
-      if (args.length === 1) {
-        return stopEvent(args[0]);
+      if (args[0] instanceof Event) {
+        const onlyStopPropagation = args[1];
+        return stopEvent(args[0], onlyStopPropagation);
       } else {
         const $el = args[0];
         let eventNameList = args[1];
-        const capture = args[2];
+        let selector = void 0;
+        let capture = false;
+        let onlyStopPropagation = false;
         if (typeof eventNameList === "string") {
           eventNameList = [eventNameList];
         }
-        this.on($el, eventNameList, stopEvent, { capture: Boolean(capture) });
+        let option = void 0;
+        if (args.length === 2);
+        else if (typeof args[2] === "string" || Array.isArray(args[2])) {
+          selector = args[2];
+          if (typeof args[3] === "object" && args[3] != null) {
+            option = args[3];
+          }
+        } else if (typeof args[2] === "object" && args[2] != null && !Array.isArray(args[2])) {
+          option = args[2];
+        } else {
+          throw new TypeError("Invalid argument");
+        }
+        if (option) {
+          capture = Boolean(option.capture);
+          onlyStopPropagation = Boolean(option.onlyStopPropagation);
+        }
+        const listener = this.on(
+          $el,
+          eventNameList,
+          selector,
+          (evt) => {
+            return stopEvent(evt, onlyStopPropagation);
+          },
+          { capture }
+        );
+        return listener;
       }
     }
   }
@@ -3887,6 +3931,7 @@
     }
   };
   const domUtils$2 = new DOMUtils$1();
+  const version$1 = "4.2.2";
   const GlobalConfig = {
     config: {},
     setGlobalConfig(config) {
@@ -3904,17 +3949,20 @@
             result.style = style;
           }
         } else if (keyName === "zIndex") {
-          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
-          if (typeof zIndex === "string") {
-            const newIndex = (zIndex = Number(zIndex));
-            if (!isNaN(newIndex)) {
-              result.zIndex = newIndex;
+          result.zIndex = () => {
+            let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+            if (typeof zIndex === "string") {
+              const newIndex = (zIndex = Number(zIndex));
+              if (!Number.isNaN(newIndex)) {
+                return newIndex;
+              }
+            } else {
+              if (!Number.isNaN(zIndex)) {
+                return zIndex;
+              }
             }
-          } else {
-            if (!isNaN(zIndex)) {
-              result.zIndex = zIndex;
-            }
-          }
+            return 0;
+          };
         } else if (keyName === "mask") {
           const mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
           if (typeof mask === "object" && mask != null) {
@@ -3927,6 +3975,64 @@
       return result;
     },
   };
+  class EventEmiter {
+    [Symbol.toStringTag] = "EventEmiter";
+    type;
+    data = new Map();
+    constructor(type) {
+      this.type = type;
+    }
+    on(eventName, callback) {
+      const eventList = this.data.get(eventName) ?? [];
+      eventList.push({ type: this.type, time: Date.now(), callback });
+      this.data.set(eventName, eventList);
+      return {
+        off: () => {
+          this.off(eventName, callback);
+        },
+        emit: (...args) => {
+          this.emit(eventName, ...args);
+        },
+      };
+    }
+    off(eventName, callback) {
+      const eventList = this.data.get(eventName) ?? [];
+      let isOffSuccess = false;
+      for (let index = eventList.length - 1; index >= 0; index--) {
+        if (eventList[index].callback === callback) {
+          isOffSuccess = true;
+          eventList.splice(index, 1);
+        }
+      }
+      if (eventList.length === 0) {
+        this.data.delete(eventName);
+      } else {
+        if (isOffSuccess) {
+          this.data.set(eventName, eventList);
+        }
+      }
+    }
+    async emit(eventName, ...args) {
+      const eventList = this.data.get(eventName) ?? [];
+      for (const item of eventList) {
+        await item.callback(...args);
+      }
+    }
+    offAll(eventName) {
+      if (typeof eventName === "string") {
+        this.data.delete(eventName);
+      } else {
+        this.data.clear();
+      }
+    }
+    getAllEvents(eventName) {
+      if (typeof eventName === "string") {
+        return this.data.get(eventName);
+      } else {
+        return Array.from(this.data.values());
+      }
+    }
+  }
   var SVG_min =
     '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-type="min">\r\n  <path fill="currentColor" d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>\r\n</svg>\r\n';
   var SVG_mise =
@@ -4028,7 +4134,20 @@
       Reflect.set(PopsIcon.$data, iconName, iconHTML);
     },
   };
-  const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1));
+  const PopsCommonCSSClassName = {
+    flexCenter: "pops-flex-items-center",
+    flexYCenter: "pops-flex-y-center",
+    flexXCenter: "pops-flex-x-center",
+    hide: "pops-hide",
+    hideImportant: "pops-hide-important",
+    noBorder: "pops-no-border",
+    noBorderImportant: "pops-no-border-important",
+    userSelectNone: "pops-user-select-none",
+    lineHeightCenter: "pops-line-height-center",
+    widthFill: "pops-width-fill",
+    textIsDisabled: "pops-text-is-disabled",
+    textIsDisabledImportant: "pops-text-is-disabled-important",
+  };
   const OriginPrototype = {
     Object: {
       defineProperty: Object.defineProperty,
@@ -4077,50 +4196,24 @@
       return PopsCoreApi.clearInterval;
     },
   };
-  let t$1 = class t {
-    constructor() {
-      this.__map = {};
-    }
-    beforeEach(t3) {
-      this.__interceptor = t3;
-    }
-    on(t3, i2) {
-      const s2 = Array.isArray(t3) ? t3 : [t3];
-      for (const t4 of s2) {
-        this.__map[t4] = this.__map[t4] || [];
-        const s3 = this.__map[t4];
-        s3 && s3.push(i2);
+  const PopsSafeUtils = {
+    getSafeHTML(text) {
+      if (window.trustedTypes) {
+        const policy = window.trustedTypes.createPolicy("safe-innerHTML", {
+          createHTML: (html) => html,
+        });
+        return policy.createHTML(text);
+      } else {
+        return text;
       }
-      return this;
-    }
-    emit(t3, i2, s2) {
-      void 0 !== this.__interceptor
-        ? this.__interceptor(t3, () => {
-            (this.__emit(t3, i2), s2 && s2());
-          })
-        : (this.__emit(t3, i2), s2 && s2());
-    }
-    __emit(t3, i2) {
-      const s2 = this.__map[t3];
-      if (Array.isArray(s2) && (null == s2 ? void 0 : s2.length)) for (const _ of s2) _(i2, t3);
-      this.event = i2;
-    }
-    off(t3, i2) {
-      const s2 = this.__map[t3];
-      if (void 0 !== s2)
-        if (void 0 === i2) delete this.__map[t3];
-        else {
-          const t4 = s2.findIndex((t5) => t5 === i2);
-          s2.splice(t4, 1);
-        }
-    }
-    destroy() {
-      this.__map = {};
-    }
+    },
+    setSafeHTML($el, text) {
+      $el.innerHTML = this.getSafeHTML(text);
+    },
   };
   const n$1 = "clientX",
     e$2 = "clientY",
-    t2 = 16,
+    t$1 = 16,
     c$3 = "start",
     o$1 = "move",
     s$1 = "cancel",
@@ -4133,12 +4226,12 @@
   function v$1(n2) {
     return m$2[n2];
   }
-  function b(n2, e2, t3) {
+  function b(n2, e2, t2) {
     const c2 = {
       1: { 0: { move: 4 }, 4: { move: 5, end: 1, cancel: 3 }, 5: { move: 5, end: 1, cancel: 3 } },
       0: { 4: { move: 2, end: 1, cancel: 3 }, 5: { start: 2, move: 2, end: 1, cancel: 3 } },
     }[Number(n2)][e2];
-    return (void 0 !== c2 && c2[t3]) || 0;
+    return (void 0 !== c2 && c2[t2]) || 0;
   }
   function g$1(n2) {
     [1, 3, 2].includes(n2.state) && (n2.state = 0);
@@ -4155,34 +4248,271 @@
   function p$3(n2) {
     return Math.round(100 * n2) / 100;
   }
-  function r$3() {
-    let t3,
+  var x = (r2) => Math.sqrt(r2.x * r2.x + r2.y * r2.y),
+    y = (r2, a2) => r2.x * a2.x + r2.y * a2.y,
+    e$1 = (r2, a2) => {
+      var t2 = x(r2) * x(a2);
+      if (0 === t2) return 0;
+      var h2 = y(r2, a2) / t2;
+      return (h2 > 1 && (h2 = 1), Math.acos(h2));
+    },
+    n = (r2, a2) => r2.x * a2.y - a2.x * r2.y,
+    o = (r2) => (r2 / Math.PI) * 180,
+    s = (r2, a2) => {
+      var t2 = e$1(r2, a2);
+      return (n(r2, a2) > 0 && (t2 *= -1), o(t2));
+    },
+    u$2 = (x2, y2) => {
+      if (0 !== x2 || 0 !== y2) return Math.abs(x2) >= Math.abs(y2) ? (0 < x2 ? i$3 : a$2) : 0 < y2 ? d$1 : r$4;
+    };
+  function p$2() {
+    let n2 = 0,
+      e2 = 0;
+    return function (o2, r2) {
+      const { prevVecotr: i2, startVecotr: a2, activeVecotr: c2 } = r2;
+      return (c2 && ((e2 = Math.round(s(c2, i2))), (n2 = Math.round(s(c2, a2)))), { angle: n2, deltaAngle: e2 });
+    };
+  }
+  function d() {
+    return function (t2) {
+      const { prevInput: e2 } = t2;
+      let o$12 = 0,
+        r2 = 0,
+        i2 = 0;
+      if (void 0 !== e2 && ((o$12 = t2.x - e2.x), (r2 = t2.y - e2.y), 0 !== o$12 || 0 !== r2)) {
+        const t3 = Math.sqrt(Math.pow(o$12, 2) + Math.pow(r2, 2));
+        i2 = Math.round(o(Math.acos(Math.abs(o$12) / t3)));
+      }
+      return { deltaX: o$12, deltaY: r2, deltaXYAngle: i2 };
+    };
+  }
+  function h$2() {
+    let t2,
+      n2 = 0,
+      u2 = 0,
+      s2 = 0,
+      p2 = 0,
+      d2 = 0;
+    return function (h2) {
+      const { phase: l2, startInput: f2 } = h2;
+      return (
+        c$3 === l2
+          ? ((n2 = 0), (u2 = 0), (s2 = 0), (p2 = 0), (d2 = 0))
+          : o$1 === l2 &&
+            ((n2 = Math.round(h2.points[0][n$1] - f2.points[0][n$1])),
+            (u2 = Math.round(h2.points[0][e$2] - f2.points[0][e$2])),
+            (s2 = Math.abs(n2)),
+            (p2 = Math.abs(u2)),
+            (d2 = Math.round(x({ x: s2, y: p2 }))),
+            (t2 = u$2(n2, u2))),
+        { displacementX: n2, displacementY: u2, distanceX: s2, distanceY: p2, distance: d2, overallDirection: t2 }
+      );
+    };
+  }
+  function l$1() {
+    let t2 = 1;
+    return function (n2, o2) {
+      let r2 = 1;
+      const { prevVecotr: i2, startVecotr: a2, activeVecotr: c2 } = o2;
+      return (c2 && ((r2 = p$3(x(c2) / x(i2))), (t2 = p$3(x(c2) / x(a2)))), { scale: t2, deltaScale: r2 });
+    };
+  }
+  function f() {
+    let t2,
+      n2,
+      e2 = 0,
+      r2 = 0,
+      i2 = 0,
+      a2 = 0;
+    return function (c2) {
+      if (void 0 !== c2) {
+        n2 = n2 || c2.startInput;
+        const u2 = c2.timestamp - n2.timestamp;
+        if (t$1 < u2) {
+          const s2 = c2.x - n2.x,
+            p2 = c2.y - n2.y;
+          ((i2 = Math.round((s2 / u2) * 100) / 100),
+            (a2 = Math.round((p2 / u2) * 100) / 100),
+            (e2 = Math.abs(i2)),
+            (r2 = Math.abs(a2)),
+            (t2 = u$2(s2, p2)),
+            (n2 = c2));
+        }
+      }
+      return { velocityX: e2, velocityY: r2, speedX: i2, speedY: a2, direction: t2 };
+    };
+  }
+  function M() {
+    let t2 = 0;
+    return function (n2) {
+      const { phase: e2 } = n2;
+      return (c$3 === e2 && (t2 = n2.pointLength), { maxPointLength: t2 });
+    };
+  }
+  function v(t2) {
+    return { x: t2.points[1][n$1] - t2.points[0][n$1], y: t2.points[1][e$2] - t2.points[0][e$2] };
+  }
+  function m$1() {
+    let t2, n2, e2;
+    return function (o2) {
+      const { prevInput: r2, startMultiInput: i2 } = o2;
+      return (
+        void 0 !== i2 && void 0 !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength
+          ? ((t2 = v(i2)), (n2 = v(r2)), (e2 = v(o2)))
+          : (e2 = void 0),
+        { startVecotr: t2, prevVecotr: n2, activeVecotr: e2 }
+      );
+    };
+  }
+  const m = {
+    name: "tap",
+    pointLength: 1,
+    tapTimes: 1,
+    waitNextTapTime: 300,
+    maxDistance: 2,
+    maxDistanceFromPrevTap: 9,
+    maxPressTime: 250,
+  };
+  function r$3(r2, s2) {
+    const c2 = O(m, s2);
+    let p2,
+      u2,
+      x$1,
+      T = 0;
+    function f2() {
+      ((T = 0), (p2 = void 0), (u2 = void 0));
+    }
+    return (
+      r2.compute([h$2, M], (t2) => {
+        if (j(c2)) return;
+        const { phase: i2, x: o2, y: m2 } = t2;
+        u$3 === i2 &&
+          ((c2.state = 0),
+          !(function () {
+            const { startInput: e2, pointLength: n2, timestamp: a2 } = t2,
+              i3 = a2 - e2.timestamp,
+              { distance: o3, maxPointLength: m3 } = t2;
+            return m3 === c2.pointLength && 0 === n2 && c2.maxDistance >= o3 && c2.maxPressTime > i3;
+          })()
+            ? (f2(), (c2.state = 2))
+            : (clearTimeout(x$1),
+              (function (t3, e2) {
+                if (void 0 !== p2) {
+                  const n2 = x({ x: t3.x - p2.x, y: t3.y - p2.y });
+                  return ((p2 = t3), e2.maxDistanceFromPrevTap >= n2);
+                }
+                return ((p2 = t3), true);
+              })({ x: o2, y: m2 }, c2) &&
+              (function (t3) {
+                const e2 = performance.now();
+                if (void 0 === u2) return ((u2 = e2), true);
+                {
+                  const n2 = e2 - u2;
+                  return ((u2 = e2), n2 < t3);
+                }
+              })(c2.waitNextTapTime)
+                ? T++
+                : (T = 1),
+              0 == T % c2.tapTimes
+                ? ((c2.state = 1), r2.emit2(c2.name, t2, c2), f2())
+                : (x$1 = setTimeout(
+                    () => {
+                      ((c2.state = 2), f2());
+                    },
+                    c2.waitNextTapTime
+                  ))));
+      }),
+      c2
+    );
+  }
+  function e(e2) {
+    e2.use(r$3, { name: "doubletap", tapTimes: 2 });
+    const a2 = e2.get("doubletap");
+    let o2;
+    return (
+      e2.beforeEach((t2, e3) => {
+        "tap" === t2
+          ? (clearTimeout(o2),
+            (o2 = setTimeout(
+              () => {
+                [0, 2].includes(a2.state) && e3();
+              },
+              300
+            )))
+          : e3();
+      }),
+      a2
+    );
+  }
+  class t {
+    constructor() {
+      this.__map = {};
+    }
+    beforeEach(t2) {
+      this.__interceptor = t2;
+    }
+    on(t2, i2) {
+      const s2 = Array.isArray(t2) ? t2 : [t2];
+      for (const t3 of s2) {
+        this.__map[t3] = this.__map[t3] || [];
+        const s3 = this.__map[t3];
+        s3 && s3.push(i2);
+      }
+      return this;
+    }
+    emit(t2, i2, s2) {
+      void 0 !== this.__interceptor
+        ? this.__interceptor(t2, () => {
+            (this.__emit(t2, i2), s2 && s2());
+          })
+        : (this.__emit(t2, i2), s2 && s2());
+    }
+    __emit(t2, i2) {
+      const s2 = this.__map[t2];
+      if (Array.isArray(s2) && (null == s2 ? void 0 : s2.length)) for (const _ of s2) _(i2, t2);
+      this.event = i2;
+    }
+    off(t2, i2) {
+      const s2 = this.__map[t2];
+      if (void 0 !== s2)
+        if (void 0 === i2) delete this.__map[t2];
+        else {
+          const t3 = s2.findIndex((t4) => t4 === i2);
+          s2.splice(t3, 1);
+        }
+    }
+    destroy() {
+      this.__map = {};
+    }
+  }
+  function r$2() {
+    let t2,
       o2,
       i2,
       r2,
       a2 = 0;
     return function (u2) {
-      if (((t3 = o2), void 0 !== u2)) {
+      if (((t2 = o2), void 0 !== u2)) {
         a2 = Number.MAX_SAFE_INTEGER > a2 ? ++a2 : 1;
-        const h2 = (function (t4, o3) {
-          const { phase: i3, points: r3, changedPoints: a3, nativeEvent: u3 } = t4,
+        const h2 = (function (t3, o3) {
+          const { phase: i3, points: r3, changedPoints: a3, nativeEvent: u3 } = t3,
             h3 = r3.length,
             p3 = c$3 === i3,
             g3 = (u$3 === i3 && 0 === h3) || s$1 === i3,
-            l3 = Date.now(),
+            l2 = Date.now(),
             { x: d2, y: m2 } = c$2(r3) || c$2(a3),
             { currentTarget: v2 } = u3;
-          return Object.assign(t4, {
+          return Object.assign(t3, {
             id: o3,
             x: d2,
             y: m2,
-            timestamp: l3,
+            timestamp: l2,
             isStart: p3,
             isEnd: g3,
             pointLength: h3,
             currentTarget: v2,
-            getOffset(t5 = v2) {
-              const e2 = t5.getBoundingClientRect();
+            getOffset(t4 = v2) {
+              const e2 = t4.getBoundingClientRect();
               return { x: d2 - Math.round(e2.left), y: m2 - Math.round(e2.top) };
             },
           });
@@ -4190,77 +4520,77 @@
         o2 = h2;
         const { isStart: p2, pointLength: g2 } = h2;
         return (
-          p2 && ((i2 = h2), (t3 = void 0), (r2 = 1 < g2 ? h2 : void 0)),
-          Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 })
+          p2 && ((i2 = h2), (t2 = void 0), (r2 = 1 < g2 ? h2 : void 0)),
+          Object.assign(Object.assign({}, h2), { prevInput: t2, startMultiInput: r2, startInput: i2 })
         );
       }
     };
   }
-  function c$2(t3) {
-    const { length: e2 } = t3;
+  function c$2(t2) {
+    const { length: e2 } = t2;
     if (0 < e2) {
       if (1 === e2) {
-        const { clientX: e3, clientY: n3 } = t3[0];
+        const { clientX: e3, clientY: n3 } = t2[0];
         return { x: Math.round(e3), y: Math.round(n3) };
       }
-      const n2 = t3.reduce((t4, e3) => ((t4.x += e3[n$1]), (t4.y += e3[e$2]), t4), { x: 0, y: 0 });
+      const n2 = t2.reduce((t3, e3) => ((t3.x += e3[n$1]), (t3.y += e3[e$2]), t3), { x: 0, y: 0 });
       return { x: Math.round(n2.x / e2), y: Math.round(n2.y / e2) };
     }
   }
-  function a$1(t3, e2, n2, s2) {
+  function a$1(t2, e2, n2, s2) {
     const o2 = {};
-    for (const t4 in n2) ["target", "currentTarget", "type"].includes(t4) || (o2[t4] = n2[t4]);
+    for (const t3 in n2) ["target", "currentTarget", "type"].includes(t3) || (o2[t3] = n2[t3]);
     let i2;
     return (
       document.createEvent
         ? ((i2 = document.createEvent("HTMLEvents")),
-          i2.initEvent(t3, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable))
-        : (i2 = new Event(t3, s2)),
+          i2.initEvent(t2, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable))
+        : (i2 = new Event(t2, s2)),
       Object.assign(i2, o2, {
-        match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)),
+        match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t3) => i2.currentTarget.contains(t3)),
       }),
       e2.dispatchEvent(i2)
     );
   }
-  function u$2(t3, e2) {
+  function u$1(t2, e2) {
     const { preventDefault: n2 } = e2;
-    return ((s2 = n2), "[object Function]" === Object.prototype.toString.call(s2) ? n2(t3) : !!n2);
+    return ((s2 = n2), "[object Function]" === Object.prototype.toString.call(s2) ? n2(t2) : !!n2);
     var s2;
   }
-  const h$2 = ["touchstart", "touchmove", "touchend", "touchcancel", "mousedown"],
-    p$2 = ["mousemove", "mouseup"];
+  const h$1 = ["touchstart", "touchmove", "touchend", "touchcancel", "mousedown"],
+    p$1 = ["mousemove", "mouseup"];
   const g = {
     domEvents: { bubbles: true, cancelable: true },
-    preventDefault: (t3) => {
-      if (t3.target && "tagName" in t3.target) {
-        const { tagName: e2 } = t3.target;
+    preventDefault: (t2) => {
+      if (t2.target && "tagName" in t2.target) {
+        const { tagName: e2 } = t2.target;
         return !/^(?:INPUT|TEXTAREA|BUTTON|SELECT)$/.test(e2);
       }
       return false;
     },
   };
-  let l$1 = class l extends t$1 {
-    constructor(t3, e2) {
+  class l extends t {
+    constructor(t2, e2) {
       (super(),
         (this.v = "2.1.3"),
         (this.__computeFunctionList = []),
         (this.__computeFunctionCreatorList = []),
         (this.__pluginContexts = []),
         (this.__isIgnoreMouse = false),
-        (this.el = t3),
+        (this.el = t2),
         (this.c = {}),
         (this.__options = Object.assign(Object.assign({}, g), e2)));
-      const n2 = (function (t4) {
-          const e3 = r$3();
+      const n2 = (function (t3) {
+          const e3 = r$2();
           return function (n3) {
             const s3 = [],
               o2 = [];
             Array.from(n3.touches).forEach(({ clientX: e4, clientY: n4, target: i3 }) => {
-              (null == t4 ? void 0 : t4.contains(i3)) &&
+              (null == t3 ? void 0 : t3.contains(i3)) &&
                 (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
             });
-            const i2 = Array.from(n3.changedTouches).map(({ clientX: t5, clientY: e4, target: n4 }) => ({
-              clientX: t5,
+            const i2 = Array.from(n3.changedTouches).map(({ clientX: t4, clientY: e4, target: n4 }) => ({
+              clientX: t4,
               clientY: e4,
               target: n4,
             }));
@@ -4275,10 +4605,10 @@
           };
         })(this.el),
         s2 = (function () {
-          let t4,
+          let t3,
             e3 = false,
             n3 = null;
-          const s3 = r$3();
+          const s3 = r$2();
           return function (o2) {
             const { clientX: i2, clientY: r2, type: c2, button: a2, target: u2 } = o2;
             let h2,
@@ -4288,8 +4618,8 @@
               if (!e3) return;
               "mousemove" === c2 ? (h2 = "move") : "mouseup" === c2 && ((p2 = []), (h2 = "end"), (e3 = false));
             }
-            const g2 = t4 || [{ clientX: i2, clientY: r2, target: u2 }];
-            if (((t4 = [{ clientX: i2, clientY: r2, target: u2 }]), void 0 !== h2))
+            const g2 = t3 || [{ clientX: i2, clientY: r2, target: u2 }];
+            if (((t3 = [{ clientX: i2, clientY: r2, target: u2 }]), void 0 !== h2))
               return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
           };
         })();
@@ -4303,73 +4633,73 @@
           mousemove: s2,
           mouseup: s2,
         }),
-        this.on("at:after", (t4) => {
-          const { target: e3, __type: n3 } = t4,
+        this.on("at:after", (t3) => {
+          const { target: e3, __type: n3 } = t3,
             { domEvents: s3 } = this.__options;
-          s3 && void 0 !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
+          s3 && void 0 !== this.el && e3 && (a$1(n3, e3, t3, s3), a$1("at:after", e3, t3, s3));
         }),
-        void 0 !== t3)
+        void 0 !== t2)
       ) {
-        t3.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
+        t2.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
         let e3 = false;
         try {
-          const t4 = {};
-          (Object.defineProperty(t4, "passive", {
+          const t3 = {};
+          (Object.defineProperty(t3, "passive", {
             get() {
               e3 = true;
             },
           }),
-            window.addEventListener("_", () => {}, t4));
-        } catch (t4) {}
+            window.addEventListener("_", () => {}, t3));
+        } catch (t3) {}
         this.on(
           "u",
-          (function (t4, e4, n3) {
+          (function (t3, e4, n3) {
             return (
-              h$2.forEach((s3) => {
-                t4.addEventListener(s3, e4, n3);
+              h$1.forEach((s3) => {
+                t3.addEventListener(s3, e4, n3);
               }),
-              p$2.forEach((t5) => {
-                window.addEventListener(t5, e4, n3);
+              p$1.forEach((t4) => {
+                window.addEventListener(t4, e4, n3);
               }),
               () => {
-                (h$2.forEach((n4) => {
-                  t4.removeEventListener(n4, e4);
+                (h$1.forEach((n4) => {
+                  t3.removeEventListener(n4, e4);
                 }),
-                  p$2.forEach((t5) => {
-                    window.removeEventListener(t5, e4);
+                  p$1.forEach((t4) => {
+                    window.removeEventListener(t4, e4);
                   }));
               }
             );
           })(
-            t3,
+            t2,
             this.catchEvent.bind(this),
             false === this.__options.preventDefault && e3 ? { passive: true } : { passive: false }
           )
         );
       }
     }
-    use(t3, e2) {
-      this.__pluginContexts.push(t3(this, e2));
+    use(t2, e2) {
+      this.__pluginContexts.push(t2(this, e2));
     }
-    catchEvent(t3) {
-      const e2 = this.__inputCreatorMap[t3.type](t3);
+    catchEvent(t2) {
+      const e2 = this.__inputCreatorMap[t2.type](t2);
       if (void 0 !== e2) {
-        const n2 = () => t3.stopPropagation(),
-          s2 = () => t3.stopImmediatePropagation(),
-          o2 = () => t3.preventDefault();
-        if (u$2(t3, this.__options)) o2();
+        const n2 = () => t2.stopPropagation(),
+          s2 = () => t2.stopImmediatePropagation(),
+          o2 = () => t2.preventDefault();
+        if (u$1(t2, this.__options)) o2();
         else if (
-          ("touchstart" === t3.type
+          ("touchstart" === t2.type
             ? (this.__isIgnoreMouse = true)
-            : "touchmove" === t3.type && (this.__isIgnoreMouse = false),
-          this.__isIgnoreMouse && t3.type.startsWith("mouse"))
+            : "touchmove" === t2.type && (this.__isIgnoreMouse = false),
+          this.__isIgnoreMouse && t2.type.startsWith("mouse"))
         )
-          return void ("mouseup" === t3.type && (this.__isIgnoreMouse = false));
+          return void ("mouseup" === t2.type && (this.__isIgnoreMouse = false));
         (this.emit("input", e2), this.emit2(`at:${e2.phase}`, e2, {}));
         const i2 = {};
-        (this.__computeFunctionList.forEach((t4) => {
-          const n3 = t4(e2, i2);
-          if (void 0 !== n3) for (const t5 in n3) i2[t5] = n3[t5];
+        (this.__computeFunctionList.forEach((t3) => {
+          const n3 = t3(e2, i2);
+          if (void 0 !== n3) for (const t4 in n3) i2[t4] = n3[t4];
         }),
           this.emit(
             "computed",
@@ -4381,226 +4711,49 @@
           ));
       }
     }
-    compute(t3, e2) {
-      for (const e3 of t3)
+    compute(t2, e2) {
+      for (const e3 of t2)
         this.__computeFunctionCreatorList.includes(e3) ||
           (this.__computeFunctionCreatorList.push(e3), this.__computeFunctionList.push(e3()));
       this.on("computed", e2);
     }
-    beforeEach(t3) {
+    beforeEach(t2) {
       super.beforeEach((e2, n2) => {
         var s2;
-        (null === (s2 = this.c) || void 0 === s2 ? void 0 : s2.name) ? t3(e2, n2) : n2();
+        (null === (s2 = this.c) || void 0 === s2 ? void 0 : s2.name) ? t2(e2, n2) : n2();
       });
     }
-    get(t3) {
-      return this.__pluginContexts.find((e2) => t3 === e2.name);
+    get(t2) {
+      return this.__pluginContexts.find((e2) => t2 === e2.name);
     }
-    set(t3) {
-      this.__options = Object.assign(Object.assign({}, this.__options), t3);
+    set(t2) {
+      this.__options = Object.assign(Object.assign({}, this.__options), t2);
     }
-    emit2(t3, e2, n2) {
+    emit2(t2, e2, n2) {
       ((this.c = n2),
-        this.emit(t3, Object.assign(Object.assign({}, e2), { type: t3 }), () => {
-          this.emit("at:after", Object.assign(Object.assign({}, e2), { name: t3, __type: t3 }));
+        this.emit(t2, Object.assign(Object.assign({}, e2), { type: t2 }), () => {
+          this.emit("at:after", Object.assign(Object.assign({}, e2), { name: t2, __type: t2 }));
         }));
     }
     destroy() {
       (this.emit("u"), super.destroy());
     }
-  };
-  var x = (r2) => Math.sqrt(r2.x * r2.x + r2.y * r2.y),
-    y = (r2, a2) => r2.x * a2.x + r2.y * a2.y,
-    e$1 = (r2, a2) => {
-      var t3 = x(r2) * x(a2);
-      if (0 === t3) return 0;
-      var h2 = y(r2, a2) / t3;
-      return (h2 > 1 && (h2 = 1), Math.acos(h2));
-    },
-    n = (r2, a2) => r2.x * a2.y - a2.x * r2.y,
-    o = (r2) => (r2 / Math.PI) * 180,
-    s = (r2, a2) => {
-      var t3 = e$1(r2, a2);
-      return (n(r2, a2) > 0 && (t3 *= -1), o(t3));
-    },
-    u$1 = (x2, y2) => {
-      if (0 !== x2 || 0 !== y2) return Math.abs(x2) >= Math.abs(y2) ? (0 < x2 ? i$3 : a$2) : 0 < y2 ? d$1 : r$4;
-    };
-  function p$1() {
-    let n2 = 0,
-      e2 = 0;
-    return function (o2, r2) {
-      const { prevVecotr: i2, startVecotr: a2, activeVecotr: c2 } = r2;
-      return (c2 && ((e2 = Math.round(s(c2, i2))), (n2 = Math.round(s(c2, a2)))), { angle: n2, deltaAngle: e2 });
-    };
-  }
-  function d() {
-    return function (t3) {
-      const { prevInput: e2 } = t3;
-      let o$12 = 0,
-        r2 = 0,
-        i2 = 0;
-      if (void 0 !== e2 && ((o$12 = t3.x - e2.x), (r2 = t3.y - e2.y), 0 !== o$12 || 0 !== r2)) {
-        const t4 = Math.sqrt(Math.pow(o$12, 2) + Math.pow(r2, 2));
-        i2 = Math.round(o(Math.acos(Math.abs(o$12) / t4)));
-      }
-      return { deltaX: o$12, deltaY: r2, deltaXYAngle: i2 };
-    };
-  }
-  function h$1() {
-    let t3,
-      n2 = 0,
-      u2 = 0,
-      s2 = 0,
-      p2 = 0,
-      d2 = 0;
-    return function (h2) {
-      const { phase: l3, startInput: f2 } = h2;
-      return (
-        c$3 === l3
-          ? ((n2 = 0), (u2 = 0), (s2 = 0), (p2 = 0), (d2 = 0))
-          : o$1 === l3 &&
-            ((n2 = Math.round(h2.points[0][n$1] - f2.points[0][n$1])),
-            (u2 = Math.round(h2.points[0][e$2] - f2.points[0][e$2])),
-            (s2 = Math.abs(n2)),
-            (p2 = Math.abs(u2)),
-            (d2 = Math.round(x({ x: s2, y: p2 }))),
-            (t3 = u$1(n2, u2))),
-        { displacementX: n2, displacementY: u2, distanceX: s2, distanceY: p2, distance: d2, overallDirection: t3 }
-      );
-    };
-  }
-  function l2() {
-    let t3 = 1;
-    return function (n2, o2) {
-      let r2 = 1;
-      const { prevVecotr: i2, startVecotr: a2, activeVecotr: c2 } = o2;
-      return (c2 && ((r2 = p$3(x(c2) / x(i2))), (t3 = p$3(x(c2) / x(a2)))), { scale: t3, deltaScale: r2 });
-    };
-  }
-  function f() {
-    let t$12,
-      n2,
-      e2 = 0,
-      r2 = 0,
-      i2 = 0,
-      a2 = 0;
-    return function (c2) {
-      if (void 0 !== c2) {
-        n2 = n2 || c2.startInput;
-        const u2 = c2.timestamp - n2.timestamp;
-        if (t2 < u2) {
-          const s2 = c2.x - n2.x,
-            p2 = c2.y - n2.y;
-          ((i2 = Math.round((s2 / u2) * 100) / 100),
-            (a2 = Math.round((p2 / u2) * 100) / 100),
-            (e2 = Math.abs(i2)),
-            (r2 = Math.abs(a2)),
-            (t$12 = u$1(s2, p2)),
-            (n2 = c2));
-        }
-      }
-      return { velocityX: e2, velocityY: r2, speedX: i2, speedY: a2, direction: t$12 };
-    };
-  }
-  function M() {
-    let t3 = 0;
-    return function (n2) {
-      const { phase: e2 } = n2;
-      return (c$3 === e2 && (t3 = n2.pointLength), { maxPointLength: t3 });
-    };
-  }
-  function v(t3) {
-    return { x: t3.points[1][n$1] - t3.points[0][n$1], y: t3.points[1][e$2] - t3.points[0][e$2] };
-  }
-  function m$1() {
-    let t3, n2, e2;
-    return function (o2) {
-      const { prevInput: r2, startMultiInput: i2 } = o2;
-      return (
-        void 0 !== i2 && void 0 !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength
-          ? ((t3 = v(i2)), (n2 = v(r2)), (e2 = v(o2)))
-          : (e2 = void 0),
-        { startVecotr: t3, prevVecotr: n2, activeVecotr: e2 }
-      );
-    };
-  }
-  const m = {
-    name: "tap",
-    pointLength: 1,
-    tapTimes: 1,
-    waitNextTapTime: 300,
-    maxDistance: 2,
-    maxDistanceFromPrevTap: 9,
-    maxPressTime: 250,
-  };
-  function r$2(r2, s2) {
-    const c2 = O(m, s2);
-    let p2,
-      u2,
-      x$1,
-      T = 0;
-    function f2() {
-      ((T = 0), (p2 = void 0), (u2 = void 0));
-    }
-    return (
-      r2.compute([h$1, M], (t3) => {
-        if (j(c2)) return;
-        const { phase: i2, x: o2, y: m2 } = t3;
-        u$3 === i2 &&
-          ((c2.state = 0),
-          !(function () {
-            const { startInput: e2, pointLength: n2, timestamp: a2 } = t3,
-              i3 = a2 - e2.timestamp,
-              { distance: o3, maxPointLength: m3 } = t3;
-            return m3 === c2.pointLength && 0 === n2 && c2.maxDistance >= o3 && c2.maxPressTime > i3;
-          })()
-            ? (f2(), (c2.state = 2))
-            : (clearTimeout(x$1),
-              (function (t4, e2) {
-                if (void 0 !== p2) {
-                  const n2 = x({ x: t4.x - p2.x, y: t4.y - p2.y });
-                  return ((p2 = t4), e2.maxDistanceFromPrevTap >= n2);
-                }
-                return ((p2 = t4), true);
-              })({ x: o2, y: m2 }, c2) &&
-              (function (t4) {
-                const e2 = performance.now();
-                if (void 0 === u2) return ((u2 = e2), true);
-                {
-                  const n2 = e2 - u2;
-                  return ((u2 = e2), n2 < t4);
-                }
-              })(c2.waitNextTapTime)
-                ? T++
-                : (T = 1),
-              0 == T % c2.tapTimes
-                ? ((c2.state = 1), r2.emit2(c2.name, t3, c2), f2())
-                : (x$1 = setTimeout(
-                    () => {
-                      ((c2.state = 2), f2());
-                    },
-                    c2.waitNextTapTime
-                  ))));
-      }),
-      c2
-    );
   }
   const p = { name: "pan", threshold: 10, pointLength: 1 };
   function u(u2, d$12) {
     const f$1 = O(p, d$12);
     return (
-      u2.compute([f, h$1, d], (t3) => {
+      u2.compute([f, h$2, d], (t2) => {
         if ((g$1(f$1), j(f$1))) return;
         const c2 = (function () {
-          const { pointLength: e2, distance: n2 } = t3;
+          const { pointLength: e2, distance: n2 } = t2;
           return f$1.pointLength === e2 && f$1.threshold <= n2;
         })();
-        if (((f$1.state = b(c2, f$1.state, t3.phase)), c2 || h$3(f$1.state))) {
+        if (((f$1.state = b(c2, f$1.state, t2.phase)), c2 || h$3(f$1.state))) {
           const { name: e2 } = f$1;
-          (u2.emit2(e2, t3, f$1),
-            u2.emit2(e2 + v$1(f$1.state), t3, f$1),
-            ![u$3, s$1].includes(t3.phase) && t3.direction && u2.emit2(e2 + t3.direction, t3, f$1));
+          (u2.emit2(e2, t2, f$1),
+            u2.emit2(e2 + v$1(f$1.state), t2, f$1),
+            ![u$3, s$1].includes(t2.phase) && t2.direction && u2.emit2(e2 + t2.direction, t2, f$1));
         }
       }),
       f$1
@@ -4610,20 +4763,20 @@
   function a(a2, r2) {
     const s2 = O(c$1, r2);
     return (
-      a2.compute([h$1, f, M], (t3) => {
+      a2.compute([h$2, f, M], (t2) => {
         if (
           ((s2.state = 0),
           !s2.disabled &&
             (function () {
-              if (u$3 !== t3.phase) return false;
-              const { velocityX: o2, velocityY: n2, distance: i2, maxPointLength: c2 } = t3;
+              if (u$3 !== t2.phase) return false;
+              const { velocityX: o2, velocityY: n2, distance: i2, maxPointLength: c2 } = t2;
               return (
-                c2 === s2.pointLength && 0 === t3.points.length && s2.threshold < i2 && s2.velocity < Math.max(o2, n2)
+                c2 === s2.pointLength && 0 === t2.points.length && s2.threshold < i2 && s2.velocity < Math.max(o2, n2)
               );
             })())
         ) {
           const { name: e2 } = s2;
-          ((s2.state = 1), a2.emit2(e2, t3, s2), a2.emit2(e2 + t3.direction, t3, s2));
+          ((s2.state = 1), a2.emit2(e2, t2, s2), a2.emit2(e2 + t2.direction, t2, s2));
         }
       }),
       s2
@@ -4634,23 +4787,23 @@
     const p2 = O(r$1, u2);
     let f2 = 0;
     return (
-      c2.compute([h$1], (t3) => {
+      c2.compute([h$2], (t2) => {
         if (j(p2)) return;
-        const { phase: o2, startInput: r2, pointLength: u3 } = t3;
+        const { phase: o2, startInput: r2, pointLength: u3 } = t2;
         if (c$3 === o2 && p2.pointLength === u3)
           (g$1(p2),
             clearTimeout(f2),
             (f2 = setTimeout(
               () => {
-                ((p2.state = 1), c2.emit2(p2.name, t3, p2));
+                ((p2.state = 1), c2.emit2(p2.name, t2, p2));
               },
               p2.minPressTime
             )));
-        else if (u$3 === o2 && 1 === p2.state) c2.emit2(`${p2.name}${r$4}`, t3, p2);
+        else if (u$3 === o2 && 1 === p2.state) c2.emit2(`${p2.name}${r$4}`, t2, p2);
         else if (1 !== p2.state) {
-          const e2 = t3.timestamp - r2.timestamp;
+          const e2 = t2.timestamp - r2.timestamp;
           (!(function () {
-            const { distance: e3 } = t3;
+            const { distance: e3 } = t2;
             return e3 && p2.maxDistance > e3;
           })() ||
             (p2.minPressTime > e2 && [u$3, s$1].includes(o2))) &&
@@ -4664,21 +4817,21 @@
   function r(r2, m2) {
     const p2 = O(i$2, m2);
     return (
-      r2.compute([m$1, l2], (t3) => {
+      r2.compute([m$1, l$1], (t2) => {
         if ((g$1(p2), j(p2))) return;
         const c2 = (function () {
-          const { pointLength: e2, scale: n2, deltaScale: o2, phase: a2 } = t3;
+          const { pointLength: e2, scale: n2, deltaScale: o2, phase: a2 } = t2;
           return p2.pointLength === e2 && p2.threshold < Math.abs(n2 - 1);
         })();
-        p2.state = b(c2, p2.state, t3.phase);
+        p2.state = b(c2, p2.state, t2.phase);
         const { name: h2 } = p2;
         if (c2 || h$3(p2.state)) {
-          r2.emit2(h2, t3, p2);
-          const { deltaScale: e2 } = t3;
-          1 !== e2 && r2.emit2(h2 + (1 < e2 ? "in" : "out"), t3, p2);
+          r2.emit2(h2, t2, p2);
+          const { deltaScale: e2 } = t2;
+          1 !== e2 && r2.emit2(h2 + (1 < e2 ? "in" : "out"), t2, p2);
         }
         const i2 = v$1(p2.state);
-        i2 && r2.emit2(h2 + i2, t3, p2);
+        i2 && r2.emit2(h2 + i2, t2, p2);
       }),
       p2
     );
@@ -4687,44 +4840,25 @@
   function i$1(i2, m2) {
     const u2 = O(h, m2);
     return (
-      i2.compute([m$1, p$1], (t3) => {
+      i2.compute([m$1, p$2], (t2) => {
         if (j(u2)) return;
         g$1(u2);
         const r2 = (function () {
-          const { pointLength: e2, angle: n2 } = t3;
+          const { pointLength: e2, angle: n2 } = t2;
           return u2.pointLength === e2 && u2.threshold < Math.abs(n2);
         })();
-        u2.state = b(r2, u2.state, t3.phase);
+        u2.state = b(r2, u2.state, t2.phase);
         const { name: c2 } = u2;
-        (r2 || h$3(u2.state)) && i2.emit2(c2, t3, u2);
+        (r2 || h$3(u2.state)) && i2.emit2(c2, t2, u2);
         const h2 = v$1(u2.state);
-        h2 && i2.emit2(c2 + h2, t3, u2);
+        h2 && i2.emit2(c2 + h2, t2, u2);
       }),
       u2
     );
   }
-  function e(e2) {
-    e2.use(r$2, { name: "doubletap", tapTimes: 2 });
-    const a2 = e2.get("doubletap");
-    let o2;
-    return (
-      e2.beforeEach((t3, e3) => {
-        "tap" === t3
-          ? (clearTimeout(o2),
-            (o2 = setTimeout(
-              () => {
-                [0, 2].includes(a2.state) && e3();
-              },
-              300
-            )))
-          : e3();
-      }),
-      a2
-    );
-  }
-  class i extends l$1 {
-    constructor(t3, u$12) {
-      (super(t3, u$12), this.use(r$2), this.use(u), this.use(a), this.use(c), this.use(r), this.use(i$1));
+  class i extends l {
+    constructor(t2, u$12) {
+      (super(t2, u$12), this.use(r$3), this.use(u), this.use(a), this.use(c), this.use(r), this.use(i$1));
     }
   }
   ((i.STATE_POSSIBLE = 0),
@@ -4734,7 +4868,7 @@
     (i.STATE_CANCELLED = 3),
     (i.STATE_FAILED = 2),
     (i.STATE_RECOGNIZED = 1),
-    (i.tap = r$2),
+    (i.tap = r$3),
     (i.pan = u),
     (i.swipe = a),
     (i.press = c),
@@ -4742,6 +4876,13 @@
     (i.pinch = r),
     (i.doubletap = e));
   class PopsUtils {
+    sleep(timeout) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true);
+        }, timeout);
+      });
+    }
     isWin(target) {
       if (typeof target !== "object") {
         return false;
@@ -4777,6 +4918,9 @@
     }
     isDOM(target) {
       return target instanceof Node;
+    }
+    isNodeList($ele) {
+      return Array.isArray($ele) || $ele instanceof NodeList;
     }
     delete(target, propName) {
       if (typeof Reflect === "object" && typeof Reflect.deleteProperty === "function") {
@@ -4817,7 +4961,8 @@
           typeof sourceValue === "object" &&
           sourceValue != null &&
           keyName in target &&
-          !UtilsContext.isDOM(sourceValue)
+          !UtilsContext.isDOM(sourceValue) &&
+          !(sourceValue instanceof EventEmiter)
         ) {
           let childObjectValue;
           if (Array.isArray(sourceValue)) {
@@ -4955,34 +5100,134 @@
       }
       target[key] = newArr;
     }
+    getMaxZIndexNodeInfoFromPoint($el, deviation) {
+      if (typeof $el === "function") {
+        $el = $el();
+      }
+      if (typeof $el === "number") {
+        deviation = $el;
+        $el = void 0;
+      }
+      if (typeof deviation !== "number" || Number.isNaN(deviation)) {
+        deviation = 10;
+      }
+      const positionDistance = 10;
+      const defaultCalcPostion = [];
+      const maxPostionX = globalThis.innerWidth;
+      const maxPostionY = globalThis.innerHeight;
+      const gridXCount = 8;
+      const gridYCount = 8;
+      for (let i2 = 0; i2 < gridXCount; i2++) {
+        for (let j2 = 0; j2 < gridYCount; j2++) {
+          const positionX = globalThis.innerWidth * (i2 / gridXCount) + positionDistance;
+          const positionY = globalThis.innerHeight * (j2 / gridYCount) + positionDistance;
+          const position = {
+            x: positionX,
+            y: positionY,
+          };
+          if (position.x > maxPostionX) {
+            position.x = maxPostionX;
+          }
+          if (position.y > maxPostionY) {
+            position.y = maxPostionY;
+          }
+          defaultCalcPostion.push(position);
+        }
+      }
+      const delayHandlerElementPostionList = defaultCalcPostion;
+      if ($el) {
+        delayHandlerElementPostionList.length = 0;
+        if (Array.isArray($el)) {
+          delayHandlerElementPostionList.push(...$el);
+        } else {
+          delayHandlerElementPostionList.push($el);
+        }
+      }
+      const positionInfoList = delayHandlerElementPostionList
+        .map((position) => {
+          let $position;
+          let positionX;
+          let positionY;
+          if (position instanceof HTMLElement) {
+            $position = position;
+            const nodeRect = position.getBoundingClientRect();
+            positionX = nodeRect.x + nodeRect.width / 2;
+            positionY = nodeRect.y + nodeRect.height / 2;
+          } else {
+            $position = document.elementFromPoint(position.x, position.y);
+            positionX = position.x;
+            positionY = position.y;
+          }
+          const shadowRoot = $position?.shadowRoot;
+          if (shadowRoot) {
+            $position = shadowRoot.elementFromPoint(positionX, positionY);
+          }
+          if (!($position instanceof HTMLElement)) return;
+          let $parent = $position;
+          let zIndex = 0;
+          let $maxZIndexNode = null;
+          let rect = {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+          };
+          while ($parent) {
+            const nodeStyle = globalThis.getComputedStyle($parent);
+            const nodeZIndex = parseInt(nodeStyle.zIndex);
+            if (nodeStyle.position !== "static" && !isNaN(nodeZIndex)) {
+              if (nodeZIndex > zIndex) {
+                zIndex = nodeZIndex;
+                $maxZIndexNode = $parent;
+              }
+            }
+            $parent = $parent.parentElement;
+          }
+          if ($maxZIndexNode) {
+            const maxRect = $maxZIndexNode.getBoundingClientRect();
+            rect = {
+              x: maxRect.x,
+              y: maxRect.y,
+              width: maxRect.width,
+              height: maxRect.height,
+              top: maxRect.top,
+              right: maxRect.right,
+              bottom: maxRect.bottom,
+              left: maxRect.left,
+            };
+          }
+          return {
+            zIndex: zIndex + deviation,
+            originZIndex: zIndex,
+            node: $maxZIndexNode,
+            positionNode: $position,
+            positionX,
+            positionY,
+            rect,
+          };
+        })
+        .filter((it) => it != null);
+      positionInfoList.sort((a2, b2) => {
+        if (a2.zIndex < b2.zIndex) {
+          return 1;
+        } else if (a2.zIndex > b2.zIndex) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+      return positionInfoList;
+    }
   }
   const popsUtils = new PopsUtils();
-  const PopsSafeUtils = {
-    getSafeHTML(text) {
-      if (window.trustedTypes) {
-        const policy = window.trustedTypes.createPolicy("safe-innerHTML", {
-          createHTML: (html) => html,
-        });
-        return policy.createHTML(text);
-      } else {
-        return text;
-      }
-    },
-    setSafeHTML($el, text) {
-      $el.innerHTML = this.getSafeHTML(text);
-    },
-  };
-  const PopsCommonCSSClassName = {
-    flexCenter: "pops-flex-items-center",
-    flexYCenter: "pops-flex-y-center",
-    hide: "pops-hide",
-    hideImportant: "pops-hide-important",
-    userSelectNone: "pops-user-select-none",
-    textIsDisabled: "pops-text-is-disabled",
-  };
+  const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1));
   class PopsDOMUtilsEvent {
     on(element, eventType, selector, callback, option) {
-      function getOption(args2, startIndex, option2) {
+      const getOption = function (args2, startIndex, option2) {
         const currentParam = args2[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
@@ -5005,7 +5250,7 @@
           option2.isComposedPath = currentParam.isComposedPath;
         }
         return option2;
-      }
+      };
       const that = this;
       const args = arguments;
       if (typeof element === "string") {
@@ -5019,24 +5264,19 @@
       }
       let $elList = [];
       if (element instanceof NodeList || Array.isArray(element)) {
-        element = element;
-        $elList = [...element];
+        $elList = $elList.concat(Array.from(element));
       } else {
         $elList.push(element);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(
-          eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== "")
-        );
+        eventTypeList = eventTypeList.concat(eventType.filter((it) => typeof it === "string" && it.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((it) => it !== ""));
       }
       let selectorList = [];
       if (Array.isArray(selector)) {
-        selectorList = selectorList.concat(
-          selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
-        );
+        selectorList = selectorList.concat(selector.filter((it) => typeof it === "string" && it.toString() !== ""));
       } else if (typeof selector === "string") {
         selectorList.push(selector);
       }
@@ -5053,72 +5293,93 @@
       } else {
         listenerOption = getOption(args, 4, listenerOption);
       }
-      function checkOptionOnceToRemoveEventListener() {
-        if (listenerOption.once) {
-          that.off(element, eventType, selector, callback, option);
-        }
-      }
-      $elList.forEach((elementItem) => {
-        function domUtilsEventCallBack(event) {
-          if (selectorList.length) {
-            let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
-            let totalParent = elementItem;
-            if (popsUtils.isWin(totalParent)) {
-              if (totalParent === PopsCore.document) {
-                totalParent = PopsCore.document.documentElement;
-              }
-            }
-            const findValue = selectorList.find((selectorItem) => {
-              if (that.matches(eventTarget, selectorItem)) {
-                return true;
-              }
-              const $closestMatches = that.closest(eventTarget, selectorItem);
-              if ($closestMatches && totalParent?.contains($closestMatches)) {
-                eventTarget = $closestMatches;
-                return true;
-              }
-              return false;
-            });
-            if (findValue) {
-              try {
-                OriginPrototype.Object.defineProperty(event, "target", {
-                  get() {
-                    return eventTarget;
-                  },
-                });
-              } catch {}
-              listenerCallBack.call(eventTarget, event, eventTarget);
-              checkOptionOnceToRemoveEventListener();
-            }
-          } else {
-            listenerCallBack.call(elementItem, event);
-            checkOptionOnceToRemoveEventListener();
-          }
-        }
+      $elList.forEach(($elItem) => {
         eventTypeList.forEach((eventName) => {
-          elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
-          const elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
+          const checkOptionOnceToRemoveEventListener = () => {
+            if (listenerOption.once) {
+              this.off($elItem, eventName, selector, callback, option);
+            }
+          };
+          const handlerCallBack = function (event) {
+            let call_this = void 0;
+            let call_event = void 0;
+            let call_$selector = void 0;
+            let execCallback = false;
+            if (selectorList.length) {
+              let $target;
+              if (listenerOption.isComposedPath) {
+                const composedPath = event.composedPath();
+                if (!composedPath.length && event.target) {
+                  composedPath.push(event.target);
+                }
+                $target = composedPath[0];
+              } else {
+                $target = event.target;
+              }
+              let $parent = $elItem;
+              if (popsUtils.isWin($parent)) {
+                $parent = PopsCore.document.documentElement;
+              }
+              const findValue = selectorList.find((selectors) => {
+                if (that.matches($target, selectors)) {
+                  return true;
+                }
+                const $closestMatches = that.closest($target, selectors);
+                if ($closestMatches && $parent?.contains?.($closestMatches)) {
+                  $target = $closestMatches;
+                  return true;
+                }
+                return false;
+              });
+              if (findValue) {
+                try {
+                  OriginPrototype.Object.defineProperty(event, "target", {
+                    get() {
+                      return $target;
+                    },
+                  });
+                } catch {}
+                execCallback = true;
+                call_this = $target;
+                call_event = event;
+                call_$selector = $target;
+              }
+            } else {
+              execCallback = true;
+              call_this = $elItem;
+              call_event = event;
+            }
+            if (execCallback) {
+              const result = listenerCallBack.call(call_this, call_event, call_$selector);
+              checkOptionOnceToRemoveEventListener();
+              if (typeof result === "boolean" && !result) {
+                return false;
+              }
+            }
+          };
+          $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
+          const elementEvents = Reflect.get($elItem, SymbolEvents) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
             option: listenerOption,
-            callback: domUtilsEventCallBack,
-            originCallBack: listenerCallBack,
+            handlerCallBack,
+            callback: listenerCallBack,
           });
-          Reflect.set(elementItem, SymbolEvents, elementEvents);
+          Reflect.set($elItem, SymbolEvents, elementEvents);
         });
       });
       return {
         off: (filter) => {
           that.off($elList, eventTypeList, selectorList, listenerCallBack, listenerOption, filter);
         },
-        emit: (details, useDispatchToEmit) => {
-          that.emit($elList, eventTypeList, details, useDispatchToEmit);
+        emit: (extraDetails, useDispatchToTriggerEvent) => {
+          that.emit($elList, eventTypeList, extraDetails, useDispatchToTriggerEvent);
         },
       };
     }
     off(element, eventType, selector, callback, option, filter) {
-      function getOption(args1, startIndex, option2) {
+      const getOption = function (args1, startIndex, option2) {
         const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
@@ -5126,11 +5387,11 @@
           option2.capture = currentParam.capture;
         }
         return option2;
-      }
-      const DOMUtilsContext = this;
+      };
+      const that = this;
       const args = arguments;
       if (typeof element === "string") {
-        element = DOMUtilsContext.selectorAll(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
@@ -5138,23 +5399,19 @@
       let $elList = [];
       if (element instanceof NodeList || Array.isArray(element)) {
         element = element;
-        $elList = $elList.concat(element);
+        $elList = $elList.concat(Array.from(element));
       } else {
         $elList.push(element);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(
-          eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== "")
-        );
+        eventTypeList = eventTypeList.concat(eventType.filter((it) => typeof it === "string" && it.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((it) => it !== ""));
       }
       let selectorList = [];
       if (Array.isArray(selector)) {
-        selectorList = selectorList.concat(
-          selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
-        );
+        selectorList = selectorList.concat(selector.filter((it) => typeof it === "string" && it.toString() !== ""));
       } else if (typeof selector === "string") {
         selectorList.push(selector);
       }
@@ -5168,24 +5425,18 @@
       } else {
         listenerOption = getOption(args, 4, listenerOption);
       }
-      let isRemoveAll = false;
-      if (args.length === 2) {
-        isRemoveAll = true;
-      } else if ((args.length === 3 && typeof args[2] === "string") || Array.isArray(args[2])) {
-        isRemoveAll = true;
-      }
       if (args.length === 5 && typeof args[4] === "function" && typeof filter !== "function") {
         filter = option;
       }
-      $elList.forEach((elementItem) => {
-        const elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
+      $elList.forEach(($elItem) => {
+        const elementEvents = Reflect.get($elItem, SymbolEvents) || {};
         eventTypeList.forEach((eventName) => {
           const handlers = elementEvents[eventName] || [];
-          const filterHandler = typeof filter === "function" ? handlers.filter(filter) : handlers;
-          for (let index = 0; index < filterHandler.length; index++) {
-            const handler = filterHandler[index];
+          const handlersFiltered = typeof filter === "function" ? handlers.filter(filter) : handlers;
+          for (let index = 0; index < handlersFiltered.length; index++) {
+            const handler = handlersFiltered[index];
             let flag = true;
-            if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
+            if (flag && listenerCallBack && handler.callback !== listenerCallBack) {
               flag = false;
             }
             if (flag && selectorList.length && Array.isArray(handler.selector)) {
@@ -5200,11 +5451,12 @@
             ) {
               flag = false;
             }
-            if (flag || isRemoveAll) {
-              elementItem.removeEventListener(eventName, handler.callback, handler.option);
-              const findIndex = handlers.findIndex((item) => item === handler);
-              if (findIndex !== -1) {
-                handlers.splice(findIndex, 1);
+            if (flag) {
+              $elItem.removeEventListener(eventName, handler.handlerCallBack, handler.option);
+              for (let i2 = handlers.length - 1; i2 >= 0; i2--) {
+                if (handlers[i2] === handler) {
+                  handlers.splice(i2, 1);
+                }
               }
             }
           }
@@ -5212,7 +5464,7 @@
             popsUtils.delete(elementEvents, eventType);
           }
         });
-        Reflect.set(elementItem, SymbolEvents, elementEvents);
+        Reflect.set($elItem, SymbolEvents, elementEvents);
       });
     }
     offAll(element, eventType) {
@@ -5314,7 +5566,7 @@
     }
     emit(element, eventType, details, useDispatchToEmitEvent = true) {
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -5357,104 +5609,148 @@
       });
     }
     click(element, handler, details, useDispatchToEmitEvent) {
-      const DOMUtilsContext = this;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
       }
       if (handler == null) {
-        DOMUtilsContext.emit(element, "click", details, useDispatchToEmitEvent);
+        this.emit(element, "click", details, useDispatchToEmitEvent);
       } else {
-        DOMUtilsContext.on(element, "click", null, handler);
+        const listener = this.on(element, "click", handler);
+        return listener;
       }
     }
     blur(element, handler, details, useDispatchToEmitEvent) {
-      const DOMUtilsContext = this;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
       }
       if (handler === null) {
-        DOMUtilsContext.emit(element, "blur", details, useDispatchToEmitEvent);
+        this.emit(element, "blur", details, useDispatchToEmitEvent);
       } else {
-        DOMUtilsContext.on(element, "blur", null, handler);
+        const listener = this.on(element, "blur", handler);
+        return listener;
       }
     }
     focus(element, handler, details, useDispatchToEmitEvent) {
-      const DOMUtilsContext = this;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
       }
       if (handler == null) {
-        DOMUtilsContext.emit(element, "focus", details, useDispatchToEmitEvent);
+        this.emit(element, "focus", details, useDispatchToEmitEvent);
       } else {
-        DOMUtilsContext.on(element, "focus", null, handler);
+        const listener = this.on(element, "focus", handler);
+        return listener;
       }
     }
     onHover(element, handler, option) {
-      const DOMUtilsContext = this;
+      const that = this;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = that.selectorAll(element);
       }
       if (element == null) {
         return;
       }
-      DOMUtilsContext.on(element, "mouseenter", null, handler, option);
-      DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+      if (popsUtils.isNodeList(element)) {
+        const listenerList = [];
+        element.forEach(($ele) => {
+          const listener = that.onHover($ele, handler, option);
+          listenerList.push(listener);
+        });
+        return {
+          off() {
+            listenerList.forEach((listener) => {
+              if (!listener) {
+                return;
+              }
+              listener.off();
+            });
+          },
+        };
+      }
+      const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
+      const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
+      return {
+        off() {
+          mouseenter_listener.off();
+          mouseleave_listener.off();
+        },
+      };
     }
     onKeyup(target, handler, option) {
-      const DOMUtilsContext = this;
       if (target == null) {
         return;
       }
       if (typeof target === "string") {
-        target = PopsCore.document.querySelector(target);
+        target = this.selector(target);
       }
-      DOMUtilsContext.on(target, "keyup", null, handler, option);
+      const listener = this.on(target, "keyup", handler, option);
+      return listener;
     }
     onKeydown(target, handler, option) {
-      const DOMUtilsContext = this;
       if (target == null) {
         return;
       }
       if (typeof target === "string") {
-        target = PopsCore.document.querySelector(target);
+        target = this.selector(target);
       }
-      DOMUtilsContext.on(target, "keydown", null, handler, option);
+      const listener = this.on(target, "keydown", handler, option);
+      return listener;
     }
-    onKeypress(target, handler, option) {
-      const DOMUtilsContext = this;
-      if (target == null) {
-        return;
-      }
-      if (typeof target === "string") {
-        target = PopsCore.document.querySelector(target);
-      }
-      DOMUtilsContext.on(target, "keypress", null, handler, option);
-    }
-    preventEvent(element, eventNameList = [], capture) {
-      function stopEvent(event) {
-        event?.preventDefault();
+    preventEvent(...args) {
+      const stopEvent = (event, onlyStopPropagation) => {
         event?.stopPropagation();
         event?.stopImmediatePropagation();
+        if (typeof onlyStopPropagation === "boolean" && onlyStopPropagation) {
+          return;
+        }
+        event?.preventDefault();
         return false;
-      }
-      if (arguments.length === 1) {
-        return stopEvent(arguments[0]);
+      };
+      if (args[0] instanceof Event) {
+        const onlyStopPropagation = args[1];
+        return stopEvent(args[0], onlyStopPropagation);
       } else {
+        const $el = args[0];
+        let eventNameList = args[1];
+        let selector = void 0;
+        let capture = false;
+        let onlyStopPropagation = false;
         if (typeof eventNameList === "string") {
           eventNameList = [eventNameList];
         }
-        eventNameList.forEach((eventName) => {
-          this.on(element, eventName, stopEvent, { capture: Boolean(capture) });
-        });
+        let option = void 0;
+        if (typeof args[2] === "string" || Array.isArray(args[2])) {
+          selector = args[2];
+          if (typeof args[3] === "object" && args[3] != null) {
+            option = args[3];
+          }
+        } else if (typeof args[2] === "object" && args[2] != null && !Array.isArray(args[2])) {
+          option = args[2];
+        } else {
+          throw new TypeError("Invalid argument");
+        }
+        if (option) {
+          capture = Boolean(option.capture);
+          onlyStopPropagation = Boolean(option.onlyStopPropagation);
+        }
+        const listener = this.on(
+          $el,
+          eventNameList,
+          selector,
+          (evt) => {
+            return stopEvent(evt, onlyStopPropagation);
+          },
+          { capture }
+        );
+        return listener;
       }
     }
     selector(selector) {
@@ -5596,7 +5892,7 @@
     width(element, isShow = false, parent) {
       const DOMUtilsContext = this;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -5647,7 +5943,7 @@
         return PopsCore.window.document.documentElement.clientHeight;
       }
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -5695,7 +5991,7 @@
         return PopsCore.window.innerWidth;
       }
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -5719,7 +6015,7 @@
         return PopsCore.window.innerHeight;
       }
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       element = element;
       if (isShow || (!isShow && popsDOMUtils.isShow(element))) {
@@ -6030,7 +6326,7 @@
     }
     append(element, content) {
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -6115,7 +6411,7 @@
     }
     before(element, content) {
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -6128,7 +6424,7 @@
     }
     after(element, content) {
       if (typeof element === "string") {
-        element = PopsCore.document.querySelector(element);
+        element = this.selector(element);
       }
       if (element == null) {
         return;
@@ -6259,7 +6555,6 @@
       const popsPosition = __config__.position || "";
       if (config.zIndex != null) {
         popsAnimStyle += `z-index: ${zIndex};`;
-        popsStyle += `z-index: ${zIndex};`;
       }
       if (__config__.width != null) {
         popsStyle += `width: ${__config__.width};`;
@@ -6268,6 +6563,10 @@
         popsStyle += `height: ${__config__.height};`;
       }
       const hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
+      const popsClassNameList = ["pops"];
+      if (config.class) {
+        popsClassNameList.push(...config.class.split(" "));
+      }
       return `
 		<div class="pops-anim" anim="${__config__.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
       config.style != null ? `<style tyle="text/css" data-name="style">${config.style}</style>` : ""
@@ -6282,7 +6581,7 @@
         ? `<style tyle="text/css" data-name="darkStyle">@media (prefers-color-scheme: dark) {${config.darkStyle}}</style>`
         : ""
     }
-			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
+			<div class="${popsClassNameList.join(" ")}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`;
     },
     createHeader(type, config) {
@@ -6475,7 +6774,7 @@
     addLightStyle($parent, style) {
       const darkCSS = `
       @media (prefers-color-scheme: light) {
-        ${style}
+        ${style ?? ""}
       }
     `;
       const $css = this.addStyle($parent, darkCSS);
@@ -6488,7 +6787,7 @@
     addDarkStyle($parent, style) {
       const darkCSS = `
       @media (prefers-color-scheme: dark) {
-        ${style}
+        ${style ?? ""}
       }
     `;
       const $css = this.addStyle($parent, darkCSS);
@@ -6500,7 +6799,7 @@
     },
   };
   var indexCSS =
-    '@charset "utf-8";\n.pops * {\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  -webkit-tap-highlight-color: transparent;\n  /* 代替::-webkit-scrollbar */\n  scrollbar-width: thin;\n}\n.pops {\n  --pops-bg-opacity: 1;\n  --pops-bd-opacity: 1;\n  --pops-font-size: 16px;\n  interpolate-size: allow-keywords;\n  --pops-color: #000000;\n  --pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n  --pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n  --pops-title-color: #000000;\n  --pops-title-border-color: var(--pops-bd-color);\n  --pops-content-color: #000000;\n  --pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n  --pops-components-is-disabled-text-color: #a8abb2;\n  --pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n  .pops {\n    --pops-mask-bg-opacity: 0.8;\n    --pops-color: #ffffff;\n    --pops-dark-color: #262626;\n    --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n    --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n    --pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n    --pops-title-color: #e8e8e8;\n    --pops-title-border-color: var(--pops-bd-color);\n    --pops-content-color: #e5e5e5;\n    --pops-components-is-disabled-text-color: #a8abb2;\n    --pops-components-is-disabled-bg-color: #262727;\n  }\n}\n.pops {\n  color: var(--pops-color);\n  background-color: var(--pops-bg-color);\n  border: 1px solid var(--pops-bd-color);\n  border-radius: 4px;\n  font-size: var(--pops-font-size);\n  line-height: normal;\n  box-shadow: 0 0 12px var(--pops-box-shadow-color);\n  box-sizing: border-box;\n  overflow: hidden;\n  transition: all 0.35s;\n  display: flex;\n  flex-direction: column;\n}\n.pops-anim {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.pops-anim[anim=""] {\n  top: unset;\n  right: unset;\n  bottom: unset;\n  left: unset;\n  width: unset;\n  height: unset;\n  transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n  animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: inherit;\n  font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n  --pops-mask-bg-opacity: 0.4;\n  --pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  border: 0;\n  border-radius: 0;\n  background-color: var(--pops-mask-bg-color);\n  box-shadow: none;\n  transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n  float: right;\n  margin: 0 0;\n  outline: 0;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: #888;\n  cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n  outline: 0 !important;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: rgb(136, 136, 136);\n  cursor: pointer;\n  transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n  color: rgb(144, 147, 153);\n  font-size: inherit;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n}\nbutton.pops-header-control svg {\n  height: 1.25em;\n  width: 1.25em;\n}\nbutton.pops-header-control {\n  right: 15px;\n  padding: 0;\n  border: none;\n  outline: 0;\n  background: 0 0;\n  cursor: pointer;\n  position: unset;\n  line-height: normal;\n}\nbutton.pops-header-control i:hover {\n  color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n  margin: 0 6px;\n  display: flex;\n  align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n  display: flex;\n  gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n  font-size: 0.85em;\n  color: #000;\n  background-color: #f0f0f0;\n  border-radius: 3px;\n  border: 0;\n  padding: 0.2em 0;\n  white-space: normal;\n  background: #f5f5f5;\n  text-wrap: wrap;\n  text-align: left;\n  word-spacing: normal;\n  word-break: normal;\n  word-wrap: normal;\n  line-height: 1.4;\n  -moz-tab-size: 8;\n  -o-tab-size: 8;\n  tab-size: 8;\n  -webkit-hyphens: none;\n  -moz-hyphens: none;\n  -ms-hyphens: none;\n  hyphens: none;\n  direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n  letter-spacing: -0.2em;\n  content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-bottom: 1px solid var(--pops-title-border-color);\n  width: 100%;\n  height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n  color: var(--pops-title-color);\n  width: 100%;\n  overflow: hidden;\n  text-indent: 15px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-weight: 500;\n  line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n  width: 100%;\n  /*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n  flex: 1;\n  overflow: auto;\n  word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n  color: var(--pops-content-color);\n  padding: 5px 10px;\n  text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n  display: flex;\n  padding: 10px 10px 10px 10px;\n  width: 100%;\n  height: var(--container-bottom-btn-height);\n  max-height: var(--container-bottom-btn-height);\n  line-height: normal;\n  border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n  text-align: right;\n  align-items: center;\n}\n';
+    '@charset "utf-8";\n.pops * {\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n  -webkit-tap-highlight-color: transparent;\n  /* 代替::-webkit-scrollbar */\n  scrollbar-width: thin;\n}\n.pops {\n  --pops-bg-opacity: 1;\n  --pops-bd-opacity: 1;\n  --pops-font-size: 16px;\n  interpolate-size: allow-keywords;\n  --pops-color: #000000;\n  --pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n  --pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n  --pops-title-color: #000000;\n  --pops-title-border-color: var(--pops-bd-color);\n  --pops-content-color: #000000;\n  --pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n  --pops-components-is-disabled-text-color: #a8abb2;\n  --pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n  .pops {\n    --pops-mask-bg-opacity: 0.8;\n    --pops-color: #ffffff;\n    --pops-dark-color: #262626;\n    --pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n    --pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n    --pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n    --pops-title-color: #e8e8e8;\n    --pops-title-border-color: var(--pops-bd-color);\n    --pops-content-color: #e5e5e5;\n    --pops-components-is-disabled-text-color: #a8abb2;\n    --pops-components-is-disabled-bg-color: #262727;\n  }\n}\n.pops {\n  color: var(--pops-color);\n  background-color: var(--pops-bg-color);\n  border: 1px solid var(--pops-bd-color);\n  border-radius: 4px;\n  font-size: var(--pops-font-size);\n  line-height: normal;\n  box-shadow: 0 0 12px var(--pops-box-shadow-color);\n  box-sizing: border-box;\n  overflow: hidden;\n  transition: all 0.35s;\n  display: flex;\n  flex-direction: column;\n}\n.pops-anim {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.pops-anim[anim=""] {\n  top: unset;\n  right: unset;\n  bottom: unset;\n  left: unset;\n  width: unset;\n  height: unset;\n  transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n  animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: inherit;\n  font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n  --pops-mask-bg-opacity: 0.4;\n  --pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  border: 0;\n  border-radius: 0;\n  background-color: var(--pops-mask-bg-color);\n  box-shadow: none;\n  transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n  float: right;\n  margin: 0 0;\n  outline: 0;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: #888;\n  cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n  outline: 0 !important;\n  border: 0;\n  border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n  background-color: transparent;\n  color: rgb(136, 136, 136);\n  cursor: pointer;\n  transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n  color: rgb(144, 147, 153);\n  font-size: inherit;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n}\nbutton.pops-header-control svg {\n  height: 1.25em;\n  width: 1.25em;\n}\nbutton.pops-header-control {\n  right: 15px;\n  padding: 0;\n  border: none;\n  outline: 0;\n  background: 0 0;\n  cursor: pointer;\n  position: unset;\n  line-height: normal;\n}\nbutton.pops-header-control i:hover {\n  color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n  margin: 0 6px;\n  display: flex;\n  align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n  display: flex;\n  gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n  font-size: 0.85em;\n  color: #000;\n  background-color: #f0f0f0;\n  border-radius: 3px;\n  border: 0;\n  padding: 0.2em 0;\n  white-space: normal;\n  background: #f5f5f5;\n  text-wrap: wrap;\n  text-align: left;\n  word-spacing: normal;\n  word-break: normal;\n  word-wrap: normal;\n  line-height: 1.4;\n  -moz-tab-size: 8;\n  -o-tab-size: 8;\n  tab-size: 8;\n  -webkit-hyphens: none;\n  -moz-hyphens: none;\n  -ms-hyphens: none;\n  hyphens: none;\n  direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n  letter-spacing: -0.2em;\n  content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-bottom: 1px solid var(--pops-title-border-color);\n  width: 100%;\n  height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n  color: var(--pops-title-color);\n  width: 100%;\n  height: 100%;\n  align-content: center;\n  overflow: hidden;\n  text-indent: 15px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-weight: 500;\n  line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n  width: 100%;\n  /*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n  flex: 1;\n  overflow: auto;\n  word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n  color: var(--pops-content-color);\n  padding: 5px 10px;\n  text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n  display: flex;\n  padding: 10px 10px 10px 10px;\n  width: 100%;\n  height: var(--container-bottom-btn-height);\n  max-height: var(--container-bottom-btn-height);\n  line-height: normal;\n  border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n  text-align: right;\n  align-items: center;\n}\n';
   var ninePalaceGridPositionCSS =
     '.pops[position="top_left"] {\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n.pops[position="top"] {\n  position: fixed;\n  top: 0;\n  left: 50%;\n  transform: translateX(-50%);\n}\n.pops[position="top_right"] {\n  position: fixed;\n  top: 0;\n  right: 0;\n}\n.pops[position="center_left"] {\n  position: fixed;\n  top: 50%;\n  left: 0;\n  transform: translateY(-50%);\n}\n.pops[position="center"] {\n  position: fixed;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n.pops[position="center_right"] {\n  position: fixed;\n  top: 50%;\n  right: 0;\n  transform: translateY(-50%);\n}\n.pops[position="bottom_left"] {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n}\n.pops[position="bottom"] {\n  position: fixed;\n  bottom: 0;\n  left: 50%;\n  transform: translate(-50%, 0);\n}\n.pops[position="bottom_right"] {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n';
   var scrollbarCSS =
@@ -6655,6 +6954,82 @@
     hasAnim(name) {
       return Object.prototype.hasOwnProperty.call(this.$data, name);
     },
+    createSwitchElementWithAnimation($el, $next, option) {
+      const animOptions = {
+        duration: 220,
+        easing: "ease-in-out",
+        ...(option.animOptions ?? {}),
+      };
+      if (option.useAnimation == null) {
+        option.useAnimation = true;
+      }
+      return {
+        async enter() {
+          const transitionEndCallback = async () => {
+            popsDOMUtils.cssHide($el, true);
+            await option.enterToAddElementCallback();
+          };
+          if (option.useAnimation && typeof document.startViewTransition == "function") {
+            const transition = document.startViewTransition(transitionEndCallback);
+            await transition.ready;
+            await $next.animate(
+              [
+                {
+                  transform: "translateX(100%)",
+                },
+                {
+                  transform: "translateX(0)",
+                },
+              ],
+              animOptions
+            ).finished;
+            await transition.finished;
+          } else {
+            await transitionEndCallback();
+          }
+        },
+        async exit() {
+          const transitionEndCallback = async () => {
+            popsDOMUtils.cssShow($el);
+            $next.remove();
+            if (typeof option.exitToRemoveElementCallback === "function") {
+              await option.exitToRemoveElementCallback();
+            }
+          };
+          if (option.useAnimation && typeof document.startViewTransition == "function") {
+            const leaveTransition = document.startViewTransition(transitionEndCallback);
+            await leaveTransition.ready;
+            await Promise.all([
+              $next.animate(
+                [
+                  {
+                    transform: "translateX(0)",
+                  },
+                  {
+                    transform: "translateX(100%)",
+                  },
+                ],
+                animOptions
+              ).finished,
+              $el.animate(
+                [
+                  {
+                    transform: "translateX(-100%)",
+                  },
+                  {
+                    transform: "translateX(0)",
+                  },
+                ],
+                animOptions
+              ).finished,
+            ]);
+            await leaveTransition.finished;
+          } else {
+            await transitionEndCallback();
+          }
+        },
+      };
+    },
   };
   const PopsInstData = {
     alert: [],
@@ -6669,69 +7044,23 @@
     tooltip: [],
   };
   const PopsInstanceUtils = {
-    getMaxZIndexNodeInfo(deviation = 1, target = PopsCore.document, ignoreCallBack) {
-      deviation = Number.isNaN(deviation) ? 1 : deviation;
-      const maxZIndexCompare = 2 * Math.pow(10, 9);
-      let zIndex = 0;
-      let maxZIndexNode = null;
-      function isVisibleNode($css) {
-        return $css.position !== "static" && $css.display !== "none";
-      }
-      function queryMaxZIndex($ele) {
-        if (typeof ignoreCallBack === "function") {
-          const ignoreResult = ignoreCallBack($ele);
-          if (typeof ignoreResult === "boolean" && !ignoreResult) {
-            return;
-          }
-        }
-        const nodeStyle = PopsCore.window.getComputedStyle($ele);
-        if (isVisibleNode(nodeStyle)) {
-          const nodeZIndex = parseInt(nodeStyle.zIndex);
-          if (!isNaN(nodeZIndex)) {
-            if (nodeZIndex > zIndex) {
-              zIndex = nodeZIndex;
-              maxZIndexNode = $ele;
-            }
-          }
-          if ($ele.shadowRoot != null && $ele instanceof ShadowRoot) {
-            $ele.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
-              queryMaxZIndex($shadowEle);
-            });
-          }
-        }
-      }
-      target.querySelectorAll("*").forEach(($ele) => {
-        queryMaxZIndex($ele);
-      });
-      zIndex += deviation;
-      if (zIndex >= maxZIndexCompare) {
-        zIndex = maxZIndexCompare;
-      }
-      return {
-        node: maxZIndexNode,
-        zIndex,
-      };
-    },
     getPopsMaxZIndex(deviation = 1) {
       deviation = Number.isNaN(deviation) ? 1 : deviation;
       const maxZIndex = 2 * Math.pow(10, 9);
       let zIndex = 0;
       let maxZIndexNode = null;
-      function isVisibleNode($css) {
-        return $css.position !== "static" && $css.display !== "none";
-      }
       Object.keys(PopsInstData).forEach((instKeyName) => {
         const instData = PopsInstData[instKeyName];
         for (let index = 0; index < instData.length; index++) {
           const inst = instData[index];
-          const nodeStyle = window.getComputedStyle(inst.$anim);
-          if (isVisibleNode(nodeStyle)) {
-            const nodeZIndex = parseInt(nodeStyle.zIndex);
-            if (!isNaN(nodeZIndex)) {
-              if (nodeZIndex > zIndex) {
-                zIndex = nodeZIndex;
-                maxZIndexNode = inst.$anim;
-              }
+          const $elList = [inst.$anim, inst.$pops, inst.$mask].filter((it) => it instanceof HTMLElement);
+          const nodeZIndexInfoList = popsUtils.getMaxZIndexNodeInfoFromPoint($elList);
+          const maxNodeZIndexInfo = nodeZIndexInfoList[0];
+          if (maxNodeZIndexInfo) {
+            const nodeZIndex = maxNodeZIndexInfo.zIndex;
+            if (nodeZIndex > zIndex) {
+              zIndex = nodeZIndex;
+              maxZIndexNode = maxNodeZIndexInfo.node || maxNodeZIndexInfo.positionNode;
             }
           }
         }
@@ -6743,22 +7072,81 @@
       }
       return { zIndex, animElement: maxZIndexNode, isOverMaxZIndex };
     },
-    getMaxZIndex(deviation = 1) {
-      return this.getMaxZIndexNodeInfo(deviation).zIndex;
-    },
-    async removeInstance(totalInstConfigList, guid, isAll = false) {
-      const removeInst = function (instCommonConfig) {
-        if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
-          instCommonConfig.beforeRemoveCallBack(instCommonConfig);
+    sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true) {
+      if (typeof sortByDesc !== "boolean") {
+        throw new TypeError("参数 sortByDesc 必须为boolean类型");
+      }
+      if (getBeforeValueFun == null || getAfterValueFun == null) {
+        throw new Error("获取前面的值或后面的值的方法不能为空");
+      }
+      return function (after_obj, before_obj) {
+        const beforeValue = getBeforeValueFun(before_obj);
+        const afterValue = getAfterValueFun(after_obj);
+        if (sortByDesc) {
+          if (afterValue > beforeValue) {
+            return -1;
+          } else if (afterValue < beforeValue) {
+            return 1;
+          } else {
+            return 0;
+          }
+        } else {
+          if (afterValue < beforeValue) {
+            return -1;
+          } else if (afterValue > beforeValue) {
+            return 1;
+          } else {
+            return 0;
+          }
         }
+      };
+    },
+    isHide($el) {
+      let flag = false;
+      if (
+        $el?.classList?.contains(PopsCommonCSSClassName.hide) ||
+        $el?.classList?.contains(PopsCommonCSSClassName.hideImportant)
+      ) {
+        flag = true;
+      } else {
+        if ($el instanceof HTMLElement) {
+          const style = $el.style;
+          flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+        }
+        if (!flag) {
+          const style = globalThis.getComputedStyle($el);
+          flag = style.display.includes("none") || style.visibility.includes("hidden") || style.opacity !== "0";
+        }
+      }
+      return flag;
+    },
+    isNodeInPopsNode($el) {
+      return !!($el.closest(".pops") || $el.matches(".pops"));
+    },
+    isAnimNode($el) {
+      return !!(
+        $el?.localName?.toLowerCase() === "div" &&
+        $el.className &&
+        $el.className === "pops-anim" &&
+        $el.hasAttribute("anim")
+      );
+    },
+  };
+  const PopsInstHandler = {
+    async removeInstance(totalInstConfigList, guid, isAll = false) {
+      const removeInst = async (instCommonConfig) => {
+        await instCommonConfig.emitter.emit("pops:before-destory", instCommonConfig);
         instCommonConfig?.$anim?.remove();
         instCommonConfig?.$pops?.remove();
         instCommonConfig?.$mask?.remove();
         instCommonConfig?.$shadowContainer?.remove();
+        await instCommonConfig.emitter.emit("pops:destory");
+        await instCommonConfig.emitter.offAll();
       };
       const asyncInstTask = [];
-      totalInstConfigList.forEach((instConfigList) => {
-        instConfigList.forEach(async (instConfigItem, index) => {
+      for (const instConfigList of totalInstConfigList) {
+        for (let index = 0; index < instConfigList.length; index++) {
+          const instConfigItem = instConfigList[index];
           if (isAll || (typeof guid === "string" && instConfigItem.guid === guid)) {
             const animName = instConfigItem.$anim.getAttribute("anim");
             if (PopsAnimation.hasAnim(animName)) {
@@ -6772,8 +7160,8 @@
                     popsDOMUtils.on(
                       instConfigItem.$anim,
                       popsDOMUtils.getAnimationEndNameList(),
-                      function () {
-                        removeInst(instConfigItem);
+                      async () => {
+                        await removeInst(instConfigItem);
                         resolve();
                       },
                       {
@@ -6783,145 +7171,198 @@
                   })
                 );
               } else {
-                removeInst(instConfigItem);
+                asyncInstTask.push(removeInst(instConfigItem));
               }
             } else {
-              removeInst(instConfigItem);
+              asyncInstTask.push(removeInst(instConfigItem));
             }
             instConfigList.splice(index, 1);
+            index--;
           }
-        });
-      });
+        }
+      }
       await Promise.all(asyncInstTask);
       return totalInstConfigList;
     },
-    hide(config, popsType, instConfigList, guid, $anim, $mask) {
-      return new Promise((resolve) => {
+    show(config, popsType, instConfigList, guid, $anim, $mask) {
+      return new Promise(async (resolve) => {
         const $pops = $anim.querySelector(".pops[type-value]");
-        if (popsType === "drawer") {
-          const drawerConfig = config;
-          popsUtils.setTimeout(() => {
-            if ($mask) {
-              popsDOMUtils.css($mask, "display", "none");
-            }
-            if (["top", "bottom"].includes(drawerConfig.direction)) {
-              $pops.style.setProperty("height", "0");
-            } else if (["left", "right"].includes(drawerConfig.direction)) {
-              $pops.style.setProperty("width", "0");
+        const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+        if (fintInst) {
+          const checkVisible = () => {
+            if (!PopsInstanceUtils.isHide($anim)) {
+              return true;
             } else {
-              console.error("未知direction：", drawerConfig.direction);
+              return false;
             }
-            resolve();
-          }, drawerConfig.closeDelay);
-        } else {
-          const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
-          if (fintInst) {
-            const instConfigItem = fintInst;
-            instConfigItem.$anim.style.width = "100%";
-            instConfigItem.$anim.style.height = "100%";
-            Reflect.set(
-              instConfigItem.$anim.style,
-              "animation-name",
-              instConfigItem.$anim.getAttribute("anim") + "-reverse"
-            );
-            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
-              let animationendCallBack2 = function () {
-                instConfigItem.$anim.style.display = "none";
-                if (instConfigItem.$mask) {
-                  instConfigItem.$mask.style.display = "none";
-                }
-                popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
-                  capture: true,
-                });
-                resolve();
-              };
-              popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
-                capture: true,
-              });
-            } else {
-              instConfigItem.$anim.style.display = "none";
-              if (instConfigItem.$mask) {
-                instConfigItem.$mask.style.display = "none";
+          };
+          const startAnim = async () => {
+            if (popsType === "drawer") {
+              const drawerConfig = config;
+              await popsUtils.sleep(drawerConfig.openDelay ?? 0);
+              if ($mask) {
+                popsDOMUtils.css($mask, "display", "");
               }
-              resolve();
+              const direction = drawerConfig.direction;
+              const size = drawerConfig.size.toString();
+              if (["top", "bottom"].includes(direction)) {
+                $pops.style.setProperty("height", size);
+              } else if (["left", "right"].includes(direction)) {
+                $pops.style.setProperty("width", size);
+              } else {
+                console.error("未知direction：", direction);
+              }
+            } else {
+              instConfigItem.$anim.style.width = "";
+              instConfigItem.$anim.style.height = "";
+              Reflect.set(instConfigItem.$anim.style, "animation-name", animName);
             }
+            instConfigItem.$anim.style.display = "";
+            if (instConfigItem.$mask) {
+              instConfigItem.$mask.style.display = "";
+            }
+          };
+          const endCallback = () => {
+            fintInst.emitter.emit("pops:show", instConfigItem);
+          };
+          const instConfigItem = fintInst;
+          const animName = instConfigItem.$anim.getAttribute("anim").replace("-reverse", "");
+          fintInst.emitter.emit("pops:before-show", instConfigItem);
+          if (checkVisible() && PopsAnimation.hasAnim(animName)) {
+            const animationendCallBack = () => {
+              listener.off();
+              endCallback();
+              resolve();
+            };
+            const listener = popsDOMUtils.on(
+              instConfigItem.$anim,
+              popsDOMUtils.getAnimationEndNameList(),
+              animationendCallBack,
+              {
+                capture: true,
+              }
+            );
+            await startAnim();
+          } else {
+            await startAnim();
+            endCallback();
+            resolve();
           }
+        } else {
+          console.error("show-error: 该实例未存储");
+          resolve();
         }
       });
     },
-    show(config, popsType, instConfigList, guid, $anim, $mask) {
-      return new Promise((resolve) => {
+    hide(config, popsType, instConfigList, guid, $anim, $mask) {
+      return new Promise(async (resolve) => {
         const $pops = $anim.querySelector(".pops[type-value]");
-        if (popsType === "drawer") {
-          const drawerConfig = config;
-          popsUtils.setTimeout(() => {
-            if ($mask) {
-              popsDOMUtils.css($mask, "display", "");
-            }
-            const direction = drawerConfig.direction;
-            const size = drawerConfig.size.toString();
-            if (["top", "bottom"].includes(direction)) {
-              $pops.style.setProperty("height", size);
-            } else if (["left", "right"].includes(direction)) {
-              $pops.style.setProperty("width", size);
+        const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+        if (fintInst) {
+          const checkVisible = () => {
+            if (!PopsInstanceUtils.isHide($anim)) {
+              return true;
             } else {
-              console.error("未知direction：", direction);
+              return false;
             }
-            resolve();
-          }, drawerConfig.openDelay ?? 0);
-        } else {
-          const fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
-          if (fintInst) {
-            const instConfigItem = fintInst;
-            instConfigItem.$anim.style.width = "";
-            instConfigItem.$anim.style.height = "";
-            Reflect.set(
-              instConfigItem.$anim.style,
-              "animation-name",
-              instConfigItem.$anim.getAttribute("anim").replace("-reverse", "")
-            );
-            if (PopsAnimation.hasAnim(Reflect.get(instConfigItem.$anim.style, "animation-name"))) {
-              let animationendCallBack2 = function () {
-                popsDOMUtils.off(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
-                  capture: true,
-                });
-                resolve();
-              };
-              instConfigItem.$anim.style.display = "";
-              if (instConfigItem.$mask) {
-                instConfigItem.$mask.style.display = "";
+          };
+          const startAnim = async () => {
+            if (popsType === "drawer") {
+              const drawerConfig = config;
+              await popsUtils.sleep(drawerConfig.closeDelay ?? 0);
+              if ($mask) {
+                popsDOMUtils.css($mask, "display", "none");
               }
-              popsDOMUtils.on(instConfigItem.$anim, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
-                capture: true,
-              });
+              const direction = drawerConfig.direction;
+              const size = "0";
+              if (["top", "bottom"].includes(direction)) {
+                $pops.style.setProperty("height", size);
+              } else if (["left", "right"].includes(direction)) {
+                $pops.style.setProperty("width", size);
+              } else {
+                console.error("未知direction: ", direction);
+              }
             } else {
-              instConfigItem.$anim.style.display = "";
-              if (instConfigItem.$mask) {
-                instConfigItem.$mask.style.display = "";
-              }
+              instConfigItem.$anim.style.width = "100%";
+              instConfigItem.$anim.style.height = "100%";
+              Reflect.set(instConfigItem.$anim.style, "animation-name", reverseAnimName);
+            }
+          };
+          const endCallback = () => {
+            instConfigItem.$anim.style.display = "none";
+            if (instConfigItem.$mask) {
+              instConfigItem.$mask.style.display = "none";
+            }
+            fintInst.emitter.emit("pops:hide", instConfigItem);
+          };
+          const instConfigItem = fintInst;
+          const animName = instConfigItem.$anim.getAttribute("anim").replace("-reverse", "");
+          const reverseAnimName = animName + "-reverse";
+          fintInst.emitter.emit("pops:before-hide", instConfigItem);
+          if (!checkVisible() && PopsAnimation.hasAnim(reverseAnimName)) {
+            const animationendCallBack = () => {
+              listener.off();
+              endCallback();
               resolve();
-            }
+            };
+            const listener = popsDOMUtils.on(
+              instConfigItem.$anim,
+              popsDOMUtils.getAnimationEndNameList(),
+              animationendCallBack,
+              {
+                capture: true,
+                once: true,
+              }
+            );
+            await startAnim();
+          } else {
+            await startAnim();
+            endCallback();
+            resolve();
           }
+        } else {
+          console.error("hide-error: 该实例未存储");
+          resolve();
         }
       });
     },
     async close(config, popsType, instConfigList, guid, $anim) {
+      PopsInstData.rightClickMenu.forEach((itemConfig) => {
+        const config2 = itemConfig.config;
+        if (config2.$target instanceof HTMLElement) {
+          const $root = config2.$target.getRootNode();
+          if ($root instanceof HTMLElement && $root.parentElement == null) {
+            itemConfig.emitter.emit("pops:before-destory", itemConfig);
+          }
+        }
+      });
+      PopsInstData.tooltip.forEach((itemConfig) => {
+        const config2 = itemConfig.config;
+        if (config2.$target instanceof HTMLElement) {
+          const $root = config2.$target.getRootNode();
+          if ($root instanceof HTMLElement && $root.parentElement == null) {
+            itemConfig.emitter.emit("pops:before-destory", itemConfig);
+          }
+        }
+      });
       await new Promise(async (resolve) => {
         const $pops = $anim.querySelector(".pops[type-value]");
         const drawerConfig = config;
-        function transitionendEvent() {
-          async function closeCallBack(event) {
+        const startAnim = () => {
+          const transtionEndCallback = async (event) => {
             if (event.propertyName !== "transform") {
               return;
             }
-            popsDOMUtils.off($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-            await PopsInstanceUtils.removeInstance([instConfigList], guid);
+            listener.off();
+            await PopsInstHandler.removeInstance([instConfigList], guid);
             resolve();
-          }
-          popsDOMUtils.on($pops, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-          const popsTransForm = getComputedStyle($pops).transform;
+          };
+          const listener = popsDOMUtils.on($pops, popsDOMUtils.getTransitionEndNameList(), transtionEndCallback, {
+            once: true,
+          });
+          const popsTransForm = globalThis.getComputedStyle($pops).transform;
           if (popsTransForm !== "none") {
-            popsDOMUtils.emit($pops, popsDOMUtils.getTransitionEndNameList(), void 0, true);
+            listener.emit({ propertyName: "transform" });
             return;
           }
           if (["top"].includes(drawerConfig.direction)) {
@@ -6933,34 +7374,15 @@
           } else if (["right"].includes(drawerConfig.direction)) {
             $pops.style.setProperty("transform", "translateX(100%)");
           } else {
-            console.error("未知direction：", drawerConfig.direction);
+            console.error("未知direction: ", drawerConfig.direction);
           }
-        }
+        };
         if (popsType === "drawer") {
-          popsUtils.setTimeout(() => {
-            transitionendEvent();
-          }, drawerConfig.closeDelay);
+          await popsUtils.sleep(drawerConfig.closeDelay ?? 0);
+          startAnim();
         } else {
-          await PopsInstanceUtils.removeInstance([instConfigList], guid);
+          await PopsInstHandler.removeInstance([instConfigList], guid);
           resolve();
-        }
-      });
-      PopsInstData.rightClickMenu.forEach((itemConfig) => {
-        const config2 = itemConfig.config;
-        if (config2.$target instanceof HTMLElement) {
-          const $root = config2.$target.getRootNode();
-          if ($root instanceof HTMLElement && $root.parentElement == null) {
-            itemConfig.destory();
-          }
-        }
-      });
-      PopsInstData.tooltip.forEach((itemConfig) => {
-        const config2 = itemConfig.config;
-        if (config2.$target instanceof HTMLElement) {
-          const $root = config2.$target.getRootNode();
-          if ($root instanceof HTMLElement && $root.parentElement == null) {
-            itemConfig.destory();
-          }
         }
       });
     },
@@ -7031,6 +7453,9 @@
           clickElementTopOffset = event.y - rect.top;
           transformInfo = popsDOMUtils.getTransform($move);
           resumeMoveElementStyle = changeMoveElementStyle($move);
+          if (typeof options.startCallBack === "function") {
+            options.startCallBack($move, clickElementLeftOffset, clickElementTopOffset);
+          }
         }
         let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformInfo.transformLeft;
         let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
@@ -7091,53 +7516,43 @@
         });
       }
     },
-    sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true) {
-      if (typeof sortByDesc !== "boolean") {
-        throw new TypeError("参数 sortByDesc 必须为boolean类型");
-      }
-      if (getBeforeValueFun == null || getAfterValueFun == null) {
-        throw new Error("获取前面的值或后面的值的方法不能为空");
-      }
-      return function (after_obj, before_obj) {
-        const beforeValue = getBeforeValueFun(before_obj);
-        const afterValue = getAfterValueFun(after_obj);
-        if (sortByDesc) {
-          if (afterValue > beforeValue) {
-            return -1;
-          } else if (afterValue < beforeValue) {
-            return 1;
-          } else {
-            return 0;
-          }
-        } else {
-          if (afterValue < beforeValue) {
-            return -1;
-          } else if (afterValue > beforeValue) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }
-      };
-    },
   };
   const PopsHandler = {
     handlerShadow(config) {
       const $shadowContainer = popsDOMUtils.createElement("div", {
         className: "pops-shadow-container",
       });
+      let $shadowRoot;
       if (config.useShadowRoot) {
-        const $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-        return {
-          $shadowContainer,
-          $shadowRoot,
-        };
+        $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
       } else {
-        return {
-          $shadowContainer,
-          $shadowRoot: $shadowContainer,
-        };
+        $shadowRoot = $shadowContainer;
       }
+      if (config.stopKeyDownEventPropagation) {
+        popsDOMUtils.on(
+          $shadowRoot,
+          "keydown",
+          [
+            'input[type="text"]',
+            'input[type="password"]',
+            'input[type="number"]',
+            'input[type="email"]',
+            'input[type="url"]',
+            'input[type="search"]',
+            "input:not([type])",
+            "textarea",
+          ],
+          (evt) => {
+            evt.stopImmediatePropagation();
+            evt.stopPropagation();
+          },
+          { capture: true }
+        );
+      }
+      return {
+        $shadowContainer,
+        $shadowRoot,
+      };
     },
     handleInit($styleParent, css) {
       PopsAnimation.init();
@@ -7190,14 +7605,14 @@
         maskElement: popsDOMUtils.parseTextToDOM(config.maskHTML),
       };
       let isMaskClick = false;
-      function clickEvent(event) {
+      const clickEvent = (event) => {
         popsDOMUtils.preventEvent(event);
         const targetInst = PopsInstData[config.type];
-        function originalRun() {
+        const continueExec = () => {
           if (config.config.mask.clickEvent.toClose) {
-            return PopsInstanceUtils.close(config.config, config.type, targetInst, config.guid, config.animElement);
+            return PopsInstHandler.close(config.config, config.type, targetInst, config.guid, config.animElement);
           } else if (config.config.mask.clickEvent.toHide) {
-            return PopsInstanceUtils.hide(
+            return PopsInstHandler.hide(
               config.config,
               config.type,
               targetInst,
@@ -7206,30 +7621,22 @@
               result.maskElement
             );
           }
-        }
+        };
         if (typeof config.config.mask.clickCallBack === "function") {
-          config.config.mask.clickCallBack(originalRun, config.config);
+          config.config.mask.clickCallBack(continueExec, config.config);
         } else {
-          originalRun();
+          continueExec();
         }
         return false;
-      }
+      };
       if (config.config.mask.clickEvent.toClose || config.config.mask.clickEvent.toHide) {
-        let isAnimElement2 = function (element) {
-          return Boolean(
-            element?.localName?.toLowerCase() === "div" &&
-            element.className &&
-            element.className === "pops-anim" &&
-            element.hasAttribute("anim")
-          );
-        };
         popsDOMUtils.on(config.animElement, "pointerup", (event) => {
           const $click = event.composedPath()[0];
-          isMaskClick = isAnimElement2($click);
+          isMaskClick = PopsInstanceUtils.isAnimNode($click);
         });
         popsDOMUtils.on(config.animElement, "click", (event) => {
           const $click = event.composedPath()[0];
-          if (isMaskClick && isAnimElement2($click)) {
+          if (isMaskClick && PopsInstanceUtils.isAnimNode($click)) {
             return clickEvent(event);
           }
         });
@@ -7282,7 +7689,7 @@
         $folderSortFileSize: animElement.querySelector('.pops-folder-list-table__sort[data-sort="fileSize"]'),
       };
     },
-    handleEventConfig(config, guid, $shadowContainer, $shadowRoot, type, $anim, $pops, $mask) {
+    handleEventConfig(config, guid, $shadowContainer, $shadowRoot, type, $anim, $pops, emitter, $mask) {
       return {
         $shadowContainer,
         $shadowRoot,
@@ -7292,21 +7699,22 @@
         $mask,
         mode: type,
         guid,
+        emitter,
         close() {
-          return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
+          return PopsInstHandler.close(config, type, PopsInstData[type], guid, $anim);
         },
         hide() {
-          return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
+          return PopsInstHandler.hide(config, type, PopsInstData[type], guid, $anim, $mask);
         },
         show($parent) {
           if ($parent) {
             $parent.appendChild(PopsInstData[type][0].$shadowRoot);
           }
-          return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
+          return PopsInstHandler.show(config, type, PopsInstData[type], guid, $anim, $mask);
         },
       };
     },
-    handleLoadingEventConfig(config, guid, type, $anim, $pops, $mask) {
+    handleLoadingEventConfig(config, guid, type, $anim, $pops, emitter, $mask) {
       return {
         $el: $anim,
         $anim,
@@ -7314,14 +7722,15 @@
         $mask,
         mode: type,
         guid,
+        emitter,
         close() {
-          return PopsInstanceUtils.close(config, type, PopsInstData[type], guid, $anim);
+          return PopsInstHandler.close(config, type, PopsInstData[type], guid, $anim);
         },
         hide() {
-          return PopsInstanceUtils.hide(config, type, PopsInstData[type], guid, $anim, $mask);
+          return PopsInstHandler.hide(config, type, PopsInstData[type], guid, $anim, $mask);
         },
         show() {
-          return PopsInstanceUtils.show(config, type, PopsInstData[type], guid, $anim, $mask);
+          return PopsInstHandler.show(config, type, PopsInstData[type], guid, $anim, $mask);
         },
       };
     },
@@ -7333,7 +7742,7 @@
     },
     handleClickEvent(type, $btn, eventConfig, callback) {
       if (typeof callback !== "function") return;
-      popsDOMUtils.on(
+      return popsDOMUtils.on(
         $btn,
         "click",
         (event) => {
@@ -7369,16 +7778,10 @@
           callback && callback(event);
         }
       };
-      popsDOMUtils.on(PopsCore.globalThis, "keydown", keyboardEvent, {
+      const listener = popsDOMUtils.on(PopsCore.globalThis, "keydown", keyboardEvent, {
         capture: true,
       });
-      return {
-        removeKeyboardEvent() {
-          popsDOMUtils.off(globalThis, "keydown", keyboardEvent, {
-            capture: true,
-          });
-        },
-      };
+      return listener;
     },
     handlePromptClickEvent(type, inputElement, $btn, eventConfig, callback) {
       popsDOMUtils.on(
@@ -7396,11 +7799,12 @@
         }
       );
     },
-    handleZIndex(zIndex) {
-      if (typeof zIndex === "function") {
-        return zIndex();
+    getTargerOrFunctionValue(target) {
+      if (typeof target === "function") {
+        const result = target();
+        return result;
       } else {
-        return zIndex;
+        return target;
       }
     },
     handleOnly(type, config) {
@@ -7408,10 +7812,10 @@
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
           const inst = PopsInstData[type];
           if (inst) {
-            PopsInstanceUtils.removeInstance([inst], "", true);
+            PopsInstHandler.removeInstance([inst], "", true);
           }
         } else {
-          PopsInstanceUtils.removeInstance(
+          PopsInstHandler.removeInstance(
             [
               PopsInstData.alert,
               PopsInstData.confirm,
@@ -7425,15 +7829,23 @@
             true
           );
         }
-      } else {
-        const originZIndex = config.zIndex;
-        config.zIndex = () => {
-          const { zIndex: maxZIndex } = PopsInstanceUtils.getPopsMaxZIndex(
-            PopsHandler.handleZIndex(originZIndex) + 100
-          );
-          return maxZIndex;
-        };
       }
+      if (type !== "rightClickMenu") {
+        config = this.handleZIndex(config);
+      }
+      return config;
+    },
+    handleZIndex(config) {
+      const originZIndex = config.zIndex;
+      const handler = () => {
+        let deviation = 100;
+        deviation += PopsHandler.getTargerOrFunctionValue(originZIndex) ?? 0;
+        let maxZIndex = deviation;
+        const pointZIndex = popsUtils.getMaxZIndexNodeInfoFromPoint(deviation)[0]?.zIndex ?? 0;
+        maxZIndex = Math.max(maxZIndex, pointZIndex);
+        return maxZIndex === deviation ? maxZIndex : maxZIndex + deviation;
+      };
+      config.zIndex = handler;
       return config;
     },
     handlePush(type, value) {
@@ -7499,7 +7911,8 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsAlert = {
@@ -7510,6 +7923,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -7541,7 +7955,7 @@
           css: PopsCSS.alertCSS,
         },
       ]);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -7585,15 +7999,14 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
       PopsHandler.handleClickEvent("close", $headerCloseBtn, evtConfig, config.btn.close?.callback);
       PopsHandler.handleClickEvent("ok", btnOkElement, evtConfig, config.btn.ok?.callback);
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
@@ -7606,10 +8019,10 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -7706,7 +8119,8 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsConfirm = {
@@ -7717,6 +8131,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -7748,7 +8163,7 @@
           css: PopsCSS.confirmCSS,
         },
       ]);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -7794,6 +8209,7 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
@@ -7802,9 +8218,7 @@
       PopsHandler.handleClickEvent("cancel", $btnCancel, evtConfig, config.btn.cancel.callback);
       PopsHandler.handleClickEvent("other", $btnOther, evtConfig, config.btn.other.callback);
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
@@ -7817,10 +8231,10 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -7915,8 +8329,9 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
       forbiddenScroll: false,
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsDrawer = {
@@ -7927,6 +8342,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -7958,7 +8374,7 @@
           css: PopsCSS.drawerCSS,
         },
       ]);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -8016,6 +8432,7 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
@@ -8034,8 +8451,11 @@
         $pops.style.setProperty("border-radius", `${config.borderRadius}px 0px ${config.borderRadius}px 0px`);
       }
       if (config.closeOnPressEscape) {
-        PopsHandler.handleKeyboardEvent("Escape", [], function () {
+        const listener = PopsHandler.handleKeyboardEvent("Escape", [], function () {
           evtConfig.close();
+        });
+        emitter.on("pops:destory", () => {
+          listener.off();
         });
       }
       const needHandleClickEventList = [
@@ -8082,9 +8502,7 @@
         element.style.setProperty("display", "");
       });
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       popsUtils.setTimeout(() => {
         popsUtils.setTimeout(() => {
@@ -8102,7 +8520,7 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       return result;
     },
@@ -8134,25 +8552,28 @@
       lightStyle: null,
       darkStyle: null,
       addIndexCSS: true,
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsLoading = {
     init(__config__) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "loading";
+      const popsType = "loading";
       let config = PopsLoadingDefaultConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
-      config = PopsHandler.handleOnly(PopsType, config);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
       const animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         `
-            <div class="pops-content pops-${PopsType}-content">${
+            <div class="pops-content pops-${popsType}-content">${
               config.addIndexCSS
                 ? `
                 <style data-model-name="index">${PopsCSS.index}</style>
@@ -8165,18 +8586,18 @@
                     ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
+            	<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
             </div>`,
         "",
         zIndex
       );
       const $anim = PopsElementHandler.parseElement(animHTML);
-      const { $pops } = PopsHandler.handleQueryElement($anim, PopsType);
+      const { $pops } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = void 0;
       const $elList = [$anim];
       if (config.mask.enable) {
         const handleMask = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -8185,16 +8606,20 @@
         $mask = handleMask.maskElement;
         $elList.push($mask);
       }
-      const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, PopsType, $anim, $pops, $mask);
+      const evtConfig = PopsHandler.handleLoadingEventConfig(config, guid, popsType, $anim, $pops, emitter, $mask);
       popsDOMUtils.append(config.$parent, $elList);
       if ($mask != null) {
         $anim.after($mask);
       }
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
+        $shadowContainer: $pops,
+        $shadowRoot: $pops,
         guid,
         $anim,
         $pops,
         $mask,
+        emitter,
+        config,
       });
       if (config.isAbsolute) {
         popsDOMUtils.css($anim, "position", "absolute !important");
@@ -8352,7 +8777,8 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const Folder_ICON = {
@@ -8388,6 +8814,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -8461,7 +8888,7 @@
       if (config?.folder) {
         Reflect.set(config, "folder", config.folder);
       }
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -8608,6 +9035,7 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
@@ -8616,9 +9044,7 @@
       PopsHandler.handleClickEvent("cancel", btnCancelElement, evtConfig, config.btn.cancel.callback);
       PopsHandler.handleClickEvent("other", btnOtherElement, evtConfig, config.btn.other.callback);
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
@@ -8803,7 +9229,7 @@
           </div>`
           );
           Reflect.set($fileName, "__value__", folderData);
-          Reflect.set($folder, "folderData", folderData);
+          Reflect.set($folder, "__value__", folderData);
           $folder.appendChild($fileName);
           return {
             folderElement: $folder,
@@ -8873,8 +9299,16 @@
             },
             addIndexCSS: false,
           });
+          let childConfig;
           if (typeof dataConfig.clickEvent === "function") {
-            const childConfig = await dataConfig.clickEvent(clickEvent, dataConfig);
+            const result2 = await dataConfig.clickEvent(clickEvent, dataConfig);
+            if (Array.isArray(result2)) {
+              childConfig = result2;
+            }
+          } else if (Array.isArray(dataConfig.clickEvent)) {
+            childConfig = dataConfig.clickEvent;
+          }
+          if (childConfig) {
             folderFileListBreadcrumbPrimaryElement.appendChild(this.createHeaderArrowIcon());
             const $breadcrumbAllFiles = this.createBreadcrumb(dataConfig.fileName, childConfig);
             folderFileListBreadcrumbPrimaryElement.appendChild($breadcrumbAllFiles);
@@ -8885,40 +9319,48 @@
           }
           loadingMask.close();
         }
-        async downloadFile(clickEvent, $row, dataConfig) {
-          popsDOMUtils.preventEvent(clickEvent);
-          const $link = $row.querySelector("a");
+        updateFileLink($row, downloadInfo) {
+          const downloadUrl = typeof downloadInfo?.url === "string" ? downloadInfo.url.trim() : "";
+          if (downloadUrl !== "" && downloadUrl !== "null" && downloadUrl !== "undefined") {
+            const $link = $row.querySelector("a");
+            $link.setAttribute("href", downloadUrl);
+            return downloadUrl;
+          }
+        }
+        async onFileClick(evt, $row, dataConfig) {
+          let downloadInfo;
           if (typeof dataConfig.clickEvent === "function") {
-            const downloadInfo = await dataConfig.clickEvent(clickEvent, dataConfig);
-            if (
-              downloadInfo != null &&
-              typeof downloadInfo === "object" &&
-              !Array.isArray(downloadInfo) &&
-              typeof downloadInfo.url === "string" &&
-              downloadInfo.url.trim() !== ""
-            ) {
-              $link.setAttribute("href", downloadInfo.url);
-              $link.setAttribute("target", "_blank");
-              if (downloadInfo.autoDownload) {
-                if (downloadInfo.mode == null || String(downloadInfo.mode) === "") {
-                  downloadInfo.mode = "aBlank";
-                }
+            const result2 = await dataConfig.clickEvent(evt, dataConfig);
+            if (typeof result2 === "object" && result2 != null && !Array.isArray(result2)) {
+              downloadInfo = result2;
+            }
+          } else if (
+            typeof dataConfig.clickEvent === "object" &&
+            dataConfig.clickEvent != null &&
+            !Array.isArray(dataConfig.clickEvent)
+          ) {
+            downloadInfo = dataConfig.clickEvent;
+          }
+          if (downloadInfo) {
+            const downloadUrl = this.updateFileLink($row, downloadInfo);
+            if (downloadUrl) {
+              if (typeof downloadInfo.mode === "string") {
                 if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
                   const $anchor = popsDOMUtils.createElement("a");
                   if (downloadInfo.mode === "aBlank") {
                     $anchor.setAttribute("target", "_blank");
                   }
-                  $anchor.href = downloadInfo.url;
+                  $anchor.href = downloadUrl;
                   $anchor.click();
                 } else if (downloadInfo.mode === "open" || downloadInfo.mode === "openBlank") {
                   if (downloadInfo.mode === "openBlank") {
-                    globalThis.open(downloadInfo.url, "_blank");
+                    globalThis.open(downloadUrl, "_blank");
                   } else {
-                    globalThis.open(downloadInfo.url);
+                    globalThis.open(downloadUrl);
                   }
                 } else if (downloadInfo.mode === "iframe") {
                   const $downloadIframe = popsDOMUtils.createElement("iframe");
-                  $downloadIframe.src = downloadInfo.url;
+                  $downloadIframe.src = downloadUrl;
                   $downloadIframe.onload = function () {
                     popsUtils.setTimeout(() => {
                       $downloadIframe.remove();
@@ -9056,8 +9498,12 @@
                 ? this.createFolderRowElementByMobile(item)
                 : this.createFolderRowElement(item);
               popsDOMUtils.on(fileNameElement, "click", (event) => {
-                this.downloadFile(event, fileNameElement, item);
+                popsDOMUtils.preventEvent(event);
+                this.onFileClick(event, fileNameElement, item);
               });
+              if (typeof item.clickEvent === "object" && item.clickEvent !== null && !Array.isArray(item.clickEvent)) {
+                this.updateFileLink(fileNameElement, item.clickEvent);
+              }
               folderListBodyElement.appendChild(folderElement);
             }
           });
@@ -9108,7 +9554,7 @@
       popsFolder.init();
       Reflect.set($pops, "data-pops-folder", popsFolder);
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -9124,7 +9570,7 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       return result;
     },
@@ -9185,7 +9631,8 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsIframe = {
@@ -9199,6 +9646,7 @@
         throw new TypeError("config.url must not be null.");
       }
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -9226,8 +9674,9 @@
           css: PopsCSS.iframeCSS,
         },
       ]);
-      const maskExtraStyle = config.animation != null && config.animation != "" ? "position:absolute;" : "";
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const maskExtraStyle =
+        config.animation != null && config.animation != "" && config.animation ? "position:absolute;" : "";
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const iframeLoadingHTML = '<div class="pops-loading"></div>';
@@ -9260,7 +9709,7 @@
         $headerBtnMax: headerMaxBtnElement,
         $headerBtnMise: headerMiseBtnElement,
       } = PopsHandler.handleQueryElement($anim, popsType);
-      let $iframeContainer = PopsCore.document.querySelector(".pops-iframe-container");
+      let $iframeContainer = popsDOMUtils.selector(".pops-iframe-container");
       if (!$iframeContainer) {
         $iframeContainer = popsDOMUtils.createElement("div", {
           className: "pops-iframe-container",
@@ -9290,6 +9739,7 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       evtConfig.$iframe = $iframe;
@@ -9310,15 +9760,13 @@
         config.loadEndCallBack(evtConfig);
       });
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       $iframeContainer.appendChild($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
       }
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -9349,6 +9797,7 @@
           if (typeof config?.btn?.min?.callback === "function") {
             config.btn.min.callback(evtConfig, event);
           }
+          emitter.emit("pops:iframe-min", evtConfig, event);
         },
         {
           capture: true,
@@ -9380,6 +9829,7 @@
           if (typeof config?.btn?.max?.callback === "function") {
             config.btn.max.callback(evtConfig, event);
           }
+          emitter.emit("pops:iframe-max", evtConfig, event);
         },
         {
           capture: true,
@@ -9417,6 +9867,7 @@
           if (typeof config?.btn?.mise?.callback === "function") {
             config.btn.mise.callback(evtConfig, event);
           }
+          emitter.emit("pops:iframe-mise", evtConfig, event);
         },
         {
           capture: true,
@@ -9428,7 +9879,7 @@
         async (event) => {
           event.preventDefault();
           event.stopPropagation();
-          await PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
+          await PopsInstHandler.removeInstance([PopsInstData.iframe], guid, false);
           if (typeof config?.btn?.close?.callback === "function") {
             config.btn.close.callback(evtConfig, event);
           }
@@ -9445,7 +9896,7 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       return result;
     },
@@ -10312,7 +10763,9 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      listenEscapeKeyUpToExitDeepMenu: true,
+      emitter: null,
     };
   };
   const PopsMathFloatUtils = {
@@ -10397,7 +10850,7 @@
       style: "",
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      emitter: null,
     };
   };
   class ToolTip {
@@ -10408,13 +10861,15 @@
       $content: null,
       $arrow: null,
     };
+    emitter;
     $data = {
       config: null,
       guid: null,
       timeId_close_TouchEvent: [],
       timeId_close_MouseEvent: [],
     };
-    constructor(config, guid, ShadowInfo) {
+    constructor(config, guid, ShadowInfo, emitter) {
+      this.emitter = emitter;
       this.$data.config = config;
       this.$data.guid = guid;
       this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
@@ -10457,7 +10912,7 @@
       const $toolTipContent = $toolTipContainer.querySelector(".pops-tip-content");
       const $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
       popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
-      $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
+      $toolTipContainer.style.zIndex = PopsHandler.getTargerOrFunctionValue(this.$data.config.zIndex).toString();
       PopsElementHandler.addStyle($toolTipContainer, this.$data.config.style);
       PopsElementHandler.addLightStyle($toolTipContainer, this.$data.config.lightStyle);
       PopsElementHandler.addDarkStyle($toolTipContainer, this.$data.config.darkStyle);
@@ -10490,7 +10945,7 @@
       PopsSafeUtils.setSafeHTML(this.$el.$content, text);
     }
     getZIndex() {
-      const zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(this.$data.config.zIndex);
       return zIndex;
     }
     changeZIndex() {
@@ -10631,9 +11086,7 @@
         popsDOMUtils.append(this.$el.$shadowRoot, this.$el.$toolTip);
       }
       if (!popsUtils.contains(this.$el.$shadowContainer)) {
-        if (typeof this.$data.config.beforeAppendToPageCallBack === "function") {
-          this.$data.config.beforeAppendToPageCallBack(this.$el.$shadowRoot, this.$el.$shadowContainer);
-        }
+        this.emitter.emit("pops:before-append-to-page", this.$el.$shadowRoot, this.$el.$shadowContainer);
         popsDOMUtils.append(document.body, this.$el.$shadowContainer);
       }
       this.changeContent();
@@ -10799,6 +11252,7 @@
           config.onShowEventName += ` ${it}`;
         });
       }
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -10818,10 +11272,15 @@
           css: PopsCSS.tooltipCSS,
         },
       ]);
-      const toolTip = new ToolTip(config, guid, {
-        $shadowContainer,
-        $shadowRoot,
-      });
+      const toolTip = new ToolTip(
+        config,
+        guid,
+        {
+          $shadowContainer,
+          $shadowRoot,
+        },
+        emitter
+      );
       if (config.alwaysShow) {
         toolTip.show();
       }
@@ -10831,6 +11290,7 @@
         $shadowContainer,
         $shadowRoot,
         toolTip,
+        emitter,
       };
     },
   };
@@ -10855,12 +11315,14 @@
         nodeStoreConfigKey: "data-view-config",
       },
       $config: {},
+      emitter: null,
       init(data) {
         const PopsType = "panel";
         this.$el = {
           ...data.$el,
         };
         this.$config = data.config;
+        this.emitter = data.emitter;
         this.asideULElement = this.$el.$panelLeftAside.querySelector(`ul.pops-${PopsType}-aside-top-container`);
         this.asideBottomULElement = this.$el.$panelLeftAside.querySelector(
           `ul.pops-${PopsType}-aside-bottom-container`
@@ -11505,7 +11967,7 @@
               $target: this.$ele.button,
               content: getToolTipContent,
               zIndex: () => {
-                return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
+                return popsUtils.getMaxZIndexNodeInfoFromPoint(this.$ele.button)[0].zIndex;
               },
               isFixed: true,
               className: "github-tooltip",
@@ -12201,12 +12663,12 @@
                     },
                     mask: {
                       enable: true,
-                      clickCallBack(originalRun) {
+                      clickCallBack(continueExec) {
                         const ret = dialogCloseCallback();
                         if (typeof ret === "boolean" && !ret) {
                           return;
                         }
-                        originalRun();
+                        continueExec();
                       },
                       clickEvent: {
                         toClose: true,
@@ -13010,8 +13472,8 @@
                   },
                   mask: {
                     enable: true,
-                    clickCallBack(originalRun) {
-                      originalRun();
+                    clickCallBack(continueExec) {
+                      continueExec();
                       dialogCloseCallback();
                     },
                     clickEvent: {
@@ -13370,89 +13832,35 @@
               className: "pops-panel-deepMenu-container-left-arrow-icon",
               innerHTML: PopsIcon.getIcon("arrowLeft"),
             });
-            const animOptions = {
-              duration: 220,
-              easing: "ease-in-out",
-            };
-            const enterViewTransition = () => {
-              popsDOMUtils.cssHide($currentSection, true);
-              popsDOMUtils.on(
-                $headerLeftArrow,
-                "click",
-                async (event2) => {
-                  popsDOMUtils.preventEvent(event2);
-                  const leaveViewTransition = () => {
-                    const $prev = $currentSection;
-                    popsDOMUtils.cssShow($prev);
-                    $deepMenuSection.remove();
-                  };
-                  if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
-                    const leaveTransition = document.startViewTransition(leaveViewTransition);
-                    await leaveTransition.ready;
-                    await Promise.all([
-                      $deepMenuSection.animate(
-                        [
-                          {
-                            transform: "translateX(0)",
-                          },
-                          {
-                            transform: "translateX(100%)",
-                          },
-                        ],
-                        animOptions
-                      ).finished,
-                      $currentSection.animate(
-                        [
-                          {
-                            transform: "translateX(-100%)",
-                          },
-                          {
-                            transform: "translateX(0)",
-                          },
-                        ],
-                        animOptions
-                      ).finished,
-                    ]);
-                    await leaveTransition.finished;
-                  } else {
-                    leaveViewTransition();
+            const switchAnim = PopsAnimation.createSwitchElementWithAnimation($currentSection, $deepMenuSection, {
+              useAnimation: that.$config.useDeepMenuSwtichAnimation,
+              enterToAddElementCallback: () => {
+                popsDOMUtils.on(
+                  $headerLeftArrow,
+                  "click",
+                  async (event2) => {
+                    popsDOMUtils.preventEvent(event2);
+                    await switchAnim.exit();
+                    that.emitRenderRightContainer($currentSection);
+                  },
+                  {
+                    once: true,
                   }
-                  that.emitRenderRightContainer($currentSection);
-                },
-                {
-                  once: true,
+                );
+                popsDOMUtils.before($header.firstElementChild, $headerLeftArrow);
+                $deepMenuHeaderUL.appendChild($header);
+                $deepMenuSection.appendChild($deepMenuHeaderUL);
+                $deepMenuSection.appendChild($deepMenuMain);
+                if (viewConfig.views && Array.isArray(viewConfig.views)) {
+                  for (let index = 0; index < viewConfig.views.length; index++) {
+                    const formItemConfig = viewConfig.views[index];
+                    this.initContainerItem($deepMenuMain, formItemConfig);
+                  }
                 }
-              );
-              popsDOMUtils.before($header.firstElementChild, $headerLeftArrow);
-              $deepMenuHeaderUL.appendChild($header);
-              $deepMenuSection.appendChild($deepMenuHeaderUL);
-              $deepMenuSection.appendChild($deepMenuMain);
-              if (viewConfig.views && Array.isArray(viewConfig.views)) {
-                for (let index = 0; index < viewConfig.views.length; index++) {
-                  const formItemConfig = viewConfig.views[index];
-                  this.initContainerItem($deepMenuMain, formItemConfig);
-                }
-              }
-              that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
-            };
-            if (that.$config.useDeepMenuSwtichAnimation && document.startViewTransition) {
-              const transition = document.startViewTransition(enterViewTransition);
-              await transition.ready;
-              await $deepMenuSection.animate(
-                [
-                  {
-                    transform: "translateX(100%)",
-                  },
-                  {
-                    transform: "translateX(0)",
-                  },
-                ],
-                animOptions
-              ).finished;
-              await transition.finished;
-            } else {
-              enterViewTransition();
-            }
+                that.$el.$panelRightSectionWrapper.appendChild($deepMenuSection);
+              },
+            });
+            await switchAnim.enter();
             if (typeof viewConfig.afterEnterDeepMenuCallBack === "function") {
               viewConfig.afterEnterDeepMenuCallBack(viewConfig, {
                 $sectionContainer: $deepMenuSection,
@@ -13587,13 +13995,9 @@
       },
       emitRenderRightContainer($container) {
         const dataViewConfig = Reflect.get($container, this.$data.nodeStoreConfigKey);
-        this.$el.$pops.dispatchEvent(
-          new CustomEvent("pops:renderRightContainer", {
-            detail: {
-              viewConfig: dataViewConfig,
-            },
-          })
-        );
+        this.emitter.emit("pops:renderRightContainer", {
+          viewConfig: dataViewConfig,
+        });
       },
       uListContainerAddItem(viewConfig, containerOptions) {
         const itemInfo = this.createSectionContainerItem(viewConfig);
@@ -13662,6 +14066,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -13693,7 +14098,7 @@
           css: PopsCSS.panelCSS,
         },
       ]);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
@@ -13763,14 +14168,13 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
       PopsHandler.handleClickEvent("close", $headerBtnClose, evtConfig, config.btn?.close?.callback);
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
@@ -13789,6 +14193,7 @@
           $panelBottomLeftContainer,
           $panelBottomRightContainer,
         },
+        emitter,
       });
       PopsHandler.handlePush(popsType, {
         guid,
@@ -13798,10 +14203,10 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -13809,15 +14214,26 @@
           endCallBack: config.dragEndCallBack,
         });
       }
-      return {
-        ...result,
-        addEventListener: (event, listener, options) => {
-          $pops.addEventListener(event, listener, options);
-        },
-        removeEventListener: (event, listener, options) => {
-          $pops.removeEventListener(event, listener, options);
-        },
-      };
+      if (config.listenEscapeKeyUpToExitDeepMenu) {
+        const escapeListener = popsDOMUtils.onKeyup(
+          globalThis,
+          (evt) => {
+            if (evt.key === "Escape" && !evt.ctrlKey && !evt.shiftKey && !evt.altKey && !evt.metaKey) {
+              const $exitBtn = $panelRightSectionWrapper.querySelector(
+                ".pops-panel-deepMenu-container-left-arrow-icon"
+              );
+              if ($exitBtn) {
+                $exitBtn.click();
+              }
+            }
+          },
+          { capture: true }
+        );
+        emitter.on("pops:before-destory", () => {
+          escapeListener?.off();
+        });
+      }
+      return result;
     },
   };
   const PopsPromptDefaultConfig = () => {
@@ -13910,7 +14326,8 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
+      stopKeyDownEventPropagation: true,
+      emitter: null,
     };
   };
   const PopsPrompt = {
@@ -13921,6 +14338,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -13952,7 +14370,7 @@
           css: PopsCSS.promptCSS,
         },
       ]);
-      const zIndex = PopsHandler.handleZIndex(config.zIndex);
+      const zIndex = PopsHandler.getTargerOrFunctionValue(config.zIndex);
       const maskHTML = PopsElementHandler.createMask(guid, zIndex);
       const headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
       const bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
@@ -13999,6 +14417,7 @@
         popsType,
         $anim,
         $pops,
+        emitter,
         $mask
       );
       const result = PopsHandler.handleResultConfig(evtConfig);
@@ -14008,9 +14427,7 @@
       PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, evtConfig, config.btn.cancel.callback);
       PopsHandler.handlePromptClickEvent("other", $input, $btnOther, evtConfig, config.btn.other.callback);
       popsDOMUtils.append($shadowRoot, $elList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
+      emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
       popsDOMUtils.appendBody($shadowContainer);
       if ($mask != null) {
         $anim.after($mask);
@@ -14023,10 +14440,10 @@
         $shadowContainer,
         $shadowRoot,
         config,
-        destory: result.close,
+        emitter,
       });
       if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
+        PopsInstHandler.drag($pops, {
           dragElement: $title,
           limit: config.dragLimit,
           extraDistance: config.dragExtraDistance,
@@ -14139,10 +14556,10 @@
       style: null,
       lightStyle: null,
       darkStyle: null,
-      beforeAppendToPageCallBack() {},
       limitPositionXInView: true,
       limitPositionYInView: true,
       beforeShowCallBack() {},
+      emitter: null,
     };
   };
   const PopsRightClickMenu = {
@@ -14153,6 +14570,7 @@
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, __config__);
       config = PopsHandler.handleOnly(popsType, config);
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -14254,13 +14672,14 @@
               guid,
               $anim: rootElement,
               $pops: rootElement,
-              beforeRemoveCallBack(instCommonConfig) {
-                PopsContextMenu.closeAllMenu(instCommonConfig.$pops);
-              },
               config,
-              destory: () => {
-                PopsContextMenu.closeAllMenu(rootElement);
-              },
+              emitter,
+            });
+            emitter.on("pops:before-destory", () => {
+              PopsContextMenu.closeAllMenu(rootElement);
+            });
+            emitter.on("pops:destory", () => {
+              PopsContextMenu.closeAllMenu(rootElement);
             });
           }
         },
@@ -14338,7 +14757,7 @@
           return $menu;
         },
         getMenuZIndex() {
-          return PopsHandler.handleZIndex(config.zIndex);
+          return PopsHandler.getTargerOrFunctionValue(config.zIndex);
         },
         getOffset($menu, mousePosition, parentInfo) {
           const result = {
@@ -14414,9 +14833,7 @@
           PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, dataConfig, $listenerRootNode);
           popsDOMUtils.append($shadowRoot, menuElement);
           if (!document.contains($shadowContainer)) {
-            if (typeof config.beforeAppendToPageCallBack === "function") {
-              config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-            }
+            emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
             popsDOMUtils.appendBody($shadowContainer);
           }
           this.handlerShowMenuCSS(menuElement, menuEvent);
@@ -14635,6 +15052,7 @@
       style: "",
       lightStyle: null,
       darkStyle: null,
+      emitter: null,
     };
   };
   const PopsSearchSuggestion = {
@@ -14647,6 +15065,7 @@
       if (config.$inputTarget == null) {
         config.$inputTarget = config.$target;
       }
+      const emitter = config.emitter ?? new EventEmiter(popsType);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -14670,6 +15089,7 @@
         passive: true,
       };
       const SearchSuggestion = {
+        emitter,
         selfDocument: config.$selfDocument,
         $el: {
           root: null,
@@ -14855,7 +15275,7 @@
 					border: initial;
 					overflow: initial;
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
-					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
+					z-index: ${PopsHandler.getTargerOrFunctionValue(config.zIndex)};
 				}
         .pops-${popsType}-search-suggestion-dropdown-wrapper{
 					max-height: ${config.maxHeight};
@@ -15255,7 +15675,6 @@
       return SearchSuggestion;
     },
   };
-  const version$1 = "3.3.2";
   class Pops {
     config = {
       version: version$1,
@@ -15263,18 +15682,18 @@
       iconSVG: PopsIcon.$data,
       animation: PopsAnimation.$data,
       instData: PopsInstData,
-      forbiddenScroll: {
-        event(event) {
-          return popsDOMUtils.preventEvent(event);
-        },
-      },
+    };
+    fn = {
       Utils: popsUtils,
       DOMUtils: popsDOMUtils,
       InstanceUtils: PopsInstanceUtils,
       MathFloatUtils: PopsMathFloatUtils,
+      InstHandler: PopsInstHandler,
       PanelHandlerComponents,
+      Animation: PopsAnimation,
+      EventEmiter,
+      CommonCSSClassName: PopsCommonCSSClassName,
     };
-    init() {}
     noConflict() {
       if (typeof PopsCore.globalThis.pops === "object") {
         popsUtils.delete(PopsCore.globalThis, "pops");
@@ -15552,7 +15971,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.11.3";
+  const version = "2.11.9";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -20008,7 +20427,7 @@ ${err.stack}`);
     }
     getMaxValue(...args) {
       const result = [...args];
-      let newResult = [];
+      const newResult = [];
       if (result.length === 0) {
         return void 0;
       }
@@ -20017,12 +20436,18 @@ ${err.stack}`);
           const data = result[0];
           const handleDataFunc = result[1];
           Object.keys(data).forEach((keyName) => {
-            newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
+            newResult.push(handleDataFunc(keyName, data[keyName]));
+          });
+        } else if (result.length === 2 && Array.isArray(result[0]) && typeof result[1] === "function") {
+          const data = result[0];
+          const handleDataFunc = result[1];
+          data.forEach((value, index, __data__) => {
+            newResult.push(handleDataFunc(value, index, __data__));
           });
         } else {
           result.forEach((item) => {
             if (!isNaN(parseFloat(item))) {
-              newResult = [...newResult, parseFloat(item)];
+              newResult.push(parseFloat(item));
             }
           });
         }
@@ -20030,7 +20455,7 @@ ${err.stack}`);
       } else {
         result[0].forEach((item) => {
           if (!isNaN(parseFloat(item))) {
-            newResult = [...newResult, parseFloat(item)];
+            newResult.push(parseFloat(item));
           }
         });
         return Math.max(...newResult);
@@ -20042,34 +20467,48 @@ ${err.stack}`);
       const maxZIndexCompare = 2 * Math.pow(10, 9);
       let zIndex = 0;
       let maxZIndexNode = null;
-      function isVisibleNode($css) {
-        return $css.position !== "static" && $css.display !== "none";
-      }
-      function queryMaxZIndex($ele) {
+      const isVisibleNode = function ($css, $el) {
+        let flag = true;
+        if (!($el instanceof HTMLElement)) {
+          flag = false;
+        } else {
+          if (typeof $el.checkVisibility === "function") {
+            flag = $el.checkVisibility();
+          } else {
+            flag =
+              $css.position !== "static" &&
+              $css.display !== "none" &&
+              $css.visibility !== "hidden" &&
+              $css.opacity !== "0";
+          }
+        }
+        return flag;
+      };
+      const queryMaxZIndex = function ($el) {
         if (typeof ignoreCallBack === "function") {
-          const ignoreResult = ignoreCallBack($ele);
+          const ignoreResult = ignoreCallBack($el);
           if (typeof ignoreResult === "boolean" && !ignoreResult) {
             return;
           }
         }
-        const nodeStyle = that.windowApi.window.getComputedStyle($ele);
-        if (isVisibleNode(nodeStyle)) {
+        const nodeStyle = that.windowApi.globalThis.getComputedStyle($el);
+        if (isVisibleNode(nodeStyle, $el)) {
           const nodeZIndex = parseInt(nodeStyle.zIndex);
           if (!isNaN(nodeZIndex)) {
             if (nodeZIndex > zIndex) {
               zIndex = nodeZIndex;
-              maxZIndexNode = $ele;
+              maxZIndexNode = $el;
             }
           }
-          if ($ele.shadowRoot != null && $ele instanceof ShadowRoot) {
-            $ele.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
+          if ($el.shadowRoot != null && $el instanceof ShadowRoot) {
+            $el.shadowRoot.querySelectorAll("*").forEach(($shadowEle) => {
               queryMaxZIndex($shadowEle);
             });
           }
         }
-      }
-      target.querySelectorAll("*").forEach(($ele) => {
-        queryMaxZIndex($ele);
+      };
+      target.querySelectorAll("*").forEach(($elItem) => {
+        queryMaxZIndex($elItem);
       });
       zIndex += deviation;
       if (zIndex >= maxZIndexCompare) {
@@ -20079,6 +20518,128 @@ ${err.stack}`);
         node: maxZIndexNode,
         zIndex,
       };
+    }
+    getMaxZIndexNodeInfoFromPoint($el, deviation) {
+      if (typeof $el === "function") {
+        $el = $el();
+      }
+      if (typeof $el === "number") {
+        deviation = $el;
+        $el = void 0;
+      }
+      if (typeof deviation !== "number" || Number.isNaN(deviation)) {
+        deviation = 10;
+      }
+      const positionDistance = 10;
+      const defaultCalcPostion = [];
+      const maxPostionX = globalThis.innerWidth;
+      const maxPostionY = globalThis.innerHeight;
+      const gridXCount = 8;
+      const gridYCount = 8;
+      for (let i2 = 0; i2 < gridXCount; i2++) {
+        for (let j2 = 0; j2 < gridYCount; j2++) {
+          const positionX = globalThis.innerWidth * (i2 / gridXCount) + positionDistance;
+          const positionY = globalThis.innerHeight * (j2 / gridYCount) + positionDistance;
+          const position = {
+            x: positionX,
+            y: positionY,
+          };
+          if (position.x > maxPostionX) {
+            position.x = maxPostionX;
+          }
+          if (position.y > maxPostionY) {
+            position.y = maxPostionY;
+          }
+          defaultCalcPostion.push(position);
+        }
+      }
+      const delayHandlerElementPostionList = defaultCalcPostion;
+      if ($el) {
+        delayHandlerElementPostionList.length = 0;
+        if (Array.isArray($el)) {
+          delayHandlerElementPostionList.push(...$el);
+        } else {
+          delayHandlerElementPostionList.push($el);
+        }
+      }
+      const positionInfoList = delayHandlerElementPostionList
+        .map((position) => {
+          let $position;
+          let positionX;
+          let positionY;
+          if (position instanceof HTMLElement) {
+            $position = position;
+            const nodeRect = position.getBoundingClientRect();
+            positionX = nodeRect.x + nodeRect.width / 2;
+            positionY = nodeRect.y + nodeRect.height / 2;
+          } else {
+            $position = document.elementFromPoint(position.x, position.y);
+            positionX = position.x;
+            positionY = position.y;
+          }
+          const shadowRoot = $position?.shadowRoot;
+          if (shadowRoot) {
+            $position = shadowRoot.elementFromPoint(positionX, positionY);
+          }
+          if (!($position instanceof HTMLElement)) return;
+          let $parent = $position;
+          let zIndex = 0;
+          let $maxZIndexNode = null;
+          let rect = {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+          };
+          while ($parent) {
+            const nodeStyle = globalThis.getComputedStyle($parent);
+            const nodeZIndex = parseInt(nodeStyle.zIndex);
+            if (nodeStyle.position !== "static" && !isNaN(nodeZIndex)) {
+              if (nodeZIndex > zIndex) {
+                zIndex = nodeZIndex;
+                $maxZIndexNode = $parent;
+              }
+            }
+            $parent = $parent.parentElement;
+          }
+          if ($maxZIndexNode) {
+            const maxRect = $maxZIndexNode.getBoundingClientRect();
+            rect = {
+              x: maxRect.x,
+              y: maxRect.y,
+              width: maxRect.width,
+              height: maxRect.height,
+              top: maxRect.top,
+              right: maxRect.right,
+              bottom: maxRect.bottom,
+              left: maxRect.left,
+            };
+          }
+          return {
+            zIndex: zIndex + deviation,
+            originZIndex: zIndex,
+            node: $maxZIndexNode,
+            positionNode: $position,
+            positionX,
+            positionY,
+            rect,
+          };
+        })
+        .filter((it) => it != null);
+      positionInfoList.sort((a2, b2) => {
+        if (a2.zIndex < b2.zIndex) {
+          return 1;
+        } else if (a2.zIndex > b2.zIndex) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+      return positionInfoList;
     }
     getMaxZIndex(deviation = 1, target = this.windowApi.document, ignoreCallBack) {
       return this.getMaxZIndexNodeInfo(deviation, target, ignoreCallBack).zIndex;
@@ -20353,7 +20914,6 @@ ${err.stack}`);
           "is",
           "jquery",
           "keydown",
-          "keypress",
           "keyup",
           "last",
           "load",
@@ -20922,8 +21482,7 @@ ${err.stack}`);
         }
         async init() {
           let copyStatus = false;
-          const requestPermissionStatus = await this.requestClipboardPermission();
-          console.log(requestPermissionStatus);
+          await this.requestClipboardPermission();
           if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
             try {
               copyStatus = await this.copyDataByClipboard();
@@ -21688,8 +22247,93 @@ ${err.stack}`);
         }
       });
     }
+    calcPositionDistance(...args) {
+      let position = {
+        x: 0,
+        y: 0,
+      };
+      let otherPosition = {
+        x: 0,
+        y: 0,
+      };
+      if (typeof args[0] === "object" && args[0] != null && typeof args[1] === "object" && args[1] != null) {
+        position = args[0];
+        otherPosition = args[1];
+      } else if (args.length === 4) {
+        position = {
+          x: args[0],
+          y: args[1],
+        };
+        otherPosition = {
+          x: args[2],
+          y: args[3],
+        };
+      } else {
+        throw new Error("Invalid arguments");
+      }
+      if (typeof position.x === "string") {
+        position.x = Number(position.x);
+      }
+      if (isNaN(position.x)) {
+        throw new Error(`Invalid x: ${position.x}`);
+      }
+      if (typeof position.y === "string") {
+        position.y = Number(position.y);
+      }
+      if (isNaN(position.y)) {
+        throw new Error(`Invalid y: ${position.y}`);
+      }
+      if (typeof otherPosition.x === "string") {
+        otherPosition.x = Number(otherPosition.x);
+      }
+      if (isNaN(otherPosition.x)) {
+        throw new Error(`Invalid x: ${otherPosition.x}`);
+      }
+      if (typeof otherPosition.y === "string") {
+        otherPosition.y = Number(otherPosition.y);
+      }
+      if (isNaN(otherPosition.y)) {
+        throw new Error(`Invalid y: ${otherPosition.y}`);
+      }
+      return Math.sqrt(Math.pow(otherPosition.x - position.x, 2) + Math.pow(otherPosition.y - position.y, 2));
+    }
   }
   const utils$1 = new Utils2();
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
+  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
+  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
+  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
+  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
+  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   const PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
@@ -21952,14 +22596,14 @@ ${err.stack}`);
         return $parent;
       }
     },
-    toStr(data) {
-      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__`;
+    toStr(data, space = 2) {
+      const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       const dataStr = JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
-        2
+        space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
       return dataStr;
     },
@@ -21984,7 +22628,7 @@ ${err.stack}`);
   const __pops__ = pops;
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.config.Utils.AnyTouch();
+  const AnyTouch = pops.fn.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: false,
@@ -21992,6 +22636,14 @@ ${err.stack}`);
     autoClearConsole: true,
     tag: true,
   });
+  const getPageMaxZIndex = () => {
+    const deviation = 100;
+    let maxZIndex = deviation;
+    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? deviation;
+    const pointZIndex = utils$1.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? deviation;
+    maxZIndex = Math.max(maxZIndex, popsZIndex, pointZIndex);
+    return maxZIndex;
+  };
   qmsg.config({
     isHTML: true,
     autoClose: true,
@@ -22030,23 +22682,12 @@ ${err.stack}`);
       );
     },
     get zIndex() {
-      let maxZIndex = utils$1.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
   });
   __pops__.GlobalConfig.setGlobalConfig({
     zIndex: () => {
-      const maxZIndex = utils$1.getMaxZIndex(void 0, void 0, ($ele) => {
-        if ($ele?.classList?.contains("qmsg-shadow-container")) {
-          return false;
-        }
-        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
-          return false;
-        }
-      });
-      const popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+      return getPageMaxZIndex();
     },
     mask: {
       enable: true,
@@ -23408,7 +24049,7 @@ ${err.stack}`);
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`,
           });
-          const panelHandlerComponents = __pops__.config.PanelHandlerComponents();
+          const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
             const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"

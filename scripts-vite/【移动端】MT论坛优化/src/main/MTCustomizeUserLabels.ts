@@ -79,7 +79,7 @@ export const MTCustomizeUserLabels = {
    */
   showView() {
     const that = this;
-    let panelHandlerComponents = pops.config.PanelHandlerComponents();
+    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
     /**
      * 自定义存储api的配置
      * @param uuid

@@ -45,7 +45,7 @@ export const vConsolePluginState = (vConsole: any, VConsole: any) => {
     }
 
     function drag() {
-      pops.config.InstanceUtils.drag(container, {
+      pops.fn.InstHandler.drag(container, {
         dragElement: container,
         limit: true,
         extraDistance: 2,
