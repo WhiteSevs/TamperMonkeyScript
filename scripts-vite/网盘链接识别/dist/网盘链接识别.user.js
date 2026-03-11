@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.3.11
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10939,17 +10939,7 @@
       this.listenWorkerInitErrorDialog();
       this.initWorker();
       this.monitorDOMChange();
-      utils.hasWorkerCSP(2e3).then((isCSP) => {
-        if (isCSP) {
-          this.$check.workerInitError = new Error(
-            "test Worker postMessage failed, maybe violates Content Security Policy directive"
-          );
-          log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has worker CSP`);
-          this.workerInitFailed();
-        } else {
-          log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has worker CSP`);
-        }
-      });
+      this.testWorkerConnect();
     },
     initWorker() {
       try {
@@ -11005,6 +10995,20 @@
         }
         this.$data.blobUrl = "";
       }
+    },
+    testWorkerConnect() {
+      const timeout = 2500;
+      utils.hasWorkerCSP(timeout).then((isCSP) => {
+        if (isCSP) {
+          this.$check.workerInitError = new Error(
+            `test Worker postMessage data timeout with ${timeout}ms, maybe violates Content Security Policy directive`
+          );
+          log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has Worker CSP`);
+          this.workerInitFailed();
+        } else {
+          log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has Worker CSP`);
+        }
+      });
     },
     coverWorker(error) {
       if (error != null) {
@@ -11113,7 +11117,7 @@
         "message",
         (event) => {
           const messageData = event.data;
-          if (typeof messageData === "object" && messageData?.["type"] === this.$key.postMessageType) {
+          if (typeof messageData === "object" && messageData && messageData?.["type"] === this.$key.postMessageType) {
             const data = messageData.data;
             NetDiskWorker.$check.workerInitError = data.error;
             this.registerWorkerInitErrorNeverTipToast(data.hostname);
@@ -11147,8 +11151,8 @@
                   <div class="msg-wrapper">
                     <div class="tip-text">解决：</div>
                     <div class="msg-container" data-type="solution">
-                      <div>1. 点击下面的<code>快速添加网站规则</code>-<code>自定义</code>，把<code>设置</code>-<code>功能</code>-<code>匹配模式</code>切换为<code>Menu</code></div>
-                      <div>2. 使用CSP插件禁用CSP策略（不建议使用）</div>
+                      <div>方案1. 点击下面的<code>快捷添加</code>-<code>自定义</code>，进入后点击<code>设置</code>-<code>功能</code>，然后把<code>匹配模式</code>切换为<code>Menu</code></div>
+                      <div>方案2. 安装<code>CSP插件</code>禁用CSP策略（不建议使用）</div>
                     </div>
                   </div>
                 </div>
