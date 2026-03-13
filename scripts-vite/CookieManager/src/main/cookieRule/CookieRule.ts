@@ -342,6 +342,13 @@ export const CookieRule = {
           enable: true,
           option: [
             {
+              name: "全部",
+              value: "all",
+              filterCallBack() {
+                return true;
+              },
+            },
+            {
               name: "启用",
               value: "enable",
               filterCallBack(data) {

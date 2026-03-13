@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.3.13
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -4097,6 +4097,13 @@
           filter: {
             enable: true,
             option: [
+              {
+                name: "全部",
+                value: "all",
+                filterCallBack() {
+                  return true;
+                },
+              },
               {
                 name: "启用",
                 value: "enable",
