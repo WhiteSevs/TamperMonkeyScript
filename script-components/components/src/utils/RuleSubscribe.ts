@@ -36,7 +36,7 @@ class RuleSubscribe<
    * 获取所有订阅
    */
   getAllSubscribe() {
-    let allSubscribe = this.storageApi.get<RuleSubscribeOption<T>[]>(this.option.STORAGE_KEY, []);
+    const allSubscribe = this.storageApi.get<RuleSubscribeOption<T>[]>(this.option.STORAGE_KEY, []);
     return allSubscribe;
   }
   /**
@@ -44,8 +44,8 @@ class RuleSubscribe<
    * @param [filterUnEnable=false] 是否过滤掉未启用的规则（包括订阅）
    */
   getAllSubscribeRule(filterUnEnable = false) {
-    let allSubscribe = this.getAllSubscribe();
-    let allSubscribeRule: T[] = [];
+    const allSubscribe = this.getAllSubscribe();
+    const allSubscribeRule: T[] = [];
     for (let index = 0; index < allSubscribe.length; index++) {
       const subscribeItem = allSubscribe[index];
       if (filterUnEnable && !subscribeItem.data.enable) {
@@ -70,7 +70,7 @@ class RuleSubscribe<
    * @param subscribeUUID 订阅的uuid
    */
   getSubscribe(subscribeUUID: string) {
-    let findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
+    const findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
     return findValue;
   }
   /**
@@ -79,9 +79,9 @@ class RuleSubscribe<
    * @param uuid 规则的uuid
    */
   getSubscribeRule(subscribeUUID: string, uuid: string) {
-    let findSubscribe = this.getSubscribe(subscribeUUID);
+    const findSubscribe = this.getSubscribe(subscribeUUID);
     if (findSubscribe) {
-      let findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.uuid === uuid);
+      const findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.uuid === uuid);
       return findRule;
     }
   }
@@ -96,9 +96,9 @@ class RuleSubscribe<
    * @param config 配置/uuid
    */
   deleteSubscribe(config: RuleSubscribeOption<T> | string) {
-    let uuid = typeof config === "string" ? config : config.uuid;
-    let allSubscribe = this.getAllSubscribe();
-    let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
+    const uuid = typeof config === "string" ? config : config.uuid;
+    const allSubscribe = this.getAllSubscribe();
+    const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
     if (findIndex !== -1) {
       allSubscribe.splice(findIndex, 1);
       this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -109,9 +109,9 @@ class RuleSubscribe<
    * 清空某个订阅内的规则
    */
   clearSubscribe(config: RuleSubscribeOption<T> | string) {
-    let uuid = typeof config === "string" ? config : config.uuid;
-    let allSubscribe = this.getAllSubscribe();
-    let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
+    const uuid = typeof config === "string" ? config : config.uuid;
+    const allSubscribe = this.getAllSubscribe();
+    const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
     if (findIndex !== -1) {
       allSubscribe[findIndex].subscribeData.ruleData = [];
       this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -125,8 +125,8 @@ class RuleSubscribe<
    */
   addSubscribe(subscribe: RuleSubscribeOption<T>) {
     let flag = false;
-    let allSubscribe = this.getAllSubscribe();
-    let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
+    const allSubscribe = this.getAllSubscribe();
+    const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
     if (findIndex === -1) {
       // 不存在
       allSubscribe.push(subscribe);
@@ -144,8 +144,8 @@ class RuleSubscribe<
    */
   updateSubscribe(subscribe: RuleSubscribeOption<T>) {
     let flag = false;
-    let allSubscribe = this.getAllSubscribe();
-    let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
+    const allSubscribe = this.getAllSubscribe();
+    const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
     if (findIndex !== -1) {
       // 存在相同uuid，更新数据
       allSubscribe[findIndex] = subscribe;
@@ -163,11 +163,11 @@ class RuleSubscribe<
    */
   updateSubscribeRule(subscribeUUID: string, rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]) {
     let flag = false;
-    let allSubscribe = this.getAllSubscribe();
-    let targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
+    const allSubscribe = this.getAllSubscribe();
+    const targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
     if (targetSubscribe) {
       // 找到目标订阅
-      let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
+      const findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
       if (findRuleIndex !== -1) {
         // 找到目标规则
         targetSubscribe.subscribeData.ruleData[findRuleIndex] = rule;
@@ -186,11 +186,11 @@ class RuleSubscribe<
    */
   deleteSubscribeRule(subscribeUUID: string, rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]) {
     let flag = false;
-    let allSubscribe = this.getAllSubscribe();
-    let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
+    const allSubscribe = this.getAllSubscribe();
+    const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
     if (findIndex !== -1) {
-      let targetSubscribe = allSubscribe[findIndex];
-      let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
+      const targetSubscribe = allSubscribe[findIndex];
+      const findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
       if (findRuleIndex !== -1) {
         allSubscribe[findIndex].subscribeData.ruleData.splice(findRuleIndex, 1);
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -205,7 +205,7 @@ class RuleSubscribe<
    * @param url 订阅链接
    */
   async getSubscribeInfo(url: string) {
-    let response = await httpx.get(url, {
+    const response = await httpx.get(url, {
       allowInterceptConfig: false,
       timeout: 10000,
       headers: {
@@ -219,8 +219,7 @@ class RuleSubscribe<
         msg: "获取订阅信息失败",
       };
     }
-    let subscribeText = response.data.responseText;
-    let subscribeParsedData = utils.toJSON<RuleSubscribeOption<T>["subscribeData"]>(subscribeText);
+    const subscribeParsedData = utils.toJSON<RuleSubscribeOption<T>["subscribeData"]>(response.data.responseText);
     if (
       typeof subscribeParsedData.title === "string" &&
       typeof subscribeParsedData.version === "number" &&
@@ -228,7 +227,7 @@ class RuleSubscribe<
       Array.isArray(subscribeParsedData.ruleData)
     ) {
       /** 用于存储的数据 */
-      let subscribeInfo: RuleSubscribeOption<T> = {
+      const subscribeInfo: RuleSubscribeOption<T> = {
         uuid: utils.generateUUID(),
         subscribeData: subscribeParsedData,
         data: {
@@ -254,7 +253,7 @@ class RuleSubscribe<
    * 更新所有订阅
    */
   async updateAllSubscribe() {
-    let allSubscribe = this.getAllSubscribe();
+    const allSubscribe = this.getAllSubscribe();
     for (let index = 0; index < allSubscribe.length; index++) {
       const subscribeItem = allSubscribe[index];
       if (!subscribeItem.data.enable) {
@@ -275,14 +274,14 @@ class RuleSubscribe<
         // 今天已更新
         continue;
       }
-      let requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
+      const requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
       let updateFlag = false;
       if (requestSubscribeInfo.data) {
-        let subscribeNewItem = requestSubscribeInfo.data;
+        const subscribeNewItem = requestSubscribeInfo.data;
         subscribeNewItem.uuid = subscribeItem.uuid;
         subscribeNewItem.data = subscribeItem.data;
         subscribeNewItem.data.latestUpdateTime = Date.now();
-        let title = subscribeNewItem.data.title || subscribeNewItem.subscribeData.title || subscribeNewItem.data.url;
+        const title = subscribeNewItem.data.title || subscribeNewItem.subscribeData.title || subscribeNewItem.data.url;
         subscribeItem.data.updateFailedTime = null;
         updateFlag = this.updateSubscribe(subscribeNewItem);
         if (updateFlag) {
@@ -305,7 +304,7 @@ class RuleSubscribe<
    * @param importEndCallBack 导入完毕后的回调
    */
   importSubscribe(importEndCallBack?: () => void) {
-    let $alert = pops.alert({
+    const $alert = pops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
