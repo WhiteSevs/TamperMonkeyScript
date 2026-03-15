@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.3.15
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -15,12 +15,14 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
+// @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_listValues
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
@@ -32,6 +34,8 @@
 (function (Qmsg, DOMUtils, pops, Utils) {
   "use strict";
 
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
   var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -39,6 +43,8 @@
   var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
   var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
@@ -991,18 +997,22 @@
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new Utils.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -1015,15 +1025,44 @@
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -1061,6 +1100,7 @@
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -3162,7 +3202,7 @@
   const WenkuCSS =
     "#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid {\n  max-height: unset !important;\n  height: auto !important;\n  overflow: auto !important;\n}\n\n.forbid {\n  user-select: text !important;\n}\n";
   const ShieldCSS =
-    "/* wenku顶部横幅 */\n#app > div > div.main.pb-32 > div > div.top-bar,\n/* 底部展开全文 */\n#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open {\n  display: none !important;\n}\n";
+    "/* wenku顶部横幅 */\n#app > div > div.main.pb-32 > div > div.top-bar,\n/* 底部展开全文 */\n#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open,\n/* 全屏红包雨 */\n#csdn-redpack {\n  display: none !important;\n}\n";
   const CSDNWenKu = {
     init() {
       addStyle(WenkuCSS);

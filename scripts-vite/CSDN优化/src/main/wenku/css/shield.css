@@ -1,6 +1,8 @@
 /* wenku顶部横幅 */
 #app > div > div.main.pb-32 > div > div.top-bar,
 /* 底部展开全文 */
-#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open {
+#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open,
+/* 全屏红包雨 */
+#csdn-redpack {
   display: none !important;
 }
