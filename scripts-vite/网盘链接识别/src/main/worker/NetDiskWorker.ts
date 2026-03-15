@@ -135,16 +135,29 @@ export const NetDiskWorker = {
    * 检测页面中是否存在Worker的CSP策略
    */
   testWorkerConnect() {
-    const timeout = 2500;
+    const startTime = Date.now();
+    const timeout = 2000;
+    const maxTimeout = timeout * 2;
     utils.hasWorkerCSP(timeout).then((isCSP) => {
+      const endTime = Date.now();
+      const calcTime = endTime - startTime;
+      if (calcTime > maxTimeout) {
+        isCSP = false;
+        log.info(
+          `page${CommonUtil.isTopWindow() ? "" : "(iframe)"} test CSP endTime bigger than startTime ${calcTime}ms`
+        );
+      }
+      const hostName = globalThis.location.hostname;
+      const tag = `${CommonUtil.isTopWindow() ? "page" : "iframe-page"}(${hostName})`;
       if (isCSP) {
-        this.$check.workerInitError = new Error(
+        log.error(`${tag} has Worker CSP`);
+        const error = new Error(
           `test Worker postMessage data timeout with ${timeout}ms, maybe violates Content Security Policy directive`
         );
-        log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has Worker CSP`);
+        this.coverWorker(error);
         this.workerInitFailed();
       } else {
-        log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has Worker CSP`);
+        log.success(`${tag} no Worker CSP`);
       }
     });
   },
@@ -155,7 +168,9 @@ export const NetDiskWorker = {
     if (error != null) {
       this.$check.workerInitError = error;
     }
-    log.info(`use local GM_matchWorker`, error);
+    log.info(`use local GM_matchWorker`, {
+      error,
+    });
     // @ts-expect-error
     this.$data.GM_matchWorker = {
       postMessage(data: NetDiskWorkerOptions) {
@@ -220,19 +235,13 @@ export const NetDiskWorker = {
       const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
       for (let index = 0; index < ruleOption.length; index++) {
         const netDiskRegularItem = ruleOption[index];
-        // if (
-        // 	netDiskRegularItem["enable"] != null &&
-        // 	!netDiskRegularItem["enable"]
-        // ) {
-        // 	continue;
-        // }
         // 匹配规则数组
-        let matchRegExpList: RegExp[] = [];
+        const matchRegExpList: RegExp[] = [];
         if (workerOptionData.matchTextRange.includes("innerText")) {
-          matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerText"], "gi"));
+          matchRegExpList.push(new RegExp(netDiskRegularItem.link_innerText, "gi"));
         }
         if (workerOptionData.matchTextRange.includes("innerHTML")) {
-          matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerHTML"], "gi"));
+          matchRegExpList.push(new RegExp(netDiskRegularItem.link_innerHTML, "gi"));
         }
         if (!workerOptionData.matchTextRange.length) {
           log.error(workerOptionData);
@@ -737,7 +746,6 @@ export const NetDiskWorker = {
    * Worker初始化失败了
    */
   workerInitFailed() {
-    this.coverWorker();
     const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
     if (matchMode === "Menu") {
       return;

@@ -300,7 +300,7 @@ export const NetDiskUserRule = {
       );
 
       if (typeof shareCode === "string") {
-        netDiskRegularOption.shareCode = new RegExp(shareCode, "ig");
+        netDiskRegularOption.shareCode = new RegExp(shareCode, "gi");
       }
       if (shareCodeNeedRemoveStr) {
         if (typeof shareCodeNeedRemoveStr === "string") {
@@ -315,7 +315,7 @@ export const NetDiskUserRule = {
           }
           for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
             if (typeof shareCodeNeedRemoveStrItem === "string") {
-              const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
+              const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "gi");
               netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
             }
           }
@@ -334,17 +334,17 @@ export const NetDiskUserRule = {
           }
           for (const shareCodeNotMatchItem of shareCodeNotMatch) {
             if (typeof shareCodeNotMatchItem === "string") {
-              const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
+              const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "gi");
               netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
             }
           }
         }
       }
       if (typeof checkAccessCode === "string") {
-        netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "ig");
+        netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "gi");
       }
       if (typeof accessCode === "string") {
-        netDiskRegularOption.accessCode = new RegExp(accessCode, "ig");
+        netDiskRegularOption.accessCode = new RegExp(accessCode, "gi");
       }
       if (acceesCodeNotMatch) {
         if (typeof acceesCodeNotMatch === "string") {
@@ -359,7 +359,7 @@ export const NetDiskUserRule = {
           }
           for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
             if (typeof acceesCodeNotMatchItem === "string") {
-              const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
+              const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "gi");
               netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
             }
           }
@@ -378,7 +378,7 @@ export const NetDiskUserRule = {
           }
           for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
             if (typeof accessCodeNeedRemoveStrItem === "string") {
-              const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");
+              const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "gi");
               netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
             }
           }
@@ -779,7 +779,7 @@ export const NetDiskUserRule = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
                 selectedCallBack() {
                   // GM_setValue("customRule-search-before-selectedOptionValue", config.value);
@@ -971,7 +971,7 @@ export const NetDiskUserRule = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
                 selectedCallBack() {
                   // GM_setValue("customRule-subscribe-search-before-selectedOptionValue", config.value);
@@ -1085,7 +1085,7 @@ export const NetDiskUserRule = {
                     enable: true,
                     option: [
                       {
-                        name: "无",
+                        name: "全部",
                         value: "",
                         selectedCallBack() {
                           // GM_setValue("customRule-subscribeData-search-before-selectedOptionValue", config.value);

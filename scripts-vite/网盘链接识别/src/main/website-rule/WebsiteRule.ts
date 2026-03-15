@@ -66,15 +66,15 @@ export const WebsiteRule = {
    */
   getRulePanelViewOption(quickAddData?: WebsiteRuleOption) {
     const that = this;
-    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
-    let addData = () => {
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
+    const addData = () => {
       return quickAddData ?? this.getTemplateData();
     };
     /**
      * 自定义存储api的配置
      * @param uuid
      */
-    let generateStorageApi = function (data: any) {
+    const generateStorageApi = function (data: any) {
       return {
         get(key: string, defaultValue: any) {
           return data[key] ?? defaultValue;
@@ -86,7 +86,7 @@ export const WebsiteRule = {
     };
 
     const ruleEditHandler = (data: WebsiteRuleOption, isEdit: boolean, subscribeUUID?: string) => {
-      that.$data.isShowEditView = true;
+      this.$data.isShowEditView = true;
       if (!isEdit) {
         data = addData();
       }
@@ -94,7 +94,7 @@ export const WebsiteRule = {
        * 自定义存储api的配置
        * @param uuid
        */
-      function generatePanelStorageApi(uuid: string) {
+      const generatePanelStorageApi = (uuid: string) => {
         return {
           get(key: string, defaultValue: any) {
             if (subscribeUUID) {
@@ -111,37 +111,37 @@ export const WebsiteRule = {
           set(key: string, value: any) {
             if (subscribeUUID) {
               // 订阅的
-              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+              const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
               Reflect.set(currentRule.data, key, value);
               WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
             } else {
               // 本地的
-              let currentRule = that.getRule(uuid) ?? addData();
+              const currentRule = that.getRule(uuid) ?? addData();
               Reflect.set(currentRule.data, key, value);
               that.updateRule(currentRule);
             }
           },
         };
-      }
-      let $fragment = document.createDocumentFragment();
+      };
+      const $fragment = document.createDocumentFragment();
 
       // 启用
-      let enable_template = UISwitch("启用", "enable", true);
+      const enable_template = UISwitch("启用", "enable", true);
       Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+      const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
 
       // 规则名称
-      let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+      const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
       Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+      const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
 
       // 匹配网址
-      let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+      const url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
       Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
-      let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
+      const $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
 
       // 覆盖设置
-      let coverSetting_template = UIButton(
+      const coverSetting_template = UIButton(
         "覆盖设置",
         "",
         "自定义",
@@ -152,22 +152,22 @@ export const WebsiteRule = {
         (event) => {
           DOMUtils.preventEvent(event);
           // 先获取总设置和所有规则的content配置
-          let originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
+          const originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
           // 新配置，原始直接覆盖是浅复制
           // let newPanelContentConfig = utils.assign(
           // 	[],
           // 	originPanelContentConfig,
           // 	true
           // ) as PopsPanelContentConfig[];
-          let newPanelContentConfig = deepCopy(originPanelContentConfig);
+          const newPanelContentConfig = deepCopy(originPanelContentConfig);
           // console.log(newPanelContentConfig);
           // 迭代遍历form配置，进行updateStorageApi
           /** 迭代遍历 */
-          function iterativeTraversal(configList: PopsPanelContentConfig["views"]) {
+          const iterativeTraversal = function (configList: PopsPanelContentConfig["views"]) {
             configList.forEach((configItem) => {
               if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                 // 替换存储配置
-                let panelStorageApi = generatePanelStorageApi(data.uuid);
+                const panelStorageApi = generatePanelStorageApi(data.uuid);
                 Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
               }
               let childViews = (<PopsPanelContainerConfig>configItem).views;
@@ -176,9 +176,9 @@ export const WebsiteRule = {
                 iterativeTraversal(childViews);
               }
             });
-          }
+          };
           for (let index = 0; index < newPanelContentConfig.length; index++) {
-            let leftContentConfigItem = newPanelContentConfig[index];
+            const leftContentConfigItem = newPanelContentConfig[index];
             if (!leftContentConfigItem.views) {
               // 不存在forms
               continue;
@@ -189,10 +189,10 @@ export const WebsiteRule = {
             ) {
               // 覆盖左侧的afterRender
               leftContentConfigItem.afterRender = (__data) => {
-                let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
-                let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
+                const ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
+                const enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
                 if (subscribeUUID) {
-                  let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid)!;
+                  const subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid)!;
                   __data.$asideLiElement.setAttribute("data-function-enable", subscribeRule.data[enableKey] ?? true);
                 } else {
                   __data.$asideLiElement.setAttribute(
@@ -208,8 +208,8 @@ export const WebsiteRule = {
               ATTRIBUTE_KEY in leftContentConfigItem.attributes
             ) {
               /** 规则键 */
-              let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
-              let custom_accessCode_enable_template = UISwitch(
+              const ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
+              const custom_accessCode_enable_template = UISwitch(
                 "启用",
                 WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
                 false,
@@ -223,7 +223,7 @@ export const WebsiteRule = {
                 PROPS_STORAGE_API,
                 generatePanelStorageApi(data.uuid)
               );
-              let custom_accessCode_template = UIInput(
+              const custom_accessCode_template = UIInput(
                 "自定义访问码",
                 WebsiteRuleDataKey.features.customAccessCode(ruleKey),
                 "",
@@ -233,7 +233,7 @@ export const WebsiteRule = {
               );
               // 覆盖存储api
               Reflect.set(custom_accessCode_template.props!, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
-              let custom_accessCode_container: PopsPanelContainerConfig = {
+              const custom_accessCode_container: PopsPanelContainerConfig = {
                 text: "额外功能",
                 type: "container",
                 views: [custom_accessCode_enable_template, custom_accessCode_template],
@@ -246,7 +246,7 @@ export const WebsiteRule = {
               }
             }
             // 循环左侧容器内存储的右侧配置项
-            let rightContentConfigList = leftContentConfigItem.views;
+            const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               iterativeTraversal(rightContentConfigList);
             }
@@ -270,8 +270,8 @@ export const WebsiteRule = {
                 },
               },
               mask: {
-                clickCallBack(originalRun) {
-                  originalRun();
+                clickCallBack(continueExec) {
+                  continueExec();
                 },
               },
               only: false,
@@ -295,7 +295,8 @@ export const WebsiteRule = {
         },
         void 0
       );
-      let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
+      const $coverSetting_template =
+        panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
 
       $fragment.appendChild($enable);
       $fragment.appendChild($name);
@@ -306,26 +307,26 @@ export const WebsiteRule = {
 
     const ruleEditSubmitHandler = ($form: HTMLFormElement, isEdit: boolean, editData?: WebsiteRuleOption) => {
       // 提交表单
-      let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
-      let data: WebsiteRuleOption = addData();
+      const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+      const data: WebsiteRuleOption = addData();
       if (isEdit) {
         data.uuid = editData!.uuid;
-        let allData = this.getAllRule();
-        let findValue = allData.find((item) => item.uuid === data.uuid);
+        const allData = this.getAllRule();
+        const findValue = allData.find((item) => item.uuid === data.uuid);
         if (findValue) {
           data.data = findValue.data;
         }
       }
       $ulist_li.forEach(($li) => {
-        let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-        let attrs = Reflect.get(viewConfig, "attributes");
-        let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-        let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+        const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+        const attrs = Reflect.get(viewConfig, "attributes");
+        const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+        const key = Reflect.get(attrs, ATTRIBUTE_KEY);
         if (key == null) {
           return;
         }
-        let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-        let value = storageApi.get(key, defaultValue);
+        const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+        const value = storageApi.get(key, defaultValue);
         if (Reflect.has(data, key)) {
           Reflect.set(data, key, value);
         } else if (Reflect.has(data.data, key)) {
@@ -373,11 +374,8 @@ export const WebsiteRule = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack() {
                   return true;
                 },
@@ -385,31 +383,22 @@ export const WebsiteRule = {
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack(data) {
-                  return data.data.enable;
+                  return data.enable;
                 },
               },
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack(data) {
-                  return !data.data.enable;
+                  return !data.enable;
                 },
               },
               {
                 name: "在当前网址生效",
                 value: "workInCurrentUrl",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-before-selectedOptionValue", config.value);
-                },
-                filterCallBack(data) {
-                  return that.checkRuleMatch(data);
+                filterCallBack: (data) => {
+                  return this.checkRuleMatch(data);
                 },
               },
             ],
@@ -417,9 +406,6 @@ export const WebsiteRule = {
               {
                 name: "规则名",
                 value: "name",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
-                },
                 filterCallBack(data, searchText) {
                   const name = data.name;
                   if (typeof name === "string") {
@@ -432,9 +418,6 @@ export const WebsiteRule = {
               {
                 name: "网址",
                 value: "url",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-search-selectedOptionValue", config.value);
-                },
                 filterCallBack(data, searchText) {
                   return Boolean(data.url.match(searchText));
                 },
@@ -444,13 +427,13 @@ export const WebsiteRule = {
           clearAll: {
             enable: true,
             callback: () => {
-              that.deleteAllRule();
+              this.deleteAllRule();
             },
           },
           import: {
             enable: true,
             callback: (updateView) => {
-              that.importRule(() => {
+              this.importRule(() => {
                 updateView();
               });
             },
@@ -458,7 +441,7 @@ export const WebsiteRule = {
           export: {
             enable: true,
             callback: () => {
-              that.exportRule(SCRIPT_NAME + "-网站规则.json", SCRIPT_NAME + "-网站规则-订阅模式.json");
+              this.exportRule(SCRIPT_NAME + "-网站规则.json", SCRIPT_NAME + "-网站规则-订阅模式.json");
             },
           },
           ruleEnable: {
@@ -468,7 +451,7 @@ export const WebsiteRule = {
             },
             callback: (data, enable) => {
               data.enable = enable;
-              that.updateRule(data);
+              this.updateRule(data);
             },
           },
           ruleEdit: {
@@ -479,7 +462,7 @@ export const WebsiteRule = {
           ruleDelete: {
             enable: true,
             deleteCallBack: (data) => {
-              return that.deleteRule(data.uuid);
+              return this.deleteRule(data.uuid);
             },
           },
         },
@@ -501,7 +484,7 @@ export const WebsiteRule = {
           return this.updateRule(data);
         },
         deleteData: (data) => {
-          that.$data.isShowEditView = false;
+          this.$data.isShowEditView = false;
           return this.deleteRule(data.uuid);
         },
       },
@@ -580,11 +563,8 @@ export const WebsiteRule = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack() {
                   return true;
                 },
@@ -592,9 +572,6 @@ export const WebsiteRule = {
               {
                 name: "已启用",
                 value: "enable",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack(data) {
                   return data.data.enable;
                 },
@@ -602,9 +579,6 @@ export const WebsiteRule = {
               {
                 name: "未启用",
                 value: "notEnable",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-subscribe-search-before-selectedOptionValue", config.value);
-                },
                 filterCallBack(data) {
                   return !data.data.enable;
                 },
@@ -614,9 +588,6 @@ export const WebsiteRule = {
               {
                 name: "标题",
                 value: "name",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
-                },
                 filterCallBack(data, searchText) {
                   let flag = false;
                   if (typeof data.data.title === "string") {
@@ -631,9 +602,6 @@ export const WebsiteRule = {
               {
                 name: "订阅地址",
                 value: "url",
-                selectedCallBack() {
-                  // GM_setValue("websiteRule-subscribe-search-selectedOptionValue", config.value);
-                },
                 filterCallBack(data, searchText) {
                   return Boolean(data.data.url.match(searchText));
                 },
@@ -694,11 +662,8 @@ export const WebsiteRule = {
                     enable: true,
                     option: [
                       {
-                        name: "无",
+                        name: "全部",
                         value: "",
-                        selectedCallBack() {
-                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
-                        },
                         filterCallBack() {
                           return true;
                         },
@@ -706,21 +671,15 @@ export const WebsiteRule = {
                       {
                         name: "已启用",
                         value: "enable",
-                        selectedCallBack() {
-                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
-                        },
                         filterCallBack(data) {
-                          return data.data.enable;
+                          return data.enable;
                         },
                       },
                       {
                         name: "未启用",
                         value: "notEnable",
-                        selectedCallBack() {
-                          // GM_setValue("websiteRule-subscribeData-search-before-selectedOptionValue", config.value);
-                        },
                         filterCallBack(data) {
-                          return !data.data.enable;
+                          return !data.enable;
                         },
                       },
                     ],
@@ -728,9 +687,6 @@ export const WebsiteRule = {
                       {
                         name: "规则名",
                         value: "name",
-                        selectedCallBack() {
-                          // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
-                        },
                         filterCallBack(data, searchText) {
                           const name = data.name;
                           if (typeof name === "string") {
@@ -743,9 +699,6 @@ export const WebsiteRule = {
                       {
                         name: "网址",
                         value: "url",
-                        selectedCallBack() {
-                          // GM_setValue("websiteRule-subscribeData-search-selectedOptionValue", config.value);
-                        },
                         filterCallBack(data, searchText) {
                           return Boolean(data.url.match(searchText));
                         },
@@ -764,7 +717,7 @@ export const WebsiteRule = {
                       return data.enable;
                     },
                     callback(data, enable) {
-                      data.data.enable = enable;
+                      data.enable = enable;
                       WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
                     },
                   },
@@ -936,7 +889,7 @@ export const WebsiteRule = {
    * + false 未匹配
    */
   checkRuleMatch(rule: WebsiteRuleOption, url = window.location.href) {
-    const matchRegExp = new RegExp(rule.url, "ig");
+    const matchRegExp = new RegExp(rule.url, "gi");
     return Boolean(url.match(matchRegExp));
   },
   /**

@@ -351,7 +351,7 @@ export const CharacterMapping = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
                 selectedCallBack() {
                   // GM_setValue("characterMapping-search-before-selectedOptionValue", config.value);
@@ -557,7 +557,7 @@ export const CharacterMapping = {
             enable: true,
             option: [
               {
-                name: "无",
+                name: "全部",
                 value: "",
                 selectedCallBack() {
                   // GM_setValue("characterMapping-subscribe-search-before-selectedOptionValue", config.value);
@@ -671,7 +671,7 @@ export const CharacterMapping = {
                     enable: true,
                     option: [
                       {
-                        name: "无",
+                        name: "全部",
                         value: "",
                         selectedCallBack() {
                           // GM_setValue("characterMapping-subscribeData-search-before-selectedOptionValue", config.value);

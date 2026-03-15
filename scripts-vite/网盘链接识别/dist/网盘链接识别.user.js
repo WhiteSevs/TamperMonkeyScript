@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.11
+// @version      2026.3.15
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -69,6 +69,7 @@
 // @connect      www.yunpan.com
 // @connect      link.yunpan.com
 // @connect      api.feijipan.com
+// @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_download
 // @grant        GM_getResourceText
@@ -77,6 +78,7 @@
 // @grant        GM_listValues
 // @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
@@ -88,6 +90,8 @@
 (function (DOMUtils, pops, Utils, Qmsg, DataPaging, CryptoJS, Viewer) {
   "use strict";
 
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
   var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
@@ -97,6 +101,8 @@
   var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
   var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
@@ -930,18 +936,22 @@
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new Utils.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -954,15 +964,44 @@
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -1000,6 +1039,7 @@
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -7682,12 +7722,12 @@
       this.storageApi = new StorageUtils(option.STORAGE_API_KEY);
     }
     getAllSubscribe() {
-      let allSubscribe = this.storageApi.get(this.option.STORAGE_KEY, []);
+      const allSubscribe = this.storageApi.get(this.option.STORAGE_KEY, []);
       return allSubscribe;
     }
     getAllSubscribeRule(filterUnEnable = false) {
-      let allSubscribe = this.getAllSubscribe();
-      let allSubscribeRule = [];
+      const allSubscribe = this.getAllSubscribe();
+      const allSubscribeRule = [];
       for (let index = 0; index < allSubscribe.length; index++) {
         const subscribeItem = allSubscribe[index];
         if (filterUnEnable && !subscribeItem.data.enable) {
@@ -7705,13 +7745,13 @@
       return allSubscribeRule;
     }
     getSubscribe(subscribeUUID) {
-      let findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
+      const findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
       return findValue;
     }
     getSubscribeRule(subscribeUUID, uuid) {
-      let findSubscribe = this.getSubscribe(subscribeUUID);
+      const findSubscribe = this.getSubscribe(subscribeUUID);
       if (findSubscribe) {
-        let findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.uuid === uuid);
+        const findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.uuid === uuid);
         return findRule;
       }
     }
@@ -7719,9 +7759,9 @@
       this.storageApi.delete(this.option.STORAGE_KEY);
     }
     deleteSubscribe(config) {
-      let uuid = typeof config === "string" ? config : config.uuid;
-      let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
+      const uuid = typeof config === "string" ? config : config.uuid;
+      const allSubscribe = this.getAllSubscribe();
+      const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
       if (findIndex !== -1) {
         allSubscribe.splice(findIndex, 1);
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -7729,9 +7769,9 @@
       return findIndex !== -1;
     }
     clearSubscribe(config) {
-      let uuid = typeof config === "string" ? config : config.uuid;
-      let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
+      const uuid = typeof config === "string" ? config : config.uuid;
+      const allSubscribe = this.getAllSubscribe();
+      const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
       if (findIndex !== -1) {
         allSubscribe[findIndex].subscribeData.ruleData = [];
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -7742,8 +7782,8 @@
     }
     addSubscribe(subscribe) {
       let flag = false;
-      let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
+      const allSubscribe = this.getAllSubscribe();
+      const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
       if (findIndex === -1) {
         allSubscribe.push(subscribe);
         flag = true;
@@ -7755,8 +7795,8 @@
     }
     updateSubscribe(subscribe) {
       let flag = false;
-      let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
+      const allSubscribe = this.getAllSubscribe();
+      const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
       if (findIndex !== -1) {
         allSubscribe[findIndex] = subscribe;
         flag = true;
@@ -7768,10 +7808,12 @@
     }
     updateSubscribeRule(subscribeUUID, rule) {
       let flag = false;
-      let allSubscribe = this.getAllSubscribe();
-      let targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
+      const allSubscribe = this.getAllSubscribe();
+      const targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
       if (targetSubscribe) {
-        let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
+        const findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
+          (ruleItem) => ruleItem.uuid === rule.uuid
+        );
         if (findRuleIndex !== -1) {
           targetSubscribe.subscribeData.ruleData[findRuleIndex] = rule;
           flag = true;
@@ -7784,11 +7826,13 @@
     }
     deleteSubscribeRule(subscribeUUID, rule) {
       let flag = false;
-      let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
+      const allSubscribe = this.getAllSubscribe();
+      const findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
       if (findIndex !== -1) {
-        let targetSubscribe = allSubscribe[findIndex];
-        let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex((ruleItem) => ruleItem.uuid === rule.uuid);
+        const targetSubscribe = allSubscribe[findIndex];
+        const findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
+          (ruleItem) => ruleItem.uuid === rule.uuid
+        );
         if (findRuleIndex !== -1) {
           allSubscribe[findIndex].subscribeData.ruleData.splice(findRuleIndex, 1);
           this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -7798,7 +7842,7 @@
       return flag;
     }
     async getSubscribeInfo(url) {
-      let response = await httpx.get(url, {
+      const response = await httpx.get(url, {
         allowInterceptConfig: false,
         timeout: 1e4,
         headers: {
@@ -7812,15 +7856,14 @@
           msg: "获取订阅信息失败",
         };
       }
-      let subscribeText = response.data.responseText;
-      let subscribeParsedData = utils.toJSON(subscribeText);
+      const subscribeParsedData = utils.toJSON(response.data.responseText);
       if (
         typeof subscribeParsedData.title === "string" &&
         typeof subscribeParsedData.version === "number" &&
         typeof subscribeParsedData.lastModified === "number" &&
         Array.isArray(subscribeParsedData.ruleData)
       ) {
-        let subscribeInfo = {
+        const subscribeInfo = {
           uuid: utils.generateUUID(),
           subscribeData: subscribeParsedData,
           data: {
@@ -7843,7 +7886,7 @@
       }
     }
     async updateAllSubscribe() {
-      let allSubscribe = this.getAllSubscribe();
+      const allSubscribe = this.getAllSubscribe();
       for (let index = 0; index < allSubscribe.length; index++) {
         const subscribeItem = allSubscribe[index];
         if (!subscribeItem.data.enable) {
@@ -7861,14 +7904,15 @@
         ) {
           continue;
         }
-        let requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
+        const requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
         let updateFlag = false;
         if (requestSubscribeInfo.data) {
-          let subscribeNewItem = requestSubscribeInfo.data;
+          const subscribeNewItem = requestSubscribeInfo.data;
           subscribeNewItem.uuid = subscribeItem.uuid;
           subscribeNewItem.data = subscribeItem.data;
           subscribeNewItem.data.latestUpdateTime = Date.now();
-          let title = subscribeNewItem.data.title || subscribeNewItem.subscribeData.title || subscribeNewItem.data.url;
+          const title =
+            subscribeNewItem.data.title || subscribeNewItem.subscribeData.title || subscribeNewItem.data.url;
           subscribeItem.data.updateFailedTime = null;
           updateFlag = this.updateSubscribe(subscribeNewItem);
           if (updateFlag) {
@@ -7886,7 +7930,7 @@
       }
     }
     importSubscribe(importEndCallBack) {
-      let $alert = __pops__.alert({
+      const $alert = __pops__.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -10997,16 +11041,29 @@
       }
     },
     testWorkerConnect() {
-      const timeout = 2500;
+      const startTime = Date.now();
+      const timeout = 2e3;
+      const maxTimeout = timeout * 2;
       utils.hasWorkerCSP(timeout).then((isCSP) => {
+        const endTime = Date.now();
+        const calcTime = endTime - startTime;
+        if (calcTime > maxTimeout) {
+          isCSP = false;
+          log.info(
+            `page${CommonUtil.isTopWindow() ? "" : "(iframe)"} test CSP endTime bigger than startTime ${calcTime}ms`
+          );
+        }
+        const hostName = globalThis.location.hostname;
+        const tag = `${CommonUtil.isTopWindow() ? "page" : "iframe-page"}(${hostName})`;
         if (isCSP) {
-          this.$check.workerInitError = new Error(
+          log.error(`${tag} has Worker CSP`);
+          const error = new Error(
             `test Worker postMessage data timeout with ${timeout}ms, maybe violates Content Security Policy directive`
           );
-          log.error(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} has Worker CSP`);
+          this.coverWorker(error);
           this.workerInitFailed();
         } else {
-          log.info(`page${CommonUtil.isTopWindow() ? "" : "(iframe)"} not has Worker CSP`);
+          log.success(`${tag} no Worker CSP`);
         }
       });
     },
@@ -11014,7 +11071,9 @@
       if (error != null) {
         this.$check.workerInitError = error;
       }
-      log.info(`use local GM_matchWorker`, error);
+      log.info(`use local GM_matchWorker`, {
+        error,
+      });
       this.$data.GM_matchWorker = {
         postMessage(data) {
           return new Promise((resolve) => {
@@ -11066,12 +11125,12 @@
         const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
         for (let index = 0; index < ruleOption.length; index++) {
           const netDiskRegularItem = ruleOption[index];
-          let matchRegExpList = [];
+          const matchRegExpList = [];
           if (workerOptionData.matchTextRange.includes("innerText")) {
-            matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerText"], "gi"));
+            matchRegExpList.push(new RegExp(netDiskRegularItem.link_innerText, "gi"));
           }
           if (workerOptionData.matchTextRange.includes("innerHTML")) {
-            matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerHTML"], "gi"));
+            matchRegExpList.push(new RegExp(netDiskRegularItem.link_innerHTML, "gi"));
           }
           if (!workerOptionData.matchTextRange.length) {
             log.error(workerOptionData);
@@ -11484,7 +11543,6 @@
       }
     },
     workerInitFailed() {
-      this.coverWorker();
       const matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
       if (matchMode === "Menu") {
         return;
@@ -16777,7 +16835,7 @@
           NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
         );
         if (typeof shareCode === "string") {
-          netDiskRegularOption.shareCode = new RegExp(shareCode, "ig");
+          netDiskRegularOption.shareCode = new RegExp(shareCode, "gi");
         }
         if (shareCodeNeedRemoveStr) {
           if (typeof shareCodeNeedRemoveStr === "string") {
@@ -16791,7 +16849,7 @@
             }
             for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
               if (typeof shareCodeNeedRemoveStrItem === "string") {
-                const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
+                const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "gi");
                 netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
               }
             }
@@ -16809,17 +16867,17 @@
             }
             for (const shareCodeNotMatchItem of shareCodeNotMatch) {
               if (typeof shareCodeNotMatchItem === "string") {
-                const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
+                const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "gi");
                 netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
               }
             }
           }
         }
         if (typeof checkAccessCode === "string") {
-          netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "ig");
+          netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "gi");
         }
         if (typeof accessCode === "string") {
-          netDiskRegularOption.accessCode = new RegExp(accessCode, "ig");
+          netDiskRegularOption.accessCode = new RegExp(accessCode, "gi");
         }
         if (acceesCodeNotMatch) {
           if (typeof acceesCodeNotMatch === "string") {
@@ -16833,7 +16891,7 @@
             }
             for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
               if (typeof acceesCodeNotMatchItem === "string") {
-                const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
+                const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "gi");
                 netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
               }
             }
@@ -16851,7 +16909,7 @@
             }
             for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
               if (typeof accessCodeNeedRemoveStrItem === "string") {
-                const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");
+                const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "gi");
                 netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
               }
             }
@@ -17168,7 +17226,7 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
                   selectedCallBack() {},
                   filterCallBack() {
@@ -17340,7 +17398,7 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
                   selectedCallBack() {},
                   filterCallBack() {
@@ -17438,7 +17496,7 @@
                       enable: true,
                       option: [
                         {
-                          name: "无",
+                          name: "全部",
                           value: "",
                           selectedCallBack() {},
                           filterCallBack() {
@@ -18467,11 +18525,11 @@
     },
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
-      let addData = () => {
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
+      const addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
-      let generateStorageApi = function (data) {
+      const generateStorageApi = function (data) {
         return {
           get(key, defaultValue) {
             return data[key] ?? defaultValue;
@@ -18482,11 +18540,11 @@
         };
       };
       const ruleEditHandler = (data, isEdit, subscribeUUID) => {
-        that.$data.isShowEditView = true;
+        this.$data.isShowEditView = true;
         if (!isEdit) {
           data = addData();
         }
-        function generatePanelStorageApi(uuid) {
+        const generatePanelStorageApi = (uuid) => {
           return {
             get(key, defaultValue) {
               if (subscribeUUID) {
@@ -18500,28 +18558,28 @@
             },
             set(key, value) {
               if (subscribeUUID) {
-                let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
+                const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
                 Reflect.set(currentRule.data, key, value);
                 WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
               } else {
-                let currentRule = that.getRule(uuid) ?? addData();
+                const currentRule = that.getRule(uuid) ?? addData();
                 Reflect.set(currentRule.data, key, value);
                 that.updateRule(currentRule);
               }
             },
           };
-        }
-        let $fragment = document.createDocumentFragment();
-        let enable_template = UISwitch("启用", "enable", true);
+        };
+        const $fragment = document.createDocumentFragment();
+        const enable_template = UISwitch("启用", "enable", true);
         Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
-        let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+        const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+        const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
         Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
-        let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+        const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+        const url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
         Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
-        let coverSetting_template = UIButton(
+        const $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template).$el;
+        const coverSetting_template = UIButton(
           "覆盖设置",
           "",
           "自定义",
@@ -18531,12 +18589,12 @@
           "primary",
           (event) => {
             domUtils.preventEvent(event);
-            let originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
-            let newPanelContentConfig = deepCopy(originPanelContentConfig);
-            function iterativeTraversal(configList) {
+            const originPanelContentConfig = [...PanelContent.getConfig(0), ...NetDiskRule.getRulePanelContent()];
+            const newPanelContentConfig = deepCopy(originPanelContentConfig);
+            const iterativeTraversal = function (configList) {
               configList.forEach((configItem) => {
                 if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
-                  let panelStorageApi = generatePanelStorageApi(data.uuid);
+                  const panelStorageApi = generatePanelStorageApi(data.uuid);
                   Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
                 }
                 let childViews = configItem.views;
@@ -18544,9 +18602,9 @@
                   iterativeTraversal(childViews);
                 }
               });
-            }
+            };
             for (let index = 0; index < newPanelContentConfig.length; index++) {
-              let leftContentConfigItem = newPanelContentConfig[index];
+              const leftContentConfigItem = newPanelContentConfig[index];
               if (!leftContentConfigItem.views) {
                 continue;
               }
@@ -18555,10 +18613,10 @@
                 leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
               ) {
                 leftContentConfigItem.afterRender = (__data) => {
-                  let ruleKey = Reflect.get(__data.asideConfig.attributes, "data-key");
-                  let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
+                  const ruleKey = Reflect.get(__data.asideConfig.attributes, "data-key");
+                  const enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
                   if (subscribeUUID) {
-                    let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid);
+                    const subscribeRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid);
                     __data.$asideLiElement.setAttribute("data-function-enable", subscribeRule.data[enableKey] ?? true);
                   } else {
                     __data.$asideLiElement.setAttribute(
@@ -18573,8 +18631,8 @@
                 leftContentConfigItem.views != null &&
                 ATTRIBUTE_KEY in leftContentConfigItem.attributes
               ) {
-                let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
-                let custom_accessCode_enable_template = UISwitch(
+                const ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
+                const custom_accessCode_enable_template = UISwitch(
                   "启用",
                   WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
                   false,
@@ -18586,7 +18644,7 @@
                   PROPS_STORAGE_API,
                   generatePanelStorageApi(data.uuid)
                 );
-                let custom_accessCode_template = UIInput(
+                const custom_accessCode_template = UIInput(
                   "自定义访问码",
                   WebsiteRuleDataKey.features.customAccessCode(ruleKey),
                   "",
@@ -18595,7 +18653,7 @@
                   "请输入自定义访问码"
                 );
                 Reflect.set(custom_accessCode_template.props, PROPS_STORAGE_API, generatePanelStorageApi(data.uuid));
-                let custom_accessCode_container = {
+                const custom_accessCode_container = {
                   text: "额外功能",
                   type: "container",
                   views: [custom_accessCode_enable_template, custom_accessCode_template],
@@ -18606,7 +18664,7 @@
                   leftContentConfigItem.views.push(custom_accessCode_container);
                 }
               }
-              let rightContentConfigList = leftContentConfigItem.views;
+              const rightContentConfigList = leftContentConfigItem.views;
               if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
                 iterativeTraversal(rightContentConfigList);
               }
@@ -18627,8 +18685,8 @@
                   },
                 },
                 mask: {
-                  clickCallBack(originalRun) {
-                    originalRun();
+                  clickCallBack(continueExec) {
+                    continueExec();
                   },
                 },
                 only: false,
@@ -18652,7 +18710,7 @@
           },
           void 0
         );
-        let $coverSetting_template =
+        const $coverSetting_template =
           panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
         $fragment.appendChild($enable);
         $fragment.appendChild($name);
@@ -18661,26 +18719,26 @@
         return $fragment;
       };
       const ruleEditSubmitHandler = ($form, isEdit, editData) => {
-        let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-        let data = addData();
+        const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+        const data = addData();
         if (isEdit) {
           data.uuid = editData.uuid;
-          let allData = this.getAllRule();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
+          const allData = this.getAllRule();
+          const findValue = allData.find((item) => item.uuid === data.uuid);
           if (findValue) {
             data.data = findValue.data;
           }
         }
         $ulist_li.forEach(($li) => {
-          let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-          let attrs = Reflect.get(viewConfig, "attributes");
-          let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-          let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+          const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+          const attrs = Reflect.get(viewConfig, "attributes");
+          const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+          const key = Reflect.get(attrs, ATTRIBUTE_KEY);
           if (key == null) {
             return;
           }
-          let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-          let value = storageApi.get(key, defaultValue);
+          const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+          const value = storageApi.get(key, defaultValue);
           if (Reflect.has(data, key)) {
             Reflect.set(data, key, value);
           } else if (Reflect.has(data.data, key)) {
@@ -18727,9 +18785,8 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
-                  selectedCallBack() {},
                   filterCallBack() {
                     return true;
                   },
@@ -18737,25 +18794,22 @@
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack() {},
                   filterCallBack(data) {
-                    return data.data.enable;
+                    return data.enable;
                   },
                 },
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack() {},
                   filterCallBack(data) {
-                    return !data.data.enable;
+                    return !data.enable;
                   },
                 },
                 {
                   name: "在当前网址生效",
                   value: "workInCurrentUrl",
-                  selectedCallBack() {},
-                  filterCallBack(data) {
-                    return that.checkRuleMatch(data);
+                  filterCallBack: (data) => {
+                    return this.checkRuleMatch(data);
                   },
                 },
               ],
@@ -18763,7 +18817,6 @@
                 {
                   name: "规则名",
                   value: "name",
-                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     const name = data.name;
                     if (typeof name === "string") {
@@ -18776,7 +18829,6 @@
                 {
                   name: "网址",
                   value: "url",
-                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.url.match(searchText));
                   },
@@ -18786,13 +18838,13 @@
             clearAll: {
               enable: true,
               callback: () => {
-                that.deleteAllRule();
+                this.deleteAllRule();
               },
             },
             import: {
               enable: true,
               callback: (updateView) => {
-                that.importRule(() => {
+                this.importRule(() => {
                   updateView();
                 });
               },
@@ -18800,7 +18852,7 @@
             export: {
               enable: true,
               callback: () => {
-                that.exportRule(_SCRIPT_NAME_ + "-网站规则.json", _SCRIPT_NAME_ + "-网站规则-订阅模式.json");
+                this.exportRule(_SCRIPT_NAME_ + "-网站规则.json", _SCRIPT_NAME_ + "-网站规则-订阅模式.json");
               },
             },
             ruleEnable: {
@@ -18810,7 +18862,7 @@
               },
               callback: (data, enable) => {
                 data.enable = enable;
-                that.updateRule(data);
+                this.updateRule(data);
               },
             },
             ruleEdit: {
@@ -18821,7 +18873,7 @@
             ruleDelete: {
               enable: true,
               deleteCallBack: (data) => {
-                return that.deleteRule(data.uuid);
+                return this.deleteRule(data.uuid);
               },
             },
           },
@@ -18843,7 +18895,7 @@
             return this.updateRule(data);
           },
           deleteData: (data) => {
-            that.$data.isShowEditView = false;
+            this.$data.isShowEditView = false;
             return this.deleteRule(data.uuid);
           },
         },
@@ -18912,9 +18964,8 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
-                  selectedCallBack() {},
                   filterCallBack() {
                     return true;
                   },
@@ -18922,7 +18973,6 @@
                 {
                   name: "已启用",
                   value: "enable",
-                  selectedCallBack() {},
                   filterCallBack(data) {
                     return data.data.enable;
                   },
@@ -18930,7 +18980,6 @@
                 {
                   name: "未启用",
                   value: "notEnable",
-                  selectedCallBack() {},
                   filterCallBack(data) {
                     return !data.data.enable;
                   },
@@ -18940,7 +18989,6 @@
                 {
                   name: "标题",
                   value: "name",
-                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     let flag = false;
                     if (typeof data.data.title === "string") {
@@ -18955,7 +19003,6 @@
                 {
                   name: "订阅地址",
                   value: "url",
-                  selectedCallBack() {},
                   filterCallBack(data, searchText) {
                     return Boolean(data.data.url.match(searchText));
                   },
@@ -19010,9 +19057,8 @@
                       enable: true,
                       option: [
                         {
-                          name: "无",
+                          name: "全部",
                           value: "",
-                          selectedCallBack() {},
                           filterCallBack() {
                             return true;
                           },
@@ -19020,17 +19066,15 @@
                         {
                           name: "已启用",
                           value: "enable",
-                          selectedCallBack() {},
                           filterCallBack(data) {
-                            return data.data.enable;
+                            return data.enable;
                           },
                         },
                         {
                           name: "未启用",
                           value: "notEnable",
-                          selectedCallBack() {},
                           filterCallBack(data) {
-                            return !data.data.enable;
+                            return !data.enable;
                           },
                         },
                       ],
@@ -19038,7 +19082,6 @@
                         {
                           name: "规则名",
                           value: "name",
-                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             const name = data.name;
                             if (typeof name === "string") {
@@ -19051,7 +19094,6 @@
                         {
                           name: "网址",
                           value: "url",
-                          selectedCallBack() {},
                           filterCallBack(data, searchText) {
                             return Boolean(data.url.match(searchText));
                           },
@@ -19070,7 +19112,7 @@
                         return data.enable;
                       },
                       callback(data, enable) {
-                        data.data.enable = enable;
+                        data.enable = enable;
                         WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
                       },
                     },
@@ -19200,7 +19242,7 @@
       return allRule;
     },
     checkRuleMatch(rule, url = window.location.href) {
-      const matchRegExp = new RegExp(rule.url, "ig");
+      const matchRegExp = new RegExp(rule.url, "gi");
       return Boolean(url.match(matchRegExp));
     },
     getUrlMatchedRule(filterUnEnable = true, url = window.location.href) {
@@ -20624,7 +20666,7 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
                   selectedCallBack() {},
                   filterCallBack() {
@@ -20808,7 +20850,7 @@
               enable: true,
               option: [
                 {
-                  name: "无",
+                  name: "全部",
                   value: "",
                   selectedCallBack() {},
                   filterCallBack() {
@@ -20906,7 +20948,7 @@
                       enable: true,
                       option: [
                         {
-                          name: "无",
+                          name: "全部",
                           value: "",
                           selectedCallBack() {},
                           filterCallBack() {
