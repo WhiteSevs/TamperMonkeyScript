@@ -1,6 +1,6 @@
 import utils from "@whitesev/utils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import { GM_addValueChangeListener, GM_deleteValue, GM_getValue, GM_removeValueChangeListener, GM_setValue } from "ViteGM";
 
 /**
  * 监听的值
@@ -16,6 +16,10 @@ class StorageUtils {
   storageKey: string;
   /** 监听的数据 */
   private listenerData: UtilsDictionary<string, ListenerData[]>;
+  /** 缓存数据 */
+  private cacheData: any;
+  /** 取消监听的回调 */
+  private callbacks: (()=>void)[] = [];
   /**
    * 存储的键名，可以是多层的，如：a.b.c
    *
@@ -35,15 +39,18 @@ class StorageUtils {
     if (typeof key === "string") {
       const trimKey = key.trim();
       if (trimKey == "") {
-        throw new Error("key参数不能为空字符串");
+        throw new Error("key can not be empty string");
       }
       this.storageKey = trimKey;
     } else {
-      throw new Error("key参数类型错误，必须是字符串");
+      throw new TypeError("key must be a string");
     }
     this.listenerData = new utils.Dictionary();
 
     this.getLocalValue = this.getLocalValue.bind(this);
+    this.setLocalValue = this.setLocalValue.bind(this);
+    this.destory = this.destory.bind(this);
+
     this.set = this.set.bind(this);
     this.get = this.get.bind(this);
     this.getAll = this.getAll.bind(this);
@@ -56,22 +63,56 @@ class StorageUtils {
     this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
     this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
   }
+  [Symbol.dispose]() {
+    this.destory();
+  }
+  async [Symbol.asyncDispose]() {
+    this.destory();
+  }
+  /** 
+   * 销毁
+   */
+  private destory(){
+    this.cacheData = null;
+    for (let index = this.callbacks.length-1; index >=0; index--) {
+      const cb = this.callbacks[index];
+      cb();
+      this.callbacks.splice(index, 1);
+    }
+  }
   /**
    * 获取本地值
    */
   private getLocalValue(): any {
-    let localValue = GM_getValue(this.storageKey);
-    if (localValue == null) {
-      localValue = {};
-      this.setLocalValue(localValue);
+    if(this.cacheData == null){
+      let localValue = GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      // 清空旧的
+      this.destory();
+      // 缓存数据
+      this.cacheData = localValue;
+      const listenerId =  GM_addValueChangeListener(this.storageKey,(name,oldValue,newValue)=>{
+        this.cacheData = null;
+        this.cacheData = newValue;
+      })
+      this.callbacks.push(()=>{
+        GM_removeValueChangeListener(listenerId);
+      });
+      return localValue;
+    } else {
+      return this.cacheData;
     }
-    return localValue;
   }
   /**
    * 设置本地值
    * @param value
    */
   private setLocalValue(value: any) {
+    this.cacheData = null;
+    this.cacheData = value;
     GM_setValue(this.storageKey, value);
   }
   /**
@@ -138,6 +179,7 @@ class StorageUtils {
    * 清空所有值
    */
   clear() {
+    this.destory();
     GM_deleteValue(this.storageKey);
   }
   /**
