@@ -25,7 +25,7 @@ export const BilibiliVideoApi = {
         }),
     extraParams?: any
   ) {
-    let searchParamsData = {
+    const searchParamsData = {
       cid: config.cid,
       qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
       high_quality: config.high_quality ?? 1,
@@ -43,7 +43,7 @@ export const BilibiliVideoApi = {
     if (typeof extraParams === "object" && extraParams !== null) {
       Object.assign(searchParamsData, extraParams);
     }
-    let response = await httpx.get(
+    const response = await httpx.get(
       "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
       {
         responseType: "json",
@@ -53,7 +53,7 @@ export const BilibiliVideoApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["code"] !== 0) {
       return;
     }
@@ -74,23 +74,23 @@ export const BilibiliVideoApi = {
           cid: number | string;
         }
   ) {
-    let searchParamsData = {
+    const searchParamsData = {
       cid: config.cid,
     };
     BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-    let httpxResponse = await httpx.get(
+    const response = await httpx.get(
       `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
       {
         responseType: "json",
         fetch: true,
       }
     );
-    if (!httpxResponse.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(httpxResponse.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
-      log.error(`获取在线观看人数失败: ${JSON.stringify(data)}`);
+      log.error(`获取在线观看人数失败: `, data);
     }
 
     return data["data"] as {
@@ -110,22 +110,22 @@ export const BilibiliVideoApi = {
    * @param config
    */
   async like(config: { aid: number; like: 1 | 2 } | { bvid: string; like: 1 | 2 }) {
-    let searchParamsData = {
+    const searchParamsData = {
       like: config.like,
       csrf: cookieManager.get("bili_jct")?.value || "",
     };
 
     BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-    let getResp = await httpx.get(
+    const response = await httpx.get(
       "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
       {
         fetch: true,
       }
     );
-    if (!getResp.status) {
+    if (!response.status) {
       return false;
     }
-    let data = utils.toJSON(getResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     const code = data["code"];
     if (code === 0) {
       return true;

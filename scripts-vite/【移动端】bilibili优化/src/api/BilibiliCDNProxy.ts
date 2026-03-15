@@ -1,7 +1,7 @@
-import { log, utils } from "@/env";
-import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
+import { log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
+import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliCDNServerList } from "./BilibiliCDNServerList";
 
 /**
@@ -14,7 +14,7 @@ export const BilibiliApiProxy = {
    * 轮询查询播放地址
    */
   getBangumiProxyHost() {
-    let serverHost: {
+    const serverHost: {
       name: string;
       area: "hk" | "tw" | "th" | "";
       host: string;
@@ -32,7 +32,7 @@ export const BilibiliApiProxy = {
     // 如果启用代理服务器，返回代理服务器
     // 否则使用bilibili的api
     /** 香港 */
-    let hk_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-hk");
+    const hk_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-hk");
     if (utils.isNotNull(hk_host)) {
       serverHost.push({
         name: "香港",
@@ -41,7 +41,7 @@ export const BilibiliApiProxy = {
       });
     }
     /** 台湾 */
-    let tw_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-tw");
+    const tw_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-tw");
     if (utils.isNotNull(tw_host)) {
       serverHost.push({
         name: "台湾",
@@ -50,7 +50,7 @@ export const BilibiliApiProxy = {
       });
     }
     /** 泰国/东南亚 */
-    let tha_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-tha-or-sea");
+    const tha_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-tha-or-sea");
     if (utils.isNotNull(tha_host)) {
       serverHost.push({
         name: "泰国/东南亚",
@@ -73,14 +73,14 @@ export const BilibiliApiProxy = {
    * 搜索番剧结果
    */
   getSearchProxyHost() {
-    let bangumiProxyHost = this.getBangumiProxyHost();
-    let serverHost: {
+    const bangumiProxyHost = this.getBangumiProxyHost();
+    const serverHost: {
       name: string;
       area: "hk" | "tw" | "th" | "";
       host: string;
     }[] = [];
     /** 香港 */
-    let hk_host = Panel.getValue<string>("bili-search-proxyApiServer-hk");
+    const hk_host = Panel.getValue<string>("bili-search-proxyApiServer-hk");
     if (utils.isNotNull(hk_host)) {
       serverHost.push({
         name: "香港",
@@ -88,13 +88,13 @@ export const BilibiliApiProxy = {
         host: hk_host,
       });
     } else {
-      let bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
+      const bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
       if (bangumi_hk_host) {
         serverHost.push(bangumi_hk_host);
       }
     }
     /** 台湾 */
-    let tw_host = Panel.getValue<string>("bili-search-proxyApiServer-tw");
+    const tw_host = Panel.getValue<string>("bili-search-proxyApiServer-tw");
     if (utils.isNotNull(tw_host)) {
       serverHost.push({
         name: "台湾",
@@ -102,13 +102,13 @@ export const BilibiliApiProxy = {
         host: tw_host,
       });
     } else {
-      let bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
+      const bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
       if (bangumi_tw_host) {
         serverHost.push(bangumi_tw_host);
       }
     }
     /** 泰国/东南亚 */
-    let tha_host = Panel.getValue<string>("bili-search-proxyApiServer-tha-or-sea");
+    const tha_host = Panel.getValue<string>("bili-search-proxyApiServer-tha-or-sea");
     if (utils.isNotNull(tha_host)) {
       serverHost.push({
         name: "泰国/东南亚",
@@ -116,9 +116,9 @@ export const BilibiliApiProxy = {
         host: tha_host,
       });
     } else {
-      let bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
+      const bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
       if (bangumi_tha_host) {
-        serverHost.push;
+        serverHost.push(bangumi_tha_host);
       }
     }
     return serverHost;
@@ -130,7 +130,7 @@ export const BilibiliApiProxy = {
     /**
      * 代理服务器需要的数据
      */
-    let proxyData = {
+    const proxyData = {
       from_client: "BROWSER",
       drm_tech_type: 2,
       module: "bangumi",
@@ -168,8 +168,8 @@ export const BilibiliCDNProxy = {
       }
     });
 
-    let betterCDN = urlList.find((url) => {
-      let urlInst = new URL(url);
+    const betterCDN = urlList.find((url) => {
+      const urlInst = new URL(url);
       if (urlInst.host.startsWith("upos")) {
         return url;
       }

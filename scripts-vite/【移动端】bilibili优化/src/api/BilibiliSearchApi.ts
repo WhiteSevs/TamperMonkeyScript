@@ -1,6 +1,6 @@
+import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { httpx, log, utils } from "@/env";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
-import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 
 /** 搜索结果番剧实体 */
 export type BilibiliSearchBangumiResultEntity = {
@@ -287,7 +287,7 @@ export const BilibiliSearchApi = {
    * 获取输入框的placeholder的热点关键词
    */
   async getSearchInputPlaceholder() {
-    let getResponse = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
+    const response = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
       fetch: true,
       headers: {
         accept: "application/json, text/plain, */*",
@@ -303,17 +303,17 @@ export const BilibiliSearchApi = {
       },
       allowInterceptConfig: false,
     });
-    if (!getResponse.status) {
+    if (!response.status) {
       return;
     }
-    let responseData = utils.toJSON(getResponse.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (import.meta.hot) {
-      console.log(responseData);
+      console.log(data);
     }
-    if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
+    if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
       return;
     }
-    return responseData.data as {
+    return data.data as {
       goto_type: number;
       goto_value: string;
       id: number;
@@ -335,7 +335,7 @@ export const BilibiliSearchApi = {
     /** 搜索区域 */
     area: "hk" | "tw" | "th";
   }) {
-    let searchParamsData = {
+    const searchParamsData = {
       search_type: "media_bangumi",
       keyword: config.keyword,
       from_client: "BROWSER",
@@ -344,19 +344,19 @@ export const BilibiliSearchApi = {
       area: config.area.toLowerCase(),
       access_key: BilibiliQrCodeLogin.getAccessToken(),
     };
-    let url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
+    const url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
 
-    let getResponse = await httpx.get(url, {
+    const response = await httpx.get(url, {
       fetch: false,
       headers: {
         "User-Agent": utils.getRandomAndroidUA(),
       },
     });
 
-    if (!getResponse.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(getResponse.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (import.meta.hot) {
       console.log(data);
     }

@@ -1,8 +1,8 @@
 import { httpx, log, utils } from "@/env";
-import { BilibiliApiProxy } from "./BilibiliCDNProxy";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import { BilibiliApiConfig, type BilibiliFailResponse } from "./BilibiliApiConfig";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
+import { BilibiliApiProxy } from "./BilibiliCDNProxy";
 
 /**
  * 番剧视频播放地址信息
@@ -253,9 +253,9 @@ export const BilibiliBangumiApi = {
     };
     searchParamsData = utils.assign(searchParamsData, option);
     // 获取解析服务器列表
-    let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
+    const serverHostList = BilibiliApiProxy.getBangumiProxyHost();
     log.info(`番剧播放地址请求数据`);
-    let failReponseJSON = [];
+    const failReponseJSON = [];
     let result: BilibiliTypeBangumiVideoPlayeInfo | void = void 0;
     /** 请求地址 */
     const urlPath = "/pgc/player/web/playurl";
@@ -283,10 +283,10 @@ export const BilibiliBangumiApi = {
           )}`
         );
       }
-      let url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
+      const url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
         searchParamsData
       )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
-      let getResponse = await httpx.get(url, {
+      const response = await httpx.get(url, {
         responseType: "json",
         fetch: false,
         allowInterceptConfig: false,
@@ -294,29 +294,29 @@ export const BilibiliBangumiApi = {
           Referer: "https://www.bilibili.com/",
         },
       });
-      if (!getResponse.status) {
+      if (!response.status) {
         log.error(`代理服务器：${serverHost} 请求失败`);
         continue;
       }
       // 数据json
-      let responseData = utils.toJSON(getResponse.data.responseText);
+      const data = utils.toJSON<
+        {
+          result: BilibiliTypeBangumiVideoPlayeInfo;
+        } & BilibiliFailResponse
+      >(response.data.responseText);
       if (import.meta.hot) {
-        console.log(responseData);
+        console.log(data);
       }
-      let responseResult = responseData.result as BilibiliTypeBangumiVideoPlayeInfo;
-      if (
-        !BilibiliApiResponseCheck.isWebApiSuccess(responseData) ||
-        BilibiliApiResponseCheck.isAreaLimit(responseData)
-      ) {
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data) || BilibiliApiResponseCheck.isAreaLimit(data)) {
         // 检测请求的数据是否是成功的
         // 是否是区域限制
-        log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(responseData)}`);
-        failReponseJSON.push(responseData);
+        log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(data)}`);
+        failReponseJSON.push(data);
         continue;
       }
 
       // 成功获取
-      result = responseData.result as BilibiliTypeBangumiVideoPlayeInfo;
+      result = data.result as BilibiliTypeBangumiVideoPlayeInfo;
       break;
     }
     if (result == null) {

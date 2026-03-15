@@ -102,8 +102,8 @@ const EpChooseEvent = {
     /** 自动连播 */
     "video:ended": () => {
       console.log(TAG + "自动连播启用，播放下一集");
-      let settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
-      settingIns.playNext();
+      const settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
+      settingIns?.playNext();
     },
   } as {
     [key in keyof Events]?: (...args: Events[key]) => unknown;

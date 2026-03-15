@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.3.15
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -20,8 +20,8 @@
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/npm/artplayer@5.3.0/dist/artplayer.js
-// @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.2.0/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer@5.4.0/dist/artplayer.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.3.0/dist/artplayer-plugin-danmuku.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      m.bilibili.com
@@ -32,12 +32,14 @@
 // @connect      hdslb.com
 // @connect      aisubtitle.hdslb.com
 // @grant        GM_addStyle
+// @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_listValues
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
@@ -139,6 +141,8 @@
       },
     },
   };
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
   var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
@@ -146,6 +150,8 @@
   var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
   var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
@@ -968,18 +974,22 @@
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new utils$1.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -992,15 +1002,44 @@
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -1038,6 +1077,7 @@
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -2172,9 +2212,6 @@
   const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
-  const BilibiliApiConfig = {
-    web_host: "api.bilibili.com",
-  };
   const AppKeyInfo = {
     ios: {
       appkey: "27eb53fc9058f8c3",
@@ -2190,26 +2227,27 @@
   }
   const BilibiliApiResponseCheck = {
     isWebApiSuccess(json) {
-      return json?.code === 0 && (json?.message === "0" || json?.message === "success");
+      const message = (typeof json?.message === "string" ? json.message : "").toLowerCase();
+      return json?.code === 0 && (json?.message === "0" || message === "success" || message === "ok");
     },
     isAreaLimit(data2) {
-      let areaLimitCode = {
+      const areaLimitCode = {
         6002003: "抱歉您所在地区不可观看！",
       };
-      let flag = false;
-      Object.keys(areaLimitCode).forEach((code) => {
-        let codeMsg = areaLimitCode[code];
-        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
-          flag = true;
-        }
-      });
+      const flag =
+        Object.keys(areaLimitCode).findIndex((code) => {
+          const codeMsg = areaLimitCode[code];
+          if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
+            return true;
+          }
+        }) !== -1;
       return flag;
     },
   };
   const BilibiliLoginApi = {
     async getQrCodeInfo() {
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
-      let postData = {
+      const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
+      const postData = {
         appkey: AppKeyInfo.ios.appkey,
         local_id: "0",
         ts: "0",
@@ -2217,8 +2255,8 @@
         mobi_app: AppKeyInfo.ios.mobi_app,
         csrf: cookieManager.get("bili_jct")?.value || "",
       };
-      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-      let postResp = await httpx.post(Api, {
+      const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      const response = await httpx.post(Api, {
         data: utils.toSearchParamsStr({
           ...postData,
           sign,
@@ -2229,28 +2267,28 @@
         responseType: "json",
         fetch: true,
       });
-      log.info(postResp);
-      if (!postResp.status) {
+      log.info(response);
+      if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(postResp.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (data2.code !== 0) {
         Qmsg.error(data2.message);
         return;
       }
-      let loginData = data2.data;
+      const loginData = data2.data;
       return loginData;
     },
     async poll(auth_code) {
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
-      let postData = {
+      const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
+      const postData = {
         appkey: AppKeyInfo.ios.appkey,
         auth_code,
         local_id: "0",
         ts: "0",
       };
-      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-      let postResp = await httpx.post(Api, {
+      const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      const response = await httpx.post(Api, {
         data: utils.toSearchParamsStr({
           ...postData,
           sign,
@@ -2261,10 +2299,10 @@
         responseType: "json",
         fetch: true,
       });
-      if (!postResp.status) {
+      if (!response.status) {
         return { success: false, message: "网络错误", action: void 0 };
       }
-      const json = utils.toJSON(postResp.data.responseText);
+      const json = utils.toJSON(response.data.responseText);
       log.info(json);
       const msgMap = {
         0: "成功",
@@ -2431,6 +2469,9 @@
     getAccessToken() {
       return this.getAccessTokenInfo()?.access_token || "";
     },
+  };
+  const BilibiliApiConfig = {
+    web_host: "api.bilibili.com",
   };
   const githubCDNServerList = {
     上海: [
@@ -2697,7 +2738,7 @@
   const BilibiliCDNServerList = serverList;
   const BilibiliApiProxy = {
     getBangumiProxyHost() {
-      let serverHost = [
+      const serverHost = [
         {
           name: "中国大陆",
           area: "",
@@ -2707,7 +2748,7 @@
       if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
         return serverHost;
       }
-      let hk_host = Panel.getValue("bili-bangumi-proxyApiServer-hk");
+      const hk_host = Panel.getValue("bili-bangumi-proxyApiServer-hk");
       if (utils.isNotNull(hk_host)) {
         serverHost.push({
           name: "香港",
@@ -2715,7 +2756,7 @@
           host: hk_host,
         });
       }
-      let tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
+      const tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
       if (utils.isNotNull(tw_host)) {
         serverHost.push({
           name: "台湾",
@@ -2723,7 +2764,7 @@
           host: tw_host,
         });
       }
-      let tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
+      const tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
       if (utils.isNotNull(tha_host)) {
         serverHost.push({
           name: "泰国/东南亚",
@@ -2734,9 +2775,9 @@
       return serverHost;
     },
     getSearchProxyHost() {
-      let bangumiProxyHost = this.getBangumiProxyHost();
-      let serverHost = [];
-      let hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
+      const bangumiProxyHost = this.getBangumiProxyHost();
+      const serverHost = [];
+      const hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
       if (utils.isNotNull(hk_host)) {
         serverHost.push({
           name: "香港",
@@ -2744,12 +2785,12 @@
           host: hk_host,
         });
       } else {
-        let bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
+        const bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
         if (bangumi_hk_host) {
           serverHost.push(bangumi_hk_host);
         }
       }
-      let tw_host = Panel.getValue("bili-search-proxyApiServer-tw");
+      const tw_host = Panel.getValue("bili-search-proxyApiServer-tw");
       if (utils.isNotNull(tw_host)) {
         serverHost.push({
           name: "台湾",
@@ -2757,12 +2798,12 @@
           host: tw_host,
         });
       } else {
-        let bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
+        const bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
         if (bangumi_tw_host) {
           serverHost.push(bangumi_tw_host);
         }
       }
-      let tha_host = Panel.getValue("bili-search-proxyApiServer-tha-or-sea");
+      const tha_host = Panel.getValue("bili-search-proxyApiServer-tha-or-sea");
       if (utils.isNotNull(tha_host)) {
         serverHost.push({
           name: "泰国/东南亚",
@@ -2770,15 +2811,15 @@
           host: tha_host,
         });
       } else {
-        let bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
+        const bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
         if (bangumi_tha_host) {
-          serverHost.push;
+          serverHost.push(bangumi_tha_host);
         }
       }
       return serverHost;
     },
     getBangumiProxySearchParam(option = {}) {
-      let proxyData = {
+      const proxyData = {
         from_client: "BROWSER",
         drm_tech_type: 2,
         module: "bangumi",
@@ -2800,8 +2841,8 @@
           }
         }
       });
-      let betterCDN = urlList.find((url) => {
-        let urlInst = new URL(url);
+      const betterCDN = urlList.find((url) => {
+        const urlInst = new URL(url);
         if (urlInst.host.startsWith("upos")) {
           return url;
         }
@@ -3269,7 +3310,7 @@
   };
   const BilibiliUserApi = {
     async nav(checkCode = true) {
-      let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
+      const response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
         fetch: true,
         responseType: "json",
         allowInterceptConfig: false,
@@ -3287,7 +3328,7 @@
       return data2.data;
     },
     async space(mid, offset = "") {
-      let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
+      const response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
         data: {
           host_mid: mid,
           offset,
@@ -3297,14 +3338,14 @@
       if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(response.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
         return;
       }
       return data2["data"];
     },
     async following(mid, pn = 1, ps = 50) {
-      let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
+      const response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
         data: {
           vmid: mid,
           ps,
@@ -3315,7 +3356,7 @@
       if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(response.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
         return data2["message"];
       }
@@ -4584,7 +4625,7 @@
   };
   const BilibiliVideoApi = {
     async playUrl(config, extraParams) {
-      let searchParamsData = {
+      const searchParamsData = {
         cid: config.cid,
         qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
         high_quality: config.high_quality ?? 1,
@@ -4598,7 +4639,7 @@
       if (typeof extraParams === "object" && extraParams !== null) {
         Object.assign(searchParamsData, extraParams);
       }
-      let response = await httpx.get(
+      const response = await httpx.get(
         "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
         {
           responseType: "json",
@@ -4608,49 +4649,49 @@
       if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(response.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (data2["code"] !== 0) {
         return;
       }
       return data2["data"];
     },
     async onlineTotal(config) {
-      let searchParamsData = {
+      const searchParamsData = {
         cid: config.cid,
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      let httpxResponse = await httpx.get(
+      const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
         {
           responseType: "json",
           fetch: true,
         }
       );
-      if (!httpxResponse.status) {
+      if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(httpxResponse.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
+        log.error(`获取在线观看人数失败: `, data2);
       }
       return data2["data"];
     },
     async like(config) {
-      let searchParamsData = {
+      const searchParamsData = {
         like: config.like,
         csrf: cookieManager.get("bili_jct")?.value || "",
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      let getResp = await httpx.get(
+      const response = await httpx.get(
         "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
         {
           fetch: true,
         }
       );
-      if (!getResp.status) {
+      if (!response.status) {
         return false;
       }
-      let data2 = utils.toJSON(getResp.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       const code = data2["code"];
       if (code === 0) {
         return true;
@@ -5716,8 +5757,8 @@
     $event: {
       "video:ended": () => {
         console.log(TAG$2 + "自动连播启用，播放下一集");
-        let settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
-        settingIns.playNext();
+        const settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
+        settingIns?.playNext();
       },
     },
     bind(art) {
@@ -8315,9 +8356,9 @@
         fourk: 1,
       };
       searchParamsData = utils.assign(searchParamsData, option);
-      let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
+      const serverHostList = BilibiliApiProxy.getBangumiProxyHost();
       log.info(`番剧播放地址请求数据`);
-      let failReponseJSON = [];
+      const failReponseJSON = [];
       let result = void 0;
       const urlPath = "/pgc/player/web/playurl";
       log.info(`请求路径：${urlPath}`);
@@ -8340,10 +8381,10 @@
             )}`
           );
         }
-        let url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
+        const url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
           searchParamsData
         )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
-        let getResponse = await httpx.get(url, {
+        const response = await httpx.get(url, {
           responseType: "json",
           fetch: false,
           allowInterceptConfig: false,
@@ -8351,21 +8392,17 @@
             Referer: "https://www.bilibili.com/",
           },
         });
-        if (!getResponse.status) {
+        if (!response.status) {
           log.error(`代理服务器：${serverHost} 请求失败`);
           continue;
         }
-        let responseData = utils.toJSON(getResponse.data.responseText);
-        responseData.result;
-        if (
-          !BilibiliApiResponseCheck.isWebApiSuccess(responseData) ||
-          BilibiliApiResponseCheck.isAreaLimit(responseData)
-        ) {
-          log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(responseData)}`);
-          failReponseJSON.push(responseData);
+        const data2 = utils.toJSON(response.data.responseText);
+        if (!BilibiliApiResponseCheck.isWebApiSuccess(data2) || BilibiliApiResponseCheck.isAreaLimit(data2)) {
+          log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(data2)}`);
+          failReponseJSON.push(data2);
           continue;
         }
-        result = responseData.result;
+        result = data2.result;
         break;
       }
       if (result == null) {
@@ -9417,7 +9454,7 @@
   };
   const BilibiliSearchApi = {
     async getSearchInputPlaceholder() {
-      let getResponse = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
+      const response = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
         fetch: true,
         headers: {
           accept: "application/json, text/plain, */*",
@@ -9433,17 +9470,17 @@
         },
         allowInterceptConfig: false,
       });
-      if (!getResponse.status) {
+      if (!response.status) {
         return;
       }
-      let responseData = utils.toJSON(getResponse.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
+      const data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
         return;
       }
-      return responseData.data;
+      return data2.data;
     },
     async getBangumiSearchResult(config) {
-      let searchParamsData = {
+      const searchParamsData = {
         search_type: "media_bangumi",
         keyword: config.keyword,
         from_client: "BROWSER",
@@ -9452,17 +9489,17 @@
         area: config.area.toLowerCase(),
         access_key: BilibiliQrCodeLogin.getAccessToken(),
       };
-      let url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
-      let getResponse = await httpx.get(url, {
+      const url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
+      const response = await httpx.get(url, {
         fetch: false,
         headers: {
           "User-Agent": utils.getRandomAndroidUA(),
         },
       });
-      if (!getResponse.status) {
+      if (!response.status) {
         return;
       }
-      let data2 = utils.toJSON(getResponse.data.responseText);
+      const data2 = utils.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
         log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
         log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);

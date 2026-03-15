@@ -9,7 +9,7 @@ export const BilibiliUserApi = {
    * @param [checkCode=true] 校验返回JSON的状态码，设置false可以获取未登录状态下的wbi_img，用于请求参数处理
    */
   async nav(checkCode: boolean = true) {
-    let response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
+    const response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
       fetch: true,
       responseType: "json",
       allowInterceptConfig: false,
@@ -38,7 +38,7 @@ export const BilibiliUserApi = {
    * @param offset 分页偏移，默认是""
    */
   async space(mid: number | string, offset: string = "") {
-    let response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
+    const response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
       data: {
         host_mid: mid,
         offset: offset,
@@ -48,7 +48,7 @@ export const BilibiliUserApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
       return;
     }
@@ -61,7 +61,7 @@ export const BilibiliUserApi = {
    * @param ps 每页项数 默认为 50
    */
   async following(mid: number | string, pn: number = 1, ps: number = 50) {
-    let response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
+    const response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
       data: {
         vmid: mid,
         ps: ps,
@@ -72,7 +72,7 @@ export const BilibiliUserApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
       return data["message"] as string;
     }

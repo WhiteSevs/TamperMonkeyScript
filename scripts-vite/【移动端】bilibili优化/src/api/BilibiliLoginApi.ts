@@ -10,8 +10,8 @@ export const BilibiliLoginApi = {
    * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
    */
   async getQrCodeInfo() {
-    let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
-    let postData = {
+    const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
+    const postData = {
       /** APP 密钥 APP 方式必要 */
       appkey: AppKeyInfo.ios.appkey,
       /** TV 端 id */
@@ -24,8 +24,8 @@ export const BilibiliLoginApi = {
       mobi_app: AppKeyInfo.ios.mobi_app,
       csrf: cookieManager.get("bili_jct")?.value || "",
     };
-    let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-    let postResp = await httpx.post(
+    const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+    const response = await httpx.post(
       Api,
       {
         data: utils.toSearchParamsStr({
@@ -40,16 +40,16 @@ export const BilibiliLoginApi = {
       }
       // sign: 'e134154ed6add881d28fbdf68653cd9c',
     );
-    log.info(postResp);
-    if (!postResp.status) {
+    log.info(response);
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(postResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data.code !== 0) {
       Qmsg.error(data.message);
       return;
     }
-    let loginData = data.data as {
+    const loginData = data.data as {
       /** 二维码内容 url	 */
       url: string;
       /** 扫码登录秘钥 */
@@ -63,15 +63,15 @@ export const BilibiliLoginApi = {
    * @returns
    */
   async poll(auth_code: string) {
-    let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
-    let postData = {
+    const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
+    const postData = {
       appkey: AppKeyInfo.ios.appkey,
       auth_code,
       local_id: "0",
       ts: "0",
     };
-    let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-    let postResp = await httpx.post(Api, {
+    const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+    const response = await httpx.post(Api, {
       data: utils.toSearchParamsStr({
         ...postData,
         sign,
@@ -82,10 +82,10 @@ export const BilibiliLoginApi = {
       responseType: "json",
       fetch: true,
     });
-    if (!postResp.status) {
+    if (!response.status) {
       return { success: false, message: "网络错误", action: void 0 };
     }
-    const json = utils.toJSON(postResp.data.responseText);
+    const json = utils.toJSON(response.data.responseText);
     log.info(json);
     const msgMap: Record<string, string> = {
       "0": "成功",
