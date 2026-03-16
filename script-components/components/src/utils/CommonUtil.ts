@@ -258,7 +258,7 @@ const CommonUtil = {
         })
         .catch((error: TypeError) => {
           log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
-          /* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
+          // 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板
           readClipboardText(resolve);
         });
     }
@@ -441,6 +441,106 @@ const CommonUtil = {
     const win = typeof unsafeWindow === "object" && unsafeWindow != null ? unsafeWindow : window;
     return win.top === win.self;
   },
+  /**
+   * 转换时长为显示的时长
+   *
+   * + 30 => 0:30
+   * + 120 => 2:00
+   * + 14400 => 4:00:00
+   * @param duration 秒
+   */
+  formatVideoDuration(duration: number|string) {
+    if (typeof duration !== "number") {
+      duration = parseInt(duration);
+    }
+    if (isNaN(duration)) {
+      return duration.toString();
+    }
+    /**
+     * 补零
+     * @param num
+     * @returns
+     */
+    const zeroPadding = function (num: number) {
+      if (num < 10) {
+        return `0${num}`;
+      } else {
+        return num;
+      }
+    };
+    if (duration < 60) {
+      // 1分钟内
+      return `0:${zeroPadding(duration)}`;
+    } else if (duration >= 60 && duration < 3600) {
+      // 1小时内
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      return `${minutes}:${zeroPadding(seconds)}`;
+    } else {
+      // 超过1小时
+      const hours = Math.floor(duration / 3600);
+      const minutes = Math.floor(duration / 60) % 60;
+      const seconds = duration % 60;
+      return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+    }
+  },
+  /** 
+   * 格式化时间戳转为xx秒前、xx分钟前、xx天前
+   * 
+   * 但是超过7天就是标准格式的时间了
+   * @param time 
+   * @param endTime （可选）结束时间
+   */
+  formatTimeStamp(time: string|number,endTime?:number|string) {
+    if(typeof time === "number"){
+      if(time < 1e12){
+        // 补0
+        const padZeroLength = String(Date.now()).length - String(time).length;
+        time = time * Math.pow(10, padZeroLength);
+      }
+    }
+    let result = time;
+    let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time );
+    // 结束时间
+    let currentTime = new Date(endTime ?? Date.now());
+    // 时间差的毫秒数
+    let timeDifference = currentTime.getTime() - oldTime.getTime();
+
+    // ------------------------------
+
+    // 计算出相差天数
+    let days = Math.floor(timeDifference / (24 * 3600 * 1000));
+    if (days > 0) {
+      if(days > 7){
+        result = utils.formatTime(oldTime.getTime());
+      }else{
+        result = days + "天前";
+      }
+    } else {
+      // 计算天数后剩余的毫秒数
+      let leave1 = timeDifference % (24 * 3600 * 1000);
+      // 计算出小时数
+      let hours = Math.floor(leave1 / (3600 * 1000));
+      if (hours > 0) {
+        result = hours + "小时前";
+      } else {
+        // 计算相差分钟数
+        let leave2 = leave1 % (3600 * 1000);
+        // 计算小时数后剩余的毫秒数
+        let minutes = Math.floor(leave2 / (60 * 1000));
+        if (minutes > 0) {
+          result = minutes + "分钟前";
+        } else {
+          // 计算相差秒数
+          let leave3 = leave2 % (60 * 1000);
+          // 计算分钟数后剩余的毫秒数
+          let seconds = Math.round(leave3 / 1000);
+          result = seconds + "秒前";
+        }
+      }
+    }
+    return result;
+  }
 };
 
 export { CommonUtil };
