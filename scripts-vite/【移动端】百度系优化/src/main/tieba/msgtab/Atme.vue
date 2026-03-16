@@ -11,17 +11,19 @@
   import { TiebaSmallAppApi } from "../api/TiebaSmallAppApi";
   import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
-  let pn = ref(1);
-  let isFirstLoad = ref(false);
-  let isLoading = ref(false);
-  let hasMore = ref(true);
-  let postList = ref<Required<Exclude<Awaited<ReturnType<typeof TiebaSmallAppApi.atme>>, undefined>>["at_list"][0][]>([]);
+  const pn = ref(1);
+  const isFirstLoad = ref(false);
+  const isLoading = ref(false);
+  const hasMore = ref(true);
+  const postList = ref<Required<Exclude<Awaited<ReturnType<typeof TiebaSmallAppApi.atme>>, undefined>>["at_list"][0][]>(
+    []
+  );
 
-  let observe = new IntersectionObserver(
+  const observe = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          loadMore();
+          loadMore.run();
         }
       });
     },
@@ -37,8 +39,8 @@
     log.info("移除滚动监听");
   };
 
-  let loadMore = async () => {
-    let data = await TiebaSmallAppApi.atme(pn.value);
+  const loadMore = new utils.LockFunction(async () => {
+    const data = await TiebaSmallAppApi.atme(pn.value);
     log.info(data);
     hasMore.value = Boolean(data?.has_more);
     if (!hasMore.value) {
@@ -57,14 +59,14 @@
         }
       }
     }
-  };
-  let gotoUserHome = function (portrait: string) {
+  });
+  const gotoUserHome = function (portrait: string) {
     window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
   };
-  let gotoPost = function (postId: string | number) {
+  const gotoPost = function (postId: string | number) {
     window.open(TiebaUrlHandler.getPost(postId), "_blank");
   };
-  let gotoForum = function (fName: string) {
+  const gotoForum = function (fName: string) {
     window.open(TiebaUrlHandler.getForum(fName), "_blank");
   };
 
@@ -76,7 +78,7 @@
       background: "rgba(0, 0, 0, 0.7)",
     });
     try {
-      await loadMore();
+      await loadMore.run();
     } catch (error) {
       log.error(error);
     }

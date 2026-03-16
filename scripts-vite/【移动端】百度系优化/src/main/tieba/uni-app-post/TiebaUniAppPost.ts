@@ -1,16 +1,18 @@
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { VueUtils } from "@components/utils/VueUtils";
-import Qmsg from "qmsg";
+import { NetWorkHook } from "@/hook/NetWorkHook";
 import { Panel } from "@components/setting/panel";
-import { GM_getValue, GM_setValue } from "ViteGM";
-import { TiebaUniAppComment } from "./TiebaUniAppComment";
-import { TiebaPostApi } from "../api/TiebaPostApi";
 import { GestureBack } from "@components/utils/GestureBack";
+import { VueUtils } from "@components/utils/VueUtils";
+import { GM_getValue, GM_setValue } from "ViteGM";
+import Qmsg from "qmsg";
+import { TiebaCore } from "../TiebaCore";
+import { TiebaPostApi } from "../api/TiebaPostApi";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 import { TiebaPost } from "../post/TiebaPost";
+import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
-import { TiebaCore } from "../TiebaCore";
-import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+import { TiebaGlobalData } from "../data/GlobalData";
 
 /**
  * 手势返回使用的hash参数
@@ -26,7 +28,14 @@ export const GeastureBackHashConfig = {
 
 export const TiebaUniAppPost = {
   init() {
-    let findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
+    Panel.onceExec(
+      "baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
+      () => {
+        NetWorkHook.hookTiebaThread();
+      },
+      true
+    );
+    const findHashValue = Object.values(GeastureBackHashConfig).find((item) => {
       return window.location.hash.endsWith(item);
     });
     if (findHashValue) {
@@ -216,6 +225,7 @@ export const TiebaUniAppPost = {
     );
     DOMUtils.onReady(() => {
       DOMUtils.waitNode("uni-app .load-more", 10000).then(($loadMore) => {
+        if (!$loadMore) return;
         // 主动触发一次滚动事件
         DOMUtils.emit(document, "scroll");
       });
@@ -353,18 +363,16 @@ export const TiebaUniAppPost = {
    */
   rememberChooseSeeCommentSort() {
     log.info(`uni-app ===> 记住评论排序`);
-    const KEY = "baidu-tieba-uni-app-post-choose-see-comment-sort";
-    DOMUtils.on(document, "click", "uni-view.reply-top .switch-tab .tab-item", (event) => {
-      const $click = event.target as HTMLDivElement;
+    DOMUtils.on(document, "click", "uni-view.reply-top .switch-tab .tab-item", (event, $click) => {
       const chooseSortText = $click.textContent!.trim();
-      GM_setValue(KEY, chooseSortText);
+      GM_setValue(TiebaGlobalData.saveSortTypeKey, chooseSortText);
       log.info(`切换评论排序：${chooseSortText}`);
     });
-    DOMUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 10000).then(($tabItem) => {
+    DOMUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
       if (!$tabItem) {
         return;
       }
-      const chooseSortText = GM_getValue(KEY);
+      const chooseSortText = GM_getValue(TiebaGlobalData.saveSortTypeKey);
       if (!chooseSortText) {
         return;
       }
@@ -382,11 +390,17 @@ export const TiebaUniAppPost = {
               $item,
               (entries, observer) => {
                 observer.disconnect();
+                if (TiebaGlobalData.isNetWorkFirstChangeSortType) {
+                  return;
+                }
                 setTimeout(() => {
                   // 可能会出现这种情况
                   // 打开帖子页面排序按钮就可以直接看到
                   // 但是评论还没有加载出来
                   // 需要评论加载出来之后再点击
+                  if (TiebaGlobalData.isNetWorkFirstChangeSortType) {
+                    return;
+                  }
                   $item.click();
                 }, 1250);
               },
@@ -406,7 +420,7 @@ export const TiebaUniAppPost = {
    */
   filterDuplicateComments() {
     log.info(`uni-app ===> 评论去重`);
-    TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+    TiebaUniAppComment.watchComment((commentContainerInfoList) => {
       const commentIdList: number[] = [];
       for (let index = 0; index < commentContainerInfoList.length; index++) {
         const commentContainerInfo = commentContainerInfoList[index];
@@ -432,7 +446,7 @@ export const TiebaUniAppPost = {
    */
   blockTieBaRobot() {
     log.info(`uni-app ===> 屏蔽贴吧机器人（贴吧包打听）`);
-    TiebaUniAppComment.watchComment((commentContainerInfoList, observer) => {
+    TiebaUniAppComment.watchComment((commentContainerInfoList) => {
       for (let index = 0; index < commentContainerInfoList.length; index++) {
         const commentContainerInfo = commentContainerInfoList[index];
         // 发帖人id
@@ -469,15 +483,15 @@ export const TiebaUniAppPost = {
         Qmsg.error(`未找到关闭楼中楼回复弹窗的按钮`);
       }
     }
-    DOMUtils.on(document, "click", ".lzl-wrapper", (event) => {
+    DOMUtils.on(document, "click", ".lzl-wrapper", () => {
       log.info(`点击楼中楼回复`);
       gestureBack.enterGestureBackMode();
     });
-    DOMUtils.on(document, "click", ".lzl-close-icon", (event) => {
+    DOMUtils.on(document, "click", ".lzl-close-icon", () => {
       log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
       gestureBack.quitGestureBackMode();
     });
-    DOMUtils.on(document, "click", ".lzl-float-container .error-close", (event) => {
+    DOMUtils.on(document, "click", ".lzl-float-container .error-close", () => {
       log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
       gestureBack.quitGestureBackMode();
     });

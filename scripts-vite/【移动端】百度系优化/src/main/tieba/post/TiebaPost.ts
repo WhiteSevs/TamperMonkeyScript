@@ -1,20 +1,20 @@
-import { $, DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
+import { $, DOMUtils, MountVue, httpx, log, utils } from "@/env";
+import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 import { Panel } from "@components/setting/panel";
-import { TiebaComment } from "./TiebaComment";
-import { TiebaData } from "../home/data";
-import { TieBaApi } from "../api/TiebaApi";
-import { TiebaCore } from "../TiebaCore";
-import Qmsg from "qmsg";
-import Viewer from "viewerjs";
-import { TiebaReply } from "./TiebaReply";
-import App from "./App.vue";
-import pinia from "./stores";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { GestureBack } from "@components/utils/GestureBack";
 import { VueUtils } from "@components/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { GestureBack } from "@components/utils/GestureBack";
+import Qmsg from "qmsg";
+import Viewer from "viewerjs";
+import { TieBaApi } from "../api/TiebaApi";
+import { TiebaData } from "../home/data";
+import { TiebaCore } from "../TiebaCore";
 import { GeastureBackHashConfig } from "../uni-app-post/TiebaUniAppPost";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
+import App from "./App.vue";
+import pinia from "./stores";
+import { TiebaComment } from "./TiebaComment";
+import { TiebaReply } from "./TiebaReply";
 
 interface PostImg {
   bsize: string;
@@ -361,8 +361,8 @@ const TiebaPost = {
    * 初始化帖子内图片信息
    */
   initPostImageInfo() {
-    let forumName = TiebaCore.getCurrentForumName();
-    let tid = TiebaCore.getCurrentForumPostTid();
+    const forumName = TiebaCore.getCurrentForumName();
+    const tid = TiebaCore.getCurrentForumPostTid();
     if (forumName && tid) {
       TieBaApi.getPictureGuide(forumName, tid).then((result) => {
         if (!result) {
@@ -372,12 +372,11 @@ const TiebaPost = {
         log.success("请求本贴图片信息", result);
         Object.values(result["pic_list"]).forEach((item) => {
           /* 图片id */
-          let id =
+          const id =
             item?.["img"]?.["original"]?.["id"] ||
             item?.["img"]?.["medium"]?.["id"] ||
             item?.["img"]?.["screen"]?.["id"];
-          let pictureUrl = item?.["img"]?.["original"]?.["waterurl"] || item?.["img"]?.["screen"]?.["waterurl"];
-
+          const pictureUrl = item?.["img"]?.["original"]?.["waterurl"] || item?.["img"]?.["screen"]?.["waterurl"];
           if (id != null && pictureUrl != null) {
             TiebaData.imageMap.set(id, pictureUrl);
           }
@@ -394,17 +393,17 @@ const TiebaPost = {
      * 获取页面信息
      */
     async function getPageInfo() {
-      let getResp = await httpx.get(window.location.href, {
+      const response = await httpx.get(window.location.href, {
         headers: {
           "User-Agent": utils.getRandomPCUA(),
         },
       });
-      if (!getResp.status) {
+      if (!response.status) {
         return;
       }
-      log.info(getResp);
-      let pageDOM = DOMUtils.toElement(getResp.data.responseText, true, true);
-      let postListFirstElement = pageDOM.querySelector("#j_p_postlist .l_post");
+      log.info(response);
+      const pageDOM = DOMUtils.toElement(response.data.responseText, true, true);
+      const postListFirstElement = pageDOM.querySelector("#j_p_postlist .l_post");
       if (!postListFirstElement) {
         log.error("未找到#j_p_postlist .l_post元素");
         Qmsg.error("未找到#j_p_postlist .l_post元素");
@@ -415,7 +414,7 @@ const TiebaPost = {
         Qmsg.error("未找到 data-field 属性");
         return;
       }
-      let field = utils.toJSON(postListFirstElement.getAttribute("data-field"));
+      const field = utils.toJSON(postListFirstElement.getAttribute("data-field"));
       let PageData = null;
       let PageDataScriptString = "";
       pageDOM.querySelectorAll<HTMLScriptElement>("script").forEach((scriptElement) => {
@@ -510,8 +509,8 @@ const TiebaPost = {
         title: PageData.thread.title,
         index: 0,
       };
-      let firstData = data;
-      let secondData = data;
+      const firstData = data;
+      const secondData = data;
       secondData.floor = 3;
       return [firstData, secondData];
     }
@@ -536,14 +535,14 @@ const TiebaPost = {
       }
       /* 该帖子不能查看 */
       log.warn("该帖子不能查看 修复中...");
-      let loading = Qmsg.loading("该帖子不能查看 修复中...");
-      let pageInfo = await getPageInfo();
+      const loading = Qmsg.loading("该帖子不能查看 修复中...");
+      const pageInfo = await getPageInfo();
       loading.close();
       if (!pageInfo) {
         return;
       }
       log.info("获取到的页面信息", pageInfo);
-      let postList = getPostList(pageInfo.field, pageInfo.PageData, pageInfo.time);
+      const postList = getPostList(pageInfo.field, pageInfo.PageData, pageInfo.time);
       appViewVue.postList = postList;
       appViewVue.postAuthorId = postList[0].author.id;
       // 设置帖子信息
@@ -604,22 +603,22 @@ const TiebaPost = {
     VueUtils.waitVuePropToSet(".app-view", [
       {
         msg: "等待获取 root的$router",
-        check(vueObj) {
-          return typeof vueObj?.$root?.$router?.matcher?.match === "function";
+        check(vueInst) {
+          return typeof vueInst?.$root?.$router?.matcher?.match === "function";
         },
-        set(vueObj) {
-          let $oldRouterMatch = vueObj.$root.$router.matcher.match;
-          let $oldRoute = vueObj.$root.$route;
-          vueObj.$root.$router.matcher.match = function (...args: any[]) {
-            let raw = args[0];
-            let currentRoute: Vue2Instance["$route"] = args[1];
+        set(vueInst) {
+          const $oldRouterMatch = vueInst.$root.$router.matcher.match;
+          const $oldRoute = vueInst.$root.$route;
+          vueInst.$root.$router.matcher.match = function (...args: any[]) {
+            const raw = args[0];
+            const currentRoute: Vue2Instance["$route"] = args[1];
             log.info("$router match", args);
             // if (raw === "/seeLzlReply") {
             // 	log.error(
             // 		"$router match：当前是/seeLzlReply，阻止match，返回currentRoute"
             // 	);
             // }
-            let result = $oldRouterMatch.apply(this, args);
+            const result = $oldRouterMatch.apply(this, args);
             return result;
           };
           log.success("成功覆盖 __vue__.$root.$router.matcher.match");

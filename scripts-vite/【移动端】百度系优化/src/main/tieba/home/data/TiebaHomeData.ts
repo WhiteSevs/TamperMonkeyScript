@@ -1,6 +1,8 @@
-import { HomePostsInfo, PanelUserInfo, TieBaApi, UserJSON } from "../../api/TiebaApi";
-import { $, DOMUtils, httpx, log, utils } from "@/env";
+import { $, DOMUtils, httpx, utils } from "@/env";
+import Qmsg from "qmsg";
+import { HomePostsInfo } from "../../api/TiebaApi";
 import type { UserConcernInfo } from "../../api/TiebaHomeApi";
+import { TiebaNewPCApi } from "../../api/TiebaNewPCApi";
 
 type UserSex = {
   0: "保密";
@@ -11,7 +13,7 @@ type UserSex = {
 interface UserInfo {
   /** 用户唯一标识 */
   id?: string | number;
-  tbs?: string;
+  // tbs?: string;
   /** 用户名 */
   name?: string;
   /** 显示名称 */
@@ -46,8 +48,8 @@ interface UserInfo {
     forum?: number;
     /** 粉丝数 */
     fans?: number;
-    /** 帖子数 */
-    post?: number;
+    // /** 帖子数 */
+    // post?: number;
   };
   /** 用户留下的印记图片数组（历史记录、足迹等） */
   imprint?: string[];
@@ -56,11 +58,11 @@ interface UserInfo {
   /** 是否在线 */
   is_online?: boolean;
   /** 其它数据 */
-  otherData?: {
-    PCUserInfo?: UserPCHomeInfo;
-    UserJSON?: UserJSON;
-    PanelUserInfo?: PanelUserInfo;
-  };
+  // otherData?: {
+  //   PCUserInfo?: UserPCHomeInfo;
+  //   UserJSON?: UserJSON;
+  //   PanelUserInfo?: PanelUserInfo;
+  // };
 }
 type UserPCHomeInfo = {
   /** 用户名，简写是un */
@@ -96,7 +98,7 @@ type UserPCHomeInfo = {
     /** 粉丝数 */
     fans: number;
     /** 发帖数量 */
-    post: number;
+    // post: number;
     /** 帖子数据 */
     data: HomePostsInfo[];
   };
@@ -113,111 +115,124 @@ const TiebaHomeData = {
   /**
    * 获取移动端用户主页的数据
    */
-  async getUserData(): Promise<UserInfo | undefined> {
-    // 请求PC端的数据
-    let userPCHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
-    if (!userPCHomeInfo) {
-      return;
-    }
-    log.info("成功获取PC端的数据", userPCHomeInfo);
-    let $name = $<HTMLAnchorElement>(".home_card_uname_link");
-    let userName = ($name && new URL($name.href).searchParams.get("un")) || userPCHomeInfo.userName;
-    /* un可能为空，例如?un= */
-    if (utils.isNull(userName)) {
-      log.error("获取用户un为空");
-      // Qmsg.error("获取用户un为空");
-      return;
-    }
-    // 获取主页JSON数据
-    let userHomeInfo = await TieBaApi.getUserHomeInfo({
-      un: userName,
-    });
-    if (!userHomeInfo) {
-      return;
-    }
-    log.info("成功获取主页JSON数据 => ", userHomeInfo);
-    let userInfo = await TieBaApi.getUserInfo(userName);
-    if (!userInfo) {
-      return;
-    }
-    log.info("成功获取用户JSON数据 => ", userInfo);
-    // 获取显示的用户名
-    let $showName = $<HTMLAnchorElement>(".home_card_uname_link");
-    let showName = $showName?.innerText || userHomeInfo.name_show || userHomeInfo.show_nickname;
-    // 获取用户头像
-    let $avatar = $<HTMLImageElement>("a.home_card_portrait_link img");
-    let avatar = $avatar?.src || userPCHomeInfo.avatar;
-    // 获取关注按钮
-    let $followBtn = $<HTMLDivElement>(".home_card_operate_icon_follow");
-    let isLike = false;
-    if ($followBtn) {
-      isLike = $followBtn.classList.contains("icon_hide");
-    } else {
-      isLike = userPCHomeInfo.is_like;
-    }
+  async getUserData(): Promise<DeepRequired<UserInfo> | undefined> {
+    // // 请求PC端的数据
+    // let userPCHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
+    // if (!userPCHomeInfo) {
+    //   return;
+    // }
+    // log.info("成功获取PC端的数据", userPCHomeInfo);
+    // let $name = $<HTMLAnchorElement>(".home_card_uname_link");
+    // let userName = ($name && new URL($name.href).searchParams.get("un")) || userPCHomeInfo.userName;
+    // /* un可能为空，例如?un= */
+    // if (utils.isNull(userName)) {
+    //   log.error("获取用户un为空");
+    //   // Qmsg.error("获取用户un为空");
+    //   return;
+    // }
+    // // 获取主页JSON数据
+    // let userHomeInfo = await TieBaApi.getUserHomeInfo({
+    //   un: userName,
+    // });
+    // if (!userHomeInfo) {
+    //   return;
+    // }
+    // log.info("成功获取主页JSON数据 => ", userHomeInfo);
+    // let userInfo = await TieBaApi.getUserInfo(userName);
+    // if (!userInfo) {
+    //   return;
+    // }
+    // log.info("成功获取用户JSON数据 => ", userInfo);
+    // // 获取显示的用户名
+    // let $showName = $<HTMLAnchorElement>(".home_card_uname_link");
+    // let showName = $showName?.innerText || userHomeInfo.name_show || userHomeInfo.show_nickname;
+    // // 获取用户头像
+    // let $avatar = $<HTMLImageElement>("a.home_card_portrait_link img");
+    // let avatar = $avatar?.src || userPCHomeInfo.avatar;
+    // // 获取关注按钮
+    // let $followBtn = $<HTMLDivElement>(".home_card_operate_icon_follow");
+    // let isLike = false;
+    // if ($followBtn) {
+    //   isLike = $followBtn.classList.contains("icon_hide");
+    // } else {
+    //   isLike = userPCHomeInfo.is_like;
+    // }
 
-    // 获取用户发帖数量
-    let $posts = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(1) .home_tab_item_num");
-    let postsNum = Number($posts?.innerText || userPCHomeInfo.postInfo.post);
-    // 获取用户关注吧的数量
-    let $forum = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(2) .home_tab_item_num");
-    let forumNum = Number($forum?.innerText || userPCHomeInfo.postInfo.forum);
-    // 获取用户关注的数量
-    let $follow = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(3) .home_tab_item_num");
-    let followNum = Number($follow?.innerText || userPCHomeInfo.postInfo.follow);
-    // 获取用户粉丝的数量
-    let $fans = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(4) .home_tab_item_num");
-    let fansNum = Number($fans?.innerText || userPCHomeInfo.postInfo.fans);
+    // // 获取用户发帖数量
+    // let $posts = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(1) .home_tab_item_num");
+    // let postsNum = Number($posts?.innerText || userPCHomeInfo.postInfo.post);
+    // // 获取用户关注吧的数量
+    // let $forum = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(2) .home_tab_item_num");
+    // let forumNum = Number($forum?.innerText || userPCHomeInfo.postInfo.forum);
+    // // 获取用户关注的数量
+    // let $follow = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(3) .home_tab_item_num");
+    // let followNum = Number($follow?.innerText || userPCHomeInfo.postInfo.follow);
+    // // 获取用户粉丝的数量
+    // let $fans = $<HTMLSpanElement>(".home_tab .home_tab_item:nth-child(4) .home_tab_item_num");
+    // let fansNum = Number($fans?.innerText || userPCHomeInfo.postInfo.fans);
 
-    // 获赞的数量
-    let receivedLikes = userPCHomeInfo.postInfo.receivedLikes || 0;
+    // // 获赞的数量
+    // let receivedLikes = userPCHomeInfo.postInfo.receivedLikes || 0;
 
-    log.info("请求PC端的数据 => ", userPCHomeInfo);
-    let portrait = userHomeInfo.portrait.replace(/\?t=(.+)/, "");
-    // 判断用户性别
-    let sex: keyof UserSex = 0;
-    if (userHomeInfo.sex === "male") {
-      sex = 1;
-    } else if (userHomeInfo.sex == "female") {
-      sex = 2;
-    }
-    // 印记图标
-    let imprint: string[] = [];
-    if (userHomeInfo.new_iconinfo) {
-      Object.values(userHomeInfo.new_iconinfo).forEach((iconItem: any) => {
-        if (iconItem.icon) {
-          imprint.push(iconItem.icon);
-        }
-      });
+    // log.info("请求PC端的数据 => ", userPCHomeInfo);
+    // let portrait = userHomeInfo.portrait.replace(/\?t=(.+)/, "");
+    // // 判断用户性别
+    // let sex: keyof UserSex = 0;
+    // if (userHomeInfo.sex === "male") {
+    //   sex = 1;
+    // } else if (userHomeInfo.sex == "female") {
+    //   sex = 2;
+    // }
+    // // 印记图标
+    // let imprint: string[] = [];
+    // if (userHomeInfo.new_iconinfo) {
+    //   Object.values(userHomeInfo.new_iconinfo).forEach((iconItem: any) => {
+    //     if (iconItem.icon) {
+    //       imprint.push(iconItem.icon);
+    //     }
+    //   });
+    // }
+    const searchParams = new URLSearchParams(window.location.search);
+    const portrait = searchParams.get("id") || "";
+    const userInfo = await TiebaNewPCApi.homeSidebarRight(portrait);
+    if (userInfo == null) {
+      Qmsg.error("获取homeSidebarRight数据失败");
+      return;
     }
     return {
-      id: userInfo?.id,
-      tbs: userInfo?.tbs,
-      name: userName,
-      showName: userHomeInfo.show_nickname || userHomeInfo.name_show,
-      sex: sex,
+      id: userInfo.user.id,
+      // tbs: userInfo.user.portrait,
+      name: userInfo.user.name,
+      showName: userInfo.user.name_show || userInfo.user.name,
+      sex: userInfo.user.sex,
       ip: {
-        location: userPCHomeInfo.ip?.location,
+        location: userInfo.user.ip_address,
       },
-      avatar: avatar,
-      portrait: portrait,
-      imprint: imprint,
-      is_vip: userHomeInfo.tb_vip,
-      is_like: isLike,
-      is_online: userInfo?.creator?.is_online ?? false,
-      level: userHomeInfo.tb_age,
+      avatar: userInfo.user.user_show_info.feed_head.image_data.img_url,
+      portrait: userInfo.user.portrait || portrait,
+      imprint: (userInfo.icon_info.my_icon || []).map((it) => it.pic),
+      // 暂无数据
+      is_vip: false,
+      is_like: !!userInfo.user.followed,
+      // 暂无数据
+      is_online: false,
+      level: userInfo.user.tb_age,
+      // 暂无数据
+      personalSignature: "",
       postInfo: {
-        fans: fansNum,
-        follow: followNum,
-        forum: forumNum || userPCHomeInfo?.postInfo?.forum || 0,
-        receivedLikes: receivedLikes,
-        post: postsNum,
+        fans: userInfo.user.fans_num,
+        follow: userInfo.user.concern_num,
+        // 暂无数据
+        forum: 0,
+        receivedLikes: userInfo.user.total_agree_num,
+        // // 暂无数据
+        // post: userThread?.list?.length ?? 0,
       },
-      otherData: {
-        PanelUserInfo: userHomeInfo,
-        UserJSON: userInfo,
-        PCUserInfo: userPCHomeInfo,
-      },
+      // otherData: {
+      //   PanelUserInfo: userHomeInfo,
+      //   UserJSON: userInfo,
+      //   PCUserInfo: userPCHomeInfo,
+      // },
     };
   },
   /**
@@ -244,8 +259,8 @@ const TiebaHomeData = {
     // let $personalSignature = pcDoc.querySelector("")
     // 吧龄
     let level = "0";
-    // 发帖数量
-    let postNum = 0;
+    // // 发帖数量
+    // let postNum = 0;
     // IP地址
     let ipLocation = "未知";
     // 用户名
@@ -271,7 +286,7 @@ const TiebaHomeData = {
       } else if (spanText.includes("IP属地")) {
         ipLocation = spanText.replace(/(IP属地|:|：)/g, "");
       } else if (spanText.includes("发贴")) {
-        postNum = parseInt(spanText.replace(/(发贴|:|：)/g, ""));
+        // postNum = parseInt(spanText.replace(/(发贴|:|：)/g, ""));
       }
     });
     // 发帖数据列表
@@ -358,7 +373,7 @@ const TiebaHomeData = {
     let forumInfoList: UserPCHomeInfo["forumInfoList"] = [];
     $doc.querySelectorAll<HTMLAnchorElement>("#forum_group_wrap .u-f-item ").forEach(($el) => {
       let forumName = $el.querySelector("span:first-child")?.textContent || "";
-      let fid = Number($el.getAttribute("data-fid") || "");
+      // let fid = Number($el.getAttribute("data-fid") || "");
       let level = "0";
       let $level = $el.querySelector<HTMLSpanElement>(".forum_level");
       if ($level) {
@@ -392,7 +407,7 @@ const TiebaHomeData = {
       level: level,
       personalSignature: personalSignature,
       postInfo: {
-        post: postNum,
+        // post: postNum,
         data: postsList,
         receivedLikes: receivedLikes,
         follow: follow,

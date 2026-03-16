@@ -1,9 +1,36 @@
+<template>
+  <div class="follow-forum-container">
+    <el-empty description="这位老铁已将关注的吧设为隐藏" v-if="isAsyncLoadEnd && followForum.length === 0" />
+    <el-row class="follow-forum-list-container" v-if="!isEmpty">
+      <div
+        class="follow-forum-item"
+        :span="24"
+        v-for="(item, index) in followForum"
+        :key="index"
+        @click="handleForumItemClick(item)">
+        <el-avatar
+          class="follow-forum-avatar"
+          :size="35"
+          :src="'//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png'" />
+        <div class="follow-forum-item-right-container">
+          <div class="follow-forum-item-name">{{ item.forumName }}</div>
+          <el-text class="follow-forum-item-info" type="info" size="small" truncated>{{ item.intro }}</el-text>
+        </div>
+        <span class="follow-forum-item-level" :data-level="item.level">{{ item.level }}</span>
+      </div>
+      <TemplateFollowForum v-if="showIsLoading" ref="$loading" />
+    </el-row>
+    <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
+    <el-backtop :right="10" :bottom="50" />
+  </div>
+</template>
+
 <script setup lang="ts">
+  import { log, utils } from "@/env";
   import { VNodeRef, ref, watch } from "vue";
+  import { TiebaHomeApi, UserConcernInfo } from "../../api/TiebaHomeApi";
   import { TiebaHomeData, UserInfo } from "../data/TiebaHomeData";
   import TemplateFollowForum from "../template/TemplateFollowForum.vue";
-  import { TiebaHomeApi, UserConcernInfo } from "../../api/TiebaHomeApi";
-  import { log, utils } from "@/env";
 
   const props = defineProps<{
     UserData: UserInfo;
@@ -99,33 +126,6 @@
     }
   };
 </script>
-
-<template>
-  <div class="follow-forum-container">
-    <el-empty description="这位老铁已将关注的吧设为隐藏" v-if="isAsyncLoadEnd && followForum.length === 0" />
-    <el-row class="follow-forum-list-container" v-if="!isEmpty">
-      <div
-        class="follow-forum-item"
-        :span="24"
-        v-for="(item, index) in followForum"
-        :key="index"
-        @click="handleForumItemClick(item)">
-        <el-avatar
-          class="follow-forum-avatar"
-          :size="35"
-          :src="'//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png'" />
-        <div class="follow-forum-item-right-container">
-          <div class="follow-forum-item-name">{{ item.forumName }}</div>
-          <el-text class="follow-forum-item-info" type="info" size="small" truncated>{{ item.intro }}</el-text>
-        </div>
-        <span class="follow-forum-item-level" :data-level="item.level">{{ item.level }}</span>
-      </div>
-      <TemplateFollowForum v-if="showIsLoading" ref="$loading" />
-    </el-row>
-    <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
-    <el-backtop :right="10" :bottom="50" />
-  </div>
-</template>
 
 <style scoped>
   .follow-forum-container {

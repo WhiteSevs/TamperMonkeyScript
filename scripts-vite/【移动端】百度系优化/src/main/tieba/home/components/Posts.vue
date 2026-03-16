@@ -1,100 +1,6 @@
-<script setup lang="ts">
-  import { VNodeRef, onMounted, ref, shallowRef, watch, watchEffect } from "vue";
-  import TemplatePostsItem from "../template/TemplatePostsItem.vue";
-  import { TieBaApi, HomePostsInfo } from "../../api/TiebaApi";
-  import { TiebaHomeData, UserInfo } from "../data/TiebaHomeData";
-  import { ChromeFilled } from "@element-plus/icons-vue";
-  import { log } from "@/env";
-  import { TiebaUrlHandler } from "../../handler/TiebaUrlHandler";
-
-  const props = defineProps<{
-    UserData: UserInfo;
-  }>();
-  let postsInfoList = ref<HomePostsInfo[]>([]);
-  let showIsLoading = ref(true);
-  let isAsyncLoadEnd = ref(false);
-  //let isLoadingNext = ref(false);
-  let showLoadingEnd = ref(false);
-  let $loading = ref<VNodeRef | null>(null);
-  let pageNumber = ref(1);
-
-  let observe = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          loadMore();
-        }
-      });
-    },
-    {
-      root: null,
-      rootMargin: "0px 0px 0px 0px",
-      threshold: 0.2,
-    }
-  );
-  const stopWatchLoading = watch($loading, () => {
-    if ($loading.value) {
-      observe.observe($loading.value.$el);
-    }
-  });
-  const cancleLoadMoreObserve = () => {
-    stopWatchLoading();
-    observe.disconnect();
-    showIsLoading.value = false;
-    showLoadingEnd.value = true;
-    log.success("移除滚动监听");
-  };
-
-  const handlePostItemClick = (postsItem: HomePostsInfo) => {
-    window.open(postsItem.url, "_blank");
-  };
-  const handlePostForumButtonClick = function (postsItem: HomePostsInfo) {
-    let url = TiebaUrlHandler.getForum(postsItem.forumName);
-    window.open(url, "_blank");
-  };
-  const loadMore = async () => {
-    showIsLoading.value = false;
-    let isFirstLoad = pageNumber.value === 1;
-    if (isFirstLoad) {
-      isAsyncLoadEnd.value = false;
-      postsInfoList.value.length = 0;
-    }
-    let userPostsList = await TieBaApi.getUserPosts(props.UserData.name as string, pageNumber.value);
-    log.info("获取到的帖子", userPostsList);
-    if (userPostsList) {
-      if (isFirstLoad && userPostsList.data.length === 0) {
-        /* 获取到数据为空，尝试从PC端获取数据 */
-        let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
-        log.info("获取PC个人主页的帖子", userPCPostsList);
-        if (userPCPostsList?.postInfo?.data) {
-          postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
-        }
-      } else if (userPostsList.data) {
-        postsInfoList.value = postsInfoList.value.concat(userPostsList.data);
-        pageNumber.value++;
-      }
-      showIsLoading.value = false;
-      if (!userPostsList.has_more) {
-        cancleLoadMoreObserve();
-      }
-    } else {
-      /* api获取不到数据，从PC页面抓取数据，且取消加载下一页的监听 */
-      let userPCPostsList = await TiebaHomeData.getUserDataWithPCDoc();
-      log.info("获取PC个人主页的帖子", userPCPostsList);
-      if (userPCPostsList?.postInfo?.data) {
-        postsInfoList.value = postsInfoList.value.concat(userPCPostsList.postInfo.data);
-      }
-      cancleLoadMoreObserve();
-    }
-    if (isFirstLoad) {
-      isAsyncLoadEnd.value = false;
-    }
-  };
-</script>
-
 <template>
   <div class="posts-container">
-    <el-empty description="帖子还在酝酿中" v-if="isAsyncLoadEnd && postsInfoList.length === 0" />
+    <el-empty description="帖子还在酝酿中" v-if="showPostEmpty && postsInfoList.length === 0" />
     <div class="posts-container-item" v-for="postItem in postsInfoList" @click="handlePostItemClick(postItem)">
       <div class="posts-item-avatar-container">
         <el-row style="align-items: center">
@@ -102,25 +8,31 @@
           <div class="posts-item-right-user-info">
             <div class="posts-item-user-name">{{ UserData.showName }}</div>
             <div class="posts-item-user-other-info">
-              <el-text type="info" size="small">{{ postItem.forumName }}吧 {{ postItem.createTime }}</el-text>
+              <el-text type="info" size="small">
+                {{ CommonUtil.formatTimeStamp(postItem.thread_info.create_time) }}</el-text
+              >
             </div>
           </div>
         </el-row>
       </div>
-      <div class="posts-item-title" v-html="postItem.title"></div>
-      <div class="posts-item-content">{{ postItem.content }}</div>
-      <div class="posts-item-media-container" v-if="postItem.mediaList.length > 0">
+      <div class="posts-item-title" v-html="postItem.thread_info.title"></div>
+      <div class="posts-item-content">
+        {{ postItem.thread_info.abstract.map((it) => (typeof it.text === "string" ? it.text : "")).join("\n") }}
+      </div>
+      <div
+        class="posts-item-media-container"
+        v-if="postItem.thread_info.media && postItem.thread_info.media.length > 0">
         <el-row @click.stop>
           <el-image
             style="width: 100px; height: 100px"
-            :src="media"
+            :src="media.origin_pic"
             :zoom-rate="1"
             :max-scale="7"
             :min-scale="0.2"
-            :preview-src-list="postItem.mediaList"
+            :preview-src-list="postItem.thread_info.media.map((it) => it.origin_pic)"
             :initial-index="index"
             fit="cover"
-            v-for="(media, index) in postItem.mediaList" />
+            v-for="(media, index) in postItem.thread_info.media" />
         </el-row>
       </div>
       <div class="posts-item-forum">
@@ -133,7 +45,7 @@
           round
           @click="handlePostForumButtonClick(postItem)"
           @click.stop
-          >{{ postItem.forumName }}吧</el-button
+          >{{ postItem.thread_info.fname }}吧</el-button
         >
       </div>
       <div class="posts-item-footer">
@@ -155,7 +67,7 @@
                   p-id="10588"></path>
               </svg>
             </el-icon>
-            {{ postItem.replyNum }}
+            {{ postItem.thread_info.reply_num }}
           </el-col>
           <el-col :span="6" class="posts-item-footer-icon-container">
             <el-icon>
@@ -165,15 +77,106 @@
                   p-id="11599"></path>
               </svg>
             </el-icon>
+            {{ postItem.thread_info.agree_num }}
           </el-col>
         </el-row>
       </div>
     </div>
-    <TemplatePostsItem v-if="showIsLoading" ref="$loading" />
-    <div v-if="showLoadingEnd" style="text-align: center">已经到底了~</div>
+    <TemplatePostsItem v-if="showSkeletonScreen" ref="$loading" />
+    <div v-if="bottomLoadingEnd" style="text-align: center">已加载全部~</div>
   </div>
   <el-backtop :right="10" :bottom="50" />
 </template>
+
+<script setup lang="ts">
+  import { log, utils } from "@/env";
+  import { CommonUtil } from "@components/utils/CommonUtil";
+  import { ChromeFilled } from "@element-plus/icons-vue";
+  import { VNodeRef, ref, watch } from "vue";
+  import { TiebaNewPCApi } from "../../api/TiebaNewPCApi";
+  import { TiebaUrlHandler } from "../../handler/TiebaUrlHandler";
+  import { UserInfo } from "../data/TiebaHomeData";
+  import TemplatePostsItem from "../template/TemplatePostsItem.vue";
+
+  type HomePostsInfo = NonNullable<NonNullable<Awaited<ReturnType<typeof TiebaNewPCApi.myThread>>>["list"]>["0"];
+
+  const props = defineProps<{
+    UserData: UserInfo;
+  }>();
+  const postsInfoList = ref<HomePostsInfo[]>([]);
+  /** 显示骨架屏（也用于滚动触发加载） */
+  const showSkeletonScreen = ref(true);
+  /** 没有帖子时显示 */
+  const showPostEmpty = ref(false);
+  //const isLoadingNext = ref(false);
+  /** 底部的显示加载完毕的提示 */
+  const bottomLoadingEnd = ref(false);
+  const $loading = ref<VNodeRef | null>(null);
+  const pageNumber = ref(1);
+
+  const observe = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          loadMore.run();
+        }
+      });
+    },
+    {
+      root: null,
+      rootMargin: "0px 0px 0px 0px",
+      threshold: 0.2,
+    }
+  );
+  const stopWatchLoading = watch($loading, () => {
+    if ($loading.value) {
+      observe.observe($loading.value.$el);
+    }
+  });
+  const cancleLoadMoreObserve = () => {
+    stopWatchLoading();
+    observe.disconnect();
+    showSkeletonScreen.value = false;
+    bottomLoadingEnd.value = true;
+    log.success("移除滚动监听");
+  };
+
+  const handlePostItemClick = (postsItem: HomePostsInfo) => {
+    window.open(postsItem.thread_info.thread_share_link, "_blank");
+  };
+  const handlePostForumButtonClick = function (postsItem: HomePostsInfo) {
+    const url = TiebaUrlHandler.getForum(postsItem.thread_info.fname);
+    window.open(url, "_blank");
+  };
+  const loadMore = new utils.LockFunction(async () => {
+    showSkeletonScreen.value = false;
+    const isFirstLoad = pageNumber.value === 1;
+    if (isFirstLoad) {
+      showPostEmpty.value = false;
+      postsInfoList.value.length = 0;
+    }
+    const userPostsList = await TiebaNewPCApi.myThread(props.UserData.portrait!, pageNumber.value);
+    log.info("获取到的帖子", userPostsList);
+    if (userPostsList) {
+      if (userPostsList.list) {
+        postsInfoList.value = postsInfoList.value.concat(userPostsList.list);
+        pageNumber.value++;
+        if (userPostsList.has_more) {
+          showSkeletonScreen.value = true;
+        } else {
+          cancleLoadMoreObserve();
+        }
+      } else {
+        cancleLoadMoreObserve();
+      }
+    } else {
+      cancleLoadMoreObserve();
+    }
+    if (isFirstLoad) {
+      showPostEmpty.value = false;
+    }
+  });
+</script>
 
 <style scoped>
   .posts-container {

@@ -1,20 +1,21 @@
 import { $, $$, DOMUtils, addStyle, httpx, loadingView, log, pops, utils } from "@/env";
-import { TieBaApi } from "../api/TiebaApi";
-import { Panel } from "@components/setting/panel";
-import { TiebaCore } from "../TiebaCore";
-import { TiebaData } from "../home/data";
 import { LoadingView } from "@/utils/LoadingView";
-import { TiebaSearch } from "../TiebaSearch";
-import { ref } from "vue";
-import { Toolbar } from "./Toolbar";
-import Qmsg from "qmsg";
-import { TiebaPostApi } from "../api/TiebaPostApi";
+import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
-import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
-import { CommentData } from "../types/CommentType";
 import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
-import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+import Qmsg from "qmsg";
+import { ref } from "vue";
+import { TiebaCore } from "../TiebaCore";
+import { TiebaSearch } from "../TiebaSearch";
+import { TieBaApi } from "../api/TiebaApi";
+import { TiebaPostApi } from "../api/TiebaPostApi";
 import { TiebaPageDataHandler } from "../handler/TiebaPageDataHandler";
+import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+import { TiebaData } from "../home/data";
+import { CommentData } from "../types/CommentType";
+import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
+import { Toolbar } from "./Toolbar";
+import { TiebaGlobalData } from "../data/GlobalData";
 
 interface AffixOption {
   /**
@@ -239,19 +240,22 @@ const TiebaComment = {
       });
       log.error("百度验证后的参数👇", TiebaComment.extraSearchSignParams);
     }
-    DOMUtils.waitNode<HTMLDivElement>(".main-page-wrap").then(() => {
+    DOMUtils.waitNode(".main-page-wrap", 1e4).then(($el) => {
+      if (!$el) return;
       TiebaComment.insertLoadingHTML();
     });
-    DOMUtils.waitAnyNode<HTMLDivElement>([
-      ".recommend-item[data-banner-info]",
-      "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item",
-    ]).then(() => {
+    DOMUtils.waitAnyNode(
+      [".recommend-item[data-banner-info]", "div.app-view.transition-fade.pb-page-wrapper.mask-hidden .post-item"],
+      1e4
+    ).then(($el) => {
+      if (!$el) return;
       DOMUtils.remove(".post-item");
       TiebaComment.initReplyDialogCSS();
       TiebaComment.initMainComment(false);
       TiebaComment.insertReverseBtn();
       TiebaComment.insertOnlyLZ();
-      DOMUtils.waitNode<HTMLDivElement>('.nav-bar-v2-fixed[main-type="forum"]').then(($navBar) => {
+      DOMUtils.waitNode('.nav-bar-v2-fixed[main-type="forum"]', 1e4).then(($navBar) => {
+        if (!$navBar) return;
         setAffix({
           target: "#replySwitch",
           position: "top",
@@ -2113,7 +2117,7 @@ const TiebaComment = {
    * @param pn 当前页
    */
   async getLzlCommentReply(tid = "", pid = "", pn: string | number = 1) {
-    let getResp = await httpx.get({
+    const response = await httpx.get({
       url: TiebaUrlHandler.getPost(
         `comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}${TiebaComment.extraSearchSignParams}`
       ),
@@ -2123,35 +2127,35 @@ const TiebaComment = {
         Referer: window.location.href,
       },
     });
-    if (!getResp.status) {
-      log.error(getResp);
+    if (!response.status) {
+      log.error(response);
       return "请求失败";
     }
-    let respData = getResp.data;
+    const respData = response.data;
     log.success(respData);
-    let parseDOM = DOMUtils.toElement(respData.responseText, false, true);
-    let lzlPostList = Array.from(parseDOM.querySelectorAll("li.lzl_single_post")) as HTMLLIElement[];
+    const parseDOM = DOMUtils.toElement(respData.responseText, false, true);
+    const lzlPostList = Array.from(parseDOM.querySelectorAll("li.lzl_single_post")) as HTMLLIElement[];
     if (!lzlPostList.length) {
       return "暂无更多回复";
     }
-    let result = {
+    const result = {
       data: [],
     } as {
       data: CommentData[];
       nextPage?: number;
     };
     lzlPostList.forEach((item) => {
-      let dataFieldJSON = utils.toJSON(item.getAttribute("data-field"));
+      const dataFieldJSON = utils.toJSON(item.getAttribute("data-field"));
       let userName = dataFieldJSON["user_name"];
-      let userShowName = dataFieldJSON["showname"];
-      let userPostId = dataFieldJSON["spid"];
-      let userPortrait = dataFieldJSON["portrait"];
-      let userHomeUrl = (item.querySelector("a[data-field]") as HTMLAnchorElement)?.href;
-      let userAvatar = (item.querySelector("a[data-field] img") as HTMLImageElement)?.src;
-      let userReplyContent = (item.querySelector("span.lzl_content_main") as HTMLSpanElement).innerHTML;
-      let userReplyTimeStr = (item.querySelector("span.lzl_time") as HTMLSpanElement).innerHTML;
-      let userReplyTimeNumber = utils.formatToTimeStamp(userReplyTimeStr);
-      let userReplyTime = utils.getDaysDifference(new Date().getTime(), userReplyTimeNumber, "auto") + "前";
+      const userShowName = dataFieldJSON["showname"];
+      const userPostId = dataFieldJSON["spid"];
+      const userPortrait = dataFieldJSON["portrait"];
+      const userHomeUrl = (item.querySelector("a[data-field]") as HTMLAnchorElement)?.href;
+      const userAvatar = (item.querySelector("a[data-field] img") as HTMLImageElement)?.src;
+      const userReplyContent = (item.querySelector("span.lzl_content_main") as HTMLSpanElement).innerHTML;
+      const userReplyTimeStr = (item.querySelector("span.lzl_time") as HTMLSpanElement).innerHTML;
+      const userReplyTimeNumber = utils.formatToTimeStamp(userReplyTimeStr);
+      const userReplyTime = utils.getDaysDifference(new Date().getTime(), userReplyTimeNumber, "auto") + "前";
 
       if (utils.isNull(userName)) {
         /* 某些情况下获取到的user_name是空的 */
@@ -2184,7 +2188,7 @@ const TiebaComment = {
    * @param url
    */
   async getPageComment(url: string) {
-    let getDetails: HttpxRequestOption = {
+    const getDetails: HttpxRequestOption = {
       url: url,
       headers: {
         "User-Agent": utils.getRandomPCUA(),
@@ -2192,11 +2196,11 @@ const TiebaComment = {
       },
       allowInterceptConfig: false,
     };
-    let getResp = await httpx.get(getDetails);
-    let respData = getResp.data;
-    log.success("获取评论", getResp);
-    if (getResp.status) {
-      let pageCommentHTMLElement = DOMUtils.toElement(respData.responseText, true, true);
+    const response = await httpx.get(getDetails);
+    const respData = response.data;
+    log.success("获取评论", response);
+    if (response.status) {
+      const pageCommentHTMLElement = DOMUtils.toElement(respData.responseText, true, true);
       if (
         pageCommentHTMLElement.title === "百度安全验证" ||
         respData.finalUrl.startsWith("https://wappass.baidu.com")
@@ -2215,7 +2219,7 @@ const TiebaComment = {
           data: pageCommentHTMLElement,
         };
       }
-    } else if (getResp.type === "onerror") {
+    } else if (response.type === "onerror") {
       if (typeof (respData as any).error === "string" && (respData as any).error.match("wappass.baidu.com")) {
         let url = (respData as any).error.match(/"(.*?)"/)[1];
         log.error("触发百度校验: " + url);
@@ -2245,7 +2249,7 @@ const TiebaComment = {
    * @param url
    */
   async getPageCommentList(url: string) {
-    let getResp = await httpx.get({
+    const response = await httpx.get({
       url: url,
       responseType: "json",
       headers: {
@@ -2255,10 +2259,9 @@ const TiebaComment = {
       },
       allowInterceptConfig: false,
     });
-    log.info("获取楼中楼评论", getResp);
-    let respData = getResp.data;
-    let data = utils.toJSON(respData.responseText);
-    if (getResp.status && data["errno"] === 0) {
+    log.info("获取楼中楼评论", response);
+    const data = utils.toJSON(response.data.responseText);
+    if (response.status && data["errno"] === 0) {
       log.success("帖子评论信息JSON", data);
       return {
         commentList: data["data"]["comment_list"],
@@ -2266,7 +2269,7 @@ const TiebaComment = {
       };
     } else {
       log.error("获取楼中楼评论数据失败 👇");
-      log.error(getResp);
+      log.error(response);
     }
   },
   /**
@@ -2295,42 +2298,42 @@ const TiebaComment = {
       return;
     }
     addStyle(/*css*/ `
-          .white-only-lz{
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -moz-box-align: center;
-            -webkit-align-items: center;
-            -moz-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            line-height: .24rem;
-            border-radius: .14rem;
-            font-size: .13rem;
-            color: #614ec2;
-            /* margin-right: 16px; */
-			margin-left: 16px;
-          }
-          .white-only-lz-qx:before {
-            content: "取消";
-          }
-          .white-only-lz-none {
-            display: none;
-          }
-          `);
-    let onlyLzInnerElement = DOMUtils.createElement("div", {
+    .white-only-lz{
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -moz-box-align: center;
+      -webkit-align-items: center;
+      -moz-align-items: center;
+      -ms-flex-align: center;
+      align-items: center;
+      line-height: .24rem;
+      border-radius: .14rem;
+      font-size: .13rem;
+      color: #614ec2;
+      /* margin-right: 16px; */
+      margin-left: 16px;
+    }
+    .white-only-lz-qx:before {
+      content: "取消";
+    }
+    .white-only-lz-none {
+      display: none;
+    }
+    `);
+    const $onlyLzInner = DOMUtils.createElement("div", {
       className: "white-only-lz",
       textContent: "只看楼主",
     });
-    replyRightContainer.appendChild(onlyLzInnerElement);
+    replyRightContainer.appendChild($onlyLzInner);
 
-    let $whiteOnlyLz = $<HTMLDivElement>(".white-only-lz");
+    const $whiteOnlyLz = $<HTMLDivElement>(".white-only-lz");
     if (!$whiteOnlyLz) {
       throw new TypeError("$whiteOnlyLz is null");
     }
-    DOMUtils.on($whiteOnlyLz, "click", (event) => {
-      let $postItemList = $$<HTMLDivElement>(".post-item");
+    DOMUtils.on($whiteOnlyLz, "click", () => {
+      const $postItemList = $$<HTMLDivElement>(".post-item");
       if (Array.from($whiteOnlyLz.classList).includes("white-only-lz-qx")) {
         /* 取消只看楼主 => 只看楼主 */
         $whiteOnlyLz.classList.remove("white-only-lz-qx");
@@ -2341,7 +2344,7 @@ const TiebaComment = {
         /* 只看楼主 => 取消只看楼主 */
         $whiteOnlyLz.classList.add("white-only-lz-qx");
         $postItemList.forEach(($postItem) => {
-          let landlord = $postItem.getAttribute("landlord");
+          const landlord = $postItem.getAttribute("landlord");
           if (landlord == "0") {
             $postItem.classList.add("white-only-lz-none");
           }
@@ -2354,110 +2357,115 @@ const TiebaComment = {
    * 插入 正序=倒序的按钮
    */
   insertReverseBtn() {
-    let replySwitchElement = $("#replySwitch");
-    if (!replySwitchElement) {
+    const $replySwitch = $("#replySwitch");
+    if (!$replySwitch) {
       log.error("元素#replySwitch不存在");
       return;
     }
     addStyle(/*css*/ `
-          .reply-right-container {
-            display: flex;
-            align-items: center;
-            flex-direction: row-reverse;
+    .reply-right-container {
+      display: flex;
+      align-items: center;
+      flex-direction: row-reverse;
 			flex: 1;
-    		justify-content: space-between;
-          }
-          .btn-comment-reverse-pack{
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            display: inline-block;
-            white-space: nowrap;
-            text-align: center;
-            height: .29rem;
-            line-height: .29rem;
-            border-radius: .15rem;
-            color: #a3a2a8;
-            font-size: 13px;
-            background-color: #f3f2f5;
-          }
-          .btn-comment-reverse-pack .tab-item{
-            display: inline-block;
-            width: .48rem;
-          }
-          .btn-comment-reverse-pack .selected-tab-item{
-            position: relative;
-            z-index: 99;
-            color: #141414;
-          }
-          .btn-comment-reverse-pack .selected-tab-item:after{
-            content: "";
-            z-index: -99;
-            position: absolute;
-            top: 0;
-            left: 0;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            display: block;
-            height: .29rem;
-            width: .48rem;
-            border-radius: .15rem;
-            border: .01rem solid #f3f2f5;
-            background-color: #fff;
-            color: #141414;
-          }
-          `);
-    let replyRightContainer = DOMUtils.createElement("div", {
+      justify-content: space-between;
+    }
+    .btn-comment-reverse-pack{
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      display: inline-block;
+      white-space: nowrap;
+      text-align: center;
+      height: .29rem;
+      line-height: .29rem;
+      border-radius: .15rem;
+      color: #a3a2a8;
+      font-size: 13px;
+      background-color: #f3f2f5;
+    }
+    .btn-comment-reverse-pack .tab-item{
+      display: inline-block;
+      width: .48rem;
+    }
+    .btn-comment-reverse-pack .selected-tab-item{
+      position: relative;
+      z-index: 99;
+      color: #141414;
+    }
+    .btn-comment-reverse-pack .selected-tab-item:after{
+      content: "";
+      z-index: -99;
+      position: absolute;
+      top: 0;
+      left: 0;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      display: block;
+      height: .29rem;
+      width: .48rem;
+      border-radius: .15rem;
+      border: .01rem solid #f3f2f5;
+      background-color: #fff;
+      color: #141414;
+    }
+    `);
+    const $replyRightContainer = DOMUtils.createElement("div", {
       className: "reply-right-container",
     });
-    let btnElement = DOMUtils.createElement("div", {
+    const $sortBtn = DOMUtils.createElement("div", {
       className: "btn-comment-reverse-pack",
       innerHTML: /*html*/ `
-              <span class="tab-item selected-tab-item" data-positive>正序</span>
-              <span class="tab-item" data-reverse>倒序</span>`,
+      <span class="tab-item selected-tab-item" data-positive>正序</span>
+      <span class="tab-item" data-reverse>倒序</span>`,
     });
     /**
      * 正序
      */
-    const positiveElement = btnElement.querySelector(".tab-item[data-positive]") as HTMLSpanElement;
+    const $positive = $sortBtn.querySelector(".tab-item[data-positive]") as HTMLSpanElement;
     /**
      * 倒序
      */
-    const reverseElement = btnElement.querySelector(".tab-item[data-reverse]") as HTMLSpanElement;
-    replyRightContainer.appendChild(btnElement);
-    replySwitchElement.appendChild(replyRightContainer);
+    const $reverse = $sortBtn.querySelector(".tab-item[data-reverse]") as HTMLSpanElement;
+    $replyRightContainer.appendChild($sortBtn);
+    $replySwitch.appendChild($replyRightContainer);
     let isReverse = false;
     function clearSelected() {
-      positiveElement.classList.remove("selected-tab-item");
-      reverseElement.classList.remove("selected-tab-item");
+      $positive.classList.remove("selected-tab-item");
+      $reverse.classList.remove("selected-tab-item");
     }
-    DOMUtils.on(btnElement, "click", () => {
+    const listener = DOMUtils.on($sortBtn, "click", () => {
+      if (TiebaGlobalData.isNetWorkFirstChangeSortType) {
+        listener.off();
+        return;
+      }
       isReverse = !isReverse;
       TiebaComment.removeScrollListener();
       DOMUtils.remove(".post-item");
       clearSelected();
       if (isReverse) {
         /* 倒序 */
-        reverseElement.classList.add("selected-tab-item");
-        positiveElement.classList.remove("selected-tab-item");
-        reverseElement.classList.add("selected-tab-item");
+        $reverse.classList.add("selected-tab-item");
+        $positive.classList.remove("selected-tab-item");
+        $reverse.classList.add("selected-tab-item");
         TiebaComment.initMainComment(true);
         log.info("获取评论===>倒序");
       } else {
         /* 正序 */
-        positiveElement.classList.add("selected-tab-item");
-        reverseElement.classList.remove("selected-tab-item");
-        positiveElement.classList.add("selected-tab-item");
+        $positive.classList.add("selected-tab-item");
+        $reverse.classList.remove("selected-tab-item");
+        $positive.classList.add("selected-tab-item");
         TiebaComment.initMainComment(false);
         log.info("获取评论===>正序");
       }
     });
+    return listener.off;
   },
   /**
    * 查看 正序/倒序
    * @param [isReverse=false] 是否是倒序，默认false：正序
    */
   async initMainComment(isReverse = false) {
-    let tag = isReverse ? "倒序: " : "正序: ";
+    const tag = isReverse ? "倒序: " : "正序: ";
     log.info(tag + `查看内容`);
     TiebaComment.param_tid = TiebaCore.getCurrentForumPostTid();
     if (!TiebaComment.param_tid) {
@@ -2467,13 +2475,13 @@ const TiebaComment = {
     TiebaComment.param_forum_id = TiebaPageDataHandler.getForumId();
     if (!TiebaComment.param_forum_id) {
       log.warn(tag + "param_forum_id参数不存在，尝试从其它地方获取，max-time: 5s");
-      let recommendItemElement = await DOMUtils.waitNode<HTMLDivElement>(".recommend-item", 5000);
-      if (recommendItemElement) {
+      const $recommendItem = await DOMUtils.waitNode(".recommend-item", 5000);
+      if ($recommendItem) {
         log.info(tag + "等待.recommend-item的data-banner-info属性，max-time: 10s");
         await utils.waitPropertyByInterval(
-          recommendItemElement,
+          $recommendItem,
           () => {
-            return recommendItemElement.hasAttribute("data-banner-info");
+            return $recommendItem.hasAttribute("data-banner-info");
           },
           250,
           10000
@@ -2504,17 +2512,17 @@ const TiebaComment = {
     loadingView.setText("Loading...", true);
     loadingView.show();
     // 获取所有评论的接口
-    let url = TiebaUrlHandler.getPost(
+    const url = TiebaUrlHandler.getPost(
       `totalComment?t=${Date.now()}&tid=${TiebaComment.param_tid}&fid=${
         TiebaComment.param_forum_id
       }&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
     );
     // 获取帖子链接，目的是解析页面的内容
-    let pcPageUrl = TiebaUrlHandler.getPost(
+    const pcPageUrl = TiebaUrlHandler.getPost(
       `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
     );
     // 解析页面内容
-    let pcPageCommentInfo = await TiebaComment.getPageComment(pcPageUrl);
+    const pcPageCommentInfo = await TiebaComment.getPageComment(pcPageUrl);
     if (!pcPageCommentInfo.success) {
       // 请求失败，触发验证
       loadingView.setHTML(
@@ -2523,9 +2531,9 @@ const TiebaComment = {
       return;
     }
     // PC页面的内容DOM
-    let $pcPageDoc = pcPageCommentInfo.data as Document;
+    const $pcPageDoc = pcPageCommentInfo.data as Document;
     // 获取评论列表JSON信息
-    let pageCommentList = await TiebaComment.getPageCommentList(url);
+    const pageCommentList = await TiebaComment.getPageCommentList(url);
     if (pageCommentList == null || (pageCommentList.commentList && !pageCommentList.commentList)) {
       loadingView.setText("评论数据获取失败");
       log.error(tag + "评论数据获取失败");
@@ -2533,12 +2541,12 @@ const TiebaComment = {
     }
     log.info(tag + "成功获取第一页评论和楼中楼评论");
     // 获取跳转xx页的按钮，解析出本帖的评论最大页
-    let $jumpInputBright = $pcPageDoc.querySelector<HTMLElement>(".jump_input_bright");
+    const $jumpInputBright = $pcPageDoc.querySelector<HTMLElement>(".jump_input_bright");
     // 初始化默认最大页为1
     TiebaComment.maxPage = 1;
     if ($jumpInputBright) {
       // 多页评论
-      let maxPage = parseInt($jumpInputBright.getAttribute("max-page")!);
+      const maxPage = parseInt($jumpInputBright.getAttribute("max-page")!);
       if (TiebaComment.maxPage <= 1 && maxPage > 1) {
         TiebaComment.maxPage = maxPage;
         log.info(tag + "设置解析出的最大页：" + TiebaComment.maxPage);
@@ -2552,7 +2560,7 @@ const TiebaComment = {
       }
     } else {
       // 单页评论
-      let comments = Array.from($pcPageDoc.querySelectorAll<HTMLElement>(".l_post.l_post_bright"));
+      const comments = Array.from($pcPageDoc.querySelectorAll<HTMLElement>(".l_post.l_post_bright"));
       // 先把页面上的原有的评论移除
       $$(".post-item").forEach((ele) => ele.remove());
       // 移除第一个元素，因为第一个元素是楼主

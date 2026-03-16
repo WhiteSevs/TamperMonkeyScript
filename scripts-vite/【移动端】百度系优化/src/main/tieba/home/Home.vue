@@ -49,7 +49,7 @@
       <el-space class="top-container" :size="10" direction="vertical" alignment="stretch">
         <!-- 头像 关注 私信 -->
         <!-- 用户名 等级 -->
-        <el-row>
+        <!--<el-row>
           <el-text :size="'large'" :class="'big-text'" style="display: flex; align-items: center">
             {{ props.UserData.showName }}
             <el-avatar
@@ -59,7 +59,7 @@
               shape="square"
               style="margin: 0px 5px" />
           </el-text>
-        </el-row>
+        </el-row>-->
         <!-- id 吧龄 IP地址 -->
         <el-row style="color: #909399">
           <span :data-sex="props.UserData.sex">
@@ -133,20 +133,17 @@
         <el-divider style="margin: 0" />
         <el-row>
           <el-tabs v-model="activeName" class="user-info-tabs">
-            <el-tab-pane
-              :label="'帖子' + (props.UserData.postInfo?.post != null ? ' ' + props.UserData.postInfo?.post : '')"
-              name="帖子"></el-tab-pane>
-            <el-tab-pane
-              :label="'关注的吧' + (props.UserData.postInfo?.forum != null ? ' ' + props.UserData.postInfo?.forum : '')"
-              name="关注的吧"></el-tab-pane>
+            <el-tab-pane :label="'帖子'" name="帖子"></el-tab-pane>
+            <el-tab-pane :label="'关注的吧'" name="关注的吧"></el-tab-pane>
           </el-tabs>
         </el-row>
       </el-space>
-      <Posts v-if="activeName === '帖子' && loadStatus" :UserData="props.UserData" />
-      <FollowForum v-if="activeName === '关注的吧' && loadStatus" :UserData="props.UserData" />
+      <Posts v-if="activeName === '帖子' && props.UserData.portrait" :UserData="props.UserData" />
+      <FollowForum v-if="activeName === '关注的吧' && props.UserData.portrait" :UserData="props.UserData" />
     </el-main>
   </el-container>
 </template>
+
 <script lang="ts" setup>
   // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
   import { $, DOMUtils, log, utils } from "@/env";
@@ -163,8 +160,7 @@
     UserData: UserInfo;
   }>();
 
-  let loadStatus = ref(false);
-  let activeName = ref("帖子");
+  const activeName = ref("帖子");
 
   /**
    * 复制id的点击事件
@@ -180,10 +176,10 @@
   };
 
   const changeFollowBtnStatus = new utils.LockFunction(async (maxTime: number = 5000) => {
-    let is_like = Boolean(props.UserData.is_like);
+    const is_like = Boolean(props.UserData.is_like);
     log.info(`关注状态检测：` + is_like);
     await new Promise<boolean>((resolve) => {
-      let intervalId = setInterval(() => {
+      const intervalId = setInterval(() => {
         let current_is_like = false;
         if ($(".j_home_card_request_card:has(.icon_hide)") || $(".userinfo_relation .btn_concern_done")) {
           current_is_like = true;
@@ -197,7 +193,7 @@
           resolve(current_is_like);
         }
       }, 200);
-      let timeId = setTimeout(() => {
+      const timeId = setTimeout(() => {
         // 检测超时
         log.warn(`关注状态检测超时，取消检测`);
         clearInterval(intervalId);
@@ -207,7 +203,7 @@
   });
 
   const followBtnEvent = () => {
-    let $btn =
+    const $btn =
       $<HTMLAnchorElement>(".j_home_card_request_card:not(:has(.icon_hide))") ||
       $<HTMLAnchorElement>(".userinfo_relation .btn-attention");
     if ($btn) {
@@ -220,7 +216,7 @@
     changeFollowBtnStatus.run();
   };
   const cancelFollowBtnEvent = () => {
-    let $btn =
+    const $btn =
       $<HTMLAnchorElement>(".j_home_card_request_card:has(.icon_hide)") ||
       $<HTMLAnchorElement>(".userinfo_relation .btn_concern_done");
     if ($btn) {
@@ -255,7 +251,7 @@
   };
 
   const messageBtnEvent = () => {
-    let $chat = $<HTMLAnchorElement>(".j_home_card_chat") || $<HTMLAnchorElement>(".userinfo_relation .btn_sendmsg");
+    const $chat = $<HTMLAnchorElement>(".j_home_card_chat") || $<HTMLAnchorElement>(".userinfo_relation .btn_sendmsg");
     if ($chat) {
       log.info("点击私信按钮");
       $chat.click();
@@ -305,19 +301,8 @@
       path: "/fans",
     });
   };
-  watch(
-    props.UserData,
-    () => {
-      if (props.UserData.postInfo?.post) {
-        loadStatus.value = true;
-      }
-    },
-    {
-      deep: true,
-      immediate: true,
-    }
-  );
 </script>
+
 <style scoped>
   #main {
     z-index: 1000;

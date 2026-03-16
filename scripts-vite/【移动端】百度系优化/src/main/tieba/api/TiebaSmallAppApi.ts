@@ -30,7 +30,7 @@ let cuid = () => {
  * @param tbs
  * @param cuid cookie中的MAWEBCUID，但是该值是httponly
  */
-const generateSearchParams = async () => {
+export const generateSearchParams = async () => {
   const generateHeader_sign = (headers: {}) => {
     function sign(t: any) {
       var e = "",
@@ -89,7 +89,7 @@ export const TiebaSmallAppApi = {
    * @param toastInfo 是否弹出提示
    */
   async userInfo(toastInfo: boolean = true) {
-    let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/sync", {
+    const response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/sync", {
       headers: {
         Referer: "https://tieba.baidu.com/",
         "User-Agent": utils.getRandomPCUA(),
@@ -100,12 +100,16 @@ export const TiebaSmallAppApi = {
     });
     log.info(`获取用户信息：`, response);
     if (!response.status) {
-      toastInfo && Qmsg.error("获取当前登录的用户信息失败");
+      if (toastInfo) {
+        Qmsg.error("获取当前登录的用户信息失败");
+      }
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
-      toastInfo && Qmsg.error(data["error"]);
+      if (toastInfo) {
+        Qmsg.error(data["error"]);
+      }
       return;
     }
     return data["data"] as {
@@ -136,12 +140,12 @@ export const TiebaSmallAppApi = {
    * @param id 按id顺序请求
    */
   async agreeme(id: string = "") {
-    let searchParamsObj = {
+    const searchParamsObj = {
       rn: "10",
       id: id,
     };
     // Object.assign(searchParamsObj, await generateSearchParams());
-    let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/agreeme", {
+    const response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/agreeme", {
       data: searchParamsObj,
       headers: {
         Referer: "https://tieba.baidu.com/",
@@ -153,7 +157,7 @@ export const TiebaSmallAppApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
       Qmsg.error(data["error"]);
       return;
@@ -214,11 +218,11 @@ export const TiebaSmallAppApi = {
    * 回复我的
    */
   async replyme(pn: number = 1) {
-    let searchParamsObj = {
+    const searchParamsObj = {
       pn: pn,
     };
     // Object.assign(searchParamsObj, await generateSearchParams());
-    let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/replyme`, {
+    const response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/replyme`, {
       data: searchParamsObj,
       headers: {
         Referer: "https://tieba.baidu.com/",
@@ -230,7 +234,7 @@ export const TiebaSmallAppApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
       Qmsg.error(data["error"]);
       return;
@@ -302,11 +306,11 @@ export const TiebaSmallAppApi = {
    * @我的
    */
   async atme(pn: number = 1) {
-    let searchParamsObj = {
+    const searchParamsObj = {
       pn: pn,
     };
     Object.assign(searchParamsObj, await generateSearchParams());
-    let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/atme`, {
+    const response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/atme`, {
       data: searchParamsObj,
       headers: {
         Referer: "https://tieba.baidu.com/",
@@ -318,7 +322,7 @@ export const TiebaSmallAppApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
       Qmsg.error(data["error"]);
       return;

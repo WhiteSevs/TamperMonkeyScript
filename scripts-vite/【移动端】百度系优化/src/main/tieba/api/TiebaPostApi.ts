@@ -1,7 +1,7 @@
 import { httpx, log, utils } from "@/env";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { Api_getPdData } from "../types/TiebaPostApiType";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 interface TiebaPostApubthreadDetails {
   /**
@@ -106,7 +106,7 @@ export const TiebaPostApi = {
   /**
    * 删除评论
    */
-  async deleteCommit(data: {
+  async deleteCommit(option: {
     /**
      * 贴吧tbs值 PageData.tbs
      */
@@ -128,30 +128,30 @@ export const TiebaPostApi = {
      */
     pid: number | string;
   }) {
-    let api = "https://tieba.baidu.com/f/commit/post/delete";
-    let postData = {
+    const api = "https://tieba.baidu.com/f/commit/post/delete";
+    const params = {
       // 可能还有个是lzl
       commit_fr: "pb",
       // 编码
       ie: "utf-8",
       // 贴吧tbs值 PageData.tbs
-      tbs: data.tbs,
+      tbs: option.tbs,
       // 当前吧名 PageData.forum.forum_name
-      kw: data.kw,
+      kw: option.kw,
       // forumId PageData.forum.forum_id
-      fid: data.fid,
+      fid: option.fid,
       // threadId PageData.thread.thread_id
-      tid: data.tid,
+      tid: option.tid,
       // 是否是会员删除？
       is_vipdel: 1,
       // 本回复的id comment_id
-      pid: data.pid,
+      pid: option.pid,
       // ???不知道是什么
       is_finf: 1,
     };
-    let resp = await httpx.post(api, {
+    const response = await httpx.post(api, {
       fetch: true,
-      data: utils.toSearchParamsStr(postData),
+      data: utils.toSearchParamsStr(params),
       headers: {
         Accept: "application/json, text/javascript, */*; q=0.01",
         "X-Requested-With": "XMLHttpRequest",
@@ -161,18 +161,18 @@ export const TiebaPostApi = {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       },
     });
-    if (!resp.status) {
+    if (!response.status) {
       return;
     }
-    log.info("删除回复的情况：", resp);
-    let respData = utils.toJSON<{
+    log.info("删除回复的情况：", response);
+    const data = utils.toJSON<{
       no: number;
       err_code: number;
       error: null | string;
       data: string[];
-    }>(resp.data.responseText);
-    if (respData.no !== 0) {
-      Qmsg.error(respData.error);
+    }>(response.data.responseText);
+    if (data.no !== 0) {
+      Qmsg.error(data.error);
       return;
     }
     return true;
@@ -185,14 +185,14 @@ export const TiebaPostApi = {
    * @param [only_post=1]
    */
   async getPbData(kz: number, pn: number = 1, rn: number = 10, only_post: number = 1) {
-    let searchParamsData = {
+    const searchParamsData = {
       pn: pn,
       rn: rn,
       only_post: only_post,
       kz: kz,
     };
-    let Api = "https://tieba.baidu.com/mg/p/getPbData";
-    let getResp = await httpx.get(Api + "?" + utils.toSearchParamsStr(searchParamsData), {
+    const api = "https://tieba.baidu.com/mg/p/getPbData";
+    const response = await httpx.get(api + "?" + utils.toSearchParamsStr(searchParamsData), {
       fetch: true,
       headers: {
         Accept: "application/json, text/plain, */*",
@@ -200,14 +200,14 @@ export const TiebaPostApi = {
         "X-Requested-With": "XMLHttpRequest",
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(getResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["errno"] !== 0) {
       return;
     }
-    let page = data["data"]["page"] as {
+    const page = data["data"]["page"] as {
       current_page: number;
       /** 1有更多 0没有 */
       has_more: number;
@@ -217,7 +217,7 @@ export const TiebaPostApi = {
       total_num: number;
       total_page: number;
     };
-    let post_list = data["data"]["post_list"] as Api_getPdData[];
+    const post_list = data["data"]["post_list"] as Api_getPdData[];
     return {
       page: page,
       post_list: post_list,
@@ -228,26 +228,26 @@ export const TiebaPostApi = {
    * @param imageFile 图片文件
    */
   async cooluploadpic(imageFile: File) {
-    let postData = {
+    const postData = {
       pic: imageFile,
     };
-    let searchParamsData = {
+    const searchParamsData = {
       fr: "smallapp",
       from_zt: 1,
       r: 0.10027896050957352,
     };
-    let Api = "https://tieba.baidu.com/mo/q/cooluploadpic";
-    let postResp = await httpx.post(Api + "?" + utils.toSearchParamsStr(searchParamsData), {
+    const api = "https://tieba.baidu.com/mo/q/cooluploadpic";
+    const response = await httpx.post(api + "?" + utils.toSearchParamsStr(searchParamsData), {
       fetch: true,
       data: utils.toFormData(postData),
       headers: {
         Accept: "application/json, text/plain, */*",
       },
     });
-    if (!postResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(postResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     if (data["no"] !== 0) {
       return;
     }
@@ -272,8 +272,8 @@ export const TiebaPostApi = {
     const picWaterType = searchParamsData.picWaterType ?? 1039999;
     const postFormData = new FormData();
     postFormData.set("file", searchParamsData.imageFile);
-    let url = `https://uploadphotos.baidu.com/upload/pic?tbs=${searchParamsData.tbs}&fid=${searchParamsData.fid}&picWaterType=${picWaterType}`;
-    let postResp = await httpx.post(url, {
+    const url = `https://uploadphotos.baidu.com/upload/pic?tbs=${searchParamsData.tbs}&fid=${searchParamsData.fid}&picWaterType=${picWaterType}`;
+    const response = await httpx.post(url, {
       data: postFormData,
       headers: {
         Accept: "*/*",
@@ -282,16 +282,16 @@ export const TiebaPostApi = {
         Referer: "https://tieba.baidu.com/",
       },
     });
-    if (!postResp.status) {
+    if (!response.status) {
       return;
     }
-    let result = utils.toJSON(postResp.data.responseText);
+    const result = utils.toJSON(response.data.responseText);
     if (result.no !== 0) {
       log.error("上传图片失败");
       Qmsg.error("上传图片失败");
       return;
     }
-    let info = result["info"] as {
+    const info = result["info"] as {
       cur_time: null;
       err_no: 0;
       full_datalen: number;

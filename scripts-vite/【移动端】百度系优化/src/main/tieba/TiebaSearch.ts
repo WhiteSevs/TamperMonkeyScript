@@ -209,7 +209,7 @@ const TiebaSearchSuggestion = {
    * @param queryText 搜索内容
    */
   async getSuggestion(queryText = "") {
-    let response = await httpx.get({
+    const response = await httpx.get({
       url: `https://tieba.baidu.com/suggestion?query=${queryText}&ie=utf-8&_=${new Date().getTime()}`,
       headers: {
         "User-Agent": utils.getRandomPCUA(),
@@ -221,7 +221,7 @@ const TiebaSearchSuggestion = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     return data;
   },
 };

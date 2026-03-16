@@ -1,8 +1,4 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import { TiebaCore } from "../TiebaCore";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import Qmsg from "qmsg";
-import { VueUtils } from "@components/utils/VueUtils";
 
 interface HonorGradeInfo {
   count: number;
@@ -212,21 +208,21 @@ const TieBaApi = {
     } else {
       throw new TypeError("userInfo.un|userInfo.portrait is undefined");
     }
-    let getResp = await httpx.get(`https://tieba.baidu.com/home/get/panel?ie=utf-8&${searchParams}`, {
+    const response = await httpx.get(`https://tieba.baidu.com/home/get/panel?ie=utf-8&${searchParams}`, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "tieba.baidu.com",
         Referer: "https://tieba.baidu.com/",
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON<{
+    const data = utils.toJSON<{
       data: PanelUserInfo;
       error: string;
       no: number;
-    }>(getResp.data.responseText);
+    }>(response.data.responseText);
     if (data["no"] !== 0) {
       return;
     }
@@ -240,7 +236,7 @@ const TieBaApi = {
    * @param [pn=1] 第xx页
    */
   async getUserPosts(un: string, pn = 1) {
-    let response = await httpx.get(`https://tieba.baidu.com/home/post?un=${un}&is_ajax=1&lp=&pn=${pn}`, {
+    const response = await httpx.get(`https://tieba.baidu.com/home/post?un=${un}&is_ajax=1&lp=&pn=${pn}`, {
       // 该请求为http，页面为https，会报错
       fetch: true,
       headers: {
@@ -252,7 +248,7 @@ const TieBaApi = {
       log.error("获取用户帖子信息失败", response);
       return;
     }
-    let data = utils.toJSON<{
+    const data = utils.toJSON<{
       data: {
         content: string;
         page: {
@@ -267,30 +263,27 @@ const TieBaApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let result = {
+    const result = {
       has_more: Boolean(data.data.page.has_more),
       data: [] as HomePostsInfo[],
     };
-    let contentDoc = DOMUtils.toElement(data.data.content, true, true);
-    Array.from(contentDoc.querySelectorAll(".list_item")).forEach((liElement) => {
-      let postInfo: HomePostsInfo = {
-        url: (liElement.querySelector("a.list_item_link") as HTMLAnchorElement).href,
-        title: (liElement.querySelector(".post_list_item_title") as HTMLSpanElement).innerHTML,
-        content: (liElement.querySelector(".post_abstract_text") as HTMLDivElement).innerHTML,
-        forumName: (liElement.querySelector(".post_list_item_info_forum") as HTMLSpanElement).innerText.replace(
-          /吧$/,
-          ""
-        ),
-        createTime: (liElement.querySelector(".post_list_item_info_time") as HTMLSpanElement).innerText,
-        replyNum: parseInt((liElement.querySelector(".post_item_info_reply_icon") as HTMLSpanElement).innerText),
+    const $contentDoc = DOMUtils.toElement(data.data.content, true, true);
+    Array.from($contentDoc.querySelectorAll(".list_item")).forEach(($li) => {
+      const postInfo: HomePostsInfo = {
+        url: ($li.querySelector("a.list_item_link") as HTMLAnchorElement).href,
+        title: ($li.querySelector(".post_list_item_title") as HTMLSpanElement).innerHTML,
+        content: ($li.querySelector(".post_abstract_text") as HTMLDivElement).innerHTML,
+        forumName: ($li.querySelector(".post_list_item_info_forum") as HTMLSpanElement).innerText.replace(/吧$/, ""),
+        createTime: ($li.querySelector(".post_list_item_info_time") as HTMLSpanElement).innerText,
+        replyNum: parseInt(($li.querySelector(".post_item_info_reply_icon") as HTMLSpanElement).innerText),
         mediaList: [],
       };
       if (isNaN(postInfo.replyNum)) {
         postInfo.replyNum = 0;
       }
-      if (liElement.querySelector(".thread_body_media")) {
+      if ($li.querySelector(".thread_body_media")) {
         postInfo.mediaList.concat(
-          Array.from(liElement.querySelectorAll(".thread_body_media img") as NodeListOf<HTMLImageElement>).map(
+          Array.from($li.querySelectorAll(".thread_body_media img") as NodeListOf<HTMLImageElement>).map(
             (item) => item.src
           )
         );
@@ -304,19 +297,19 @@ const TieBaApi = {
    * @param un 用户的un(userName)，自动进行gbk编码
    */
   async getUserInfo(un: string) {
-    let gbkEncoder = new utils.GBKEncoder();
+    const gbkEncoder = new utils.GBKEncoder();
     un = gbkEncoder.encode(un);
-    let getResp = await httpx.get(`https://tieba.baidu.com/i/sys/user_json?un=${un}`, {
+    const response = await httpx.get(`https://tieba.baidu.com/i/sys/user_json?un=${un}`, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "tieba.baidu.com",
         Referer: "https://tieba.baidu.com/",
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON<UserJSON>(getResp.data.responseText);
+    const data = utils.toJSON<UserJSON>(response.data.responseText);
     return data;
   },
   /**
@@ -327,21 +320,21 @@ const TieBaApi = {
    * @returns
    */
   async getChatUserInfo(uid: string | number) {
-    let getResp = await httpx.get(`http://tieba.baidu.com/im/pcmsg/query/getUserInfo?chatUid=${uid}`, {
+    const response = await httpx.get(`http://tieba.baidu.com/im/pcmsg/query/getUserInfo?chatUid=${uid}`, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
         Host: "tieba.baidu.com",
         Referer: "https://tieba.baidu.com/",
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON<{
+    const data = utils.toJSON<{
       chatUser: ChatUserInfo;
       errno: number;
       errmsg: string;
-    }>(getResp.data.responseText);
+    }>(response.data.responseText);
     if (data.errno !== 0) {
       log.error(data);
       return;
@@ -357,7 +350,7 @@ const TieBaApi = {
    */
   async forumSign(forumName: string, tbs: string) {
     log.success("发送签到请求→", forumName, tbs);
-    let postResp = await httpx.post("https://tieba.baidu.com/sign/add", {
+    const response = await httpx.post("https://tieba.baidu.com/sign/add", {
       data: `ie=utf-8&kw=${forumName}&tbs=${tbs}`,
       responseType: "json",
       headers: {
@@ -370,11 +363,11 @@ const TieBaApi = {
         "X-Requested-With": "XMLHttpRequest",
       },
     });
-    log.success(postResp);
-    if (!postResp.status) {
+    log.success(response);
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(postResp.data.responseText);
+    const data = utils.toJSON(response.data.responseText);
     log.success(data);
     return data as {
       data: {
@@ -395,7 +388,7 @@ const TieBaApi = {
    * /mo/q/sug
    */
   async getUserAllLikeForum() {
-    let response = await httpx.get("https://tieba.baidu.com/mo/q/sug?query=&is_ajax=1&sug=1", {
+    const response = await httpx.get("https://tieba.baidu.com/mo/q/sug?query=&is_ajax=1&sug=1", {
       headers: {
         Accept: "application/json",
         Host: "tieba.baidu.com",
@@ -407,7 +400,7 @@ const TieBaApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText) as NestedObjectWithToString;
+    const data = utils.toJSON(response.data.responseText) as NestedObjectWithToString;
     log.success(data);
     return data["data"]["like_forum"] as {
       length: number;
@@ -419,20 +412,20 @@ const TieBaApi = {
    * 获取吧的tbs值
    */
   async getForumTbs(forumName: string) {
-    let getResp = await httpx.get(`https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`, {
+    const response = await httpx.get(`https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`, {
       headers: {
         Host: "tieba.baidu.com",
         Referer: `https://tieba.baidu.com/f?kw=${forumName}&ie=utf-8`,
       },
     });
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let PageData = getResp.data.responseText.match(/var[\s]*PageData[\s\S]*'tbs'.*"(.+)"/);
-    if (!PageData) {
+    const dataMatcher = response.data.responseText.match(/var[\s]*PageData[\s\S]*'tbs'.*"(.+)"/);
+    if (!dataMatcher) {
       return;
     }
-    return PageData[1];
+    return dataMatcher[1];
   },
   /**
    * 获取帖子内的图片
@@ -455,7 +448,7 @@ const TieBaApi = {
     next = 1000,
     prev = 1000
   ) {
-    let getResp = await httpx.get(
+    const response = await httpx.get(
       `https://tieba.baidu.com/photo/bw/picture/guide?kw=${forumName}&tid=${tid}&see_lz=${see_lz}&from_page=${from_page}&alt=${alt}&next=${next}&prev=${prev}&_=${Date.now()}`,
       {
         headers: {
@@ -467,10 +460,10 @@ const TieBaApi = {
         allowInterceptConfig: false,
       }
     );
-    if (!getResp.status) {
+    if (!response.status) {
       return;
     }
-    let data = utils.toJSON(getResp.data.responseText) as NestedObjectWithToString;
+    const data = utils.toJSON(response.data.responseText) as NestedObjectWithToString;
     if (data["no"] === 0 || data["error"] === "sucess!") {
       return data["data"] as {
         has_sep?: boolean;
@@ -484,4 +477,5 @@ const TieBaApi = {
 if (import.meta.hot) {
   Reflect.set(window, "TieBaApi", TieBaApi);
 }
+
 export { TieBaApi, type HomePostsInfo, type PanelUserInfo, type UserJSON };

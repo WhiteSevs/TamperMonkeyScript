@@ -1,23 +1,71 @@
+<template>
+  <el-container class="disable-html-body-scroll">
+    <el-header class="user-top">
+      <el-row :gutter="24" class="top-nav-container">
+        <el-col :span="4" class="top-left-arrow-icon" @click="arrowLeftClickEvent">
+          <el-icon :size="20">
+            <ArrowLeft />
+          </el-icon>
+        </el-col>
+        <el-col :span="16" class="top-title-name">{{ navTitle }}</el-col>
+        <el-col :span="4" class="top-right-space"></el-col>
+      </el-row>
+    </el-header>
+    <el-main class="user-main">
+      <el-scrollbar class="user-container">
+        <div
+          class="user-item"
+          v-for="fansInfo in fansInfoList"
+          @click="jumpToUserHome(TiebaUrlHandler.getUserHome(fansInfo.portrait))">
+          <div class="user-item-row">
+            <div class="user-item-row-left">
+              <div class="user-avatar">
+                <el-avatar :src="TiebaUrlHandler.getUserAvatar(fansInfo.portrait)" :size="35" />
+              </div>
+              <div class="user-item-row-center">
+                <div class="user-info">
+                  <el-text class="user-name" truncated>{{ fansInfo.name_show || fansInfo.name }}</el-text>
+                  <el-text class="user-sign-text" :size="'small'" truncated>{{
+                    [fansInfo.follow_from, fansInfo.intro].join(" ")
+                  }}</el-text>
+                </div>
+              </div>
+            </div>
+            <div class="user-item-row-right">
+              <el-button type="info" size="small" plain color="#626aef" round class="user-follow-btn">关注</el-button>
+            </div>
+          </div>
+        </div>
+        <TemplateFollowUser v-for="i in 3" :key="i" v-if="showIsLoading" ref="$loading" />
+        <el-empty description="未获取到数据" v-if="isEmpty" />
+        <div v-if="isLoadingEnd" style="text-align: center">已加载全部~</div>
+      </el-scrollbar>
+    </el-main>
+  </el-container>
+</template>
+
 <script lang="ts" setup>
+  import { log, utils } from "@/env";
   import { VNodeRef, ref, watch } from "vue";
-  import TemplateFollowUser from "./template/TemplateFollowUser.vue";
-  import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
-  import { TiebaHomeApi, UserFollowInfo } from "../api/TiebaHomeApi";
+  import { TiebaNewPCApi } from "../api/TiebaNewPCApi";
+  import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+  import { UserInfo } from "./data/TiebaHomeData";
   import { TiebaRouter } from "./router";
-  import { DOMUtils, log, utils } from "@/env";
+  import TemplateFollowUser from "./template/TemplateFollowUser.vue";
+
+  type UserFollowInfo = NonNullable<Awaited<ReturnType<typeof TiebaNewPCApi.fans_page_pc>>>["user_list"]["0"];
 
   const props = defineProps<{
     UserData: UserInfo;
   }>();
-  let showIsLoading = ref(true);
-  let isEmpty = ref(false);
-  let isAsyncLoadEnd = ref(false);
-  let isLoadingEnd = ref(false);
-  let $loading = ref<VNodeRef | null>(null);
-  const pageSize = 12;
-  let pageOffset = ref(12);
-  let fansInfoList = ref<UserFollowInfo[]>([]);
-  let navTitle = ref("粉丝");
+  const showIsLoading = ref(true);
+  const isEmpty = ref(false);
+  const isAsyncLoadEnd = ref(false);
+  const isLoadingEnd = ref(false);
+  const $loading = ref<VNodeRef | null>(null);
+  const pageNumber = ref(1);
+  const fansInfoList = ref<UserFollowInfo[]>([]);
+  const navTitle = ref("粉丝");
 
   if (props.UserData.sex != null) {
     if (props.UserData.sex == 1) {
@@ -27,11 +75,11 @@
     }
   }
 
-  let observe = new IntersectionObserver(
+  const observe = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          loadMore();
+          loadMore.run();
         }
       });
     },
@@ -61,21 +109,25 @@
     log.info("移除滚动监听");
   };
 
-  const loadMore = async () => {
+  const loadMore = new utils.LockFunction(async () => {
     showIsLoading.value = false;
-    let isFirstLoad = pageOffset.value === pageSize;
+    const isFirstLoad = pageNumber.value === 1;
     if (isFirstLoad) {
       isAsyncLoadEnd.value = false;
       fansInfoList.value.length = 0;
     }
-    let getFansInfoList = await TiebaHomeApi.getFans(props.UserData.name as string, pageOffset.value, pageSize);
+    const getFansInfoList = await TiebaNewPCApi.fans_page_pc(
+      props.UserData.portrait!,
+      props.UserData.id!,
+      pageNumber.value
+    );
     let isCanceled = false;
     if (getFansInfoList) {
-      if (getFansInfoList.data) {
-        fansInfoList.value = fansInfoList.value.concat(getFansInfoList.data);
-        pageOffset.value += pageSize;
+      if (getFansInfoList.user_list) {
+        fansInfoList.value = fansInfoList.value.concat(getFansInfoList.user_list);
+        pageNumber.value++;
       }
-      if (!getFansInfoList.has_next) {
+      if (getFansInfoList.page.has_more === "0") {
         isCanceled = true;
         cancleScrollListener();
       }
@@ -91,7 +143,7 @@
     }
     showIsLoading.value = !isCanceled;
     log.info("获取到的粉丝", getFansInfoList);
-  };
+  });
   /**
    * 箭头点击事件
    */
@@ -102,43 +154,7 @@
     window.open(url, "_blank");
   };
 </script>
-<template>
-  <el-container class="disable-html-body-scroll">
-    <el-header class="user-top">
-      <el-row :gutter="24" class="top-nav-container">
-        <el-col :span="4" class="top-left-arrow-icon" @click="arrowLeftClickEvent">
-          <el-icon :size="20">
-            <ArrowLeft />
-          </el-icon>
-        </el-col>
-        <el-col :span="16" class="top-title-name">{{ navTitle }}</el-col>
-        <el-col :span="4" class="top-right-space"></el-col>
-      </el-row>
-    </el-header>
-    <el-main class="user-main">
-      <el-scrollbar class="user-container">
-        <div class="user-item" v-for="fansInfo in fansInfoList" @click="jumpToUserHome(fansInfo.url)">
-          <div class="user-item-row">
-            <div class="user-item-row-left">
-              <div class="user-avatar"><el-avatar :src="fansInfo.avatar" :size="35" /></div>
-              <div class="user-item-row-center">
-                <div class="user-info">
-                  <el-text class="user-name" truncated>{{ fansInfo.userName }}</el-text>
-                </div>
-              </div>
-            </div>
-            <div class="user-item-row-right">
-              <el-button type="info" size="small" plain color="#626aef" round class="user-follow-btn">关注</el-button>
-            </div>
-          </div>
-        </div>
-        <TemplateFollowUser v-for="i in 3" :key="i" v-if="showIsLoading" ref="$loading" />
-        <el-empty description="未获取到数据" v-if="isEmpty" />
-        <div v-if="isLoadingEnd" style="text-align: center">已经到底了~</div>
-      </el-scrollbar>
-    </el-main>
-  </el-container>
-</template>
+
 <style scoped>
   .user-top {
     height: 40px;

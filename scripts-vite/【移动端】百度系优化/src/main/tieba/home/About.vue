@@ -1,26 +1,3 @@
-<script setup lang="ts">
-  import { ref } from "vue";
-  import { UserInfo } from "./data/TiebaHomeData";
-  import { TiebaRouter } from "./router";
-
-  const props = defineProps<{
-    UserData: UserInfo;
-  }>();
-  let sexStr = ref("保密");
-  if (props.UserData.sex != null) {
-    if (props.UserData.sex === 1) {
-      sexStr.value = "男";
-    } else if (props.UserData.sex === 2) {
-      sexStr.value = "女";
-    }
-  }
-  /**
-   * 箭头点击事件
-   */
-  const arrowLeftClickEvent = () => {
-    TiebaRouter.router.back();
-  };
-</script>
 <template>
   <el-container>
     <el-header class="user-nav">
@@ -63,14 +40,39 @@
           <el-text type="info" class="user-desc-key">portrait</el-text>
           <el-text type="info" class="user-end-text">{{ props.UserData.portrait }}</el-text>
         </div>
-        <div class="user-info-item">
+        <!--<div class="user-info-item">
           <el-text type="info" class="user-desc-key">tbs</el-text>
           <el-text type="info" class="user-end-text">{{ props.UserData.tbs }}</el-text>
-        </div>
+        </div>-->
       </div>
     </el-main>
   </el-container>
 </template>
+
+<script setup lang="ts">
+  import { ref } from "vue";
+  import { UserInfo } from "./data/TiebaHomeData";
+  import { TiebaRouter } from "./router";
+
+  const props = defineProps<{
+    UserData: UserInfo;
+  }>();
+  let sexStr = ref("保密");
+  if (props.UserData.sex != null) {
+    if (props.UserData.sex === 1) {
+      sexStr.value = "男";
+    } else if (props.UserData.sex === 2) {
+      sexStr.value = "女";
+    }
+  }
+  /**
+   * 箭头点击事件
+   */
+  const arrowLeftClickEvent = () => {
+    TiebaRouter.router.back();
+  };
+</script>
+
 <style scoped>
   .nav-left-arrow-icon {
     align-content: center;

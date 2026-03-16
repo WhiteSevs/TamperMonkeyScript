@@ -1,27 +1,27 @@
-import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
-import TieBaShieldCSS from "./shield.css?raw";
-import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
-import { Panel } from "@components/setting/panel";
-import { BaiduRouter } from "@/router/BaiduRouter";
+import { DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { TiebaTopicTemplate } from "./topic-template/TiebaTopicTemplate";
-import { TiebaHybrid } from "./hybrid/TiebaHybrid";
-import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
-import { TiebaSearch } from "./TiebaSearch";
-import { TiebaData } from "./home/data";
-import { TiebaCore } from "./TiebaCore";
-import { TiebaPost } from "./post/TiebaPost";
-import { TiebaHome } from "./home/TiebaHome";
+import { BaiduRouter } from "@/router/BaiduRouter";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
-import { VueUtils } from "@components/utils/VueUtils";
-import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
-import { TiebaCheckUrl } from "./utils/TiebaCheckUrl";
-import { TiebaHotTopic } from "./hot-topic/TiebaHotTopic";
-import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
-import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
-import { TiebaCollectionCenter } from "./collection-center/TiebaCollectionCenter";
+import { tieba_add_request_params_sign } from "./api/sign";
 import { TiebaSmallAppApi } from "./api/TiebaSmallAppApi";
+import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
+import { TiebaCollectionCenter } from "./collection-center/TiebaCollectionCenter";
+import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
+import { TiebaData } from "./home/data";
+import { TiebaHome } from "./home/TiebaHome";
+import { TiebaHotTopic } from "./hot-topic/TiebaHotTopic";
 import { TiebaHybridUsergrowBaseCommentFocus } from "./hybrid-usergrow-base/TiebaHybridUsergrowBaseCommentFocus";
+import { TiebaHybrid } from "./hybrid/TiebaHybrid";
+import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
+import { TiebaPost } from "./post/TiebaPost";
+import TieBaShieldCSS from "./shield.css?raw";
+import { TiebaCore } from "./TiebaCore";
+import { TiebaSearch } from "./TiebaSearch";
+import { TiebaTopicTemplate } from "./topic-template/TiebaTopicTemplate";
+import { TiebaUniAppPost } from "./uni-app-post/TiebaUniAppPost";
+import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
+import { TiebaCheckUrl } from "./utils/TiebaCheckUrl";
 
 /**
  * 百度贴吧
@@ -46,14 +46,59 @@ import { TiebaHybridUsergrowBaseCommentFocus } from "./hybrid-usergrow-base/Tieb
  */
 export const BaiduTieBa = {
   init() {
+    httpx.interceptors.request.use((config) => {
+      if (config.url.includes("tieba.baidu.com")) {
+        if (!config.headers) {
+          config.headers = {};
+        }
+        if (typeof config.headers.Cookie === "string") {
+          if (!config.headers.Cookie.trim().endsWith(";")) {
+            config.headers.Cookie = config.headers.Cookie.trim() + "; ";
+          }
+        }
+        // 处理cookie
+        config.headers.Cookie = config.headers.Cookie || "" + "TIEBA_NEW_PC=0; ";
+        // 处理sign
+        if (config.url.includes("tieba.baidu.com/c/")) {
+          const urlInst = new URL(config.url);
+          if (config.method === "POST") {
+            // 处理data
+            if (typeof config.data === "object" && config.data) {
+              config.data = tieba_add_request_params_sign(config.data, "pc");
+            } else {
+              if (typeof config.data === "string") {
+                const params = {};
+                const searchParams = new URLSearchParams(config.data);
+                searchParams.forEach((value, key) => {
+                  Reflect.set(params, key, value);
+                });
+                tieba_add_request_params_sign(params);
+                config.data = utils.toSearchParamsStr(params);
+              }
+            }
+          } else {
+            const params = {};
+            urlInst.searchParams.forEach((value, key) => {
+              Reflect.set(params, key, value);
+            });
+            if (urlInst.searchParams.size) {
+              tieba_add_request_params_sign(params);
+              urlInst.search = utils.toSearchParamsStr(params);
+              config.url = urlInst.toString();
+            }
+          }
+        }
+      }
+      return config;
+    });
     addStyle(TieBaShieldCSS);
     addStyle(UniTieBaShieldCSS);
     addStyle(/*css*/ `
 		/* 由于lzl弹窗的z-index是99999，所以，回复框、toast、登录弹窗的z-index要大于99999 */
 		/* 底部回复框 */
-        .comment-box-wrap-lzl{
-            z-index: calc(99999 + 10) !important;
-        }
+    .comment-box-wrap-lzl{
+        z-index: calc(99999 + 10) !important;
+    }
 		/* 登录弹窗 */
 		.login-wake-modal-mask{
 			z-index: calc(99999 + 20) !important;
@@ -62,7 +107,7 @@ export const BaiduTieBa = {
 		.tb-toast{
 			z-index: calc(99999 + 100) !important;
 		}
-        `);
+    `);
     log.info("插入CSS规则");
     // Panel.execMenu(
     // 	"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",

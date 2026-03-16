@@ -20,7 +20,3 @@
     </template>
   </el-skeleton>
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

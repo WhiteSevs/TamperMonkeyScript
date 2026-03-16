@@ -1,24 +1,23 @@
 <script lang="ts" setup>
-  import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
-  import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
-  import Qmsg from "qmsg";
   import { log } from "@/env";
+  import Qmsg from "qmsg";
+  import { onMounted, ref } from "vue";
+  import { TiebaHomeData, type UserInfo } from "./data/TiebaHomeData";
 
-  let UserData = ref<UserInfo>({});
+  const UserData = ref<UserInfo>({});
 
   onMounted(async () => {
-    const loading = ElLoading.service({
+    const $loading = ElLoading.service({
       lock: true,
       text: "Loading",
       background: "rgba(0, 0, 0, 0.7)",
     });
-    let userData = await TiebaHomeData.getUserData();
-    loading.close();
+    const userData = await TiebaHomeData.getUserData();
+    $loading.close();
     if (userData) {
       log.info("用户信息", userData);
       Object.assign(UserData.value, userData);
     } else {
-      log.error("加载用户信息失败");
       Qmsg.error("加载用户信息失败");
     }
   });
