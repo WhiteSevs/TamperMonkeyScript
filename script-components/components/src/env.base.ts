@@ -128,17 +128,25 @@ const MenuRegister = new utils.GM_Menu({
 
 const httpx = new utils.Httpx({
   xmlHttpRequest: GM_xmlhttpRequest,
-  logDetails: DEBUG,
+  logDetails: false,
 });
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
+  if(DEBUG){
+    log.info("[Httpx-HttpxRequest.request] 请求前的配置", { data });
+  }
   return data;
 });
 
 // 添加响应拦截器
-httpx.interceptors.response.use(void 0, (data) => {
-  log.error("拦截器-请求错误", data);
+httpx.interceptors.response.use((response)=>{
+  if(DEBUG){
+    log.info("[Httpx-HttpxRequest.response] 响应结果", { response });
+  }
+  return response;
+}, (data) => {
+  log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
   if (data.type === "onabort") {
     Qmsg.warning("请求取消", { consoleLogContent: true });
   } else if (data.type === "onerror") {
