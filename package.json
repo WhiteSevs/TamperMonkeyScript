@@ -49,7 +49,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260303.1",
     "@vitejs/plugin-vue": "^6.0.3",
     "eslint": "^9.39.2",
-    "oxfmt": "^0.37.0",
+    "oxfmt": "^0.41.0",
     "oxlint": "^1.55.0",
     "picocolors": "^1.1.1",
     "rollup": "^4.54.0",
