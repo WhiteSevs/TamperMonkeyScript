@@ -803,8 +803,9 @@ const Panel = {
    * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
    * @param key 键
    * @param callback 回调
+   * @param runWithMenuEnable 是否根据`key`在menu中是否符合开启状态来执行此menu，如果是多个key，那么必须都`enable`才会执行回调
    */
-  onceExec(key: string | string[], callback: () => void) {
+  onceExec(key: string | string[], callback: () => void, runWithMenuEnable:boolean =false) {
     key = this.transformKey(key);
     if (typeof key !== "string") {
       throw new TypeError("key 必须是字符串");
@@ -812,6 +813,18 @@ const Panel = {
     if (this.$data.onceExecData.has(key)) {
       // log.warn(`${key} 键已执行（最多一次），请勿重复执行`);
       return;
+    }
+    if(runWithMenuEnable){
+      const findIndex = (Array.isArray(key) ? key:[key]).findIndex(it=>{
+        const menuEnable =  !!Panel.getValue(it)
+        if(!menuEnable){
+          // 关闭
+          return true;
+        }
+      });
+      if(findIndex !== -1){
+        return;
+      }
     }
     callback();
     this.$data.onceExecData.set(key, 1);
@@ -1488,5 +1501,6 @@ export {
   type ExecMenuCallBackOption,
   type ExecMenuResultInst,
   type OnceExecMenuStoreData,
-  type UrlChangeWithExecMenuOnceEventConfig,
+  type UrlChangeWithExecMenuOnceEventConfig
 };
+
