@@ -102,19 +102,25 @@ class Utils {
   }
   /**
    * ajax劫持库，支持xhr和fetch劫持。
-   * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
-   * + 作者：cxxjackie
-   * + 版本：1.4.8
-   * + 旧版本：1.2.4
-   * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
-   * @param useOldVersion 是否使用旧版本，默认false
+   * + 来源: https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
+   * + 作者: cxxjackie
+   * + 实现方式: Proxy
+   * + 版本: `1.4.8`
+   * + 文档: https://scriptcat.org/zh-CN/script-show-page/637/
    */
-  ajaxHooker = (useOldVersion: boolean = false): UtilsAjaxHookResult => {
-    if (useOldVersion) {
-      return AjaxHooker1_2_4();
-    } else {
-      return ajaxHooker();
-    }
+  ajaxHooker = (): UtilsAjaxHookResult => {
+    return ajaxHooker();
+  };
+  /**
+   * ajax劫持库，支持xhr和fetch劫持。
+   * + 来源: https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
+   * + 作者: cxxjackie
+   * + 实现方式: Object.defineProperty
+   * + 版本: `1.2.4`
+   * + 文档: https://scriptcat.org/zh-CN/script-show-page/637/
+   */
+  oldAjaxHooker = (): UtilsAjaxHookResult => {
+    return AjaxHooker1_2_4();
   };
   /**
    * 根据坐标点击canvas元素的内部位置
@@ -2207,26 +2213,14 @@ class Utils {
        */
       config?: MutationObserverInit;
       /**
-       * 是否主动触发一次
+       * （可选）是否主动触发一次
        */
       immediate?: boolean;
       /**
-       * 触发的回调函数
+       * （可选）是否仅触发一次
+       * @default false
        */
-      callback: MutationCallback;
-    }
-  ): MutationObserver;
-  mutationObserver(
-    target: HTMLElement | Node | NodeList | Document,
-    observer_config: {
-      /**
-       * observer的配置
-       */
-      config?: MutationObserverInit;
-      /**
-       * 是否主动触发一次
-       */
-      immediate?: boolean;
+      once?: boolean;
       /**
        * 触发的回调函数
        */
@@ -2275,6 +2269,7 @@ class Utils {
         characterDataOldValue: void 0 as any as boolean,
       },
       immediate: false,
+      once: false,
     };
     observer_config = that.assign(default_obverser_config, observer_config);
     const windowMutationObserver =
@@ -2282,13 +2277,20 @@ class Utils {
       (this.windowApi.window as any).webkitMutationObserver ||
       (this.windowApi.window as any).MozMutationObserver;
     // 观察者对象
+    const handler = (mutations: MutationRecord[], observer: MutationObserver) => {
+      if (observer_config.once) {
+        // 仅触发一次
+        observer.disconnect();
+      }
+      if (typeof observer_config.callback === "function") {
+        observer_config.callback(mutations, observer);
+      }
+    };
     const mutationObserver = new windowMutationObserver(function (
       mutations: MutationRecord[],
       observer: MutationObserver
     ) {
-      if (typeof observer_config.callback === "function") {
-        observer_config.callback(mutations, observer);
-      }
+      handler(mutations, observer);
     });
 
     if (Array.isArray(target) || target instanceof NodeList) {
@@ -2297,7 +2299,7 @@ class Utils {
         mutationObserver.observe(item, observer_config.config);
       });
     } else if (that.isJQuery(target)) {
-      /* 传入的参数是jQuery对象 */
+      // 传入的参数是jQuery对象
       (target as any).each((_: any, item: any) => {
         mutationObserver.observe(item, observer_config.config);
       });
@@ -2305,16 +2307,14 @@ class Utils {
       mutationObserver.observe(target, observer_config.config);
     }
     if (observer_config.immediate) {
-      /* 主动触发一次 */
-      if (typeof observer_config.callback === "function") {
-        observer_config.callback([], mutationObserver);
-      }
+      // 主动触发一次
+      handler([], mutationObserver);
     }
     return mutationObserver;
   }
   /**
    * 使用观察器观察元素出现在视图内，出现的话触发回调
-   * @param target 目标元素
+   * @param $el 目标元素
    * @param callback 触发的回调
    * @param options 观察器配置
    * @example
@@ -2323,36 +2323,54 @@ class Utils {
    * }))
    */
   mutationVisible(
-    target: Element | Element[],
+    $el: Element | Element[],
     callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void,
-    options?: IntersectionObserverInit
+    options?: IntersectionObserverInit & {
+      /** （可选）是否主动触发一次，默认false */
+      immediate?: boolean;
+      /** （可选）是否仅触发一次，默认false */
+      once?: boolean;
+    }
   ) {
     if (typeof IntersectionObserver === "undefined") {
       throw new TypeError("IntersectionObserver is not defined");
     }
-    if (target == null) {
+    if ($el == null) {
       throw new TypeError("mutatuinVisible target is null");
     }
+    options = options || {};
     let defaultOptions: IntersectionObserverInit = {
       root: null,
       rootMargin: "0px 0px 0px 0px",
       threshold: [0.01, 0.99],
     };
-    defaultOptions = this.assign(defaultOptions, options || {});
+    defaultOptions = this.assign(defaultOptions, options);
+    const handler = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+      if (options.once) {
+        // 仅触发一次
+        observer.disconnect();
+      }
+      if (typeof callback === "function") {
+        callback(entries, observer);
+      }
+    };
     const intersectionObserver = new IntersectionObserver((entries, observer) => {
       if (entries[0].isIntersecting) {
-        if (typeof callback === "function") {
-          callback(entries, observer);
-        }
+        handler(entries, observer);
       }
     }, defaultOptions);
-    if (Array.isArray(target)) {
-      target.forEach((item) => {
-        intersectionObserver.observe(item);
+    if (Array.isArray($el)) {
+      $el.forEach(($elItem) => {
+        intersectionObserver.observe($elItem);
       });
     } else {
-      intersectionObserver.observe(target);
+      intersectionObserver.observe($el);
     }
+    if (options.immediate) {
+      // 立即触发
+      handler([], intersectionObserver);
+    }
+    return intersectionObserver;
   }
   /**
    * 去除全局window下的Utils，返回控制权
@@ -3438,12 +3456,26 @@ class Utils {
   }
   /**
    * 将UrlSearchParams格式的字符串转为对象
+   * @param searhParamsStr 字符串或对象
+   * @example
+   * Utils.searchParamStrToObj("xxx=xx&xx2=xx2")
+   * @example
+   * Utils.searchParamStrToObj(new URLSearchParams({
+   *   test1: 1,
+   *   test2: 2
+   * }))
    */
-  searchParamStrToObj<T>(searhParamsStr?: string | null | undefined): T {
-    if (typeof searhParamsStr !== "string") {
-      return {} as any as T;
+  searchParamStrToObj<T = any>(searhParamsStr?: string | null | undefined | URLSearchParams): T {
+    const params = {};
+    if (searhParamsStr == null) {
+      return params as T;
     }
-    return Object.fromEntries(new URLSearchParams(searhParamsStr) as any) as T;
+    const urlSearchParams =
+      searhParamsStr instanceof URLSearchParams ? searhParamsStr : new URLSearchParams(searhParamsStr);
+    urlSearchParams.forEach((value, key) => {
+      Reflect.set(params, key, value);
+    });
+    return params as T;
   }
   /**
    * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。

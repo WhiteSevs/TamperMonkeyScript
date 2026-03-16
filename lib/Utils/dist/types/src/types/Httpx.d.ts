@@ -1052,30 +1052,30 @@ export declare interface HttpxRequestOption {
    */
   data?: string | FormData | object;
   /**
-   * 是否自动对data进行处理
+   * 是否自动对`data`进行处理
    *
    * ## 处理以下请求类型
-   * + `GET` 自动进行`URLSearchParams`转换
-   * + `HEAD` 自动进行`URLSearchParams`转换
-   * + `POST` 处理`Content-Type`不为空的情况
+   * + 当请求类型为`GET`，自动进行`URLSearchParams`转换
+   * + 当请求类型为`HEAD`，自动进行`URLSearchParams`转换
+   * + 当请求类型为`POST`，根据下面的`Content-Type`类型来处理（`Content-Type`不为空才会处理）
    *
-   * ### `application/json`
+   * ### `POST` => `Content-Type` => `application/json`
    *
-   * + `string`: 不做处理
-   * + `FormData`: 转为`JSON`并进行`JSON.stringify`处理
-   * + `object`: 进行`JSON.stringify`处理
+   * + `data: string`: ignore
+   * + `data: object`: 进行`JSON.stringify`处理
+   * + `data: FormData`: 转为`JSON`并进行`JSON.stringify`处理
    *
-   * ### `application/x-www-form-urlencoded`
+   * ### `POST` => `Content-Type` => `application/x-www-form-urlencoded`
    *
-   * + `string`: 不做处理
-   * + `FormData`: 转为`URLSearchParams`，再转为`string`
-   * + `object`: 转为`URLSearchParams`，再转为`string`
+   * + `data: string`: ignore
+   * + `data: object`: 转为`URLSearchParams`，再转为`string`
+   * + `data: FormData`: 转为`URLSearchParams`，再转为`string`
    *
-   * ### `multipart/form-data`（上传文件专用）
+   * ### `POST` => `Content-Type` => `multipart/form-data`（上传文件专用）
    *
-   * + `string`: 不做处理
-   * + `FormData`: 移除`Content-Type`
-   * + `object`: 不做处理
+   * + `data: string`: ignore
+   * + `data: object`: ignore
+   * + `data: FormData`: 移除`Content-Type`
    * @default true
    */
   processData?: boolean;

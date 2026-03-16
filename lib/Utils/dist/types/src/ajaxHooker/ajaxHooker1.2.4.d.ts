@@ -1,6 +1,12 @@
 export function AjaxHooker1_2_4(): {
-    hook: (fn: any) => number;
-    filter: (arr: any) => void;
+    hook: (fn: any) => {
+        remove: () => boolean;
+    };
+    filter: (arr: any) => {
+        remove: () => void;
+    };
     protect: () => void;
     unhook: () => void;
+    removeHook: (fn: (request: import("./../types/ajaxHooker.d.ts").UtilsAjaxHookRequestOptions) => void | undefined | null | Promise<void | undefined | null>, onlyRemove: boolean) => boolean;
+    removeFilter: () => void;
 };

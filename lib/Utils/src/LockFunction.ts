@@ -37,12 +37,9 @@ export class LockFunction<K extends (...args: any[]) => any | Promise<any> | voi
      * 解锁
      */
     this.unlock = function () {
-      that.#timeId = setTimeout(
-        () => {
-          that.#flag = false;
-        },
-        that.#delayTime
-      );
+      that.#timeId = setTimeout(() => {
+        that.#flag = false;
+      }, that.#delayTime);
     };
     /**
      * 判断是否被锁

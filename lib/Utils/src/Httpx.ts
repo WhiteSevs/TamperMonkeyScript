@@ -465,39 +465,39 @@ export class Httpx {
           const method = requestOption.method;
           if (method === "GET" || method === "HEAD") {
             // GET类型，data如果有，那么需要转为searchParams
-            const urlObj = new URL(requestOption.url);
+            const urlInst = new URL(requestOption.url);
             let urlSearch = "";
-            let isHandler = false;
+            let deleteData = false;
             if (typeof requestOption.data === "string") {
-              isHandler = true;
+              deleteData = true;
               urlSearch = requestOption.data;
             } else if (typeof requestOption.data === "object") {
-              isHandler = true;
+              deleteData = true;
               // URLSearchParams参数可以转普通的string:string，包括FormData
               const searchParams = new URLSearchParams(requestOption.data as Record<string, string>);
               urlSearch = searchParams.toString();
             }
-            if (isHandler) {
+            if (deleteData) {
               // GET/HEAD请求不支持data参数
               // 对data进行处理了才可以删除
               Reflect.deleteProperty(requestOption, "data");
             }
-            if (urlSearch != "") {
-              if (urlObj.search === "") {
+            if (urlSearch.trim() != "") {
+              if (urlInst.search.trim() === "") {
                 // url没有search参数，直接覆盖
-                urlObj.search = urlSearch;
+                urlInst.search = urlSearch;
               } else {
                 // 有search参数
-                if (urlObj.search.endsWith("&")) {
+                if (urlInst.search.trim().endsWith("&")) {
                   // xxx=xxx&
-                  urlObj.search = urlObj.search + urlSearch;
+                  urlInst.search = urlInst.search + urlSearch;
                 } else {
                   // xxx=xxx&xxx=
-                  urlObj.search = `${urlObj.search}&${urlSearch}`;
+                  urlInst.search = `${urlInst.search}&${urlSearch}`;
                 }
               }
             }
-            requestOption.url = urlObj.toString();
+            requestOption.url = urlInst.toString();
           } else if (method === "POST" && requestOption.headers != null) {
             // POST类型，data如果是FormData，那么需要转为string
             const headersKeyList = Object.keys(requestOption.headers);
@@ -508,10 +508,10 @@ export class Httpx {
               );
             });
             if (ContentTypeIndex !== -1) {
-              const ContentTypeKey = headersKeyList[ContentTypeIndex];
-              const ContentType = requestOption.headers[ContentTypeKey] as string;
+              const contentTypeKey = headersKeyList[ContentTypeIndex];
+              const contentType = (<string>requestOption.headers[contentTypeKey]).toLowerCase();
               // 设置了Content-Type
-              if (ContentType.includes("application/json")) {
+              if (contentType.includes("application/json")) {
                 // application/json
                 if (requestOption.data instanceof FormData) {
                   const entries: { [key: string]: any } = {};
@@ -522,15 +522,15 @@ export class Httpx {
                 } else if (typeof requestOption.data === "object") {
                   requestOption.data = JSON.stringify(requestOption.data);
                 }
-              } else if (ContentType.includes("application/x-www-form-urlencoded")) {
+              } else if (contentType.includes("application/x-www-form-urlencoded")) {
                 // application/x-www-form-urlencoded
                 if (typeof requestOption.data === "object") {
                   requestOption.data = new URLSearchParams(requestOption.data as Record<string, string>).toString();
                 }
-              } else if (ContentType.includes("multipart/form-data")) {
+              } else if (contentType.includes("multipart/form-data")) {
                 // multipart/form-data
                 if (requestOption.data instanceof FormData) {
-                  Reflect.deleteProperty(requestOption.headers, ContentTypeKey);
+                  Reflect.deleteProperty(requestOption.headers, contentTypeKey);
                 }
               }
             }

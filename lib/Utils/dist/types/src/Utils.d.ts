@@ -45,14 +45,22 @@ declare class Utils {
     asyncReplaceAll(string: string, pattern: RegExp | string, asyncFn: (item: string) => Promise<string>): Promise<string>;
     /**
      * ajax劫持库，支持xhr和fetch劫持。
-     * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
-     * + 作者：cxxjackie
-     * + 版本：1.4.8
-     * + 旧版本：1.2.4
-     * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
-     * @param useOldVersion 是否使用旧版本，默认false
+     * + 来源: https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
+     * + 作者: cxxjackie
+     * + 实现方式: Proxy
+     * + 版本: `1.4.8`
+     * + 文档: https://scriptcat.org/zh-CN/script-show-page/637/
      */
-    ajaxHooker: (useOldVersion?: boolean) => UtilsAjaxHookResult;
+    ajaxHooker: () => UtilsAjaxHookResult;
+    /**
+     * ajax劫持库，支持xhr和fetch劫持。
+     * + 来源: https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
+     * + 作者: cxxjackie
+     * + 实现方式: Object.defineProperty
+     * + 版本: `1.2.4`
+     * + 文档: https://scriptcat.org/zh-CN/script-show-page/637/
+     */
+    oldAjaxHooker: () => UtilsAjaxHookResult;
     /**
      * 根据坐标点击canvas元素的内部位置
      * @param canvasElement 画布元素
@@ -1002,9 +1010,14 @@ declare class Utils {
          */
         config?: MutationObserverInit;
         /**
-         * 是否主动触发一次
+         * （可选）是否主动触发一次
          */
         immediate?: boolean;
+        /**
+         * （可选）是否仅触发一次
+         * @default false
+         */
+        once?: boolean;
         /**
          * 触发的回调函数
          */
@@ -1012,7 +1025,7 @@ declare class Utils {
     }): MutationObserver;
     /**
      * 使用观察器观察元素出现在视图内，出现的话触发回调
-     * @param target 目标元素
+     * @param $el 目标元素
      * @param callback 触发的回调
      * @param options 观察器配置
      * @example
@@ -1020,7 +1033,12 @@ declare class Utils {
      *     console.log("该元素出现在视图内");
      * }))
      */
-    mutationVisible(target: Element | Element[], callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void, options?: IntersectionObserverInit): void;
+    mutationVisible($el: Element | Element[], callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void, options?: IntersectionObserverInit & {
+        /** （可选）是否主动触发一次，默认false */
+        immediate?: boolean;
+        /** （可选）是否仅触发一次，默认false */
+        once?: boolean;
+    }): IntersectionObserver;
     /**
      * 去除全局window下的Utils，返回控制权
      * @example
@@ -1346,8 +1364,16 @@ declare class Utils {
     toSearchParamsStr(obj: object | object[], addPrefix?: boolean): string;
     /**
      * 将UrlSearchParams格式的字符串转为对象
+     * @param searhParamsStr 字符串或对象
+     * @example
+     * Utils.searchParamStrToObj("xxx=xx&xx2=xx2")
+     * @example
+     * Utils.searchParamStrToObj(new URLSearchParams({
+     *   test1: 1,
+     *   test2: 2
+     * }))
      */
-    searchParamStrToObj<T>(searhParamsStr?: string | null | undefined): T;
+    searchParamStrToObj<T = any>(searhParamsStr?: string | null | undefined | URLSearchParams): T;
     /**
      * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
      * @example
