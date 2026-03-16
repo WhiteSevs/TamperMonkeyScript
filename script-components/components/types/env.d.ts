@@ -38,6 +38,19 @@ declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> & Required<Pick
 declare type NonNullableProperty<T, K extends keyof T> = Omit<T, K> & {
   [P in K]-?: NonNullable<T[P]>;
 };
+
+declare type DeepRequired<T> = T extends any[]
+  ? T
+  : // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    T extends Function
+    ? T
+    : T extends object
+      ? T extends Node
+        ? T
+        : {
+            [K in keyof T]-?: DeepRequired<T[K]>;
+          }
+      : T;
 /**
  * 修复无法识别.vue文件的问题
  */
