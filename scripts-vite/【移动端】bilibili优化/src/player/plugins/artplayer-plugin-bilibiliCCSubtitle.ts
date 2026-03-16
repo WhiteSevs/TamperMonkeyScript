@@ -1,10 +1,9 @@
 import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
-import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
-import Artplayer from "artplayer";
-import type { Setting, SettingOption } from "artplayer";
-import Chinese, { type CustomStr } from "s2t-chinese";
 import { Panel } from "@components/setting/panel";
+import type { Setting, SettingOption } from "artplayer";
+import Artplayer from "artplayer";
+import Chinese, { type CustomStr } from "s2t-chinese";
 
 const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
 /**
@@ -13,8 +12,8 @@ const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
 const SubTitleCustomStr = {
   src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
   des: "脏你为家卜喂众系姐托回迹尽对启",
-  more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造"],
-  more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造"],
+  more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造", "艾連"],
+  more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造", "艾伦"],
   _custom_str: [] as CustomStr,
   generteCustomStr() {
     for (let index = 0; index < this.src.length; index++) {
@@ -290,7 +289,7 @@ const SubTitle = {
     }
     // 获取视频信息（里面有字幕信息）
     const videoInfoResponse = await httpx.get(
-      `https://${BilibiliApiConfig.web_host}/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
+      `https://api.bilibili.com/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
       {
         fetch: true,
         allowInterceptConfig: false,
@@ -325,18 +324,19 @@ const SubTitle = {
       subtitle_url: string;
       type: number;
     }[];
-
     if (!subTitleUrlInfoList.length) {
-      console.warn(TAG + "获取字幕链接列表为空", videoInfoResultJSON);
+      console.warn(TAG + "字幕列表为空", videoInfoResultJSON);
+      return;
+    }
+    subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils.isNotNull(it.subtitle_url));
+    if (!subTitleUrlInfoList.length) {
+      console.warn(TAG + "有字幕列表，但是链接都为空", videoInfoResultJSON);
       return;
     }
     // 依次加载字幕json
     for (let index = 0; index < subTitleUrlInfoList.length; index++) {
       const subTitleUrlInfo = subTitleUrlInfoList[index];
-      console.log(TAG + "请求字幕链接信息：" + subTitleUrlInfo.subtitle_url);
-      if (utils.isNull(subTitleUrlInfo.subtitle_url)) {
-        continue;
-      }
+      console.log(TAG + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
       const subTitleInfoResponse = await httpx.get(subTitleUrlInfo.subtitle_url, {
         responseType: "json",
         allowInterceptConfig: false,
@@ -347,7 +347,7 @@ const SubTitle = {
         },
       });
       if (subTitleInfoResponse.status) {
-        console.log(TAG + "成功获取字幕信息");
+        console.log(TAG + "获取字幕信息成功");
         // 解析json
         const subTitleInfoJSON = utils.toJSON(subTitleInfoResponse.data.responseText);
         // 字幕信息JSON
@@ -357,22 +357,25 @@ const SubTitle = {
           location: number;
           to: number;
         }[];
-        let currentIndex = SubTitleData.allSubTitleInfo.length;
-        let data: SubTitleData = {
+        const currentIndex = SubTitleData.allSubTitleInfo.length;
+        const data: SubTitleData = {
           name: subTitleUrlInfo.lan_doc,
           lan: subTitleUrlInfo.lan,
           data: subTitleInfo,
         };
+        if (data.lan === "ai-zh") {
+          data.name += "（AI）";
+        }
         SubTitleData.allSubTitleInfo.push(data);
         // 添加菜单新的信息
         settingSelectorList.push({
-          html: subTitleUrlInfo.lan_doc,
+          html: data.name,
           subTitle_index: currentIndex,
-          subTitle_lan: subTitleUrlInfo.lan,
-          subTitle_data: subTitleInfo,
+          subTitle_lan: data.lan,
+          subTitle_data: data.data,
         });
       } else {
-        console.error(TAG + "请求字幕链接信息失败", subTitleInfoResponse);
+        console.error(TAG + "获取字幕链接信息失败", subTitleInfoResponse);
       }
     }
     if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
@@ -383,7 +386,7 @@ const SubTitle = {
       if (subTitleHant) {
         // 繁体转简体
         // 生成简中字幕
-        let simpleChineseSubtitleData: ArtPlayerPluginBilibiliSubTitleInfo[] = [];
+        const simpleChineseSubtitleData: ArtPlayerPluginBilibiliSubTitleInfo[] = [];
         subTitleHant.data.forEach((item) => {
           const { content, ...otherData } = item;
           const translateContent = Chinese.t2s(content, SubTitleCustomStr.getCustomStr());
@@ -393,8 +396,8 @@ const SubTitle = {
           });
         });
 
-        let subTitleName = "简体（自动生成）";
-        let currentIndex = SubTitleData.allSubTitleInfo.length;
+        const subTitleName = "简体（自动生成）";
+        const currentIndex = SubTitleData.allSubTitleInfo.length;
         SubTitleData.allSubTitleInfo.push({
           name: subTitleName,
           lan: "zh-CN-auto",
@@ -409,7 +412,6 @@ const SubTitle = {
         } as Setting & SubTitleSettingExtraOption);
       }
     }
-
     console.log(TAG + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
 
     if (
@@ -453,6 +455,7 @@ export type ArtPlayerPluginBilibiliSubTitleOption = {
   /** 来源 */
   from: "video" | "bangumi";
 };
+
 type ArtPlayerPluginBilibiliSubTitleInfo = {
   /** 字幕内容 */
   content: string;
@@ -479,6 +482,7 @@ type SubTitleSettingExtraOption = {
   /** 字幕数据 */
   subTitle_data: ArtPlayerPluginBilibiliSubTitleInfo[];
 };
+
 type ArtPlayerPluginBilibiliSubTitleStorageOption = {
   /** 字幕语言代码 */
   lan: string;
@@ -489,6 +493,7 @@ export type ArtPlayerPluginBilibiliSubTitleResult = {
   /** 更新视频时调用，更新字幕 */
   update: (option: ArtPlayerPluginBilibiliSubTitleOption) => void;
 };
+
 /**
  * 加载Bilibili的CC字幕的插件
  */

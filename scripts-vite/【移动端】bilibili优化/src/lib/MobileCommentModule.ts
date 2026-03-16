@@ -1,12 +1,13 @@
+import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { XhrHook } from "@/hook/BilibiliNetworkHook";
 import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
+import Qmsg from "qmsg";
+import Viewer from "viewerjs";
 import { unsafeWindow } from "ViteGM";
 import { b2a } from "./b2a";
 import { wbi } from "./wbi";
-import Viewer from "viewerjs";
-import Qmsg from "qmsg";
 
 // patch for 'unsafeWindow is not defined'
 const global = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
@@ -479,13 +480,16 @@ export const MobileCommentModule = {
     // 已登录就用跨域请求且不带Cookie
     // 未登录就用fetch请求
 
-    const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-      fetch: !isLogin,
-      fetchInit: {
-        credentials: "same-origin",
-      },
-      anonymous: !isLogin,
-    });
+    const fetchResult = await httpx.get(
+      `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
+      {
+        fetch: !isLogin,
+        fetchInit: {
+          credentials: "same-origin",
+        },
+        anonymous: !isLogin,
+      }
+    );
     const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
     this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
     return fetchResultJSON;
@@ -824,7 +828,7 @@ export const MobileCommentModule = {
     // 已登录就用跨域请求且不带Cookie
     // 未登录就用fetch请求
     const subReplyResponse = await httpx.get(
-      `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
+      `https://${BilibiliApiConfig.web_host}/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
       {
         allowInterceptConfig: false,
         fetch: !isLogin,

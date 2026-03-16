@@ -1,20 +1,21 @@
+import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import {
   BilibiliBangumiApi,
   type BilibiliTypeBangumiVideoPlayeHtml5Info,
   type BilibiliTypeBangumiVideoPlayeInfo,
 } from "@/api/BilibiliBangumiApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import { BilibiliBangumiArtPlayer, type BilibiliBangumiArtPlayerOption } from "./artplayer/ArtPlayer";
-import { VideoSoundQualityCode } from "@/video-info/AudioDict";
-import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
-import type { EP_INFO, EP_LIST } from "./TypeBangumi";
-import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
-import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
-import { $, DOMUtils, log, utils } from "@/env";
-import { ReactUtils } from "@components/utils/ReactUtils";
 import { BilibiliData } from "@/data/BlibiliData";
+import { $, DOMUtils, log, utils } from "@/env";
+import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
+import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
+import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
+import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { Panel } from "@components/setting/panel";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import type Artplayer from "artplayer";
+import { BilibiliBangumiArtPlayer, type BilibiliBangumiArtPlayerOption } from "./artplayer/ArtPlayer";
+import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 
 type VideoQualityInfo = {
   /** 画质文字 */
@@ -337,7 +338,7 @@ export const GenerateArtPlayerOption = async (EP_INFO: EP_INFO, EP_LIST: EP_LIST
     bvid: bvid,
     ep_id: ep_id,
     videoTitle: videoTitle,
-    danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${cid}`,
+    danmukuUrl: `https://${BilibiliApiConfig.web_host}/x/v1/dm/list.so?oid=${cid}`,
     quality: currentVideoQuality,
     clip_info_list: clip_info_list,
     isFlv: isFlv,

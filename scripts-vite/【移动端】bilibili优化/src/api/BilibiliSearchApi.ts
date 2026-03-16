@@ -1,5 +1,7 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { httpx, log, utils } from "@/env";
+import { wbi } from "@/lib/wbi";
+import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 
 /** 搜索结果番剧实体 */
@@ -287,7 +289,7 @@ export const BilibiliSearchApi = {
    * 获取输入框的placeholder的热点关键词
    */
   async getSearchInputPlaceholder() {
-    const response = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
+    const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/web-interface/wbi/search/default`, {
       fetch: true,
       headers: {
         accept: "application/json, text/plain, */*",
@@ -335,6 +337,16 @@ export const BilibiliSearchApi = {
     /** 搜索区域 */
     area: "hk" | "tw" | "th";
   }) {
+    const accessToken = BilibiliQrCodeLogin.getAccessToken();
+    if (utils.isNull(accessToken)) {
+      return {
+        isSuccess: false,
+        data: {
+          code: -101,
+          message: "请先使用脚本菜单的【通过扫码并解析access_key】",
+        },
+      };
+    }
     const searchParamsData = {
       search_type: "media_bangumi",
       keyword: config.keyword,
@@ -344,15 +356,13 @@ export const BilibiliSearchApi = {
       area: config.area.toLowerCase(),
       access_key: BilibiliQrCodeLogin.getAccessToken(),
     };
-    const url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
-
+    const url = `https://${config.host}/x/web-interface/search/type?${await wbi(searchParamsData)}`;
     const response = await httpx.get(url, {
       fetch: false,
       headers: {
         "User-Agent": utils.getRandomAndroidUA(),
       },
     });
-
     if (!response.status) {
       return;
     }

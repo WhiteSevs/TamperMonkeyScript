@@ -1,10 +1,10 @@
 import { cookieManager, httpx, log, utils } from "@/env";
-import { BilibiliApiRequestCheck } from "./BilibiliApiRequestCheck";
-import { BilibiliApiConfig } from "./BilibiliApiConfig";
-import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
+import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
 import Qmsg from "qmsg";
-import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
+import { BilibiliApiConfig } from "./BilibiliApiConfig";
+import { BilibiliApiRequestCheck } from "./BilibiliApiRequestCheck";
+import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 
 export const BilibiliVideoApi = {
   /**
@@ -44,7 +44,7 @@ export const BilibiliVideoApi = {
       Object.assign(searchParamsData, extraParams);
     }
     const response = await httpx.get(
-      "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
+      `https://${BilibiliApiConfig.web_host}/x/player/playurl?` + utils.toSearchParamsStr(searchParamsData),
       {
         responseType: "json",
         fetch: true,
@@ -117,7 +117,7 @@ export const BilibiliVideoApi = {
 
     BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
     const response = await httpx.get(
-      "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
+      `https://${BilibiliApiConfig.web_host}/x/web-interface/archive/like?` + utils.toSearchParamsStr(searchParamsData),
       {
         fetch: true,
       }

@@ -1,14 +1,12 @@
+import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { log } from "@/env";
+import { BilibiliComponentDetectionRule } from "@/main/BilibiliComponentDetectionRule";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UIInputPassword } from "@components/setting/components/ui-input-password";
+import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
-import { UISelect } from "@components/setting/components/ui-select";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { UIInput } from "@components/setting/components/ui-input";
-import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import { UIButton } from "@components/setting/components/ui-button";
-import { BilibiliComponentDetectionRule } from "@/main/BilibiliComponentDetectionRule";
-import { UIInputNumber } from "@components/setting/components/ui-input-number";
-import { UIInputPassword } from "@components/setting/components/ui-input-password";
 
 const SettingUICommon: PopsPanelContentConfig = {
   id: "panel-common",

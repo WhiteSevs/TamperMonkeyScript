@@ -1,10 +1,12 @@
 import { BilibiliApiProxy } from "@/api/BilibiliCDNProxy";
 import { BilibiliSearchApi, type BilibiliSearchBangumiResultEntity } from "@/api/BilibiliSearchApi";
-import { $, addStyle, DOMUtils, log, pops, utils } from "@/env";
-import { VueUtils } from "@components/utils/VueUtils";
-import beautifyCSS from "./css/beautify.css?raw";
+import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
+import type { QmsgMsg } from "qmsg/dist/src/QmsgInst";
+import beautifyCSS from "./css/beautify.css?raw";
 
 /**
  * 额外搜索
@@ -54,11 +56,12 @@ export const BilibiliExtraSearch = {
 			}
 			`);
     }
+    let $loading: QmsgMsg | null = null;
     DOMUtils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
       // 先获取设置了搜索服务器的配置
-      let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
+      const enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
       enableSearchServer.forEach((proxyServerInfo) => {
-        let $tab = DOMUtils.createElement(
+        const $tab = DOMUtils.createElement(
           "a",
           {
             className: "tab-item gm-tab-item",
@@ -78,13 +81,27 @@ export const BilibiliExtraSearch = {
         $tabs.querySelectorAll(".tab-item").forEach(($ele) => $tab != $ele && $ele.classList.remove("on"));
         // 给自己添加选中状态
         $tab.classList.add("on");
+        // 移除loading
+        $loading?.close();
+      };
+      const updateSearchHost = () => {
+        const enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
+        $$(".tab-item.gm-tab-item").forEach(($el) => {
+          const area = $el.getAttribute("data-area");
+          const findValue = enableSearchServer.find((item) => item.area === area);
+          if (findValue) {
+            $el.setAttribute("data-host", findValue.host);
+          }
+        });
       };
       DOMUtils.on($tabs, "click", ".tab-item", async (event) => {
-        let $tab = event.target as HTMLElement;
+        const $tab = event.target as HTMLElement;
+        // 更新代理服务器
+        updateSearchHost();
         // 先取消其它的item的选中状态
         refreshTabActive($tab);
-        let $resultPanel = $<HTMLElement>(".result-panel")!;
-        let $oldGmResultPanel = $<HTMLElement>(".gm-result-panel");
+        const $resultPanel = $<HTMLElement>(".result-panel")!;
+        const $oldGmResultPanel = $<HTMLElement>(".gm-result-panel");
         if ($oldGmResultPanel) {
           // 移除旧的结果
           $oldGmResultPanel.remove();
@@ -95,20 +112,24 @@ export const BilibiliExtraSearch = {
           // 页面的tab，返回
           return;
         }
-        let area = $tab.dataset.area!;
-        let host = $tab.dataset.host!;
+        const area = $tab.dataset.area!;
+        const host = $tab.dataset.host!;
         /** 搜索结果 */
-        let $searchResult = $<HTMLDivElement>(".m-search-result")!;
-        let searchResultVueIns = VueUtils.getVue($searchResult)!;
+        const $searchResult = $(".m-search-result")!;
+        const vueInst = VueUtils.getVue($searchResult)!;
         // 切换tab为2（番剧）页面
-        searchResultVueIns.switchTab(233);
+        vueInst.switchTab(233);
         // 隐藏页面的原始搜索结果
         DOMUtils.hide($resultPanel);
         /** 搜索关键词 */
-        let keyword = searchResultVueIns.keyword;
-        let $loading = Qmsg.loading("搜索中，请稍后...");
+        const keyword = vueInst.keyword;
+        $loading = Qmsg.loading("搜索中，请稍后...", {
+          onClose() {
+            $loading = null;
+          },
+        });
         // 搜索
-        let searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
+        const searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
           keyword: keyword,
           area: area as any,
           host: host,
@@ -117,15 +138,14 @@ export const BilibiliExtraSearch = {
         if (!searchBangumiResultInfo) {
           return;
         }
-        if (!searchBangumiResultInfo.isSuccess) {
-          alert(JSON.stringify(searchBangumiResultInfo.data, null, 2));
+        const searchBangumiResultData = searchBangumiResultInfo.data;
+        if (!searchBangumiResultInfo.isSuccess || !Array.isArray(searchBangumiResultData)) {
+          alert(CommonUtil.toStr(searchBangumiResultData));
           return;
         }
-        let searchBangumiResultData = searchBangumiResultInfo.data;
         log.info("搜索结果：", searchBangumiResultData);
-
         // 自定义搜索结果元素添加到页面中
-        let $gmResultPanel = DOMUtils.createElement("div", {
+        const $gmResultPanel = DOMUtils.createElement("div", {
           className: "gm-result-panel",
           innerHTML: /*html*/ `
 						<div class="gm-list-view">
@@ -137,11 +157,14 @@ export const BilibiliExtraSearch = {
 						</div>
 					`,
         });
-        let $gmCardBox = $gmResultPanel.querySelector<HTMLElement>(".gm-card-box")!;
-        searchBangumiResultData.forEach((searchBangumiResultItem) => {
-          $gmCardBox.appendChild(this.createSearchResultVideoItem(searchBangumiResultItem));
-        });
+        const $gmCardBox = $gmResultPanel.querySelector<HTMLElement>(".gm-card-box")!;
         $searchResult.appendChild($gmResultPanel);
+        const $fragment = document.createDocumentFragment();
+        searchBangumiResultData.forEach((searchBangumiResultItem) => {
+          const $item = this.createSearchResultVideoItem(searchBangumiResultItem);
+          $fragment.appendChild($item);
+        });
+        $gmCardBox.appendChild($fragment);
       });
     });
   },

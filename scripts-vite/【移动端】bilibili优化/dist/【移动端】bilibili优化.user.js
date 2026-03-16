@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.15
+// @version      2026.3.16
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
@@ -438,6 +438,70 @@
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
+    },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
     },
   };
   const KEY = "GM_Panel";
@@ -1529,13 +1593,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -2094,7 +2169,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -2170,24 +2244,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data2) => {
     return data2;
   });
-  httpx.interceptors.response.use(void 0, (data2) => {
-    log.error("拦截器-请求错误", data2);
-    if (data2.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data2.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data2.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data2) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data: data2 });
+      if (data2.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data2.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data2.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data2;
     }
-    return data2;
-  });
+  );
   const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -2212,6 +2291,9 @@
   const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
+  const BilibiliApiConfig = {
+    web_host: "api.bilibili.com",
+  };
   const AppKeyInfo = {
     ios: {
       appkey: "27eb53fc9058f8c3",
@@ -2337,7 +2419,7 @@
   const BilibiliQrCodeLogin = {
     async init() {
       Qmsg.info("正在申请二维码...");
-      let qrcodeInfo = await this.getQRCodeInfo();
+      const qrcodeInfo = await this.getQRCodeInfo();
       if (!qrcodeInfo) {
         return;
       }
@@ -2345,12 +2427,12 @@
     },
     getQRCodeInfo: async function () {
       log.info("正在申请二维码...");
-      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
+      const qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
       log.info("获取到二维码信息", qrcodeInfo);
       return qrcodeInfo;
     },
     async confirmScanQrcode(qrcodeInfo) {
-      let $alert = __pops__.alert({
+      const $alert = __pops__.alert({
         title: {
           text: "请扫描二维码登录",
           position: "center",
@@ -2395,8 +2477,8 @@
             }
             `,
       });
-      let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector("#bili-qrcode-canvas");
-      let qrcode = new QRCodeJS($biliQrcodeCanvas, {
+      const $biliQrcodeCanvas = $alert.$shadowRoot.querySelector("#bili-qrcode-canvas");
+      const qrcode = new QRCodeJS($biliQrcodeCanvas, {
         text: qrcodeInfo.url,
         width: 300,
         height: 300,
@@ -2404,6 +2486,7 @@
         colorLight: "#ffffff",
         correctLevel: QRCodeJS.CorrectLevel.H,
       });
+      let isSuccessLogin = false;
       let isUserCloseScanDialog = false;
       while (true) {
         if (isUserCloseScanDialog) {
@@ -2411,12 +2494,13 @@
           break;
         }
         log.info("正在等待扫码登录...");
-        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
+        const pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
         if (pollInfo?.success) {
           this.setAccessTokenInfo({
             access_token: pollInfo.accessKey,
             expireAt: pollInfo.accessKeyExpireAt,
           });
+          isSuccessLogin = true;
           log.info("扫码登录成功", pollInfo);
           Qmsg.success("扫码登录成功");
           break;
@@ -2424,7 +2508,7 @@
           if (pollInfo?.action === "refresh") {
             log.info("刷新二维码");
             Qmsg.info("刷新二维码");
-            let qrcodeInfo2 = await this.getQRCodeInfo();
+            const qrcodeInfo2 = await this.getQRCodeInfo();
             if (qrcodeInfo2) {
               qrcode.clear();
               qrcode.makeCode(qrcodeInfo2.url);
@@ -2443,6 +2527,7 @@
               });
             }
           } else {
+            isSuccessLogin = false;
             log.error(pollInfo.message);
             Qmsg.error(pollInfo.message);
             break;
@@ -2451,6 +2536,10 @@
         await utils.sleep(1500);
       }
       $alert.close();
+      return {
+        isSuccessLogin,
+        isUserCloseScanDialog,
+      };
     },
     generateExpireAt(monthNumber = 6) {
       return new Date().getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
@@ -2459,7 +2548,7 @@
       _GM_setValue("bili-accessTokenInfo", data2);
     },
     getAccessTokenInfo() {
-      let data2 = _GM_getValue("bili-accessTokenInfo");
+      const data2 = _GM_getValue("bili-accessTokenInfo");
       if (data2 && data2.expireAt > Date.now()) {
         return data2;
       } else {
@@ -2469,9 +2558,6 @@
     getAccessToken() {
       return this.getAccessTokenInfo()?.access_token || "";
     },
-  };
-  const BilibiliApiConfig = {
-    web_host: "api.bilibili.com",
   };
   const githubCDNServerList = {
     上海: [
@@ -3182,7 +3268,7 @@
       }
       this.$flag.is_hook_video_playurl = true;
       XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/x/player/wbi/playurl")) {
+        if (request.url.includes(`//${BilibiliApiConfig.web_host}/x/player/wbi/playurl`)) {
           if (request.url.startsWith("//")) {
             request.url = window.location.protocol + request.url;
           }
@@ -3222,7 +3308,7 @@
       }
       this.$flag.is_hook_bangumi_html5 = true;
       XhrHook.ajaxHooker.hook((request) => {
-        if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
+        if (request.url.includes(`//${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5`)) {
           if (request.url.startsWith("//")) {
             request.url = window.location.protocol + request.url;
           }
@@ -3310,11 +3396,14 @@
   };
   const BilibiliUserApi = {
     async nav(checkCode = true) {
-      const response = await httpx.get("https://api.bilibili.com/x/web-interface/nav?web_location=333.401", {
-        fetch: true,
-        responseType: "json",
-        allowInterceptConfig: false,
-      });
+      const response = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/web-interface/nav?web_location=333.401`,
+        {
+          fetch: true,
+          responseType: "json",
+          allowInterceptConfig: false,
+        }
+      );
       if (!response.status) {
         log.error(["获取导航栏用户信息失败，请求异常", response]);
         return;
@@ -3328,7 +3417,7 @@
       return data2.data;
     },
     async space(mid, offset = "") {
-      const response = await httpx.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space", {
+      const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/polymer/web-dynamic/v1/feed/space`, {
         data: {
           host_mid: mid,
           offset,
@@ -3345,7 +3434,7 @@
       return data2["data"];
     },
     async following(mid, pn = 1, ps = 50) {
-      const response = await httpx.get("https://api.bilibili.com/x/relation/followings", {
+      const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/relation/followings`, {
         data: {
           vmid: mid,
           ps,
@@ -3809,13 +3898,16 @@
         Reflect.set(params, "mode", 2);
       }
       const isLogin = await BilibiliGlobalData.$data.isLogin;
-      const fetchResult = await httpx.get(`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`, {
-        fetch: !isLogin,
-        fetchInit: {
-          credentials: "same-origin",
-        },
-        anonymous: !isLogin,
-      });
+      const fetchResult = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
+        {
+          fetch: !isLogin,
+          fetchInit: {
+            credentials: "same-origin",
+          },
+          anonymous: !isLogin,
+        }
+      );
       const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
       this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
       return fetchResultJSON;
@@ -4066,7 +4158,7 @@
       };
       const isLogin = await BilibiliGlobalData.$data.isLogin;
       const subReplyResponse = await httpx.get(
-        `https://api.bilibili.com/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
+        `https://${BilibiliApiConfig.web_host}/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
         {
           allowInterceptConfig: false,
           fetch: !isLogin,
@@ -4640,7 +4732,7 @@
         Object.assign(searchParamsData, extraParams);
       }
       const response = await httpx.get(
-        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
+        `https://${BilibiliApiConfig.web_host}/x/player/playurl?` + utils.toSearchParamsStr(searchParamsData),
         {
           responseType: "json",
           fetch: true,
@@ -4683,7 +4775,8 @@
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       const response = await httpx.get(
-        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
+        `https://${BilibiliApiConfig.web_host}/x/web-interface/archive/like?` +
+          utils.toSearchParamsStr(searchParamsData),
         {
           fetch: true,
         }
@@ -5382,8 +5475,8 @@
   const SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
-    more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造"],
-    more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造"],
+    more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造", "艾連"],
+    more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造", "艾伦"],
     _custom_str: [],
     generteCustomStr() {
       for (let index = 0; index < this.src.length; index++) {
@@ -5581,7 +5674,7 @@
         throw new TypeError("avid or bvid must give one");
       }
       const videoInfoResponse = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
+        `https://api.bilibili.com/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
         {
           fetch: true,
           allowInterceptConfig: false,
@@ -5604,15 +5697,17 @@
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$3 + "获取字幕链接列表为空", videoInfoResultJSON);
+        console.warn(TAG$3 + "字幕列表为空", videoInfoResultJSON);
+        return;
+      }
+      subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils.isNotNull(it.subtitle_url));
+      if (!subTitleUrlInfoList.length) {
+        console.warn(TAG$3 + "有字幕列表，但是链接都为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
         const subTitleUrlInfo = subTitleUrlInfoList[index];
-        console.log(TAG$3 + "请求字幕链接信息：" + subTitleUrlInfo.subtitle_url);
-        if (utils.isNull(subTitleUrlInfo.subtitle_url)) {
-          continue;
-        }
+        console.log(TAG$3 + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
         const subTitleInfoResponse = await httpx.get(subTitleUrlInfo.subtitle_url, {
           responseType: "json",
           allowInterceptConfig: false,
@@ -5622,24 +5717,27 @@
           },
         });
         if (subTitleInfoResponse.status) {
-          console.log(TAG$3 + "成功获取字幕信息");
+          console.log(TAG$3 + "获取字幕信息成功");
           const subTitleInfoJSON = utils.toJSON(subTitleInfoResponse.data.responseText);
           const subTitleInfo = subTitleInfoJSON["body"];
-          let currentIndex = SubTitleData.allSubTitleInfo.length;
-          let data2 = {
+          const currentIndex = SubTitleData.allSubTitleInfo.length;
+          const data2 = {
             name: subTitleUrlInfo.lan_doc,
             lan: subTitleUrlInfo.lan,
             data: subTitleInfo,
           };
+          if (data2.lan === "ai-zh") {
+            data2.name += "（AI）";
+          }
           SubTitleData.allSubTitleInfo.push(data2);
           settingSelectorList.push({
-            html: subTitleUrlInfo.lan_doc,
+            html: data2.name,
             subTitle_index: currentIndex,
-            subTitle_lan: subTitleUrlInfo.lan,
-            subTitle_data: subTitleInfo,
+            subTitle_lan: data2.lan,
+            subTitle_data: data2.data,
           });
         } else {
-          console.error(TAG$3 + "请求字幕链接信息失败", subTitleInfoResponse);
+          console.error(TAG$3 + "获取字幕链接信息失败", subTitleInfoResponse);
         }
       }
       if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
@@ -5647,7 +5745,7 @@
           return item.lan === "zh-Hant" || item.name.includes("繁体");
         });
         if (subTitleHant) {
-          let simpleChineseSubtitleData = [];
+          const simpleChineseSubtitleData = [];
           subTitleHant.data.forEach((item) => {
             const { content, ...otherData } = item;
             const translateContent = Chinese.t2s(content, SubTitleCustomStr.getCustomStr());
@@ -5656,8 +5754,8 @@
               ...otherData,
             });
           });
-          let subTitleName = "简体（自动生成）";
-          let currentIndex = SubTitleData.allSubTitleInfo.length;
+          const subTitleName = "简体（自动生成）";
+          const currentIndex = SubTitleData.allSubTitleInfo.length;
           SubTitleData.allSubTitleInfo.push({
             name: subTitleName,
             lan: "zh-CN-auto",
@@ -7130,7 +7228,7 @@
       bvid: option.bvid,
       cid: option.cid,
       videoTitle: option.title,
-      danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${option.cid}`,
+      danmukuUrl: `https://${BilibiliApiConfig.web_host}/x/v1/dm/list.so?oid=${option.cid}`,
       quality: currentVideoQuality,
     };
     artPlayerOption.url = qualityInfo?.[0]?.url;
@@ -8441,6 +8539,94 @@
       return responseResult;
     },
   };
+  const ReactUtils = {
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
+        }
+        return __target__;
+      }
+      if (typeof $el === "string") {
+        let __$el = await domUtils.waitNode($el, 1e4);
+        if (!__$el) {
+          return;
+        }
+      }
+      checkOption.forEach((option) => {
+        if (typeof option.msg === "string") {
+          log.info(option.msg);
+        }
+        const checkTarget = function () {
+          let $target = getTarget();
+          if ($target == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const reactInst = utils.getReactInstance($target);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $target,
+            };
+          }
+          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
+            const reactPropInst2 = reactInst[__propName__];
+            if (!reactPropInst2) {
+              return false;
+            }
+            const flag = Boolean(option.check(reactPropInst2, $target));
+            return flag;
+          });
+          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          const reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $target,
+          };
+        };
+        utils
+          .waitPropertyByInterval(
+            () => {
+              return getTarget();
+            },
+            () => checkTarget().status,
+            250,
+            1e4
+          )
+          .then(() => {
+            const checkTargetResult = checkTarget();
+            if (checkTargetResult.status) {
+              const reactInst = checkTargetResult.inst;
+              option.set(reactInst, checkTargetResult.$el);
+            } else {
+              if (typeof option.failWait === "function") {
+                option.failWait(checkTargetResult.isTimeout);
+              }
+            }
+          });
+      });
+    },
+  };
   const TAG = "[artplayer-plugin-airborneHelper]：";
   const AirborneHelperEvent = {
     $data: {
@@ -8851,94 +9037,6 @@
       }
     },
   };
-  const ReactUtils = {
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
-      if (!Array.isArray(reactPropNameOrNameList)) {
-        reactPropNameOrNameList = [reactPropNameOrNameList];
-      }
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
-        return __target__;
-      }
-      if (typeof $el === "string") {
-        let __$el = await domUtils.waitNode($el, 1e4);
-        if (!__$el) {
-          return;
-        }
-      }
-      checkOption.forEach((option) => {
-        if (typeof option.msg === "string") {
-          log.info(option.msg);
-        }
-        const checkTarget = function () {
-          let $target = getTarget();
-          if ($target == null) {
-            return {
-              status: false,
-              isTimeout: true,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const reactInst = utils.getReactInstance($target);
-          if (reactInst == null) {
-            return {
-              status: false,
-              isTimeout: false,
-              inst: null,
-              $el: $target,
-            };
-          }
-          const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            const reactPropInst2 = reactInst[__propName__];
-            if (!reactPropInst2) {
-              return false;
-            }
-            const flag = Boolean(option.check(reactPropInst2, $target));
-            return flag;
-          });
-          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          const reactPropInst = reactInst[reactPropName];
-          return {
-            status: findPropNameIndex !== -1,
-            isTimeout: false,
-            inst: reactPropInst,
-            $el: $target,
-          };
-        };
-        utils
-          .waitPropertyByInterval(
-            () => {
-              return getTarget();
-            },
-            () => checkTarget().status,
-            250,
-            1e4
-          )
-          .then(() => {
-            const checkTargetResult = checkTarget();
-            if (checkTargetResult.status) {
-              const reactInst = checkTargetResult.inst;
-              option.set(reactInst, checkTargetResult.$el);
-            } else {
-              if (typeof option.failWait === "function") {
-                option.failWait(checkTargetResult.isTimeout);
-              }
-            }
-          });
-      });
-    },
-  };
   function handleDashVideoQualityInfo(dashInfo) {
     let acceptVideoQualityInfoList = [];
     dashInfo.video.forEach((dashVideoInfo) => {
@@ -9135,7 +9233,7 @@
       bvid,
       ep_id,
       videoTitle,
-      danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${cid}`,
+      danmukuUrl: `https://${BilibiliApiConfig.web_host}/x/v1/dm/list.so?oid=${cid}`,
       quality: currentVideoQuality,
       clip_info_list,
       isFlv,
@@ -9454,7 +9552,7 @@
   };
   const BilibiliSearchApi = {
     async getSearchInputPlaceholder() {
-      const response = await httpx.get("https://api.bilibili.com/x/web-interface/wbi/search/default", {
+      const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/web-interface/wbi/search/default`, {
         fetch: true,
         headers: {
           accept: "application/json, text/plain, */*",
@@ -9480,6 +9578,16 @@
       return data2.data;
     },
     async getBangumiSearchResult(config) {
+      const accessToken = BilibiliQrCodeLogin.getAccessToken();
+      if (utils.isNull(accessToken)) {
+        return {
+          isSuccess: false,
+          data: {
+            code: -101,
+            message: "请先使用脚本菜单的【通过扫码并解析access_key】",
+          },
+        };
+      }
       const searchParamsData = {
         search_type: "media_bangumi",
         keyword: config.keyword,
@@ -9489,7 +9597,7 @@
         area: config.area.toLowerCase(),
         access_key: BilibiliQrCodeLogin.getAccessToken(),
       };
-      const url = `https://${config.host}/x/web-interface/search/type?${utils.toSearchParamsStr(searchParamsData)}`;
+      const url = `https://${config.host}/x/web-interface/search/type?${await wbi(searchParamsData)}`;
       const response = await httpx.get(url, {
         fetch: false,
         headers: {
@@ -9559,10 +9667,11 @@
 			`
         );
       }
+      let $loading = null;
       domUtils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
-        let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
+        const enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
         enableSearchServer.forEach((proxyServerInfo) => {
-          let $tab = domUtils.createElement(
+          const $tab = domUtils.createElement(
             "a",
             {
               className: "tab-item gm-tab-item",
@@ -9578,12 +9687,24 @@
         const refreshTabActive = ($tab) => {
           $tabs.querySelectorAll(".tab-item").forEach(($ele) => $tab != $ele && $ele.classList.remove("on"));
           $tab.classList.add("on");
+          $loading?.close();
+        };
+        const updateSearchHost = () => {
+          const enableSearchServer2 = BilibiliApiProxy.getSearchProxyHost();
+          $$(".tab-item.gm-tab-item").forEach(($el) => {
+            const area = $el.getAttribute("data-area");
+            const findValue = enableSearchServer2.find((item) => item.area === area);
+            if (findValue) {
+              $el.setAttribute("data-host", findValue.host);
+            }
+          });
         };
         domUtils.on($tabs, "click", ".tab-item", async (event) => {
-          let $tab = event.target;
+          const $tab = event.target;
+          updateSearchHost();
           refreshTabActive($tab);
-          let $resultPanel = $(".result-panel");
-          let $oldGmResultPanel = $(".gm-result-panel");
+          const $resultPanel = $(".result-panel");
+          const $oldGmResultPanel = $(".gm-result-panel");
           if ($oldGmResultPanel) {
             $oldGmResultPanel.remove();
             domUtils.show($resultPanel);
@@ -9591,15 +9712,19 @@
           if (!$tab.classList.contains("gm-tab-item")) {
             return;
           }
-          let area = $tab.dataset.area;
-          let host = $tab.dataset.host;
-          let $searchResult = $(".m-search-result");
-          let searchResultVueIns = VueUtils.getVue($searchResult);
-          searchResultVueIns.switchTab(233);
+          const area = $tab.dataset.area;
+          const host = $tab.dataset.host;
+          const $searchResult = $(".m-search-result");
+          const vueInst = VueUtils.getVue($searchResult);
+          vueInst.switchTab(233);
           domUtils.hide($resultPanel);
-          let keyword = searchResultVueIns.keyword;
-          let $loading = Qmsg.loading("搜索中，请稍后...");
-          let searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
+          const keyword = vueInst.keyword;
+          $loading = Qmsg.loading("搜索中，请稍后...", {
+            onClose() {
+              $loading = null;
+            },
+          });
+          const searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
             keyword,
             area,
             host,
@@ -9608,13 +9733,13 @@
           if (!searchBangumiResultInfo) {
             return;
           }
-          if (!searchBangumiResultInfo.isSuccess) {
-            alert(JSON.stringify(searchBangumiResultInfo.data, null, 2));
+          const searchBangumiResultData = searchBangumiResultInfo.data;
+          if (!searchBangumiResultInfo.isSuccess || !Array.isArray(searchBangumiResultData)) {
+            alert(CommonUtil.toStr(searchBangumiResultData));
             return;
           }
-          let searchBangumiResultData = searchBangumiResultInfo.data;
           log.info("搜索结果：", searchBangumiResultData);
-          let $gmResultPanel = domUtils.createElement("div", {
+          const $gmResultPanel = domUtils.createElement("div", {
             className: "gm-result-panel",
             innerHTML: `
 						<div class="gm-list-view">
@@ -9626,11 +9751,14 @@
 						</div>
 					`,
           });
-          let $gmCardBox = $gmResultPanel.querySelector(".gm-card-box");
-          searchBangumiResultData.forEach((searchBangumiResultItem) => {
-            $gmCardBox.appendChild(this.createSearchResultVideoItem(searchBangumiResultItem));
-          });
+          const $gmCardBox = $gmResultPanel.querySelector(".gm-card-box");
           $searchResult.appendChild($gmResultPanel);
+          const $fragment = document.createDocumentFragment();
+          searchBangumiResultData.forEach((searchBangumiResultItem) => {
+            const $item = this.createSearchResultVideoItem(searchBangumiResultItem);
+            $fragment.appendChild($item);
+          });
+          $gmCardBox.appendChild($fragment);
         });
       });
     },

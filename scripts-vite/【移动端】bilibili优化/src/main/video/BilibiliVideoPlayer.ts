@@ -1,3 +1,4 @@
+import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 import { BilibiliData } from "@/data/BlibiliData";
@@ -257,7 +258,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
     bvid: option.bvid,
     cid: option.cid,
     videoTitle: option.title,
-    danmukuUrl: `https://api.bilibili.com/x/v1/dm/list.so?oid=${option.cid}`,
+    danmukuUrl: `https://${BilibiliApiConfig.web_host}/x/v1/dm/list.so?oid=${option.cid}`,
     quality: currentVideoQuality,
   };
   // 设置默认播放画质

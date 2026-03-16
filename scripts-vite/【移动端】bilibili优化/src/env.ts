@@ -1,4 +1,4 @@
-import { SCRIPT_NAME } from "@components/env.base";
+import { httpx, SCRIPT_NAME } from "@components/env.base";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 
 const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";

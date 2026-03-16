@@ -1,12 +1,12 @@
 import { log, pops, QRCodeJS, utils } from "@/env";
-import { BilibiliLoginApi } from "../api/BilibiliLoginApi";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import Qmsg from "qmsg";
+import { BilibiliLoginApi } from "../api/BilibiliLoginApi";
 
 export const BilibiliQrCodeLogin = {
   async init() {
     Qmsg.info("正在申请二维码...");
-    let qrcodeInfo = await this.getQRCodeInfo();
+    const qrcodeInfo = await this.getQRCodeInfo();
     if (!qrcodeInfo) {
       return;
     }
@@ -17,7 +17,7 @@ export const BilibiliQrCodeLogin = {
    */
   getQRCodeInfo: async function () {
     log.info("正在申请二维码...");
-    let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
+    const qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
     log.info("获取到二维码信息", qrcodeInfo);
     return qrcodeInfo;
   },
@@ -26,7 +26,7 @@ export const BilibiliQrCodeLogin = {
    * @param qrcodeInfo
    */
   async confirmScanQrcode(qrcodeInfo: { url: string; auth_code: string }) {
-    let $alert = pops.alert({
+    const $alert = pops.alert({
       title: {
         text: "请扫描二维码登录",
         position: "center",
@@ -71,8 +71,8 @@ export const BilibiliQrCodeLogin = {
             }
             `,
     });
-    let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector<HTMLCanvasElement>("#bili-qrcode-canvas")!;
-    let qrcode = new QRCodeJS($biliQrcodeCanvas, {
+    const $biliQrcodeCanvas = $alert.$shadowRoot.querySelector<HTMLCanvasElement>("#bili-qrcode-canvas")!;
+    const qrcode = new QRCodeJS($biliQrcodeCanvas, {
       text: qrcodeInfo.url,
       width: 300,
       height: 300,
@@ -90,7 +90,7 @@ export const BilibiliQrCodeLogin = {
         break;
       }
       log.info("正在等待扫码登录...");
-      let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
+      const pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
       if (pollInfo?.success) {
         this.setAccessTokenInfo({
           access_token: pollInfo.accessKey,
@@ -105,7 +105,7 @@ export const BilibiliQrCodeLogin = {
           // 刷新二维码
           log.info("刷新二维码");
           Qmsg.info("刷新二维码");
-          let qrcodeInfo = await this.getQRCodeInfo();
+          const qrcodeInfo = await this.getQRCodeInfo();
           if (qrcodeInfo) {
             qrcode.clear();
             qrcode.makeCode(qrcodeInfo.url);
@@ -137,6 +137,10 @@ export const BilibiliQrCodeLogin = {
       await utils.sleep(1500);
     }
     $alert.close();
+    return {
+      isSuccessLogin,
+      isUserCloseScanDialog,
+    };
   },
   /**
    * 生成过期时间
@@ -160,7 +164,7 @@ export const BilibiliQrCodeLogin = {
    * @returns
    */
   getAccessTokenInfo() {
-    let data = GM_getValue("bili-accessTokenInfo") as null | {
+    const data = GM_getValue("bili-accessTokenInfo") as null | {
       access_token: string;
       expireAt: number;
     };

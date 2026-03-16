@@ -1,3 +1,4 @@
+import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { log, utils } from "@/env";
 import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
@@ -46,8 +47,8 @@ export const BilibiliNetworkHook = {
     this.$flag.is_hook_video_playurl = true;
     XhrHook.ajaxHooker.hook((request) => {
       if (
-        request.url.includes("//api.bilibili.com/x/player/wbi/playurl")
-        // || request.url.includes("//api.bilibili.com/x/player/playurl")
+        request.url.includes(`//${BilibiliApiConfig.web_host}/x/player/wbi/playurl`)
+        // || request.url.includes(`//${BilibiliApiConfig.web_host}/x/player/playurl`)
       ) {
         if (request.url.startsWith("//")) {
           request.url = window.location.protocol + request.url;
@@ -106,7 +107,7 @@ export const BilibiliNetworkHook = {
     }
     this.$flag.is_hook_bangumi_html5 = true;
     XhrHook.ajaxHooker.hook((request) => {
-      if (request.url.includes("//api.bilibili.com/pgc/player/web/playurl/html5")) {
+      if (request.url.includes(`//${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5`)) {
         if (request.url.startsWith("//")) {
           request.url = window.location.protocol + request.url;
         }

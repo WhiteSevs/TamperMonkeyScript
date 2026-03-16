@@ -4,13 +4,13 @@
     "paths": {
       "@/*": ["./src/*"],
       "@lib/*": ["./../../lib/*"],
-      "@components/*": ["./../../script-components/components/src/*"]
-    }
+      "@components/*": ["./../../script-components/components/src/*"],
+    },
   },
   "references": [
     {
-      "path": "./tsconfig.node.json"
-    }
+      "path": "./tsconfig.node.json",
+    },
   ],
-  "include": ["src", "types", "./../../script-components/components/types/*.d.ts"]
+  "include": ["src", "types", "./../../script-components/components/types/*.d.ts"],
 }
