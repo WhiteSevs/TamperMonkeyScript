@@ -33,7 +33,7 @@ try {
 }
 // 替换面板组件存储Api（原先的是Panel内部储存）
 (["input", "select-multiple", "select", "slider", "switch", "textarea"] as PanelComponentsType[]).forEach((type) => {
-  PanelComponents.setStorageApi(type as PanelComponentsType, {
+  PanelComponents.setStorageApi(type, {
     get<T>(key: string, defaultValue: T) {
       return GM_getValue(key, defaultValue) ?? defaultValue;
     },
