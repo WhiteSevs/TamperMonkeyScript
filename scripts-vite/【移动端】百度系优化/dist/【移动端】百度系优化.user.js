@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.16
+// @version      2026.3.18
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -74,7 +74,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-28376cfe]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-28376cfe]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-28376cfe]{font-weight:700}.posts-item-title[data-v-28376cfe],.posts-item-content[data-v-28376cfe],.posts-item-media-container[data-v-28376cfe]{margin:10px 0}.posts-item-footer[data-v-28376cfe]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-28376cfe]{text-align:center}.posts-item-footer-icon-container[data-v-28376cfe]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-28376cfe]{padding:0 10px}#main[data-v-6a6acb0b]{z-index:1000;width:100%;height:100%}.big-text[data-v-6a6acb0b]{font-weight:700}.top-container[data-v-6a6acb0b]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-6a6acb0b]{width:100%;height:100px}.user-info-bg-main[data-v-6a6acb0b]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-6a6acb0b]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-6a6acb0b]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-63be16a3]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-63be16a3]:last-child{border-bottom:0}.user-info[data-v-63be16a3]{display:flex;align-items:center;gap:5px}.user-time[data-v-63be16a3]{font-size:.8em;color:#999}.user-avatar img[data-v-63be16a3]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-63be16a3]{font-size:.9em;color:#4a4a4a}.post-info[data-v-63be16a3]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-63be16a3]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-63be16a3]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-63be16a3]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-63be16a3]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-63be16a3]{color:#999}.bottom-msg[data-v-63be16a3]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-63be16a3]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-3dfa54cc]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-3dfa54cc]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-3dfa54cc]:last-child{border-bottom:0}.user-info[data-v-3dfa54cc]{display:flex;align-items:center;gap:5px}.user-time[data-v-3dfa54cc]{font-size:.8em;color:#999}.user-avatar img[data-v-3dfa54cc]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-3dfa54cc]{font-size:.9em}.reply-content .quote-user[data-v-3dfa54cc]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-3dfa54cc]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-3dfa54cc]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-3dfa54cc]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-3dfa54cc]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-3dfa54cc]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-3dfa54cc]{color:#999}.bottom-msg[data-v-3dfa54cc]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-3dfa54cc]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-1abdbb10]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-e4ee9569]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
+    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-466beea8]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-466beea8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-466beea8]{font-weight:700}.posts-item-title[data-v-466beea8],.posts-item-content[data-v-466beea8],.posts-item-media-container[data-v-466beea8]{margin:10px 0}.posts-item-footer[data-v-466beea8]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-466beea8]{text-align:center}.posts-item-footer-icon-container[data-v-466beea8]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-466beea8]{padding:0 10px}#main[data-v-6a6acb0b]{z-index:1000;width:100%;height:100%}.big-text[data-v-6a6acb0b]{font-weight:700}.top-container[data-v-6a6acb0b]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-6a6acb0b]{width:100%;height:100px}.user-info-bg-main[data-v-6a6acb0b]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-6a6acb0b]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-6a6acb0b]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-63be16a3]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-63be16a3]:last-child{border-bottom:0}.user-info[data-v-63be16a3]{display:flex;align-items:center;gap:5px}.user-time[data-v-63be16a3]{font-size:.8em;color:#999}.user-avatar img[data-v-63be16a3]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-63be16a3]{font-size:.9em;color:#4a4a4a}.post-info[data-v-63be16a3]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-63be16a3]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-63be16a3]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-63be16a3]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-63be16a3]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-63be16a3]{color:#999}.bottom-msg[data-v-63be16a3]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-63be16a3]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-3dfa54cc]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-3dfa54cc]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-3dfa54cc]:last-child{border-bottom:0}.user-info[data-v-3dfa54cc]{display:flex;align-items:center;gap:5px}.user-time[data-v-3dfa54cc]{font-size:.8em;color:#999}.user-avatar img[data-v-3dfa54cc]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-3dfa54cc]{font-size:.9em}.reply-content .quote-user[data-v-3dfa54cc]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-3dfa54cc]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-3dfa54cc]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-3dfa54cc]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-3dfa54cc]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-3dfa54cc]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-3dfa54cc]{color:#999}.bottom-msg[data-v-3dfa54cc]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-3dfa54cc]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-1abdbb10]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-QdQLXWUQ.js"(exports$1, module) {
+    "entrance-roHXaTIX.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -7894,6 +7894,23 @@ div[class^="new-summary-container_"] {
           if (!TiebaApiStatus.isWebSuccess(data)) {
             log.error(data);
             return;
+          }
+          if (Array.isArray(data.data.list)) {
+            data.data.list.forEach((it2) => {
+              if (Array.isArray(it2.thread_info.media)) {
+                const uniqueMedia = new Set();
+                for (let i = 0; i < it2.thread_info.media.length; i++) {
+                  const item = it2.thread_info.media[i];
+                  const itemStr = JSON.stringify(item);
+                  if (uniqueMedia.has(itemStr)) {
+                    it2.thread_info.media.splice(i--, 1);
+                  } else {
+                    uniqueMedia.add(itemStr);
+                  }
+                }
+                uniqueMedia.clear();
+              }
+            });
           }
           return data.data;
         },
@@ -17117,11 +17134,11 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       const _hoisted_11$3 = { transform: "translate(1268.000000, 535.000000)" };
       const _hoisted_12$3 = ["fill"];
       const _hoisted_13$3 = ["fill"];
-      const _hoisted_14$2 = {
+      const _hoisted_14$3 = {
         transform:
           "translate(34.500000, 31.500000) scale(-1, 1) rotate(-25.000000) translate(-34.500000, -31.500000) translate(7.000000, 10.000000)",
       };
-      const _hoisted_15$2 = ["fill"];
+      const _hoisted_15$3 = ["fill"];
       const _hoisted_16$2 = ["fill"];
       const _hoisted_17$2 = ["fill"];
       const _hoisted_18$1 = ["fill"];
@@ -17247,7 +17264,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                         8,
                         _hoisted_13$3
                       ),
-                      vue.createElementVNode("g", _hoisted_14$2, [
+                      vue.createElementVNode("g", _hoisted_14$3, [
                         vue.createElementVNode(
                           "polygon",
                           {
@@ -17257,7 +17274,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                           },
                           null,
                           8,
-                          _hoisted_15$2
+                          _hoisted_15$3
                         ),
                         vue.createElementVNode(
                           "polygon",
@@ -20674,9 +20691,30 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         key: 0,
         class: "posts-item-media-container",
       };
-      const _hoisted_11$2 = { class: "posts-item-forum" };
-      const _hoisted_12$2 = { class: "posts-item-footer" };
+      const _hoisted_11$2 = {
+        style: { position: "relative" },
+        class: "image-wrapper",
+      };
+      const _hoisted_12$2 = {
+        key: 0,
+        style: {
+          position: "absolute",
+          background: "#000000",
+          color: "#ffffff",
+          "border-radius": "3px",
+          top: "0",
+          right: "0",
+          "font-size": "12px",
+          padding: "1px 4px",
+          opacity: "0.7",
+        },
+      };
       const _hoisted_13$2 = {
+        class: "posts-item-forum",
+        style: { width: "fit-content" },
+      };
+      const _hoisted_14$2 = { class: "posts-item-footer" };
+      const _hoisted_15$2 = {
         key: 2,
         style: { "text-align": "center" },
       };
@@ -20725,6 +20763,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const handlePostForumButtonClick = function (postsItem) {
             const url = TiebaUrlHandler.getForum(postsItem.thread_info.fname);
             window.open(url, "_blank");
+          };
+          const handleImageClick = function (event, media, postsItem) {
+            if (media.type === 5) {
+              domUtils.preventEvent(event);
+              handlePostItemClick(postsItem);
+            }
           };
           const loadMore = new utils.LockFunction(async () => {
             showSkeletonScreen.value = false;
@@ -20874,6 +20918,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                       _component_el_row,
                                       {
                                         onClick: _cache[0] || (_cache[0] = vue.withModifiers(() => {}, ["stop"])),
+                                        style: { width: "fit-content" },
                                       },
                                       {
                                         default: vue.withCtx(() => [
@@ -20884,24 +20929,34 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                             vue.renderList(postItem.thread_info.media, (media, index) => {
                                               return (
                                                 vue.openBlock(),
-                                                vue.createBlock(
-                                                  _component_el_image,
-                                                  {
-                                                    style: { width: "100px", height: "100px" },
-                                                    src: media.origin_pic,
-                                                    "zoom-rate": 1,
-                                                    "max-scale": 7,
-                                                    "min-scale": 0.2,
-                                                    "preview-src-list": postItem.thread_info.media.map(
-                                                      (it2) => it2.origin_pic
+                                                vue.createElementBlock("div", null, [
+                                                  vue.createElementVNode("div", _hoisted_11$2, [
+                                                    vue.createVNode(
+                                                      _component_el_image,
+                                                      {
+                                                        style: { width: "100px", height: "100px" },
+                                                        src: media.origin_pic || media.vpic,
+                                                        "zoom-rate": 1,
+                                                        "max-scale": 7,
+                                                        "min-scale": 0.2,
+                                                        "preview-src-list": postItem.thread_info.media.map(
+                                                          (it2) => it2.origin_pic || media.vpic
+                                                        ),
+                                                        "initial-index": index,
+                                                        fit: "cover",
+                                                        onClickCapture: ($event) =>
+                                                          handleImageClick($event, media, postItem),
+                                                      },
+                                                      null,
+                                                      8,
+                                                      ["src", "preview-src-list", "initial-index", "onClickCapture"]
                                                     ),
-                                                    "initial-index": index,
-                                                    fit: "cover",
-                                                  },
-                                                  null,
-                                                  8,
-                                                  ["src", "preview-src-list", "initial-index"]
-                                                )
+                                                    media.type === 5
+                                                      ? (vue.openBlock(),
+                                                        vue.createElementBlock("div", _hoisted_12$2, " 视频 "))
+                                                      : vue.createCommentVNode("", true),
+                                                  ]),
+                                                ])
                                               );
                                             }),
                                             256
@@ -20913,7 +20968,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                     ),
                                   ]))
                                 : vue.createCommentVNode("", true),
-                              vue.createElementVNode("div", _hoisted_11$2, [
+                              vue.createElementVNode("div", _hoisted_13$2, [
                                 vue.createVNode(
                                   _component_el_button,
                                   {
@@ -20937,7 +20992,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                   ["icon", "onClick"]
                                 ),
                               ]),
-                              vue.createElementVNode("div", _hoisted_12$2, [
+                              vue.createElementVNode("div", _hoisted_14$2, [
                                 vue.createVNode(
                                   _component_el_row,
                                   { justify: "space-between" },
@@ -21089,7 +21144,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                         ))
                       : vue.createCommentVNode("", true),
                     bottomLoadingEnd.value
-                      ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_13$2, "已加载全部~"))
+                      ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_15$2, "已加载全部~"))
                       : vue.createCommentVNode("", true),
                   ]),
                   vue.createVNode(_component_el_backtop, {
@@ -21103,7 +21158,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Posts = _export_sfc(_sfc_main$e, [["__scopeId", "data-v-28376cfe"]]);
+      const Posts = _export_sfc(_sfc_main$e, [["__scopeId", "data-v-466beea8"]]);
       const _hoisted_1$b = ["data-sex"];
       const _hoisted_2$9 = {
         key: 1,
@@ -31326,29 +31381,29 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             "script",
             {
               innerHTML: `
-          import { Editor } from 'https://fastly.jsdelivr.net/npm/@tiptap/core@2.2.0/+esm'
-          import StarterKit from 'https://fastly.jsdelivr.net/npm/@tiptap/starter-kit@2.2.0/+esm'
-          import Placeholder from 'https://fastly.jsdelivr.net/npm/@tiptap/extension-placeholder@2.2.0/+esm'
-          import Image from "https://fastly.jsdelivr.net/npm/@tiptap/extension-image@2.2.0/+esm";
-          const editor = new Editor({
-            element: document.querySelector('#reply-editor'),
-            extensions: [
-              StarterKit,
-              Placeholder.configure({
-                  placeholder: "发帖千百度 文明第一步",
-              }),
-              Image.configure({
-                  allowBase64: true,
-                  HTMLAttributes: {
-                      class: "tiptap-input-image",
-                  },
-                  inline: true,
-              }),
-            ],
-            content: '',
-          });
-          window.tiptapEditor = editor;
-          window.dispatchEvent(new Event("tiptap-ready"));`,
+      import { Editor } from 'https://fastly.jsdelivr.net/npm/@tiptap/core@2.2.0/+esm'
+      import StarterKit from 'https://fastly.jsdelivr.net/npm/@tiptap/starter-kit@2.2.0/+esm'
+      import Placeholder from 'https://fastly.jsdelivr.net/npm/@tiptap/extension-placeholder@2.2.0/+esm'
+      import Image from "https://fastly.jsdelivr.net/npm/@tiptap/extension-image@2.2.0/+esm";
+      const editor = new Editor({
+        element: document.querySelector('#reply-editor'),
+        extensions: [
+          StarterKit,
+          Placeholder.configure({
+              placeholder: "发帖千百度 文明第一步",
+          }),
+          Image.configure({
+              allowBase64: true,
+              HTMLAttributes: {
+                  class: "tiptap-input-image",
+              },
+              inline: true,
+          }),
+        ],
+        content: '',
+      });
+      window.tiptapEditor = editor;
+      window.dispatchEvent(new Event("tiptap-ready"));`,
             },
             {
               type: "module",
@@ -31434,7 +31489,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Tiptap = _export_sfc(_sfc_main$2, [["__scopeId", "data-v-e4ee9569"]]);
+      const Tiptap = _export_sfc(_sfc_main$2, [["__scopeId", "data-v-5c00d425"]]);
       const _hoisted_1 = ["data-show-bottom-panel", "data-show-reply-content"];
       const _hoisted_2 = ["data-full"];
       const _hoisted_3 = {

@@ -22,20 +22,39 @@
       <div
         class="posts-item-media-container"
         v-if="postItem.thread_info.media && postItem.thread_info.media.length > 0">
-        <el-row @click.stop>
-          <el-image
-            style="width: 100px; height: 100px"
-            :src="media.origin_pic"
-            :zoom-rate="1"
-            :max-scale="7"
-            :min-scale="0.2"
-            :preview-src-list="postItem.thread_info.media.map((it) => it.origin_pic)"
-            :initial-index="index"
-            fit="cover"
-            v-for="(media, index) in postItem.thread_info.media" />
+        <el-row @click.stop style="width: fit-content">
+          <div v-for="(media, index) in postItem.thread_info.media">
+            <div style="position: relative" class="image-wrapper">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="media.origin_pic || media.vpic"
+                :zoom-rate="1"
+                :max-scale="7"
+                :min-scale="0.2"
+                :preview-src-list="postItem.thread_info.media.map((it) => it.origin_pic || media.vpic)"
+                :initial-index="index"
+                fit="cover"
+                @click.capture="handleImageClick($event, media, postItem)" />
+              <div
+                v-if="media.type === 5"
+                style="
+                  position: absolute;
+                  background: #000000;
+                  color: #ffffff;
+                  border-radius: 3px;
+                  top: 0;
+                  right: 0;
+                  font-size: 12px;
+                  padding: 1px 4px;
+                  opacity: 0.7;
+                ">
+                视频
+              </div>
+            </div>
+          </div>
         </el-row>
       </div>
-      <div class="posts-item-forum">
+      <div class="posts-item-forum" style="width: fit-content">
         <!--<el-button plain>Plain</el-button>-->
         <el-button
           :icon="ChromeFilled"
@@ -89,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-  import { log, utils } from "@/env";
+  import { DOMUtils, log, utils } from "@/env";
   import { CommonUtil } from "@components/utils/CommonUtil";
   import { ChromeFilled } from "@element-plus/icons-vue";
   import { VNodeRef, ref, watch } from "vue";
@@ -147,6 +166,16 @@
   const handlePostForumButtonClick = function (postsItem: HomePostsInfo) {
     const url = TiebaUrlHandler.getForum(postsItem.thread_info.fname);
     window.open(url, "_blank");
+  };
+  const handleImageClick = function (
+    event: PointerEvent,
+    media: NonNullable<HomePostsInfo["thread_info"]["media"]>["0"],
+    postsItem: HomePostsInfo
+  ) {
+    if (media.type === 5) {
+      DOMUtils.preventEvent(event);
+      handlePostItemClick(postsItem);
+    }
   };
   const loadMore = new utils.LockFunction(async () => {
     showSkeletonScreen.value = false;

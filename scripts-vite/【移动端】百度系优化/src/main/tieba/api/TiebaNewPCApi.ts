@@ -81,9 +81,10 @@ export const TiebaNewPCApi = {
             /**
              * 视频、图片媒体
              */
-            media?: {
+            media?: ({
               /**
-               * 3
+               * 3 图片
+               * 5 视频
                */
               type: number;
               big_pic: string;
@@ -103,7 +104,11 @@ export const TiebaNewPCApi = {
               /** empty */
               guide_text: string;
               lottie_type: number;
-            }[];
+            } & {
+              vhsrc: string;
+              vpic: string;
+              vsrc: string;
+            })[];
             thread_type: number;
             fid: number;
             /** 吧名 */
@@ -160,6 +165,23 @@ export const TiebaNewPCApi = {
     if (!TiebaApiStatus.isWebSuccess(data)) {
       log.error(data);
       return;
+    }
+    if (Array.isArray(data.data.list)) {
+      data.data.list.forEach((it) => {
+        if (Array.isArray(it.thread_info.media)) {
+          const uniqueMedia = new Set();
+          for (let i = 0; i < it.thread_info.media.length; i++) {
+            const item = it.thread_info.media[i];
+            const itemStr = JSON.stringify(item);
+            if (uniqueMedia.has(itemStr)) {
+              it.thread_info.media.splice(i--, 1);
+            } else {
+              uniqueMedia.add(itemStr);
+            }
+          }
+          uniqueMedia.clear();
+        }
+      });
     }
     return data.data;
   },
