@@ -66,7 +66,9 @@ export const NetDiskRuleUtils = {
     if (typeof text !== "string") {
       return text;
     }
-    Object.keys(data).forEach((key) => {
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
       let replacedText = data[key];
       if (utils.isNotNull(replacedText)) {
         try {
@@ -92,7 +94,7 @@ export const NetDiskRuleUtils = {
         }
         text = text.replaceAll(`{#${key}#}`, replacedText);
       }
-    });
+    }
     return text;
   },
   /**
@@ -117,14 +119,16 @@ export const NetDiskRuleUtils = {
       },
     ];
     // 删除
-    keywordList.forEach((item) => {
+    for (let i = 0; i < keywordList.length; i++) {
+      const item = keywordList[i];
       text = text.replaceAll(item.code, item.replacer);
-    });
+    }
     text = text.replace(/[\u4e00-\u9fa5]/g, "");
     // 恢复
-    keywordList.forEach((item) => {
+    for (let i = 0; i < keywordList.length; i++) {
+      const item = keywordList[i];
       text = text.replaceAll(item.replacer, item.code);
-    });
+    }
     return text;
   },
   /**

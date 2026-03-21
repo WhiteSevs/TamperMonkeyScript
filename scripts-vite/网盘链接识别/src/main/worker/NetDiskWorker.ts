@@ -65,7 +65,7 @@ export const NetDiskWorker = {
   init() {
     this.listenWorkerInitErrorDialog();
     this.initWorker();
-    this.monitorDOMChange();
+    this.watchDOMChange();
     this.testWorkerConnect();
   },
   /**
@@ -89,7 +89,9 @@ export const NetDiskWorker = {
           matchedList.push(matchData);
           data.textList = matchData.textList;
         })
-        matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        if(matchedList.length){
+          matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        }
         this.postMessage({
           options: data,
           msg: "Match End",
@@ -184,7 +186,9 @@ export const NetDiskWorker = {
           } catch (error: any) {
             NetDiskWorker.onError(error);
           } finally {
-            matchedList = NetDiskWorker.uniqueArr(matchedList);
+            if (matchedList.length) {
+              matchedList = NetDiskWorker.uniqueArr(matchedList);
+            }
             NetDiskWorker.onMessage(
               new MessageEvent("message", {
                 data: {
@@ -211,6 +215,10 @@ export const NetDiskWorker = {
    * @param callback 成功匹配到的回调
    */
   handleRegularMatch(workerOptionData: NetDiskWorkerOptions, callback: (matchData: NetDiskWorkerMatchOption) => void) {
+    // 判断全局管理是否开启
+    if (!workerOptionData.matchedRulesEnable) {
+      return;
+    }
     // 规则名列表
     const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
 
@@ -231,7 +239,8 @@ export const NetDiskWorker = {
       matchTextList.push(matchTextItem);
     }
 
-    for (const ruleKeyName of ruleKeyNameList) {
+    for (let i = 0; i < ruleKeyNameList.length; i++) {
+      const ruleKeyName = ruleKeyNameList[i];
       const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
       for (let index = 0; index < ruleOption.length; index++) {
         const netDiskRegularItem = ruleOption[index];
@@ -556,7 +565,8 @@ export const NetDiskWorker = {
     }
 
     const handleNetDiskList: NetDiskWorkerHandleObject[] = [];
-    for (const matchData of options.data) {
+    for (let i = 0; i < options.data.length; i++) {
+      const matchData = options.data[i];
       // 已匹配到的网盘，用于显示图标
       NetDisk.$match.matchedInfoRuleKey.add(matchData.ruleKeyName!);
       /**
@@ -599,14 +609,16 @@ export const NetDiskWorker = {
       return isFind;
     });
     // 设置临时值
-    filterHandleNetDiskList.forEach((item) => {
+    for (let i = 0; i < filterHandleNetDiskList.length; i++) {
+      const item = filterHandleNetDiskList[i];
       if (NetDisk.$match.tempMatchedInfo.has(item.ruleKeyName)) {
         const currentTempDict = NetDisk.$match.tempMatchedInfo.get(item.ruleKeyName);
         currentTempDict.set(item.shareCode, item);
       }
-    });
+    }
     /** 按规则过滤掉当前匹配到的分享码 */
-    filterHandleNetDiskList.forEach((item) => {
+    for (let i = 0; i < filterHandleNetDiskList.length; i++) {
+      const item = filterHandleNetDiskList[i];
       let { shareCode, accessCode, ruleKeyName, ruleIndex, matchText } = item;
       // 先找到对应的规则
       const findRuleOptions = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKeyName);
@@ -629,17 +641,23 @@ export const NetDiskWorker = {
       });
       if (isBlackListShareCode) {
         // 是黑名单的访问码，退出
-        return;
+        continue;
       }
       if (ruleOption.shareCodeExcludeRegular && Array.isArray(ruleOption.shareCodeExcludeRegular)) {
         // 排除掉在目标规则已匹配到的shareCode
-        for (const excludeRegularName of ruleOption.shareCodeExcludeRegular) {
+        let isConflicting = false;
+        for (let i = 0; i < ruleOption.shareCodeExcludeRegular.length; i++) {
+          const excludeRegularName = ruleOption.shareCodeExcludeRegular[i];
           const excludeDict = NetDisk.$match.matchedInfo.get(excludeRegularName);
           const currentTempDict = NetDisk.$match.tempMatchedInfo.get(excludeRegularName);
           if (excludeDict.startsWith(shareCode) || currentTempDict.startsWith(shareCode)) {
             log.warn(`${ruleKeyName}：该分享码【${shareCode}】与已匹配到该分享码的规则【${excludeRegularName}】冲突`);
-            return;
+            isConflicting = true;
+            break;
           }
+        }
+        if (isConflicting) {
+          continue;
         }
       }
 
@@ -652,15 +670,15 @@ export const NetDiskWorker = {
         const shareCodeDict = currentDict.getStartsWith(shareCode)!;
         if (typeof shareCodeDict.isForceAccessCode === "boolean" && shareCodeDict.isForceAccessCode) {
           // 该访问码已被锁定，禁止修改，应该是自己修改的访问码
-          return;
+          continue;
         }
         if (utils.isNotNull(shareCodeDict.accessCode)) {
           // 已匹配到的访问码已有值，不替换
-          return;
+          continue;
         }
         if (utils.isNull(accessCode)) {
           // 新获取到的访问码为空，不替换
-          return;
+          continue;
         }
 
         currentDict.set(shareCode, NetDiskHandlerUtil.createLinkStorageInst(accessCode, ruleIndex, false, matchText));
@@ -683,7 +701,7 @@ export const NetDiskWorker = {
         NetDiskView.$inst.linkView.addBoxItemView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
         log.success(`添加链接 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`);
       }
-    });
+    }
 
     // 清空临时的
     Object.keys(NetDisk.$match.tempMatchedInfo.getItems()).forEach((keyName) => {
@@ -772,7 +790,7 @@ export const NetDiskWorker = {
   /**
    * 监听页面节点内容或节点文本的变动，从而进行匹配网盘链接
    */
-  monitorDOMChange() {
+  watchDOMChange() {
     /** 设置-判定为添加元素才进行匹配 */
     const isAddedNodeToMatch = NetDiskGlobalData.match.isAddedNodesToMatch.value;
     /** 读取剪贴板内容 */
@@ -793,13 +811,14 @@ export const NetDiskWorker = {
     /** 字符映射规则 */
     const characterMapping = CharacterMapping.getMappingData();
     // 循环
-    NetDisk.$rule.rule.forEach((item) => {
+    for (let index = 0; index < NetDisk.$rule.rule.length; index++) {
+      const item = NetDisk.$rule.rule[index];
       // 规则键名
       const ruleKeyName = item.setting.key;
       // 启用状态
       const ruleEnable = NetDiskRuleData.function.enable(ruleKeyName);
       if (!ruleEnable) {
-        return;
+        continue;
       }
       if (Reflect.has(matchedRuleOption, ruleKeyName)) {
         // 已有规则、追加
@@ -808,7 +827,7 @@ export const NetDiskWorker = {
         // 设置规则
         Reflect.set(matchedRuleOption, ruleKeyName, item.rule);
       }
-    });
+    }
     /**
      * 观察者的事件
      * @param mutations 改变的节点集合
@@ -875,6 +894,7 @@ export const NetDiskWorker = {
             textList: toMatchedTextList,
             matchTextRange: matchRange,
             matchedRuleOption: matchedRuleOption,
+            matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
             startTime: startTime,
             from: "FirstLoad-DOMChange",
           });
@@ -894,6 +914,7 @@ export const NetDiskWorker = {
             textList: toMatchedTextList,
             matchTextRange: matchRange,
             matchedRuleOption: matchedRuleOption,
+            matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
             startTime: startTime,
             from: "FirstLoad-Text-DOMChange",
           });
@@ -913,6 +934,7 @@ export const NetDiskWorker = {
             textList: toMatchedTextList,
             matchTextRange: matchRange,
             matchedRuleOption: matchedRuleOption,
+            matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
             startTime: startTime,
             from: "FirstLoad-HTML-DOMChange",
           });
@@ -941,6 +963,7 @@ export const NetDiskWorker = {
         textList: toMatchedTextList,
         matchTextRange: matchRange,
         matchedRuleOption: matchedRuleOption,
+        matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
         startTime: startTime,
         from: "DOMChange",
       });
@@ -977,6 +1000,7 @@ export const NetDiskWorker = {
       characterMapping: characterMapping,
       matchTextRange: matchRange,
       matchedRuleOption: matchedRuleOption,
+      matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
       startTime: Date.now(),
     });
     // 匹配模式 - MutationObserver

@@ -3,7 +3,7 @@ import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskViewRightClickMenu } from "@/main/view/NetDiskViewRightClickMenu";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import DOMUtils from "@whitesev/domutils";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskView } from "../NetDiskView";
 import { NetDiskSettingView } from "../setting/NetDiskSettingView";
 import indexCSS from "./index.css?raw";

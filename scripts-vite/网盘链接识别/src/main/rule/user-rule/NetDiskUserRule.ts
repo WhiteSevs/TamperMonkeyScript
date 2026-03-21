@@ -60,9 +60,10 @@ export const NetDiskUserRule = {
     // 再把订阅规则进行转换
     const subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
     userRule = userRule.concat(subscribeRule);
-    userRule.forEach((item) => {
+    for (let i = 0; i < userRule.length; i++) {
+      const item = userRule[i];
       this.$data.userRule.set(item.setting.key, item);
-    });
+    }
   },
   /**
    * 把输入的规则字符串解析为规则对象
@@ -191,19 +192,20 @@ export const NetDiskUserRule = {
         };
       }
       if (Array.isArray(ruleJSON["regexp"])) {
-        for (const regexpItem of ruleJSON["regexp"]) {
-          let result = checkRegExp(regexpItem);
+        for (let i = 0; i < ruleJSON["regexp"].length; i++) {
+          const regexpItem = ruleJSON["regexp"][i];
+          const result = checkRegExp(regexpItem);
           if (!result.success) {
             return result;
           }
         }
       } else {
-        let result = checkRegExp(ruleJSON["regexp"]);
+        const result = checkRegExp(ruleJSON["regexp"]);
         if (!result.success) {
           return result;
         }
       }
-      let checkSettingResult = checkSetting(ruleJSON["setting"]);
+      const checkSettingResult = checkSetting(ruleJSON["setting"]);
       if (!checkSettingResult.success) {
         return checkSettingResult;
       }
@@ -313,7 +315,8 @@ export const NetDiskUserRule = {
           } else {
             netDiskRegularOption.shareCodeNeedRemoveStr = [];
           }
-          for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
+          for (let i = 0; i < shareCodeNeedRemoveStr.length; i++) {
+            const shareCodeNeedRemoveStrItem = shareCodeNeedRemoveStr[i];
             if (typeof shareCodeNeedRemoveStrItem === "string") {
               const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "gi");
               netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
@@ -332,7 +335,8 @@ export const NetDiskUserRule = {
           } else {
             netDiskRegularOption.shareCodeNotMatch = [];
           }
-          for (const shareCodeNotMatchItem of shareCodeNotMatch) {
+          for (let i = 0; i < shareCodeNotMatch.length; i++) {
+            const shareCodeNotMatchItem = shareCodeNotMatch[i];
             if (typeof shareCodeNotMatchItem === "string") {
               const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "gi");
               netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
@@ -357,7 +361,8 @@ export const NetDiskUserRule = {
           } else {
             netDiskRegularOption.acceesCodeNotMatch = [];
           }
-          for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
+          for (let i = 0; i < acceesCodeNotMatch.length; i++) {
+            const acceesCodeNotMatchItem = acceesCodeNotMatch[i];
             if (typeof acceesCodeNotMatchItem === "string") {
               const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "gi");
               netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
@@ -376,7 +381,8 @@ export const NetDiskUserRule = {
           } else {
             netDiskRegularOption.accessCodeNeedRemoveStr = [];
           }
-          for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
+          for (let i = 0; i < accessCodeNeedRemoveStr.length; i++) {
+            const accessCodeNeedRemoveStrItem = accessCodeNeedRemoveStr[i];
             if (typeof accessCodeNeedRemoveStrItem === "string") {
               const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "gi");
               netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
@@ -393,7 +399,8 @@ export const NetDiskUserRule = {
 
     let netDiskRuleConfigList: NetDiskRuleOption[] = [];
     // 遍历传入的规则
-    for (const userRuleItemConfig of localRule) {
+    for (let i = 0; i < localRule.length; i++) {
+      const userRuleItemConfig = localRule[i];
       // 得配置全初始项
       let netDiskRuleConfig: NetDiskRuleOption = {
         subscribeUUID: userRuleItemConfig.subscribeUUID,
@@ -420,9 +427,10 @@ export const NetDiskUserRule = {
 
       // 1. 转换rule
       if (Array.isArray(userRuleList)) {
-        userRuleList.forEach((userRuleItem) => {
+        for (let i = 0; i < userRuleList.length; i++) {
+          const userRuleItem = userRuleList[i];
           netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem));
-        });
+        }
       } else {
         netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList));
       }
@@ -459,7 +467,8 @@ export const NetDiskUserRule = {
             text: string;
           }[] = [];
           const dataKeys = Object.keys(data);
-          for (const keyName of dataKeys) {
+          for (let i = 0; i < dataKeys.length; i++) {
+            const keyName = dataKeys[i];
             let itemData = data[keyName as keyof typeof data];
             if (!itemData.enable) {
               continue;
@@ -1595,7 +1604,9 @@ export const NetDiskUserRule = {
               timeout: 4000,
             });
           } else {
-            Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, { timeout: 4000 });
+            Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, {
+              timeout: 4000,
+            });
           }
         }
         if (!checkedData.length) {

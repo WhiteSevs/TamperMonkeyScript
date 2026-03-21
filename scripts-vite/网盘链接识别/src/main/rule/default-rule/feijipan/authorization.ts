@@ -1,6 +1,6 @@
 import { cookieManager, log } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { NetDiskRuleData } from "../../../data/NetDiskRuleData";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import { NetDiskRule_feijipan } from "./rule";
 
 export const NetDiskAuthorization_feijipan_appToken = {

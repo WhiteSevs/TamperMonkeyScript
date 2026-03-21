@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { NetDiskRuleData } from "../../../data/NetDiskRuleData";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import { NetDiskRule_123pan } from "./rule";
 
 export const NetDiskAuthorization_123pan_Authorization = {

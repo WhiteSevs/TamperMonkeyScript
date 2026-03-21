@@ -1,7 +1,7 @@
 import { httpx, utils } from "@/env";
 import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidityRequestOption } from "../../../handler/check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskCheckLinkValidityRequestOption } from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {

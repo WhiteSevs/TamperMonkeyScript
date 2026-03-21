@@ -8,6 +8,7 @@ import Qmsg from "qmsg";
 import { NetDiskRegularExtractor } from "../NetDiskRegularExtractor";
 import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 /**
  * 调试用户规则
@@ -23,9 +24,11 @@ export const NetDiskUserRuleDebug = {
    * 重置环境变量
    */
   reset() {
-    Object.keys(this.$el).forEach((keyName) => {
+    const keys = Object.keys(this.$el);
+    for (let i = 0; i < keys.length; i++) {
+      const keyName = keys[i];
       Reflect.deleteProperty(this.$el, keyName);
-    });
+    }
   },
   /**
    * 设置日志输出
@@ -34,16 +37,17 @@ export const NetDiskUserRuleDebug = {
    */
   setLog(tag: "info" | "error" | "success" | "warn", ...args: any[]) {
     let text = "";
-    args.forEach((item) => {
+    for (let i = 0; i < args.length; i++) {
+      const it = args[i];
       if (text !== "") {
         text += "\n";
       }
-      if (typeof item !== "string") {
-        text += CommonUtil.toStr(item, 4);
+      if (typeof it !== "string") {
+        text += CommonUtil.toStr(it, 4);
       } else {
-        text += item;
+        text += it;
       }
-    });
+    }
     const $log = DOMUtils.createElement(
       "p",
       {
@@ -185,7 +189,9 @@ export const NetDiskUserRuleDebug = {
     this.$el.$matchText = dialog.$shadowRoot.querySelector<HTMLTextAreaElement>(".custom-rule-match-text")!;
     this.$el.$log = dialog.$shadowRoot.querySelector<HTMLDivElement>(".custom-rule-match-log-container")!;
     this.$el.$button = dialog.$shadowRoot.querySelector<HTMLButtonElement>(".custom-rule-run-match-button")!;
-    regexp.forEach((regExpItem, index) => {
+
+    for (let index = 0; index < regexp.length; index++) {
+      const regExpItem = regexp[index];
       this.$el.$select.appendChild(
         DOMUtils.createElement("option", {
           className: "custom-rule-select-regexp-item",
@@ -193,7 +199,7 @@ export const NetDiskUserRuleDebug = {
           "data-value": regExpItem,
         })
       );
-    });
+    }
     /**
      * 日志回调
      * @param logData
@@ -235,6 +241,7 @@ export const NetDiskUserRuleDebug = {
           {
             characterMapping: CharacterMapping.getMappingData(),
             matchedRuleOption: testCustomRuleOption,
+            matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
             textList: [that.$el.$matchText.value],
             matchTextRange: ["innerText", "innerHTML"],
             startTime: Date.now(),
@@ -250,7 +257,8 @@ export const NetDiskUserRuleDebug = {
         }
         matchTextList = NetDiskWorker.uniqueArr(matchTextList);
         that.setLog("info", "成功匹配到的数据 ==> ", matchTextList);
-        matchTextList.forEach((matchText) => {
+        for (let i = 0; i < matchTextList.length; i++) {
+          const matchText = matchTextList[i];
           that.setLog("success", "当前处理的字符串: " + matchText);
           that.setLog("success", "当前执行: 对shareCode进行处理获取");
           const shareCode = NetDiskRegularExtractor.extractShareCode({
@@ -264,7 +272,7 @@ export const NetDiskUserRuleDebug = {
             },
           });
           if (utils.isNull(shareCode)) {
-            return;
+            continue;
           }
           that.setLog("info", " ");
           that.setLog("info", `================分割线================`);
@@ -330,7 +338,7 @@ export const NetDiskUserRuleDebug = {
             },
           });
           that.setLog("success", "执行完毕");
-        });
+        }
       } catch (error: any) {
         log.error(error);
         that.setLog(error.toString());

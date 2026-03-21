@@ -56,7 +56,8 @@ export const NetDiskRegularExtractor = {
         if (!Array.isArray(shareCodeNeedRemoveStrList)) {
           shareCodeNeedRemoveStrList = [shareCodeNeedRemoveStrList];
         }
-        for (const shareCodeRemoveRegExp of shareCodeNeedRemoveStrList) {
+        for (let i = 0; i < shareCodeNeedRemoveStrList.length; i++) {
+          const shareCodeRemoveRegExp = shareCodeNeedRemoveStrList[i];
           // 删除ShareCode前面不需要的字符串
           __shareCode__ = __shareCode__.replace(shareCodeRemoveRegExp, "");
         }
@@ -69,7 +70,8 @@ export const NetDiskRegularExtractor = {
       }
       // 判断是否是黑名单中的分享码
       // 如果是，强制返回
-      for (const shareCodeNotMatchRegExp of NetDisk.$extraRule.shareCodeNotMatchRegExpList) {
+      for (let i = 0; i < NetDisk.$extraRule.shareCodeNotMatchRegExpList.length; i++) {
+        const shareCodeNotMatchRegExp = NetDisk.$extraRule.shareCodeNotMatchRegExpList[i];
         if (__shareCode__.match(shareCodeNotMatchRegExp)) {
           if (DEBUG) {
             log.error(`Debug-不可能的shareCode => ${__shareCode__}`);
@@ -90,7 +92,8 @@ export const NetDiskRegularExtractor = {
         if (!Array.isArray(shareCodeNotMatch)) {
           shareCodeNotMatch = [shareCodeNotMatch];
         }
-        for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
+        for (let i = 0; i < shareCodeNotMatch.length; i++) {
+          const shareCodeNotMatchRegExp = shareCodeNotMatch[i];
           if (__shareCode__.match(shareCodeNotMatchRegExp)) {
             if (DEBUG) {
               log.error(`Debug-不可能的shareCode => ${__shareCode__}`);
@@ -222,7 +225,8 @@ export const NetDiskRegularExtractor = {
       if (utils.isNotNull(__accessCode__)) {
         // 判断是否是黑名单中的访问码
         // 如果是，访问码置空
-        for (const accessCodeNotMatchRegExp of NetDisk.$extraRule.accessCodeNotMatchRegExpList) {
+        for (let i = 0; i < NetDisk.$extraRule.accessCodeNotMatchRegExpList.length; i++) {
+          const accessCodeNotMatchRegExp = NetDisk.$extraRule.accessCodeNotMatchRegExpList[i];
           if (__accessCode__.match(accessCodeNotMatchRegExp)) {
             __accessCode__ = "";
             handlerConfig.debugConfig?.logCallBack?.({
@@ -241,7 +245,8 @@ export const NetDiskRegularExtractor = {
           if (!Array.isArray(accessCodeNotMatchRegExpList)) {
             accessCodeNotMatchRegExpList = [accessCodeNotMatchRegExpList];
           }
-          for (const accessCodeNotMatchRegExp of accessCodeNotMatchRegExpList) {
+          for (let i = 0; i < accessCodeNotMatchRegExpList.length; i++) {
+            const accessCodeNotMatchRegExp = accessCodeNotMatchRegExpList[i];
             if (__accessCode__.match(accessCodeNotMatchRegExp)) {
               __accessCode__ = "";
               handlerConfig.debugConfig?.logCallBack?.({
@@ -256,7 +261,8 @@ export const NetDiskRegularExtractor = {
             }
           }
         }
-        for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule.accessCodeNeedRemoveStr) {
+        for (let i = 0; i < NetDisk.$extraRule.accessCodeNeedRemoveStr.length; i++) {
+          const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.accessCodeNeedRemoveStr[i];
           __accessCode__ = NetDiskHandlerUtil.replaceText(__accessCode__, accessCodeNeedRemoveStrRegExp, "");
         }
         handlerConfig.debugConfig?.logCallBack?.({

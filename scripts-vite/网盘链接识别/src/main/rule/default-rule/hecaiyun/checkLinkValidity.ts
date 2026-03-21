@@ -2,8 +2,8 @@ import { httpx, utils } from "@/env";
 import {
   NetDiskCheckLinkValidity,
   NetDiskCheckLinkValidityRequestOption,
-} from "../../../handler/check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
+} from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntranceInstance = {

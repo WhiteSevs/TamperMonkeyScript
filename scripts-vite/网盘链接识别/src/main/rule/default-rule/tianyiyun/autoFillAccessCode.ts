@@ -4,8 +4,8 @@ import Qmsg from "qmsg";
 export const NetDiskAutoFillAccessCode_tianyiyun = function (netDiskInfo: NetDiskAutoFillAccessCodeOption) {
   /**
    * 循环等待元素出现
-   * @param {HTMLElement} targetElement
-   * @param {Function} callback
+   * @param targetElement
+   * @param callback
    */
   function loopWaitElementShow(targetElement: HTMLElement, callback: Function) {
     let loopCount = 0;

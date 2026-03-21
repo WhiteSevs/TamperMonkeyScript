@@ -1,7 +1,7 @@
 import { NetDiskAuthorization_baidu } from "@/main/rule/default-rule/baidu/authorization";
-import { NetDiskAuthorization_123pan } from "./../../rule/default-rule/123pan/authorization";
-import { NetDiskAuthorization_feijipan } from "./../../rule/default-rule/feijipan/authorization";
-import { NetDiskAuthorization_Lanzouyx } from "./../../rule/default-rule/lanzouyx/authorization";
+import { NetDiskAuthorization_123pan } from "@/main/rule/default-rule/123pan/authorization";
+import { NetDiskAuthorization_feijipan } from "@/main/rule/default-rule/feijipan/authorization";
+import { NetDiskAuthorization_Lanzouyx } from "@/main/rule/default-rule/lanzouyx/authorization";
 
 /**
  * 规则配置

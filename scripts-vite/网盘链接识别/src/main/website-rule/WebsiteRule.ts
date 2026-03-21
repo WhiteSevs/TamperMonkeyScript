@@ -18,6 +18,7 @@ import { NetDiskView } from "../view/NetDiskView";
 import panelIndexCSS from "./../view/setting/index.css?raw";
 import panelSettingCSS from "./css/index.css?raw";
 import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -99,12 +100,12 @@ export const WebsiteRule = {
           get(key: string, defaultValue: any) {
             if (subscribeUUID) {
               // 订阅的
-              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+              const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
               return Reflect.get(currentRule.data, key) ?? defaultValue;
             } else {
               // 本地的
-              let currentRule = that.getRule(uuid) ?? addData();
-              let panelValue = Panel.getValue(key, defaultValue);
+              const currentRule = that.getRule(uuid) ?? addData();
+              const panelValue = Panel.getValue(key, defaultValue);
               return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
             }
           },
@@ -119,6 +120,19 @@ export const WebsiteRule = {
               const currentRule = that.getRule(uuid) ?? addData();
               Reflect.set(currentRule.data, key, value);
               that.updateRule(currentRule);
+            }
+          },
+          setAll(data: any) {
+            if (subscribeUUID) {
+              // 订阅的
+              const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+              currentRule.data = data;
+              return WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
+            } else {
+              // 本地的
+              const currentRule = that.getRule(uuid) ?? addData();
+              currentRule.data = data;
+              return that.updateRule(currentRule);
             }
           },
         };
@@ -170,7 +184,7 @@ export const WebsiteRule = {
                 const panelStorageApi = generatePanelStorageApi(data.uuid);
                 Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
               }
-              let childViews = (<PopsPanelContainerConfig>configItem).views;
+              const childViews = (<PopsPanelContainerConfig>configItem).views;
               if (childViews && Array.isArray(childViews)) {
                 // 存在子配置forms
                 iterativeTraversal(childViews);
@@ -298,10 +312,93 @@ export const WebsiteRule = {
       const $coverSetting_template =
         panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
 
-      $fragment.appendChild($enable);
-      $fragment.appendChild($name);
-      $fragment.appendChild($data_url);
-      $fragment.appendChild($coverSetting_template);
+      // 数据
+      const storeData_template = UIButton("存储的数据", "", "查看/编辑", void 0, false, false, "primary", () => {
+        const $alert = NetDiskPops.alert(
+          {
+            title: {
+              text: storeData_template.text,
+              position: "center",
+            },
+            content: {
+              text: /*html*/ `
+                <textarea name="config-value" id="config"></textarea>
+                `,
+              html: true,
+            },
+            btn: {
+              ok: {
+                text: "保存",
+                callback(evtConfig) {
+                  const dataText = DOMUtils.val($textarea);
+                  try {
+                    const __data__ = JSON.parse(dataText);
+                    data.data = __data__;
+
+                    const panelStorageApi = generatePanelStorageApi(data.uuid);
+                    const flag = panelStorageApi.setAll(__data__);
+                    if (flag) {
+                      Qmsg.success("保存成功");
+                      evtConfig.close();
+                    } else {
+                      Qmsg.error("保存失败");
+                    }
+                  } catch (error: any) {
+                    Qmsg.error(error.message);
+                  }
+                },
+              },
+            },
+            mask: {
+              clickEvent: {
+                toClose: false,
+                toHide: false,
+              },
+            },
+            height: "auto",
+            style: /*css*/ `
+              .pops-content textarea {
+                --textarea-bd-color: #dcdfe6;
+                display: inline-block;
+                resize: vertical;
+                padding: 5px 15px;
+                margin: 0;
+                line-height: normal;
+                box-sizing: border-box;
+                border: 0;
+                border-radius: 0;
+                outline: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background: none;
+                width: 100%;
+                height: 100%;
+                appearance: none;
+                resize: none;
+              }
+              .pops-content textarea{
+                height: 500px;
+              }
+              .pops-content textarea:focus {
+                --textarea-bd-color: #3677f0;
+              }
+              .pops-content textarea:hover {
+                --textarea-bd-color: #c0c4cc;
+              }
+            `,
+          },
+          {
+            Mobile: PanelUISize.setting,
+            PC: PanelUISize.setting,
+          }
+        );
+        const $textarea = $alert.$shadowRoot.querySelector("textarea")!;
+        DOMUtils.val($textarea, CommonUtil.toStr(data.data));
+      });
+      const $storeData = panelHandlerComponents.createSectionContainerItem_button(storeData_template).$el;
+
+      $fragment.append($enable, $name, $data_url, $coverSetting_template, $storeData);
       return $fragment;
     };
 
@@ -317,13 +414,15 @@ export const WebsiteRule = {
           data.data = findValue.data;
         }
       }
-      $ulist_li.forEach(($li) => {
+      const $ulist_li_list = Array.from($ulist_li);
+      for (let i = 0; i < $ulist_li_list.length; i++) {
+        const $li = $ulist_li_list[i];
         const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
         const attrs = Reflect.get(viewConfig, "attributes");
         const storageApi = Reflect.get($li, PROPS_STORAGE_API);
         const key = Reflect.get(attrs, ATTRIBUTE_KEY);
         if (key == null) {
-          return;
+          continue;
         }
         const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
         const value = storageApi.get(key, defaultValue);
@@ -334,7 +433,7 @@ export const WebsiteRule = {
         } else {
           log.error(`${key}不在数据中`);
         }
-      });
+      }
       if (data.name == null || data.name.trim() === "") {
         Qmsg.error("规则名称不能为空");
         return {
@@ -1123,7 +1222,7 @@ export const WebsiteRule = {
    * @param importEndCallBack 导入完毕后的回调
    */
   importRule(importEndCallBack?: () => void) {
-    let $alert = NetDiskPops.alert({
+    const $alert = NetDiskPops.alert({
       title: {
         text: "请选择导入方式",
         position: "center",
@@ -1150,31 +1249,30 @@ export const WebsiteRule = {
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
-            `,
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+				}`,
     });
     /** 本地导入 */
-    let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
+    const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
     /** 网络导入 */
-    let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
+    const $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
     /** 剪贴板导入 */
-    let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
+    const $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
     /**
      * 将获取到的规则更新至存储
      */
-    let updateRuleToStorage = (data: any[]) => {
+    const updateRuleToStorage = (data: any[]) => {
       let allData = this.getAllRule();
       let addNewData: typeof allData = [];
       for (let index = 0; index < data.length; index++) {
@@ -1197,9 +1295,9 @@ export const WebsiteRule = {
     /**
      * @param subscribeText 订阅文件文本
      */
-    let importFile = (subscribeText: string) => {
+    const importFile = (subscribeText: string) => {
       return new Promise<boolean>((resolve) => {
-        let data = utils.toJSON(subscribeText);
+        const data = utils.toJSON(subscribeText);
         if (!Array.isArray(data)) {
           log.error(data);
           Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -1224,7 +1322,7 @@ export const WebsiteRule = {
     DOMUtils.on($local, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $input = DOMUtils.createElement("input", {
+      const $input = DOMUtils.createElement("input", {
         type: "file",
         accept: ".json",
       });
@@ -1232,8 +1330,8 @@ export const WebsiteRule = {
         if (!$input.files?.length) {
           return;
         }
-        let uploadFile = $input.files![0];
-        let fileReader = new FileReader();
+        const uploadFile = $input.files![0];
+        const fileReader = new FileReader();
         fileReader.onload = () => {
           importFile(fileReader.result as string);
         };
@@ -1245,7 +1343,7 @@ export const WebsiteRule = {
     DOMUtils.on($network, "click", (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let $prompt = NetDiskPops.prompt({
+      const $prompt = NetDiskPops.prompt({
         title: {
           text: "网络导入",
           position: "center",
@@ -1265,13 +1363,13 @@ export const WebsiteRule = {
           ok: {
             text: "导入",
             callback: async (eventDetails) => {
-              let url = eventDetails.text;
+              const url = eventDetails.text;
               if (utils.isNull(url)) {
                 Qmsg.error("请填入完整的url");
                 return;
               }
-              let $loading = Qmsg.loading("正在获取配置...");
-              let response = await httpx.get(url, {
+              const $loading = Qmsg.loading("正在获取配置...");
+              const response = await httpx.get(url, {
                 allowInterceptConfig: false,
               });
               $loading.close();
@@ -1280,7 +1378,7 @@ export const WebsiteRule = {
                 Qmsg.error("获取配置失败", { consoleLogContent: true });
                 return;
               }
-              let flag = await importFile(response.data.responseText);
+              const flag = await importFile(response.data.responseText);
               if (!flag) {
                 return;
               }
@@ -1296,10 +1394,10 @@ export const WebsiteRule = {
         width: PanelUISize.info.width,
         height: "auto",
       });
-      let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-      let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+      const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+      const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
       DOMUtils.on($promptInput, ["input", "propertychange"], () => {
-        let value = DOMUtils.val($promptInput);
+        const value = DOMUtils.val($promptInput);
         if (value === "") {
           DOMUtils.attr($promptOk, "disabled", "true");
         } else {
@@ -1308,7 +1406,7 @@ export const WebsiteRule = {
       });
       DOMUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
         if (keyName === "Enter" && otherCodeList.length === 0) {
-          let value = DOMUtils.val($promptInput);
+          const value = DOMUtils.val($promptInput);
           if (value !== "") {
             DOMUtils.emit($promptOk, "click");
           }
@@ -1320,7 +1418,7 @@ export const WebsiteRule = {
     DOMUtils.on($clipboard, "click", async (event) => {
       DOMUtils.preventEvent(event);
       $alert.close();
-      let clipboardInfo = await utils.getClipboardInfo();
+      const clipboardInfo = await utils.getClipboardInfo();
       if (clipboardInfo.error != null) {
         Qmsg.error(clipboardInfo.error.toString());
         return;
@@ -1329,7 +1427,7 @@ export const WebsiteRule = {
         Qmsg.warning("获取到的剪贴板内容为空");
         return;
       }
-      let flag = await importFile(clipboardInfo.content);
+      const flag = await importFile(clipboardInfo.content);
       if (!flag) {
         return;
       }

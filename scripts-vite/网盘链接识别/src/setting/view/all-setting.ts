@@ -472,6 +472,19 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
               {
                 type: "container",
                 text: "",
+                views: [
+                  UISwitch(
+                    "启用",
+                    "netdisk-rules-enable",
+                    true,
+                    void 0,
+                    "全局控制所有规则是否启用，开启可允许匹配所有规则，关闭则禁止匹配所有规则"
+                  ),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
                 className: "netdisk-panel-forms-function",
                 views: [
                   UISelect(
@@ -529,7 +542,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
             views: [
               {
                 type: "container",
-                text: "文本匹配范围",
+                text: "文本匹配",
                 views: [
                   UISelectMultiple<ArrayElementType<NetDiskWorkerOptions["matchTextRange"]>>(
                     "匹配规则类型",

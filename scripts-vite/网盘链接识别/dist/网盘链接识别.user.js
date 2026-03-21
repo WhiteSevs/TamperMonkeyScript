@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.15
+// @version      2026.3.21
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
@@ -389,6 +389,70 @@
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
+    },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
     },
   };
   const KEY = "GM_Panel";
@@ -1491,13 +1555,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -2056,7 +2131,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -2132,24 +2206,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -3502,7 +3581,9 @@
       if (typeof text !== "string") {
         return text;
       }
-      Object.keys(data).forEach((key) => {
+      const keys = Object.keys(data);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
         let replacedText = data[key];
         if (utils.isNotNull(replacedText)) {
           try {
@@ -3527,7 +3608,7 @@
           }
           text = text.replaceAll(`{#${key}#}`, replacedText);
         }
-      });
+      }
       return text;
     },
     replaceChinese(text) {
@@ -3545,13 +3626,15 @@
           replacer: `{#retain-keyword-accesscode-${performance.now() + Math.random()}#}`,
         },
       ];
-      keywordList.forEach((item) => {
+      for (let i = 0; i < keywordList.length; i++) {
+        const item = keywordList[i];
         text = text.replaceAll(item.code, item.replacer);
-      });
+      }
       text = text.replace(/[\u4e00-\u9fa5]/g, "");
-      keywordList.forEach((item) => {
+      for (let i = 0; i < keywordList.length; i++) {
+        const item = keywordList[i];
         text = text.replaceAll(item.replacer, item.code);
-      });
+      }
       return text;
     },
     getDecodeComponentUrl(decodeUrl = window.location.href) {
@@ -4836,8 +4919,29 @@
     }
     return accessCode;
   };
+  const NetDiskAccessCodeHandler_uc = function (handlerConfig, accessCode) {
+    if (window.location.hostname !== "drive.uc.cn" && !window.location.pathname.startsWith("/s/")) {
+      return accessCode;
+    }
+    const shareCodeCache = _unsafeWindow.localStorage.getItem("share_code_cache");
+    if (shareCodeCache) {
+      const shareCodeCacheData = JSON.parse(shareCodeCache);
+      if (Array.isArray(shareCodeCacheData)) {
+        const findValue = shareCodeCacheData.find((it) => {
+          return it.key === handlerConfig.shareCode && typeof it.code === "string" && utils.isNotNull(it.code);
+        });
+        if (findValue) {
+          const local_accessCode = findValue.code;
+          log.success("成功获取localStorage存储的访问码: " + local_accessCode);
+          return local_accessCode;
+        }
+      }
+    }
+    return accessCode;
+  };
   const NetDiskHandlerAccessCodeRule = {
     baidu: NetDiskAccessCodeHandler_baidu,
+    uc: NetDiskAccessCodeHandler_uc,
   };
   const NetDiskHandlerAccessCode = {
     handler(handlerConfig, accessCode) {
@@ -4859,12 +4963,6 @@
     if (window.location.hostname !== "pan.baidu.com") {
       return;
     }
-    Object.keys(_unsafeWindow.localStorage).forEach((keyName) => {
-      if (keyName.endsWith("_bdclnd")) {
-        const shareCode = keyName.replace(/_bdclnd$/, "");
-        _unsafeWindow.localStorage.getItem(`${shareCode}_pwd`);
-      }
-    });
   };
   const NetDiskAuthorization_123pan_Authorization = {
     KEY: "_123pan_User_Authorization",
@@ -5450,6 +5548,69 @@
       });
     }
   };
+  const NetDiskAutoFillAccessCode_uc = function (netDiskInfo) {
+    if (window.location.hostname !== "drive.uc.cn" && !window.location.pathname.startsWith("/s/")) {
+      return;
+    }
+    domUtils.onReady(async () => {
+      domUtils.waitNode([".share-btn-wrap input", ".share-btn-wrap .btn-commit"], 1e4).then(async ($elList) => {
+        if (!$elList) return;
+        const [$shareInput, $btn] = $elList;
+        if (!utils.isVisible($shareInput)) {
+          log.error("分享码输入框不可见，不输入密码");
+          return;
+        }
+        if (!utils.isVisible($btn)) {
+          log.error("提交按钮不可见，不输入密码");
+          return;
+        }
+        $shareInput.value = netDiskInfo.accessCode;
+        const react = utils.getReactInstance($shareInput);
+        const onChange = react.reactEventHandlers?.onChange;
+        if (typeof onChange === "function") {
+          onChange({
+            currentTarget: $shareInput,
+            target: $shareInput,
+          });
+        } else {
+          Qmsg.error("获取onChange函数失败");
+          return;
+        }
+        await utils.sleep(500);
+        $btn.click();
+        Qmsg.success("自动填充访问码");
+      });
+      domUtils
+        .waitNode([".share-receive-card input", ".share-receive-card button.submit-btn"], 1e4)
+        .then(async ($elList) => {
+          if (!$elList) return;
+          const [$shareInput, $btn] = $elList;
+          if (!utils.isVisible($shareInput)) {
+            log.error("分享码输入框不可见，不输入密码");
+            return;
+          }
+          if (!utils.isVisible($btn)) {
+            log.error("提交按钮不可见，不输入密码");
+            return;
+          }
+          $shareInput.value = netDiskInfo.accessCode;
+          const react = utils.getReactInstance($shareInput);
+          const onChange = react.reactProps?.onChange;
+          if (typeof onChange === "function") {
+            onChange({
+              currentTarget: $shareInput,
+              target: $shareInput,
+            });
+          } else {
+            Qmsg.error("获取onChange函数失败");
+            return;
+          }
+          await utils.sleep(500);
+          $btn.click();
+          Qmsg.success("自动填充访问码");
+        });
+    });
+  };
   const NetDiskAutoFillAccessCodeRule = {
     baidu: NetDiskAutoFillAccessCode_baidu,
     lanzou: NetDiskAutoFillAccessCode_lanzou,
@@ -5468,6 +5629,7 @@
     onedrive: () => {},
     "360yunpan": NetDiskAutoFillAccessCode_360yunpan,
     feijipan: NetDiskAutoFillAccessCode_feijipan,
+    uc: NetDiskAutoFillAccessCode_uc,
   };
   const NetDiskAutoFillAccessCode = {
     key: "tempNetDiskInfo",
@@ -5730,7 +5892,8 @@
     },
     replaceText(matchText, pattern, newText) {
       if (Array.isArray(pattern)) {
-        for (const patternItem of pattern) {
+        for (let i = 0; i < pattern.length; i++) {
+          const patternItem = pattern[i];
           matchText = this.replaceText(matchText, patternItem, newText);
         }
       } else {
@@ -8802,7 +8965,8 @@
           if (!Array.isArray(shareCodeNeedRemoveStrList)) {
             shareCodeNeedRemoveStrList = [shareCodeNeedRemoveStrList];
           }
-          for (const shareCodeRemoveRegExp of shareCodeNeedRemoveStrList) {
+          for (let i = 0; i < shareCodeNeedRemoveStrList.length; i++) {
+            const shareCodeRemoveRegExp = shareCodeNeedRemoveStrList[i];
             __shareCode__ = __shareCode__.replace(shareCodeRemoveRegExp, "");
           }
           if (shareCodeNeedRemoveStrList.length) {
@@ -8812,7 +8976,8 @@
             });
           }
         }
-        for (const shareCodeNotMatchRegExp of NetDisk.$extraRule.shareCodeNotMatchRegExpList) {
+        for (let i = 0; i < NetDisk.$extraRule.shareCodeNotMatchRegExpList.length; i++) {
+          const shareCodeNotMatchRegExp = NetDisk.$extraRule.shareCodeNotMatchRegExpList[i];
           if (__shareCode__.match(shareCodeNotMatchRegExp)) {
             handlerConfig.debugConfig?.logCallBack?.({
               status: false,
@@ -8830,7 +8995,8 @@
           if (!Array.isArray(shareCodeNotMatch)) {
             shareCodeNotMatch = [shareCodeNotMatch];
           }
-          for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
+          for (let i = 0; i < shareCodeNotMatch.length; i++) {
+            const shareCodeNotMatchRegExp = shareCodeNotMatch[i];
             if (__shareCode__.match(shareCodeNotMatchRegExp)) {
               handlerConfig.debugConfig?.logCallBack?.({
                 status: false,
@@ -8939,7 +9105,8 @@
           }
         }
         if (utils.isNotNull(__accessCode__)) {
-          for (const accessCodeNotMatchRegExp of NetDisk.$extraRule.accessCodeNotMatchRegExpList) {
+          for (let i = 0; i < NetDisk.$extraRule.accessCodeNotMatchRegExpList.length; i++) {
+            const accessCodeNotMatchRegExp = NetDisk.$extraRule.accessCodeNotMatchRegExpList[i];
             if (__accessCode__.match(accessCodeNotMatchRegExp)) {
               __accessCode__ = "";
               handlerConfig.debugConfig?.logCallBack?.({
@@ -8958,7 +9125,8 @@
             if (!Array.isArray(accessCodeNotMatchRegExpList)) {
               accessCodeNotMatchRegExpList = [accessCodeNotMatchRegExpList];
             }
-            for (const accessCodeNotMatchRegExp of accessCodeNotMatchRegExpList) {
+            for (let i = 0; i < accessCodeNotMatchRegExpList.length; i++) {
+              const accessCodeNotMatchRegExp = accessCodeNotMatchRegExpList[i];
               if (__accessCode__.match(accessCodeNotMatchRegExp)) {
                 __accessCode__ = "";
                 handlerConfig.debugConfig?.logCallBack?.({
@@ -8973,7 +9141,8 @@
               }
             }
           }
-          for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule.accessCodeNeedRemoveStr) {
+          for (let i = 0; i < NetDisk.$extraRule.accessCodeNeedRemoveStr.length; i++) {
+            const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.accessCodeNeedRemoveStr[i];
             __accessCode__ = NetDiskHandlerUtil.replaceText(__accessCode__, accessCodeNeedRemoveStrRegExp, "");
           }
           handlerConfig.debugConfig?.logCallBack?.({
@@ -10175,7 +10344,8 @@
         },
         [$iconImg, $link]
       );
-      NetDisk.$rule.rule.forEach((ruleConfig) => {
+      for (let i = 0; i < NetDisk.$rule.rule.length; i++) {
+        const ruleConfig = NetDisk.$rule.rule[i];
         if (ruleConfig.setting.key === ruleKeyName && typeof ruleConfig.afterRenderUrlBox === "function") {
           ruleConfig.afterRenderUrlBox({
             $viewBox: $urlBox,
@@ -10188,7 +10358,7 @@
             accessCode,
           });
         }
-      });
+      }
       return {
         $urlBox,
         $urlDiv,
@@ -10798,117 +10968,110 @@
   };
   const NetDiskWorkerUtils = {
     depthQueryShadowRootAllNode($target) {
-      let result = [];
-      function queryShadowRoot($ele) {
-        let $queryChildNodeList = Array.from($ele.querySelectorAll("*"));
-        $queryChildNodeList.forEach(($childNode) => {
+      const result = [];
+      function queryShadowRoot($el) {
+        const $queryChildNodeList = Array.from($el.querySelectorAll("*"));
+        for (let index = 0; index < $queryChildNodeList.length; index++) {
+          const $childNode = $queryChildNodeList[index];
           if ($childNode.classList && $childNode.classList.contains("pops-shadow-container")) {
-            return;
+            continue;
           }
-          let $childNodeShadowRoot = $childNode.shadowRoot;
+          const $childNodeShadowRoot = $childNode.shadowRoot;
           if ($childNodeShadowRoot && $childNodeShadowRoot instanceof ShadowRoot) {
             result.push({
               shadowRoot: $childNodeShadowRoot,
               childNode: queryShadowRoot($childNodeShadowRoot),
             });
           }
-        });
+        }
         return $queryChildNodeList;
       }
       queryShadowRoot($target);
       return result;
     },
     ignoreStrRemove(text, isHTML = false) {
-      let ignoreNodeList = [];
-      if (ignoreNodeList.length) {
-        ignoreNodeList.forEach(($ignore) => {
-          if ($ignore == null) {
-            return;
+      const ignoreNodeList = [];
+      for (let index = 0; index < ignoreNodeList.length; index++) {
+        const $ignore = ignoreNodeList[index];
+        if ($ignore == null) {
+          continue;
+        }
+        if (isHTML) {
+          if ($ignore.innerHTML != null) {
+            text = text.replaceAll($ignore.innerHTML, "");
           }
-          if (isHTML) {
-            if ($ignore.innerHTML != null) {
-              text = text.replaceAll($ignore.innerHTML, "");
-            }
-          } else {
-            let text2 = $ignore.innerText || $ignore.textContent;
-            if (text2 != null) {
-              text2 = text2.replaceAll(text2, "");
-            }
+        } else {
+          let text2 = $ignore.innerText || $ignore.textContent;
+          if (text2 != null) {
+            text2 = text2.replaceAll(text2, "");
           }
-        });
+        }
       }
       return text;
     },
     getPageText(target = document.documentElement, isCheckShadowRoot) {
-      let strList = [];
-      strList.push(target?.textContent || target?.innerText || "");
+      const pageText = target?.textContent || target?.innerText || "";
+      let strList = [pageText];
       if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            let shadowRootText = queryShadowRootInfo.shadowRoot.textContent;
-            if (shadowRootText) {
-              strList.push(shadowRootText);
-            }
-          });
+        const queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        for (let index = 0; index < queryShadowRootAllNodeInfo.length; index++) {
+          const queryShadowRootInfo = queryShadowRootAllNodeInfo[index];
+          const shadowRootText = queryShadowRootInfo.shadowRoot.textContent;
+          if (shadowRootText) {
+            strList.push(shadowRootText);
+          }
         }
       }
       strList = strList.filter((item) => item !== "");
       return strList;
     },
     getPageHTML(target = document.documentElement, isCheckShadowRoot) {
-      let strList = [];
-      strList.push(target.innerHTML);
+      let strList = [target.innerHTML];
       if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            let shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
-            if (shadowRootHTML) {
-              strList.push(shadowRootHTML);
-            }
-          });
+        const queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        for (let i = 0; i < queryShadowRootAllNodeInfo.length; i++) {
+          const queryShadowRootInfo = queryShadowRootAllNodeInfo[i];
+          const shadowRootHTML = queryShadowRootInfo.shadowRoot.innerHTML;
+          if (shadowRootHTML) {
+            strList.push(shadowRootHTML);
+          }
         }
       }
       strList = strList.filter((item) => item !== "");
       return strList;
     },
     getInputElementValue(target = document.documentElement, isCheckShadowRoot) {
-      let result = [];
-      Array.from(target.querySelectorAll("input")).forEach(($input) => {
-        result.push($input.value);
+      const result = Array.from(target.querySelectorAll("input")).map(($input) => {
+        return $input.value;
       });
       if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
-              const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLInputElement && $childNode.value) {
-                result.push($childNode.value);
-              }
+        const queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        for (let i = 0; i < queryShadowRootAllNodeInfo.length; i++) {
+          const queryShadowRootInfo = queryShadowRootAllNodeInfo[i];
+          for (let j = 0; j < queryShadowRootInfo.childNode.length; j++) {
+            const $childNode = queryShadowRootInfo.childNode[j];
+            if ($childNode instanceof HTMLInputElement && $childNode.value) {
+              result.push($childNode.value);
             }
-          });
+          }
         }
       }
       return result;
     },
     getTextAreaElementValue(target = document.documentElement, isCheckShadowRoot) {
-      let result = [];
-      Array.from(target.querySelectorAll("textarea")).forEach(($textarea) => {
-        result.push($textarea.value);
+      const result = Array.from(target.querySelectorAll("textarea")).map(($textarea) => {
+        return $textarea.value;
       });
       if (isCheckShadowRoot) {
-        let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
-        if (queryShadowRootAllNodeInfo.length) {
-          queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-            for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
-              const $childNode = queryShadowRootInfo.childNode[index];
-              if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
-                result.push($childNode.value);
-              }
+        const queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
+        for (let i = 0; i < queryShadowRootAllNodeInfo.length; i++) {
+          const queryShadowRootInfo = queryShadowRootAllNodeInfo[i];
+          for (let j = 0; j < queryShadowRootInfo.childNode.length; j++) {
+            const $childNode = queryShadowRootInfo.childNode[j];
+            if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
+              result.push($childNode.value);
             }
-          });
+          }
         }
       }
       return result;
@@ -10982,7 +11145,7 @@
     init() {
       this.listenWorkerInitErrorDialog();
       this.initWorker();
-      this.monitorDOMChange();
+      this.watchDOMChange();
       this.testWorkerConnect();
     },
     initWorker() {
@@ -11002,7 +11165,9 @@
           matchedList.push(matchData);
           data.textList = matchData.textList;
         })
-        matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        if(matchedList.length){
+          matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
+        }
         this.postMessage({
           options: data,
           msg: "Match End",
@@ -11086,7 +11251,9 @@
             } catch (error2) {
               NetDiskWorker.onError(error2);
             } finally {
-              matchedList = NetDiskWorker.uniqueArr(matchedList);
+              if (matchedList.length) {
+                matchedList = NetDiskWorker.uniqueArr(matchedList);
+              }
               NetDiskWorker.onMessage(
                 new MessageEvent("message", {
                   data: {
@@ -11106,6 +11273,9 @@
       };
     },
     handleRegularMatch(workerOptionData, callback) {
+      if (!workerOptionData.matchedRulesEnable) {
+        return;
+      }
       const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
       const matchTextList = [];
       for (let matchTextItem of workerOptionData.textList) {
@@ -11121,7 +11291,8 @@
         }
         matchTextList.push(matchTextItem);
       }
-      for (const ruleKeyName of ruleKeyNameList) {
+      for (let i = 0; i < ruleKeyNameList.length; i++) {
+        const ruleKeyName = ruleKeyNameList[i];
         const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
         for (let index = 0; index < ruleOption.length; index++) {
           const netDiskRegularItem = ruleOption[index];
@@ -11397,7 +11568,8 @@
         return;
       }
       const handleNetDiskList = [];
-      for (const matchData of options.data) {
+      for (let i = 0; i < options.data.length; i++) {
+        const matchData = options.data[i];
         NetDisk.$match.matchedInfoRuleKey.add(matchData.ruleKeyName);
         const matchLinkSet = new Set();
         matchData.data.forEach((item) => {
@@ -11432,13 +11604,15 @@
           }) === index;
         return isFind;
       });
-      filterHandleNetDiskList.forEach((item) => {
+      for (let i = 0; i < filterHandleNetDiskList.length; i++) {
+        const item = filterHandleNetDiskList[i];
         if (NetDisk.$match.tempMatchedInfo.has(item.ruleKeyName)) {
           const currentTempDict = NetDisk.$match.tempMatchedInfo.get(item.ruleKeyName);
           currentTempDict.set(item.shareCode, item);
         }
-      });
-      filterHandleNetDiskList.forEach((item) => {
+      }
+      for (let i = 0; i < filterHandleNetDiskList.length; i++) {
+        const item = filterHandleNetDiskList[i];
         let { shareCode, accessCode, ruleKeyName, ruleIndex, matchText } = item;
         const findRuleOptions = NetDisk.$rule.rule.find((item2) => item2.setting.key === ruleKeyName);
         const ruleOption = findRuleOptions.rule[ruleIndex];
@@ -11454,16 +11628,22 @@
           }
         });
         if (isBlackListShareCode) {
-          return;
+          continue;
         }
         if (ruleOption.shareCodeExcludeRegular && Array.isArray(ruleOption.shareCodeExcludeRegular)) {
-          for (const excludeRegularName of ruleOption.shareCodeExcludeRegular) {
+          let isConflicting = false;
+          for (let i2 = 0; i2 < ruleOption.shareCodeExcludeRegular.length; i2++) {
+            const excludeRegularName = ruleOption.shareCodeExcludeRegular[i2];
             const excludeDict = NetDisk.$match.matchedInfo.get(excludeRegularName);
             const currentTempDict = NetDisk.$match.tempMatchedInfo.get(excludeRegularName);
             if (excludeDict.startsWith(shareCode) || currentTempDict.startsWith(shareCode)) {
               log.warn(`${ruleKeyName}：该分享码【${shareCode}】与已匹配到该分享码的规则【${excludeRegularName}】冲突`);
-              return;
+              isConflicting = true;
+              break;
             }
+          }
+          if (isConflicting) {
+            continue;
           }
         }
         const currentDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
@@ -11471,13 +11651,13 @@
         if (currentDict.startsWith(shareCode)) {
           const shareCodeDict = currentDict.getStartsWith(shareCode);
           if (typeof shareCodeDict.isForceAccessCode === "boolean" && shareCodeDict.isForceAccessCode) {
-            return;
+            continue;
           }
           if (utils.isNotNull(shareCodeDict.accessCode)) {
-            return;
+            continue;
           }
           if (utils.isNull(accessCode)) {
-            return;
+            continue;
           }
           currentDict.set(shareCode, NetDiskHandlerUtil.createLinkStorageInst(accessCode, ruleIndex, false, matchText));
           NetDiskView.$inst.linkView.changeBoxItemView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
@@ -11495,7 +11675,7 @@
           NetDiskView.$inst.linkView.addBoxItemView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
           log.success(`添加链接 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`);
         }
-      });
+      }
       Object.keys(NetDisk.$match.tempMatchedInfo.getItems()).forEach((keyName) => {
         NetDisk.$match.tempMatchedInfo.get(keyName).clear();
       });
@@ -11564,7 +11744,7 @@
         }
       }
     },
-    monitorDOMChange() {
+    watchDOMChange() {
       const isAddedNodeToMatch = NetDiskGlobalData.match.isAddedNodesToMatch.value;
       const readClipboard = NetDiskGlobalData.match.readClipboard.value;
       const matchRange = NetDiskGlobalData.match.pageMatchRange.value;
@@ -11574,18 +11754,19 @@
       const isDepthAcquisitionWithShadowRoot = NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
       const matchedRuleOption = {};
       const characterMapping = CharacterMapping.getMappingData();
-      NetDisk.$rule.rule.forEach((item) => {
+      for (let index = 0; index < NetDisk.$rule.rule.length; index++) {
+        const item = NetDisk.$rule.rule[index];
         const ruleKeyName = item.setting.key;
         const ruleEnable = NetDiskRuleData.function.enable(ruleKeyName);
         if (!ruleEnable) {
-          return;
+          continue;
         }
         if (Reflect.has(matchedRuleOption, ruleKeyName)) {
           matchedRuleOption[ruleKeyName] = [...matchedRuleOption[ruleKeyName], ...item.rule];
         } else {
           Reflect.set(matchedRuleOption, ruleKeyName, item.rule);
         }
-      });
+      }
       const observeEvent = async function (mutations) {
         if (NetDiskWorker.$flag.isHandleMatch) {
           NetDiskWorker.$data.delayNotMatchCount++;
@@ -11636,6 +11817,7 @@
               textList: toMatchedTextList,
               matchTextRange: matchRange,
               matchedRuleOption,
+              matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
               startTime,
               from: "FirstLoad-DOMChange",
             });
@@ -11655,6 +11837,7 @@
               textList: toMatchedTextList,
               matchTextRange: matchRange,
               matchedRuleOption,
+              matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
               startTime,
               from: "FirstLoad-Text-DOMChange",
             });
@@ -11674,6 +11857,7 @@
               textList: toMatchedTextList,
               matchTextRange: matchRange,
               matchedRuleOption,
+              matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
               startTime,
               from: "FirstLoad-HTML-DOMChange",
             });
@@ -11699,6 +11883,7 @@
           textList: toMatchedTextList,
           matchTextRange: matchRange,
           matchedRuleOption,
+          matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
           startTime,
           from: "DOMChange",
         });
@@ -11732,6 +11917,7 @@
         characterMapping,
         matchTextRange: matchRange,
         matchedRuleOption,
+        matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
         startTime: Date.now(),
       });
       if (matchMode === "MutationObserver") {
@@ -11770,22 +11956,25 @@
       $button: null,
     },
     reset() {
-      Object.keys(this.$el).forEach((keyName) => {
+      const keys = Object.keys(this.$el);
+      for (let i = 0; i < keys.length; i++) {
+        const keyName = keys[i];
         Reflect.deleteProperty(this.$el, keyName);
-      });
+      }
     },
     setLog(tag, ...args) {
       let text = "";
-      args.forEach((item) => {
+      for (let i = 0; i < args.length; i++) {
+        const it = args[i];
         if (text !== "") {
           text += "\n";
         }
-        if (typeof item !== "string") {
-          text += CommonUtil.toStr(item, 4);
+        if (typeof it !== "string") {
+          text += CommonUtil.toStr(it, 4);
         } else {
-          text += item;
+          text += it;
         }
-      });
+      }
       const $log = domUtils.createElement(
         "p",
         {
@@ -11920,7 +12109,8 @@
       this.$el.$matchText = dialog.$shadowRoot.querySelector(".custom-rule-match-text");
       this.$el.$log = dialog.$shadowRoot.querySelector(".custom-rule-match-log-container");
       this.$el.$button = dialog.$shadowRoot.querySelector(".custom-rule-run-match-button");
-      regexp.forEach((regExpItem, index) => {
+      for (let index = 0; index < regexp.length; index++) {
+        const regExpItem = regexp[index];
         this.$el.$select.appendChild(
           domUtils.createElement("option", {
             className: "custom-rule-select-regexp-item",
@@ -11928,7 +12118,7 @@
             "data-value": regExpItem,
           })
         );
-      });
+      }
       const logCallBack = function (logData) {
         if (Array.isArray(logData.msg)) {
           that.setLog(logData.status ? "info" : "error", ...logData.msg);
@@ -11957,6 +12147,7 @@
             {
               characterMapping: CharacterMapping.getMappingData(),
               matchedRuleOption: testCustomRuleOption,
+              matchedRulesEnable: NetDiskGlobalData.features["netdisk-rules-enable"].value,
               textList: [that.$el.$matchText.value],
               matchTextRange: ["innerText", "innerHTML"],
               startTime: Date.now(),
@@ -11972,7 +12163,8 @@
           }
           matchTextList = NetDiskWorker.uniqueArr(matchTextList);
           that.setLog("info", "成功匹配到的数据 ==> ", matchTextList);
-          matchTextList.forEach((matchText) => {
+          for (let i = 0; i < matchTextList.length; i++) {
+            const matchText = matchTextList[i];
             that.setLog("success", "当前处理的字符串: " + matchText);
             that.setLog("success", "当前执行: 对shareCode进行处理获取");
             const shareCode = NetDiskRegularExtractor.extractShareCode({
@@ -11986,7 +12178,7 @@
               },
             });
             if (utils.isNull(shareCode)) {
-              return;
+              continue;
             }
             that.setLog("info", " ");
             that.setLog("info", `================分割线================`);
@@ -12051,7 +12243,7 @@
               },
             });
             that.setLog("success", "执行完毕");
-          });
+          }
         } catch (error) {
           log.error(error);
           that.setLog(error.toString());
@@ -12491,20 +12683,22 @@
               text: "复制全部",
               icon: "documentCopy",
               callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
-                let $link = menuListenerRootNode;
-                let $boxAll = $link.closest(".netdisk-url-box-all");
-                let copyTextList = [];
-                $boxAll.querySelectorAll(selector).forEach(($linkItem) => {
+                const $link = menuListenerRootNode;
+                const $boxAll = $link.closest(".netdisk-url-box-all");
+                const copyTextList = [];
+                const $links = Array.from($boxAll.querySelectorAll(selector));
+                for (let i = 0; i < $links.length; i++) {
+                  const $link2 = $links[i];
                   const { ruleKeyName, ruleIndex, shareCode, accessCode } =
-                    NetDiskLinkView.parseBoxAttrRuleInfo($linkItem);
-                  let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
+                    NetDiskLinkView.parseBoxAttrRuleInfo($link2);
+                  const copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
                     ruleKeyName,
                     ruleIndex,
                     shareCode,
                     accessCode,
                   });
                   copyTextList.push(copyUrlText);
-                });
+                }
                 utils
                   .copy(copyTextList.join("\n"))
                   .then((status) => {
@@ -12728,10 +12922,11 @@
               let startIndex = void 0;
               let endIndex = void 0;
               if (elementText.includes(dataSharecode)) {
-                let textNodeList = Array.from(iterator.value.childNodes).filter(
+                const textNodeList = Array.from(iterator.value.childNodes).filter(
                   (ele) => ele.nodeType === Node.TEXT_NODE
                 );
-                for (const textNode of textNodeList) {
+                for (let i = 0; i < textNodeList.length; i++) {
+                  const textNode = textNodeList[i];
                   if (textNode.textContent.includes(dataSharecode)) {
                     childTextNode = textNode;
                     startIndex = textNode.textContent.indexOf(dataSharecode);
@@ -12954,9 +13149,10 @@
         log.info("当前查看图片的索引下标：" + imgIndex);
         log.info("当前查看图片的列表信息：", imgList);
         let viewerULNodeHTML = "";
-        imgList.forEach((item) => {
+        for (let i = 0; i < imgList.length; i++) {
+          const item = imgList[i];
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
-        });
+        }
         const $viewerContainer = domUtils.createElement("ul", {
           innerHTML: viewerULNodeHTML,
         });
@@ -14554,7 +14750,7 @@
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const $loading = Qmsg.loading("正在检查是否已登录UC网盘...");
       const loginStatus = await this.isLogin();
-      if (!Boolean(loginStatus)) {
+      if (!loginStatus) {
         $loading.close();
         this.gotoLogin(
           "检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
@@ -14571,7 +14767,6 @@
       const detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
       if (!detail) {
         $loading.close();
-        Qmsg.error("UC网盘：获取detail失败");
         return;
       }
       if (detail.length === 1 && detail[0].dir == false && detail[0].file_type === 1) {
@@ -14606,7 +14801,6 @@
         const folderInfoList = this.getFolderInfo(detail, stoken, 0);
         log.info("递归完毕");
         NetDiskView.$inst.linearChainDialogView.moreFile("UC网盘文件解析", folderInfoList);
-        return;
       }
       $loading.close();
     }
@@ -14618,10 +14812,10 @@
       });
       log.success("判断是否已登录UC网盘", response);
       if (!response.status) {
-        return;
+        return false;
       }
       if (response.data.finalUrl === "https://drive.uc.cn/list") {
-        return "已登录";
+        return true;
       } else {
         return false;
       }
@@ -14786,14 +14980,13 @@
         return;
       }
       const data = utils.toJSON(response.data.responseText);
-      log.info("获取detail：", data);
-      if (data["code"] !== 0) {
-        log.error("获取detail失败", data);
+      log.info("获取detail:", data);
+      if (data.code !== 0) {
         Qmsg.error("获取detail失败");
         return;
       }
-      const metadata = data["metadata"];
-      if (metadata && metadata["_total"] && metadata["_total"] > metadata["_size"]) {
+      const metadata = data.metadata;
+      if (metadata && metadata._total && metadata._total > metadata._size) {
         return await this.getDetail(
           pwd_id,
           passcode,
@@ -14801,13 +14994,17 @@
           pdir_fid,
           force,
           _page,
-          metadata["_total"],
+          metadata._total,
           _fetch_banner,
           _fetch_share,
           _fetch_total
         );
       }
-      return data["data"]["list"];
+      if (data.data.list.length === 0) {
+        Qmsg.error("链接内容为空");
+        return;
+      }
+      return data.data.list;
     }
     async getDownload(pwd_id, stoken, fid, share_fid_token) {
       let response = await httpx.post("https://pc-api.uc.cn/1/clouddrive/file/download?entry=ft&fr=pc&pr=UCBrowser", {
@@ -14900,7 +15097,7 @@
                 log.success("里面没有文件");
                 return [];
               }
-              let newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
+              const newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
               if (newDetail) {
                 return this.getFolderInfo(newDetail, stoken, index + 1);
               } else {
@@ -16103,14 +16300,16 @@
         };
       }
       const responseDocument = domUtils.toElement(responseText, true, true);
-      if (responseDocument.querySelector(".h5-page-main")) {
-        const $h5PageMain = responseDocument.querySelector(".h5-page-main");
-        const errorText = $h5PageMain.textContent || $h5PageMain.innerText;
+      const $errorTip =
+        responseDocument.querySelector(".h5-page-main") || responseDocument.querySelector(".share-error-tips");
+      if ($errorTip) {
+        const errorText = $errorTip.textContent || $errorTip.innerText;
         if (
           errorText.includes("失效") ||
           errorText.includes("不存在") ||
           errorText.includes("违规") ||
-          errorText.includes("删除")
+          errorText.includes("删除") ||
+          errorText.includes("停止分享")
         ) {
           return {
             ...NetDiskCheckLinkValidityStatus.failed,
@@ -16368,25 +16567,26 @@
       if (!Array.isArray(checkInfoConfigList)) {
         checkInfoConfigList = [checkInfoConfigList];
       }
-      for (const checkInfoConfigItem of checkInfoConfigList) {
+      for (let i = 0; i < checkInfoConfigList.length; i++) {
+        const checkInfoConfigItem = checkInfoConfigList[i];
         const { ruleKeyName } = checkInfoConfigItem;
         if (!NetDiskCheckLinkValidity.$data.subscribeMap.has(ruleKeyName)) {
           NetDiskCheckLinkValidity.$data.subscribeMap.set(ruleKeyName, []);
         }
-        let subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName);
+        const subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName);
         subscribeMapValue.push(checkInfoConfigItem);
       }
-      let execCheck = async () => {
-        let promiseList = [];
+      const execCheck = async () => {
+        const promiseList = [];
         for (const [ruleKeyName, checkInfoList] of NetDiskCheckLinkValidity.$data.subscribeMap.entries()) {
           promiseList.push(
             new Promise(async (resolve) => {
-              let isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
+              const isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
               if (isConsuming) {
                 resolve(null);
                 return;
               }
-              let execCheckConfig = async () => {
+              const execCheckConfig = async () => {
                 for (let index = 0; index < checkInfoList.length; index++) {
                   try {
                     const checkInfo = checkInfoList[index];
@@ -16521,7 +16721,8 @@
       return false;
     },
     getStatusName(statusInfo) {
-      for (const statusName of Object.keys(NetDiskCheckLinkValidityStatus)) {
+      for (let i = 0; i < Object.keys(NetDiskCheckLinkValidityStatus).length; i++) {
+        const statusName = Object.keys(NetDiskCheckLinkValidityStatus)[i];
         const statusNewInfo = NetDiskCheckLinkValidityStatus[statusName];
         if (statusInfo.code === statusNewInfo.code) {
           return statusName;
@@ -16631,9 +16832,10 @@
       let userRule = this.parseRule(this.getAllRule());
       const subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
       userRule = userRule.concat(subscribeRule);
-      userRule.forEach((item) => {
+      for (let i = 0; i < userRule.length; i++) {
+        const item = userRule[i];
         this.$data.userRule.set(item.setting.key, item);
-      });
+      }
     },
     parseRuleStrToRule(ruleText) {
       function checkRegExp(ruleRegExp) {
@@ -16751,19 +16953,20 @@
           };
         }
         if (Array.isArray(ruleJSON["regexp"])) {
-          for (const regexpItem of ruleJSON["regexp"]) {
-            let result = checkRegExp(regexpItem);
+          for (let i = 0; i < ruleJSON["regexp"].length; i++) {
+            const regexpItem = ruleJSON["regexp"][i];
+            const result = checkRegExp(regexpItem);
             if (!result.success) {
               return result;
             }
           }
         } else {
-          let result = checkRegExp(ruleJSON["regexp"]);
+          const result = checkRegExp(ruleJSON["regexp"]);
           if (!result.success) {
             return result;
           }
         }
-        let checkSettingResult = checkSetting(ruleJSON["setting"]);
+        const checkSettingResult = checkSetting(ruleJSON["setting"]);
         if (!checkSettingResult.success) {
           return checkSettingResult;
         }
@@ -16847,7 +17050,8 @@
             } else {
               netDiskRegularOption.shareCodeNeedRemoveStr = [];
             }
-            for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
+            for (let i = 0; i < shareCodeNeedRemoveStr.length; i++) {
+              const shareCodeNeedRemoveStrItem = shareCodeNeedRemoveStr[i];
               if (typeof shareCodeNeedRemoveStrItem === "string") {
                 const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "gi");
                 netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
@@ -16865,7 +17069,8 @@
             } else {
               netDiskRegularOption.shareCodeNotMatch = [];
             }
-            for (const shareCodeNotMatchItem of shareCodeNotMatch) {
+            for (let i = 0; i < shareCodeNotMatch.length; i++) {
+              const shareCodeNotMatchItem = shareCodeNotMatch[i];
               if (typeof shareCodeNotMatchItem === "string") {
                 const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "gi");
                 netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
@@ -16889,7 +17094,8 @@
             } else {
               netDiskRegularOption.acceesCodeNotMatch = [];
             }
-            for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
+            for (let i = 0; i < acceesCodeNotMatch.length; i++) {
+              const acceesCodeNotMatchItem = acceesCodeNotMatch[i];
               if (typeof acceesCodeNotMatchItem === "string") {
                 const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "gi");
                 netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
@@ -16907,7 +17113,8 @@
             } else {
               netDiskRegularOption.accessCodeNeedRemoveStr = [];
             }
-            for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
+            for (let i = 0; i < accessCodeNeedRemoveStr.length; i++) {
+              const accessCodeNeedRemoveStrItem = accessCodeNeedRemoveStr[i];
               if (typeof accessCodeNeedRemoveStrItem === "string") {
                 const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "gi");
                 netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
@@ -16921,7 +17128,8 @@
         return netDiskRegularOption;
       }
       let netDiskRuleConfigList = [];
-      for (const userRuleItemConfig of localRule) {
+      for (let i = 0; i < localRule.length; i++) {
+        const userRuleItemConfig = localRule[i];
         let netDiskRuleConfig = {
           subscribeUUID: userRuleItemConfig.subscribeUUID,
           rule: [],
@@ -16943,9 +17151,10 @@
         const userRuleList = userRuleItemConfig.regexp;
         const ruleKey = userRuleItemConfig.key;
         if (Array.isArray(userRuleList)) {
-          userRuleList.forEach((userRuleItem) => {
+          for (let i2 = 0; i2 < userRuleList.length; i2++) {
+            const userRuleItem = userRuleList[i2];
             netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem));
-          });
+          }
         } else {
           netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList));
         }
@@ -16972,7 +17181,8 @@
             let default_value = null;
             let selectData = [];
             const dataKeys = Object.keys(data);
-            for (const keyName of dataKeys) {
+            for (let i2 = 0; i2 < dataKeys.length; i2++) {
+              const keyName = dataKeys[i2];
               let itemData = data[keyName];
               if (!itemData.enable) {
                 continue;
@@ -17918,7 +18128,9 @@
                 timeout: 4e3,
               });
             } else {
-              Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, { timeout: 4e3 });
+              Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, {
+                timeout: 4e3,
+              });
             }
           }
           if (!checkedData.length) {
@@ -18093,7 +18305,7 @@
           } else {
             commonRule = [...commonRule, ...netDiskRule];
           }
-          let findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
+          const findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
           findValue.rule = commonRule;
         } else {
           Reflect.set(NetDisk.$rule.ruleOption, ruleKey, netDiskRuleConfig.rule);
@@ -18101,7 +18313,7 @@
         }
         Reflect.set(NetDisk.$rule.ruleSetting, ruleKey, netDiskRuleConfig.setting);
         netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);
-        let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
+        const viewConfig = this.parseRuleSetting(netDiskRuleConfig);
         let asideTitle = netDiskRuleConfig.setting.name;
         if (NetDiskView.$inst.icon.hasIcon(ruleKey)) {
           asideTitle = `
@@ -18205,7 +18417,8 @@
           let default_value = null;
           let selectData = [];
           const dataKeys = Object.keys(data);
-          for (const keyName of dataKeys) {
+          for (let i = 0; i < dataKeys.length; i++) {
+            const keyName = dataKeys[i];
             let itemData = data[keyName];
             if (!itemData.enable) {
               continue;
@@ -18548,11 +18761,11 @@
           return {
             get(key, defaultValue) {
               if (subscribeUUID) {
-                let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
+                const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
                 return Reflect.get(currentRule.data, key) ?? defaultValue;
               } else {
-                let currentRule = that.getRule(uuid) ?? addData();
-                let panelValue = Panel.getValue(key, defaultValue);
+                const currentRule = that.getRule(uuid) ?? addData();
+                const panelValue = Panel.getValue(key, defaultValue);
                 return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
               }
             },
@@ -18565,6 +18778,17 @@
                 const currentRule = that.getRule(uuid) ?? addData();
                 Reflect.set(currentRule.data, key, value);
                 that.updateRule(currentRule);
+              }
+            },
+            setAll(data2) {
+              if (subscribeUUID) {
+                const currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
+                currentRule.data = data2;
+                return WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
+              } else {
+                const currentRule = that.getRule(uuid) ?? addData();
+                currentRule.data = data2;
+                return that.updateRule(currentRule);
               }
             },
           };
@@ -18597,7 +18821,7 @@
                   const panelStorageApi = generatePanelStorageApi(data.uuid);
                   Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
                 }
-                let childViews = configItem.views;
+                const childViews = configItem.views;
                 if (childViews && Array.isArray(childViews)) {
                   iterativeTraversal(childViews);
                 }
@@ -18712,10 +18936,90 @@
         );
         const $coverSetting_template =
           panelHandlerComponents.createSectionContainerItem_button(coverSetting_template).$el;
-        $fragment.appendChild($enable);
-        $fragment.appendChild($name);
-        $fragment.appendChild($data_url);
-        $fragment.appendChild($coverSetting_template);
+        const storeData_template = UIButton("存储的数据", "", "查看/编辑", void 0, false, false, "primary", () => {
+          const $alert = NetDiskPops.alert(
+            {
+              title: {
+                text: storeData_template.text,
+                position: "center",
+              },
+              content: {
+                text: `
+                <textarea name="config-value" id="config"></textarea>
+                `,
+                html: true,
+              },
+              btn: {
+                ok: {
+                  text: "保存",
+                  callback(evtConfig) {
+                    const dataText = domUtils.val($textarea);
+                    try {
+                      const __data__ = JSON.parse(dataText);
+                      data.data = __data__;
+                      const panelStorageApi = generatePanelStorageApi(data.uuid);
+                      const flag = panelStorageApi.setAll(__data__);
+                      if (flag) {
+                        Qmsg.success("保存成功");
+                        evtConfig.close();
+                      } else {
+                        Qmsg.error("保存失败");
+                      }
+                    } catch (error) {
+                      Qmsg.error(error.message);
+                    }
+                  },
+                },
+              },
+              mask: {
+                clickEvent: {
+                  toClose: false,
+                  toHide: false,
+                },
+              },
+              height: "auto",
+              style: `
+              .pops-content textarea {
+                --textarea-bd-color: #dcdfe6;
+                display: inline-block;
+                resize: vertical;
+                padding: 5px 15px;
+                margin: 0;
+                line-height: normal;
+                box-sizing: border-box;
+                border: 0;
+                border-radius: 0;
+                outline: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background: none;
+                width: 100%;
+                height: 100%;
+                appearance: none;
+                resize: none;
+              }
+              .pops-content textarea{
+                height: 500px;
+              }
+              .pops-content textarea:focus {
+                --textarea-bd-color: #3677f0;
+              }
+              .pops-content textarea:hover {
+                --textarea-bd-color: #c0c4cc;
+              }
+            `,
+            },
+            {
+              Mobile: PanelUISize.setting,
+              PC: PanelUISize.setting,
+            }
+          );
+          const $textarea = $alert.$shadowRoot.querySelector("textarea");
+          domUtils.val($textarea, CommonUtil.toStr(data.data));
+        });
+        const $storeData = panelHandlerComponents.createSectionContainerItem_button(storeData_template).$el;
+        $fragment.append($enable, $name, $data_url, $coverSetting_template, $storeData);
         return $fragment;
       };
       const ruleEditSubmitHandler = ($form, isEdit, editData) => {
@@ -18729,13 +19033,15 @@
             data.data = findValue.data;
           }
         }
-        $ulist_li.forEach(($li) => {
+        const $ulist_li_list = Array.from($ulist_li);
+        for (let i = 0; i < $ulist_li_list.length; i++) {
+          const $li = $ulist_li_list[i];
           const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
           const attrs = Reflect.get(viewConfig, "attributes");
           const storageApi = Reflect.get($li, PROPS_STORAGE_API);
           const key = Reflect.get(attrs, ATTRIBUTE_KEY);
           if (key == null) {
-            return;
+            continue;
           }
           const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
           const value = storageApi.get(key, defaultValue);
@@ -18746,7 +19052,7 @@
           } else {
             log.error(`${key}不在数据中`);
           }
-        });
+        }
         if (data.name == null || data.name.trim() === "") {
           Qmsg.error("规则名称不能为空");
           return {
@@ -19432,7 +19738,7 @@
       });
     },
     importRule(importEndCallBack) {
-      let $alert = NetDiskPops.alert({
+      const $alert = NetDiskPops.alert({
         title: {
           text: "请选择导入方式",
           position: "center",
@@ -19459,25 +19765,24 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
-            `,
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+				}`,
       });
-      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      let updateRuleToStorage = (data) => {
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = (data) => {
         let allData = this.getAllRule();
         let addNewData = [];
         for (let index = 0; index < data.length; index++) {
@@ -19493,9 +19798,9 @@
         Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
         importEndCallBack?.();
       };
-      let importFile = (subscribeText) => {
+      const importFile = (subscribeText) => {
         return new Promise((resolve) => {
-          let data = utils.toJSON(subscribeText);
+          const data = utils.toJSON(subscribeText);
           if (!Array.isArray(data)) {
             log.error(data);
             Qmsg.error("导入失败，格式不符合（不是数组）", {
@@ -19518,7 +19823,7 @@
       domUtils.on($local, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $input = domUtils.createElement("input", {
+        const $input = domUtils.createElement("input", {
           type: "file",
           accept: ".json",
         });
@@ -19526,8 +19831,8 @@
           if (!$input.files?.length) {
             return;
           }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
           fileReader.onload = () => {
             importFile(fileReader.result);
           };
@@ -19538,7 +19843,7 @@
       domUtils.on($network, "click", (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let $prompt = NetDiskPops.prompt({
+        const $prompt = NetDiskPops.prompt({
           title: {
             text: "网络导入",
             position: "center",
@@ -19558,13 +19863,13 @@
             ok: {
               text: "导入",
               callback: async (eventDetails) => {
-                let url = eventDetails.text;
+                const url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
                   return;
                 }
-                let $loading = Qmsg.loading("正在获取配置...");
-                let response = await httpx.get(url, {
+                const $loading = Qmsg.loading("正在获取配置...");
+                const response = await httpx.get(url, {
                   allowInterceptConfig: false,
                 });
                 $loading.close();
@@ -19573,7 +19878,7 @@
                   Qmsg.error("获取配置失败", { consoleLogContent: true });
                   return;
                 }
-                let flag = await importFile(response.data.responseText);
+                const flag = await importFile(response.data.responseText);
                 if (!flag) {
                   return;
                 }
@@ -19589,10 +19894,10 @@
           width: PanelUISize.info.width,
           height: "auto",
         });
-        let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], () => {
-          let value = domUtils.val($promptInput);
+          const value = domUtils.val($promptInput);
           if (value === "") {
             domUtils.attr($promptOk, "disabled", "true");
           } else {
@@ -19601,7 +19906,7 @@
         });
         domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
-            let value = domUtils.val($promptInput);
+            const value = domUtils.val($promptInput);
             if (value !== "") {
               domUtils.emit($promptOk, "click");
             }
@@ -19612,7 +19917,7 @@
       domUtils.on($clipboard, "click", async (event) => {
         domUtils.preventEvent(event);
         $alert.close();
-        let clipboardInfo = await utils.getClipboardInfo();
+        const clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
           Qmsg.error(clipboardInfo.error.toString());
           return;
@@ -19621,7 +19926,7 @@
           Qmsg.warning("获取到的剪贴板内容为空");
           return;
         }
-        let flag = await importFile(clipboardInfo.content);
+        const flag = await importFile(clipboardInfo.content);
         if (!flag) {
           return;
         }
@@ -19738,6 +20043,7 @@
       "mutationObserver-subtree": GeneratePanelStorage("mutationObserver-subtree", true),
     },
     features: {
+      "netdisk-rules-enable": GeneratePanelStorage("netdisk-rules-enable", true),
       "netdisk-match-mode": GeneratePanelStorage("netdisk-match-mode", "MutationObserver"),
       "netdisk-behavior-mode": GeneratePanelStorage("netdisk-behavior-mode", "suspension_smallwindow"),
       autoFillAccessCode: GeneratePanelStorage("autoFillAccessCode", true),
@@ -20200,6 +20506,7 @@
                     textList: [inputText],
                     matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
                     matchedRuleOption: NetDisk.$rule.ruleOption,
+                    matchedRulesEnable: true,
                     startTime: Date.now(),
                     from: "PasteText",
                   });
@@ -20578,12 +20885,13 @@
         return $fragment;
       };
       const ruleEditSubmitHandler = ($form, isEdit, editData) => {
-        const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+        const $ulist_li = Array.from($form.querySelectorAll(".rule-form-ulist > li"));
         const data = this.getTemplateData();
         if (isEdit) {
           data.uuid = editData.uuid;
         }
-        $ulist_li.forEach(($li) => {
+        for (let i = 0; i < $ulist_li.length; i++) {
+          const $li = $ulist_li[i];
           const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
           const attrs = Reflect.get(viewConfig, "attributes");
           const storageApi = Reflect.get($li, PROPS_STORAGE_API);
@@ -20597,26 +20905,30 @@
           } else {
             log.error(`${key}不在数据中`);
           }
-        });
-        $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
+        }
+        const $dynamicContainers = Array.from($form.querySelectorAll(".rule-form-ulist-dynamic__inner-container"));
+        for (let i = 0; i < $dynamicContainers.length; i++) {
+          const $inner = $dynamicContainers[i];
           const dynamicData = {};
-          $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+          const $inner_li_list = Array.from($inner.querySelectorAll(".dynamic-forms > li"));
+          for (let i2 = 0; i2 < $inner_li_list.length; i2++) {
+            const $li = $inner_li_list[i2];
             const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
             if (!viewConfig) {
-              return;
+              continue;
             }
             const attrs = Reflect.get(viewConfig, "attributes");
             if (!attrs) {
-              return;
+              continue;
             }
             const storageApi = Reflect.get($li, PROPS_STORAGE_API);
             const key = Reflect.get(attrs, ATTRIBUTE_KEY);
             const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
             const value = storageApi.get(key, defaultValue);
             Reflect.set(dynamicData, key, value);
-          });
+          }
           data.dynamicData.push(dynamicData);
-        });
+        }
         if (data.name.trim() === "") {
           Qmsg.error("规则名称不能为空");
           return {
@@ -21080,9 +21392,10 @@
     getMappingData(url = window.location.href) {
       const matchedRule = this.getUrlMatchedRule(true, url);
       const replaceMappingData = [];
-      matchedRule.forEach((data) => {
+      for (let i = 0; i < matchedRule.length; i++) {
+        const data = matchedRule[i];
         try {
-          let iteratorData = Array.isArray(data.dynamicData) ? [...data.dynamicData].concat(data.data) : [data.data];
+          let iteratorData = Array.isArray(data.dynamicData) ? data.dynamicData.concat(data.data) : [data.data];
           for (let index = 0; index < iteratorData.length; index++) {
             const moreDataItem = iteratorData[index];
             if (moreDataItem.isRegExp) {
@@ -21100,7 +21413,7 @@
         } catch (error) {
           log.error("字符映射规则转换发生错误：", error);
         }
-      });
+      }
       return replaceMappingData;
     },
     getData() {
@@ -21560,11 +21873,12 @@
     },
     initDictMapping() {
       const ruleOptionKeys = Object.keys(this.$rule.ruleOption);
-      ruleOptionKeys.forEach((ruleKeyName) => {
+      for (let index = 0; index < ruleOptionKeys.length; index++) {
+        const ruleKeyName = ruleOptionKeys[index];
         this.$match.matchedInfo.set(ruleKeyName, new utils.Dictionary());
         this.$match.blackMatchedInfo.set(ruleKeyName, new utils.Dictionary());
         this.$match.tempMatchedInfo.set(ruleKeyName, new utils.Dictionary());
-      });
+      }
       const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
       const TAG = CommonUtil.isTopWindow() ? "" : "iframe：";
       if (matchedUrlRuleList.length) {
@@ -21581,13 +21895,14 @@
             log.info(`${TAG}当前网址：` + self.location.href);
             const ruleList = [];
             const subscribeRuleList = [];
-            matchedUrlRuleList.forEach((rule) => {
+            for (let index = 0; index < matchedUrlRuleList.length; index++) {
+              const rule = matchedUrlRuleList[index];
               if (rule.subscribeUUID) {
                 subscribeRuleList.push(rule);
               } else {
                 ruleList.push(rule);
               }
-            });
+            }
             let alertMessage = "";
             if (ruleList.length) {
               alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
@@ -21620,13 +21935,14 @@
             log.info(`${TAG}当前网址：` + self.location.href);
             const ruleList = [];
             const subscribeRuleList = [];
-            matchedCharacterMappingRuleList.forEach((rule) => {
+            for (let index = 0; index < matchedCharacterMappingRuleList.length; index++) {
+              const rule = matchedCharacterMappingRuleList[index];
               if (rule.subscribeUUID) {
                 subscribeRuleList.push(rule);
               } else {
                 ruleList.push(rule);
               }
-            });
+            }
             let alertMessage = "";
             if (ruleList.length) {
               alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
@@ -21986,6 +22302,7 @@
               textList: [text, html],
               matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
               matchedRuleOption: NetDisk.$rule.ruleOption,
+              matchedRulesEnable: true,
               startTime: Date.now(),
               from: "ShortCut-Select-Content",
             });
@@ -22453,6 +22770,19 @@
                 {
                   type: "container",
                   text: "",
+                  views: [
+                    UISwitch(
+                      "启用",
+                      "netdisk-rules-enable",
+                      true,
+                      void 0,
+                      "全局控制所有规则是否启用，开启可允许匹配所有规则，关闭则禁止匹配所有规则"
+                    ),
+                  ],
+                },
+                {
+                  type: "container",
+                  text: "",
                   className: "netdisk-panel-forms-function",
                   views: [
                     UISelect(
@@ -22510,7 +22840,7 @@
               views: [
                 {
                   type: "container",
-                  text: "文本匹配范围",
+                  text: "文本匹配",
                   views: [
                     UISelectMultiple(
                       "匹配规则类型",

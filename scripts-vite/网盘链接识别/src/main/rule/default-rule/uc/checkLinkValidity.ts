@@ -1,7 +1,7 @@
 import { DOMUtils, httpx, utils } from "@/env";
 import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidityRequestOption } from "../../../handler/check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskCheckLinkValidityRequestOption } from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
 export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceInstance = {
   async init(netDiskInfo) {
@@ -28,15 +28,18 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceInstan
       };
     }
     const responseDocument = DOMUtils.toElement(responseText, true, true);
-    if (responseDocument.querySelector(".h5-page-main")) {
+    const $errorTip =
+      responseDocument.querySelector<HTMLElement>(".h5-page-main")! ||
+      responseDocument.querySelector<HTMLElement>(".share-error-tips");
+    if ($errorTip) {
       // 存在错误
-      const $h5PageMain = responseDocument.querySelector<HTMLElement>(".h5-page-main")!;
-      const errorText = $h5PageMain.textContent || $h5PageMain.innerText;
+      const errorText = $errorTip.textContent || $errorTip.innerText;
       if (
         errorText.includes("失效") ||
         errorText.includes("不存在") ||
         errorText.includes("违规") ||
-        errorText.includes("删除")
+        errorText.includes("删除") ||
+        errorText.includes("停止分享")
       ) {
         return {
           ...NetDiskCheckLinkValidityStatus.failed,

@@ -2,7 +2,7 @@ import { httpx, utils } from "@/env";
 import {
   NetDiskCheckLinkValidity,
   NetDiskCheckLinkValidityRequestOption,
-} from "../../../handler/check-valid/NetDiskCheckLinkValidity";
+} from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranceInstance = {

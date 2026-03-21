@@ -18,8 +18,9 @@ export class NetDiskParse_UC extends ParseFileCore {
     const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 
     const $loading = Qmsg.loading("正在检查是否已登录UC网盘...");
+
     const loginStatus = await this.isLogin();
-    if (!Boolean(loginStatus)) {
+    if (!loginStatus) {
       $loading.close();
       this.gotoLogin(
         "检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
@@ -36,7 +37,6 @@ export class NetDiskParse_UC extends ParseFileCore {
     const detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
     if (!detail) {
       $loading.close();
-      Qmsg.error("UC网盘：获取detail失败");
       return;
     }
     if (detail.length === 1 && detail[0].dir == false && detail[0].file_type === 1) {
@@ -73,7 +73,6 @@ export class NetDiskParse_UC extends ParseFileCore {
       const folderInfoList = this.getFolderInfo(detail, stoken, 0);
       log.info("递归完毕");
       NetDiskView.$inst.linearChainDialogView.moreFile("UC网盘文件解析", folderInfoList);
-      return;
     }
     $loading.close();
   }
@@ -88,10 +87,10 @@ export class NetDiskParse_UC extends ParseFileCore {
     });
     log.success("判断是否已登录UC网盘", response);
     if (!response.status) {
-      return;
+      return false;
     }
     if (response.data.finalUrl === "https://drive.uc.cn/list") {
-      return "已登录";
+      return true;
     } else {
       return false;
     }
@@ -286,15 +285,30 @@ export class NetDiskParse_UC extends ParseFileCore {
     if (!response.status) {
       return;
     }
-    const data = utils.toJSON(response.data.responseText);
-    log.info("获取detail：", data);
-    if (data["code"] !== 0) {
-      log.error("获取detail失败", data);
+    const data = utils.toJSON<{
+      status: number;
+      code: number;
+      message: string;
+      timestamp: number;
+      data: {
+        is_owner: number;
+        list: [];
+      };
+      metadata: {
+        _size: number;
+        _page: number;
+        _count: number;
+        _total: number;
+        check_fid_token: number;
+      };
+    }>(response.data.responseText);
+    log.info("获取detail:", data);
+    if (data.code !== 0) {
       Qmsg.error("获取detail失败");
       return;
     }
-    const metadata = data["metadata"];
-    if (metadata && metadata["_total"] && metadata["_total"] > metadata["_size"]) {
+    const metadata = data.metadata;
+    if (metadata && metadata._total && metadata._total > metadata._size) {
       // 文件的总数量超过默认的值
       return await this.getDetail(
         pwd_id,
@@ -303,13 +317,17 @@ export class NetDiskParse_UC extends ParseFileCore {
         pdir_fid,
         force,
         _page,
-        metadata["_total"],
+        metadata._total,
         _fetch_banner,
         _fetch_share,
         _fetch_total
       );
     }
-    return data["data"]["list"];
+    if (data.data.list.length === 0) {
+      Qmsg.error("链接内容为空");
+      return;
+    }
+    return data.data.list;
   }
   /**
    * 获取下载信息
@@ -468,7 +486,7 @@ export class NetDiskParse_UC extends ParseFileCore {
               log.success("里面没有文件");
               return [];
             }
-            let newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
+            const newDetail = await this.getDetail(this.shareCode, this.accessCode, stoken, item.fid);
             if (newDetail) {
               return this.getFolderInfo(newDetail, stoken, index + 1);
             } else {

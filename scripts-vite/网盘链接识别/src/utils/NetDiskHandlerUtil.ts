@@ -28,7 +28,8 @@ export const NetDiskHandlerUtil = {
    */
   replaceText(matchText: string, pattern: RegExp | RegExp[] | string | string[], newText: string) {
     if (Array.isArray(pattern)) {
-      for (const patternItem of pattern) {
+      for (let i = 0; i < pattern.length; i++) {
+        const patternItem = pattern[i];
         matchText = this.replaceText(matchText, patternItem, newText);
       }
     } else {

@@ -1,20 +1,21 @@
 import { log } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { NetDiskAutoFillAccessCode_baidu } from "../../rule/default-rule/baidu/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_lanzou } from "../../rule/default-rule/lanzou/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_tianyiyun } from "../../rule/default-rule/tianyiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_hecaiyun } from "../../rule/default-rule/hecaiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_aliyun } from "../../rule/default-rule/aliyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_123pan } from "../../rule/default-rule/123pan/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_weiyun } from "../../rule/default-rule/weiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_xunlei } from "../../rule/default-rule/xunlei/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_kuake } from "../../rule/default-rule/kuake/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_chengtong } from "../../rule/default-rule/chengtong/autoFillAccessCode";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
-import { NetDiskAutoFillAccessCode_115pan } from "../../rule/default-rule/115pan/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_360yunpan } from "../../rule/default-rule/360yunpan/autoFillAccessCode";
-import { NetDiskRuleData } from "../../data/NetDiskRuleData";
-import { NetDiskAutoFillAccessCode_feijipan } from "../../rule/default-rule/feijipan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_baidu } from "@/main/rule/default-rule/baidu/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_lanzou } from "@/main/rule/default-rule/lanzou/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_tianyiyun } from "@/main/rule/default-rule/tianyiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_hecaiyun } from "@/main/rule/default-rule/hecaiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_aliyun } from "@/main/rule/default-rule/aliyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_123pan } from "@/main/rule/default-rule/123pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_weiyun } from "@/main/rule/default-rule/weiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_xunlei } from "@/main/rule/default-rule/xunlei/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_kuake } from "@/main/rule/default-rule/kuake/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_chengtong } from "@/main/rule/default-rule/chengtong/autoFillAccessCode";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
+import { NetDiskAutoFillAccessCode_115pan } from "@/main/rule/default-rule/115pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_360yunpan } from "@/main/rule/default-rule/360yunpan/autoFillAccessCode";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
+import { NetDiskAutoFillAccessCode_feijipan } from "@/main/rule/default-rule/feijipan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_uc } from "@/main/rule/default-rule/uc/autoFillAccessCode";
 
 /**
  * 规则配置
@@ -92,6 +93,10 @@ export const NetDiskAutoFillAccessCodeRule: Record<string, (netDiskInfo: NetDisk
    * 小飞机网盘
    */
   feijipan: NetDiskAutoFillAccessCode_feijipan,
+  /**
+   * UC网盘
+   */
+  uc: NetDiskAutoFillAccessCode_uc,
 };
 
 /** 网盘-自动填充访问码 */

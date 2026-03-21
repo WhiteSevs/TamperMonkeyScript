@@ -3,13 +3,13 @@ import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
 import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
 import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
-import { NetDiskGlobalData } from "../../data/NetDiskGlobalData";
+import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import {
   NetDiskCheckLinkValidity,
   type NetDiskCheckLinkValidityInfoConfig,
-} from "../../handler/check-valid/NetDiskCheckLinkValidity";
-import { NetDisk } from "../../NetDisk";
-import { NetDiskPops } from "../../pops/NetDiskPops";
+} from "@/main/handler/check-valid/NetDiskCheckLinkValidity";
+import { NetDisk } from "@/main/NetDisk";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskView } from "../NetDiskView";
 import { NetDiskSuspensionConfig } from "../suspension/NetDiskSuspensionView";
 import indexCSS from "./index.css?raw";
@@ -799,7 +799,8 @@ export const NetDiskLinkView = {
       [$iconImg, $link]
     );
     // 触发规则的渲染函数
-    NetDisk.$rule.rule.forEach((ruleConfig) => {
+    for (let i = 0; i < NetDisk.$rule.rule.length; i++) {
+      const ruleConfig = NetDisk.$rule.rule[i];
       if (ruleConfig.setting.key === ruleKeyName && typeof ruleConfig.afterRenderUrlBox === "function") {
         ruleConfig.afterRenderUrlBox({
           $viewBox: $urlBox,
@@ -812,7 +813,7 @@ export const NetDiskLinkView = {
           accessCode,
         });
       }
-    });
+    }
     return {
       $urlBox,
       $urlDiv,

@@ -70,6 +70,8 @@ export const NetDiskShortcut = {
             matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
             // 剪贴板匹配的话直接使用全部规则来进行匹配
             matchedRuleOption: NetDisk.$rule.ruleOption,
+            // 强制启用
+            matchedRulesEnable: true,
             startTime: Date.now(),
             from: "ShortCut-Select-Content",
           });

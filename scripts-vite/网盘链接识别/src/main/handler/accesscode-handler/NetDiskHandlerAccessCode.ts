@@ -1,4 +1,5 @@
 import { NetDiskAccessCodeHandler_baidu } from "@/main/rule/default-rule/baidu/accessCodeHandler";
+import { NetDiskAccessCodeHandler_uc } from "@/main/rule/default-rule/uc/accessCodeHandler";
 
 /**
  * 规则配置
@@ -11,6 +12,10 @@ export const NetDiskHandlerAccessCodeRule: Record<
    * 百度网盘
    */
   baidu: NetDiskAccessCodeHandler_baidu,
+  /**
+   * UC网盘
+   */
+  uc: NetDiskAccessCodeHandler_uc,
 };
 
 /**

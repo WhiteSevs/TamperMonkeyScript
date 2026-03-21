@@ -1,6 +1,6 @@
 import { utils } from "@/env";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskWorker } from "./NetDiskWorker";
 
 export const NetDiskXhrHook = {

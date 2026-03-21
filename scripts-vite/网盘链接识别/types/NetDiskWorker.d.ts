@@ -39,9 +39,18 @@ declare interface NetDiskWorkerOptions {
    */
   matchTextRange: ("innerHTML" | "innerText")[];
   /**
-   * 匹配的规则
+   * 执行匹配的规则
    */
   matchedRuleOption: NetDiskMatchedRuleOption;
+  /**
+   * 全局管理执行匹配的规则是否启用
+   *
+   * 以下为强制true
+   *
+   * + 快捷键
+   * + 剪贴板识别
+   */
+  matchedRulesEnable: boolean;
   /**
    * 待匹配的字符串数组
    */

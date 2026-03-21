@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { NetDiskPops } from "../../pops/NetDiskPops";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Viewer from "viewerjs";
 import { CommonUtil } from "@components/utils/CommonUtil";
@@ -128,9 +128,10 @@ export const MetaDataParser = {
       log.info("当前查看图片的索引下标：" + imgIndex);
       log.info("当前查看图片的列表信息：", imgList);
       let viewerULNodeHTML = "";
-      imgList.forEach((item) => {
+      for (let i = 0; i < imgList.length; i++) {
+        const item = imgList[i];
         viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
-      });
+      }
       const $viewerContainer = DOMUtils.createElement("ul", {
         innerHTML: viewerULNodeHTML,
       });

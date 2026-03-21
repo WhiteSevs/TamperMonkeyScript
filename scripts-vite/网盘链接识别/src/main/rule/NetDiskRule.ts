@@ -109,7 +109,7 @@ export const NetDiskRule = {
           // 默认规则，放在后面
           commonRule = [...commonRule, ...netDiskRule];
         }
-        let findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
+        const findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
         findValue!.rule = commonRule;
       } else {
         // 不存在，直接新增新的
@@ -122,7 +122,7 @@ export const NetDiskRule = {
       // 对配置的匹配规则解析某些值
       netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);
       // 对配置进行解析出panel视图的配置
-      let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
+      const viewConfig = this.parseRuleSetting(netDiskRuleConfig);
 
       /** 左侧显示的文字 */
       let asideTitle = netDiskRuleConfig.setting.name;
@@ -277,7 +277,8 @@ export const NetDiskRule = {
           text: string;
         }[] = [];
         const dataKeys = Object.keys(data);
-        for (const keyName of dataKeys) {
+        for (let i = 0; i < dataKeys.length; i++) {
+          const keyName = dataKeys[i];
           let itemData = data[keyName as keyof typeof data];
           if (!itemData.enable) {
             continue;

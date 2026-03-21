@@ -262,12 +262,13 @@ export const CharacterMapping = {
 
     const ruleEditSubmitHandler = ($form: HTMLFormElement, isEdit: boolean, editData?: CharacterMappingOption) => {
       // 提交表单
-      const $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
+      const $ulist_li = Array.from($form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li"));
       const data: CharacterMappingOption = this.getTemplateData();
       if (isEdit) {
         data.uuid = editData!.uuid;
       }
-      $ulist_li.forEach(($li) => {
+      for (let i = 0; i < $ulist_li.length; i++) {
+        const $li = $ulist_li[i];
         const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
         const attrs = Reflect.get(viewConfig, "attributes");
         const storageApi = Reflect.get($li, PROPS_STORAGE_API);
@@ -281,27 +282,33 @@ export const CharacterMapping = {
         } else {
           log.error(`${key}不在数据中`);
         }
-      });
+      }
       // 添加的动态属性
-      $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
+      const $dynamicContainers = Array.from(
+        $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist-dynamic__inner-container")
+      );
+      for (let i = 0; i < $dynamicContainers.length; i++) {
+        const $inner = $dynamicContainers[i];
         const dynamicData = {};
-        $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+        const $inner_li_list = Array.from($inner.querySelectorAll<HTMLLIElement>(".dynamic-forms > li"));
+        for (let i = 0; i < $inner_li_list.length; i++) {
+          const $li = $inner_li_list[i];
           const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey).$el;
           if (!viewConfig) {
-            return;
+            continue;
           }
           const attrs = Reflect.get(viewConfig, "attributes");
           if (!attrs) {
-            return;
+            continue;
           }
           const storageApi = Reflect.get($li, PROPS_STORAGE_API);
           const key = Reflect.get(attrs, ATTRIBUTE_KEY);
           const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
           const value = storageApi.get(key, defaultValue);
           Reflect.set(dynamicData, key, value);
-        });
+        }
         data.dynamicData!.push(dynamicData as any);
-      });
+      }
       if (data.name.trim() === "") {
         Qmsg.error("规则名称不能为空");
         return {
@@ -832,9 +839,10 @@ export const CharacterMapping = {
       searchValue: RegExp | string;
       replaceValue: string;
     }[] = [];
-    matchedRule.forEach((data) => {
+    for (let i = 0; i < matchedRule.length; i++) {
+      const data = matchedRule[i];
       try {
-        let iteratorData = Array.isArray(data.dynamicData) ? [...data.dynamicData].concat(data.data) : [data.data];
+        let iteratorData = Array.isArray(data.dynamicData) ? data.dynamicData.concat(data.data) : [data.data];
         for (let index = 0; index < iteratorData.length; index++) {
           const moreDataItem = iteratorData[index];
           if (moreDataItem.isRegExp) {
@@ -854,7 +862,7 @@ export const CharacterMapping = {
       } catch (error) {
         log.error("字符映射规则转换发生错误：", error);
       }
-    });
+    }
     return replaceMappingData;
   },
   /**

@@ -1,25 +1,25 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import { NetDiskCheckLinkValidity_baidu } from "../../rule/default-rule/baidu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzou } from "../../rule/default-rule/lanzou/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzouyx } from "../../rule/default-rule/lanzouyx/checkLinkValidity";
-import { NetDiskCheckLinkValidity_tianyiyun } from "../../rule/default-rule/tianyiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_aliyun } from "../../rule/default-rule/aliyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_wenshushu } from "../../rule/default-rule/wenshushu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_123pan } from "../../rule/default-rule/123pan/checkLinkValidity";
-import { NetDiskCheckLinkValidity_weiyun } from "../../rule/default-rule/weiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_xunlei } from "../../rule/default-rule/xunlei/checkLinkValidity";
-import { NetDiskCheckLinkValidity_chengtong } from "../../rule/default-rule/chengtong/checkLinkValidity";
-import { NetDiskCheckLinkValidity_kuake } from "../../rule/default-rule/kuake/checkLinkValidity";
-import { NetDiskCheckLinkValidity_jianguoyun } from "../../rule/default-rule/jianguoyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_onedrive } from "../../rule/default-rule/onedrive/checkLinkValidity";
-import { NetDiskCheckLinkValidity_uc } from "../../rule/default-rule/uc/checkLinkValidity";
-import { NetDiskLinkView } from "../../view/link-view/NetDiskLinkView";
-import { NetDiskCheckLinkValidity_115pan } from "../../rule/default-rule/115pan/checkLinkValidity";
-import { NetDiskRuleData } from "../../data/NetDiskRuleData";
+import { NetDiskCheckLinkValidity_baidu } from "@/main/rule/default-rule/baidu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzou } from "@/main/rule/default-rule/lanzou/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzouyx } from "@/main/rule/default-rule/lanzouyx/checkLinkValidity";
+import { NetDiskCheckLinkValidity_tianyiyun } from "@/main/rule/default-rule/tianyiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_aliyun } from "@/main/rule/default-rule/aliyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_wenshushu } from "@/main/rule/default-rule/wenshushu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_123pan } from "@/main/rule/default-rule/123pan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_weiyun } from "@/main/rule/default-rule/weiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_xunlei } from "@/main/rule/default-rule/xunlei/checkLinkValidity";
+import { NetDiskCheckLinkValidity_chengtong } from "@/main/rule/default-rule/chengtong/checkLinkValidity";
+import { NetDiskCheckLinkValidity_kuake } from "@/main/rule/default-rule/kuake/checkLinkValidity";
+import { NetDiskCheckLinkValidity_jianguoyun } from "@/main/rule/default-rule/jianguoyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_onedrive } from "@/main/rule/default-rule/onedrive/checkLinkValidity";
+import { NetDiskCheckLinkValidity_uc } from "@/main/rule/default-rule/uc/checkLinkValidity";
+import { NetDiskLinkView } from "@/main/view/link-view/NetDiskLinkView";
+import { NetDiskCheckLinkValidity_115pan } from "@/main/rule/default-rule/115pan/checkLinkValidity";
+import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
-import { NetDiskCheckLinkValidity_360yunpan } from "../../rule/default-rule/360yunpan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_360yunpan } from "@/main/rule/default-rule/360yunpan/checkLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "./NetDiskCheckLinkValidityStatus";
-import { NetDiskCheckLinkValidity_feijipan } from "../../rule/default-rule/feijipan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_feijipan } from "@/main/rule/default-rule/feijipan/checkLinkValidity";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
 // 配置的需要校验的网盘
@@ -97,26 +97,27 @@ export const NetDiskCheckLinkValidity = {
     if (!Array.isArray(checkInfoConfigList)) {
       checkInfoConfigList = [checkInfoConfigList];
     }
-    for (const checkInfoConfigItem of checkInfoConfigList) {
+    for (let i = 0; i < checkInfoConfigList.length; i++) {
+      const checkInfoConfigItem = checkInfoConfigList[i];
       const { ruleKeyName } = checkInfoConfigItem;
       if (!NetDiskCheckLinkValidity.$data.subscribeMap.has(ruleKeyName)) {
         NetDiskCheckLinkValidity.$data.subscribeMap.set(ruleKeyName, []);
       }
-      let subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName)!;
+      const subscribeMapValue = NetDiskCheckLinkValidity.$data.subscribeMap.get(ruleKeyName)!;
       subscribeMapValue.push(checkInfoConfigItem);
     }
-    let execCheck = async () => {
-      let promiseList: Promise<null>[] = [];
+    const execCheck = async () => {
+      const promiseList: Promise<null>[] = [];
       for (const [ruleKeyName, checkInfoList] of NetDiskCheckLinkValidity.$data.subscribeMap.entries()) {
         promiseList.push(
           new Promise(async (resolve) => {
-            let isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
+            const isConsuming = NetDiskCheckLinkValidity.$data.subscribeMapConsuming.get(ruleKeyName);
             if (isConsuming) {
               // 当前单个规则的有效性校验正在执行中...
               resolve(null);
               return;
             }
-            let execCheckConfig = async () => {
+            const execCheckConfig = async () => {
               for (let index = 0; index < checkInfoList.length; index++) {
                 try {
                   const checkInfo = checkInfoList[index];
@@ -304,7 +305,8 @@ export const NetDiskCheckLinkValidity = {
    * @param statusInfo
    */
   getStatusName(statusInfo: NetDiskCheckLinkValidityStatusInstance) {
-    for (const statusName of Object.keys(NetDiskCheckLinkValidityStatus)) {
+    for (let i = 0; i < Object.keys(NetDiskCheckLinkValidityStatus).length; i++) {
+      const statusName = Object.keys(NetDiskCheckLinkValidityStatus)[i];
       const statusNewInfo = NetDiskCheckLinkValidityStatus[statusName as keyof typeof NetDiskCheckLinkValidityStatus];
       if (statusInfo.code === statusNewInfo.code) {
         return statusName;

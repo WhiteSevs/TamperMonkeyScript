@@ -144,6 +144,8 @@ export const NetDiskGlobalData = {
   },
   /** 功能 */
   features: {
+    /** 启用 */
+    "netdisk-rules-enable": GeneratePanelStorage("netdisk-rules-enable", true),
     /** 匹配模式 */
     "netdisk-match-mode": GeneratePanelStorage("netdisk-match-mode", "MutationObserver" as "MutationObserver" | "Menu"),
     /** 行为模式 */

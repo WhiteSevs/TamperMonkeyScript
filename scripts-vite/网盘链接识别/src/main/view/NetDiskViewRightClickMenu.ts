@@ -269,22 +269,23 @@ export const NetDiskViewRightClickMenu = {
             text: "复制全部",
             icon: "documentCopy",
             callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
-              let $link = menuListenerRootNode as HTMLElement;
-              let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
+              const $link = menuListenerRootNode as HTMLElement;
+              const $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
               // 获取全部链接的复制文本
-              let copyTextList: string[] = [];
-              $boxAll.querySelectorAll<HTMLElement>(selector).forEach(($linkItem) => {
-                const { ruleKeyName, ruleIndex, shareCode, accessCode } =
-                  NetDiskLinkView.parseBoxAttrRuleInfo($linkItem);
+              const copyTextList: string[] = [];
+              const $links = Array.from($boxAll.querySelectorAll<HTMLElement>(selector));
+              for (let i = 0; i < $links.length; i++) {
+                const $link = $links[i];
+                const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskLinkView.parseBoxAttrRuleInfo($link);
                 // 复制的文本
-                let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
+                const copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
                   ruleKeyName,
                   ruleIndex,
                   shareCode,
                   accessCode,
                 });
                 copyTextList.push(copyUrlText);
-              });
+              }
               utils
                 .copy(copyTextList.join("\n"))
                 .then((status) => {

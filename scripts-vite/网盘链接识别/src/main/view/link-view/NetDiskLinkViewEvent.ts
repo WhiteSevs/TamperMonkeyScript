@@ -237,10 +237,11 @@ export const NetDiskLinkViewEvent = {
             let endIndex: number | undefined = void 0;
             if (elementText.includes(dataSharecode)) {
               // 文字包含shareCode
-              let textNodeList = Array.from((<HTMLElement>iterator.value).childNodes).filter(
+              const textNodeList = Array.from((<HTMLElement>iterator.value).childNodes).filter(
                 (ele) => ele.nodeType === Node.TEXT_NODE
               );
-              for (const textNode of textNodeList) {
+              for (let i = 0; i < textNodeList.length; i++) {
+                const textNode = textNodeList[i];
                 if ((textNode as HTMLElement)!.textContent!.includes(dataSharecode)) {
                   childTextNode = textNode;
                   startIndex = textNode!.textContent!.indexOf(dataSharecode);

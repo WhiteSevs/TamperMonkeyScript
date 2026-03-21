@@ -98,11 +98,13 @@ export const NetDisk = {
    */
   initDictMapping() {
     const ruleOptionKeys = Object.keys(this.$rule.ruleOption);
-    ruleOptionKeys.forEach((ruleKeyName) => {
+    for (let index = 0; index < ruleOptionKeys.length; index++) {
+      const ruleKeyName = ruleOptionKeys[index];
+
       this.$match.matchedInfo.set(ruleKeyName, new utils.Dictionary());
       this.$match.blackMatchedInfo.set(ruleKeyName, new utils.Dictionary());
       this.$match.tempMatchedInfo.set(ruleKeyName, new utils.Dictionary());
-    });
+    }
 
     // 这里是输出信息用的，无其它的作用
     const matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
@@ -121,13 +123,14 @@ export const NetDisk = {
           log.info(`${TAG}当前网址：` + self.location.href);
           const ruleList: WebsiteRuleOption[] = [];
           const subscribeRuleList: WebsiteRuleOption[] = [];
-          matchedUrlRuleList.forEach((rule) => {
+          for (let index = 0; index < matchedUrlRuleList.length; index++) {
+            const rule = matchedUrlRuleList[index];
             if (rule.subscribeUUID) {
               subscribeRuleList.push(rule);
             } else {
               ruleList.push(rule);
             }
-          });
+          }
           let alertMessage = "";
           if (ruleList.length) {
             alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
@@ -161,13 +164,14 @@ export const NetDisk = {
           log.info(`${TAG}当前网址：` + self.location.href);
           const ruleList: CharacterMappingOption[] = [];
           const subscribeRuleList: CharacterMappingOption[] = [];
-          matchedCharacterMappingRuleList.forEach((rule) => {
+          for (let index = 0; index < matchedCharacterMappingRuleList.length; index++) {
+            const rule = matchedCharacterMappingRuleList[index];
             if (rule.subscribeUUID) {
               subscribeRuleList.push(rule);
             } else {
               ruleList.push(rule);
             }
-          });
+          }
           let alertMessage = "";
           if (ruleList.length) {
             alertMessage += ["=====↓↓↓ 以下是本地的规则名 ↓↓↓====="]
