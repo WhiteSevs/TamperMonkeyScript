@@ -83,9 +83,20 @@ export declare class UtilsDictionary<K, V> {
     concat(data: UtilsDictionary<K, V>): void;
     /**
      * 迭代字典
-     * @param callbackfn 回调函数
+     * @param cb 回调函数
      */
-    forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void): void;
+    forEach(cb: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void): void;
+    /**
+     * 找到字典中对应的键和值
+     * @param cb 回调函数
+     */
+    find(cb: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => {
+        key: K;
+        value: V;
+    } | void): {
+        key: K;
+        value: V;
+    } | undefined;
     /**
      * 检查已有的键中是否以xx开头
      * @param key 需要匹配的键

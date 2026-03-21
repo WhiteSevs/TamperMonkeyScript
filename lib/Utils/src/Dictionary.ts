@@ -167,12 +167,33 @@ export class UtilsDictionary<K, V> {
   }
   /**
    * 迭代字典
-   * @param callbackfn 回调函数
+   * @param cb 回调函数
    */
-  forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void) {
+  forEach(cb: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void) {
     this.items.forEach((value, key) => {
-      callbackfn(value, key, this);
+      cb(value, key, this);
     });
+  }
+  /**
+   * 找到字典中对应的键和值
+   * @param cb 回调函数
+   */
+  find(
+    cb: (
+      value: V,
+      key: K,
+      dictionary: UtilsDictionary<K, V>
+    ) => {
+      key: K;
+      value: V;
+    } | void
+  ) {
+    for (const [key, value] of this.items.entries()) {
+      const result = cb(value, key, this);
+      if (result) {
+        return result;
+      }
+    }
   }
   /**
    * 检查已有的键中是否以xx开头
