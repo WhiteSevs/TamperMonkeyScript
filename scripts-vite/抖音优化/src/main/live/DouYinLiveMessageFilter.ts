@@ -179,6 +179,9 @@ export const DouYinLiveMessageFilter = {
         //
       } else if (method === "WebcastLikeMessage") {
         // 点赞信息
+      } else if (method === "WebcastRoomStatsMessage") {
+        // 聊天室顶部的房间状态
+        // 如：xx万人看过
       } else {
         if (import.meta.env.DEV) {
           log.info("未知消息实例类型：" + method, messageInst);

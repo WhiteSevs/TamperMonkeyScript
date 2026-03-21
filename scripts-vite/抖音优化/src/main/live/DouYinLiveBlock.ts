@@ -25,6 +25,9 @@ export const DouYinLiveBlock_ChatRoom = {
     Panel.execMenuOnce("dy-live-shieldMessage", () => {
       return this.shieldMessage();
     });
+    Panel.execMenuOnce("dy-live-blockBottomArea", () => {
+      return this.blockBottomArea();
+    });
   },
   /**
    * 【屏蔽】评论区（聊天室）
@@ -109,6 +112,17 @@ export const DouYinLiveBlock_ChatRoom = {
         '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
       ),
     ];
+  },
+  /**
+   * 【屏蔽】底部遮挡区域
+   */
+  blockBottomArea() {
+    log.info("【屏蔽】底部遮挡区域");
+    return addStyle(/*css*/ `
+      .webcast-chatroom___list{
+        clip-path: none !important;
+      }
+    `);
   },
 };
 

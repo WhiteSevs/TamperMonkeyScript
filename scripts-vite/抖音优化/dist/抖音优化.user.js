@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.3.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,12 +11,13 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
+// @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_download
 // @grant        GM_getResourceText
@@ -24,6 +25,7 @@
 // @grant        GM_info
 // @grant        GM_listValues
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
@@ -35,6 +37,8 @@
 (function (DOMUtils, pops, Utils, Qmsg) {
   "use strict";
 
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
   var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
   var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
   var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
@@ -43,6 +47,8 @@
   var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
   var _GM_registerMenuCommand = (() =>
     typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
   var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
   var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
   var _GM_unregisterMenuCommand = (() =>
@@ -323,6 +329,70 @@
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
+    },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
     },
   };
   const KEY = "GM_Panel";
@@ -859,18 +929,22 @@
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new Utils.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -883,15 +957,44 @@
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -929,6 +1032,7 @@
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -1380,13 +1484,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1945,7 +2060,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -2021,24 +2135,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -8157,6 +8276,9 @@
       Panel.execMenuOnce("dy-live-shieldMessage", () => {
         return this.shieldMessage();
       });
+      Panel.execMenuOnce("dy-live-blockBottomArea", () => {
+        return this.blockBottomArea();
+      });
     },
     shieldChatRoom() {
       log.info("【屏蔽】评论区（聊天室）");
@@ -8215,6 +8337,16 @@
           '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
         ),
       ];
+    },
+    blockBottomArea() {
+      log.info("【屏蔽】底部遮挡区域");
+      return addStyle(
+        `
+      .webcast-chatroom___list{
+        clip-path: none !important;
+      }
+    `
+      );
     },
   };
   const DouYinLiveBlock_VideoAreaRightMenu = {
@@ -14399,6 +14531,13 @@
                     false,
                     void 0,
                     "顶部左右滚动播报（xxx进入/加入了直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部遮挡区域",
+                    "dy-live-blockBottomArea",
+                    true,
+                    void 0,
+                    "该元素会遮挡部分聊天信息，导致显示不全"
                   ),
                 ],
               },

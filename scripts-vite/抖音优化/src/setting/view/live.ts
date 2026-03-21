@@ -345,6 +345,13 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   void 0,
                   "顶部左右滚动播报（xxx进入/加入了直播间），底部滚动播报（xxx来了，xxx给主播点赞）"
                 ),
+                UISwitch(
+                  "【屏蔽】底部遮挡区域",
+                  "dy-live-blockBottomArea",
+                  true,
+                  void 0,
+                  "该元素会遮挡部分聊天信息，导致显示不全"
+                ),
               ],
             },
           ],
