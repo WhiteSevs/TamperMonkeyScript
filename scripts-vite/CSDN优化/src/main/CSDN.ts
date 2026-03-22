@@ -1,13 +1,16 @@
-import { log } from "@/env";
+import { addStyle, log } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { CSDNBlog } from "./blog/CSDNBlog";
 import { CSDNHuaWeiCloud } from "./huaWeiCloud/CSDNHuaWeiCloud";
 import { CSDNLink } from "./link/CSDNLink";
 import { CSDNWenKu } from "./wenku/CSDNWenKu";
 import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
+import { CSDNDownload } from "./download/CSDNDownload";
+import blockCSS from "@/css/block.css?raw";
 
 export const CSDN = {
   init() {
+    addStyle(blockCSS);
     if (CSDNRouter.isLink()) {
       log.info("Router: 中转链接");
       CSDNLink.init();
@@ -25,6 +28,9 @@ export const CSDN = {
     } else if (CSDNRouter.isWenKu()) {
       log.info("Router: 文库");
       CSDNWenKu.init();
+    } else if (CSDNRouter.isDownload()) {
+      log.info("Router: 下载");
+      CSDNDownload.init();
     } else {
       log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
     }

@@ -1,0 +1,8 @@
+/* 红包雨 */
+#csdn-redpack,
+/* 顶部 购会员横幅 */
+.page-container .top-bar,
+/* 底部 购会员横幅 */
+.page-container .fix-bottom-bar {
+  display: none !important;
+}

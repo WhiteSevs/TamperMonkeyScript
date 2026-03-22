@@ -1,0 +1,6 @@
+/* 顶部工具栏右边的 会员 */
+#csdn-toolbar .toolbar-btn > a[href*="mall.csdn.net/vip"],
+/* 顶部工具栏右边的 VIP抢千元豪礼 */
+#csdn-toolbar a.toolbar-btn[href*="mall.csdn.net/vip"] {
+  display: none !important;
+}

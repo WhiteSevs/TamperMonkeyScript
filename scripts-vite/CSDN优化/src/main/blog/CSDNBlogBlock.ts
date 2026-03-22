@@ -27,6 +27,9 @@ export const CSDNBlogBlock = {
     Panel.execMenuOnce("csdn-blog-blockBottomAskAIToolbar", () => {
       return this.blockBottomAskAIToolbar();
     });
+    Panel.execMenuOnce("csdn-blog-blockRunnerBox", () => {
+      return this.blockRunnerBox();
+    });
   },
   /**
    * 添加屏蔽CSS和功能CSS
@@ -76,5 +79,12 @@ export const CSDNBlogBlock = {
   blockBottomAskAIToolbar() {
     log.info(`【屏蔽】底部的AI伴读`);
     return CommonUtil.addBlockCSS(`[class*="Container_"]:has([class^="chatMain"])`);
+  },
+  /**
+   * 【屏蔽】runner-box
+   */
+  blockRunnerBox() {
+    log.info(`【屏蔽】runner-box`);
+    return CommonUtil.addBlockCSS(`.runner-box`);
   },
 };

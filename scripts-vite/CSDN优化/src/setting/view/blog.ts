@@ -51,6 +51,7 @@ export const SettingUIBlog: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】底部文章", "csdn-blog-blockBottomRecommendArticle", false),
                 UISwitch("【屏蔽】底部的悬浮工具栏", "csdn-blog-shieldBottomFloatingToolbar", false),
                 UISwitch("【屏蔽】底部的AI伴读", "csdn-blog-blockBottomAskAIToolbar", false),
+                UISwitch("【屏蔽】runner-box", "csdn-blog-blockRunnerBox", true),
               ],
             },
           ],

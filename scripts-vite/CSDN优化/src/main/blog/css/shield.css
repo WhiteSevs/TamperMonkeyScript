@@ -36,6 +36,8 @@ div.csdn-side-toolbar .activity-swiper-box,
 /* 侧栏的【点击体验 DeepSeekR1满血版】 */
 #sidecolumn-deepseek,
 /* 侧栏的【下载APP、公众号、视频号】 */
-.csdn-side-toolbar .option-box[data-type="app"] {
+.csdn-side-toolbar .option-box[data-type="app"],
+/* 右偏下的悬浮的 本文章已经生成可运行项目 */
+body > .ins-code-runner-btn {
   display: none !important;
 }

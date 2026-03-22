@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.15
+// @version      2026.3.22
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
@@ -340,6 +340,70 @@
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -347,7 +411,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -423,24 +486,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -1216,20 +1284,20 @@
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -1241,7 +1309,7 @@
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -1252,9 +1320,9 @@
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -1262,7 +1330,7 @@
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -1275,7 +1343,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1351,8 +1422,8 @@
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -1552,13 +1623,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1984,20 +2066,20 @@
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -2012,7 +2094,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -2097,32 +2179,549 @@
       };
     },
   };
+  class RouterBuilder {
+    __href__;
+    get __href() {
+      return this.__href__ || globalThis.location.href;
+    }
+    __origin = {
+      value: void 0,
+      type: "same",
+    };
+    __protocol = {
+      value: void 0,
+      type: "same",
+    };
+    __host = {
+      value: void 0,
+      type: "same",
+      hasPort: false,
+    };
+    __pathname = {
+      value: void 0,
+      type: "same",
+    };
+    __searchParams = {
+      value: new Set(),
+    };
+    constructor(href) {
+      if (typeof href === "string") {
+        this.href(href);
+      }
+    }
+    href(url) {
+      this.__href__ = url;
+      return this;
+    }
+    origin(origin) {
+      this.__origin = {
+        value: origin,
+        type: "same",
+      };
+      return this;
+    }
+    originStartsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "startsWith",
+      };
+      return this;
+    }
+    originEndsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "endsWith",
+      };
+      return this;
+    }
+    originIncludes(origin) {
+      this.__origin = {
+        value: origin,
+        type: "includes",
+      };
+      return this;
+    }
+    originMatch(origin) {
+      this.__origin = {
+        value: origin,
+        type: "match",
+      };
+      return this;
+    }
+    protocol(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "same",
+      };
+      return this;
+    }
+    protocolStartsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "startsWith",
+      };
+      return this;
+    }
+    protocolEndsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "endsWith",
+      };
+      return this;
+    }
+    protocolIncludes(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "includes",
+      };
+      return this;
+    }
+    protocolMatch(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "match",
+      };
+      return this;
+    }
+    host(host) {
+      this.__host = {
+        value: host,
+        type: "same",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostStartsWith(host) {
+      this.__host = {
+        value: host,
+        type: "startsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostEndsWith(host) {
+      this.__host = {
+        value: host,
+        type: "endsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostIncludes(host) {
+      this.__host = {
+        value: host,
+        type: "includes",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostMatch(host) {
+      this.__host = {
+        value: host,
+        type: "match",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostName(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "same",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameStartsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "startsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameEndsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "endsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameIncludes(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "includes",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameMatch(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "match",
+        hasPort: false,
+      };
+      return this;
+    }
+    pathname(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "same",
+      };
+      return this;
+    }
+    pathnameStartsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "startsWith",
+      };
+      return this;
+    }
+    pathnameEndsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "endsWith",
+      };
+      return this;
+    }
+    pathnameIncludes(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "includes",
+      };
+      return this;
+    }
+    pathnameMatch(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "match",
+      };
+      return this;
+    }
+    search(name, value) {
+      this.__searchParams.value.add({
+        name,
+        value,
+      });
+      return this;
+    }
+    build() {
+      if (!this.__host.value) {
+        throw new TypeError("host or hostName should be required");
+      }
+      const protocol = this.__protocol.value || "https";
+      const host = this.__host.value;
+      const pathname = this.__pathname.value || "/";
+      let url = `${protocol}://${host}${pathname}`;
+      if (this.__searchParams.value.size > 0) {
+        const searhList = [];
+        this.__searchParams.value.forEach((it) => {
+          if (typeof it.name === "string") {
+            let value = "";
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
+              value = it.value.toString();
+            }
+            searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
+          }
+        });
+        if (searhList.length) {
+          url += `?${searhList.join("&")}`;
+        }
+      }
+      return url;
+    }
+    or(href) {
+      return new RouterBuilder(href);
+    }
+    r() {
+      const urlInst = new URL(this.__href);
+      const flag = [
+        () => {
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin === this.__origin.value;
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "startsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.startsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "endsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.endsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "includes") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.includes(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "match") {
+              if (this.__origin.value instanceof RegExp) {
+                return this.__origin.value.test(urlInst.origin);
+              } else {
+                throw new TypeError("origin value should be RegExp by type " + this.__origin.type);
+              }
+            } else {
+              throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol === this.__protocol.value;
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "startsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.startsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "endsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.endsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "includes") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.includes(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "match") {
+              if (this.__protocol.value instanceof RegExp) {
+                return this.__protocol.value.test(urlInst.protocol);
+              } else {
+                return urlInst.protocol.match(this.__protocol.value);
+              }
+            } else {
+              throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+
+        () => {
+          if (this.__host.value) {
+            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
+            if (this.__host.type === "same") {
+              if (typeof this.__host.value === "string") {
+                return this.__host.value === host;
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "startsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.startsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "endsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.endsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "includes") {
+              if (typeof this.__host.value === "string") {
+                return host.includes(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "match") {
+              if (this.__host.value instanceof RegExp) {
+                return this.__host.value.test(host);
+              } else {
+                return host.match(this.__host.value);
+              }
+            } else {
+              throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname === this.__pathname.value;
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "startsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.startsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "endsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.endsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "includes") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.includes(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "match") {
+              if (this.__pathname.value instanceof RegExp) {
+                return this.__pathname.value.test(urlInst.pathname);
+              } else {
+                return urlInst.pathname.match(this.__pathname.value);
+              }
+            } else {
+              throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          let flag2 = true;
+          if (this.__searchParams.value.size > 0) {
+            const searchParamsList = [];
+            this.__searchParams.value.forEach((item) => {
+              searchParamsList.push(item);
+            });
+            for (let index = 0; index < searchParamsList.length; index++) {
+              const item = searchParamsList[index];
+              if (typeof item.name === "string") {
+                let value = item.value;
+                if (
+                  value == null ||
+                  typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                ) {
+                  value = value == null ? void 0 : value.toString();
+                  if (!urlInst.searchParams.has(item.name, value)) {
+                    flag2 = false;
+                    break;
+                  }
+                } else if (value instanceof RegExp) {
+                  const targetValue = urlInst.searchParams.get(item.name);
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    flag2 = false;
+                    break;
+                  }
+                } else {
+                  throw new TypeError("searchParams value should be string、RegExp、boolean、number、null、undefined");
+                }
+              } else if (item.name instanceof RegExp) {
+                let targetKey = void 0;
+                let targetValue = void 0;
+                urlInst.searchParams.forEach((__value__, __key__) => {
+                  if (!targetKey && __key__.match(item.name)) {
+                    targetKey = __key__;
+                    targetValue = __value__;
+                  }
+                });
+                if (targetKey) {
+                  let value = item.value;
+                  if (value == null);
+                  else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                    value = value.toString();
+                    flag2 = value === targetValue;
+                    if (!flag2) {
+                      break;
+                    }
+                  } else if (value instanceof RegExp) {
+                    if (targetValue) {
+                      if (!value.test(targetValue)) {
+                        flag2 = false;
+                        break;
+                      }
+                    } else {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    throw new TypeError(
+                      "searchParams value should be string、RegExp、boolean、number、null、undefined"
+                    );
+                  }
+                } else {
+                  flag2 = false;
+                  break;
+                }
+              } else {
+                throw new TypeError("searchParams name should be string or RegExp");
+              }
+            }
+          }
+          return flag2;
+        },
+      ].every((it) => it());
+      return flag;
+    }
+  }
+  const RouterUtil = {
+    host(host, href) {
+      return new RouterBuilder(href).host(host);
+    },
+    hostName(name, href) {
+      return new RouterBuilder(href).hostName(name);
+    },
+    seach(name, value, href) {
+      return new RouterBuilder(href).search(name, value);
+    },
+    pathname(name, href) {
+      return new RouterBuilder(href).pathname(name);
+    },
+    protocol(protocol, href) {
+      return new RouterBuilder(href).protocol(protocol);
+    },
+    builder(href) {
+      return new RouterBuilder(href);
+    },
+  };
   const CSDNRouter = {
     isHuaWeiCloudBlog() {
-      return Boolean(/huaweicloud.csdn.net/i.test(window.location.origin));
+      return RouterUtil.builder().originIncludes("huaweicloud.csdn.net").r();
     },
     isBlog() {
-      return Boolean(/blog.csdn.net/i.test(window.location.origin));
+      return RouterUtil.builder().originIncludes("blog.csdn.net").r();
     },
     isBlogArticle() {
-      return this.isBlog() && window.location.pathname.includes("/article/details/");
+      return this.isBlog() && RouterUtil.builder().pathnameIncludes("/article/details/").r();
     },
     isWenKu() {
-      return Boolean(/wenku.csdn.net/i.test(window.location.origin));
+      return RouterUtil.builder().originIncludes("wenku.csdn.net").r();
     },
     isLink() {
-      return window.location.hostname === "link.csdn.net";
+      return RouterUtil.hostName("link.csdn.net").r();
     },
     isSo() {
-      return window.location.hostname === "so.csdn.net";
+      return RouterUtil.hostName("so.csdn.net").r();
     },
     isSoCKnow() {
-      return (
-        this.isSo() && (window.location.pathname.startsWith("/chat") || window.location.pathname.startsWith("/so/ai"))
-      );
+      return this.isSo() && RouterUtil.builder().pathnameStartsWith("/chat").or().pathnameStartsWith("/so/ai").r();
     },
     isDownload() {
-      return window.location.hostname === "download.csdn.net";
+      return RouterUtil.hostName("download.csdn.net").r();
     },
   };
   const CSDNLink = {
@@ -2233,7 +2832,7 @@
   const BlogCSS =
     "/*.blog_container_aside,\n#nav {\n	margin-left: -45px;\n}\n.recommend-right.align-items-stretch.clearfix,\n.dl_right_fixed {\n	margin-left: 45px;\n}*/\n";
   const BlogShieldCSS =
-    '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */\n#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"] {\n  display: none !important;\n}\n';
+    '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */\n#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"],\n/* 右偏下的悬浮的 本文章已经生成可运行项目 */\nbody > .ins-code-runner-btn {\n  display: none !important;\n}\n';
   const CSDNBlogBlock = {
     init() {
       Panel.onceExec("csdn-blog-blockCSS", () => {
@@ -2256,6 +2855,9 @@
       });
       Panel.execMenuOnce("csdn-blog-blockBottomAskAIToolbar", () => {
         return this.blockBottomAskAIToolbar();
+      });
+      Panel.execMenuOnce("csdn-blog-blockRunnerBox", () => {
+        return this.blockRunnerBox();
       });
     },
     addCSS() {
@@ -2285,6 +2887,10 @@
     blockBottomAskAIToolbar() {
       log.info(`【屏蔽】底部的AI伴读`);
       return CommonUtil$1.addBlockCSS(`[class*="Container_"]:has([class^="chatMain"])`);
+    },
+    blockRunnerBox() {
+      log.info(`【屏蔽】runner-box`);
+      return CommonUtil$1.addBlockCSS(`.runner-box`);
     },
   };
   const CSDNBlog = {
@@ -3642,8 +4248,20 @@
       );
     },
   };
+  const indexCSS = "";
+  const blockCSS$1 =
+    "/* 红包雨 */\n#csdn-redpack,\n/* 顶部 购会员横幅 */\n.page-container .top-bar,\n/* 底部 购会员横幅 */\n.page-container .fix-bottom-bar {\n  display: none !important;\n}\n";
+  const CSDNDownload = {
+    init() {
+      addStyle(blockCSS$1);
+      addStyle(indexCSS);
+    },
+  };
+  const blockCSS =
+    '/* 顶部工具栏右边的 会员 */\n#csdn-toolbar .toolbar-btn > a[href*="mall.csdn.net/vip"],\n/* 顶部工具栏右边的 VIP抢千元豪礼 */\n#csdn-toolbar a.toolbar-btn[href*="mall.csdn.net/vip"] {\n  display: none !important;\n}\n';
   const CSDN = {
     init() {
+      addStyle(blockCSS);
       if (CSDNRouter.isLink()) {
         log.info("Router: 中转链接");
         CSDNLink.init();
@@ -3660,6 +4278,9 @@
       } else if (CSDNRouter.isWenKu()) {
         log.info("Router: 文库");
         CSDNWenKu.init();
+      } else if (CSDNRouter.isDownload()) {
+        log.info("Router: 下载");
+        CSDNDownload.init();
       } else {
         log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
       }
@@ -4211,6 +4832,7 @@
                   UISwitch("【屏蔽】底部文章", "csdn-blog-blockBottomRecommendArticle", false),
                   UISwitch("【屏蔽】底部的悬浮工具栏", "csdn-blog-shieldBottomFloatingToolbar", false),
                   UISwitch("【屏蔽】底部的AI伴读", "csdn-blog-blockBottomAskAIToolbar", false),
+                  UISwitch("【屏蔽】runner-box", "csdn-blog-blockRunnerBox", true),
                 ],
               },
             ],
