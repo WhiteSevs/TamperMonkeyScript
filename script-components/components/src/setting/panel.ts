@@ -233,7 +233,7 @@ const Panel = {
      */
     const initDefaultValue = (config: PopsPanelContainerConfig | PopsPanelViewConfig) => {
       if (!config.attributes) {
-        /* 必须配置attributes属性，用于存储菜单的键和默认值 */
+        // 必须配置attributes属性，用于存储菜单的键和默认值
         return;
       }
 
@@ -243,10 +243,10 @@ const Panel = {
       }
 
       const attributes = config.attributes;
-      /* 调用初始化方法，返回false则阻止默认行为 */
-      let __attr_init__ = attributes[ATTRIBUTE_INIT];
+      // 调用初始化方法，返回false则阻止默认行为
+      const __attr_init__: PanelData_ATTRIBUTE_INIT = attributes[ATTRIBUTE_INIT];
       if (typeof __attr_init__ === "function") {
-        let __attr_result__ = __attr_init__();
+        const __attr_result__ = __attr_init__();
         if (typeof __attr_result__ === "boolean" && !__attr_result__) {
           return;
         }
@@ -259,16 +259,17 @@ const Panel = {
        *
        * value是默认值
        */
-      let menuDefaultConfig = new Map<string, any>();
-      /* 普通的 键名 */
-      let key = attributes[ATTRIBUTE_KEY];
+      const menuDefaultConfig = new Map<string, any>();
+      // 普通的 键名
+      const key = attributes[ATTRIBUTE_KEY];
       if (key != null) {
         // 键名对应的默认值
-        const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
+        const defaultValue: PanelData_ATTRIBUTE_DEFAULT_VALUE = attributes[ATTRIBUTE_DEFAULT_VALUE];
         menuDefaultConfig.set(key, defaultValue);
       }
-      /* 待初始化默认值的配置项 */
-      let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+      // 待初始化默认值的配置项
+      const moreMenuDefaultConfig: PanelData_ATTRIBUTE_INIT_MORE_VALUE =
+        attributes[ATTRIBUTE_INIT_MORE_VALUE];
       if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
         // 追加|覆盖
         Object.keys(moreMenuDefaultConfig).forEach((key) => {
@@ -281,7 +282,8 @@ const Panel = {
         return;
       }
       if (config.type === "switch") {
-        let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+        const disabled =
+          typeof config.disabled === "function" ? config.disabled() : config.disabled;
         if (typeof disabled === "boolean" && disabled) {
           this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
         }
@@ -295,20 +297,20 @@ const Panel = {
     /** 嵌套循环初始化默认值 */
     const loopInitDefaultValue = (configList: PopsPanelContentConfig["views"]) => {
       for (let index = 0; index < configList.length; index++) {
-        let configItem = configList[index];
+        const configItem = configList[index];
         initDefaultValue(configItem);
-        let childViews = (<PopsPanelContainerConfig>configItem).views;
+        const childViews = (<PopsPanelContainerConfig>configItem).views;
         if (childViews && Array.isArray(childViews)) {
-          /* 存在子配置forms */
+          // 存在子配置forms
           loopInitDefaultValue(childViews);
         }
       }
     };
     const contentConfigList = [...PanelContent.getAllContentConfig()];
     for (let index = 0; index < contentConfigList.length; index++) {
-      let leftContentConfigItem = contentConfigList[index];
+      const leftContentConfigItem = contentConfigList[index];
       if (!leftContentConfigItem.views) {
-        /* 不存在forms */
+        // 不存在forms
         continue;
       }
       // 循环左侧容器内存储的右侧配置项
@@ -319,7 +321,9 @@ const Panel = {
     }
 
     // 去重
-    this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
+    this.$data.contentConfigInitDisabledKeys = [
+      ...new Set(this.$data.contentConfigInitDisabledKeys),
+    ];
   },
   /**
    * 设置初始化使用的默认值
@@ -327,9 +331,12 @@ const Panel = {
    * @param defaultValue 默认值
    */
   setDefaultValue(key: string, defaultValue: any) {
-    /* 存储到缓存中*/
+    // 存储到缓存中
     if (this.$data.contentConfigInitDefaultValue.has(key)) {
-      log.warn("该key已存在，初始化默认值失败: " + key);
+      log.warn("该key已存在，初始化默认值失败: ", {
+        key,
+        initValue: this.$data.contentConfigInitDefaultValue.get(key),
+      });
     }
     this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
   },
@@ -356,10 +363,10 @@ const Panel = {
   getValue<T extends any = boolean | undefined>(key: string, defaultValue?: T): T {
     const localValue = PopsPanelStorageApi.get<T>(key);
     if (localValue == null) {
-      /* 值不存在或值为null/undefined或只有键但无值 */
+      // 值不存在或值为null/undefined或只有键但无值
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        /* 先判断是否是菜单配置的键 */
-        /* 是的话取出值并返回 */
+        // 先判断是否是菜单配置的键
+        // 是的话取出值并返回
         return this.$data.contentConfigInitDefaultValue.get(key);
       }
       return defaultValue as T;
@@ -402,7 +409,7 @@ const Panel = {
        * 如果同时设置了immediate，则该配置优先级最低
        */
       immediateAll?: boolean;
-    }
+    },
   ) {
     const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
     if (option?.immediate || option?.immediateAll) {
@@ -454,9 +461,9 @@ const Panel = {
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     checkExec?: (
       /** 键名列表 */
-      keyList: string[]
+      keyList: string[],
     ) => boolean,
-    once: boolean = true
+    once: boolean = true,
   ) {
     const that = this;
 
@@ -478,7 +485,9 @@ const Panel = {
       keyList.push(queryKeyResult);
     }
 
-    const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+    const findNotInDataKey = keyList.find(
+      (it) => !this.$data.contentConfigInitDefaultValue.has(it),
+    );
     if (findNotInDataKey) {
       log.warn(`${findNotInDataKey} 键不存在`);
       return;
@@ -515,8 +524,8 @@ const Panel = {
      * + ExecMenuResultInst
      */
     const addStoreValueCallback = (enableValue: boolean, args: any) => {
-      let dynamicMenuStoreValueList: typeof storeValueList = [];
-      let dynamicDestoryFnList: ((...args: any[]) => void)[] = [];
+      const dynamicMenuStoreValueList: typeof storeValueList = [];
+      const dynamicDestoryFnList: ((...args: any[]) => void)[] = [];
       let resultValueList: any[] = [];
       if (Array.isArray(args)) {
         resultValueList = resultValueList.concat(args);
@@ -650,7 +659,7 @@ const Panel = {
         key: string;
         newValue: any;
         oldValue: any;
-      }
+      },
     ) => {
       const execFlag = checkMenuExec();
       let callbackResult: ExecMenuResult = [];
@@ -729,7 +738,7 @@ const Panel = {
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
-    once: boolean = false
+    once: boolean = false,
   ) {
     return await this.exec<T>(
       key,
@@ -752,7 +761,7 @@ const Panel = {
         });
         return execFlag;
       },
-      once
+      once,
     );
   },
   /**
@@ -768,7 +777,7 @@ const Panel = {
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
-    listenUrlChange: boolean = false
+    listenUrlChange: boolean = false,
   ) {
     const result = await this.execMenu<T>(key, callback, isReverse, true);
     if (listenUrlChange) {
@@ -805,7 +814,7 @@ const Panel = {
    * @param callback 回调
    * @param runWithMenuEnable 是否根据`key`在menu中是否符合开启状态来执行此menu，如果是多个key，那么必须都`enable`才会执行回调
    */
-  onceExec(key: string | string[], callback: () => void, runWithMenuEnable:boolean =false) {
+  onceExec(key: string | string[], callback: () => void, runWithMenuEnable: boolean = false) {
     key = this.transformKey(key);
     if (typeof key !== "string") {
       throw new TypeError("key 必须是字符串");
@@ -814,15 +823,15 @@ const Panel = {
       // log.warn(`${key} 键已执行（最多一次），请勿重复执行`);
       return;
     }
-    if(runWithMenuEnable){
-      const findIndex = (Array.isArray(key) ? key:[key]).findIndex(it=>{
-        const menuEnable =  !!Panel.getValue(it)
-        if(!menuEnable){
+    if (runWithMenuEnable) {
+      const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+        const menuEnable = !!Panel.getValue(it);
+        if (!menuEnable) {
           // 关闭
           return true;
         }
       });
-      if(findIndex !== -1){
+      if (findIndex !== -1) {
         return;
       }
     }
@@ -889,7 +898,7 @@ const Panel = {
     content: PopsPanelContentConfig[],
     title: string = `${SCRIPT_NAME}-设置`,
     preventDefaultContentConfig: boolean = false,
-    preventRegisterSearchPlugin: boolean = false
+    preventRegisterSearchPlugin: boolean = false,
   ) {
     this.$data.$panel = null;
     this.$data.panelContent = [];
@@ -985,7 +994,7 @@ const Panel = {
          * 对象/目标值
          */
         data: any;
-      }>
+      }>,
     ): Promise<Awaited<T>> => {
       if (target == null) {
         // @ts-ignore
@@ -1015,7 +1024,7 @@ const Panel = {
         {
           root: null, // 使用视口作为根
           threshold: 1.0, // 元素完全进入视口时触发
-        }
+        },
       );
       observer.observe($el);
       $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1106,8 +1115,10 @@ const Panel = {
       });
 
       const $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
-      const $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
-      const $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
+      const $searchInput =
+        $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
+      const $searchResultWrapper =
+        $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
 
       $searchInput.focus();
 
@@ -1145,7 +1156,7 @@ const Panel = {
         const panelHandlerComponents = pops.fn.PanelHandlerComponents();
         DOMUtils.on($item, "click", () => {
           const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
-            "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            "aside.pops-panel-aside .pops-panel-aside-top-container li",
           );
           const $targetAsideItem = $asideItems[pathInfo.index!];
           if (!$targetAsideItem) {
@@ -1163,14 +1174,18 @@ const Panel = {
               // 那这里的是deepMenu
               const $findDeepMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
-                  $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
+                  $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item"),
                 ).find(($deepMenu) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $deepMenu,
-                    panelHandlerComponents.$data.nodeStoreConfigKey
+                    panelHandlerComponents.$data.nodeStoreConfigKey,
                   );
                   // 找到对应的二级菜单
-                  return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
+                  return (
+                    typeof viewConfig === "object" &&
+                    viewConfig != null &&
+                    viewConfig.text === target.name
+                  );
                 });
               }, 2500);
               if ($findDeepMenu) {
@@ -1189,21 +1204,27 @@ const Panel = {
             } else {
               const $findTargetMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
-                  $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
+                    `li:not(.pops-panel-deepMenu-nav-item)`,
+                  ),
                 ).find(($menuItem) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $menuItem,
-                    panelHandlerComponents.$data.nodeStoreConfigKey
+                    panelHandlerComponents.$data.nodeStoreConfigKey,
                   );
                   return viewConfig === target.matchedData?.formConfig;
                 });
               }, 2500);
               if ($findTargetMenu) {
                 scrollToElementAndListen($findTargetMenu);
-                const $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
+                const $fold = $findTargetMenu.closest<HTMLElement>(
+                  `.pops-panel-forms-fold[data-fold-enable]`,
+                );
                 // 折叠状态
                 if ($fold) {
-                  const $foldWrapper = $fold.querySelector<HTMLElement>(".pops-panel-forms-fold-container")!;
+                  const $foldWrapper = $fold.querySelector<HTMLElement>(
+                    ".pops-panel-forms-fold-container",
+                  )!;
                   $foldWrapper.click();
                   await utils.sleep(500);
                 }
@@ -1228,7 +1249,10 @@ const Panel = {
       const execSearch = (searchText: string) => {
         const searchTextRegExp = new RegExp(searchText, "i");
         const searchConfigResult: SearchPath[] = [];
-        const loopContentConfig = (configList: PopsPanelContentConfig["views"], path: SearchPath) => {
+        const loopContentConfig = (
+          configList: PopsPanelContentConfig["views"],
+          path: SearchPath,
+        ) => {
           for (let index = 0; index < configList.length; index++) {
             const configItem = configList[index];
 
@@ -1261,10 +1285,8 @@ const Panel = {
               let description: string | undefined;
               if (configItem.type === "own") {
                 // 处理搜索配置
-                let searchConfig: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG | undefined = Reflect.get(
-                  configItem.attributes || {},
-                  ATTRIBUTE_PLUGIN_SEARCH_CONFIG
-                );
+                let searchConfig: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG | undefined =
+                  Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                 if (searchConfig) {
                   if (typeof searchConfig === "function") {
                     searchConfig = searchConfig();
@@ -1343,7 +1365,7 @@ const Panel = {
         for (let index = 0; index < content.length; index++) {
           const leftContentConfigItem = content[index];
           if (!leftContentConfigItem.views) {
-            /* 不存在 */
+            // 不存在
             continue;
           }
           if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
@@ -1364,13 +1386,13 @@ const Panel = {
           }
         }
 
-        const fragment = document.createDocumentFragment();
+        const $fragment = document.createDocumentFragment();
         for (const pathInfo of searchConfigResult) {
-          let $resultItem = createSearchResultItem(pathInfo);
-          fragment.appendChild($resultItem);
+          const $resultItem = createSearchResultItem(pathInfo);
+          $fragment.appendChild($resultItem);
         }
         clearSearchResult();
-        $searchResultWrapper.append(fragment);
+        $searchResultWrapper.append($fragment);
       };
 
       DOMUtils.on(
@@ -1378,24 +1400,24 @@ const Panel = {
         "input",
         utils.debounce((evt2) => {
           DOMUtils.preventEvent(evt2);
-          let searchText = DOMUtils.val($searchInput).trim();
+          const searchText = DOMUtils.val($searchInput).trim();
           if (searchText === "") {
             // 不执行搜索
             clearSearchResult();
             return;
           }
           execSearch(searchText);
-        }, 200)
+        }, 200),
       );
     };
     const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLElement>(
-      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
+      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
     );
     // 为每一项单独监听双击事件
     $asideItems.forEach(($asideItem) => {
       DOMUtils.on($asideItem, "dblclick", dbclick_callback);
     });
-    let clickMap = new WeakMap<Element, Event>();
+    const clickMap = new WeakMap<Element, Event>();
     let isDoubleClick = false;
     let timer: number | undefined = void 0;
     /** 是否是移动端点击 */
@@ -1410,7 +1432,7 @@ const Panel = {
         timer = void 0;
         if (isDoubleClick && clickMap.has($selector as Element)) {
           isDoubleClick = false;
-          /* 判定为双击 */
+          // 判定为双击
           clickMap.delete($selector);
           dbclick_callback(evt);
         } else {
@@ -1424,7 +1446,7 @@ const Panel = {
       },
       {
         capture: true,
-      }
+      },
     );
     $panel.$shadowRoot.appendChild(
       DOMUtils.createElement("style", {
@@ -1451,7 +1473,7 @@ const Panel = {
     				}
     			}
     		`,
-      })
+      }),
     );
   },
   /**
@@ -1501,6 +1523,5 @@ export {
   type ExecMenuCallBackOption,
   type ExecMenuResultInst,
   type OnceExecMenuStoreData,
-  type UrlChangeWithExecMenuOnceEventConfig
+  type UrlChangeWithExecMenuOnceEventConfig,
 };
-
