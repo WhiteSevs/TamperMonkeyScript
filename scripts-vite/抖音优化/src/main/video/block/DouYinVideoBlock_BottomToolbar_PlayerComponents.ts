@@ -14,6 +14,9 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     Panel.execMenuOnce("shieldBottomVideoToolBar-play", () => {
       return this.blockPlay();
     });
+    Panel.execMenuOnce("shieldBottomVideoToolBar-refresh", () => {
+      return this.blockRefresh();
+    });
     Panel.execMenuOnce("shieldBottomVideoToolBar-time", () => {
       return this.blockTime();
     });
@@ -81,6 +84,16 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       ".xgplayer-play",
       // 推荐视频中刷出的直播
       ".douyin-player-controls .douyin-player-play"
+    );
+  },
+  /**
+   * 【屏蔽】刷新
+   */
+  blockRefresh() {
+    log.info(`【屏蔽】刷新`);
+    return CommonUtil.addBlockCSS(
+      // 推荐视频中刷出的直播或者搜索结果的直播
+      ".douyin-player-controls .douyin-player-play+slot:has(svg)"
     );
   },
   /**

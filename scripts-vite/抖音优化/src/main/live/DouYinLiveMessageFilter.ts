@@ -99,7 +99,7 @@ export const DouYinLiveMessageFilter = {
   },
   /**
    * 检测该消息是否应该被过滤
-   * @returns {boolean}
+   * @returns
    * + true 过滤
    * + false 不过滤
    */
@@ -184,7 +184,7 @@ export const DouYinLiveMessageFilter = {
         // 如：xx万人看过
       } else {
         if (import.meta.env.DEV) {
-          log.info("未知消息实例类型：" + method, messageInst);
+          // log.info("未知消息实例类型：" + method, messageInst);
         }
       }
     }

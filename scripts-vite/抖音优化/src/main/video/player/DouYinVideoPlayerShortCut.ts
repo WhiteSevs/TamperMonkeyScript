@@ -1,6 +1,6 @@
 import { $$, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinElement } from "@/utils/DouYinElement";
+import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { Panel } from "@components/setting/panel";
 import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
 import Qmsg from "qmsg";
@@ -105,9 +105,9 @@ export const DouYinVideoPlayerShortCut = {
       "dy-video-shortcut-parseVideo": {
         callback() {
           log.info(`触发快捷键 ==> 视频解析`);
-          const videosInViewVideoList = DouYinElement.getInViewVideo();
+          const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
           const $shareList = $$('[data-e2e="video-player-share"]');
-          const playerShareInViewList = DouYinElement.getInViewNode($shareList);
+          const playerShareInViewList = DouYinElementUtil.getInViewNode($shareList);
           if (!videosInViewVideoList.length && !playerShareInViewList.length) {
             log.error("未找到在可视区域内的视频/图文");
             return;

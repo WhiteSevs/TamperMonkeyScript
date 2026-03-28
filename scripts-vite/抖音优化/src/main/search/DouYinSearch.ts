@@ -1,9 +1,9 @@
-import { DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
+import { DOMUtils, addStyle, cookieManager, log } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
+import { Panel, type ExecMenuCallBackOption } from "@components/setting/panel";
+import Qmsg from "qmsg";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchBlock } from "./DouYinSearchBlock";
-import Qmsg from "qmsg";
-import { Panel, type ExecMenuCallBackOption } from "@components/setting/panel";
-import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearch = {
   init() {

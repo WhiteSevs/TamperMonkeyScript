@@ -1,7 +1,7 @@
 import { $$, log } from "@/env";
 import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import { Panel } from "@components/setting/panel";
-import { DouYinElement } from "@/utils/DouYinElement";
+import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import Qmsg from "qmsg";
 import { DouYinRouter } from "@/router/DouYinRouter";
 
@@ -59,7 +59,7 @@ export const DouYinLiveShortCut = {
       "dy-live-shortcut-switchPlayState": {
         callback() {
           log.info(`触发快捷键 ==> 播放/暂停`);
-          const videosInViewVideoList = DouYinElement.getInViewVideo();
+          const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
           if (!videosInViewVideoList.length) {
             Qmsg.error("未找到直播的video标签");
             return;

@@ -1,6 +1,6 @@
 import { $, $$, DOMUtils, log, utils } from "@/env";
 
-export const DouYinElement = {
+export const DouYinElementUtil = {
   /**
    * 观察 #slidelist的加载每条视频
    * @param callback

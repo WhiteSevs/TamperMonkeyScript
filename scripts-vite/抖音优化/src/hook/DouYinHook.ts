@@ -2,7 +2,7 @@ import { cookieManager, DOMUtils, log, utils } from "@/env";
 import { DouYinLiveMessage } from "@/main/live/DouYinLiveMessage";
 import { DouYinLiveMessageFilter } from "@/main/live/DouYinLiveMessageFilter";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinElement } from "@/utils/DouYinElement";
+import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { OriginPrototype } from "@components/env.base";
 import { Hook } from "@components/hook/Hook";
 import { Panel } from "@components/setting/panel";
@@ -142,8 +142,8 @@ export const DouYinHook = {
             if (DouYinRouter.isChat()) return;
             utils.workerClearTimeout(timeId);
             timeId = utils.workerSetTimeout(() => {
-              const videosInViewVideoList = DouYinElement.getInViewVideo();
-              const playInViewList = DouYinElement.getInViewPlayButton();
+              const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
+              const playInViewList = DouYinElementUtil.getInViewPlayButton();
               if (!videosInViewVideoList.length && !playInViewList.length) {
                 log.error("未找到在可视区域内的视频或播放按钮");
                 return;

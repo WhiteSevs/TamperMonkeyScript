@@ -1,5 +1,5 @@
 import { $, addStyle, DOMUtils, log, utils } from "@/env";
-import { DouYinElement } from "../utils/DouYinElement";
+import { DouYinElementUtil } from "../utils/DouYinElementUtil";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { Panel } from "@components/setting/panel";
@@ -137,11 +137,11 @@ export const DouYinAccount = {
         }
       });
     };
-    DouYinElement.watchFeedVideoListChange(setLogin);
+    DouYinElementUtil.watchFeedVideoListChange(setLogin);
     DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
       .then(() => {
         const lockFn = new utils.LockFunction(() => {
-          const $os = DouYinElement.selectorRootOSNode();
+          const $os = DouYinElementUtil.selectorRootOSNode();
           if (!$os) {
             return;
           }

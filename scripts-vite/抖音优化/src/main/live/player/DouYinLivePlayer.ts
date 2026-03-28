@@ -1,5 +1,6 @@
 import { $, DOMUtils, log, MenuRegister, pops, utils } from "@/env";
 import Qmsg from "qmsg";
+import { DouYinLivePlayerBlock } from "./DouYinLivePlayerBlock";
 
 type DouYinLivePlayerInstance = {
   video: HTMLVideoElement;
@@ -32,12 +33,15 @@ type DouYinLivePlayerInstance = {
   version: string;
 };
 
-export const DouYinLivePlayerInstance = {
+export const DouYinLivePlayer = {
   $data: {
     playerInstance: null as DouYinLivePlayerInstance | null,
   },
   $el: {
     $player: null as HTMLElement | null,
+  },
+  init() {
+    DouYinLivePlayerBlock.init();
   },
   /**
    * 添加油猴菜单
@@ -47,7 +51,7 @@ export const DouYinLivePlayerInstance = {
       key: "live-parsePlayerInstance",
       text: "⚙ PlayerInstance",
       autoReload: false,
-      showText(text, enable) {
+      showText(text) {
         return text;
       },
       callback: () => {

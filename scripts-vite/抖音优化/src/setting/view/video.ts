@@ -519,14 +519,14 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "在右侧作者头像上方或者是在右侧区域"
                 ),
-                UISwitch("【屏蔽】AI抖音", "blockAIDouYin", false, void 0),
-                UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar", false, void 0),
-                UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0),
-                UISwitch("【屏蔽】评论", "shieldCommentButton", false, void 0),
-                UISwitch("【屏蔽】收藏", "shieldCollectionButton", false, void 0),
-                UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0),
-                UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0),
-                UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0),
+                UISwitch("【屏蔽】AI抖音", "blockAIDouYin"),
+                UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar"),
+                UISwitch("【屏蔽】点赞", "shieldLikeButton"),
+                UISwitch("【屏蔽】评论", "shieldCommentButton"),
+                UISwitch("【屏蔽】收藏", "shieldCollectionButton"),
+                UISwitch("【屏蔽】分享", "shieldSharenButton"),
+                UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton"),
+                UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton"),
                 UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "<code>...</code>按钮"),
               ],
             },
@@ -551,9 +551,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UISwitch(
                   "【屏蔽】<code>点击推荐</code>或<code>共xx人推荐</code>",
                   "dy-video-blockClickRecommend",
-                  false,
-                  void 0,
-                  ""
+                  false
                 ),
                 UISwitch(
                   "【屏蔽】视频标题上面的标签",
@@ -569,7 +567,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "例如：相关搜索、AI搜索、合集、汽水音乐...等"
                 ),
-                UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false, void 0),
+                UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false),
                 UISwitch(
                   "【屏蔽】作者声明",
                   "dy-video-blockAuthorDeclaration",
@@ -577,7 +575,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "例如：<code>作者声明：虚构演绎，仅供娱乐</code>"
                 ),
-                UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false, void 0),
+                UISwitch("【屏蔽】识别画面", "dy-video-blockAIIdentifyTheScreen", false),
               ],
             },
           ],
@@ -593,19 +591,20 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               views: [
                 UISwitch("【屏蔽】播放器组件", "shieldBottomVideoToolBar", false, void 0, "整个播放器组件"),
                 UISwitch("【屏蔽】播放", "shieldBottomVideoToolBar-play", false, void 0, "播放|暂停按钮"),
-                UISwitch("【屏蔽】播放时长", "shieldBottomVideoToolBar-time", false, void 0),
-                UISwitch("【屏蔽】章节要点", "shieldBottomVideoToolbar-blockChapterContainer", false, void 0),
-                UISwitch("【屏蔽】弹幕容器", "shieldBottomVideoToolbarDanmuContainer", false, void 0),
-                UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes", false, void 0),
-                UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0),
-                UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0),
-                UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0),
-                UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0),
-                UISwitch("【屏蔽】稍后再看", "shieldBottomVideoToolbar-watchLater", false, void 0),
-                UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0),
-                UISwitch("【屏蔽】音量", "shieldBottomVideoToolbar-volume", false, void 0),
-                UISwitch("【屏蔽】网页全屏", "shieldBottomVideoToolbar-pageFullScreen", false, void 0),
-                UISwitch("【屏蔽】进入全屏", "shieldBottomVideoToolbar-fullScreen", false, void 0),
+                UISwitch("【屏蔽】刷新", "shieldBottomVideoToolBar-refresh", false, void 0, "在直播画面时会存在该控件"),
+                UISwitch("【屏蔽】播放时长", "shieldBottomVideoToolBar-time"),
+                UISwitch("【屏蔽】章节要点", "shieldBottomVideoToolbar-blockChapterContainer", false),
+                UISwitch("【屏蔽】弹幕容器", "shieldBottomVideoToolbarDanmuContainer"),
+                UISwitch("【屏蔽】AI笔记", "shieldBottomVideoToolbar-aiNotes"),
+                UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay"),
+                UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen"),
+                UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity"),
+                UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback"),
+                UISwitch("【屏蔽】稍后再看", "shieldBottomVideoToolbar-watchLater"),
+                UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode"),
+                UISwitch("【屏蔽】音量", "shieldBottomVideoToolbar-volume"),
+                UISwitch("【屏蔽】网页全屏", "shieldBottomVideoToolbar-pageFullScreen"),
+                UISwitch("【屏蔽】进入全屏", "shieldBottomVideoToolbar-fullScreen"),
               ],
             },
           ],
@@ -619,29 +618,25 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: AutoOpenOrClose.text,
               views: [
-                UISwitch("【屏蔽】清屏", "dy-video-player-block-right-menu-clearScreen", false),
-                UISwitch("【屏蔽】评论", "dy-video-player-block-right-menu-comment", false),
-                UISwitch("【屏蔽】赞", "dy-video-player-block-right-menu-like", false),
-                UISwitch("【屏蔽】进入作者主页", "dy-video-player-block-right-menu-enterAuthorHomePage", false),
-                UISwitch("【屏蔽】推荐给朋友", "dy-video-player-block-right-menu-recommendToFriends", false),
-                UISwitch("【屏蔽】分享", "dy-video-player-block-right-menu-share", false),
-                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-notInterested", false),
-                UISwitch("【屏蔽】意见反馈", "dy-video-player-block-right-menu-feedback", false),
-                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-report", false),
-                UISwitch("【屏蔽】进入详情页", "dy-video-player-block-right-menu-enterDetailsPage", false),
+                UISwitch("【屏蔽】清屏", "dy-video-player-block-right-menu-clearScreen"),
+                UISwitch("【屏蔽】评论", "dy-video-player-block-right-menu-comment"),
+                UISwitch("【屏蔽】赞", "dy-video-player-block-right-menu-like"),
+                UISwitch("【屏蔽】进入作者主页", "dy-video-player-block-right-menu-enterAuthorHomePage"),
+                UISwitch("【屏蔽】推荐给朋友", "dy-video-player-block-right-menu-recommendToFriends"),
+                UISwitch("【屏蔽】分享", "dy-video-player-block-right-menu-share"),
+                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-notInterested"),
+                UISwitch("【屏蔽】意见反馈", "dy-video-player-block-right-menu-feedback"),
+                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-report"),
+                UISwitch("【屏蔽】进入详情页", "dy-video-player-block-right-menu-enterDetailsPage"),
               ],
             },
             {
               type: "container",
               text: "直播视频",
               views: [
-                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-live-not-interested", false),
-                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-live-report", false),
-                UISwitch(
-                  "【屏蔽】在新标签页打开直播间",
-                  "dy-video-player-block-right-menu-live-open-blank-room",
-                  false
-                ),
+                UISwitch("【屏蔽】不感兴趣", "dy-video-player-block-right-menu-live-not-interested"),
+                UISwitch("【屏蔽】举报", "dy-video-player-block-right-menu-live-report"),
+                UISwitch("【屏蔽】在新标签页打开直播间", "dy-video-player-block-right-menu-live-open-blank-room"),
               ],
             },
           ],
@@ -655,7 +650,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: AutoOpenOrClose.text,
               views: [
-                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton", false, void 0),
+                UISwitch("【屏蔽】右侧的展开评论按钮", "shieldRightExpandCommentButton"),
                 UISwitch("【屏蔽】搜索悬浮栏", "shieldSearchFloatingBar", false, void 0, "一般出现在左上角"),
                 UISwitch(
                   "【屏蔽】网页全屏关闭按钮",
@@ -671,7 +666,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "该元素出现在视频底部的用户名、标题信息的上面"
                 ),
-                UISwitch("【屏蔽】弹幕", "dy-video-blockDanmaku", false),
+                UISwitch("【屏蔽】弹幕", "dy-video-blockDanmaku"),
                 UISwitch(
                   "【屏蔽】中间的播放图标",
                   "dy-video-blockStartPlayIcon",
@@ -692,7 +687,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar", false, void 0),
+                UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar"),
                 UISwitch(
                   "【屏蔽】大家都在搜",
                   "dy-video-shieldUserCommentEveryOneAllSearch",
@@ -715,16 +710,15 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               views: [
                 UISwitch(
                   "【屏蔽】点击或按<code>F</code>进入直播间",
-                  "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom",
-                  false
+                  "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom"
                 ),
-                UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar", false),
+                UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar"),
               ],
             },
             {
               type: "container",
               text: "播放器组件",
-              views: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh", false)],
+              views: [UISwitch("【屏蔽】刷新", "dy-video-live-block-playComponents-refresh")],
             },
           ],
         },

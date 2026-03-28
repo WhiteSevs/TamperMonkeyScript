@@ -65,7 +65,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("禁止自动播放", "live-pauseVideo", false),
                 UISwitch("自动关闭聊天室", "dy-live-autoCloseChatRoom", false, void 0, "自动点击关闭聊天室按钮"),
-                UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom", false, void 0, ""),
+                UISwitch("禁用鼠标滚轮切换直播间", "live-prevent-wheel-switchLiveRoom"),
                 UISelect("双击video动作", "dy-live-doubleClickAction", "", [
                   {
                     text: "点赞（默认）",
@@ -114,7 +114,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                     });
                     const $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
                     $color.value = Panel.getValue("live-changeBackgroundColor");
-                    DOMUtils.on($color, ["input", "propertychange"], (event) => {
+                    DOMUtils.on($color, ["input", "propertychange"], () => {
                       log.info("选择颜色：" + $color.value);
                       Panel.setValue("live-changeBackgroundColor", $color.value);
                     });
@@ -219,10 +219,10 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
-                UISwitch("启用", "live-danmu-shield-rule-enable", false),
-                UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
-                UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
-                UISwitch("【屏蔽】emoji|图片|表情包", "live-message-shield-method-emoji-chat", false, void 0, ""),
+                UISwitch("启用", "live-danmu-shield-rule-enable"),
+                UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift"),
+                UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag"),
+                UISwitch("【屏蔽】emoji|图片|表情包", "live-message-shield-method-emoji-chat"),
                 UISwitch(
                   "【屏蔽】信息播报",
                   "live-message-shield-room-message",
@@ -286,10 +286,10 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                   void 0,
                   "包括直播作者、右侧的礼物展馆"
                 ),
-                UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false),
-                UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false),
-                UISwitch("【屏蔽】福袋", "live-shieldLucky", false),
-                UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false),
+                UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn"),
+                UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects"),
+                UISwitch("【屏蔽】福袋", "live-shieldLucky"),
+                UISwitch("【屏蔽】小黄车", "live-shielYellowCar"),
                 UISwitch(
                   "【屏蔽】点亮展馆帮主播集星",
                   "live-block-exhibition-banner-dylive-tooltip",
@@ -303,9 +303,9 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "container",
               text: "弹幕",
               views: [
-                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false),
-                UISwitch("【屏蔽】送礼信息", "dy-live-danmaku-block-gift", false),
-                UISwitch("【屏蔽】福袋口令", "dy-live-danmaku-block-lucky-bag", false),
+                UISwitch("【屏蔽】弹幕", "live-shieldDanmuku"),
+                UISwitch("【屏蔽】送礼信息", "dy-live-danmaku-block-gift"),
+                UISwitch("【屏蔽】福袋口令", "dy-live-danmaku-block-lucky-bag"),
               ],
             },
             {
@@ -324,6 +324,41 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           ],
         },
         {
+          type: "deepMenu",
+          text: "布局屏蔽-播放器-底部-播放器组件",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+          views: [
+            {
+              type: "container",
+              text: AutoOpenOrClose.text,
+              views: [UISwitch("【屏蔽】播放器组件", "dy-live-player-block", false, void 0, "整个播放器组件")],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】播放", "dy-live-player-block-play", false, void 0, "播放|暂停按钮"),
+                UISwitch("【屏蔽】刷新", "dy-live-player-block-refresh"),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】清晰度", "dy-live-player-block-playclarity"),
+                UISwitch("【屏蔽】三屏画面", "dy-live-player-block-threeScreen"),
+                UISwitch("【屏蔽】屏幕旋转", "dy-live-player-block-rotate"),
+                UISwitch("【屏蔽】弹幕开关", "dy-live-player-block-danmukuSwitch"),
+                UISwitch("【屏蔽】礼物设置", "dy-live-player-block-giftSetting"),
+                UISwitch("【屏蔽】音量", "dy-live-player-block-volume"),
+                UISwitch("【屏蔽】小窗模式", "dy-live-player-block-miniMode"),
+                UISwitch("【屏蔽】网页全屏", "dy-live-player-block-pageFullScreen"),
+                UISwitch("【屏蔽】进入全屏", "dy-live-player-block-fullScreen"),
+              ],
+            },
+          ],
+        },
+        {
           text: "布局屏蔽-聊天室",
           type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
@@ -332,12 +367,12 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false),
+                UISwitch("【屏蔽】聊天室", "live-shieldChatRoom"),
                 UISwitch("【屏蔽】副屏", "live-shieldDoubleScreen", false, void 0, "直播副屏，显示在贵宾席的上面"),
-                UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false),
-                UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false),
-                UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false),
-                UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false),
+                UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats"),
+                UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon"),
+                UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon"),
+                UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon"),
                 UISwitch(
                   "【屏蔽】信息播报",
                   "dy-live-shieldMessage",

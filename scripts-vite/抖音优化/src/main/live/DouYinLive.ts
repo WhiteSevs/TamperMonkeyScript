@@ -7,8 +7,8 @@ import Qmsg from "qmsg";
 import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
-import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
+import { DouYinLivePlayer } from "./player/DouYinLivePlayer";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -64,11 +64,12 @@ export const DouYinLive = {
     DouYinLiveBlock.init();
     DouYinLiveShortCut.init();
     DouYinLiveDanmaku.init();
+    DouYinLivePlayer.init();
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });
     Panel.onceExec("live-parsePlayerInstance", () => {
-      return DouYinLivePlayerInstance.registerMenu();
+      return DouYinLivePlayer.registerMenu();
     });
     Panel.execMenu("live-pauseVideo", () => {
       this.disableVideoAutoPlay();
@@ -146,8 +147,8 @@ export const DouYinLive = {
           log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
           return;
         }
-        log.success("成功自动进入网页全屏");
         reactInstance.memoizedProps.onClick();
+        log.success("成功自动进入网页全屏");
       },
     });
   },
@@ -471,7 +472,7 @@ export const DouYinLive = {
             // 此bug仅在firefox上复现
             // 临时解决方法：监听play事件重载视频
             log.info(`播放-视频重载`);
-            DouYinLivePlayerInstance.reloadVideo();
+            DouYinLivePlayer.reloadVideo();
           },
           {
             once: true,
@@ -605,6 +606,13 @@ export const DouYinLive = {
       document,
       '[id^="living_player_container"] .douyin-player',
       (evt, $selector, options) => {
+        // @ts-expect-error
+        const $click = evt.originTarget || evt.srcElement;
+        if ($click instanceof Element) {
+          if ($click.closest(".douyin-player-controls")) {
+            return;
+          }
+        }
         DOMUtils.preventEvent(evt);
         if (options.isDoubleClick) {
           DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
@@ -617,9 +625,10 @@ export const DouYinLive = {
             }
             const paused = $video.paused;
             if (paused) {
-              DouYinLivePlayerInstance.reloadVideo();
+              DouYinLivePlayer.reloadVideo();
             } else {
               $video.pause();
+              log.info(`暂停视频`);
             }
           }
         }
