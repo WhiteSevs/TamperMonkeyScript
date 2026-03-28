@@ -297,10 +297,16 @@ class ElementEvent extends ElementAnimate {
             });
             if (findValue) {
               // 这里尝试使用defineProperty修改event的target值
+              const originTarget = event.target;
               try {
                 OriginPrototype.Object.defineProperty(event, "target", {
                   get() {
                     return $target;
+                  },
+                });
+                OriginPrototype.Object.defineProperty(event, "originTarget", {
+                  get() {
+                    return originTarget;
                   },
                 });
                 // oxlint-disable-next-line no-empty
