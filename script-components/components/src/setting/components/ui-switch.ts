@@ -23,7 +23,7 @@ import { type SwitchShortCut } from "./../../utils/SwitchShortCut";
 export const UISwitch = function (
   text: string,
   key: string,
-  defaultValue?: boolean,
+  defaultValue: boolean = false,
   clickCallBack?: (event: MouseEvent | PointerEvent, value: boolean) => boolean | void,
   description?: string,
   afterAddToUListCallBack?: (viewConfig: PopsPanelSwitchConfig, container: PopsPanelRightAsideContainerConfig) => void,
