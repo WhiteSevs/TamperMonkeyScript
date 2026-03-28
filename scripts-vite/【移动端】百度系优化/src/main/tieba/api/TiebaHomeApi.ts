@@ -124,7 +124,7 @@ const TiebaHomeApi = {
    * @returns
    */
   async getFollow(un: string, offset = 12, page_size = 12) {
-    let response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
+    const response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
       data: {
         un: un,
         lp: "home_main_follow_more",
@@ -141,22 +141,22 @@ const TiebaHomeApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON<UserFollowInfoData>(response.data.responseText);
+    const data = utils.toJSON<UserFollowInfoData>(response.data.responseText);
     if (data.no != 0) {
       return;
     }
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.toElement(data.data.content, true, true);
-    let resultDataList: UserFollowInfo[] = [];
+    const $doc = DOMUtils.toElement(data.data.content, true, true);
+    const resultDataList: UserFollowInfo[] = [];
     $doc.querySelectorAll<HTMLAnchorElement>(".uloader_grid_item_user").forEach(($url) => {
-      let url = $url.href;
-      let $userName = $url.querySelector<HTMLSpanElement>(".uloader_user_name")!;
-      let userName = $userName.innerText;
-      let $avatar = $url.querySelector<HTMLDivElement>(".uloader_user_portrait")!;
-      let avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
-      let portrait = new URL(avatar).pathname.split("/").pop() as string;
+      const url = $url.href;
+      const $userName = $url.querySelector<HTMLSpanElement>(".uloader_user_name")!;
+      const userName = $userName.innerText;
+      const $avatar = $url.querySelector<HTMLDivElement>(".uloader_user_portrait")!;
+      const avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
+      const portrait = new URL(avatar).pathname.split("/").pop() as string;
       resultDataList.push({
         url: url,
         userName: userName,
@@ -165,7 +165,7 @@ const TiebaHomeApi = {
       });
     });
 
-    let result = {
+    const result = {
       data: resultDataList,
       has_next: data.data.page.has_next,
     };
@@ -181,7 +181,7 @@ const TiebaHomeApi = {
    * @returns
    */
   async getFans(un: string, offset = 12, page_size = 12) {
-    let response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
+    const response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
       data: {
         un: un,
         lp: "home_main_fans_more",
@@ -198,22 +198,22 @@ const TiebaHomeApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON<UserFansInfoData>(response.data.responseText);
+    const data = utils.toJSON<UserFansInfoData>(response.data.responseText);
     if (data.no != 0) {
       return;
     }
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.toElement(data.data.content, true, true);
-    let resultDataList: UserFansInfo[] = [];
+    const $doc = DOMUtils.toElement(data.data.content, true, true);
+    const resultDataList: UserFansInfo[] = [];
     $doc.querySelectorAll<HTMLAnchorElement>(".uloader_grid_item_user").forEach(($url) => {
-      let url = $url.href;
-      let $userName = $url.querySelector<HTMLSpanElement>(".uloader_user_name")!;
-      let userName = $userName.innerText;
-      let $avatar = $url.querySelector<HTMLDivElement>(".uloader_user_portrait")!;
-      let avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
-      let portrait = new URL(avatar).pathname.split("/").pop() as string;
+      const url = $url.href;
+      const $userName = $url.querySelector<HTMLSpanElement>(".uloader_user_name")!;
+      const userName = $userName.innerText;
+      const $avatar = $url.querySelector<HTMLDivElement>(".uloader_user_portrait")!;
+      const avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
+      const portrait = new URL(avatar).pathname.split("/").pop() as string;
       resultDataList.push({
         url: url,
         userName: userName,
@@ -221,7 +221,7 @@ const TiebaHomeApi = {
         portrait: portrait,
       });
     });
-    let result = {
+    const result = {
       data: resultDataList,
       has_next: data.data.page.has_next,
     };
@@ -234,7 +234,7 @@ const TiebaHomeApi = {
    * @param pn 第xx页
    */
   async getPost(un: string, pn = 1) {
-    let response = await httpx.get(`https://tieba.baidu.com/home/post`, {
+    const response = await httpx.get(`https://tieba.baidu.com/home/post`, {
       fetch: utils.isWebView_Via(),
       data: {
         un: un,
@@ -252,7 +252,7 @@ const TiebaHomeApi = {
     if (!response.status) {
       return;
     }
-    let data = utils.toJSON<{
+    const data = utils.toJSON<{
       no: 0 | 1;
       data: {
         content: string;
@@ -268,16 +268,16 @@ const TiebaHomeApi = {
     if (utils.isNull(data.data.content)) {
       return;
     }
-    let $doc = DOMUtils.toElement(data.data.content, true, true);
-    let resultDataList: UserPostInfo[] = [];
+    const $doc = DOMUtils.toElement(data.data.content, true, true);
+    const resultDataList: UserPostInfo[] = [];
     $doc.querySelectorAll(".list_item").forEach(($listItem) => {
-      let url = $listItem.querySelector<HTMLAnchorElement>(".list_item_link")!.href;
-      let replyContent: string | null = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".reply_body_text")!);
-      let title = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".post_list_item_title")!);
-      let content = DOMUtils.text($listItem.querySelector<HTMLDivElement>(".post_abstract_text")!);
+      const url = $listItem.querySelector<HTMLAnchorElement>(".list_item_link")!.href;
+      const replyContent: string | null = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".reply_body_text")!);
+      const title = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".post_list_item_title")!);
+      const content = DOMUtils.text($listItem.querySelector<HTMLDivElement>(".post_abstract_text")!);
       let forumName = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".post_list_item_info_forum")!);
       forumName = forumName.replace(/吧$/, "");
-      let time = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".post_list_item_info_time")!);
+      const time = DOMUtils.text($listItem.querySelector<HTMLSpanElement>(".post_list_item_info_time")!);
       resultDataList.push({
         url,
         replyContent,
@@ -287,7 +287,7 @@ const TiebaHomeApi = {
         time,
       });
     });
-    let result = {
+    const result = {
       data: resultDataList,
       has_more: data.data.page.has_more,
     };

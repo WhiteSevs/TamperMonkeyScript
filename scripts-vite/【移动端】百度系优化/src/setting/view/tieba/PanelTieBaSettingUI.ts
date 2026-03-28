@@ -586,7 +586,7 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
                   "baidu_tieba_use_hybrid_search",
                   false,
                   void 0,
-                  "使用贴吧移动端的搜索功能"
+                  "使用贴吧移动端的搜索功能（仅全局搜索）"
                 ),
                 UISwitch(
                   "地址参数识别",

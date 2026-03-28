@@ -150,7 +150,7 @@ export const TiebaBaNei = {
         if (pbUrl) {
           newUrl = window.location.origin + pbUrl;
         } else if (tid || id) {
-          newUrl = TiebaUrlHandler.getPost(tid ?? id);
+          newUrl = TiebaUrlHandler.getThread(tid ?? id);
         } else if (typeof collectH5Url === "string") {
           // 合辑
           newUrl = decodeURIComponent(collectH5Url);

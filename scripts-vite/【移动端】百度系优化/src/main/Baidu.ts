@@ -118,6 +118,8 @@ const Baidu = {
       } else {
         BaiduSearch.init();
       }
+    } else if (BaiduRouter.isWappass()) {
+      log.success(`Router: 百度安全验证`);
     } else {
       log.error("该Router暂未适配，请联系开发者：" + window.location.href);
     }

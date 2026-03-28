@@ -7,6 +7,7 @@ import { TieBaApi } from "../api/TiebaApi";
 import { TiebaHomeApi, type UserConcernInfo, type UserFollowInfo, type UserPostInfo } from "../api/TiebaHomeApi";
 import { TiebaPCApi } from "../api/TiebaPCApi";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
+import { TiebaNewPCApi } from "../api/TiebaNewPCApi";
 
 /** 匹配信息 */
 type MatchedInfo = {
@@ -122,40 +123,73 @@ export const TiebaUniAppComponentDetection = {
 				white-space: nowrap;
 			}
         `);
-    addStyle(/*css*/ `
-			
-		`);
     DOMUtils.onReady(() => {
-      let lockFn = new utils.LockFunction(async () => {
+      const setInjectAttr = ($el: Element) => {
+        $el.setAttribute("data-is-inject-search-label", "");
+      };
+      const lockFn = new utils.LockFunction(async () => {
+        // 发帖人
+        [$("uni-view.user-info .name-info:not([data-is-inject-search-label])")].forEach(($el) => {
+          if (!$el) return;
+          setInjectAttr($el);
+
+          const { $container } = this.createSearchButton(() => {
+            const $name = $el.querySelector<HTMLElement>(".head-name");
+            if (!$name) {
+              throw new Error("获取name失败");
+            }
+            const name = DOMUtils.text($name);
+            const vueInst = VueUtils.getVue($el);
+            if (!vueInst) {
+              throw new TypeError("获取vue属性失败");
+            }
+            const portrait = vueInst?.$parent?.config?.param?.portrait;
+            if (typeof portrait !== "string") {
+              throw new TypeError("获取portrait失败");
+            }
+            return {
+              portrait: portrait,
+              name_show: name,
+            };
+          });
+          DOMUtils.append($el, $container);
+        });
         // 评论区的
         $$<HTMLElement>(
           ".pb-comment-item .player-info:not([data-is-inject-search-label]):has(.user-info-degrade)"
         ).forEach(($replyItem) => {
-          $replyItem.setAttribute("data-is-inject-search-label", "");
-          let { $container, $compositionNameControl } = this.createSearchButton(() => {
-            let $pbCommentItem = $replyItem.closest<HTMLElement>(".pb-comment-item")!;
-            let $userInfoDegrade = $replyItem.querySelector<HTMLElement>(".user-info-degrade")!;
-            let vueIns = VueUtils.getVue($userInfoDegrade);
-            if (!vueIns) {
+          setInjectAttr($replyItem);
+          const { $container } = this.createSearchButton(() => {
+            const $userInfoDegrade = $replyItem.querySelector<HTMLElement>(".user-info-degrade")!;
+            const vueInst = VueUtils.getVue($userInfoDegrade);
+            if (!vueInst) {
               throw new TypeError("获取vue属性失败");
             }
-            let nameShow: null | number = vueIns?.nameInfo?.text;
+            const nameShow: null | string = vueInst?.nameInfo?.text;
             if (nameShow == null) {
               throw new TypeError("获取nameShow失败");
             }
-            let sectionData = vueIns?.$parent?.sectionData;
-            if (!Array.isArray(sectionData)) {
-              throw new TypeError("获取sectionData失败");
+            const sectionData = vueInst?.$parent?.sectionData;
+            if (Array.isArray(sectionData)) {
+              const findValue = sectionData.find((item) => item?.author?.name_show === nameShow);
+              if (!findValue) {
+                throw new TypeError("获取对应的用户信息失败");
+              }
+              return {
+                id: findValue?.author?.id,
+                portrait: findValue?.author?.portrait,
+                name_show: findValue?.author?.name_show,
+              };
+            } else {
+              const portrait = vueInst.$parent?.config?.param?.portrait;
+              if (typeof portrait !== "string") {
+                throw new TypeError("获取portrait失败");
+              }
+              return {
+                portrait,
+                name_show: nameShow,
+              };
             }
-            let findValue = sectionData.find((item) => item?.author?.name_show === nameShow);
-            if (!findValue) {
-              throw new TypeError("获取对应的用户信息失败");
-            }
-            return {
-              id: findValue?.author?.id,
-              portrait: findValue?.author?.portrait,
-              name_show: findValue?.author?.name_show,
-            };
           });
           DOMUtils.append($replyItem, $container);
         });
@@ -163,17 +197,17 @@ export const TiebaUniAppComponentDetection = {
         $$<HTMLElement>(
           ".pb-comment-item-container .player-info:not([data-is-inject-search-label]):has(:not(.user-info-degrade))"
         ).forEach(($replyItem) => {
-          $replyItem.setAttribute("data-is-inject-search-label", "");
-          let { $container, $compositionNameControl } = this.createSearchButton(() => {
-            let $pbCommentItemContainer = $replyItem.closest<HTMLElement>(".pb-comment-item-container");
+          setInjectAttr($replyItem);
+          const { $container } = this.createSearchButton(() => {
+            const $pbCommentItemContainer = $replyItem.closest<HTMLElement>(".pb-comment-item-container");
             if (!$pbCommentItemContainer) {
               throw new TypeError("获取$pbCommentItemContainer失败");
             }
-            let vueIns = VueUtils.getVue($pbCommentItemContainer);
-            if (!vueIns) {
+            const vueInst = VueUtils.getVue($pbCommentItemContainer);
+            if (!vueInst) {
               throw new TypeError("获取vue属性失败");
             }
-            let commentData = vueIns?.commentData;
+            const commentData = vueInst?.commentData;
             if (!commentData) {
               throw new TypeError("获取commentData失败");
             }
@@ -204,36 +238,43 @@ export const TiebaUniAppComponentDetection = {
    * 即提取需要判断的信息
    * @param userName
    */
-  async queryUserAllInfo(userName: string) {
+  async queryUserAllInfo(userInfo: { name_show: string; portrait: string; id: string | number }) {
+    const userName = userInfo.name_show;
     // 获取关注的用户
-    let allFollowingData: UserFollowInfo[] = [];
-    let followPageSize = 12;
-    let followOffset = followPageSize * 1;
-    let followMaxCount = 10;
-    let followCount = 0;
+    const allFollowingData: UserFollowInfo[] = [];
+    const followMaxPage = 12;
+    let followPage = 1;
     while (true) {
-      let followingData = await TiebaHomeApi.getFollow(userName, followOffset, followPageSize);
+      const followingData = await TiebaNewPCApi.followList_pc(userInfo.portrait, userInfo.id, followPage);
       if (!followingData) {
         break;
       }
-      allFollowingData.push(...followingData.data);
-      if (followCount >= followMaxCount) {
+      allFollowingData.push(
+        ...followingData.follow_list.map((it) => {
+          return {
+            url: TiebaUrlHandler.getUserHome(it.portrait),
+            userName: it.name_show || it.name,
+            avatar: TiebaUrlHandler.getUserAvatar(it.portrait),
+            portrait: it.portrait,
+          };
+        })
+      );
+      if (!followingData.has_more) {
         break;
       }
-      if (!followingData.has_next) {
+      if (followPage >= followMaxPage) {
         break;
       }
-      followOffset += followPageSize;
-      followCount++;
+      followPage++;
       await utils.sleep(150);
     }
     // 获取关注的吧
-    let allConcernData: UserConcernInfo[] = [];
+    const allConcernData: UserConcernInfo[] = [];
     let concernPN = 1;
     let concernMaxCount = 10;
     let concernCount = 0;
     while (true) {
-      let concernData = await TiebaHomeApi.getConcern(userName, concernPN);
+      const concernData = await TiebaHomeApi.getConcern(userName, concernPN);
       if (!concernData) {
         break;
       }
@@ -249,11 +290,11 @@ export const TiebaUniAppComponentDetection = {
       await utils.sleep(150);
     }
     // 发布的帖子
-    let allPostData: UserPostInfo[] = [];
+    const allPostData: UserPostInfo[] = [];
     let postMaxPN = 10;
     let postPN = 1;
     while (true) {
-      let postData = await TiebaHomeApi.getPost(userName, postPN);
+      const postData = await TiebaHomeApi.getPost(userName, postPN);
       if (!postData) {
         break;
       }
@@ -265,7 +306,7 @@ export const TiebaUniAppComponentDetection = {
       await utils.sleep(150);
     }
     // 提取获取到的数据
-    let result = {
+    const result = {
       /** 关注列表信息 */
       following: allFollowingData,
       /** 关注的吧的信息 */
@@ -283,21 +324,20 @@ export const TiebaUniAppComponentDetection = {
     queryUserInfoFn: () => {
       name_show: string;
       portrait: string;
-      id: number;
     }
   ) {
-    let $compositionCheckable = DOMUtils.createElement("div", {
+    const $compositionCheckable = DOMUtils.createElement("div", {
       className: "composition-checkable",
       innerHTML: /*html*/ `
-                <div class="composition-badge-control">
-                    <span class="composition-name-control">
-                        ${this.$data.searchIcon}
-                    </span>
-                </div>
-            `,
+      <div class="composition-badge-control">
+          <span class="composition-name-control">
+              ${this.$data.searchIcon}
+          </span>
+      </div>
+      `,
     });
-    let $badge = $compositionCheckable.querySelector<HTMLElement>(".composition-badge-control")!;
-    let $compositionNameControl = $compositionCheckable.querySelector<HTMLElement>(".composition-name-control")!;
+    const $badge = $compositionCheckable.querySelector<HTMLElement>(".composition-badge-control")!;
+    const $compositionNameControl = $compositionCheckable.querySelector<HTMLElement>(".composition-name-control")!;
 
     DOMUtils.on(
       $badge,
@@ -311,21 +351,29 @@ export const TiebaUniAppComponentDetection = {
         $compositionCheckable.setAttribute("data-is-searching", "");
         DOMUtils.html($compositionNameControl, "...");
         try {
-          let userInfo = queryUserInfoFn();
+          const queryUserInfo = queryUserInfoFn();
+          const userInfo = {
+            ...queryUserInfo,
+            uid: "" as string | number,
+          };
           this.clearLabel($compositionCheckable);
-          // 通过id查询uname
-          let chatUserInfo = await TieBaApi.getChatUserInfo(userInfo.id);
-          log.info(`查询用户信息：`, chatUserInfo);
-          if (!chatUserInfo) {
-            throw new TypeError("获取用户信息失败");
+          const homeSiderbarRight = await TiebaNewPCApi.homeSidebarRight(userInfo.portrait);
+          if (homeSiderbarRight) {
+            userInfo.name_show = homeSiderbarRight.user.name_show;
+            userInfo.uid = homeSiderbarRight.user.id;
+          } else {
+            throw new TypeError("获取用户api信息中的uid失败");
           }
-          let userName = chatUserInfo.uname.toString();
-          let userAllInfo = await this.queryUserAllInfo(userName);
+          const userAllInfo = await this.queryUserAllInfo({
+            portrait: userInfo.portrait,
+            name_show: userInfo.name_show,
+            id: userInfo.uid,
+          });
           if (!userAllInfo) {
             throw new TypeError("获取用户所有信息失败");
           }
-          log.info(`检索出用户所有信息：`, userAllInfo);
-          this.handleShowLabel(chatUserInfo, userAllInfo, $compositionCheckable);
+          log.info(`当前检索出的用户所有信息：`, userAllInfo);
+          this.handleShowLabel(userInfo, userAllInfo, $compositionCheckable);
           // 重置状态为搜索图标
           DOMUtils.html($compositionNameControl, this.$data.searchIcon);
         } catch (error: any) {
@@ -471,7 +519,10 @@ export const TiebaUniAppComponentDetection = {
    * @param $searchContainer
    */
   handleShowLabel(
-    chatUserInfo: Exclude<Awaited<ReturnType<typeof TieBaApi.getChatUserInfo>>, undefined>,
+    userInfo: {
+      uid: string | number;
+      portrait: string;
+    },
     data: Exclude<Awaited<ReturnType<typeof this.queryUserAllInfo>>, undefined>,
     $searchContainer: HTMLElement
   ) {
@@ -479,20 +530,20 @@ export const TiebaUniAppComponentDetection = {
       Qmsg.warning("未配置规则，请在设置中进行添加");
       return;
     }
-    let userId = chatUserInfo.uid.toString();
+    const userId = userInfo.uid.toString();
     if (TiebaUniAppComponentDetectionRule.$data.whiteList.includes(userId)) {
       // 白名单用户
       // 不处理
       return;
     }
     /** 命中的规则 */
-    let matchedAllRule: MatchedInfo[] = [];
+    const matchedAllRule: MatchedInfo[] = [];
     /**
      * 添加命中的规则
      * @param rule
      * @param matchedInfo
      */
-    let pushMatchedRule = (rule: MatchedInfo["rule"], matchedInfo: MatchedInfo["matchedInfoList"]["0"]) => {
+    const pushMatchedRule = (rule: MatchedInfo["rule"], matchedInfo: MatchedInfo["matchedInfoList"]["0"]) => {
       let findValue = matchedAllRule.find((it) => it.rule === rule);
       if (findValue) {
         findValue.matchedInfoList.push(matchedInfo);
@@ -509,7 +560,7 @@ export const TiebaUniAppComponentDetection = {
         ruleData.data.blacklist.find(
           (it) =>
             it.toString() === userId ||
-            (typeof chatUserInfo.portrait === "string" && chatUserInfo.portrait.startsWith(it.toString()))
+            (typeof userInfo.portrait === "string" && userInfo.portrait.startsWith(it.toString()))
         )
       ) {
         // 黑名单中存在符合的id
@@ -538,7 +589,7 @@ export const TiebaUniAppComponentDetection = {
           pushMatchedRule(ruleData, {
             reason: reason,
             reasonText: reasonText,
-            reasonLink: TiebaUrlHandler.getUserHome(chatUserInfo.portrait),
+            reasonLink: TiebaUrlHandler.getUserHome(userInfo.portrait),
             reasonTime: null,
           });
         }
@@ -621,9 +672,11 @@ export const TiebaUniAppComponentDetection = {
       },
       true
     );
-    matchedAllRule.forEach((it) => {
-      let $label = this.createLabel(it);
-      DOMUtils.append($searchContainer, $label);
-    });
+    DOMUtils.append(
+      $searchContainer,
+      matchedAllRule.map((it) => {
+        return this.createLabel(it);
+      })
+    );
   },
 };

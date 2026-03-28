@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { log } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
 import DOMUtils from "@whitesev/domutils";
@@ -22,19 +22,19 @@ export const TiebaCollectionCenter = {
       ".collection-center .image-card",
       (event, selectorTarget) => {
         DOMUtils.preventEvent(event);
-        let vueInstance = VueUtils.getVue(selectorTarget);
-        if (!vueInstance) {
+        const vueInst = VueUtils.getVue(selectorTarget);
+        if (!vueInst) {
           Qmsg.error("获取vue实例失败");
           return;
         }
         /** 帖子的id */
-        let tid = vueInstance?.item?.tid;
+        const tid = vueInst?.item?.tid;
         if (tid == null) {
           Qmsg.error("获取tid失败");
           return;
         }
         /** 帖子的链接 */
-        let url = TiebaUrlHandler.getPost(tid);
+        const url = TiebaUrlHandler.getThread(tid);
         if (Panel.getValue("tieba_collection_center_repair_card_click_jump_open_new_tab")) {
           window.open(url, "_blank");
         } else {

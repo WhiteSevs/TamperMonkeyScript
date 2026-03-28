@@ -15,6 +15,7 @@ import App from "./App.vue";
 import pinia from "./stores";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaReply } from "./TiebaReply";
+import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface PostImg {
   bsize: string;
@@ -67,24 +68,20 @@ const TiebaPost = {
   optimizeImagePreview() {
     log.success("优化图片预览");
     CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-    let gestureback: typeof GestureBack.prototype | null = null;
-    if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
-      // 启用手势返回
-      gestureback = new GestureBack({
-        hash: GeastureBackHashConfig.viewerPreviewImage,
-        useUrl: true,
-        beforeHistoryBackCallBack(isUrlChange) {
-          if (isUrlChange) {
-            let $viewerClose = $<HTMLElement>(".viewer-button.viewer-close");
-            if ($viewerClose) {
-              $viewerClose.click();
-            } else {
-              Qmsg.error(`未找到关闭Viewer的按钮`);
-            }
+    const gestureback = new GestureBack({
+      hash: GeastureBackHashConfig.viewerPreviewImage,
+      useUrl: true,
+      beforeHistoryBackCallBack(isUrlChange) {
+        if (isUrlChange) {
+          let $viewerClose = $<HTMLElement>(".viewer-button.viewer-close");
+          if ($viewerClose) {
+            $viewerClose.click();
+          } else {
+            Qmsg.error(`未找到关闭Viewer的按钮`);
           }
-        },
-      });
-    }
+        }
+      },
+    });
     /**
      * 查看图片
      * @param imgList 图片列表
@@ -124,9 +121,7 @@ const TiebaPost = {
       viewer.zoomTo(1);
       viewer.show();
       log.success("预览图片");
-      if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
-        gestureback?.enterGestureBackMode();
-      }
+      gestureback?.enterGestureBackMode();
     }
     /**
      * 获取<img>标签的src资源
@@ -136,14 +131,39 @@ const TiebaPost = {
       let imgUrl = $img.getAttribute("data-src") || $img.getAttribute("src") || $img.src;
       return imgUrl;
     }
+    const optimizationSearchResultMedia = (event: MouseEvent | PointerEvent) => {
+      const $click = event.target as HTMLImageElement;
+      const $clickParent = $click.parentElement as HTMLElement;
+      if ($clickParent.matches(".search-result-media-wrapper")) {
+        // 搜索结果的图片
+        DOMUtils.preventEvent(event);
+        log.info(`搜索结果的图片`, $clickParent);
+        // 待预览的图片
+        let lazyImgList: string[] = [];
+        let lazyImgIndex = 0;
+        $clickParent.querySelectorAll<HTMLImageElement>("img").forEach(($img, __index__) => {
+          let imgSrc = getImageSrc($img);
+          log.info(`获取图片: ${imgSrc}`);
+          lazyImgList.push(imgSrc);
+          if ($img === $click) {
+            lazyImgIndex = __index__;
+          }
+        });
+        if (lazyImgList.length) {
+          viewIMG(lazyImgList, lazyImgIndex);
+        } else {
+          Qmsg.error("获取图片数据为空");
+        }
+      }
+    };
     DOMUtils.on<MouseEvent | PointerEvent>(
       document,
       "click",
       "img",
       (event) => {
-        let $click = event.target as HTMLImageElement;
-        let $clickParent = $click.parentElement as HTMLDivElement;
-        let currentClickImageUrl = getImageSrc($click);
+        const $click = event.target as HTMLImageElement;
+        const $clickParent = $click.parentElement as HTMLDivElement;
+        const currentClickImageUrl = getImageSrc($click);
         if ($clickParent.className === "viewer-canvas" || $clickParent.hasAttribute("data-viewer-action")) {
           log.info("点击的<img>属于Viewer内的元素， 不处理");
           return;
@@ -157,30 +177,57 @@ const TiebaPost = {
           return;
         }
         if (currentClickImageUrl?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
-          DOMUtils.preventEvent(event);
-          log.info(`点击图片👇`);
-          log.info($click);
-          if ($clickParent.className === "img-box") {
-            /* 帖子主体内的图片 */
-            let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
-            log.info($imgSudoKu);
-            if (!$imgSudoKu) {
-              viewIMG([currentClickImageUrl]);
-              return;
-            }
-            let lazyImgList: string[] = [];
-            if (TiebaPost.mainPostImgList.length) {
-              TiebaPost.mainPostImgList.forEach((item) => {
-                lazyImgList.push(item.src);
-              });
-            } else {
-              Array.from($imgSudoKu.querySelectorAll<HTMLImageElement>("img.img")).forEach(($img) => {
+          if (BaiduRouter.isTieBaPost()) {
+            // 帖子内的点击
+            DOMUtils.preventEvent(event);
+            log.info(`点击图片👇`, $click);
+            if ($clickParent.className === "img-box") {
+              /* 帖子主体内的图片 */
+              let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
+              log.info($imgSudoKu);
+              if (!$imgSudoKu) {
+                viewIMG([currentClickImageUrl]);
+                return;
+              }
+              let lazyImgList: string[] = [];
+              if (TiebaPost.mainPostImgList.length) {
+                TiebaPost.mainPostImgList.forEach((item) => {
+                  lazyImgList.push(item.src);
+                });
+              } else {
+                Array.from($imgSudoKu.querySelectorAll<HTMLImageElement>("img.img")).forEach(($img) => {
+                  let imgSrc = getImageSrc($img);
+                  log.info(`获取图片: ${imgSrc}`);
+                  let imgUrlInfo = new URL(imgSrc);
+                  if (imgUrlInfo.pathname.startsWith("/forum/")) {
+                    let picName = imgUrlInfo.pathname.split("/").pop() as string;
+                    let picIdSplit = picName.split(".");
+                    if (picIdSplit) {
+                      let picId = picIdSplit[0];
+                      if (TiebaData.imageMap.has(picId)) {
+                        imgSrc = TiebaData.imageMap.get(picId) as string;
+                        log.success("替换成高清图片", imgSrc);
+                      }
+                    }
+                  }
+                  lazyImgList.push(imgSrc);
+                });
+              }
+
+              log.info("图片列表👇");
+              log.info(lazyImgList);
+              viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
+            } else if ($clickParent.className === "text-content") {
+              /* 评论区内的图片 */
+              let lazyImgList: string[] = [];
+              log.info($clickParent);
+              $clickParent.querySelectorAll<HTMLImageElement>("img.BDE_Image").forEach(($img) => {
                 let imgSrc = getImageSrc($img);
                 log.info(`获取图片: ${imgSrc}`);
                 let imgUrlInfo = new URL(imgSrc);
                 if (imgUrlInfo.pathname.startsWith("/forum/")) {
-                  let picName = imgUrlInfo.pathname.split("/").pop() as string;
-                  let picIdSplit = picName.split(".");
+                  let picName = imgUrlInfo.pathname.split("/").pop();
+                  let picIdSplit = picName?.split(".");
                   if (picIdSplit) {
                     let picId = picIdSplit[0];
                     if (TiebaData.imageMap.has(picId)) {
@@ -191,94 +238,47 @@ const TiebaPost = {
                 }
                 lazyImgList.push(imgSrc);
               });
-            }
+              log.info("评论区图片列表👇");
+              log.info(lazyImgList);
+              viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
+            } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
+              // uni-app的帖子主内容的图片
+              log.info("uni-app的图片", $clickParent);
+              // 待预览的图片
+              let lazyImgList: string[] = [];
+              let lazyImgIndex = 0;
+              let $slideFrame = $click.closest<HTMLDivElement>(".uni-swiper-slide-frame")!;
+              if ($slideFrame) {
+                // 贴吧自带的预览图片模式下的
+                $slideFrame.querySelectorAll("img").forEach(($img) => {
+                  let imgSrc = getImageSrc($img);
+                  log.info(`获取图片: ${imgSrc}`);
+                  lazyImgList.push(imgSrc);
+                });
+                lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+              } else if ($click.closest(".pb-comment-item")) {
+                log.info(`uni-app评论区的图片`);
+                let $pbCommentItem = $click.closest<HTMLElement>(".pb-comment-item")!;
+                if ($pbCommentItem) {
+                  // 评论区的所有图片
+                  let commentImageList = Array.from(
+                    $pbCommentItem.querySelectorAll<HTMLImageElement>("uni-image img")
+                  ).map(($el) => $el.src);
 
-            log.info("图片列表👇");
-            log.info(lazyImgList);
-            viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
-          } else if ($clickParent.className === "text-content") {
-            /* 评论区内的图片 */
-            let lazyImgList: string[] = [];
-            log.info($clickParent);
-            $clickParent.querySelectorAll<HTMLImageElement>("img.BDE_Image").forEach(($img) => {
-              let imgSrc = getImageSrc($img);
-              log.info(`获取图片: ${imgSrc}`);
-              let imgUrlInfo = new URL(imgSrc);
-              if (imgUrlInfo.pathname.startsWith("/forum/")) {
-                let picName = imgUrlInfo.pathname.split("/").pop();
-                let picIdSplit = picName?.split(".");
-                if (picIdSplit) {
-                  let picId = picIdSplit[0];
-                  if (TiebaData.imageMap.has(picId)) {
-                    imgSrc = TiebaData.imageMap.get(picId) as string;
-                    log.success("替换成高清图片", imgSrc);
-                  }
-                }
-              }
-              lazyImgList.push(imgSrc);
-            });
-            log.info("评论区图片列表👇");
-            log.info(lazyImgList);
-            viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
-          } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
-            // uni-app的帖子主内容的图片
-            log.info("uni-app的图片", $clickParent);
-            // 待预览的图片
-            let lazyImgList: string[] = [];
-            let lazyImgIndex = 0;
-            let $slideFrame = $click.closest<HTMLDivElement>(".uni-swiper-slide-frame")!;
-            if ($slideFrame) {
-              // 贴吧自带的预览图片模式下的
-              $slideFrame.querySelectorAll("img").forEach(($img) => {
-                let imgSrc = getImageSrc($img);
-                log.info(`获取图片: ${imgSrc}`);
-                lazyImgList.push(imgSrc);
-              });
-              lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
-            } else if ($click.closest(".pb-comment-item")) {
-              log.info(`uni-app评论区的图片`);
-              let $pbCommentItem = $click.closest<HTMLElement>(".pb-comment-item")!;
-              if ($pbCommentItem) {
-                // 评论区的所有图片
-                let commentImageList = Array.from(
-                  $pbCommentItem.querySelectorAll<HTMLImageElement>("uni-image img")
-                ).map(($el) => $el.src);
+                  let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
+                  let pbCommentData = pbCommentItemVue3Ins?.props?.commentData;
 
-                let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
-                let pbCommentData = pbCommentItemVue3Ins?.props?.commentData;
-
-                let $commentGroup = $pbCommentItem.closest(".comment-group");
-                let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
-                let sectionData = commentGroupVue2Ins?.sectionData;
-                if (pbCommentData) {
-                  // 图片大小可能缺失，要从vue中获取原图
-                  pbCommentData.content.forEach((item: any) => {
-                    // 图片类型
-                    const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item;
-                    if (type !== 3) {
-                      return;
-                    }
-                    if (
-                      currentClickImageUrl === cdn_src ||
-                      currentClickImageUrl === cdn_src_active ||
-                      currentClickImageUrl === big_cdn_src ||
-                      currentClickImageUrl === origin_src
-                    ) {
-                      lazyImgIndex = lazyImgList.length;
-                    }
-                    // 使用origin_src，没有的话再是big_cdn_src，不然的话就是原图
-                    lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
-                  });
-                } else if (sectionData) {
-                  // 由于无法获取当前评论的id，只能从sectionData中寻找对应图片
-                  sectionData.forEach((item: any) => {
-                    item.imgList.forEach((item2: any) => {
-                      const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item2;
+                  let $commentGroup = $pbCommentItem.closest(".comment-group");
+                  let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
+                  let sectionData = commentGroupVue2Ins?.sectionData;
+                  if (pbCommentData) {
+                    // 图片大小可能缺失，要从vue中获取原图
+                    pbCommentData.content.forEach((item: any) => {
+                      // 图片类型
+                      const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item;
                       if (type !== 3) {
                         return;
                       }
-                      // 图片类型
-                      // 使用origin_src，没有的话再是big_cdn_src，不然的话就是原图
                       if (
                         currentClickImageUrl === cdn_src ||
                         currentClickImageUrl === cdn_src_active ||
@@ -287,29 +287,56 @@ const TiebaPost = {
                       ) {
                         lazyImgIndex = lazyImgList.length;
                       }
+                      // 使用origin_src，没有的话再是big_cdn_src，不然的话就是原图
                       lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
                     });
-                  });
+                  } else if (sectionData) {
+                    // 由于无法获取当前评论的id，只能从sectionData中寻找对应图片
+                    sectionData.forEach((item: any) => {
+                      item.imgList.forEach((item2: any) => {
+                        const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item2;
+                        if (type !== 3) {
+                          return;
+                        }
+                        // 图片类型
+                        // 使用origin_src，没有的话再是big_cdn_src，不然的话就是原图
+                        if (
+                          currentClickImageUrl === cdn_src ||
+                          currentClickImageUrl === cdn_src_active ||
+                          currentClickImageUrl === big_cdn_src ||
+                          currentClickImageUrl === origin_src
+                        ) {
+                          lazyImgIndex = lazyImgList.length;
+                        }
+                        lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
+                      });
+                    });
+                  } else {
+                    lazyImgList.push(...commentImageList);
+                    lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+                  }
                 } else {
-                  lazyImgList.push(...commentImageList);
-                  lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+                  log.error("获取.pb-comment-item元素失败");
+                  lazyImgList.push(currentClickImageUrl);
                 }
               } else {
-                log.error("获取.pb-comment-item元素失败");
+                // 其它情况下的
                 lazyImgList.push(currentClickImageUrl);
               }
+              if (lazyImgList.length) {
+                viewIMG(lazyImgList, lazyImgIndex);
+              } else {
+                Qmsg.error("获取图片数据为空");
+              }
+            } else if ($clickParent.matches(".search-result-media-wrapper")) {
+              // 搜索结果的图片
+              optimizationSearchResultMedia(event);
             } else {
-              // 其它情况下的
-              lazyImgList.push(currentClickImageUrl);
+              /* 单个图片预览 */
+              viewIMG([currentClickImageUrl]);
             }
-            if (lazyImgList.length) {
-              viewIMG(lazyImgList, lazyImgIndex);
-            } else {
-              Qmsg.error("获取图片数据为空");
-            }
-          } else {
-            /* 单个图片预览 */
-            viewIMG([currentClickImageUrl]);
+          } else if (BaiduRouter.isTieBaNei()) {
+            optimizationSearchResultMedia(event);
           }
         }
       },
@@ -322,12 +349,12 @@ const TiebaPost = {
       "div.img-sudoku .img-desc"
     );
     DOMUtils.onReady(function () {
-      DOMUtils.waitNode<HTMLDivElement>("div.img-sudoku", 10000).then(($imgSudoKu) => {
+      DOMUtils.waitNode<HTMLDivElement>("div.img-sudoku", 1e4).then(($imgSudoKu) => {
         if (!$imgSudoKu) {
           log.error("未找到元素 div.img-sudoku");
           return;
         }
-        DOMUtils.waitNode<HTMLImageElement>("img", $imgSudoKu, 10000).then((childImg) => {
+        DOMUtils.waitNode<HTMLImageElement>("img", $imgSudoKu, 1e4).then((childImg) => {
           if (!childImg) {
             log.error("未找到元素 div.img-sudoku img");
             return;
@@ -339,7 +366,7 @@ const TiebaPost = {
               $imgItem.src = $imgItem.getAttribute("data-src") as string;
             }
           });
-          /* 通过重新赋值innerHTML来覆盖原有的事件 */
+          // 通过重新赋值innerHTML来覆盖原有的事件
           $imgSudoKu.innerHTML = $imgSudoKu.innerHTML;
         });
         VueUtils.waitVuePropToSet("div.img-sudoku", [

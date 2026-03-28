@@ -101,7 +101,7 @@
     window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
   };
   let gotoPost = function (postId: string | number) {
-    window.open(TiebaUrlHandler.getPost(postId), "_blank");
+    window.open(TiebaUrlHandler.getThread(postId), "_blank");
   };
   let gotoForum = function (fName: string) {
     window.open(TiebaUrlHandler.getForum(fName), "_blank");

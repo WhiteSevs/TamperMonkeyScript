@@ -101,14 +101,14 @@
     window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
   };
   let gotoPost = function (postId: string | number) {
-    window.open(TiebaUrlHandler.getPost(postId), "_blank");
+    window.open(TiebaUrlHandler.getThread(postId), "_blank");
   };
   let gotoForum = function (fName: string) {
     window.open(TiebaUrlHandler.getForum(fName), "_blank");
   };
   let gotoLzlPost = function (tid: string | number, pid: string | number, targetId: string | number) {
     window.open(
-      TiebaUrlHandler.getPost(tid) + `pages/uni-pb/uni-pb?pid=${pid}&from=msg&targetId=${targetId}&tid=${tid}`,
+      TiebaUrlHandler.getThread(tid) + `pages/uni-pb/uni-pb?pid=${pid}&from=msg&targetId=${targetId}&tid=${tid}`,
       "_blank"
     );
   };

@@ -43,10 +43,10 @@ export const TiebaUniAppPost = {
       window.location.hash = "";
     }
     Panel.onceExec("once-exec-tieba-post-uni-app-repairTbErrorPage", () => {
-      this.repairTbErrorPage();
+      return this.repairTbErrorPage();
     });
     Panel.onceExec("once-exec-tieba-post-uni-app-mutationRemoveWakeUpBtn", () => {
-      this.mutationRemoveWakeUpBtn();
+      return this.mutationRemoveWakeUpBtn();
     });
     Panel.onceExec("tieba-post-uni-app-comment-filter", () => {
       TiebaUniAppCommentFilter.init();
@@ -66,26 +66,26 @@ export const TiebaUniAppPost = {
       return this.allowUserSelect();
     });
     Panel.execMenuOnce("baidu-tieba-uni-app-post-overloadLoadMore", () => {
-      this.overloadLoadMore();
+      return this.overloadLoadMore();
     });
     Panel.execMenuOnce("baidu-tieba-uni-app-post-repairPicGuideThreadWrapper", () => {
-      this.repairPicGuideThreadWrapper();
+      return this.repairPicGuideThreadWrapper();
     });
     Panel.execMenuOnce("baidu-tieba-uni-app-post-repairClickToUserHome", () => {
-      this.repairClickToUserHome();
+      return this.repairClickToUserHome();
     });
     Panel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
-      this.preventWakeApp();
+      return this.preventWakeApp();
     });
 
     Panel.execMenuOnce("baidu-tieba-uni-app-post-addScrollTopButtonInForum", (option) => {
       return this.addScrollTopButton(option.value);
     });
     Panel.execMenuOnce("baidu-tieba-uni-app-post-repairAnchorLink", () => {
-      this.repairAnchorLink();
+      return this.repairAnchorLink();
     });
     Panel.execMenu("baidu_tieba_add_search", () => {
-      this.repairSearch();
+      return this.repairSearch();
     });
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("baidu-tieba-uni-app-post-rememberChooseSeeCommentSort", () => {
@@ -130,7 +130,7 @@ export const TiebaUniAppPost = {
    * 修复贴吧请求失败的弹窗（点击无反应）
    */
   repairTbErrorPage() {
-    addStyle(/*css*/ `
+    return addStyle(/*css*/ `
 		/* 加载评论失败的弹窗 */
 		.swiper-content .tb-error-page{
 			background: rgba(0, 0, 0, 0.7);
@@ -143,10 +143,10 @@ export const TiebaUniAppPost = {
    * 动态加载移除唤醒按钮，会影响页面点击，比如超链接点击无反应
    */
   mutationRemoveWakeUpBtn() {
-    let lockFn = new utils.LockFunction(() => {
+    const lockFn = new utils.LockFunction(() => {
       $$(".wake-app-btn").forEach(($ele) => $ele.remove());
     });
-    utils.mutationObserver(document, {
+    const observer = utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
@@ -155,11 +155,16 @@ export const TiebaUniAppPost = {
         lockFn.run();
       },
     });
+    return [
+      () => {
+        observer.disconnect();
+      },
+    ];
   },
   /**
    * 覆盖页面的加载更多按钮，可实现加载更多评论
    */
-  overloadLoadMore() {
+  async overloadLoadMore() {
     log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
     // 移除加载下一页的按钮
     // 某些过滤规则会过滤掉该按钮
@@ -264,21 +269,19 @@ export const TiebaUniAppPost = {
    */
   repairPicGuideThreadWrapper() {
     log.info(`uni-app ===> 修复图片导航列表跳转`);
-    DOMUtils.on(
+    const listener = DOMUtils.on(
       document,
       "click",
       ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLDivElement;
-        let vue2Ins = VueUtils.getVue($click)!;
-        let vue3Ins = VueUtils.getVue3($click);
-        let tid = vue2Ins?.$props?.config?.param?.tid || vue3Ins?.props?.config?.param?.tid;
+        const vueInst = VueUtils.getVue3($click);
+        const tid = vueInst?.props?.config?.param?.tid || vueInst?.config?.param?.tid;
         if (typeof tid === "number") {
-          let url = TiebaUrlHandler.getPost(tid);
+          const url = TiebaUrlHandler.getThread(tid);
           window.open(url, "_blank");
         } else {
-          log.error("获取tid失败", $click);
+          log.error("获取tid失败", { $click, vueInst });
           Qmsg.error("获取tid失败");
         }
       },
@@ -286,49 +289,83 @@ export const TiebaUniAppPost = {
         capture: true,
       }
     );
+    return listener.off;
   },
   /**
    * 修复点击进入用户主页（包括用户头像、用户名）
    */
   repairClickToUserHome() {
     log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
-    DOMUtils.on(document, "click", ".player-line-left", (event, selectorTarget) => {
+    const listener = DOMUtils.on(document, "click", ".player-line-left", (event, $click) => {
       DOMUtils.preventEvent(event);
-      let $click = selectorTarget!;
-      let vue3Ins = VueUtils.getVue3($click);
-      if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
-        let portrait = vue3Ins.props.playerInfo.portrait;
-        let url = TiebaUrlHandler.getUserHome(portrait);
+      const vueInst = VueUtils.getVue3($click);
+      if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
+        const portrait = vueInst.props.playerInfo.portrait;
+        const url = TiebaUrlHandler.getUserHome(portrait);
         window.open(url, "_blank");
       } else {
-        let $wakeApp = $click.querySelector(".wake-app");
-        let vueIns = VueUtils.getVue($wakeApp);
-        let portrait = vueIns?.config?.param?.portrait;
+        const $wakeApp = $click.querySelector(".wake-app");
+        const vue2Inst = VueUtils.getVue($wakeApp);
+        const portrait = vue2Inst?.config?.param?.portrait;
         if (typeof portrait === "string") {
-          let url = TiebaUrlHandler.getUserHome(portrait);
+          const url = TiebaUrlHandler.getUserHome(portrait);
           window.open(url, "_blank");
         } else {
-          log.error("获取portrait失败", $click, vueIns);
+          log.error("获取portrait失败", $click, vue2Inst);
           Qmsg.error("获取portrait失败");
         }
       }
     });
+    const listener2 = DOMUtils.on(
+      document,
+      "click",
+      "uni-view.user-info .head-line",
+      (evt, $headLine) => {
+        const $click = evt.composedPath()[0];
+        if ($click instanceof Element) {
+          if ($click.closest(".composition-checkable")) {
+            return;
+          }
+        }
+        const $wakeApp = $headLine.querySelector<HTMLElement>(".wake-app");
+        if (!$wakeApp) {
+          Qmsg.error("获取.wake-app失败");
+          return;
+        }
+        const vueInst = VueUtils.getVue($wakeApp);
+        if (!vueInst) {
+          Qmsg.error("获取vue实例失败");
+          return;
+        }
+        const portrait = vueInst?.config?.param?.portrait;
+        if (typeof portrait === "string") {
+          DOMUtils.preventEvent(evt);
+          const url = TiebaUrlHandler.getUserHome(portrait);
+          window.open(url, "_blank");
+        } else {
+          Qmsg.error("获取portrait失败");
+        }
+      },
+      {
+        capture: true,
+      }
+    );
+    return [listener.off, listener2.off];
   },
   /**
    * 阻止唤醒app
    */
   preventWakeApp() {
     log.info(`uni-app ===> 阻止唤醒app`);
-    DOMUtils.on(
+    const listener = DOMUtils.on(
       document,
       "click",
       "uni-app .wake-app",
-      (event) => {
-        let $wakeUp = event.target as HTMLElement;
+      (event, $wakeUp: HTMLElement) => {
         /**
          * 忽略的类名
          */
-        let ignoreClassNameList: string[] = [
+        const ignoreClassNameList: string[] = [
           /* 加载更多（打开App查看更多评论 ） */
           ".load-more",
           /* 评论内容 */
@@ -357,6 +394,7 @@ export const TiebaUniAppPost = {
         capture: true,
       }
     );
+    return listener.off;
   },
   /**
    * 记住评论排序
@@ -466,7 +504,7 @@ export const TiebaUniAppPost = {
    */
   optimizationLzlPostBackGestureReturn() {
     log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
-    let gestureBack = new GestureBack({
+    const gestureBack = new GestureBack({
       hash: GeastureBackHashConfig.seeLzlReply,
       useUrl: true,
       beforeHistoryBackCallBack(isUrlChange) {
@@ -476,7 +514,7 @@ export const TiebaUniAppPost = {
       },
     });
     function closeDialogByUrlChange() {
-      let $lzlCloseIcon = $<HTMLElement>(".lzl-close-icon");
+      const $lzlCloseIcon = $<HTMLElement>(".lzl-close-icon");
       if ($lzlCloseIcon) {
         $lzlCloseIcon.click();
       } else {
@@ -501,7 +539,7 @@ export const TiebaUniAppPost = {
    */
   optimizationImagePreviewBackGestureReturn() {
     log.info(`uni-app ===> 图片预览手势返回`);
-    let gestureBack = new GestureBack({
+    const gestureBack = new GestureBack({
       hash: GeastureBackHashConfig.previewImage,
       useUrl: true,
       beforeHistoryBackCallBack(isUrlChange) {
@@ -511,16 +549,16 @@ export const TiebaUniAppPost = {
       },
     });
     function closeByUrlChange() {
-      let $closeIcon = $<HTMLElement>(".img-preview .back-icon-con");
+      const $closeIcon = $<HTMLElement>(".img-preview .back-icon-con");
       if ($closeIcon) {
         $closeIcon.click();
       } else {
         log.warn(`未找到退出图片预览模式的按钮`);
       }
     }
-    DOMUtils.on(document, "click", "img", (event) => {
-      let $click = event.target as HTMLImageElement;
-      let $parent = $click.parentElement!;
+    DOMUtils.on(document, "click", "img", (event, selectorTarget) => {
+      const $click = selectorTarget as any as HTMLImageElement;
+      const $parent = $click.parentElement!;
       if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
         // <uni-app>内的图片
         gestureBack.enterGestureBackMode();
@@ -538,9 +576,9 @@ export const TiebaUniAppPost = {
   /**
    * 修复搜索功能
    */
-  repairSearch() {
+  async repairSearch() {
     log.info(`uni-app ===> 修复搜索功能`);
-    let repairCSS = () => {
+    const repairCSS = () => {
       addStyle(/*css*/ `
 				.nav-bar .more-btn-desc,
 				uni-app .frs-wise-nav-bar .more-btn-desc{
@@ -595,24 +633,28 @@ export const TiebaUniAppPost = {
 				}
 				`);
     };
-    DOMUtils.waitNode(".nav-bar .nav-bar-forum-info", 10000).then(($navBarForumInfo) => {
-      if (!$navBarForumInfo) {
-        return;
-      }
-      let $navBar = $navBarForumInfo.closest<HTMLDivElement>(".nav-bar")!;
-      let $moreBtnDesc = DOMUtils.createElement("div", {
-        className: "more-btn-desc",
-        innerText: "搜索",
-      });
-      $navBar.appendChild($moreBtnDesc);
-      repairCSS();
+    const $navBarForumInfo = await DOMUtils.waitNode(".nav-bar .nav-bar-forum-info", 1e4);
+    if (!$navBarForumInfo) {
+      return;
+    }
+    const $navBar = $navBarForumInfo.closest<HTMLDivElement>(".nav-bar")!;
+    const $moreBtnDesc = DOMUtils.createElement("div", {
+      className: "more-btn-desc",
+      innerText: "搜索",
     });
+    $navBar.appendChild($moreBtnDesc);
+    return [
+      repairCSS(),
+      () => {
+        $moreBtnDesc.remove();
+      },
+    ];
   },
   /**
    * 修复超链接跳转
    */
   repairAnchorLink() {
-    DOMUtils.on(
+    const listener = DOMUtils.on(
       document,
       "click",
       (event) => {
@@ -693,5 +735,6 @@ export const TiebaUniAppPost = {
         capture: true,
       }
     );
+    return listener.off;
   },
 };

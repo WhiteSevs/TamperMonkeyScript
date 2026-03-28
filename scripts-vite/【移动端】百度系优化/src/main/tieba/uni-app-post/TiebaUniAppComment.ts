@@ -209,28 +209,6 @@ export const TiebaUniAppComment = {
             data: TiebaPostUniAppCommentData;
             remove: () => void;
           }[] = [];
-
-          // const $pbCommentItemContainerList = Array.from(
-          // 	document.querySelectorAll<HTMLDivElement>(
-          // 		".pb-comment-item-container"
-          // 	)
-          // );
-          // for (
-          // 	let index = 0;
-          // 	index < $pbCommentItemContainerList.length;
-          // 	index++
-          // ) {
-          // 	const $pbCommentItemContainer = $pbCommentItemContainerList[index];
-          // 	// vue实例
-          // 	const $vueIns = VueUtils.getVue3($pbCommentItemContainer);
-          // 	commentContainerInfoList.push({
-          // 		data: $vueIns?.props?.commentData,
-          // 		remove() {
-          // 			$pbCommentItemContainer.remove();
-          // 			index--;
-          // 		},
-          // 	});
-          // }
           const $commentGroup = $$<HTMLElement>(".comment-group");
           $commentGroup.forEach(($commentGroupItem) => {
             let vueIns = VueUtils.getVue($commentGroupItem);

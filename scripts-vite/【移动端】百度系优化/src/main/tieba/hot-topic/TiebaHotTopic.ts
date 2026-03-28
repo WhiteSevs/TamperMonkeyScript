@@ -109,7 +109,7 @@ export const TiebaHotTopic = {
             Qmsg.error("获取帖子id失败");
             return;
           }
-          let url = TiebaUrlHandler.getPost(id);
+          let url = TiebaUrlHandler.getThread(id);
           window.open(url, "_blank");
         }
       },

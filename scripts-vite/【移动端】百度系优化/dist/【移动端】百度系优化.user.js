@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.18
+// @version      2026.3.28
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
@@ -74,7 +74,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-466beea8]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-466beea8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-466beea8]{font-weight:700}.posts-item-title[data-v-466beea8],.posts-item-content[data-v-466beea8],.posts-item-media-container[data-v-466beea8]{margin:10px 0}.posts-item-footer[data-v-466beea8]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-466beea8]{text-align:center}.posts-item-footer-icon-container[data-v-466beea8]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-466beea8]{padding:0 10px}#main[data-v-6a6acb0b]{z-index:1000;width:100%;height:100%}.big-text[data-v-6a6acb0b]{font-weight:700}.top-container[data-v-6a6acb0b]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-6a6acb0b]{width:100%;height:100px}.user-info-bg-main[data-v-6a6acb0b]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-6a6acb0b]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-6a6acb0b]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-63be16a3]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-63be16a3]:last-child{border-bottom:0}.user-info[data-v-63be16a3]{display:flex;align-items:center;gap:5px}.user-time[data-v-63be16a3]{font-size:.8em;color:#999}.user-avatar img[data-v-63be16a3]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-63be16a3]{font-size:.9em;color:#4a4a4a}.post-info[data-v-63be16a3]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-63be16a3]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-63be16a3]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-63be16a3]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-63be16a3]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-63be16a3]{color:#999}.bottom-msg[data-v-63be16a3]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-63be16a3]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-3dfa54cc]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-3dfa54cc]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-3dfa54cc]:last-child{border-bottom:0}.user-info[data-v-3dfa54cc]{display:flex;align-items:center;gap:5px}.user-time[data-v-3dfa54cc]{font-size:.8em;color:#999}.user-avatar img[data-v-3dfa54cc]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-3dfa54cc]{font-size:.9em}.reply-content .quote-user[data-v-3dfa54cc]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-3dfa54cc]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-3dfa54cc]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-3dfa54cc]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-3dfa54cc]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-3dfa54cc]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-3dfa54cc]{color:#999}.bottom-msg[data-v-3dfa54cc]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-3dfa54cc]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-1abdbb10]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
+    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-466beea8]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-466beea8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-466beea8]{font-weight:700}.posts-item-title[data-v-466beea8],.posts-item-content[data-v-466beea8],.posts-item-media-container[data-v-466beea8]{margin:10px 0}.posts-item-footer[data-v-466beea8]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-466beea8]{text-align:center}.posts-item-footer-icon-container[data-v-466beea8]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-466beea8]{padding:0 10px}#main[data-v-6a6acb0b]{z-index:1000;width:100%;height:100%}.big-text[data-v-6a6acb0b]{font-weight:700}.top-container[data-v-6a6acb0b]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-6a6acb0b]{width:100%;height:100px}.user-info-bg-main[data-v-6a6acb0b]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-6a6acb0b]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-6a6acb0b]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-449d5239]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-449d5239]:last-child{border-bottom:0}.user-info[data-v-449d5239]{display:flex;align-items:center;gap:5px}.user-time[data-v-449d5239]{font-size:.8em;color:#999}.user-avatar img[data-v-449d5239]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-449d5239]{font-size:.9em;color:#4a4a4a}.post-info[data-v-449d5239]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-449d5239]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-449d5239]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-449d5239]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-449d5239]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449d5239]{color:#999}.bottom-msg[data-v-449d5239]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-449d5239]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-ca89eb7d]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-ca89eb7d]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-ca89eb7d]:last-child{border-bottom:0}.user-info[data-v-ca89eb7d]{display:flex;align-items:center;gap:5px}.user-time[data-v-ca89eb7d]{font-size:.8em;color:#999}.user-avatar img[data-v-ca89eb7d]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-ca89eb7d]{font-size:.9em}.reply-content .quote-user[data-v-ca89eb7d]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-ca89eb7d]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-ca89eb7d]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-ca89eb7d]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-ca89eb7d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-ca89eb7d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ca89eb7d]{color:#999}.bottom-msg[data-v-ca89eb7d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-ca89eb7d]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-47090b9c]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-roHXaTIX.js"(exports$1, module) {
+    "entrance-Du8pNiNk.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -1369,20 +1369,20 @@
               return;
             }
             const attributes = config.attributes;
-            let __attr_init__ = attributes[ATTRIBUTE_INIT];
+            const __attr_init__ = attributes[ATTRIBUTE_INIT];
             if (typeof __attr_init__ === "function") {
-              let __attr_result__ = __attr_init__();
+              const __attr_result__ = __attr_init__();
               if (typeof __attr_result__ === "boolean" && !__attr_result__) {
                 return;
               }
             }
-            let menuDefaultConfig = new Map();
-            let key = attributes[ATTRIBUTE_KEY];
+            const menuDefaultConfig = new Map();
+            const key = attributes[ATTRIBUTE_KEY];
             if (key != null) {
               const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
               menuDefaultConfig.set(key, defaultValue);
             }
-            let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+            const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
             if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
               Object.keys(moreMenuDefaultConfig).forEach((key2) => {
                 const defaultValue = moreMenuDefaultConfig[key2];
@@ -1394,7 +1394,7 @@
               return;
             }
             if (config.type === "switch") {
-              let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+              const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
               if (typeof disabled === "boolean" && disabled) {
                 this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
               }
@@ -1405,9 +1405,9 @@
           };
           const loopInitDefaultValue = (configList) => {
             for (let index = 0; index < configList.length; index++) {
-              let configItem = configList[index];
+              const configItem = configList[index];
               initDefaultValue(configItem);
-              let childViews = configItem.views;
+              const childViews = configItem.views;
               if (childViews && Array.isArray(childViews)) {
                 loopInitDefaultValue(childViews);
               }
@@ -1415,7 +1415,7 @@
           };
           const contentConfigList = [...PanelContent.getAllContentConfig()];
           for (let index = 0; index < contentConfigList.length; index++) {
-            let leftContentConfigItem = contentConfigList[index];
+            const leftContentConfigItem = contentConfigList[index];
             if (!leftContentConfigItem.views) {
               continue;
             }
@@ -1428,7 +1428,10 @@
         },
         setDefaultValue(key, defaultValue) {
           if (this.$data.contentConfigInitDefaultValue.has(key)) {
-            log.warn("该key已存在，初始化默认值失败: " + key);
+            log.warn("该key已存在，初始化默认值失败: ", {
+              key,
+              initValue: this.$data.contentConfigInitDefaultValue.get(key),
+            });
           }
           this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
         },
@@ -1504,8 +1507,8 @@
           const listenerIdList = [];
           let destoryFnList = [];
           const addStoreValueCallback = (enableValue, args) => {
-            let dynamicMenuStoreValueList = [];
-            let dynamicDestoryFnList = [];
+            const dynamicMenuStoreValueList = [];
+            const dynamicDestoryFnList = [];
             let resultValueList = [];
             if (Array.isArray(args)) {
               resultValueList = resultValueList.concat(args);
@@ -2150,20 +2153,20 @@
                   });
                 }
               }
-              const fragment = document.createDocumentFragment();
+              const $fragment = document.createDocumentFragment();
               for (const pathInfo of searchConfigResult) {
-                let $resultItem = createSearchResultItem(pathInfo);
-                fragment.appendChild($resultItem);
+                const $resultItem = createSearchResultItem(pathInfo);
+                $fragment.appendChild($resultItem);
               }
               clearSearchResult();
-              $searchResultWrapper.append(fragment);
+              $searchResultWrapper.append($fragment);
             };
             domUtils.on(
               $searchInput,
               "input",
               utils.debounce((evt2) => {
                 domUtils.preventEvent(evt2);
-                let searchText = domUtils.val($searchInput).trim();
+                const searchText = domUtils.val($searchInput).trim();
                 if (searchText === "") {
                   clearSearchResult();
                   return;
@@ -2178,7 +2181,7 @@
           $asideItems.forEach(($asideItem) => {
             domUtils.on($asideItem, "dblclick", dbclick_callback);
           });
-          let clickMap = new WeakMap();
+          const clickMap = new WeakMap();
           let isDoubleClick = false;
           let timer = void 0;
           let isMobileTouch = false;
@@ -2270,11 +2273,11 @@
         loadingViewIconHTML;
         constructor(withIcon, isEnd) {
           this.config = {
-            className: "whitesev-load-view",
-            textClassName: "whitesev-load-view-text",
-            iconClassName: "whitesev-load-view-icon",
-            outSideClassName: "whitesev-load-view-icon-outside",
-            withInClassName: "whitesev-load-view-icon-within",
+            className: "gm-load-view",
+            textClassName: "gm-load-view-text",
+            iconClassName: "gm-load-view-icon",
+            outSideClassName: "gm-load-view-icon-outside",
+            withInClassName: "gm-load-view-icon-within",
           };
           this.loadingViewElement = void 0;
           this.loadingViewHTML = `
@@ -2286,14 +2289,14 @@
           <div class="${this.config.outSideClassName}"></div>
           <div class="${this.config.withInClassName}"></div>
         </div>`.trim();
-          this.initCSS();
+          this.addStyle();
           this.initLoadingView(withIcon, isEnd);
         }
-        initCSS() {
+        addStyle() {
           if (this.isExistsCSS()) {
             return;
           }
-          let loadingViewCSSText = `
+          const cssText = `
       .${this.config.className}{
         margin: 0.08rem;
         background: #fff;
@@ -2373,244 +2376,892 @@
       100%{-ms-transform:rotate(360deg)}
       }
       `;
-          domUtils.addStyle(loadingViewCSSText);
+          const $style = domUtils.addStyle(cssText);
+          $style.setAttribute("data-from", "loadingView");
+          $style.setAttribute("type", "text/css");
+        }
+        get $el() {
+          return this.getLoadingViewElement();
+        }
+        get $icon() {
+          return this.getIconElement();
         }
         initLoadingView(withIcon = false, isEnd = true) {
           this.setLoadingViewElement();
-          let divElement = document.createElement("div");
-          divElement.innerHTML = this.loadingViewHTML;
-          let resultElement = divElement.firstChild;
+          const $wrapper = domUtils.createElement("div", {
+            innerHTML: this.loadingViewHTML,
+          });
+          const $wrapperFirst = $wrapper.firstChild;
           if (withIcon) {
-            let iconElement = document.createElement("div");
-            iconElement.innerHTML = this.loadingViewIconHTML;
+            const $iconWrapper = domUtils.createElement("div", {
+              innerHTML: this.loadingViewIconHTML,
+            });
             if (isEnd) {
-              resultElement.appendChild(iconElement.firstChild);
+              $wrapperFirst.appendChild($iconWrapper.firstChild);
             } else {
-              resultElement.insertBefore(iconElement.firstChild, resultElement.firstChild);
+              $wrapperFirst.insertBefore($iconWrapper.firstChild, $wrapperFirst.firstChild);
             }
           }
-          this.setLoadingViewElement(resultElement);
-          return resultElement;
+          this.setLoadingViewElement($wrapperFirst);
+          return $wrapperFirst;
         }
         setLoadingViewElement(element) {
           this.loadingViewElement = element;
         }
         getLoadingViewElement() {
           if (!this.loadingViewElement) {
-            throw new Error("object loadingViewElement is null");
+            throw new TypeError("object loadingViewElement is null");
           }
           return this.loadingViewElement;
         }
         getIconElement() {
-          return this.getLoadingViewElement().querySelector("." + this.config.iconClassName);
+          return this.$el.querySelector("." + this.config.iconClassName);
         }
         show() {
-          this.getLoadingViewElement().style.display = "";
+          domUtils.show(this.$el, false);
         }
         hide() {
-          this.getLoadingViewElement().style.display = "none";
+          domUtils.hide(this.$el, false);
         }
         showIcon() {
-          let iconElement = this.getIconElement();
-          iconElement && (iconElement.style.display = "");
+          const $icon = this.$icon;
+          if ($icon) {
+            domUtils.show($icon, false);
+          }
         }
         hideIcon() {
-          let iconElement = this.getIconElement();
-          iconElement && (iconElement.style.display = "none");
+          const $icon = this.$icon;
+          if ($icon) {
+            domUtils.hide($icon, false);
+          }
         }
         setText(text, withIcon = false, isEnd = true) {
-          this.getLoadingViewElement().innerHTML = `<span>${text}</span>`;
+          domUtils.html(this.$el, `<span>${text}</span>`);
           if (withIcon) {
-            let iconElement = this.getIconElement();
-            if (!iconElement) {
-              let divElement = document.createElement("div");
-              divElement.innerHTML = this.loadingViewIconHTML;
-              iconElement = divElement.firstChild;
+            let $icon = this.$icon;
+            if (!$icon) {
+              const $wrapper = domUtils.createElement("div", {
+                innerHTML: this.loadingViewIconHTML,
+              });
+              $icon = $wrapper.firstChild;
               if (isEnd) {
-                this.getLoadingViewElement().appendChild(iconElement);
+                this.$el.appendChild($icon);
               } else {
-                this.getLoadingViewElement().insertBefore(iconElement, this.getLoadingViewElement().firstChild);
+                this.$el.insertBefore($icon, this.$el.firstChild);
               }
             }
-            iconElement.style.display = "";
+            this.showIcon();
           } else {
-            this.getIconElement()?.remove();
+            this.$icon?.remove();
           }
         }
         setHTML(text) {
-          this.getLoadingViewElement().innerHTML = text;
+          domUtils.html(this.$el, text);
         }
         destory() {
-          this.getLoadingViewElement()?.remove();
+          this.$el?.remove();
           this.setLoadingViewElement();
         }
         removeAll() {
-          document.querySelectorAll("." + this.config.className).forEach((item) => item.remove());
+          document.querySelectorAll("." + this.config.className).forEach(($it) => $it.remove());
         }
         isExists() {
-          return Boolean(document.querySelector(`.${this.config.className}`));
+          return !!document.querySelector(`.${this.config.className}`);
         }
         isExistsIcon() {
-          return Boolean(this.getIconElement());
+          return !!this.$icon;
         }
         isExistsText() {
-          return Boolean(this.getLoadingViewElement().querySelector(`.${this.config.textClassName}`));
+          return !!this.$el.querySelector(`.${this.config.textClassName}`);
         }
         isExistsCSS() {
-          return Boolean(
-            document.querySelector("style[data-from='loadingView'][type='text/css'][data-author='whitesev']")
-          );
+          return !!document.querySelector("style[data-from='loadingView'][type='text/css']");
         }
       }
       _monkeyWindow.showdown || _unsafeWindow.showdown;
       const loadingView = new LoadingView(true);
+      class RouterBuilder {
+        __href__;
+        get __href() {
+          return this.__href__ || globalThis.location.href;
+        }
+        __origin = {
+          value: void 0,
+          type: "same",
+        };
+        __protocol = {
+          value: void 0,
+          type: "same",
+        };
+        __host = {
+          value: void 0,
+          type: "same",
+          hasPort: false,
+        };
+        __pathname = {
+          value: void 0,
+          type: "same",
+        };
+        __searchParams = {
+          value: new Set(),
+        };
+        constructor(href) {
+          if (typeof href === "string") {
+            this.href(href);
+          }
+        }
+        href(url) {
+          this.__href__ = url;
+          return this;
+        }
+        origin(origin) {
+          this.__origin = {
+            value: origin,
+            type: "same",
+          };
+          return this;
+        }
+        originStartsWith(origin) {
+          this.__origin = {
+            value: origin,
+            type: "startsWith",
+          };
+          return this;
+        }
+        originEndsWith(origin) {
+          this.__origin = {
+            value: origin,
+            type: "endsWith",
+          };
+          return this;
+        }
+        originIncludes(origin) {
+          this.__origin = {
+            value: origin,
+            type: "includes",
+          };
+          return this;
+        }
+        originMatch(origin) {
+          this.__origin = {
+            value: origin,
+            type: "match",
+          };
+          return this;
+        }
+        protocol(protocol) {
+          this.__protocol = {
+            value: protocol,
+            type: "same",
+          };
+          return this;
+        }
+        protocolStartsWith(protocol) {
+          this.__protocol = {
+            value: protocol,
+            type: "startsWith",
+          };
+          return this;
+        }
+        protocolEndsWith(protocol) {
+          this.__protocol = {
+            value: protocol,
+            type: "endsWith",
+          };
+          return this;
+        }
+        protocolIncludes(protocol) {
+          this.__protocol = {
+            value: protocol,
+            type: "includes",
+          };
+          return this;
+        }
+        protocolMatch(protocol) {
+          this.__protocol = {
+            value: protocol,
+            type: "match",
+          };
+          return this;
+        }
+        host(host) {
+          this.__host = {
+            value: host,
+            type: "same",
+            hasPort: true,
+          };
+          return this;
+        }
+        hostStartsWith(host) {
+          this.__host = {
+            value: host,
+            type: "startsWith",
+            hasPort: true,
+          };
+          return this;
+        }
+        hostEndsWith(host) {
+          this.__host = {
+            value: host,
+            type: "endsWith",
+            hasPort: true,
+          };
+          return this;
+        }
+        hostIncludes(host) {
+          this.__host = {
+            value: host,
+            type: "includes",
+            hasPort: true,
+          };
+          return this;
+        }
+        hostMatch(host) {
+          this.__host = {
+            value: host,
+            type: "match",
+            hasPort: true,
+          };
+          return this;
+        }
+        hostName(hostName) {
+          this.__host = {
+            value: hostName,
+            type: "same",
+            hasPort: false,
+          };
+          return this;
+        }
+        hostNameStartsWith(hostName) {
+          this.__host = {
+            value: hostName,
+            type: "startsWith",
+            hasPort: false,
+          };
+          return this;
+        }
+        hostNameEndsWith(hostName) {
+          this.__host = {
+            value: hostName,
+            type: "endsWith",
+            hasPort: false,
+          };
+          return this;
+        }
+        hostNameIncludes(hostName) {
+          this.__host = {
+            value: hostName,
+            type: "includes",
+            hasPort: false,
+          };
+          return this;
+        }
+        hostNameMatch(hostName) {
+          this.__host = {
+            value: hostName,
+            type: "match",
+            hasPort: false,
+          };
+          return this;
+        }
+        pathname(pathname) {
+          this.__pathname = {
+            value: pathname,
+            type: "same",
+          };
+          return this;
+        }
+        pathnameStartsWith(pathname) {
+          this.__pathname = {
+            value: pathname,
+            type: "startsWith",
+          };
+          return this;
+        }
+        pathnameEndsWith(pathname) {
+          this.__pathname = {
+            value: pathname,
+            type: "endsWith",
+          };
+          return this;
+        }
+        pathnameIncludes(pathname) {
+          this.__pathname = {
+            value: pathname,
+            type: "includes",
+          };
+          return this;
+        }
+        pathnameMatch(pathname) {
+          this.__pathname = {
+            value: pathname,
+            type: "match",
+          };
+          return this;
+        }
+        searchParams(name, value) {
+          this.__searchParams.value.add({
+            name,
+            value,
+          });
+          return this;
+        }
+        search(value) {
+          this.__searchParams.value.add({
+            name: "",
+            value,
+            type: "same",
+          });
+          return this;
+        }
+        searchStartsWith(value) {
+          this.__searchParams.value.add({
+            name: "",
+            value,
+            type: "startsWith",
+          });
+          return this;
+        }
+        searchEndsWith(value) {
+          this.__searchParams.value.add({
+            name: "",
+            value,
+            type: "endsWith",
+          });
+          return this;
+        }
+        searchIncludes(value) {
+          this.__searchParams.value.add({
+            name: "",
+            value,
+            type: "includes",
+          });
+          return this;
+        }
+        searchMatch(value) {
+          this.__searchParams.value.add({
+            name: "",
+            value,
+            type: "match",
+          });
+          return this;
+        }
+        build() {
+          if (!this.__host.value) {
+            throw new TypeError("host or hostName should be required");
+          }
+          const protocol = this.__protocol.value || "https";
+          const host = this.__host.value;
+          const pathname = this.__pathname.value || "/";
+          let url = `${protocol}://${host}${pathname}`;
+          if (this.__searchParams.value.size > 0) {
+            const searhList = [];
+            this.__searchParams.value.forEach((it2) => {
+              if (typeof it2.name === "string") {
+                let value = "";
+                if (typeof it2.value === "string" || typeof it2.value === "number" || typeof it2.value === "boolean") {
+                  value = it2.value.toString();
+                }
+                searhList.push(`${encodeURIComponent(it2.name)}=${encodeURIComponent(value)}`);
+              }
+            });
+            if (searhList.length) {
+              url += `?${searhList.join("&")}`;
+            }
+          }
+          return url;
+        }
+        or(href) {
+          return new RouterBuilder(href);
+        }
+        r() {
+          const urlInst = new URL(this.__href);
+          const flag = [
+            () => {
+              if (this.__origin.value) {
+                if (this.__origin.type === "same") {
+                  if (typeof this.__origin.value === "string") {
+                    return urlInst.origin === this.__origin.value;
+                  } else {
+                    throw new TypeError("origin value should be string by type " + this.__origin.type);
+                  }
+                } else if (this.__origin.type === "startsWith") {
+                  if (typeof this.__origin.value === "string") {
+                    return urlInst.origin.startsWith(this.__origin.value);
+                  } else {
+                    throw new TypeError("origin value should be string by type " + this.__origin.type);
+                  }
+                } else if (this.__origin.type === "endsWith") {
+                  if (typeof this.__origin.value === "string") {
+                    return urlInst.origin.endsWith(this.__origin.value);
+                  } else {
+                    throw new TypeError("origin value should be string by type " + this.__origin.type);
+                  }
+                } else if (this.__origin.type === "includes") {
+                  if (typeof this.__origin.value === "string") {
+                    return urlInst.origin.includes(this.__origin.value);
+                  } else {
+                    throw new TypeError("origin value should be string by type " + this.__origin.type);
+                  }
+                } else if (this.__origin.type === "match") {
+                  if (this.__origin.value instanceof RegExp) {
+                    return this.__origin.value.test(urlInst.origin);
+                  } else if (typeof this.__origin.value === "string") {
+                    return urlInst.origin.match(this.__origin.value);
+                  } else {
+                    throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+                  }
+                } else {
+                  throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+                }
+              } else {
+                return true;
+              }
+            },
+            () => {
+              if (this.__protocol.value) {
+                if (this.__protocol.type === "same") {
+                  if (typeof this.__protocol.value === "string") {
+                    return urlInst.protocol === this.__protocol.value;
+                  } else {
+                    throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+                  }
+                } else if (this.__protocol.type === "startsWith") {
+                  if (typeof this.__protocol.value === "string") {
+                    return urlInst.protocol.startsWith(this.__protocol.value);
+                  } else {
+                    throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+                  }
+                } else if (this.__protocol.type === "endsWith") {
+                  if (typeof this.__protocol.value === "string") {
+                    return urlInst.protocol.endsWith(this.__protocol.value);
+                  } else {
+                    throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+                  }
+                } else if (this.__protocol.type === "includes") {
+                  if (typeof this.__protocol.value === "string") {
+                    return urlInst.protocol.includes(this.__protocol.value);
+                  } else {
+                    throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+                  }
+                } else if (this.__protocol.type === "match") {
+                  if (this.__protocol.value instanceof RegExp) {
+                    return this.__protocol.value.test(urlInst.protocol);
+                  } else if (typeof this.__protocol.value === "string") {
+                    return urlInst.protocol.match(this.__protocol.value);
+                  } else {
+                    throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+                  }
+                } else {
+                  throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+                }
+              } else {
+                return true;
+              }
+            },
+
+            () => {
+              if (this.__host.value) {
+                const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
+                if (this.__host.type === "same") {
+                  if (typeof this.__host.value === "string") {
+                    return this.__host.value === host;
+                  } else {
+                    throw new TypeError("host value should be string by type " + this.__host.type);
+                  }
+                } else if (this.__host.type === "startsWith") {
+                  if (typeof this.__host.value === "string") {
+                    return host.startsWith(this.__host.value);
+                  } else {
+                    throw new TypeError("host value should be string by type " + this.__host.type);
+                  }
+                } else if (this.__host.type === "endsWith") {
+                  if (typeof this.__host.value === "string") {
+                    return host.endsWith(this.__host.value);
+                  } else {
+                    throw new TypeError("host value should be string by type " + this.__host.type);
+                  }
+                } else if (this.__host.type === "includes") {
+                  if (typeof this.__host.value === "string") {
+                    return host.includes(this.__host.value);
+                  } else {
+                    throw new TypeError("host value should be string by type " + this.__host.type);
+                  }
+                } else if (this.__host.type === "match") {
+                  if (this.__host.value instanceof RegExp) {
+                    return this.__host.value.test(host);
+                  } else if (typeof this.__host.value === "string") {
+                    return host.match(this.__host.value);
+                  } else {
+                    throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+                  }
+                } else {
+                  throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+                }
+              } else {
+                return true;
+              }
+            },
+            () => {
+              if (this.__pathname.value) {
+                if (this.__pathname.type === "same") {
+                  if (typeof this.__pathname.value === "string") {
+                    return urlInst.pathname === this.__pathname.value;
+                  } else {
+                    throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+                  }
+                } else if (this.__pathname.type === "startsWith") {
+                  if (typeof this.__pathname.value === "string") {
+                    return urlInst.pathname.startsWith(this.__pathname.value);
+                  } else {
+                    throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+                  }
+                } else if (this.__pathname.type === "endsWith") {
+                  if (typeof this.__pathname.value === "string") {
+                    return urlInst.pathname.endsWith(this.__pathname.value);
+                  } else {
+                    throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+                  }
+                } else if (this.__pathname.type === "includes") {
+                  if (typeof this.__pathname.value === "string") {
+                    return urlInst.pathname.includes(this.__pathname.value);
+                  } else {
+                    throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+                  }
+                } else if (this.__pathname.type === "match") {
+                  if (this.__pathname.value instanceof RegExp) {
+                    return this.__pathname.value.test(urlInst.pathname);
+                  } else if (typeof this.__pathname.value === "string") {
+                    return urlInst.pathname.match(this.__pathname.value);
+                  } else {
+                    throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+                  }
+                } else {
+                  throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+                }
+              } else {
+                return true;
+              }
+            },
+
+            () => {
+              let flag2 = true;
+              const searchParamsList = [];
+              this.__searchParams.value.forEach((item) => {
+                searchParamsList.push(item);
+              });
+              for (let index = 0; index < searchParamsList.length; index++) {
+                const item = searchParamsList[index];
+                if (item.type) {
+                  if (item.type === "same") {
+                    if (
+                      typeof item.value === "string" ||
+                      typeof item.value === "number" ||
+                      typeof item.value === "boolean"
+                    ) {
+                      return urlInst.search === item.value.toString();
+                    } else {
+                      throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                    }
+                  } else if (item.type === "startsWith") {
+                    if (
+                      typeof item.value === "string" ||
+                      typeof item.value === "number" ||
+                      typeof item.value === "boolean"
+                    ) {
+                      return urlInst.search.startsWith(item.value.toString());
+                    } else {
+                      throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                    }
+                  } else if (item.type === "endsWith") {
+                    if (
+                      typeof item.value === "string" ||
+                      typeof item.value === "number" ||
+                      typeof item.value === "boolean"
+                    ) {
+                      return urlInst.search.endsWith(item.value.toString());
+                    } else {
+                      throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                    }
+                  } else if (item.type === "includes") {
+                    if (
+                      typeof item.value === "string" ||
+                      typeof item.value === "number" ||
+                      typeof item.value === "boolean"
+                    ) {
+                      return urlInst.search.includes(item.value.toString());
+                    } else {
+                      throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                    }
+                  } else if (item.type === "match") {
+                    if (item.value instanceof RegExp) {
+                      return item.value.test(urlInst.search);
+                    } else if (
+                      typeof item.value === "string" ||
+                      typeof item.value === "number" ||
+                      typeof item.value === "boolean"
+                    ) {
+                      return urlInst.search.match(item.value.toString());
+                    } else {
+                      throw new TypeError(
+                        "search value should be RegExp、string、number、boolean by type " + item.type
+                      );
+                    }
+                  } else {
+                    throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+                  }
+                } else {
+                  if (typeof item.name === "string") {
+                    let value = item.value;
+                    if (
+                      value == null ||
+                      typeof value === "string" ||
+                      typeof value === "number" ||
+                      typeof value === "boolean"
+                    ) {
+                      value = value == null ? void 0 : value.toString();
+                      if (!urlInst.searchParams.has(item.name, value)) {
+                        flag2 = false;
+                        break;
+                      }
+                    } else if (value instanceof RegExp) {
+                      const targetValue = urlInst.searchParams.get(item.name);
+                      if (targetValue) {
+                        if (!value.test(targetValue)) {
+                          flag2 = false;
+                          break;
+                        }
+                      } else {
+                        flag2 = false;
+                        break;
+                      }
+                    } else {
+                      throw new TypeError(
+                        "searchParams value should be string, RegExp, boolean, number, null, undefined"
+                      );
+                    }
+                  } else if (item.name instanceof RegExp) {
+                    let targetKey = void 0;
+                    let targetValue = void 0;
+                    urlInst.searchParams.forEach((__value__, __key__) => {
+                      if (!targetKey && __key__.match(item.name)) {
+                        targetKey = __key__;
+                        targetValue = __value__;
+                      }
+                    });
+                    if (targetKey) {
+                      let value = item.value;
+                      if (value == null);
+                      else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                        value = value.toString();
+                        flag2 = value === targetValue;
+                        if (!flag2) {
+                          break;
+                        }
+                      } else if (value instanceof RegExp) {
+                        if (targetValue) {
+                          if (!value.test(targetValue)) {
+                            flag2 = false;
+                            break;
+                          }
+                        } else {
+                          flag2 = false;
+                          break;
+                        }
+                      } else {
+                        throw new TypeError(
+                          "searchParams value should be string, RegExp, boolean, number, null, undefined"
+                        );
+                      }
+                    } else {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    throw new TypeError("searchParams name should be string or RegExp");
+                  }
+                }
+              }
+              return flag2;
+            },
+          ].every((it2) => it2());
+          return flag;
+        }
+      }
+      const RouterUtil = {
+        host(host, href) {
+          return RouterUtil.builder(href).host(host);
+        },
+        hostName(name, href) {
+          return RouterUtil.builder(href).hostName(name);
+        },
+        search(value, href) {
+          return RouterUtil.builder(href).search(value);
+        },
+        seachParams(name, value, href) {
+          return RouterUtil.builder(href).searchParams(name, value);
+        },
+        pathname(name, href) {
+          return RouterUtil.builder(href).pathname(name);
+        },
+        protocol(protocol, href) {
+          return RouterUtil.builder(href).protocol(protocol);
+        },
+        builder(href) {
+          return new RouterBuilder(href);
+        },
+      };
       const BaiduRouter = {
         isSearch() {
-          return Boolean(window.location.hostname.match(/^(m[0-9]{0,2}|www).baidu.com$/g));
+          return RouterUtil.builder()
+            .hostNameMatch(/^(m[0-9]{0,2}|www).baidu.com$/g)
+            .r();
         },
         isSearchBh() {
-          return this.isSearch() && window.location.pathname.startsWith("/bh");
+          return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/bh").r();
         },
         isSearchVideo() {
-          return this.isSearch() && window.location.pathname.startsWith("/video/page");
+          return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/video/page").r();
         },
         isSearchHome() {
           return (
             this.isSearch() &&
-            ((window.location.pathname === "/" && window.location.search === "") ||
-              (window.location.pathname === "/" && window.location.search.startsWith("?")))
+            RouterUtil.pathname("/").r() &&
+            (RouterUtil.search("").r() || RouterUtil.builder().searchStartsWith("?").r())
           );
         },
         isSearchVSearch() {
-          return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
+          return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/sf/vsearch").r();
         },
         isSearchVSearch_image_content() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "image_content");
+          return this.isSearch() && RouterUtil.builder().searchParams("pd", "image_content").r();
         },
         isSearchVSearch_note() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "note");
+          return this.isSearchVSearch() && RouterUtil.builder().searchParams("pd", "note").r();
         },
         isSearchWenDaTab() {
-          let searchParams = new URLSearchParams(window.location.search);
-          return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
+          return this.isSearchVSearch() && RouterUtil.builder().searchParams("pd", "wenda_tab").r();
         },
         isHealth() {
-          return window.location.hostname === "health.baidu.com" || this.isSearchBh();
+          return this.isSearchBh() || RouterUtil.hostName("health.baidu.com").r();
         },
         isBaiJiaHao() {
-          return window.location.hostname === "baijiahao.baidu.com";
+          return RouterUtil.hostName("baijiahao.baidu.com").r();
         },
         isTieBa() {
           return (
-            Boolean(
-              window.location.hostname.match(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)
-            ) ||
-            window.location.hostname === "jump2.bdimg.com" ||
-            window.location.hostname === "www.tieba.com"
+            RouterUtil.builder()
+              .hostNameMatch(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)
+              .r() ||
+            RouterUtil.hostName("jump2.bdimg.com").r() ||
+            RouterUtil.hostName("www.tieba.com").r()
           );
         },
         isTieBaPost() {
-          return this.isTieBa() && window.location.pathname.startsWith("/p/");
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/p/").r();
         },
         isTieBaNewTopic() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate");
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/newtopic/topicTemplate").r();
         },
         isTieBaHottopic() {
-          return this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic");
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/hottopic/browse/hottopic").r();
         },
         isTieBaHybrid() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search");
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid/search").r();
         },
         isTieBaHybridUserGrowBase() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus");
-        },
-        isTieBaCheckUrl() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl");
-        },
-        isTieBaNei() {
-          return this.isTieBa() && window.location.pathname === "/f";
-        },
-        isTieBaIndex() {
-          return this.isTieBa() && window.location.pathname.startsWith("/index");
-        },
-        isTieBaHome() {
-          return this.isTieBa() && window.location.pathname.startsWith("/home/main");
-        },
-        isTieBaCollectionCenter() {
-          return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter");
-        },
-        isWenKu() {
-          return window.location.hostname === "wk.baidu.com" || window.location.hostname === "tanbi.baidu.com";
-        },
-        isJingYan() {
-          return window.location.hostname === "jingyan.baidu.com";
-        },
-        isBaiKe() {
-          return window.location.hostname === "baike.baidu.com" || window.location.hostname === "wapbaike.baidu.com";
-        },
-        isBaiKeTaShuo() {
-          return this.isBaiKe() && window.location.pathname.startsWith("/tashuo");
-        },
-        isZhiDao() {
-          return window.location.hostname === "zhidao.baidu.com";
-        },
-        isFanYi() {
-          return window.location.hostname === "fanyi.baidu.com";
-        },
-        isFanYiApp() {
-          return window.location.hostname === "fanyi-app.baidu.com";
-        },
-        isImage() {
-          return window.location.hostname === "image.baidu.com";
-        },
-        isMap() {
-          return window.location.hostname === "map.baidu.com";
-        },
-        isMbd() {
-          return window.location.hostname === "mbd.baidu.com";
-        },
-        isXue() {
-          return window.location.hostname === "xue.baidu.com";
-        },
-        isAiQiCha() {
-          return window.location.hostname === "aiqicha.baidu.com";
-        },
-        isPos() {
-          return window.location.hostname === "pos.baidu.com";
-        },
-        isHaoKan() {
-          return window.location.hostname === "haokan.baidu.com";
-        },
-        isGraph() {
-          return window.location.hostname === "graph.baidu.com";
-        },
-        isPan() {
-          return window.location.hostname === "pan.baidu.com";
-        },
-        isYiYan() {
-          return window.location.hostname === "yiyan.baidu.com";
-        },
-        isChat() {
-          return window.location.hostname === "chat.baidu.com";
-        },
-        isMiniJiaoYu() {
-          return window.location.hostname === "uf9kyh.smartapps.cn";
-        },
-        isEasyLearn() {
-          return window.location.hostname === "easylearn.baidu.com";
-        },
-        isISite() {
           return (
-            window.location.hostname === "isite.baidu.com" && window.location.pathname.startsWith("/site/wjz2tdly")
+            this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid-usergrow-base/commentFocus").r()
           );
         },
+        isTieBaCheckUrl() {
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/checkurl").r();
+        },
+        isTieBaNei() {
+          return this.isTieBa() && RouterUtil.pathname("/f").r();
+        },
+        isTieBaIndex() {
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/index").r();
+        },
+        isTieBaHome() {
+          return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/home/main").r();
+        },
+        isTieBaCollectionCenter() {
+          return (
+            this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid-main-user/collectionCenter").r()
+          );
+        },
+        isWenKu() {
+          return RouterUtil.hostName("wk.baidu.com").or().hostName("tanbi.baidu.com").r();
+        },
+        isJingYan() {
+          return RouterUtil.hostName("jingyan.baidu.com").r();
+        },
+        isBaiKe() {
+          return RouterUtil.hostName("baike.baidu.com").or().hostName("wapbaike.baidu.com").r();
+        },
+        isBaiKeTaShuo() {
+          return this.isBaiKe() && RouterUtil.builder().pathnameStartsWith("/tashuo").r();
+        },
+        isZhiDao() {
+          return RouterUtil.hostName("zhidao.baidu.com").r();
+        },
+        isFanYi() {
+          return RouterUtil.hostName("fanyi.baidu.com").r();
+        },
+        isFanYiApp() {
+          return RouterUtil.hostName("fanyi-app.baidu.com").r();
+        },
+        isImage() {
+          return RouterUtil.hostName("image.baidu.com").r();
+        },
+        isMap() {
+          return RouterUtil.hostName("map.baidu.com").r();
+        },
+        isMbd() {
+          return RouterUtil.hostName("mbd.baidu.com").r();
+        },
+        isXue() {
+          return RouterUtil.hostName("xue.baidu.com").r();
+        },
+        isAiQiCha() {
+          return RouterUtil.hostName("aiqicha.baidu.com").r();
+        },
+        isPos() {
+          return RouterUtil.hostName("pos.baidu.com").r();
+        },
+        isHaoKan() {
+          return RouterUtil.hostName("haokan.baidu.com").r();
+        },
+        isGraph() {
+          return RouterUtil.hostName("graph.baidu.com").r();
+        },
+        isPan() {
+          return RouterUtil.hostName("pan.baidu.com").r();
+        },
+        isYiYan() {
+          return RouterUtil.hostName("yiyan.baidu.com").r();
+        },
+        isChat() {
+          return RouterUtil.hostName("chat.baidu.com").r();
+        },
+        isMiniJiaoYu() {
+          return RouterUtil.hostName("uf9kyh.smartapps.cn").r();
+        },
+        isEasyLearn() {
+          return RouterUtil.hostName("easylearn.baidu.com").r();
+        },
+        isISite() {
+          return RouterUtil.hostName("isite.baidu.com").pathnameStartsWith("/site/wjz2tdly").r();
+        },
         isAiStudy() {
-          return window.location.hostname === "aistudy.baidu.com";
+          return RouterUtil.hostName("aistudy.baidu.com").r();
         },
         isSmartApps_Tieba() {
-          return window.location.hostname === "byokpg.smartapps.baidu.com";
+          return RouterUtil.hostName("byokpg.smartapps.baidu.com").r();
+        },
+        isWappass() {
+          return RouterUtil.hostName("wappass.baidu.com").r();
         },
       };
       const AiQiChaShieldCSS =
@@ -7524,8 +8175,8 @@ div[class^="new-summary-container_"] {
         getUserHomeByUN(un2) {
           return `https://tieba.baidu.com/home/main?un=${un2}`;
         },
-        getPost(id) {
-          return `https://tieba.baidu.com/p/${id}#/`;
+        getThread(id) {
+          return `https://tieba.baidu.com/p/${id}`;
         },
         getHybridSearch(searchText) {
           return `https://tieba.baidu.com/mo/q/hybrid/search?keyword=${searchText}`;
@@ -7642,7 +8293,7 @@ div[class^="new-summary-container_"] {
               if (pbUrl) {
                 newUrl = window.location.origin + pbUrl;
               } else if (tid || id) {
-                newUrl = TiebaUrlHandler.getPost(tid ?? id);
+                newUrl = TiebaUrlHandler.getThread(tid ?? id);
               } else if (typeof collectH5Url === "string") {
                 newUrl = decodeURIComponent(collectH5Url);
               } else {
@@ -7838,17 +8489,17 @@ div[class^="new-summary-container_"] {
             ".collection-center .image-card",
             (event, selectorTarget) => {
               DOMUtils.preventEvent(event);
-              let vueInstance = VueUtils.getVue(selectorTarget);
-              if (!vueInstance) {
+              const vueInst = VueUtils.getVue(selectorTarget);
+              if (!vueInst) {
                 Qmsg.error("获取vue实例失败");
                 return;
               }
-              let tid = vueInstance?.item?.tid;
+              const tid = vueInst?.item?.tid;
               if (tid == null) {
                 Qmsg.error("获取tid失败");
                 return;
               }
-              let url = TiebaUrlHandler.getPost(tid);
+              const url = TiebaUrlHandler.getThread(tid);
               if (Panel.getValue("tieba_collection_center_repair_card_click_jump_open_new_tab")) {
                 window.open(url, "_blank");
               } else {
@@ -7867,7 +8518,7 @@ div[class^="new-summary-container_"] {
       const TiebaApiStatus = {
         isWebSuccess(data) {
           if (!data) return false;
-          return data.error_code === "0" || data.error_code === 0;
+          return data.error_code === "0" || data.error_code === 0 || data.no === 0;
         },
       };
       const TiebaNewPCApi = {
@@ -7968,7 +8619,7 @@ div[class^="new-summary-container_"] {
             return;
           }
           if (!Array.isArray(data.follow_list)) {
-            log.error("数据格式错误", data);
+            log.error("follow_list不是数组", data);
             return;
           }
           return data;
@@ -8027,6 +8678,28 @@ div[class^="new-summary-container_"] {
             return;
           }
           return data;
+        },
+        async searchThread(word, pn2 = 1, sort = 5, threadType = 1, fname = "") {
+          const response = await httpx.get("https://tieba.baidu.com/mo/q/search/thread", {
+            data: {
+              st: sort,
+              tt: threadType,
+              fname,
+              word,
+              pn: pn2,
+              rn: 20,
+              subapp_type: "pc",
+              _client_type: 20,
+            },
+          });
+          if (!response.status) {
+            return;
+          }
+          const data = utils.toJSON(response.data.responseText);
+          if (!TiebaApiStatus.isWebSuccess(data)) {
+            return;
+          }
+          return data.data;
         },
       };
       const TiebaHomeData = {
@@ -20078,7 +20751,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           return result;
         },
         async getFollow(un2, offset = 12, page_size = 12) {
-          let response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
+          const response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
             data: {
               un: un2,
               lp: "home_main_follow_more",
@@ -20095,22 +20768,22 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           if (!response.status) {
             return;
           }
-          let data = utils.toJSON(response.data.responseText);
+          const data = utils.toJSON(response.data.responseText);
           if (data.no != 0) {
             return;
           }
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.toElement(data.data.content, true, true);
-          let resultDataList = [];
+          const $doc = domUtils.toElement(data.data.content, true, true);
+          const resultDataList = [];
           $doc.querySelectorAll(".uloader_grid_item_user").forEach(($url) => {
-            let url = $url.href;
-            let $userName = $url.querySelector(".uloader_user_name");
-            let userName = $userName.innerText;
-            let $avatar = $url.querySelector(".uloader_user_portrait");
-            let avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
-            let portrait = new URL(avatar).pathname.split("/").pop();
+            const url = $url.href;
+            const $userName = $url.querySelector(".uloader_user_name");
+            const userName = $userName.innerText;
+            const $avatar = $url.querySelector(".uloader_user_portrait");
+            const avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
+            const portrait = new URL(avatar).pathname.split("/").pop();
             resultDataList.push({
               url,
               userName,
@@ -20118,7 +20791,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               portrait,
             });
           });
-          let result = {
+          const result = {
             data: resultDataList,
             has_next: data.data.page.has_next,
           };
@@ -20126,7 +20799,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           return result;
         },
         async getFans(un2, offset = 12, page_size = 12) {
-          let response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
+          const response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
             data: {
               un: un2,
               lp: "home_main_fans_more",
@@ -20143,22 +20816,22 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           if (!response.status) {
             return;
           }
-          let data = utils.toJSON(response.data.responseText);
+          const data = utils.toJSON(response.data.responseText);
           if (data.no != 0) {
             return;
           }
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.toElement(data.data.content, true, true);
-          let resultDataList = [];
+          const $doc = domUtils.toElement(data.data.content, true, true);
+          const resultDataList = [];
           $doc.querySelectorAll(".uloader_grid_item_user").forEach(($url) => {
-            let url = $url.href;
-            let $userName = $url.querySelector(".uloader_user_name");
-            let userName = $userName.innerText;
-            let $avatar = $url.querySelector(".uloader_user_portrait");
-            let avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
-            let portrait = new URL(avatar).pathname.split("/").pop();
+            const url = $url.href;
+            const $userName = $url.querySelector(".uloader_user_name");
+            const userName = $userName.innerText;
+            const $avatar = $url.querySelector(".uloader_user_portrait");
+            const avatar = $avatar.style.backgroundImage.replace(/^url\("/, "").replace(/"\)$/, "");
+            const portrait = new URL(avatar).pathname.split("/").pop();
             resultDataList.push({
               url,
               userName,
@@ -20166,7 +20839,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               portrait,
             });
           });
-          let result = {
+          const result = {
             data: resultDataList,
             has_next: data.data.page.has_next,
           };
@@ -20174,7 +20847,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           return result;
         },
         async getPost(un2, pn2 = 1) {
-          let response = await httpx.get(`https://tieba.baidu.com/home/post`, {
+          const response = await httpx.get(`https://tieba.baidu.com/home/post`, {
             fetch: utils.isWebView_Via(),
             data: {
               un: un2,
@@ -20192,23 +20865,23 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           if (!response.status) {
             return;
           }
-          let data = utils.toJSON(response.data.responseText);
+          const data = utils.toJSON(response.data.responseText);
           if (data.no != 0) {
             return;
           }
           if (utils.isNull(data.data.content)) {
             return;
           }
-          let $doc = domUtils.toElement(data.data.content, true, true);
-          let resultDataList = [];
+          const $doc = domUtils.toElement(data.data.content, true, true);
+          const resultDataList = [];
           $doc.querySelectorAll(".list_item").forEach(($listItem) => {
-            let url = $listItem.querySelector(".list_item_link").href;
-            let replyContent = domUtils.text($listItem.querySelector(".reply_body_text"));
-            let title = domUtils.text($listItem.querySelector(".post_list_item_title"));
-            let content = domUtils.text($listItem.querySelector(".post_abstract_text"));
+            const url = $listItem.querySelector(".list_item_link").href;
+            const replyContent = domUtils.text($listItem.querySelector(".reply_body_text"));
+            const title = domUtils.text($listItem.querySelector(".post_list_item_title"));
+            const content = domUtils.text($listItem.querySelector(".post_abstract_text"));
             let forumName = domUtils.text($listItem.querySelector(".post_list_item_info_forum"));
             forumName = forumName.replace(/吧$/, "");
-            let time = domUtils.text($listItem.querySelector(".post_list_item_info_time"));
+            const time = domUtils.text($listItem.querySelector(".post_list_item_info_time"));
             resultDataList.push({
               url,
               replyContent,
@@ -20218,7 +20891,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               time,
             });
           });
-          let result = {
+          const result = {
             data: resultDataList,
             has_more: data.data.page.has_more,
           };
@@ -23050,7 +23723,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   Qmsg.error("获取帖子id失败");
                   return;
                 }
-                let url = TiebaUrlHandler.getPost(id);
+                let url = TiebaUrlHandler.getThread(id);
                 window.open(url, "_blank");
               }
             },
@@ -23137,7 +23810,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 Qmsg.error("获取帖子的tid失败");
                 return;
               }
-              window.open(TiebaUrlHandler.getPost(tid), "_blank");
+              window.open(TiebaUrlHandler.getThread(tid), "_blank");
             },
             {
               capture: true,
@@ -23406,7 +24079,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
           };
           let gotoPost = function (postId) {
-            window.open(TiebaUrlHandler.getPost(postId), "_blank");
+            window.open(TiebaUrlHandler.getThread(postId), "_blank");
           };
           vue.onMounted(async () => {
             postList.value.length = 0;
@@ -23547,7 +24220,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Agreeme = _export_sfc(_sfc_main$7, [["__scopeId", "data-v-63be16a3"]]);
+      const Agreeme = _export_sfc(_sfc_main$7, [["__scopeId", "data-v-449d5239"]]);
       const _hoisted_1$4 = { class: "post-list" };
       const _hoisted_2$3 = { class: "post-list-item" };
       const _hoisted_3$3 = ["onClick"];
@@ -23621,11 +24294,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             window.open(TiebaUrlHandler.getUserHome(portrait), "_blank");
           };
           let gotoPost = function (postId) {
-            window.open(TiebaUrlHandler.getPost(postId), "_blank");
+            window.open(TiebaUrlHandler.getThread(postId), "_blank");
           };
           let gotoLzlPost = function (tid, pid, targetId) {
             window.open(
-              TiebaUrlHandler.getPost(tid) + `pages/uni-pb/uni-pb?pid=${pid}&from=msg&targetId=${targetId}&tid=${tid}`,
+              TiebaUrlHandler.getThread(tid) +
+                `pages/uni-pb/uni-pb?pid=${pid}&from=msg&targetId=${targetId}&tid=${tid}`,
               "_blank"
             );
           };
@@ -23782,7 +24456,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Replyme = _export_sfc(_sfc_main$6, [["__scopeId", "data-v-3dfa54cc"]]);
+      const Replyme = _export_sfc(_sfc_main$6, [["__scopeId", "data-v-ca89eb7d"]]);
       const _hoisted_1$3 = { class: "post-list" };
       const _hoisted_2$2 = {
         id: "load-more",
@@ -23874,7 +24548,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Atme = _export_sfc(_sfc_main$5, [["__scopeId", "data-v-1abdbb10"]]);
+      const Atme = _export_sfc(_sfc_main$5, [["__scopeId", "data-v-47090b9c"]]);
       const TiebaMsgTabRouter = {
         router: null,
         init() {
@@ -26409,40 +27083,69 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			}
         `
           );
-          addStyle$1(
-            `
-			
-		`
-          );
           domUtils.onReady(() => {
-            let lockFn = new utils.LockFunction(async () => {
+            const setInjectAttr = ($el) => {
+              $el.setAttribute("data-is-inject-search-label", "");
+            };
+            const lockFn = new utils.LockFunction(async () => {
+              [$("uni-view.user-info .name-info:not([data-is-inject-search-label])")].forEach(($el) => {
+                if (!$el) return;
+                setInjectAttr($el);
+                const { $container } = this.createSearchButton(() => {
+                  const $name = $el.querySelector(".head-name");
+                  if (!$name) {
+                    throw new Error("获取name失败");
+                  }
+                  const name = domUtils.text($name);
+                  const vueInst = VueUtils.getVue($el);
+                  if (!vueInst) {
+                    throw new TypeError("获取vue属性失败");
+                  }
+                  const portrait = vueInst?.$parent?.config?.param?.portrait;
+                  if (typeof portrait !== "string") {
+                    throw new TypeError("获取portrait失败");
+                  }
+                  return {
+                    portrait,
+                    name_show: name,
+                  };
+                });
+                domUtils.append($el, $container);
+              });
               $$(".pb-comment-item .player-info:not([data-is-inject-search-label]):has(.user-info-degrade)").forEach(
                 ($replyItem) => {
-                  $replyItem.setAttribute("data-is-inject-search-label", "");
-                  let { $container, $compositionNameControl } = this.createSearchButton(() => {
-                    $replyItem.closest(".pb-comment-item");
-                    let $userInfoDegrade = $replyItem.querySelector(".user-info-degrade");
-                    let vueIns = VueUtils.getVue($userInfoDegrade);
-                    if (!vueIns) {
+                  setInjectAttr($replyItem);
+                  const { $container } = this.createSearchButton(() => {
+                    const $userInfoDegrade = $replyItem.querySelector(".user-info-degrade");
+                    const vueInst = VueUtils.getVue($userInfoDegrade);
+                    if (!vueInst) {
                       throw new TypeError("获取vue属性失败");
                     }
-                    let nameShow = vueIns?.nameInfo?.text;
+                    const nameShow = vueInst?.nameInfo?.text;
                     if (nameShow == null) {
                       throw new TypeError("获取nameShow失败");
                     }
-                    let sectionData = vueIns?.$parent?.sectionData;
-                    if (!Array.isArray(sectionData)) {
-                      throw new TypeError("获取sectionData失败");
+                    const sectionData = vueInst?.$parent?.sectionData;
+                    if (Array.isArray(sectionData)) {
+                      const findValue = sectionData.find((item) => item?.author?.name_show === nameShow);
+                      if (!findValue) {
+                        throw new TypeError("获取对应的用户信息失败");
+                      }
+                      return {
+                        id: findValue?.author?.id,
+                        portrait: findValue?.author?.portrait,
+                        name_show: findValue?.author?.name_show,
+                      };
+                    } else {
+                      const portrait = vueInst.$parent?.config?.param?.portrait;
+                      if (typeof portrait !== "string") {
+                        throw new TypeError("获取portrait失败");
+                      }
+                      return {
+                        portrait,
+                        name_show: nameShow,
+                      };
                     }
-                    let findValue = sectionData.find((item) => item?.author?.name_show === nameShow);
-                    if (!findValue) {
-                      throw new TypeError("获取对应的用户信息失败");
-                    }
-                    return {
-                      id: findValue?.author?.id,
-                      portrait: findValue?.author?.portrait,
-                      name_show: findValue?.author?.name_show,
-                    };
                   });
                   domUtils.append($replyItem, $container);
                 }
@@ -26450,17 +27153,17 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               $$(
                 ".pb-comment-item-container .player-info:not([data-is-inject-search-label]):has(:not(.user-info-degrade))"
               ).forEach(($replyItem) => {
-                $replyItem.setAttribute("data-is-inject-search-label", "");
-                let { $container, $compositionNameControl } = this.createSearchButton(() => {
-                  let $pbCommentItemContainer = $replyItem.closest(".pb-comment-item-container");
+                setInjectAttr($replyItem);
+                const { $container } = this.createSearchButton(() => {
+                  const $pbCommentItemContainer = $replyItem.closest(".pb-comment-item-container");
                   if (!$pbCommentItemContainer) {
                     throw new TypeError("获取$pbCommentItemContainer失败");
                   }
-                  let vueIns = VueUtils.getVue($pbCommentItemContainer);
-                  if (!vueIns) {
+                  const vueInst = VueUtils.getVue($pbCommentItemContainer);
+                  if (!vueInst) {
                     throw new TypeError("获取vue属性失败");
                   }
-                  let commentData = vueIns?.commentData;
+                  const commentData = vueInst?.commentData;
                   if (!commentData) {
                     throw new TypeError("获取commentData失败");
                   }
@@ -26485,34 +27188,41 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             });
           });
         },
-        async queryUserAllInfo(userName) {
-          let allFollowingData = [];
-          let followPageSize = 12;
-          let followOffset = followPageSize * 1;
-          let followMaxCount = 10;
-          let followCount = 0;
+        async queryUserAllInfo(userInfo) {
+          const userName = userInfo.name_show;
+          const allFollowingData = [];
+          const followMaxPage = 12;
+          let followPage = 1;
           while (true) {
-            let followingData = await TiebaHomeApi.getFollow(userName, followOffset, followPageSize);
+            const followingData = await TiebaNewPCApi.followList_pc(userInfo.portrait, userInfo.id, followPage);
             if (!followingData) {
               break;
             }
-            allFollowingData.push(...followingData.data);
-            if (followCount >= followMaxCount) {
+            allFollowingData.push(
+              ...followingData.follow_list.map((it2) => {
+                return {
+                  url: TiebaUrlHandler.getUserHome(it2.portrait),
+                  userName: it2.name_show || it2.name,
+                  avatar: TiebaUrlHandler.getUserAvatar(it2.portrait),
+                  portrait: it2.portrait,
+                };
+              })
+            );
+            if (!followingData.has_more) {
               break;
             }
-            if (!followingData.has_next) {
+            if (followPage >= followMaxPage) {
               break;
             }
-            followOffset += followPageSize;
-            followCount++;
+            followPage++;
             await utils.sleep(150);
           }
-          let allConcernData = [];
+          const allConcernData = [];
           let concernPN = 1;
           let concernMaxCount = 10;
           let concernCount = 0;
           while (true) {
-            let concernData = await TiebaHomeApi.getConcern(userName, concernPN);
+            const concernData = await TiebaHomeApi.getConcern(userName, concernPN);
             if (!concernData) {
               break;
             }
@@ -26527,11 +27237,11 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             concernCount++;
             await utils.sleep(150);
           }
-          let allPostData = [];
+          const allPostData = [];
           let postMaxPN = 10;
           let postPN = 1;
           while (true) {
-            let postData = await TiebaHomeApi.getPost(userName, postPN);
+            const postData = await TiebaHomeApi.getPost(userName, postPN);
             if (!postData) {
               break;
             }
@@ -26542,7 +27252,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             postPN++;
             await utils.sleep(150);
           }
-          let result = {
+          const result = {
             following: allFollowingData,
             concernForum: allConcernData,
             postInfo: allPostData,
@@ -26550,18 +27260,18 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           return result;
         },
         createSearchButton(queryUserInfoFn) {
-          let $compositionCheckable = domUtils.createElement("div", {
+          const $compositionCheckable = domUtils.createElement("div", {
             className: "composition-checkable",
             innerHTML: `
-                <div class="composition-badge-control">
-                    <span class="composition-name-control">
-                        ${this.$data.searchIcon}
-                    </span>
-                </div>
-            `,
+      <div class="composition-badge-control">
+          <span class="composition-name-control">
+              ${this.$data.searchIcon}
+          </span>
+      </div>
+      `,
           });
-          let $badge = $compositionCheckable.querySelector(".composition-badge-control");
-          let $compositionNameControl = $compositionCheckable.querySelector(".composition-name-control");
+          const $badge = $compositionCheckable.querySelector(".composition-badge-control");
+          const $compositionNameControl = $compositionCheckable.querySelector(".composition-name-control");
           domUtils.on(
             $badge,
             "click",
@@ -26574,20 +27284,29 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               $compositionCheckable.setAttribute("data-is-searching", "");
               domUtils.html($compositionNameControl, "...");
               try {
-                let userInfo = queryUserInfoFn();
+                const queryUserInfo = queryUserInfoFn();
+                const userInfo = {
+                  ...queryUserInfo,
+                  uid: "",
+                };
                 this.clearLabel($compositionCheckable);
-                let chatUserInfo = await TieBaApi.getChatUserInfo(userInfo.id);
-                log.info(`查询用户信息：`, chatUserInfo);
-                if (!chatUserInfo) {
-                  throw new TypeError("获取用户信息失败");
+                const homeSiderbarRight = await TiebaNewPCApi.homeSidebarRight(userInfo.portrait);
+                if (homeSiderbarRight) {
+                  userInfo.name_show = homeSiderbarRight.user.name_show;
+                  userInfo.uid = homeSiderbarRight.user.id;
+                } else {
+                  throw new TypeError("获取用户api信息中的uid失败");
                 }
-                let userName = chatUserInfo.uname.toString();
-                let userAllInfo = await this.queryUserAllInfo(userName);
+                const userAllInfo = await this.queryUserAllInfo({
+                  portrait: userInfo.portrait,
+                  name_show: userInfo.name_show,
+                  id: userInfo.uid,
+                });
                 if (!userAllInfo) {
                   throw new TypeError("获取用户所有信息失败");
                 }
-                log.info(`检索出用户所有信息：`, userAllInfo);
-                this.handleShowLabel(chatUserInfo, userAllInfo, $compositionCheckable);
+                log.info(`当前检索出的用户所有信息：`, userAllInfo);
+                this.handleShowLabel(userInfo, userAllInfo, $compositionCheckable);
                 domUtils.html($compositionNameControl, this.$data.searchIcon);
               } catch (error) {
                 log.error(error);
@@ -26713,17 +27432,17 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         clearLabel($ele) {
           $ele.querySelectorAll(".composition-checked").forEach((it2) => it2.remove());
         },
-        handleShowLabel(chatUserInfo, data, $searchContainer) {
+        handleShowLabel(userInfo, data, $searchContainer) {
           if (TiebaUniAppComponentDetectionRule.$data.ruleData.length === 0) {
             Qmsg.warning("未配置规则，请在设置中进行添加");
             return;
           }
-          let userId = chatUserInfo.uid.toString();
+          const userId = userInfo.uid.toString();
           if (TiebaUniAppComponentDetectionRule.$data.whiteList.includes(userId)) {
             return;
           }
-          let matchedAllRule = [];
-          let pushMatchedRule = (rule, matchedInfo) => {
+          const matchedAllRule = [];
+          const pushMatchedRule = (rule, matchedInfo) => {
             let findValue = matchedAllRule.find((it2) => it2.rule === rule);
             if (findValue) {
               findValue.matchedInfoList.push(matchedInfo);
@@ -26740,7 +27459,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               ruleData.data.blacklist.find(
                 (it2) =>
                   it2.toString() === userId ||
-                  (typeof chatUserInfo.portrait === "string" && chatUserInfo.portrait.startsWith(it2.toString()))
+                  (typeof userInfo.portrait === "string" && userInfo.portrait.startsWith(it2.toString()))
               )
             ) {
               pushMatchedRule(ruleData, {
@@ -26767,7 +27486,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 pushMatchedRule(ruleData, {
                   reason,
                   reasonText,
-                  reasonLink: TiebaUrlHandler.getUserHome(chatUserInfo.portrait),
+                  reasonLink: TiebaUrlHandler.getUserHome(userInfo.portrait),
                   reasonTime: null,
                 });
               }
@@ -26840,10 +27559,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             true
           );
-          matchedAllRule.forEach((it2) => {
-            let $label = this.createLabel(it2);
-            domUtils.append($searchContainer, $label);
-          });
+          domUtils.append(
+            $searchContainer,
+            matchedAllRule.map((it2) => {
+              return this.createLabel(it2);
+            })
+          );
         },
       };
       const GeastureBackHashConfig = {
@@ -26868,10 +27589,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             window.location.hash = "";
           }
           Panel.onceExec("once-exec-tieba-post-uni-app-repairTbErrorPage", () => {
-            this.repairTbErrorPage();
+            return this.repairTbErrorPage();
           });
           Panel.onceExec("once-exec-tieba-post-uni-app-mutationRemoveWakeUpBtn", () => {
-            this.mutationRemoveWakeUpBtn();
+            return this.mutationRemoveWakeUpBtn();
           });
           Panel.onceExec("tieba-post-uni-app-comment-filter", () => {
             TiebaUniAppCommentFilter.init();
@@ -26892,25 +27613,25 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             return this.allowUserSelect();
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-overloadLoadMore", () => {
-            this.overloadLoadMore();
+            return this.overloadLoadMore();
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-repairPicGuideThreadWrapper", () => {
-            this.repairPicGuideThreadWrapper();
+            return this.repairPicGuideThreadWrapper();
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-repairClickToUserHome", () => {
-            this.repairClickToUserHome();
+            return this.repairClickToUserHome();
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
-            this.preventWakeApp();
+            return this.preventWakeApp();
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-addScrollTopButtonInForum", (option) => {
             return this.addScrollTopButton(option.value);
           });
           Panel.execMenuOnce("baidu-tieba-uni-app-post-repairAnchorLink", () => {
-            this.repairAnchorLink();
+            return this.repairAnchorLink();
           });
           Panel.execMenu("baidu_tieba_add_search", () => {
-            this.repairSearch();
+            return this.repairSearch();
           });
           domUtils.onReady(() => {
             Panel.execMenuOnce("baidu-tieba-uni-app-post-rememberChooseSeeCommentSort", () => {
@@ -26948,7 +27669,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           );
         },
         repairTbErrorPage() {
-          addStyle$1(
+          return addStyle$1(
             `
 		/* 加载评论失败的弹窗 */
 		.swiper-content .tb-error-page{
@@ -26960,10 +27681,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           );
         },
         mutationRemoveWakeUpBtn() {
-          let lockFn = new utils.LockFunction(() => {
+          const lockFn = new utils.LockFunction(() => {
             $$(".wake-app-btn").forEach(($ele) => $ele.remove());
           });
-          utils.mutationObserver(document, {
+          const observer = utils.mutationObserver(document, {
             config: {
               subtree: true,
               childList: true,
@@ -26972,8 +27693,13 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               lockFn.run();
             },
           });
+          return [
+            () => {
+              observer.disconnect();
+            },
+          ];
         },
-        overloadLoadMore() {
+        async overloadLoadMore() {
           log.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`);
           domUtils.waitNode("uni-app .load-more.wake-app", 1e4).then(($el) => {
             if (!$el) {
@@ -27067,21 +27793,19 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         repairPicGuideThreadWrapper() {
           log.info(`uni-app ===> 修复图片导航列表跳转`);
-          domUtils.on(
+          const listener = domUtils.on(
             document,
             "click",
             ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
-            (event) => {
+            (event, $click) => {
               domUtils.preventEvent(event);
-              let $click = event.target;
-              let vue2Ins = VueUtils.getVue($click);
-              let vue3Ins = VueUtils.getVue3($click);
-              let tid = vue2Ins?.$props?.config?.param?.tid || vue3Ins?.props?.config?.param?.tid;
+              const vueInst = VueUtils.getVue3($click);
+              const tid = vueInst?.props?.config?.param?.tid || vueInst?.config?.param?.tid;
               if (typeof tid === "number") {
-                let url = TiebaUrlHandler.getPost(tid);
+                const url = TiebaUrlHandler.getThread(tid);
                 window.open(url, "_blank");
               } else {
-                log.error("获取tid失败", $click);
+                log.error("获取tid失败", { $click, vueInst });
                 Qmsg.error("获取tid失败");
               }
             },
@@ -27089,40 +27813,74 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               capture: true,
             }
           );
+          return listener.off;
         },
         repairClickToUserHome() {
           log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
-          domUtils.on(document, "click", ".player-line-left", (event, selectorTarget) => {
+          const listener = domUtils.on(document, "click", ".player-line-left", (event, $click) => {
             domUtils.preventEvent(event);
-            let $click = selectorTarget;
-            let vue3Ins = VueUtils.getVue3($click);
-            if (typeof vue3Ins?.props?.playerInfo?.portrait === "string") {
-              let portrait = vue3Ins.props.playerInfo.portrait;
-              let url = TiebaUrlHandler.getUserHome(portrait);
+            const vueInst = VueUtils.getVue3($click);
+            if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
+              const portrait = vueInst.props.playerInfo.portrait;
+              const url = TiebaUrlHandler.getUserHome(portrait);
               window.open(url, "_blank");
             } else {
-              let $wakeApp = $click.querySelector(".wake-app");
-              let vueIns = VueUtils.getVue($wakeApp);
-              let portrait = vueIns?.config?.param?.portrait;
+              const $wakeApp = $click.querySelector(".wake-app");
+              const vue2Inst = VueUtils.getVue($wakeApp);
+              const portrait = vue2Inst?.config?.param?.portrait;
               if (typeof portrait === "string") {
-                let url = TiebaUrlHandler.getUserHome(portrait);
+                const url = TiebaUrlHandler.getUserHome(portrait);
                 window.open(url, "_blank");
               } else {
-                log.error("获取portrait失败", $click, vueIns);
+                log.error("获取portrait失败", $click, vue2Inst);
                 Qmsg.error("获取portrait失败");
               }
             }
           });
+          const listener2 = domUtils.on(
+            document,
+            "click",
+            "uni-view.user-info .head-line",
+            (evt, $headLine) => {
+              const $click = evt.composedPath()[0];
+              if ($click instanceof Element) {
+                if ($click.closest(".composition-checkable")) {
+                  return;
+                }
+              }
+              const $wakeApp = $headLine.querySelector(".wake-app");
+              if (!$wakeApp) {
+                Qmsg.error("获取.wake-app失败");
+                return;
+              }
+              const vueInst = VueUtils.getVue($wakeApp);
+              if (!vueInst) {
+                Qmsg.error("获取vue实例失败");
+                return;
+              }
+              const portrait = vueInst?.config?.param?.portrait;
+              if (typeof portrait === "string") {
+                domUtils.preventEvent(evt);
+                const url = TiebaUrlHandler.getUserHome(portrait);
+                window.open(url, "_blank");
+              } else {
+                Qmsg.error("获取portrait失败");
+              }
+            },
+            {
+              capture: true,
+            }
+          );
+          return [listener.off, listener2.off];
         },
         preventWakeApp() {
           log.info(`uni-app ===> 阻止唤醒app`);
-          domUtils.on(
+          const listener = domUtils.on(
             document,
             "click",
             "uni-app .wake-app",
-            (event) => {
-              let $wakeUp = event.target;
-              let ignoreClassNameList = [
+            (event, $wakeUp) => {
+              const ignoreClassNameList = [
                 ".load-more",
                 ".comment-content",
                 ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
@@ -27146,6 +27904,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               capture: true,
             }
           );
+          return listener.off;
         },
         rememberChooseSeeCommentSort() {
           log.info(`uni-app ===> 记住评论排序`);
@@ -27232,7 +27991,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         optimizationLzlPostBackGestureReturn() {
           log.info(`uni-app ===> 楼中楼回复弹窗手势返回`);
-          let gestureBack = new GestureBack({
+          const gestureBack = new GestureBack({
             hash: GeastureBackHashConfig.seeLzlReply,
             useUrl: true,
             beforeHistoryBackCallBack(isUrlChange) {
@@ -27242,7 +28001,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
           });
           function closeDialogByUrlChange() {
-            let $lzlCloseIcon = $(".lzl-close-icon");
+            const $lzlCloseIcon = $(".lzl-close-icon");
             if ($lzlCloseIcon) {
               $lzlCloseIcon.click();
             } else {
@@ -27264,7 +28023,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         optimizationImagePreviewBackGestureReturn() {
           log.info(`uni-app ===> 图片预览手势返回`);
-          let gestureBack = new GestureBack({
+          const gestureBack = new GestureBack({
             hash: GeastureBackHashConfig.previewImage,
             useUrl: true,
             beforeHistoryBackCallBack(isUrlChange) {
@@ -27274,16 +28033,16 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
           });
           function closeByUrlChange() {
-            let $closeIcon = $(".img-preview .back-icon-con");
+            const $closeIcon = $(".img-preview .back-icon-con");
             if ($closeIcon) {
               $closeIcon.click();
             } else {
               log.warn(`未找到退出图片预览模式的按钮`);
             }
           }
-          domUtils.on(document, "click", "img", (event) => {
-            let $click = event.target;
-            let $parent = $click.parentElement;
+          domUtils.on(document, "click", "img", (event, selectorTarget) => {
+            const $click = selectorTarget;
+            const $parent = $click.parentElement;
             if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
               gestureBack.enterGestureBackMode();
               domUtils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
@@ -27297,9 +28056,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             }
           });
         },
-        repairSearch() {
+        async repairSearch() {
           log.info(`uni-app ===> 修复搜索功能`);
-          let repairCSS = () => {
+          const repairCSS = () => {
             addStyle$1(
               `
 				.nav-bar .more-btn-desc,
@@ -27356,21 +28115,25 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 				`
             );
           };
-          domUtils.waitNode(".nav-bar .nav-bar-forum-info", 1e4).then(($navBarForumInfo) => {
-            if (!$navBarForumInfo) {
-              return;
-            }
-            let $navBar = $navBarForumInfo.closest(".nav-bar");
-            let $moreBtnDesc = domUtils.createElement("div", {
-              className: "more-btn-desc",
-              innerText: "搜索",
-            });
-            $navBar.appendChild($moreBtnDesc);
-            repairCSS();
+          const $navBarForumInfo = await domUtils.waitNode(".nav-bar .nav-bar-forum-info", 1e4);
+          if (!$navBarForumInfo) {
+            return;
+          }
+          const $navBar = $navBarForumInfo.closest(".nav-bar");
+          const $moreBtnDesc = domUtils.createElement("div", {
+            className: "more-btn-desc",
+            innerText: "搜索",
           });
+          $navBar.appendChild($moreBtnDesc);
+          return [
+            repairCSS(),
+            () => {
+              $moreBtnDesc.remove();
+            },
+          ];
         },
         repairAnchorLink() {
-          domUtils.on(
+          const listener = domUtils.on(
             document,
             "click",
             (event) => {
@@ -27451,6 +28214,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               capture: true,
             }
           );
+          return listener.off;
         },
       };
       const TiebaSearchSuggestion = {
@@ -27468,7 +28232,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           domUtils.on($oldMoreBtnDesc, "click", () => {
             this.enterSeachMode();
           });
-          domUtils.on(TiebaSearch.$ele.$searchBtn, "click", () => {
+          domUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
             this.frontPageSeach();
           });
           domUtils.onKeyboard(this.$ele.$searchInput, "keyup", (keyName) => {
@@ -27477,12 +28241,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             }
             this.frontPageSeach();
           });
-          domUtils.on(TiebaSearch.$ele.$navSearchBack, "click", function () {
+          domUtils.on(TiebaSearch.$el.$navSearchBack, "click", function () {
             TiebaSearch.quitSearchMode();
           });
         },
         enterSeachMode() {
-          domUtils.hide(TiebaSearch.$ele.$selectWrapper);
+          domUtils.hide(TiebaSearch.$el.$selectWrapper);
           TiebaSearch.showSearchContainer();
           setTimeout(() => {
             this.$ele.$searchInput.focus();
@@ -27505,11 +28269,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           window.open(url, "_blank");
         },
         initSearchSuggestion() {
-          let that = this;
-          let querySearchSuggesiton = async (inputValue) => {
-            let result = [];
+          const querySearchSuggesiton = async (inputValue) => {
+            const result = [];
             log.success("搜索中...");
-            let suggestionData = await that.getSuggestion(inputValue);
+            const suggestionData = await this.getSuggestion(inputValue);
             if (utils.isNull(suggestionData)) {
               return result;
             }
@@ -27519,7 +28282,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               return {
                 value: item.fname,
                 enableDeleteButton: false,
-                itemView(dateItem, $parent, config) {
+                itemView() {
                   return `
 						<div class="forum_item">
 							<img class="forum_image" src="${item.fpic}">
@@ -27531,7 +28294,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 							</div>
 						</div>`;
                 },
-                clickCallback(event, $dataItem, dataItem, config) {
+                clickCallback() {
                   window.location.href = "https://tieba.baidu.com/f?ie=utf-8&kw=" + item.fname;
                 },
               };
@@ -27547,7 +28310,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             isAbsolute: false,
             followTargetWidth: true,
             topDistance: 4,
-            inputTargetChangeRefreshShowDataCallback: (inputValue, data, config) => {
+            inputTargetChangeRefreshShowDataCallback: (inputValue) => {
               return querySearchSuggesiton(inputValue);
             },
             style: `
@@ -27620,25 +28383,19 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
       };
       const TiebaSearch = {
-        $flag: {
-          isInitKw: false,
-          isInitPost: false,
-          isInitHome: false,
-          isSetScrollEvent: false,
-        },
-        $even: {},
         $context: {
-          lockFunc: null,
+          intersectionObserver: null,
           loading: new LoadingView(true),
-          gbkEncoder: new utils.GBKEncoder(),
         },
         $data: {
           searchType: 0,
-          searchModel: 1,
-          nextPageUrl: null,
-          currentSearchText: "",
+          searchThreadSortType: 5,
+          searchThreadType: 1,
+          searchText: "",
+          pn: 1,
+          hasMore: false,
         },
-        $ele: {
+        $el: {
           $moreBtnDesc: null,
           $searchContainer: null,
           $navTopSearch: null,
@@ -27649,11 +28406,11 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           $searchBtn: null,
           $searchResultContainer: null,
           $searchResultList: null,
-          $searchResultModel: null,
+          $searchModelWrapper: null,
+          $searchSortType: null,
           $searchResultFrom: null,
         },
         init() {
-          let that = this;
           domUtils
             .waitAnyNode([".more-btn-desc", "uni-app .frs-wise-nav-bar .forum-name", ".tbm-status .right-area"], 1e4)
             .then(($oldMoreBtnDesc) => {
@@ -27662,7 +28419,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               }
               this.addCSS();
               $oldMoreBtnDesc.outerHTML = '<div class="more-btn-desc">搜索</div>';
-              let $newSearch = domUtils.createElement("div", {
+              const $newSearch = domUtils.createElement("div", {
                 id: "search",
                 innerHTML: `
 					<div id="nav-top-search">
@@ -27682,87 +28439,85 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 					</div>
 					<div class="search-result">
 						<div class="search-result-model" style="display: none;">
-							<div class="search-result-model-item" data-model="1">新帖在前</div>
-							<div class="search-result-model-item" data-model="0">旧帖在前</div>
-							<div class="search-result-model-item" data-model="2">只看相关</div>
-							<div class="search-result-model-item" data-model="3">只看主题</div>
-						</div>
-						<div class="search-result-from-info" style="display: none;">
-
+              <div class="search-result-type-wrapper">
+                <div class="search-result-type-item" data-value="1">只看主题</div>
+                <div class="search-result-type-item" data-value="3">只看评论</div>
+              </div>
+              <div class="search-result-sort-wrapper">
+                <select class="search-result-sort">
+                  <option value="5">新帖在前</option>
+                  <option value="2">相关在前</option>
+                </select>
+              </div>
 						</div>
 						<div class="search-result-list">
-
 						</div>
 					</div>
 				`,
               });
               document.body.appendChild($newSearch);
               domUtils.hide($newSearch);
-              this.$ele.$searchContainer = $newSearch;
-              this.$ele.$navTopSearch = $newSearch.querySelector("#nav-top-search");
-              this.$ele.$navSearchBack = $newSearch.querySelector(".nav-search-back");
-              ((this.$ele.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper")),
-                (this.$ele.$select = $newSearch.querySelector(".nav-search-select")));
-              this.$ele.$searchInput = $newSearch.querySelector("#tieba-search");
-              this.$ele.$searchBtn = $newSearch.querySelector(".nav-search-btn");
-              this.$ele.$searchResultContainer = $newSearch.querySelector(".search-result");
-              this.$ele.$searchResultList = $newSearch.querySelector(".search-result-list");
-              this.$ele.$searchResultModel = $newSearch.querySelector(".search-result-model");
-              this.$ele.$searchResultFrom = $newSearch.querySelector(".search-result-from-info");
+              this.$el.$searchContainer = $newSearch;
+              this.$el.$navTopSearch = $newSearch.querySelector("#nav-top-search");
+              this.$el.$navSearchBack = $newSearch.querySelector(".nav-search-back");
+              this.$el.$selectWrapper = $newSearch.querySelector(".nav-search-select-wrapper");
+              this.$el.$select = $newSearch.querySelector(".nav-search-select");
+              this.$el.$searchInput = $newSearch.querySelector("#tieba-search");
+              this.$el.$searchBtn = $newSearch.querySelector(".nav-search-btn");
+              this.$el.$searchResultContainer = $newSearch.querySelector(".search-result");
+              this.$el.$searchResultList = $newSearch.querySelector(".search-result-list");
+              this.$el.$searchModelWrapper = $newSearch.querySelector(".search-result-model");
+              this.$el.$searchSortType = $newSearch.querySelector(".search-result-sort-wrapper .search-result-sort");
               this.$context.loading.initLoadingView(true);
-              this.$ele.$searchResultList.appendChild(this.$context.loading.getLoadingViewElement());
-              let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
-                `.search-result-model-item[data-model="${this.$data.searchModel}"]`
-              );
-              if ($searchResultModelItem) {
-                $searchResultModelItem.setAttribute("data-active", "true");
-              }
+              this.$el.$searchResultList.appendChild(this.$context.loading.$el);
               this.$context.loading.hide();
-              let searchParams = new URLSearchParams(window.location.search);
-              this.$ele.$moreBtnDesc = $(".more-btn-desc");
+              const searchParams = new URLSearchParams(window.location.search);
+              this.$el.$moreBtnDesc = $(".more-btn-desc");
               if (BaiduRouter.isTieBaNei() && utils.isNotNull(searchParams.get("kw"))) {
-                domUtils.on(this.$ele.$moreBtnDesc, "click", () => {
+                domUtils.on(this.$el.$moreBtnDesc, "click", () => {
                   this.enterSeachMode();
                 });
               } else if (BaiduRouter.isTieBaPost()) {
-                domUtils.on(this.$ele.$moreBtnDesc, "click", () => {
+                domUtils.on(this.$el.$moreBtnDesc, "click", () => {
                   this.enterSeachMode();
                 });
               } else {
-                TiebaSearchSuggestion.init(this.$ele.$searchInput);
+                TiebaSearchSuggestion.init(this.$el.$searchInput);
                 return;
               }
-              let searchEvent = () => {
-                let searchText = that.getSearchText();
+              const searchEvent = () => {
+                let searchText = this.getSearchText();
                 if (utils.isNull(searchText)) {
                   alert("请勿输入纯空格或空内容");
                   return;
                 }
                 if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
-                  window.location.href = TiebaUrlHandler.getHybridSearch(this.getSearchText());
+                  window.location.href = TiebaUrlHandler.getHybridSearch(searchText);
                   return;
                 }
-                this.$data.currentSearchText = searchText;
+                this.$data.searchText = searchText;
+                this.$data.pn = 1;
+                this.$data.hasMore = false;
+                this.showSearchResultModel();
                 this.clearOldSearchResult();
-                this.postsPageSearch();
+                this.searchThread();
               };
-              domUtils.on(this.$ele.$searchBtn, "click", () => {
+              domUtils.click(this.$el.$searchBtn, () => {
                 searchEvent();
               });
-              domUtils.onKeyboard(this.$ele.$searchInput, "keyup", (keyName) => {
-                if (keyName !== "Enter") {
+              domUtils.onKeyup(this.$el.$searchInput, (evt) => {
+                if (evt.code !== "Enter") {
                   return;
                 }
                 searchEvent();
               });
-              domUtils.on(this.$ele.$navSearchBack, "click", () => {
+              domUtils.click(this.$el.$navSearchBack, () => {
                 this.quitSearchMode();
                 this.removeScrollEvent();
               });
-              domUtils.on(this.$ele.$select, "change", (event) => {
-                let select = event.target;
-                select.value;
-                let text = select.options[select.selectedIndex].text;
+              domUtils.on(this.$el.$select, "change", () => {
+                const select = this.$el.$select;
+                const text = select.options[select.selectedIndex].text;
                 log.info("当前搜索模式：" + text);
                 if (text === "本吧") {
                   this.$data.searchType = 0;
@@ -27772,19 +28527,46 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   log.error("未知选择模式");
                 }
               });
-              domUtils.on(this.$ele.$searchResultModel, "click", ".search-result-model-item", (event) => {
-                let $click = event.target;
-                log.success("设置当前搜索结果模式：" + $click.innerText);
-                this.$ele.$searchResultModel
-                  .querySelectorAll(".search-result-model-item")
-                  .forEach((ele) => ele.removeAttribute("data-active"));
-                $click.setAttribute("data-active", "true");
-                let searchModelText = $click.getAttribute("data-model");
-                let searchModel = parseInt(searchModelText);
-                this.$data.searchModel = searchModel;
-                this.clearOldSearchResult();
-                this.postsPageSearch();
+              const $searchResultModelItem = this.$el.$searchModelWrapper.querySelector(
+                `.search-result-type-item[data-value="${this.$data.searchThreadType}"]`
+              );
+              if ($searchResultModelItem) {
+                $searchResultModelItem.setAttribute("data-active", "true");
+              }
+              domUtils.on(
+                this.$el.$searchModelWrapper,
+                "click",
+                ".search-result-type-wrapper .search-result-type-item[data-value]",
+                (event) => {
+                  const $click = event.target;
+                  this.$el.$searchModelWrapper
+                    .querySelectorAll(".search-result-type-item")
+                    .forEach((ele) => ele.removeAttribute("data-active"));
+                  $click.setAttribute("data-active", "true");
+                  const value = $click.getAttribute("data-value");
+                  const searchType = parseInt(value);
+                  if ([1, 3].includes(searchType)) {
+                    this.$data.searchThreadType = searchType;
+                  } else {
+                    Qmsg.error("暂不支持该搜索模式：" + value);
+                    return;
+                  }
+                  log.success("设置当前搜索结果模式：" + $click.innerText, searchType);
+                  searchEvent();
+                }
+              );
+              domUtils.on(this.$el.$searchSortType, "change", () => {
+                const selectOptionValue = this.$el.$searchSortType.value;
+                const sortType = Number(selectOptionValue);
+                if ([2, 5].includes(sortType)) {
+                  this.$data.searchThreadSortType = sortType;
+                } else {
+                  Qmsg.error("暂不支持该排序类型：" + selectOptionValue);
+                  return;
+                }
+                searchEvent();
               });
+              TiebaPost.optimizeImagePreview();
               Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
                 this.execByUrlSearchParams();
               });
@@ -27825,7 +28607,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 		}
 		#nav-top-search{
 			top: 0;
-			position: fixed;
+			position: relative;
 			width: 100%;
 			background: var(--bg-color);
 			z-index: inherit;
@@ -27886,35 +28668,28 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			color: #614ec2;
 		}
 		.search-result{
-			position: relative;
-			top: 0.48rem;
+      position: unset;
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 48px);
 			background: var(--bg-color);
 		}
 		.search-result-model{
 			display: flex;
 			padding: 0px 10px;
-			position: fixed;
    			width: 100%;
 			top: 0.48rem;
 			height: 0.32rem;
 			z-index: inherit;
 			background: var(--bg-color);
 			align-items: flex-start;
-    		justify-content: center;
-		}
-		.search-result-model .search-result-model-item{
-			margin-right: 20px;
-		}
-		.search-result-from-info{
-			margin-top: 0.32rem;
-    		padding: 10px;
-		}
-		.search-result-from-info[style*="display"][style*="none"] + .search-result-list{
-			margin-top: 0.32rem;
+      justify-content: center;
+      flex: 0 auto;
 		}
 		.search-result-list{
 			overflow: auto;
-			max-height: calc( 100vh - 48px - 32px - 36px);
+      margin-top: 0;
+      max-height: unset;
 		}
 		.search-result-list .search_result{
 			background: var(--result-item-bg-color);
@@ -27929,7 +28704,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           );
           addStyle$1(
             `
-		.search-result-model .search-result-model-item[data-active]:after {
+		.search-result-model .search-result-type-item[data-active]:after {
 			content: " ";
 			background: #7458FA;
 			height: 4px;
@@ -27940,7 +28715,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			position: relative;
 		}
 
-		.search-result-model .search-result-model-item[data-active] {
+		.search-result-model .search-result-type-item[data-active] {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -27980,34 +28755,35 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           );
           addStyle$1(
             `
-		#search .search-result-media {
+		#search .search-result-author-wrapper {
 			display: flex;
 			align-items: center;
 		}
 		
-		#search .search-result-media-left {
+		#search .search-result-author-left-wrapper {
 			padding-right: .08rem;
 		}
 		
-		#search .search-result-media-left img {
-			width: .35rem;
-			height: .35rem;
+		#search .search-result-author-left-wrapper img {
+			width: 40px;
+			height: 40px;
 			border-radius: 50%;
 		}
-		
-		#search .search-result-media-body-author-name {
-			margin-top: .02rem;
-			color: #272829;
-			font-weight: 400;
-			font-size: .16rem;
-			line-height: .15rem;
+    #search .search-result-author-right-wrapper{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      height: -webkit-fill-available;
+    }
+		#search .search-result-author-name {
+			font-weight: unset;
+			font-size: 16px;
 		}
 		
-		#search .search-result-media-body-time {
-			margin-top: .06rem;
+		#search .search-result-thread-time {
 			color: #a2a6a8;
-			font-size: .12rem;
-			line-height: .12rem;
+			font-size: 12px;
 		}
 		
 		#search h1.search-result-title-h1 {
@@ -28016,7 +28792,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 		#search .search-result-content {
 			min-height: 66px;
 		}
-		#search span.search-result-content-span {
+		#search span.search-result-content-text {
 			color: #141414;
 			text-overflow: ellipsis;
 			display: inline;
@@ -28029,311 +28805,262 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			margin-top: 0.08rem;
 		}
 		
-		#search span.search-result-bottom-toolbar-span {
+		#search span.search-result-bottom-fname {
 			color: #b7b9c1;
 		}
-		#search span.search-result-bottom-toolbar-span::before{
+		#search span.search-result-bottom-fname::before{
 			content:"贴吧："   
 		}
 		`
           );
+          addStyle$1(
+            `
+    .search-result-model{
+      display: flex;
+      justify-content: space-between;
+      height: unset !important;
+      padding: 0px 10px;
+      width: -webkit-fill-available;
+    }
+    .search-result-model .search-result-type-wrapper{
+      display: flex;
+      gap: 10px;
+    }
+    .search-result-model .search-result-type-item{
+
+    }
+    .search-result-model .search-result-sort-wrapper{
+
+    }
+    `
+          );
+          addStyle$1(
+            `
+      .search-result .search-result-media-wrapper{
+        display: flex;
+        flex-wrap: nowrap;
+        overflow: auto;
+        gap: 5px;
+      }
+      .search-result .search-result-media-wrapper img{
+        width: auto !important;
+        max-height: 200px;
+        border-radius: 5px;
+      }
+      .search-result .search-result-media-wrapper video{
+        max-height: 250px;
+      }
+      .search-result .search-result-controls{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .search-result .search-result-controls-item[data-type]{
+        display: flex;
+        gap: 2px;
+        color: #536371;
+        fill: currentColor;
+      }
+      .search-result .search-result-controls-item[data-type] svg{
+        width: 16px;
+        height: 16px;
+      }
+      .search-result .search-result-controls-item-icon{
+
+      }
+      .search-result .search-result-controls-item-text{
+        
+      }
+    `
+          );
+        },
+        createSearchItemElement(data) {
+          const searchText = this.$data.searchText;
+          const splitText = searchText.split(" ");
+          splitText.filter((value, index, it2) => {
+            return it2.indexOf(value) === index;
+          });
+          splitText.forEach((text) => {
+            data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
+          });
+          const time = utils.formatTime(data.time * 1e3);
+          const url = TiebaUrlHandler.getThread(data.tid);
+          const portraitInst = new URL(data.user.portrait);
+          const portrait = portraitInst.pathname.split("/").at(-1);
+          const authorHomeUrl = TiebaUrlHandler.getUserHome(portrait);
+          const fname = data.forum_name;
+          const avatar = data.user.portrait;
+          const mediaNodeList = [];
+          if (Array.isArray(data.media)) {
+            data.media.forEach((item) => {
+              if (item.type === "pic") {
+                mediaNodeList.push(
+                  `
+            <img src="${item.big_pic || item.small_pic || item.water_pic}">
+          `
+                );
+              } else if (item.type === "flash") {
+                mediaNodeList.push(
+                  `
+            <video src="${item.vhsrc || item.vsrc || item.src}" controls="controls" loading="lazy"></video>
+          `
+                );
+              } else {
+                log.error("未知type", item);
+              }
+            });
+          }
+          const $item = domUtils.createElement("div", {
+            className: "s_post search_result",
+            innerHTML: `
+    	<div class="search-result-author-wrapper">
+    		<div class="search-result-author-left-wrapper">
+    		  <img src="${avatar}">
+    		</div>
+    		<div class="search-result-author-right-wrapper">
+    		<h4 class="search-result-author-name">${data.user.show_nickname || data.user.user_name}</h4>
+    		<p class="search-result-thread-time">${this.$data.searchThreadType === 1 ? "发布于" : "回复于"} ${time}</p>
+    		</div>
+    	</div>
+    	<div class="search-result-title">
+    		<h1 class="search-result-title-h1">
+    		<span class="search-result-title-span">${data.title}</span>
+    		</h1>
+    	</div>
+    	<div class="search-result-content">
+    		<span class="search-result-content-text">${data.content}</span>
+        <div class="search-result-media-wrapper">${mediaNodeList.join("\n")}</div>
+    	</div>
+    	<div class="search-result-bottom-toolbar">
+    		<span class="search-result-bottom-fname">${fname}</span>
+    	</div>
+      <div class="search-result-controls">
+        <div class="search-result-controls-item" data-type="share">
+          <div class="search-result-controls-item-icon">
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M511.998 64c21 0 38.1 17 38.1 38.1s-17 38.1-38.1 38.1c-205.4 0-371.9 166.5-371.9 371.9s166.5 371.8 371.9 371.8 371.9-166.5 371.9-371.9c0-21 17-38.1 38.1-38.1s38 17.1 38 38.1c0 247.4-200.6 448-448 448s-448-200.6-448-448 200.6-448 448-448z m230.6 190.5c-14.2-14.7-14-38 0.5-52.4 14.5-14.5 37.8-14.6 52.7-0.2l65.6 65.6c19.8 19.8 19.8 51.8 0 71.6l-65.6 65.6c-14.6 14.6-38.3 14.6-52.9 0-14.6-14.6-14.6-38.3 0-52.9l11.1-11.1h-48.3c-131.3 0-175.9 55.9-175.9 225 0 20.7-16.7 37.4-37.4 37.4s-37.4-16.7-37.4-37.4c0-209.1 76.3-299.8 250.7-299.8h48.3l-11.4-11.4z"></path>
+            </svg>
+          </div>
+          <span class="search-result-controls-item-text">${data.share_num || "分享"}</span>
+        </div>
+        <div class="search-result-controls-item" data-type="comment">
+          <div class="search-result-controls-item-icon">
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M157.568 751.296c-11.008-18.688-18.218667-31.221333-21.802667-37.909333A424.885333 424.885333 0 0 1 85.333333 512C85.333333 276.362667 276.362667 85.333333 512 85.333333s426.666667 191.029333 426.666667 426.666667-191.029333 426.666667-426.666667 426.666667a424.778667 424.778667 0 0 1-219.125333-60.501334 2786.56 2786.56 0 0 0-20.053334-11.765333l-104.405333 28.48c-23.893333 6.506667-45.802667-15.413333-39.285333-39.296l28.437333-104.288z m65.301333 3.786667l-17.258666 63.306666 63.306666-17.258666a32 32 0 0 1 24.522667 3.210666 4515.84 4515.84 0 0 1 32.352 18.944A360.789333 360.789333 0 0 0 512 874.666667c200.298667 0 362.666667-162.368 362.666667-362.666667S712.298667 149.333333 512 149.333333 149.333333 311.701333 149.333333 512c0 60.586667 14.848 118.954667 42.826667 171.136 3.712 6.912 12.928 22.826667 27.370667 47.232a32 32 0 0 1 3.338666 24.714667z m145.994667-70.773334a32 32 0 1 1 40.917333-49.205333A159.189333 159.189333 0 0 0 512 672c37.888 0 73.674667-13.173333 102.186667-36.885333a32 32 0 0 1 40.917333 49.216A223.178667 223.178667 0 0 1 512 736a223.178667 223.178667 0 0 1-143.136-51.690667z"></path>
+            </svg>
+          </div>
+          <span class="search-result-controls-item-text">${data.post_num || "评论"}</span>
+        </div>
+        <div class="search-result-controls-item" data-type="like">
+          <div class="search-result-controls-item-icon">
+            <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M832 364.8h-147.2s19.2-64 32-179.2c6.4-57.6-38.4-115.2-102.4-121.6h-12.8c-51.2 0-83.2 32-102.4 76.8l-38.4 96c-32 64-57.6 102.4-76.8 115.2-25.6 12.8-121.6 12.8-128 12.8H128c-38.4 0-64 25.6-64 57.6v480c0 32 25.6 57.6 64 57.6h646.4c96 0 121.6-64 134.4-153.6l51.2-307.2c6.4-70.4-6.4-134.4-128-134.4z m-576 537.6H128V422.4h128v480z m640-409.6l-51.2 307.2c-12.8 57.6-12.8 102.4-76.8 102.4H320V422.4c44.8 0 70.4-6.4 89.6-19.2 32-12.8 64-64 108.8-147.2 25.6-64 38.4-96 44.8-102.4 6.4-19.2 19.2-32 44.8-32h6.4c32 0 44.8 32 44.8 51.2-12.8 102.4-32 166.4-32 166.4l-25.6 83.2h243.2c19.2 0 32 0 44.8 12.8 12.8 12.8 6.4 38.4 6.4 57.6z"></path>
+            </svg>
+          </div>
+          <span class="search-result-controls-item-text">${data.like_num || "点赞"}</span>
+        </div>
+      </div>
+    	`,
+          });
+          const $author = $item.querySelector(".search-result-author-wrapper");
+          const $title = $item.querySelector(".search-result-title");
+          const $content = $item.querySelector(".search-result-content");
+          const $fname = $item.querySelector(".search-result-bottom-fname");
+          const $share = $item.querySelector(".search-result-controls-item[data-type=share]");
+          const $comment = $item.querySelector(".search-result-controls-item[data-type=comment]");
+          const $like = $item.querySelector(".search-result-controls-item[data-type=like]");
+          domUtils.click($author, (evt) => {
+            domUtils.preventEvent(evt);
+            window.open(authorHomeUrl, "_blank");
+          });
+          domUtils.click([$title, $content, $comment, $like], (evt) => {
+            const $click = evt?.target;
+            if (
+              ($click instanceof HTMLImageElement || $click instanceof HTMLVideoElement) &&
+              $click.closest(".search-result-media-wrapper") &&
+              !$click.matches(".search-result-media-wrapper")
+            ) {
+              return;
+            }
+            domUtils.preventEvent(evt);
+            window.open(url, "_blank");
+          });
+          domUtils.click($fname, (evt) => {
+            domUtils.preventEvent(evt);
+            window.open(TiebaUrlHandler.getForum(fname), "_blank");
+          });
+          domUtils.click($share, (evt) => {
+            domUtils.preventEvent(evt);
+            async function triggerWebShare() {
+              if (navigator.share) {
+                try {
+                  await navigator.share({
+                    title: data.title || "默认标题",
+                    text: data.content || "分享内容描述",
+                    url,
+                  });
+                  console.log("分享成功");
+                } catch (error) {
+                  if (error.name === "AbortError") {
+                    console.log("用户取消分享");
+                  } else {
+                    console.error("分享失败:", error);
+                    alert("分享失败，请手动复制链接");
+                  }
+                }
+              } else {
+                alert("当前浏览器不支持分享功能");
+              }
+            }
+            triggerWebShare();
+          });
+          return $item;
         },
         clearSearchResult() {
           log.success("清空搜索结果");
-          Array.from(this.$ele.$searchResultList.children).forEach(($item) => {
-            if ($item != this.$context.loading.getLoadingViewElement()) {
+          const $loading = this.$context.loading.$el;
+          Array.from(this.$el.$searchResultList.children).forEach(($item) => {
+            if ($item != $loading) {
               $item.remove();
             }
           });
         },
         showSearchResultModel() {
-          domUtils.show(this.$ele.$searchResultModel);
+          domUtils.show(this.$el.$searchModelWrapper);
         },
         hideSearchResultModel() {
-          domUtils.hide(this.$ele.$searchResultModel);
-        },
-        showSearchResultFrom() {
-          domUtils.show(this.$ele.$searchResultFrom);
-          let searchKw = "全部吧";
-          if (this.$data.searchType === 0) {
-            searchKw = TiebaCore.getCurrentForumName();
-            if (utils.isNull(searchKw)) {
-              searchKw = "未知";
-            } else {
-              searchKw += "吧";
-            }
-          }
-          this.$ele.$searchResultFrom.innerText = `以下内容来自${searchKw}的搜索结果`;
-        },
-        hideSearchResultFrom() {
-          domUtils.hide(this.$ele.$searchResultFrom);
-        },
-        getEnterOrQuietSearchModeSelectorList() {
-          return ["#vite-app", ".main-page-wrap", ".tb-mobile-viewport"];
+          domUtils.hide(this.$el.$searchModelWrapper);
         },
         enterSeachMode() {
           this.showSearchContainer();
           setTimeout(() => {
-            this.$ele.$searchInput.focus();
+            this.$el.$searchInput.focus();
           }, 20);
+          document.body.style.overflow = "hidden";
         },
         quitSearchMode() {
           this.hideSearchContainer();
+          document.body.style.overflow = "";
         },
         getSearchText() {
-          let searchText = this.$ele.$searchInput.value.trim();
+          const searchText = this.$el.$searchInput.value.trim();
           return searchText;
-        },
-        async getSearchResult(qw = "", pn2 = 0, sm = 1, kw = "") {
-          let param_sm = sm.toString();
-          if (sm === 3) {
-            param_sm = "1&only_thread=1";
-          }
-          let url = "";
-          let originText = "";
-          if (arguments.length === 1) {
-            url = arguments[0];
-            log.success(`请求的下一页url: ${url}`);
-          } else {
-            originText = qw;
-            qw = this.$context.gbkEncoder.encode(qw);
-            kw = this.$context.gbkEncoder.decode(kw);
-            kw = this.$context.gbkEncoder.encode(kw);
-            log.success(`搜索内容gbk编码转换: ${originText} => ${qw}`);
-            url = `https://tieba.baidu.com/f/search/res?isnew=1&kw=${kw}&qw=${qw}&un=&rn=10&pn=${pn2}&sd=&ed=&sm=${param_sm}`;
-          }
-          log.success(`当前请求第 ${new URLSearchParams(new URL(url).search).get("pn")} 页`);
-          let searchResponse = await httpx.get(url, {
-            fetch: true,
-            headers: {
-              accept:
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-              "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-              "cache-control": "no-cache",
-              pragma: "no-cache",
-              "sec-ch-ua-mobile": "?0",
-              "sec-ch-ua-platform": '"Windows"',
-              "sec-fetch-dest": "empty",
-              "sec-fetch-mode": "cors",
-              "sec-fetch-site": "none",
-            },
-          });
-          let responseText = searchResponse.data.responseText;
-          if (!searchResponse.status) {
-            if (utils.isNull(responseText)) {
-              log.error("获取内容为空，可能触发了百度校验，请刷新网页再试");
-              return {
-                success: false,
-                error: "获取内容为空，可能触发了百度校验，请刷新网页再试",
-              };
-            }
-            if (
-              responseText.match("wappass.baidu.com") ||
-              responseText.match("https://seccaptcha.baidu.com/v1/webapi/verint/svcp.html")
-            ) {
-              let wappassUrl = responseText?.match(/href="(.*?)"/)?.[1];
-              log.error("触发百度校验: " + wappassUrl);
-              window.location.href = wappassUrl;
-              return {
-                success: false,
-                error: "触发百度校验",
-              };
-            } else if (responseText.match("<title>百度安全验证</title>") && responseText.match(`backurl:'(.+?)'`)) {
-              let wappassUrl = responseText?.match(/backurl:\'(.+?)\'/)?.[1];
-              log.error("触发百度校验: " + wappassUrl);
-              window.location.href = wappassUrl;
-              return {
-                success: false,
-                error: "触发百度校验",
-              };
-            }
-            log.error(responseText);
-            return {
-              success: false,
-              error: "请求失败，可能是网络异常或者接口异常",
-            };
-          }
-          log.success(searchResponse);
-          let searchDoc = domUtils.toElement(responseText, true, true);
-          if (searchDoc.querySelector(".search_noresult")) {
-            return {
-              success: false,
-              error: "抱歉，没有找到与“" + originText + "”相关的结果。",
-            };
-          }
-          let result = [];
-          let nextPageUrl = searchDoc.querySelector(".pager-search a.next")?.href;
-          searchDoc.querySelectorAll(".s_main .s_post_list .s_post").forEach(($s_post) => {
-            if ($s_post.id === "post_user" || $s_post.id === "no_head") {
-              return;
-            }
-            let postItemUrl = $s_post.querySelector("span.p_title a").href;
-            let postItemTitle = $s_post.querySelector("span.p_title a").innerHTML;
-            let postItemContent = $s_post.querySelector(".p_content").innerHTML;
-            let postItemForumName = $s_post.querySelector("a.p_forum font.p_violet").textContent;
-            let postItemAuthor = (
-              $s_post.querySelector("a[href^='/home'] font.p_violet") || $s_post.querySelectorAll("font.p_violet")[1]
-            ).textContent;
-            let postItemAuthorHomeUrl =
-              "https://tieba.baidu.com/home/main?un=" + this.$context.gbkEncoder.encode(postItemAuthor);
-            let postItemTime = $s_post.querySelector(".p_date").textContent;
-            let imgList = [];
-            $s_post
-              .querySelectorAll("img.p_pic")
-              .forEach((pictureImg) => imgList.push(pictureImg.getAttribute("original") || pictureImg.src));
-            result.push({
-              url: postItemUrl,
-              title: postItemTitle,
-              content: postItemContent,
-              forum: postItemForumName,
-              author: postItemAuthor,
-              authorHomeUrl: postItemAuthorHomeUrl,
-              time: postItemTime,
-              media: imgList,
-            });
-          });
-          if (result.length === 0) {
-            return {
-              success: false,
-              error: "抱歉，获取到的数据为空",
-            };
-          }
-          return {
-            success: true,
-            data: result,
-            nextPageUrl,
-          };
-        },
-        getSearchItemElement(data) {
-          let searchText = this.$data.currentSearchText;
-          let time = data["time"];
-          let newTime = utils.getDaysDifference(utils.formatToTimeStamp(time), void 0, "auto");
-          if (newTime.endsWith("小时") || newTime.endsWith("分钟") || newTime.endsWith("秒")) {
-            time = newTime + "前";
-          }
-          let splitText = searchText.split(" ");
-          splitText.filter((value, index, _splitText_) => {
-            return _splitText_.indexOf(value) === index;
-          });
-          splitText.forEach((text) => {
-            data["title"] = data["title"].replaceAll(text, "<em>" + text + "</em>");
-          });
-          let postUrlObj = new URL(CommonUtil.fixUrl(data["url"]));
-          let postUrl = postUrlObj.origin + postUrlObj.pathname;
-          let authorHomeUrl = data["authorHomeUrl"];
-          let postForum = data["forum"];
-          let $resultElement = domUtils.createElement("div", {
-            className: "s_post search_result",
-            innerHTML: `
-			<div class="search-result-media">
-				<div class="search-result-media-left">
-				<img src="data:image/png;base64,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">
-				</div>
-				<div class="search-result-media-body">
-				<h4 class="search-result-media-body-author-name">${data["author"]}</h4>
-				<p class="search-result-media-body-time">${time}</p>
-				</div>
-			</div>
-			<div class="search-result-title">
-				<h1 class="search-result-title-h1">
-				<span class="search-result-title-span">${data["title"]}</span>
-				</h1>
-			</div>
-			<div class="search-result-content">
-				<span class="search-result-content-span">${data["content"]}</span>
-			</div>
-			<div class="search-result-bottom-toolbar">
-				<span class="search-result-bottom-toolbar-span">${data["forum"]}</span>
-			</div>
-			`,
-          });
-          $resultElement.setAttribute("data-url", data["url"]);
-          let $userAvatarElement = $resultElement.querySelector(".search-result-media-left img");
-          let $userNameElement = $resultElement.querySelector(".search-result-media-body-author-name");
-          let $mediaElement = $resultElement.querySelector(".search-result-media");
-          let $titleElement = $resultElement.querySelector(".search-result-title");
-          let $contentElement = $resultElement.querySelector(".search-result-content");
-          let $contentSpanElement = $resultElement.querySelector(".search-result-content-span");
-          let $bottomToolBarElement = $resultElement.querySelector(".search-result-bottom-toolbar");
-          if (Panel.getValue("baidu_tieba_search_opt_user_info")) {
-            TieBaApi.getUserHomeInfo({
-              un: data["author"],
-            }).then((userHomeInfo) => {
-              if (!userHomeInfo) {
-                return;
-              }
-              $userAvatarElement.src = TiebaUrlHandler.getUserAvatar(userHomeInfo["portrait"]);
-              $userNameElement.innerText = userHomeInfo["show_nickname"];
-            });
-          }
-          let nodeAnchorIterator = [
-            { element: $mediaElement, url: authorHomeUrl },
-            { element: [$titleElement, $contentElement], url: postUrl },
-            {
-              element: $bottomToolBarElement,
-              url: TiebaUrlHandler.getForum(postForum),
-            },
-          ];
-          nodeAnchorIterator.forEach((item) => {
-            domUtils.on(
-              item.element,
-              "click",
-              function (event) {
-                domUtils.preventEvent(event);
-                globalThis.open(item.url, "_blank");
-              },
-              {
-                capture: true,
-              }
-            );
-          });
-          $resultElement.querySelectorAll(".search-result-content img.BDE_Image").forEach(($BDE_Image) => {
-            let originalImageIndex = data["media"].findIndex((src) => {
-              return src.includes($BDE_Image.src);
-            });
-            if (originalImageIndex !== -1) {
-              let originalImage = data["media"][originalImageIndex];
-              $BDE_Image.src = originalImage;
-              data["media"].splice(originalImageIndex, 1);
-            }
-          });
-          let imageContainerElement = domUtils.createElement("div", {
-            className: "BDE_Image_container",
-          });
-          data["media"].forEach((mediaUrl) => {
-            domUtils.append(
-              imageContainerElement,
-              domUtils.createElement("img", {
-                className: "BDE_Image",
-                src: mediaUrl,
-              })
-            );
-          });
-          $contentSpanElement.appendChild(imageContainerElement);
-          $resultElement.querySelectorAll(".search-result-content img.BDE_Smiley").forEach(($BDE_Smiley) => {
-            if (!$BDE_Smiley.src.startsWith("http://static.tieba.baidu.com")) {
-              return;
-            }
-            let imagePathName = new URL($BDE_Smiley.src).pathname;
-            $BDE_Smiley.src = TiebaUrlHandler.getImageSmiley(imagePathName);
-          });
-          return $resultElement;
         },
         addScrollEvent() {
           log.success("添加滚动事件");
-          this.$flag.isSetScrollEvent = true;
-          this.$context.lockFunc = new utils.LockFunction(this.scrollEvent, this, 20);
-          domUtils.on(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
+          const lockFn = new utils.LockFunction(async () => {
+            await this.searchThread();
+          });
+          this.$context.intersectionObserver = utils.mutationVisible(this.$context.loading.$el, lockFn.run);
         },
         removeScrollEvent() {
-          log.error("移除滚动事件");
+          log.success("移除滚动事件");
           this.$context.loading.hide();
-          if (this.$context.lockFunc?.run) {
-            domUtils.off(this.$ele.$searchResultList, "scroll", this.$context.lockFunc.run);
+          if (this.$context.intersectionObserver) {
+            this.$context.intersectionObserver.disconnect();
           }
-          this.$context.lockFunc = null;
-          this.$flag.isSetScrollEvent = false;
-          this.$data.nextPageUrl = null;
+          this.$context.intersectionObserver = null;
         },
         alertErrorSearch(text) {
           __pops__.alert({
@@ -28351,97 +29078,69 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
           });
         },
-        setSearchResultToPage(data) {
+        addSearchResult(data) {
+          const $searchItems = [];
           for (const searchResultItem of data) {
-            domUtils.before(this.$context.loading.getLoadingViewElement(), this.getSearchItemElement(searchResultItem));
+            const $item = this.createSearchItemElement(searchResultItem);
+            $searchItems.push($item);
           }
-        },
-        async scrollEvent(event) {
-          let maxScrollHeight = this.$ele.$searchResultList.scrollHeight - this.$ele.$searchResultList.clientHeight;
-          if (this.$ele.$searchResultList.scrollTop + 50 < maxScrollHeight) {
-            return;
-          }
-          this.$context.loading.show();
-          if (utils.isNull(this.$data.nextPageUrl)) {
-            this.removeScrollEvent();
-            log.success("已到达最后一页");
-            this.$context.loading.hide();
-            return;
-          }
-          let searchResult = await this.getSearchResult(this.$data.nextPageUrl);
-          if (!searchResult.success) {
-            this.$context.loading.hide();
-            this.alertErrorSearch(searchResult.error);
-            return;
-          }
-          log.success(searchResult);
-          let searchData = searchResult.data;
-          this.setSearchResultToPage(searchData);
-          this.$context.loading.hide();
-          if (utils.isNull(searchResult.nextPageUrl)) {
-            this.removeScrollEvent();
-            log.success("已到达最后一页");
-            return;
-          } else {
-            if (typeof searchResult.nextPageUrl == "string") {
-              log.success(`更新下一页Url：${searchResult.nextPageUrl}`);
-              this.$data.nextPageUrl = searchResult.nextPageUrl;
-            } else {
-              log.error("nextPageUrl不是string，无法更新下一页Url");
-            }
-          }
+          const $loading = this.$context.loading.$el;
+          domUtils.before($loading, $searchItems);
         },
         isShowSearchContainer() {
-          return getComputedStyle(this.$ele.$searchContainer).display !== "none";
+          return getComputedStyle(this.$el.$searchContainer).display !== "none";
         },
         showSearchContainer() {
-          domUtils.show(this.$ele.$searchContainer);
+          domUtils.show(this.$el.$searchContainer);
         },
         hideSearchContainer() {
-          domUtils.hide(this.$ele.$searchContainer);
+          domUtils.hide(this.$el.$searchContainer);
         },
         clearOldSearchResult() {
           log.success("清空旧的搜索内容、滚动事件，搜索Url");
           this.clearSearchResult();
           this.removeScrollEvent();
         },
-        async postsPageSearch() {
+        async searchThread() {
           this.$context.loading.show();
-          let searchKw = "";
+          let fname = "";
           if (this.$data.searchType === 0) {
-            searchKw = TiebaCore.getCurrentForumName();
-            if (utils.isNull(searchKw)) {
+            fname = TiebaCore.getCurrentForumName();
+            if (utils.isNull(fname)) {
               Qmsg.error("获取本吧吧名失败");
               this.$context.loading.hide();
               return;
             }
           }
-          let searchResult = await this.getSearchResult(
-            this.$data.currentSearchText,
-            0,
-            this.$data.searchModel,
-            searchKw
+          console.log("搜索页码：", this.$data.pn);
+          const searchThreadData = await TiebaNewPCApi.searchThread(
+            this.$data.searchText,
+            this.$data.pn,
+            this.$data.searchThreadSortType,
+            this.$data.searchThreadType,
+            fname
           );
-          if (!searchResult.success) {
+          if (!searchThreadData) {
             this.$context.loading.hide();
-            this.alertErrorSearch(searchResult.error);
             return;
           }
-          log.success(searchResult);
-          let searchData = searchResult.data;
-          this.setSearchResultToPage(searchData);
-          this.$data.nextPageUrl = searchResult.nextPageUrl;
-          this.$context.loading.hide();
-          if (utils.isNotNull(searchResult.nextPageUrl)) {
+          this.$data.pn++;
+          log.success(searchThreadData);
+          const searchData = searchThreadData.post_list;
+          this.addSearchResult(searchData);
+          if (searchThreadData.has_more) {
             this.addScrollEvent();
             this.showSearchResultModel();
-            this.showSearchResultFrom();
           } else {
-            log.error("搜索结果就1页，不设置scroll监听");
+            log.error("搜索结果就1页，移除滚动监听");
+            if (searchData.length === 0) {
+              this.alertErrorSearch("搜索结果为空");
+            }
+            this.removeScrollEvent();
           }
         },
         execByUrlSearchParams() {
-          let searchParams = new URLSearchParams(window.location.search);
+          const searchParams = new URLSearchParams(window.location.search);
           const KEY_searchText = "gmsearch";
           const KEY_searchType = "gmsearchtype";
           const KEY_searchModel = "gmsearchmodel";
@@ -28450,35 +29149,35 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           }
           let searchText = searchParams.get(KEY_searchText);
           log.info("存在搜索接口，查询内容：" + searchText);
-          this.$ele.$searchInput.value = searchText;
+          this.$el.$searchInput.value = searchText;
           if (searchParams.has(KEY_searchType)) {
-            let searchType = searchParams.get(KEY_searchType);
+            const searchType = searchParams.get(KEY_searchType);
             if (["0", "1"].includes(searchType)) {
-              this.$ele.$select.selectedIndex = parseInt(searchType);
-              domUtils.emit(this.$ele.$select, "change");
+              this.$el.$select.selectedIndex = parseInt(searchType);
+              domUtils.emit(this.$el.$select, "change");
             } else {
-              log.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
+              Qmsg.error(`未知searchParams的 ${KEY_searchType} 参数值：${searchType}`);
             }
           }
           if (searchParams.has(KEY_searchModel)) {
-            let searchModel = searchParams.get(KEY_searchModel);
-            if (["0", "1", "2", "3"].includes(searchModel)) {
-              this.$data.searchModel = parseInt(searchModel);
-              let $searchResultModelItem = this.$ele.$searchResultModel.querySelector(
-                `.search-result-model-item[data-model="${this.$data.searchModel}"]`
+            const searchModel = searchParams.get(KEY_searchModel);
+            if (["1", "3"].includes(searchModel)) {
+              this.$data.searchThreadType = parseInt(searchModel);
+              const $searchResultModelItem = this.$el.$searchModelWrapper.querySelector(
+                `.search-result-type-item[data-value="${this.$data.searchThreadType}"]`
               );
               if ($searchResultModelItem) {
-                this.$ele.$searchResultModel
-                  .querySelectorAll(".search-result-model-item")
-                  .forEach((ele) => ele.removeAttribute("data-active"));
+                this.$el.$searchModelWrapper
+                  .querySelectorAll(".search-result-type-item")
+                  .forEach(($it) => $it.removeAttribute("data-active"));
                 $searchResultModelItem.setAttribute("data-active", "true");
               }
             } else {
-              log.error(`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`);
+              Qmsg.error(`未知searchParams的 ${KEY_searchModel} 参数值：${searchModel}`);
             }
           }
-          this.$ele.$moreBtnDesc.click();
-          this.$ele.$searchBtn.click();
+          this.$el.$moreBtnDesc.click();
+          this.$el.$searchBtn.click();
         },
       };
       const TiebaPageDataHandler = {
@@ -29431,10 +30130,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           loadingView.setText("Loading...", true);
           loadingView.show();
           let timeStamp = Date.now();
-          let nextPageUrl = TiebaUrlHandler.getPost(
+          let nextPageUrl = TiebaUrlHandler.getThread(
             `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
           );
-          let nextPageAllCommentUrl = TiebaUrlHandler.getPost(
+          let nextPageAllCommentUrl = TiebaUrlHandler.getThread(
             `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
           );
           let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
@@ -29462,10 +30161,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           loadingView.setText("Loading...", true);
           loadingView.show();
           let timeStamp = Date.now();
-          let pageUrl = TiebaUrlHandler.getPost(
+          let pageUrl = TiebaUrlHandler.getThread(
             `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
           );
-          let pageAllCommentUrl = TiebaUrlHandler.getPost(
+          let pageAllCommentUrl = TiebaUrlHandler.getThread(
             `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
           );
           let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
@@ -30382,7 +31081,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         async getLzlCommentReply(tid = "", pid = "", pn2 = 1) {
           const response = await httpx.get({
-            url: TiebaUrlHandler.getPost(
+            url: TiebaUrlHandler.getThread(
               `comment?tid=${tid}&pid=${pid}&pn=${pn2}&t=${new Date().getTime()}${TiebaComment.extraSearchSignParams}`
             ),
             headers: {
@@ -30740,10 +31439,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           log.info(tag + "初始化当前页数：" + TiebaComment.page);
           loadingView.setText("Loading...", true);
           loadingView.show();
-          const url = TiebaUrlHandler.getPost(
+          const url = TiebaUrlHandler.getThread(
             `totalComment?t=${Date.now()}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
           );
-          const pcPageUrl = TiebaUrlHandler.getPost(
+          const pcPageUrl = TiebaUrlHandler.getThread(
             `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
           );
           const pcPageCommentInfo = await TiebaComment.getPageComment(pcPageUrl);
@@ -32096,23 +32795,20 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         optimizeImagePreview() {
           log.success("优化图片预览");
           CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-          let gestureback = null;
-          if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
-            gestureback = new GestureBack({
-              hash: GeastureBackHashConfig.viewerPreviewImage,
-              useUrl: true,
-              beforeHistoryBackCallBack(isUrlChange) {
-                if (isUrlChange) {
-                  let $viewerClose = $(".viewer-button.viewer-close");
-                  if ($viewerClose) {
-                    $viewerClose.click();
-                  } else {
-                    Qmsg.error(`未找到关闭Viewer的按钮`);
-                  }
+          const gestureback = new GestureBack({
+            hash: GeastureBackHashConfig.viewerPreviewImage,
+            useUrl: true,
+            beforeHistoryBackCallBack(isUrlChange) {
+              if (isUrlChange) {
+                let $viewerClose = $(".viewer-button.viewer-close");
+                if ($viewerClose) {
+                  $viewerClose.click();
+                } else {
+                  Qmsg.error(`未找到关闭Viewer的按钮`);
                 }
-              },
-            });
-          }
+              }
+            },
+          });
           function viewIMG(imgList = [], imgIndex = 0) {
             log.info("当前查看图片的索引下标：" + imgIndex);
             log.info("当前查看图片的列表信息：", imgList);
@@ -32147,22 +32843,43 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             viewer.zoomTo(1);
             viewer.show();
             log.success("预览图片");
-            if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
-              gestureback?.enterGestureBackMode();
-            }
+            gestureback?.enterGestureBackMode();
           }
           function getImageSrc($img) {
             let imgUrl = $img.getAttribute("data-src") || $img.getAttribute("src") || $img.src;
             return imgUrl;
           }
+          const optimizationSearchResultMedia = (event) => {
+            const $click = event.target;
+            const $clickParent = $click.parentElement;
+            if ($clickParent.matches(".search-result-media-wrapper")) {
+              domUtils.preventEvent(event);
+              log.info(`搜索结果的图片`, $clickParent);
+              let lazyImgList = [];
+              let lazyImgIndex = 0;
+              $clickParent.querySelectorAll("img").forEach(($img, __index__) => {
+                let imgSrc = getImageSrc($img);
+                log.info(`获取图片: ${imgSrc}`);
+                lazyImgList.push(imgSrc);
+                if ($img === $click) {
+                  lazyImgIndex = __index__;
+                }
+              });
+              if (lazyImgList.length) {
+                viewIMG(lazyImgList, lazyImgIndex);
+              } else {
+                Qmsg.error("获取图片数据为空");
+              }
+            }
+          };
           domUtils.on(
             document,
             "click",
             "img",
             (event) => {
-              let $click = event.target;
-              let $clickParent = $click.parentElement;
-              let currentClickImageUrl = getImageSrc($click);
+              const $click = event.target;
+              const $clickParent = $click.parentElement;
+              const currentClickImageUrl = getImageSrc($click);
               if ($clickParent.className === "viewer-canvas" || $clickParent.hasAttribute("data-viewer-action")) {
                 log.info("点击的<img>属于Viewer内的元素， 不处理");
                 return;
@@ -32174,29 +32891,53 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 return;
               }
               if (currentClickImageUrl?.match(/^http(s|):\/\/(tiebapic|imgsa).baidu.com\/forum/g)) {
-                domUtils.preventEvent(event);
-                log.info(`点击图片👇`);
-                log.info($click);
-                if ($clickParent.className === "img-box") {
-                  let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
-                  log.info($imgSudoKu);
-                  if (!$imgSudoKu) {
-                    viewIMG([currentClickImageUrl]);
-                    return;
-                  }
-                  let lazyImgList = [];
-                  if (TiebaPost.mainPostImgList.length) {
-                    TiebaPost.mainPostImgList.forEach((item) => {
-                      lazyImgList.push(item.src);
-                    });
-                  } else {
-                    Array.from($imgSudoKu.querySelectorAll("img.img")).forEach(($img) => {
+                if (BaiduRouter.isTieBaPost()) {
+                  domUtils.preventEvent(event);
+                  log.info(`点击图片👇`, $click);
+                  if ($clickParent.className === "img-box") {
+                    let $imgSudoKu = $click.closest(".img-sudoku.main-img-sudoku");
+                    log.info($imgSudoKu);
+                    if (!$imgSudoKu) {
+                      viewIMG([currentClickImageUrl]);
+                      return;
+                    }
+                    let lazyImgList = [];
+                    if (TiebaPost.mainPostImgList.length) {
+                      TiebaPost.mainPostImgList.forEach((item) => {
+                        lazyImgList.push(item.src);
+                      });
+                    } else {
+                      Array.from($imgSudoKu.querySelectorAll("img.img")).forEach(($img) => {
+                        let imgSrc = getImageSrc($img);
+                        log.info(`获取图片: ${imgSrc}`);
+                        let imgUrlInfo = new URL(imgSrc);
+                        if (imgUrlInfo.pathname.startsWith("/forum/")) {
+                          let picName = imgUrlInfo.pathname.split("/").pop();
+                          let picIdSplit = picName.split(".");
+                          if (picIdSplit) {
+                            let picId = picIdSplit[0];
+                            if (TiebaData.imageMap.has(picId)) {
+                              imgSrc = TiebaData.imageMap.get(picId);
+                              log.success("替换成高清图片", imgSrc);
+                            }
+                          }
+                        }
+                        lazyImgList.push(imgSrc);
+                      });
+                    }
+                    log.info("图片列表👇");
+                    log.info(lazyImgList);
+                    viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
+                  } else if ($clickParent.className === "text-content") {
+                    let lazyImgList = [];
+                    log.info($clickParent);
+                    $clickParent.querySelectorAll("img.BDE_Image").forEach(($img) => {
                       let imgSrc = getImageSrc($img);
                       log.info(`获取图片: ${imgSrc}`);
                       let imgUrlInfo = new URL(imgSrc);
                       if (imgUrlInfo.pathname.startsWith("/forum/")) {
                         let picName = imgUrlInfo.pathname.split("/").pop();
-                        let picIdSplit = picName.split(".");
+                        let picIdSplit = picName?.split(".");
                         if (picIdSplit) {
                           let picId = picIdSplit[0];
                           if (TiebaData.imageMap.has(picId)) {
@@ -32207,77 +32948,36 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                       }
                       lazyImgList.push(imgSrc);
                     });
-                  }
-                  log.info("图片列表👇");
-                  log.info(lazyImgList);
-                  viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
-                } else if ($clickParent.className === "text-content") {
-                  let lazyImgList = [];
-                  log.info($clickParent);
-                  $clickParent.querySelectorAll("img.BDE_Image").forEach(($img) => {
-                    let imgSrc = getImageSrc($img);
-                    log.info(`获取图片: ${imgSrc}`);
-                    let imgUrlInfo = new URL(imgSrc);
-                    if (imgUrlInfo.pathname.startsWith("/forum/")) {
-                      let picName = imgUrlInfo.pathname.split("/").pop();
-                      let picIdSplit = picName?.split(".");
-                      if (picIdSplit) {
-                        let picId = picIdSplit[0];
-                        if (TiebaData.imageMap.has(picId)) {
-                          imgSrc = TiebaData.imageMap.get(picId);
-                          log.success("替换成高清图片", imgSrc);
-                        }
-                      }
-                    }
-                    lazyImgList.push(imgSrc);
-                  });
-                  log.info("评论区图片列表👇");
-                  log.info(lazyImgList);
-                  viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
-                } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
-                  log.info("uni-app的图片", $clickParent);
-                  let lazyImgList = [];
-                  let lazyImgIndex = 0;
-                  let $slideFrame = $click.closest(".uni-swiper-slide-frame");
-                  if ($slideFrame) {
-                    $slideFrame.querySelectorAll("img").forEach(($img) => {
-                      let imgSrc = getImageSrc($img);
-                      log.info(`获取图片: ${imgSrc}`);
-                      lazyImgList.push(imgSrc);
-                    });
-                    lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
-                  } else if ($click.closest(".pb-comment-item")) {
-                    log.info(`uni-app评论区的图片`);
-                    let $pbCommentItem = $click.closest(".pb-comment-item");
-                    if ($pbCommentItem) {
-                      let commentImageList = Array.from($pbCommentItem.querySelectorAll("uni-image img")).map(
-                        ($el) => $el.src
-                      );
-                      let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
-                      let pbCommentData = pbCommentItemVue3Ins?.props?.commentData;
-                      let $commentGroup = $pbCommentItem.closest(".comment-group");
-                      let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
-                      let sectionData = commentGroupVue2Ins?.sectionData;
-                      if (pbCommentData) {
-                        pbCommentData.content.forEach((item) => {
-                          const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item;
-                          if (type !== 3) {
-                            return;
-                          }
-                          if (
-                            currentClickImageUrl === cdn_src ||
-                            currentClickImageUrl === cdn_src_active ||
-                            currentClickImageUrl === big_cdn_src ||
-                            currentClickImageUrl === origin_src
-                          ) {
-                            lazyImgIndex = lazyImgList.length;
-                          }
-                          lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
-                        });
-                      } else if (sectionData) {
-                        sectionData.forEach((item) => {
-                          item.imgList.forEach((item2) => {
-                            const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item2;
+                    log.info("评论区图片列表👇");
+                    log.info(lazyImgList);
+                    viewIMG(lazyImgList, lazyImgList.indexOf(currentClickImageUrl));
+                  } else if ($clickParent.classList.contains("pb-image") && $clickParent.localName === "uni-image") {
+                    log.info("uni-app的图片", $clickParent);
+                    let lazyImgList = [];
+                    let lazyImgIndex = 0;
+                    let $slideFrame = $click.closest(".uni-swiper-slide-frame");
+                    if ($slideFrame) {
+                      $slideFrame.querySelectorAll("img").forEach(($img) => {
+                        let imgSrc = getImageSrc($img);
+                        log.info(`获取图片: ${imgSrc}`);
+                        lazyImgList.push(imgSrc);
+                      });
+                      lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+                    } else if ($click.closest(".pb-comment-item")) {
+                      log.info(`uni-app评论区的图片`);
+                      let $pbCommentItem = $click.closest(".pb-comment-item");
+                      if ($pbCommentItem) {
+                        let commentImageList = Array.from($pbCommentItem.querySelectorAll("uni-image img")).map(
+                          ($el) => $el.src
+                        );
+                        let pbCommentItemVue3Ins = VueUtils.getVue3($pbCommentItem);
+                        let pbCommentData = pbCommentItemVue3Ins?.props?.commentData;
+                        let $commentGroup = $pbCommentItem.closest(".comment-group");
+                        let commentGroupVue2Ins = VueUtils.getVue($commentGroup);
+                        let sectionData = commentGroupVue2Ins?.sectionData;
+                        if (pbCommentData) {
+                          pbCommentData.content.forEach((item) => {
+                            const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item;
                             if (type !== 3) {
                               return;
                             }
@@ -32291,25 +32991,47 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             }
                             lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
                           });
-                        });
+                        } else if (sectionData) {
+                          sectionData.forEach((item) => {
+                            item.imgList.forEach((item2) => {
+                              const { cdn_src, cdn_src_active, big_cdn_src, origin_src, type } = item2;
+                              if (type !== 3) {
+                                return;
+                              }
+                              if (
+                                currentClickImageUrl === cdn_src ||
+                                currentClickImageUrl === cdn_src_active ||
+                                currentClickImageUrl === big_cdn_src ||
+                                currentClickImageUrl === origin_src
+                              ) {
+                                lazyImgIndex = lazyImgList.length;
+                              }
+                              lazyImgList.push(origin_src || big_cdn_src || currentClickImageUrl);
+                            });
+                          });
+                        } else {
+                          lazyImgList.push(...commentImageList);
+                          lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+                        }
                       } else {
-                        lazyImgList.push(...commentImageList);
-                        lazyImgIndex = lazyImgList.indexOf(currentClickImageUrl);
+                        log.error("获取.pb-comment-item元素失败");
+                        lazyImgList.push(currentClickImageUrl);
                       }
                     } else {
-                      log.error("获取.pb-comment-item元素失败");
                       lazyImgList.push(currentClickImageUrl);
                     }
+                    if (lazyImgList.length) {
+                      viewIMG(lazyImgList, lazyImgIndex);
+                    } else {
+                      Qmsg.error("获取图片数据为空");
+                    }
+                  } else if ($clickParent.matches(".search-result-media-wrapper")) {
+                    optimizationSearchResultMedia(event);
                   } else {
-                    lazyImgList.push(currentClickImageUrl);
+                    viewIMG([currentClickImageUrl]);
                   }
-                  if (lazyImgList.length) {
-                    viewIMG(lazyImgList, lazyImgIndex);
-                  } else {
-                    Qmsg.error("获取图片数据为空");
-                  }
-                } else {
-                  viewIMG([currentClickImageUrl]);
+                } else if (BaiduRouter.isTieBaNei()) {
+                  optimizationSearchResultMedia(event);
                 }
               }
             },
@@ -32594,7 +33316,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               window?.stop();
               let clickNode = event.target;
               let pid = VueUtils.getVue(clickNode)?.item.tid;
-              let url = TiebaUrlHandler.getPost(pid);
+              let url = TiebaUrlHandler.getThread(pid);
               log.success(`跳转至: ${url}`);
               if (Panel.getValue("baidu_tieba_topic_openANewTab")) {
                 window.open(url, "_blank");
@@ -32642,7 +33364,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 }
               }
               config.headers.Cookie = config.headers.Cookie || "TIEBA_NEW_PC=0; ";
-              if (config.url.includes("tieba.baidu.com/c/")) {
+              if (
+                config.url.includes("tieba.baidu.com/c/") ||
+                config.url.includes("tieba.baidu.com/mo/q/search/thread")
+              ) {
                 const urlInst = new URL(config.url);
                 if (config.method === "POST") {
                   if (typeof config.data === "object" && config.data) {
@@ -33530,6 +34255,8 @@ div[class*='ads'],
             } else {
               BaiduSearch.init();
             }
+          } else if (BaiduRouter.isWappass()) {
+            log.success(`Router: 百度安全验证`);
           } else {
             log.error("该Router暂未适配，请联系开发者：" + window.location.href);
           }
@@ -35048,7 +35775,7 @@ div[class*='ads'],
                         "baidu_tieba_use_hybrid_search",
                         false,
                         void 0,
-                        "使用贴吧移动端的搜索功能"
+                        "使用贴吧移动端的搜索功能（仅全局搜索）"
                       ),
                       UISwitch(
                         "地址参数识别",

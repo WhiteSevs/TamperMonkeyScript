@@ -232,7 +232,7 @@ export const TiebaNewPCApi = {
           /** 吧龄 */
           tb_age: string;
           ip_address: string;
-          /** 贴吧id */
+          /** 贴吧id（不过好像不是） */
           tieba_uid: string;
           /** 是否已注销 */
           deregistered: 0 | 1;
@@ -351,7 +351,7 @@ export const TiebaNewPCApi = {
       return;
     }
     if (!Array.isArray(data.follow_list)) {
-      log.error("数据格式错误", data);
+      log.error("follow_list不是数组", data);
       return;
     }
     return data;
@@ -494,6 +494,119 @@ export const TiebaNewPCApi = {
       return;
     }
     return data;
+  },
+  /**
+   * 搜索帖子内容
+   * @param word 搜索关键词
+   * @param pn 页码，默认为1
+   * @param sort 5：新帖在前，2：相关在前
+   * @param threadType 1：只看主题，3：只看评论
+   * @param fname 搜索的目标吧，留空是全部
+   */
+  async searchThread(word: string, pn: number = 1, sort = 5, threadType = 1, fname = "") {
+    const response = await httpx.get("https://tieba.baidu.com/mo/q/search/thread", {
+      data: {
+        st: sort,
+        tt: threadType,
+        fname: fname,
+        word: word,
+        pn: pn,
+        rn: 20,
+        subapp_type: "pc",
+        _client_type: 20,
+      },
+    });
+    if (!response.status) {
+      return;
+    }
+    const data = utils.toJSON<{
+      error: string;
+      no: number;
+      data: {
+        blank_type: number;
+        cuid: null;
+        current_page: number;
+        dynamic_tag_explain: null;
+        has_more: 0 | 1;
+        is_login: 0 | 1;
+        log_id: number;
+        post_list: ({
+          tid: string;
+          pid: number;
+          cid: string;
+          is_copytwzhibo: number;
+          title: string;
+          content: string;
+          time: number;
+          modified_time: number;
+          user: {
+            user_name: string;
+            user_id: number;
+            portrait: string;
+            portraith: string;
+            vipInfo: {
+              a_score: number;
+              e_time: string;
+              ext_score: string;
+              icon_url: string;
+              icon_url_new: string;
+              n_score: string;
+              s_time: string;
+              v_level: string;
+              v_status: string;
+            };
+            show_nickname: string;
+          };
+          post_num: number;
+          media: (
+            | {
+                type: "pic";
+                size: string;
+                width: string;
+                height: string;
+                water_pic: string;
+                small_pic: string;
+                big_pic: string;
+              }
+            | {
+                type: "flash";
+                src: string;
+                vsrc: string;
+                vhsrc: string;
+                vpic: string;
+                width: number;
+                height: number;
+              }
+          )[];
+        } & {
+          thread_types: number;
+          like_num: number;
+          share_num: number;
+          duration: number;
+          play_count: number;
+          basicWeight: number;
+          forum_id: number;
+          pb_url: string;
+          forum_name: string;
+          type: number;
+          thread_type: number;
+          forum_info: {
+            forum_name: string;
+            avatar: string;
+            post_num: string;
+            concern_num: string;
+            is_official_forum: number;
+          };
+        })[];
+      };
+      tbs: string;
+    }>(response.data.responseText);
+
+    if (!TiebaApiStatus.isWebSuccess(data)) {
+      return;
+    }
+
+    return data.data;
   },
 };
 

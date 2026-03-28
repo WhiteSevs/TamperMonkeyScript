@@ -1,23 +1,27 @@
+import { RouterUtil } from "@components/utils/RouterUtil";
+
 export const BaiduRouter = {
   /**
    * 百度搜索
    */
   isSearch() {
-    return Boolean(window.location.hostname.match(/^(m[0-9]{0,2}|www).baidu.com$/g));
+    return RouterUtil.builder()
+      .hostNameMatch(/^(m[0-9]{0,2}|www).baidu.com$/g)
+      .r();
   },
   /**
    * 百度搜索 - /bh
    * 百度健康
    */
   isSearchBh() {
-    return this.isSearch() && window.location.pathname.startsWith("/bh");
+    return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/bh").r();
   },
   /**
    * 百度搜索 - /video/page
    * 视频页
    */
   isSearchVideo() {
-    return this.isSearch() && window.location.pathname.startsWith("/video/page");
+    return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/video/page").r();
   },
   /**
    * 百度搜索主页
@@ -25,8 +29,8 @@ export const BaiduRouter = {
   isSearchHome() {
     return (
       this.isSearch() &&
-      ((window.location.pathname === "/" && window.location.search === "") ||
-        (window.location.pathname === "/" && window.location.search.startsWith("?")))
+      RouterUtil.pathname("/").r() &&
+      (RouterUtil.search("").r() || RouterUtil.builder().searchStartsWith("?").r())
     );
   },
   /**
@@ -35,7 +39,7 @@ export const BaiduRouter = {
    * 例如：视频、笔记、贴吧、图片、资讯、问答、文库...等
    */
   isSearchVSearch() {
-    return this.isSearch() && window.location.pathname.startsWith("/sf/vsearch");
+    return this.isSearch() && RouterUtil.builder().pathnameStartsWith("/sf/vsearch").r();
   },
   /**
    * 百度搜索其它卡片搜索结果页面
@@ -43,8 +47,7 @@ export const BaiduRouter = {
    * /sf/vsearch?pd=image_content
    */
   isSearchVSearch_image_content() {
-    let searchParams = new URLSearchParams(window.location.search);
-    return this.isSearchVSearch() && searchParams.has("pd", "image_content");
+    return this.isSearch() && RouterUtil.builder().searchParams("pd", "image_content").r();
   },
   /**
    * 百度搜索其它卡片搜索结果页面
@@ -52,8 +55,7 @@ export const BaiduRouter = {
    * /sf/vsearch?pd=note
    */
   isSearchVSearch_note() {
-    let searchParams = new URLSearchParams(window.location.search);
-    return this.isSearchVSearch() && searchParams.has("pd", "note");
+    return this.isSearchVSearch() && RouterUtil.builder().searchParams("pd", "note").r();
   },
   /**
    * 百度搜索其它卡片搜索结果页面
@@ -61,227 +63,234 @@ export const BaiduRouter = {
    * /sf/vsearch?pd=wenda_tab
    */
   isSearchWenDaTab() {
-    let searchParams = new URLSearchParams(window.location.search);
-    return this.isSearchVSearch() && searchParams.has("pd", "wenda_tab");
+    return this.isSearchVSearch() && RouterUtil.builder().searchParams("pd", "wenda_tab").r();
   },
   /**
    * 百度健康
    */
   isHealth() {
-    return window.location.hostname === "health.baidu.com" || this.isSearchBh();
+    return this.isSearchBh() || RouterUtil.hostName("health.baidu.com").r();
   },
   /**
    * 百家号
    */
   isBaiJiaHao() {
-    return window.location.hostname === "baijiahao.baidu.com";
+    return RouterUtil.hostName("baijiahao.baidu.com").r();
   },
   /**
    * 贴吧
    */
   isTieBa() {
     return (
-      Boolean(window.location.hostname.match(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)) ||
-      window.location.hostname === "jump2.bdimg.com" ||
-      window.location.hostname === "www.tieba.com"
+      RouterUtil.builder()
+        .hostNameMatch(/^(tieba|ala|static.tieba|nba|fexclick|youhua|tiebaswan).baidu.com$/g)
+        .r() ||
+      RouterUtil.hostName("jump2.bdimg.com").r() ||
+      RouterUtil.hostName("www.tieba.com").r()
     );
   },
   /**
    * 贴吧 - 帖子
    */
   isTieBaPost() {
-    return this.isTieBa() && window.location.pathname.startsWith("/p/");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/p/").r();
   },
   /**
    * 贴吧 - 热帖
    */
   isTieBaNewTopic() {
-    return this.isTieBa() && window.location.pathname.startsWith("/mo/q/newtopic/topicTemplate");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/newtopic/topicTemplate").r();
   },
   /**
    * 贴吧 - 热搜榜
    */
   isTieBaHottopic() {
-    return this.isTieBa() && window.location.pathname.startsWith("/hottopic/browse/hottopic");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/hottopic/browse/hottopic").r();
   },
   /**
    * 贴吧 - 搜索结果界面
    */
   isTieBaHybrid() {
-    return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid/search");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid/search").r();
   },
   /**
    * 贴吧 - 评论聚合页面
    */
   isTieBaHybridUserGrowBase() {
-    return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-usergrow-base/commentFocus");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid-usergrow-base/commentFocus").r();
   },
   /**
    * 贴吧 - 中转链接验证页面
    */
   isTieBaCheckUrl() {
-    return this.isTieBa() && window.location.pathname.startsWith("/mo/q/checkurl");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/checkurl").r();
   },
   /**
    * 贴吧 - 吧内
    */
   isTieBaNei() {
-    return this.isTieBa() && window.location.pathname === "/f";
+    return this.isTieBa() && RouterUtil.pathname("/f").r();
   },
   /**
    * 贴吧 - 首页
    */
   isTieBaIndex() {
-    return this.isTieBa() && window.location.pathname.startsWith("/index");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/index").r();
   },
   /**
    * 贴吧 - 主页
    */
   isTieBaHome() {
-    return this.isTieBa() && window.location.pathname.startsWith("/home/main");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/home/main").r();
   },
   /**
    * 贴吧 - 合辑
    */
   isTieBaCollectionCenter() {
-    return this.isTieBa() && window.location.pathname.startsWith("/mo/q/hybrid-main-user/collectionCenter");
+    return this.isTieBa() && RouterUtil.builder().pathnameStartsWith("/mo/q/hybrid-main-user/collectionCenter").r();
   },
   /**
    * 百度文库
    */
   isWenKu() {
-    return window.location.hostname === "wk.baidu.com" || window.location.hostname === "tanbi.baidu.com";
+    return RouterUtil.hostName("wk.baidu.com").or().hostName("tanbi.baidu.com").r();
   },
   /**
    * 百度经验
    */
   isJingYan() {
-    return window.location.hostname === "jingyan.baidu.com";
+    return RouterUtil.hostName("jingyan.baidu.com").r();
   },
   /**
    * 百度百科
    */
   isBaiKe() {
-    return window.location.hostname === "baike.baidu.com" || window.location.hostname === "wapbaike.baidu.com";
+    return RouterUtil.hostName("baike.baidu.com").or().hostName("wapbaike.baidu.com").r();
   },
   /**
    * 百度百科 - 他说
    */
   isBaiKeTaShuo() {
-    return this.isBaiKe() && window.location.pathname.startsWith("/tashuo");
+    return this.isBaiKe() && RouterUtil.builder().pathnameStartsWith("/tashuo").r();
   },
   /**
    * 百度知道
    */
   isZhiDao() {
-    return window.location.hostname === "zhidao.baidu.com";
+    return RouterUtil.hostName("zhidao.baidu.com").r();
   },
   /**
    * 百度翻译
    */
   isFanYi() {
-    return window.location.hostname === "fanyi.baidu.com";
+    return RouterUtil.hostName("fanyi.baidu.com").r();
   },
   /**
    * 百度翻译 - App
    */
   isFanYiApp() {
-    return window.location.hostname === "fanyi-app.baidu.com";
+    return RouterUtil.hostName("fanyi-app.baidu.com").r();
   },
   /**
    * 百度图片
    */
   isImage() {
-    return window.location.hostname === "image.baidu.com";
+    return RouterUtil.hostName("image.baidu.com").r();
   },
   /**
    * 百度地图
    */
   isMap() {
-    return window.location.hostname === "map.baidu.com";
+    return RouterUtil.hostName("map.baidu.com").r();
   },
   /**
    *
    */
   isMbd() {
-    return window.location.hostname === "mbd.baidu.com";
+    return RouterUtil.hostName("mbd.baidu.com").r();
   },
   /**
    * 百度好学
    */
   isXue() {
-    return window.location.hostname === "xue.baidu.com";
+    return RouterUtil.hostName("xue.baidu.com").r();
   },
   /**
    * 爱企查
    */
   isAiQiCha() {
-    return window.location.hostname === "aiqicha.baidu.com";
+    return RouterUtil.hostName("aiqicha.baidu.com").r();
   },
   /**
    * 百度网盟
    */
   isPos() {
-    return window.location.hostname === "pos.baidu.com";
+    return RouterUtil.hostName("pos.baidu.com").r();
   },
   /**
    * 好看视频
    */
   isHaoKan() {
-    return window.location.hostname === "haokan.baidu.com";
+    return RouterUtil.hostName("haokan.baidu.com").r();
   },
   /**
    * 百度图片搜索
    */
   isGraph() {
-    return window.location.hostname === "graph.baidu.com";
+    return RouterUtil.hostName("graph.baidu.com").r();
   },
   /**
    * 百度网盘
    */
   isPan() {
-    return window.location.hostname === "pan.baidu.com";
+    return RouterUtil.hostName("pan.baidu.com").r();
   },
   /**
    * 文心一言
    */
   isYiYan() {
-    return window.location.hostname === "yiyan.baidu.com";
+    return RouterUtil.hostName("yiyan.baidu.com").r();
   },
   /**
    * 搜索AI伙伴
    */
   isChat() {
-    return window.location.hostname === "chat.baidu.com";
+    return RouterUtil.hostName("chat.baidu.com").r();
   },
   /**
    * 百度教育
    */
   isMiniJiaoYu() {
-    return window.location.hostname === "uf9kyh.smartapps.cn";
+    return RouterUtil.hostName("uf9kyh.smartapps.cn").r();
   },
   /**
    * 百度教育
    */
   isEasyLearn() {
-    return window.location.hostname === "easylearn.baidu.com";
+    return RouterUtil.hostName("easylearn.baidu.com").r();
   },
   /**
    * 百度基木鱼
    */
   isISite() {
-    return window.location.hostname === "isite.baidu.com" && window.location.pathname.startsWith("/site/wjz2tdly");
+    return RouterUtil.hostName("isite.baidu.com").pathnameStartsWith("/site/wjz2tdly").r();
   },
   /**
    * 百度爱学
    */
   isAiStudy() {
-    return window.location.hostname === "aistudy.baidu.com";
+    return RouterUtil.hostName("aistudy.baidu.com").r();
   },
   /**
    * 贴吧 - 小程序
    */
   isSmartApps_Tieba() {
-    return window.location.hostname === "byokpg.smartapps.baidu.com";
+    return RouterUtil.hostName("byokpg.smartapps.baidu.com").r();
+  },
+  /**
+   * 百度安全验证
+   */
+  isWappass() {
+    return RouterUtil.hostName("wappass.baidu.com").r();
   },
 };

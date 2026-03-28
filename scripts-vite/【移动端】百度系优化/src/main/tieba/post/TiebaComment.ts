@@ -994,10 +994,10 @@ const TiebaComment = {
     loadingView.setText("Loading...", true);
     loadingView.show();
     let timeStamp = Date.now();
-    let nextPageUrl = TiebaUrlHandler.getPost(
+    let nextPageUrl = TiebaUrlHandler.getThread(
       `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
     );
-    let nextPageAllCommentUrl = TiebaUrlHandler.getPost(
+    let nextPageAllCommentUrl = TiebaUrlHandler.getThread(
       `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
     );
     let pageCommentInfo = await TiebaComment.getPageComment(nextPageUrl);
@@ -1029,10 +1029,10 @@ const TiebaComment = {
     loadingView.setText("Loading...", true);
     loadingView.show();
     let timeStamp = Date.now();
-    let pageUrl = TiebaUrlHandler.getPost(
+    let pageUrl = TiebaUrlHandler.getThread(
       `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
     );
-    let pageAllCommentUrl = TiebaUrlHandler.getPost(
+    let pageAllCommentUrl = TiebaUrlHandler.getThread(
       `totalComment?t=${timeStamp}&tid=${TiebaComment.param_tid}&fid=${TiebaComment.param_forum_id}&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
     );
     let pageCommentInfo = await TiebaComment.getPageComment(pageUrl);
@@ -2118,7 +2118,7 @@ const TiebaComment = {
    */
   async getLzlCommentReply(tid = "", pid = "", pn: string | number = 1) {
     const response = await httpx.get({
-      url: TiebaUrlHandler.getPost(
+      url: TiebaUrlHandler.getThread(
         `comment?tid=${tid}&pid=${pid}&pn=${pn}&t=${new Date().getTime()}${TiebaComment.extraSearchSignParams}`
       ),
       headers: {
@@ -2512,13 +2512,13 @@ const TiebaComment = {
     loadingView.setText("Loading...", true);
     loadingView.show();
     // 获取所有评论的接口
-    const url = TiebaUrlHandler.getPost(
+    const url = TiebaUrlHandler.getThread(
       `totalComment?t=${Date.now()}&tid=${TiebaComment.param_tid}&fid=${
         TiebaComment.param_forum_id
       }&pn=${TiebaComment.page}&see_lz=0${TiebaComment.extraSearchSignParams}`
     );
     // 获取帖子链接，目的是解析页面的内容
-    const pcPageUrl = TiebaUrlHandler.getPost(
+    const pcPageUrl = TiebaUrlHandler.getThread(
       `${TiebaComment.param_tid}?pn=${TiebaComment.page}${TiebaComment.extraSearchSignParams}`
     );
     // 解析页面内容

@@ -59,7 +59,7 @@ export const BaiduTieBa = {
         // 处理cookie
         config.headers.Cookie = config.headers.Cookie || "" + "TIEBA_NEW_PC=0; ";
         // 处理sign
-        if (config.url.includes("tieba.baidu.com/c/")) {
+        if (config.url.includes("tieba.baidu.com/c/") || config.url.includes("tieba.baidu.com/mo/q/search/thread")) {
           const urlInst = new URL(config.url);
           if (config.method === "POST") {
             // 处理data

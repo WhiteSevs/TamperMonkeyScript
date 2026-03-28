@@ -25,7 +25,7 @@ export const TiebaTopicTemplate = {
         window?.stop();
         let clickNode = event.target;
         let pid = VueUtils.getVue(clickNode)?.item.tid;
-        let url = TiebaUrlHandler.getPost(pid);
+        let url = TiebaUrlHandler.getThread(pid);
         log.success(`跳转至: ${url}`);
         if (Panel.getValue("baidu_tieba_topic_openANewTab")) {
           window.open(url, "_blank");

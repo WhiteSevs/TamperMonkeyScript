@@ -51,7 +51,7 @@ export const TiebaHybrid = {
           Qmsg.error("获取帖子的tid失败");
           return;
         }
-        window.open(TiebaUrlHandler.getPost(tid), "_blank");
+        window.open(TiebaUrlHandler.getThread(tid), "_blank");
       },
       {
         capture: true,
