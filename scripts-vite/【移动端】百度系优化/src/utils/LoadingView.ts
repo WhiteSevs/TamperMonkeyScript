@@ -1,46 +1,5 @@
 import { DOMUtils } from "@/env";
 
-// <div class="skeleton-item" data-animated></div>
-// <style>
-//   .skeleton-item {
-//     --el-skeleton-color: #f0f2f5;
-//     --el-skeleton-to-color: #e6e8eb;
-//     width: 100%;
-//     height: 18px;
-//     border-radius: 4px;
-//     background: var(--el-skeleton-color);
-//     display: inline-block;
-//   }
-//   .skeleton-item[data-circle]{
-//     border-radius: 50%;
-//   }
-//   .skeleton-item[data-img]{
-//     width: unset;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     border-radius: 0px;
-//   }
-//   .skeleton-item[data-img] svg{
-//     color: #dcdfe6;
-//     fill: currentcolor;
-//     width: 22%;
-//     height: 22%;
-//   }
-//   .skeleton-item[data-animated]{
-//     background: linear-gradient(90deg, var(--el-skeleton-color) 25%, var(--el-skeleton-to-color) 37%, var(--el-skeleton-color) 63%);
-//     background-size: 400% 100%;
-//     animation: el-skeleton-loading 1.4s ease infinite;
-//   }
-//   @keyframes el-skeleton-loading {
-//     0% {
-//       background-position: 100% 50%;
-//     }
-//     100% {
-//       background-position: 0 50%;
-//     }
-//   }
-// </style>
 class LoadingView {
   config: {
     className: string;
