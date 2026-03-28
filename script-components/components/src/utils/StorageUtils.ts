@@ -1,6 +1,12 @@
 import utils from "@whitesev/utils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { GM_addValueChangeListener, GM_deleteValue, GM_getValue, GM_removeValueChangeListener, GM_setValue } from "ViteGM";
+import {
+  GM_addValueChangeListener,
+  GM_deleteValue,
+  GM_getValue,
+  GM_removeValueChangeListener,
+  GM_setValue,
+} from "ViteGM";
 
 /**
  * 监听的值
@@ -19,7 +25,7 @@ class StorageUtils {
   /** 缓存数据 */
   private cacheData: any;
   /** 取消监听的回调 */
-  private callbacks: (()=>void)[] = [];
+  private callbacks: (() => void)[] = [];
   /**
    * 存储的键名，可以是多层的，如：a.b.c
    *
@@ -69,12 +75,12 @@ class StorageUtils {
   async [Symbol.asyncDispose]() {
     this.destory();
   }
-  /** 
+  /**
    * 销毁
    */
-  private destory(){
+  private destory() {
     this.cacheData = null;
-    for (let index = this.callbacks.length-1; index >=0; index--) {
+    for (let index = this.callbacks.length - 1; index >= 0; index--) {
       const cb = this.callbacks[index];
       cb();
       this.callbacks.splice(index, 1);
@@ -84,7 +90,7 @@ class StorageUtils {
    * 获取本地值
    */
   private getLocalValue(): any {
-    if(this.cacheData == null){
+    if (this.cacheData == null) {
       let localValue = GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -94,11 +100,11 @@ class StorageUtils {
       this.destory();
       // 缓存数据
       this.cacheData = localValue;
-      const listenerId =  GM_addValueChangeListener(this.storageKey,(name,oldValue,newValue)=>{
+      const listenerId = GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
         this.cacheData = null;
         this.cacheData = newValue;
-      })
-      this.callbacks.push(()=>{
+      });
+      this.callbacks.push(() => {
         GM_removeValueChangeListener(listenerId);
       });
       return localValue;
@@ -258,4 +264,3 @@ class StorageUtils {
 }
 
 export { StorageUtils, type ListenerData };
-

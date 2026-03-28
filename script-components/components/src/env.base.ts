@@ -133,31 +133,34 @@ const httpx = new utils.Httpx({
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
-  if(DEBUG){
+  if (DEBUG) {
     log.info("[Httpx-HttpxRequest.request] 请求前的配置", { data });
   }
   return data;
 });
 
 // 添加响应拦截器
-httpx.interceptors.response.use((response)=>{
-  if(DEBUG){
-    log.info("[Httpx-HttpxRequest.response] 响应结果", { response });
+httpx.interceptors.response.use(
+  (response) => {
+    if (DEBUG) {
+      log.info("[Httpx-HttpxRequest.response] 响应结果", { response });
+    }
+    return response;
+  },
+  (data) => {
+    log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
   }
-  return response;
-}, (data) => {
-  log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-  if (data.type === "onabort") {
-    Qmsg.warning("请求取消", { consoleLogContent: true });
-  } else if (data.type === "onerror") {
-    Qmsg.error("请求异常", { consoleLogContent: true });
-  } else if (data.type === "ontimeout") {
-    Qmsg.error("请求超时", { consoleLogContent: true });
-  } else {
-    Qmsg.error("其它错误", { consoleLogContent: true });
-  }
-  return data;
-});
+);
 
 const OriginPrototype = {
   Object: {

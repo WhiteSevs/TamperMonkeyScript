@@ -79,7 +79,7 @@ const ReactUtils = {
       /**
        * 检测react实例的属性
        */
-      const checkTarget = function(): {
+      const checkTarget = function (): {
         /** 是否成功检测到目标属性 */
         status: boolean;
         /** 是否检测超时 */
@@ -124,7 +124,7 @@ const ReactUtils = {
           inst: reactPropInst,
           $el: $target,
         };
-      }
+      };
       utils
         .waitPropertyByInterval(
           () => {

@@ -33,6 +33,10 @@ type VueCheckOption = {
 const VueUtils = {
   /**
    * 获取vue2实例
+   *
+   * + __vue__
+   * + __Ivue__
+   * + __IVue__
    * @param $el
    */
   getVue($el: Element | null | EventTarget | HTMLElement): Vue2Instance | undefined {
@@ -44,6 +48,8 @@ const VueUtils = {
   },
   /**
    * 获取vue3实例
+   *
+   * + __vueParentComponent
    * @param $el
    */
   getVue3($el: Element | null | EventTarget | HTMLElement) {

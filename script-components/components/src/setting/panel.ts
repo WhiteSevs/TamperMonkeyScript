@@ -268,8 +268,7 @@ const Panel = {
         menuDefaultConfig.set(key, defaultValue);
       }
       // 待初始化默认值的配置项
-      const moreMenuDefaultConfig: PanelData_ATTRIBUTE_INIT_MORE_VALUE =
-        attributes[ATTRIBUTE_INIT_MORE_VALUE];
+      const moreMenuDefaultConfig: PanelData_ATTRIBUTE_INIT_MORE_VALUE = attributes[ATTRIBUTE_INIT_MORE_VALUE];
       if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
         // 追加|覆盖
         Object.keys(moreMenuDefaultConfig).forEach((key) => {
@@ -282,8 +281,7 @@ const Panel = {
         return;
       }
       if (config.type === "switch") {
-        const disabled =
-          typeof config.disabled === "function" ? config.disabled() : config.disabled;
+        const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
         if (typeof disabled === "boolean" && disabled) {
           this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
         }
@@ -321,9 +319,7 @@ const Panel = {
     }
 
     // 去重
-    this.$data.contentConfigInitDisabledKeys = [
-      ...new Set(this.$data.contentConfigInitDisabledKeys),
-    ];
+    this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
   },
   /**
    * 设置初始化使用的默认值
@@ -409,7 +405,7 @@ const Panel = {
        * 如果同时设置了immediate，则该配置优先级最低
        */
       immediateAll?: boolean;
-    },
+    }
   ) {
     const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
     if (option?.immediate || option?.immediateAll) {
@@ -461,9 +457,9 @@ const Panel = {
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     checkExec?: (
       /** 键名列表 */
-      keyList: string[],
+      keyList: string[]
     ) => boolean,
-    once: boolean = true,
+    once: boolean = true
   ) {
     const that = this;
 
@@ -485,9 +481,7 @@ const Panel = {
       keyList.push(queryKeyResult);
     }
 
-    const findNotInDataKey = keyList.find(
-      (it) => !this.$data.contentConfigInitDefaultValue.has(it),
-    );
+    const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
     if (findNotInDataKey) {
       log.warn(`${findNotInDataKey} 键不存在`);
       return;
@@ -659,7 +653,7 @@ const Panel = {
         key: string;
         newValue: any;
         oldValue: any;
-      },
+      }
     ) => {
       const execFlag = checkMenuExec();
       let callbackResult: ExecMenuResult = [];
@@ -738,7 +732,7 @@ const Panel = {
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
-    once: boolean = false,
+    once: boolean = false
   ) {
     return await this.exec<T>(
       key,
@@ -761,7 +755,7 @@ const Panel = {
         });
         return execFlag;
       },
-      once,
+      once
     );
   },
   /**
@@ -777,7 +771,7 @@ const Panel = {
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
     isReverse: boolean = false,
-    listenUrlChange: boolean = false,
+    listenUrlChange: boolean = false
   ) {
     const result = await this.execMenu<T>(key, callback, isReverse, true);
     if (listenUrlChange) {
@@ -898,7 +892,7 @@ const Panel = {
     content: PopsPanelContentConfig[],
     title: string = `${SCRIPT_NAME}-设置`,
     preventDefaultContentConfig: boolean = false,
-    preventRegisterSearchPlugin: boolean = false,
+    preventRegisterSearchPlugin: boolean = false
   ) {
     this.$data.$panel = null;
     this.$data.panelContent = [];
@@ -994,7 +988,7 @@ const Panel = {
          * 对象/目标值
          */
         data: any;
-      }>,
+      }>
     ): Promise<Awaited<T>> => {
       if (target == null) {
         // @ts-ignore
@@ -1024,7 +1018,7 @@ const Panel = {
         {
           root: null, // 使用视口作为根
           threshold: 1.0, // 元素完全进入视口时触发
-        },
+        }
       );
       observer.observe($el);
       $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1115,10 +1109,8 @@ const Panel = {
       });
 
       const $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
-      const $searchInput =
-        $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
-      const $searchResultWrapper =
-        $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
+      const $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
+      const $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
 
       $searchInput.focus();
 
@@ -1156,7 +1148,7 @@ const Panel = {
         const panelHandlerComponents = pops.fn.PanelHandlerComponents();
         DOMUtils.on($item, "click", () => {
           const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
-            "aside.pops-panel-aside .pops-panel-aside-top-container li",
+            "aside.pops-panel-aside .pops-panel-aside-top-container li"
           );
           const $targetAsideItem = $asideItems[pathInfo.index!];
           if (!$targetAsideItem) {
@@ -1174,18 +1166,14 @@ const Panel = {
               // 那这里的是deepMenu
               const $findDeepMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
-                  $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item"),
+                  $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
                 ).find(($deepMenu) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $deepMenu,
-                    panelHandlerComponents.$data.nodeStoreConfigKey,
+                    panelHandlerComponents.$data.nodeStoreConfigKey
                   );
                   // 找到对应的二级菜单
-                  return (
-                    typeof viewConfig === "object" &&
-                    viewConfig != null &&
-                    viewConfig.text === target.name
-                  );
+                  return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                 });
               }, 2500);
               if ($findDeepMenu) {
@@ -1204,27 +1192,21 @@ const Panel = {
             } else {
               const $findTargetMenu = await DOMUtils.waitNode(() => {
                 return Array.from(
-                  $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
-                    `li:not(.pops-panel-deepMenu-nav-item)`,
-                  ),
+                  $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
                 ).find(($menuItem) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $menuItem,
-                    panelHandlerComponents.$data.nodeStoreConfigKey,
+                    panelHandlerComponents.$data.nodeStoreConfigKey
                   );
                   return viewConfig === target.matchedData?.formConfig;
                 });
               }, 2500);
               if ($findTargetMenu) {
                 scrollToElementAndListen($findTargetMenu);
-                const $fold = $findTargetMenu.closest<HTMLElement>(
-                  `.pops-panel-forms-fold[data-fold-enable]`,
-                );
+                const $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
                 // 折叠状态
                 if ($fold) {
-                  const $foldWrapper = $fold.querySelector<HTMLElement>(
-                    ".pops-panel-forms-fold-container",
-                  )!;
+                  const $foldWrapper = $fold.querySelector<HTMLElement>(".pops-panel-forms-fold-container")!;
                   $foldWrapper.click();
                   await utils.sleep(500);
                 }
@@ -1249,10 +1231,7 @@ const Panel = {
       const execSearch = (searchText: string) => {
         const searchTextRegExp = new RegExp(searchText, "i");
         const searchConfigResult: SearchPath[] = [];
-        const loopContentConfig = (
-          configList: PopsPanelContentConfig["views"],
-          path: SearchPath,
-        ) => {
+        const loopContentConfig = (configList: PopsPanelContentConfig["views"], path: SearchPath) => {
           for (let index = 0; index < configList.length; index++) {
             const configItem = configList[index];
 
@@ -1285,8 +1264,10 @@ const Panel = {
               let description: string | undefined;
               if (configItem.type === "own") {
                 // 处理搜索配置
-                let searchConfig: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG | undefined =
-                  Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
+                let searchConfig: PanelData_ATTRIBUTE_PLUGIN_SEARCH_CONFIG | undefined = Reflect.get(
+                  configItem.attributes || {},
+                  ATTRIBUTE_PLUGIN_SEARCH_CONFIG
+                );
                 if (searchConfig) {
                   if (typeof searchConfig === "function") {
                     searchConfig = searchConfig();
@@ -1407,11 +1388,11 @@ const Panel = {
             return;
           }
           execSearch(searchText);
-        }, 200),
+        }, 200)
       );
     };
     const $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLElement>(
-      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+      `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
     );
     // 为每一项单独监听双击事件
     $asideItems.forEach(($asideItem) => {
@@ -1446,7 +1427,7 @@ const Panel = {
       },
       {
         capture: true,
-      },
+      }
     );
     $panel.$shadowRoot.appendChild(
       DOMUtils.createElement("style", {
@@ -1473,7 +1454,7 @@ const Panel = {
     				}
     			}
     		`,
-      }),
+      })
     );
   },
   /**

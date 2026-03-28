@@ -9,10 +9,7 @@ declare type PanelData_ATTRIBUTE_DEFAULT_VALUE = any;
 /**
  * 配置多项默认值时调用
  */
-declare type PanelData_ATTRIBUTE_INIT_MORE_VALUE = Record<
-  string,
-  PanelData_ATTRIBUTE_DEFAULT_VALUE
->;
+declare type PanelData_ATTRIBUTE_INIT_MORE_VALUE = Record<string, PanelData_ATTRIBUTE_DEFAULT_VALUE>;
 /**
  * panel面板的搜索插件的配置项
  */

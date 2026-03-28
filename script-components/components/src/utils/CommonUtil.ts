@@ -449,7 +449,7 @@ const CommonUtil = {
    * + 14400 => 4:00:00
    * @param duration 秒
    */
-  formatVideoDuration(duration: number|string) {
+  formatVideoDuration(duration: number | string) {
     if (typeof duration !== "number") {
       duration = parseInt(duration);
     }
@@ -484,23 +484,23 @@ const CommonUtil = {
       return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
     }
   },
-  /** 
+  /**
    * 格式化时间戳转为xx秒前、xx分钟前、xx天前
-   * 
+   *
    * 但是超过7天就是标准格式的时间了
-   * @param time 
+   * @param time
    * @param endTime （可选）结束时间
    */
-  formatTimeStamp(time: string|number,endTime?:number|string) {
-    if(typeof time === "number"){
-      if(time < 1e12){
+  formatTimeStamp(time: string | number, endTime?: number | string) {
+    if (typeof time === "number") {
+      if (time < 1e12) {
         // 补0
         const padZeroLength = String(Date.now()).length - String(time).length;
         time = time * Math.pow(10, padZeroLength);
       }
     }
     let result = time;
-    let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time );
+    let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
     // 结束时间
     let currentTime = new Date(endTime ?? Date.now());
     // 时间差的毫秒数
@@ -511,9 +511,9 @@ const CommonUtil = {
     // 计算出相差天数
     let days = Math.floor(timeDifference / (24 * 3600 * 1000));
     if (days > 0) {
-      if(days > 7){
+      if (days > 7) {
         result = utils.formatTime(oldTime.getTime());
-      }else{
+      } else {
         result = days + "天前";
       }
     } else {
@@ -540,7 +540,7 @@ const CommonUtil = {
       }
     }
     return result;
-  }
+  },
 };
 
 export { CommonUtil };

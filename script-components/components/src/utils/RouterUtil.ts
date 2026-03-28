@@ -30,6 +30,7 @@ class RouterBuilder {
        */
       name: string | RegExp;
       value?: string | RegExp | number | boolean;
+      type?: MatchType;
     }>(),
   };
 
@@ -247,11 +248,56 @@ class RouterBuilder {
   }
   /**
    * 搜索参数
+   * @param name 搜索key
+   * @param value 搜索value，如果string、number、boolean（自动转string），则是same，如果是RegExp，则是match
    */
-  search(name: string, value?: string) {
+  searchParams(name: string, value?: string | number | boolean | RegExp) {
     this.__searchParams.value.add({
       name,
       value,
+    });
+    return this;
+  }
+  /**
+   * 搜索参数总字符串
+   */
+  search(value: string | number | boolean | RegExp) {
+    this.__searchParams.value.add({
+      name: "",
+      value: value,
+      type: "same",
+    });
+    return this;
+  }
+  searchStartsWith(value: string | number | boolean | RegExp) {
+    this.__searchParams.value.add({
+      name: "",
+      value: value,
+      type: "startsWith",
+    });
+    return this;
+  }
+  searchEndsWith(value: string | number | boolean | RegExp) {
+    this.__searchParams.value.add({
+      name: "",
+      value: value,
+      type: "endsWith",
+    });
+    return this;
+  }
+  searchIncludes(value: string | number | boolean | RegExp) {
+    this.__searchParams.value.add({
+      name: "",
+      value: value,
+      type: "includes",
+    });
+    return this;
+  }
+  searchMatch(value: string | number | boolean | RegExp) {
+    this.__searchParams.value.add({
+      name: "",
+      value: value,
+      type: "match",
     });
     return this;
   }
@@ -272,11 +318,7 @@ class RouterBuilder {
       this.__searchParams.value.forEach((it) => {
         if (typeof it.name === "string") {
           let value = "";
-          if (
-            typeof it.value === "string" ||
-            typeof it.value === "number" ||
-            typeof it.value === "boolean"
-          ) {
+          if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
             value = it.value.toString();
           }
           searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
@@ -332,13 +374,13 @@ class RouterBuilder {
           } else if (this.__origin.type === "match") {
             if (this.__origin.value instanceof RegExp) {
               return this.__origin.value.test(urlInst.origin);
+            } else if (typeof this.__origin.value === "string") {
+              return urlInst.origin.match(this.__origin.value);
             } else {
-              throw new TypeError("origin value should be RegExp by type " + this.__origin.type);
+              throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
             }
           } else {
-            throw new TypeError(
-              "origin type should be same or startsWith or endsWith or includes or match",
-            );
+            throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
           }
         } else {
           return true;
@@ -351,39 +393,33 @@ class RouterBuilder {
             if (typeof this.__protocol.value === "string") {
               return urlInst.protocol === this.__protocol.value;
             } else {
-              throw new TypeError(
-                "protocol value should be string by type " + this.__protocol.type,
-              );
+              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
             }
           } else if (this.__protocol.type === "startsWith") {
             if (typeof this.__protocol.value === "string") {
               return urlInst.protocol.startsWith(this.__protocol.value);
             } else {
-              throw new TypeError(
-                "protocol value should be string by type " + this.__protocol.type,
-              );
+              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
             }
           } else if (this.__protocol.type === "endsWith") {
             if (typeof this.__protocol.value === "string") {
               return urlInst.protocol.endsWith(this.__protocol.value);
             } else {
-              throw new TypeError(
-                "protocol value should be string by type " + this.__protocol.type,
-              );
+              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
             }
           } else if (this.__protocol.type === "includes") {
             if (typeof this.__protocol.value === "string") {
               return urlInst.protocol.includes(this.__protocol.value);
             } else {
-              throw new TypeError(
-                "protocol value should be string by type " + this.__protocol.type,
-              );
+              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
             }
           } else if (this.__protocol.type === "match") {
             if (this.__protocol.value instanceof RegExp) {
               return this.__protocol.value.test(urlInst.protocol);
-            } else {
+            } else if (typeof this.__protocol.value === "string") {
               return urlInst.protocol.match(this.__protocol.value);
+            } else {
+              throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
             }
           } else {
             throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
@@ -424,8 +460,10 @@ class RouterBuilder {
           } else if (this.__host.type === "match") {
             if (this.__host.value instanceof RegExp) {
               return this.__host.value.test(host);
-            } else {
+            } else if (typeof this.__host.value === "string") {
               return host.match(this.__host.value);
+            } else {
+              throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
             }
           } else {
             throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
@@ -441,39 +479,33 @@ class RouterBuilder {
             if (typeof this.__pathname.value === "string") {
               return urlInst.pathname === this.__pathname.value;
             } else {
-              throw new TypeError(
-                "pathname value should be string by type " + this.__pathname.type,
-              );
+              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
             }
           } else if (this.__pathname.type === "startsWith") {
             if (typeof this.__pathname.value === "string") {
               return urlInst.pathname.startsWith(this.__pathname.value);
             } else {
-              throw new TypeError(
-                "pathname value should be string by type " + this.__pathname.type,
-              );
+              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
             }
           } else if (this.__pathname.type === "endsWith") {
             if (typeof this.__pathname.value === "string") {
               return urlInst.pathname.endsWith(this.__pathname.value);
             } else {
-              throw new TypeError(
-                "pathname value should be string by type " + this.__pathname.type,
-              );
+              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
             }
           } else if (this.__pathname.type === "includes") {
             if (typeof this.__pathname.value === "string") {
               return urlInst.pathname.includes(this.__pathname.value);
             } else {
-              throw new TypeError(
-                "pathname value should be string by type " + this.__pathname.type,
-              );
+              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
             }
           } else if (this.__pathname.type === "match") {
             if (this.__pathname.value instanceof RegExp) {
               return this.__pathname.value.test(urlInst.pathname);
-            } else {
+            } else if (typeof this.__pathname.value === "string") {
               return urlInst.pathname.match(this.__pathname.value);
+            } else {
+              throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
             }
           } else {
             throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
@@ -482,19 +514,62 @@ class RouterBuilder {
           return true;
         }
       },
+      // search
       // searchParams
       () => {
         let flag = true;
-        if (this.__searchParams.value.size > 0) {
-          const searchParamsList: {
-            name: string | RegExp;
-            value?: string | RegExp | number | boolean;
-          }[] = [];
-          this.__searchParams.value.forEach((item) => {
-            searchParamsList.push(item);
-          });
-          for (let index = 0; index < searchParamsList.length; index++) {
-            const item = searchParamsList[index];
+        const searchParamsList: {
+          name: string | RegExp;
+          value?: string | RegExp | number | boolean;
+          type?: MatchType;
+        }[] = [];
+        this.__searchParams.value.forEach((item) => {
+          searchParamsList.push(item);
+        });
+        for (let index = 0; index < searchParamsList.length; index++) {
+          const item = searchParamsList[index];
+          if (item.type) {
+            // 如果存在type，则是处理search
+            if (item.type === "same") {
+              if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") {
+                return urlInst.search === item.value.toString();
+              } else {
+                throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              }
+            } else if (item.type === "startsWith") {
+              if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") {
+                return urlInst.search.startsWith(item.value.toString());
+              } else {
+                throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              }
+            } else if (item.type === "endsWith") {
+              if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") {
+                return urlInst.search.endsWith(item.value.toString());
+              } else {
+                throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              }
+            } else if (item.type === "includes") {
+              if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean") {
+                return urlInst.search.includes(item.value.toString());
+              } else {
+                throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              }
+            } else if (item.type === "match") {
+              if (item.value instanceof RegExp) {
+                return item.value.test(urlInst.search);
+              } else if (
+                typeof item.value === "string" ||
+                typeof item.value === "number" ||
+                typeof item.value === "boolean"
+              ) {
+                return urlInst.search.match(item.value.toString());
+              } else {
+                throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+              }
+            } else {
+              throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            }
+          } else {
             // 先处理name匹配
             if (typeof item.name === "string") {
               let value = item.value;
@@ -522,9 +597,7 @@ class RouterBuilder {
                   break;
                 }
               } else {
-                throw new TypeError(
-                  "searchParams value should be string、RegExp、boolean、number、null、undefined",
-                );
+                throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               }
             } else if (item.name instanceof RegExp) {
               let targetKey: string | undefined = void 0;
@@ -539,11 +612,7 @@ class RouterBuilder {
                 let value = item.value;
                 if (value == null) {
                   // ignore
-                } else if (
-                  typeof value === "string" ||
-                  typeof value === "number" ||
-                  typeof value === "boolean"
-                ) {
+                } else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
                   value = value.toString();
                   flag = value === targetValue;
                   if (!flag) {
@@ -560,9 +629,7 @@ class RouterBuilder {
                     break;
                   }
                 } else {
-                  throw new TypeError(
-                    "searchParams value should be string、RegExp、boolean、number、null、undefined",
-                  );
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
                 }
               } else {
                 // 未找到匹配到的key
@@ -574,7 +641,6 @@ class RouterBuilder {
             }
           }
         }
-
         return flag;
       },
     ].every((it) => it());
@@ -584,19 +650,22 @@ class RouterBuilder {
 
 const RouterUtil = {
   host(host: string, href?: string): RouterBuilder {
-    return new RouterBuilder(href).host(host);
+    return RouterUtil.builder(href).host(host);
   },
   hostName(name: string, href?: string): RouterBuilder {
-    return new RouterBuilder(href).hostName(name);
+    return RouterUtil.builder(href).hostName(name);
   },
-  seach(name: string, value?: string, href?: string): RouterBuilder {
-    return new RouterBuilder(href).search(name, value);
+  search(value: string, href?: string) {
+    return RouterUtil.builder(href).search(value);
+  },
+  seachParams(name: string, value?: string, href?: string): RouterBuilder {
+    return RouterUtil.builder(href).searchParams(name, value);
   },
   pathname(name: string, href?: string): RouterBuilder {
-    return new RouterBuilder(href).pathname(name);
+    return RouterUtil.builder(href).pathname(name);
   },
   protocol(protocol: string, href?: string): RouterBuilder {
-    return new RouterBuilder(href).protocol(protocol);
+    return RouterUtil.builder(href).protocol(protocol);
   },
   builder(href?: string) {
     return new RouterBuilder(href);

@@ -1,7 +1,10 @@
 {
   "name": "script-components",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
+  "description": "油猴脚本使用的通用组件",
   "type": "module",
-  "description": "油猴脚本使用的通用组件"
+  "scripts": {
+    "format": "oxfmt . --write --config ../../.oxfmtrc.jsonc"
+  }
 }
