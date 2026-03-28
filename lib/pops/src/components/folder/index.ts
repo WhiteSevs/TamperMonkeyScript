@@ -53,6 +53,10 @@ export const PopsFolder = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "folderCSS",
         css: PopsCSS.folderCSS,
       },

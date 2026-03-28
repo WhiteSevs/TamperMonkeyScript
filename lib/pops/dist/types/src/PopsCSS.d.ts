@@ -33,4 +33,16 @@ export declare const PopsCSS: {
     rightClickMenu: string;
     /** pops.panel的select组件 */
     panelComponents_Select: string;
+    /**
+     * pops.skeleton
+     *
+     * 需要设置元素className为`pops-skeleton-item`
+     *
+     * 支持以下属性
+     *
+     * + `data-animated`: 加载中的动画
+     * + `data-circle`: 圆形
+     * + `data-img`: 头像图片，需要在它内部添加图片的svg `PopsIcon.getIcon("picture")`
+     */
+    skeletonCSS: string;
 };

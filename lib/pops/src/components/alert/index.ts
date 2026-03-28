@@ -50,6 +50,10 @@ export const PopsAlert = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "alertCSS",
         css: PopsCSS.alertCSS,
       },

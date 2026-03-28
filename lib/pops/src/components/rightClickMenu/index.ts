@@ -46,6 +46,10 @@ export const PopsRightClickMenu = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "rightClickMenu",
         css: PopsCSS.rightClickMenu,
       },

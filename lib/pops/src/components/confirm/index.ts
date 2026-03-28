@@ -50,6 +50,10 @@ export const PopsConfirm = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "confirmCSS",
         css: PopsCSS.confirmCSS,
       },

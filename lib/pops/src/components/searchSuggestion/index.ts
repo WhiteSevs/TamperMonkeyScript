@@ -41,6 +41,10 @@ export const PopsSearchSuggestion = {
         name: "common",
         css: PopsCSS.common,
       },
+      {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
     ]);
 
     // 添加自定义style

@@ -255,6 +255,24 @@ export declare const PopsTooltip: {
                         time: number;
                         callback: (...args: any[]) => IPromise<void>;
                     }[]>;
+                    getOrInsert: (key: string, defaultValue: {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[];
+                    getOrInsertComputed: (key: string, callback: (key: string) => {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => {
+                        type: PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[];
                     [Symbol.iterator]: () => MapIterator<[string, {
                         type: PopsType;
                         time: number;

@@ -50,6 +50,10 @@ export const PopsDrawer = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "drawerCSS",
         css: PopsCSS.drawerCSS,
       },

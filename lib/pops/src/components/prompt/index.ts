@@ -50,6 +50,10 @@ export const PopsPrompt = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "promptCSS",
         css: PopsCSS.promptCSS,
       },

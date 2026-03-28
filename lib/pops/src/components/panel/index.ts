@@ -51,6 +51,10 @@ export const PopsPanel = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "panelCSS",
         css: PopsCSS.panelCSS,
       },

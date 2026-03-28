@@ -37,6 +37,7 @@ export const PopsLoading = {
                 <style data-model-name="index">${PopsCSS.index}</style>
                 <style data-model-name="anim">${PopsCSS.anim}</style>
                 <style data-model-name="common">${PopsCSS.common}</style>
+                <style data-model-name="skeleton">${PopsCSS.skeletonCSS}</style>
                 `
                 : ""
             }

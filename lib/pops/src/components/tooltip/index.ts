@@ -592,6 +592,10 @@ export const PopsTooltip = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "tooltipCSS",
         css: PopsCSS.tooltipCSS,
       },

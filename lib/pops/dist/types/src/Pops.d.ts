@@ -36,6 +36,7 @@ declare class Pops {
             panelCSS: string;
             rightClickMenu: string;
             panelComponents_Select: string;
+            skeletonCSS: string;
         };
         /** icon图标的svg代码 */
         iconSVG: {
@@ -940,6 +941,24 @@ declare class Pops {
                         time: number;
                         callback: (...args: any[]) => IPromise<void>;
                     }[]>;
+                    getOrInsert: (key: string, defaultValue: {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[];
+                    getOrInsertComputed: (key: string, callback: (key: string) => {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[]) => {
+                        type: import("./types/main").PopsType;
+                        time: number;
+                        callback: (...args: any[]) => IPromise<void>;
+                    }[];
                     [Symbol.iterator]: () => MapIterator<[string, {
                         type: import("./types/main").PopsType;
                         time: number;

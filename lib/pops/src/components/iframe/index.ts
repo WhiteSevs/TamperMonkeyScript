@@ -55,6 +55,10 @@ export const PopsIframe = {
         css: PopsCSS.common,
       },
       {
+        name: "skeleton",
+        css: PopsCSS.skeletonCSS,
+      },
+      {
         name: "iframeCSS",
         css: PopsCSS.iframeCSS,
       },
