@@ -19,9 +19,9 @@ import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { NetDiskRequire } from "./NetDiskRequire";
 import {
-  NetDiskUserRuleReplaceParam_matchRange_html,
-  NetDiskUserRuleReplaceParam_matchRange_text,
-} from "./NetDiskUserRuleReplaceParam";
+  NetDiskRuleReplacePlaceholder_html,
+  NetDiskRuleReplacePlaceholder_text,
+} from "../NetDiskRuleReplacePlaceholder";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
 import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
 import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
@@ -292,13 +292,13 @@ export const NetDiskUserRule = {
       // 处理link_innerText
       // 处理link_innerHTML
       // 把某些关键字参数替换为规定的数值
-      netDiskRegularOption.link_innerText = NetDiskRuleUtils.replaceParam(
+      netDiskRegularOption.link_innerText = NetDiskRuleUtils.replacePlaceholder(
         netDiskRegularOption.link_innerText,
-        NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+        NetDiskRuleReplacePlaceholder_text(ruleKey)
       );
-      netDiskRegularOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+      netDiskRegularOption.link_innerHTML = NetDiskRuleUtils.replacePlaceholder(
         netDiskRegularOption.link_innerText,
-        NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+        NetDiskRuleReplacePlaceholder_html(ruleKey)
       );
 
       if (typeof shareCode === "string") {

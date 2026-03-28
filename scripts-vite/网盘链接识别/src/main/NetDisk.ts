@@ -4,6 +4,7 @@ import Utils from "@whitesev/utils";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
+import { NetDiskExtraRule } from "./rule/NetDiskExtraRule";
 
 export const NetDisk = {
   $data: {
@@ -60,33 +61,7 @@ export const NetDisk = {
     rule: [] as NetDiskRuleOption[],
   },
   /** 额外规则，用于辅助处理 */
-  $extraRule: {
-    /**
-     * 使用该正则判断提取到的shareCode是否正确
-     */
-    shareCodeNotMatchRegExpList: [
-      /vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
-      /comp|web|undefined|1125|unproved|console|account|favicon|setc/g,
-    ],
-    /**
-     * 使用该正则判断提取到的accessCode是否正确
-     */
-    accessCodeNotMatchRegExpList: [/^(font|http)/gi],
-    /**
-     * 访问码需要去除的正则匹配规则
-     */
-    accessCodeNeedRemoveStr: ["：", " ", ":", "\n", "提取码", "密码", "?password=", "?pwd=", "&pwd=", "?p=", "访问码"],
-    /**
-     * 当没有accessCode时，使用该正则去除不需要的字符串
-     */
-    noAccessCodeRegExp: [
-      /( |提取码:|\n密码：)/gi,
-      /{#accessCode#}/gi,
-      /{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}/gi,
-      /{#decodeURI-accessCode#}|{#decodeURIComponent-accessCode#}/gi,
-      /(\?pwd=|&pwd=|\?password=|\?p=)/gi,
-    ],
-  },
+  $extraRule: NetDiskExtraRule,
   /**
    * 初始化
    */

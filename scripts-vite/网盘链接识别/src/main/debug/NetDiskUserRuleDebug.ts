@@ -4,11 +4,11 @@ import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkCli
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskRegularExtractor } from "../NetDiskRegularExtractor";
 import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 /**
  * 调试用户规则

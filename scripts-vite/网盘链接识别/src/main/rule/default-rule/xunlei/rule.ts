@@ -6,7 +6,7 @@ export const NetDiskRule_xunlei: NetDiskRuleOption = {
       link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|提取码|密码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /xunlei.com\/s\/([0-9a-zA-Z-_]{8,30})/gi,
       shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
-      checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
+      checkAccessCode: /((?<!解压)密码|(访问码|提取码|\?pwd=))[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
       blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",

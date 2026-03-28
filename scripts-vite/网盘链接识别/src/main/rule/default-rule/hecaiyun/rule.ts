@@ -1,3 +1,6 @@
+const checkAccessCode_pattern = /((?<!解压)密码|(访问码|提取码))[\s\S]+/g;
+const accessCode_pattern = /([0-9a-zA-Z]{4})/gi;
+
 export const NetDiskRule_hecaiyun: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
@@ -6,8 +9,8 @@ export const NetDiskRule_hecaiyun: NetDiskRuleOption = {
       link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /caiyun.139.com\/m\/i\?([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /caiyun.139.com\/m\/i\?/gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://caiyun.139.com/m/i?{#shareCode#}",
       copyUrl: "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
@@ -17,8 +20,8 @@ export const NetDiskRule_hecaiyun: NetDiskRuleOption = {
       link_innerHTML: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /caiyun.139.com\/w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /caiyun.139.com\/w\/i\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "caiyun.139.com/w/i/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://caiyun.139.com/w/i/{#shareCode#}",
       copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}",
@@ -28,8 +31,8 @@ export const NetDiskRule_hecaiyun: NetDiskRuleOption = {
       link_innerHTML: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       paramMatch: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//i,
       uiLinkShow: "yun.139.com{#$1#}w/i/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://yun.139.com{#$1#}w/i/{#shareCode#}",
@@ -40,8 +43,8 @@ export const NetDiskRule_hecaiyun: NetDiskRuleOption = {
       link_innerHTML: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /yun.139.com\/shareweb\/#\/w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /yun.139.com\/shareweb\/#\/w\/i\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "yun.139.com/shareweb/#/w/i/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}",
       copyUrl: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}\n密码：{#accessCode#}",

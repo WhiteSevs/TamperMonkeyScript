@@ -38,7 +38,7 @@ export const NetDiskFilterScheme = {
       intentData = intentData.replace(/&/g, "{-and-}");
       intentData = intentData.replace(/#/g, "{-number-}");
     }
-    schemeUri = NetDiskRuleUtils.replaceParam(schemeUri, {
+    schemeUri = NetDiskRuleUtils.replacePlaceholder(schemeUri, {
       intentData: intentData,
     });
     return schemeUri;

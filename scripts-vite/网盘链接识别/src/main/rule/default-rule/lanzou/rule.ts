@@ -1,6 +1,9 @@
 import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskParse_Lanzou_Config } from "./parse";
 
+const checkAccessCode_pattern = /((?<!解压)密码|(访问码|提取码))[\s\S]+/g;
+const accessCode_pattern = /([0-9a-zA-Z]{3,})/gi;
+
 export const NetDiskRule_lanzou = (): NetDiskRuleOption => {
   return {
     /** 规则 */
@@ -12,8 +15,8 @@ export const NetDiskRule_lanzou = (): NetDiskRuleOption => {
           /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
         shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)/gi,
         shareCodeExcludeRegular: ["lanzouyx"],
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{3,})/gi,
+        checkAccessCode: checkAccessCode_pattern,
+        accessCode: accessCode_pattern,
         uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#} 提取码: {#accessCode#}`,
         blank: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}`,
         copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}\n密码：{#accessCode#}`,
@@ -25,8 +28,8 @@ export const NetDiskRule_lanzou = (): NetDiskRuleOption => {
           /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
         shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
         shareCodeExcludeRegular: ["lanzouyx"],
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{3,})/gi,
+        checkAccessCode: checkAccessCode_pattern,
+        accessCode: accessCode_pattern,
         uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#} 提取码: {#accessCode#}`,
         blank: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}`,
         copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}\n密码：{#accessCode#}`,

@@ -1,3 +1,6 @@
+const checkAccessCode_pattern = /((?<!解压)密码|(访问码|提取码))[\s\S]+/g;
+const accessCode_pattern = /[0-9a-zA-Z]{4}/gi;
+
 export const NetDiskRule_wenshushu: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
@@ -6,8 +9,8 @@ export const NetDiskRule_wenshushu: NetDiskRuleOption = {
       link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /[0-9a-zA-Z]{4}/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.wenshushu.cn/f/{#shareCode#}",
       copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
@@ -17,8 +20,8 @@ export const NetDiskRule_wenshushu: NetDiskRuleOption = {
       link_innerHTML: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /wenshushu.cn\/k\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /[0-9a-zA-Z]{4}/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "www.wenshushu.cn/k/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.wenshushu.cn/k/{#shareCode#}",
       copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}",

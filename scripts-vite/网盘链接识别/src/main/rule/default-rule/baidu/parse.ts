@@ -23,7 +23,7 @@ export class NetDiskParse_Baidu extends ParseFileCore {
       Qmsg.error("请先在设置中配置百度网盘-表单参数");
       return;
     }
-    postForm = NetDiskRuleUtils.replaceParam(postForm, {
+    postForm = NetDiskRuleUtils.replacePlaceholder(postForm, {
       shareCode: shareCode,
       accessCode: accessCode!,
     });

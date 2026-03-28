@@ -35,9 +35,9 @@ import { NetDiskRule_xunlei } from "./default-rule/xunlei/rule";
 import { NetDiskRuleUtils } from "./NetDiskRuleUtils";
 import { NetDiskUserRule } from "./user-rule/NetDiskUserRule";
 import {
-  NetDiskUserRuleReplaceParam_matchRange_html,
-  NetDiskUserRuleReplaceParam_matchRange_text,
-} from "./user-rule/NetDiskUserRuleReplaceParam";
+  NetDiskRuleReplacePlaceholder_html,
+  NetDiskRuleReplacePlaceholder_text,
+} from "./NetDiskRuleReplacePlaceholder";
 
 export const NetDiskRule = {
   /** 规则存储的数据 */
@@ -201,16 +201,16 @@ export const NetDiskRule = {
       const netDiskMatchRuleOption = netDiskMatchRule[index];
       // 处理innerText
       if (typeof netDiskMatchRuleOption.link_innerText === "string") {
-        netDiskMatchRuleOption.link_innerText = NetDiskRuleUtils.replaceParam(
+        netDiskMatchRuleOption.link_innerText = NetDiskRuleUtils.replacePlaceholder(
           netDiskMatchRuleOption.link_innerText,
-          NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+          NetDiskRuleReplacePlaceholder_text(ruleKey)
         );
       }
       // 处理innerHTML
       if (typeof netDiskMatchRuleOption.link_innerHTML === "string") {
-        netDiskMatchRuleOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+        netDiskMatchRuleOption.link_innerHTML = NetDiskRuleUtils.replacePlaceholder(
           netDiskMatchRuleOption.link_innerHTML,
-          NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+          NetDiskRuleReplacePlaceholder_html(ruleKey)
         );
       }
       netDiskMatchRuleHandler.push(netDiskMatchRuleOption);

@@ -70,9 +70,9 @@ export const NetDiskRegularExtractor = {
       }
       // 判断是否是黑名单中的分享码
       // 如果是，强制返回
-      for (let i = 0; i < NetDisk.$extraRule.shareCodeNotMatchRegExpList.length; i++) {
-        const shareCodeNotMatchRegExp = NetDisk.$extraRule.shareCodeNotMatchRegExpList[i];
-        if (__shareCode__.match(shareCodeNotMatchRegExp)) {
+      for (let i = 0; i < NetDisk.$extraRule.shareCodeBlackList.length; i++) {
+        const shareCodeBlackListItem = NetDisk.$extraRule.shareCodeBlackList[i];
+        if (__shareCode__.match(shareCodeBlackListItem)) {
           if (DEBUG) {
             log.error(`Debug-不可能的shareCode => ${__shareCode__}`);
           }
@@ -159,11 +159,11 @@ export const NetDiskRegularExtractor = {
       const ruleConfig =
         handlerConfig.debugConfig?.config ??
         NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
-      if (!ruleConfig.checkAccessCode) {
+      if (utils.isNull(ruleConfig.checkAccessCode)) {
         // 不存在匹配提取码的正则
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
-          msg: "因未配置规则checkAccessCode，默认accessCode的值为空",
+          msg: "因未配置规则checkAccessCode，所以设置accessCode的值为空字符串",
         });
         return "";
       }
@@ -172,7 +172,7 @@ export const NetDiskRegularExtractor = {
         status: true,
         msg: [
           `正则: checkAccessCode`,
-          "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
+          "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码，如果匹配到，那对匹配到的字符串进行二次处理",
           `结果: `,
           CommonUtil.toStr(accessCodeMatch),
         ],
@@ -184,10 +184,24 @@ export const NetDiskRegularExtractor = {
           status: true,
           msg: "取最后一个值: " + accessCodeMatchValue,
         });
+        for (let index = 0; index < NetDisk.$extraRule.checkAccessCodeBlackList.length; index++) {
+          const checkAccessCodeBlackListItem = NetDisk.$extraRule.checkAccessCodeBlackList[index];
+          if (accessCodeMatchValue.match(checkAccessCodeBlackListItem)) {
+            handlerConfig.debugConfig?.logCallBack?.({
+              status: false,
+              msg: [
+                `正则: 内置的checkAccessCodeBlackList`,
+                "作用: 匹配到提取码，但提取码中包含禁止的字符串",
+                `结果: 返回空字符串`,
+              ],
+            });
+            return "";
+          }
+        }
         if (!ruleConfig.accessCode) {
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
-            msg: "因未配置规则accessCode，默认accessCode的值为空",
+            msg: "因未配置规则accessCode，所以设置accessCode的值为空字符串",
           });
           return "";
         }
@@ -213,8 +227,9 @@ export const NetDiskRegularExtractor = {
         }
         if (accessCodeMatchArray.length) {
           // 取第一个值
-          // 例如，匹配到的字符串是密码：oanm   大于150m
+          // 例如，匹配到的字符串是  密码：oanm 大于150m
           // 如果是最后一个，那么会匹配到150m
+          // 所以取第一个值
           __accessCode__ = accessCodeMatchArray[0];
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
@@ -225,9 +240,9 @@ export const NetDiskRegularExtractor = {
       if (utils.isNotNull(__accessCode__)) {
         // 判断是否是黑名单中的访问码
         // 如果是，访问码置空
-        for (let i = 0; i < NetDisk.$extraRule.accessCodeNotMatchRegExpList.length; i++) {
-          const accessCodeNotMatchRegExp = NetDisk.$extraRule.accessCodeNotMatchRegExpList[i];
-          if (__accessCode__.match(accessCodeNotMatchRegExp)) {
+        for (let i = 0; i < NetDisk.$extraRule.accessCodeBlackList.length; i++) {
+          const accessCodeBlackListItem = NetDisk.$extraRule.accessCodeBlackList[i];
+          if (__accessCode__.match(accessCodeBlackListItem)) {
             __accessCode__ = "";
             handlerConfig.debugConfig?.logCallBack?.({
               status: true,
@@ -261,8 +276,8 @@ export const NetDiskRegularExtractor = {
             }
           }
         }
-        for (let i = 0; i < NetDisk.$extraRule.accessCodeNeedRemoveStr.length; i++) {
-          const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.accessCodeNeedRemoveStr[i];
+        for (let i = 0; i < NetDisk.$extraRule.removeNotNeedStrByAccessCode.length; i++) {
+          const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.removeNotNeedStrByAccessCode[i];
           __accessCode__ = NetDiskHandlerUtil.replaceText(__accessCode__, accessCodeNeedRemoveStrRegExp, "");
         }
         handlerConfig.debugConfig?.logCallBack?.({
@@ -287,10 +302,6 @@ export const NetDiskRegularExtractor = {
           });
         }
       }
-      handlerConfig.debugConfig?.logCallBack?.({
-        status: true,
-        msg: "处理完毕的accessCode: " + __accessCode__,
-      });
       return __accessCode__;
     };
     /**
@@ -351,6 +362,8 @@ export const NetDiskRegularExtractor = {
     };
     /**
      * 处理函数（其它情况）
+     *
+     * + 访问码和分享码相同
      */
     const handlerOhter = (__accessCode__: AccessCodeType) => {
       if (__accessCode__ === handlerConfig.shareCode) {
@@ -358,18 +371,26 @@ export const NetDiskRegularExtractor = {
         // 置空
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
-          msg: "最终结果判定访问码为空，因为分享码和提取到的访问码相同: " + __accessCode__,
+          msg: "因分享码和提取到的访问码相同，判断为空: " + __accessCode__,
         });
         return "";
       }
       return __accessCode__;
     };
     accessCode = handler(accessCode);
+    // 强制重新设置访问码
     accessCode = handlerByAutoFill(accessCode);
+    // 强制重新设置访问码
     accessCode = handlerByUserRuleCustomAccessCode(accessCode);
+    // 强制重新设置访问码
     accessCode = handlerOhter(accessCode);
+    // 强制重新设置访问码
     accessCode = NetDiskHandlerAccessCode.handler(handlerConfig, accessCode);
 
+    handlerConfig.debugConfig?.logCallBack?.({
+      status: true,
+      msg: "访问码最终值: " + accessCode,
+    });
     return accessCode;
   },
   /**
@@ -389,7 +410,7 @@ export const NetDiskRegularExtractor = {
     }
     const ruleConfig =
       handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
-    let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
+    let uiLink = NetDiskRuleUtils.replacePlaceholder(ruleConfig.uiLinkShow, {
       shareCode: handlerConfig.shareCode,
     });
     handlerConfig.debugConfig?.logCallBack?.({
@@ -398,7 +419,7 @@ export const NetDiskRegularExtractor = {
     });
     if (typeof handlerConfig.accessCode === "string" && handlerConfig.accessCode.trim() != "") {
       // 替换{#accessCode#}占位符
-      uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
+      uiLink = NetDiskRuleUtils.replacePlaceholder(uiLink, {
         accessCode: handlerConfig.accessCode,
       });
       handlerConfig.debugConfig?.logCallBack?.({
@@ -411,7 +432,7 @@ export const NetDiskRegularExtractor = {
         ],
       });
     } else {
-      uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.noAccessCodeRegExp, "");
+      uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.removeNotNeedStrByNoAccessCode, "");
       handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [
@@ -438,7 +459,7 @@ export const NetDiskRegularExtractor = {
             replaceParamData[`$${index}`] = paramMatchArray[index];
           }
         }
-        uiLink = NetDiskRuleUtils.replaceParam(uiLink, replaceParamData);
+        uiLink = NetDiskRuleUtils.replacePlaceholder(uiLink, replaceParamData);
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [

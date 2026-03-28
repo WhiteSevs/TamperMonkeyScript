@@ -1,3 +1,6 @@
+const checkAccessCode_pattern = /((?<!解压)密码|(访问码|提取码))[\s\S]+/g;
+const accessCode_pattern = /([0-9a-zA-Z]{4})/gi;
+
 export const NetDiskRule_aliyun: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
@@ -6,8 +9,8 @@ export const NetDiskRule_aliyun: NetDiskRuleOption = {
       link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /aliyundrive.com\/s\/([a-zA-Z0-9_-]{8,14})/g,
       shareCodeNeedRemoveStr: /aliyundrive.com\/s\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.aliyundrive.com/s/{#shareCode#}",
       copyUrl: "https://www.aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
@@ -17,8 +20,8 @@ export const NetDiskRule_aliyun: NetDiskRuleOption = {
       link_innerHTML: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /aliyundrive.com\/t\/([a-zA-Z0-9_-]{8,14})/g,
       shareCodeNeedRemoveStr: /aliyundrive.com\/t\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "aliyundrive.com/t/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.aliyundrive.com/t/{#shareCode#}",
       copyUrl: "https://www.aliyundrive.com/t/{#shareCode#}\n密码：{#accessCode#}",
@@ -28,8 +31,8 @@ export const NetDiskRule_aliyun: NetDiskRuleOption = {
       link_innerHTML: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /alipan.com\/s\/([a-zA-Z0-9_-]{8,14})/g,
       shareCodeNeedRemoveStr: /alipan.com\/s\//gi,
-      checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "alipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://www.alipan.com/s/{#shareCode#}",
       copyUrl: "https://www.alipan.com/s/{#shareCode#}\n密码：{#accessCode#}",

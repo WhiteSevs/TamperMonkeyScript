@@ -1,3 +1,6 @@
+const checkAccessCode_Pattern = /((?<!解压)密码|(访问码|提取码|\?password=))[\s\S]+/gi;
+const accessCode_Pattern = /([0-9a-zA-Z]+)/gi;
+
 export const NetDiskRule_360yunpan: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
@@ -6,8 +9,8 @@ export const NetDiskRule_360yunpan: NetDiskRuleOption = {
       link_innerHTML: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
       shareCode: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
       shareCodeNeedRemoveStr: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_/gi,
-      checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
-      accessCode: /([0-9a-zA-Z]+)/gi,
+      checkAccessCode: checkAccessCode_Pattern,
+      accessCode: accessCode_Pattern,
       paramMatch: /([0-9a-z]+).(link.yunpan.com|link.yunpan.360.cn)\/lk\//i,
       uiLinkShow: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}",
@@ -18,8 +21,8 @@ export const NetDiskRule_360yunpan: NetDiskRuleOption = {
       link_innerHTML: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
       shareCode: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
       shareCodeNeedRemoveStr: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_/gi,
-      checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
-      accessCode: /([0-9a-zA-Z]+)/gi,
+      checkAccessCode: checkAccessCode_Pattern,
+      accessCode: accessCode_Pattern,
       paramMatch: /(yunpan.360.cn|www.yunpan.com)/i,
       uiLinkShow: "https://{#$1#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://{#$1#}/lk/surl_{#shareCode#}",

@@ -26,7 +26,7 @@ export const NetDiskHandlerUtil = {
    * @param pattern 需要替换的文字的正则表达式
    * @param newText 替换为的文字
    */
-  replaceText(matchText: string, pattern: RegExp | RegExp[] | string | string[], newText: string) {
+  replaceText(matchText: string, pattern: RegExp | string | (RegExp | string)[], newText: string) {
     if (Array.isArray(pattern)) {
       for (let i = 0; i < pattern.length; i++) {
         const patternItem = pattern[i];

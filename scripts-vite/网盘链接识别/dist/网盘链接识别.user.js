@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.21
+// @version      2026.3.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -1219,20 +1219,20 @@
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -1244,7 +1244,7 @@
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -1255,9 +1255,9 @@
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -1265,7 +1265,7 @@
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -1278,7 +1278,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1354,8 +1357,8 @@
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -1998,20 +2001,20 @@
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -2026,7 +2029,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -2795,7 +2798,7 @@
         link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z-_]{8,24})/gi,
         shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=))[\\s\\S]+", "gi"),
         accessCode: /(访问码|密码|提取码|\?password=)([0-9a-zA-Z]{4})/i,
         paramMatch: /(115.com|115cdn.com|anxia.com)/i,
         uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
@@ -2845,7 +2848,7 @@
         link_innerHTML: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: new RegExp(`${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})`, "gi"),
         shareCodeNeedRemoveStr: new RegExp(`${_123pan_Link_Host_Pattern}/s/`, "gi"),
-        checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?pwd=))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://123pan.com/s/{#shareCode#}",
@@ -2893,6 +2896,8 @@
       },
     },
   };
+  const checkAccessCode_Pattern$1 = new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=))[\\s\\S]+", "gi");
+  const accessCode_Pattern$1 = /([0-9a-zA-Z]+)/gi;
   const NetDiskRule_360yunpan = {
     rule: [
       {
@@ -2900,8 +2905,8 @@
         link_innerHTML: `[0-9a-z]+.(link.yunpan.com|link.yunpan.360.cn)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
         shareCode: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
         shareCodeNeedRemoveStr: /(link.yunpan.com|link.yunpan.360.cn)\/lk\/surl_/gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]+)/gi,
+        checkAccessCode: checkAccessCode_Pattern$1,
+        accessCode: accessCode_Pattern$1,
         paramMatch: /([0-9a-z]+).(link.yunpan.com|link.yunpan.360.cn)\/lk\//i,
         uiLinkShow: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://{#$1#}.{#$2#}/lk/surl_{#shareCode#}",
@@ -2912,8 +2917,8 @@
         link_innerHTML: `(yunpan.360.cn|www.yunpan.com)/lk/surl_[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
         shareCode: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_([0-9a-zA-Z]{8,24})/gi,
         shareCodeNeedRemoveStr: /(yunpan.360.cn|www.yunpan.com)\/lk\/surl_/gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]+)/gi,
+        checkAccessCode: checkAccessCode_Pattern$1,
+        accessCode: accessCode_Pattern$1,
         paramMatch: /(yunpan.360.cn|www.yunpan.com)/i,
         uiLinkShow: "https://{#$1#}/lk/surl_{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://{#$1#}/lk/surl_{#shareCode#}",
@@ -2955,6 +2960,8 @@
       },
     },
   };
+  const checkAccessCode_pattern$4 = new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g");
+  const accessCode_pattern$4 = /([0-9a-zA-Z]{4})/gi;
   const NetDiskRule_aliyun = {
     rule: [
       {
@@ -2962,8 +2969,8 @@
         link_innerHTML: `aliyundrive.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /aliyundrive.com\/s\/([a-zA-Z0-9_-]{8,14})/g,
         shareCodeNeedRemoveStr: /aliyundrive.com\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$4,
+        accessCode: accessCode_pattern$4,
         uiLinkShow: "aliyundrive.com/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.aliyundrive.com/s/{#shareCode#}",
         copyUrl: "https://www.aliyundrive.com/s/{#shareCode#}\n密码：{#accessCode#}",
@@ -2973,8 +2980,8 @@
         link_innerHTML: `aliyundrive.com/t/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /aliyundrive.com\/t\/([a-zA-Z0-9_-]{8,14})/g,
         shareCodeNeedRemoveStr: /aliyundrive.com\/t\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$4,
+        accessCode: accessCode_pattern$4,
         uiLinkShow: "aliyundrive.com/t/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.aliyundrive.com/t/{#shareCode#}",
         copyUrl: "https://www.aliyundrive.com/t/{#shareCode#}\n密码：{#accessCode#}",
@@ -2984,8 +2991,8 @@
         link_innerHTML: `alipan.com/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /alipan.com\/s\/([a-zA-Z0-9_-]{8,14})/g,
         shareCodeNeedRemoveStr: /alipan.com\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$4,
+        accessCode: accessCode_pattern$4,
         uiLinkShow: "alipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.alipan.com/s/{#shareCode#}",
         copyUrl: "https://www.alipan.com/s/{#shareCode#}\n密码：{#accessCode#}",
@@ -3032,6 +3039,8 @@
       },
     },
   };
+  const checkAccessCode_pattern$3 = new RegExp("((?<!解压)|密码(访问码|提取码|\\?pwd=))[\\s\\S]+", "g");
+  const accessCode_pattern$3 = /([0-9a-zA-Z]{4})/gi;
   const NetDiskRule_baidu = {
     rule: [
       {
@@ -3039,8 +3048,8 @@
         link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /pan.baidu.com\/s\/([0-9a-zA-Z-_]+)/gi,
         shareCodeNeedRemoveStr: /pan.baidu.com\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$3,
+        accessCode: accessCode_pattern$3,
         uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
         blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
         copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
@@ -3050,8 +3059,8 @@
         link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /pan.baidu.com\/(share|wap)\/init\?surl=([0-9a-zA-Z-_]+)/gi,
         shareCodeNeedRemoveStr: /pan.baidu.com\/(share|wap)\/init\?surl=/gi,
-        checkAccessCode: /(访问码|密码|提取码|&pwd=)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$3,
+        accessCode: accessCode_pattern$3,
         uiLinkShow: "pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
         blank: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
         copyUrl: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
@@ -3091,6 +3100,8 @@
       },
     },
   };
+  const checkAccessCode_Pattern = new RegExp("((?<!解压)密码|(访问码|提取码|\\\\?password=|\\\\?p=))[\\s\\S]+", "gi");
+  const accessCode_Pattern = /([0-9a-zA-Z]{4,6})/gi;
   const NetDiskRule_chengtong = {
     rule: [
       {
@@ -3098,8 +3109,8 @@
         link_innerHTML: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         paramMatch: /([a-zA-Z0-9.]+)\/d\//i,
         uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
@@ -3110,8 +3121,8 @@
         link_innerHTML: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /ct.ghpym.com(\/|\/#\/)d\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         paramMatch: /([a-zA-Z0-9.]+)(\/|\/#\/)d\//i,
         uiLinkShow: "{#$1#}{#$2#}d/{#shareCode#} 提取码: {#accessCode#}",
         blank: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}",
@@ -3122,8 +3133,8 @@
         link_innerHTML: `ctfile.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /ctfile.com\/d\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /ctfile.com\/d\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
@@ -3133,8 +3144,8 @@
         link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://u062.com/file/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://u062.com/file/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
@@ -3146,8 +3157,8 @@
           /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr:
           /(pan.jc-box.com|545c.com|down.jc-box.com|download.cx05.cc|download.jamcz.com|download.macenjoy.co)\/f\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         paramMatch: /([0-9a-zA-Z.]+)\/f\//i,
         uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
         blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
@@ -3158,8 +3169,8 @@
         link_innerHTML: `url[0-9]{2}.com/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /url[0-9]{2}.com\/f\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /url[0-9]{2}.com\/f\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         paramMatch: /([0-9a-zA-Z.]+)\/f\//i,
         uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
         blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
@@ -3170,8 +3181,8 @@
         link_innerHTML: `(ctfile.com|089u.com)/f/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
         shareCode: /(ctfile.com|089u.com)\/f\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /(ctfile.com|089u.com)\/f\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
-        accessCode: /([0-9a-zA-Z]{4,6})/gi,
+        checkAccessCode: checkAccessCode_Pattern,
+        accessCode: accessCode_Pattern,
         uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}",
         copyUrl: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
@@ -3181,7 +3192,7 @@
         link_innerHTML: `(089u.com|474b.com)/dir/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{6}|)`,
         shareCode: /(089u.com|474b.com)\/dir\/([0-9a-zA-Z-_]{8,26})/gi,
         shareCodeNeedRemoveStr: /(089u.com|474b.com)\/dir\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\\?password=|\\?p=)[\s\S]+/gi,
+        checkAccessCode: checkAccessCode_Pattern,
         accessCode: /([0-9a-zA-Z]{6})/gi,
         uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://089u.com/dir/{#shareCode#}?p={#accessCode#}",
@@ -3295,7 +3306,7 @@
         link_innerHTML: `share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: new RegExp(`share.feijipan.com/s/([a-zA-Z0-9_-]{7,14})`, "gi"),
         shareCodeNeedRemoveStr: new RegExp(`share.feijipan.com/s/`, "gi"),
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "share.feijipan.com/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://share.feijipan.com/s/{#shareCode#}",
@@ -3343,6 +3354,8 @@
       },
     },
   };
+  const checkAccessCode_pattern$2 = new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g");
+  const accessCode_pattern$2 = /([0-9a-zA-Z]{4})/gi;
   const NetDiskRule_hecaiyun = {
     rule: [
       {
@@ -3350,8 +3363,8 @@
         link_innerHTML: `caiyun.139.com/m/i\\?([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /caiyun.139.com\/m\/i\?([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /caiyun.139.com\/m\/i\?/gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$2,
+        accessCode: accessCode_pattern$2,
         uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://caiyun.139.com/m/i?{#shareCode#}",
         copyUrl: "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}",
@@ -3361,8 +3374,8 @@
         link_innerHTML: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /caiyun.139.com\/w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /caiyun.139.com\/w\/i\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$2,
+        accessCode: accessCode_pattern$2,
         uiLinkShow: "caiyun.139.com/w/i/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://caiyun.139.com/w/i/{#shareCode#}",
         copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}",
@@ -3372,8 +3385,8 @@
         link_innerHTML: `yun.139.com(/link/|/shareweb/#/)w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$2,
+        accessCode: accessCode_pattern$2,
         paramMatch: /yun.139.com(\/link\/|\/shareweb\/#\/)w\/i\//i,
         uiLinkShow: "yun.139.com{#$1#}w/i/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://yun.139.com{#$1#}w/i/{#shareCode#}",
@@ -3384,8 +3397,8 @@
         link_innerHTML: `yun.139.com/shareweb/#/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /yun.139.com\/shareweb\/#\/w\/i\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /yun.139.com\/shareweb\/#\/w\/i\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /([0-9a-zA-Z]{4})/gi,
+        checkAccessCode: checkAccessCode_pattern$2,
+        accessCode: accessCode_pattern$2,
         uiLinkShow: "yun.139.com/shareweb/#/w/i/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}",
         copyUrl: "https://yun.139.com/shareweb/#/w/i/{#shareCode#}\n密码：{#accessCode#}",
@@ -3430,7 +3443,7 @@
         link_innerHTML: `jianguoyun.com/p/[0-9a-zA-Z-_]{16,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
         shareCode: /jianguoyun.com\/p\/([0-9a-zA-Z-_]{16,24})/gi,
         shareCodeNeedRemoveStr: /jianguoyun.com\/p\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=))[\\s\\S]+", "gi"),
         accessCode: /([0-9a-zA-Z]{3,6})/gi,
         uiLinkShow: "jianguoyun.com/p/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.jianguoyun.com/p/{#shareCode#}",
@@ -3485,7 +3498,7 @@
         link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /quark.cn\/s\/([0-9a-zA-Z-_]{8,24})/gi,
         shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=|\?pwd=)[\s\S]+/gi,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=|\\?pwd=))[\\s\\S]+", "gi"),
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
         blank: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
@@ -3577,14 +3590,25 @@
       };
       return data;
     },
-    replaceParam(text, data = {}) {
+    replacePlaceholder(text, data = {}) {
       if (typeof text !== "string") {
         return text;
       }
-      const keys = Object.keys(data);
-      for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        let replacedText = data[key];
+      let iterator = [];
+      if (Array.isArray(data)) {
+        iterator = data;
+      } else {
+        const keys = Object.keys(data);
+        iterator = keys.map((key) => {
+          const value = data[key];
+          return {
+            key,
+            value,
+          };
+        });
+      }
+      for (let i = 0; i < iterator.length; i++) {
+        const { key, value: replacedText } = iterator[i];
         if (utils.isNotNull(replacedText)) {
           try {
             text = text.replaceAll(`{#encodeURI-${key}#}`, encodeURI(replacedText));
@@ -3660,7 +3684,7 @@
         intentData = intentData.replace(/&/g, "{-and-}");
         intentData = intentData.replace(/#/g, "{-number-}");
       }
-      schemeUri = NetDiskRuleUtils.replaceParam(schemeUri, {
+      schemeUri = NetDiskRuleUtils.replacePlaceholder(schemeUri, {
         intentData,
       });
       return schemeUri;
@@ -4393,6 +4417,8 @@
       return json_data;
     }
   }
+  const checkAccessCode_pattern$1 = new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g");
+  const accessCode_pattern$1 = /([0-9a-zA-Z]{3,})/gi;
   const NetDiskRule_lanzou = () => {
     return {
       rule: [
@@ -4403,8 +4429,8 @@
             /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
           shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)/gi,
           shareCodeExcludeRegular: ["lanzouyx"],
-          checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-          accessCode: /([0-9a-zA-Z]{3,})/gi,
+          checkAccessCode: checkAccessCode_pattern$1,
+          accessCode: accessCode_pattern$1,
           uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#} 提取码: {#accessCode#}`,
           blank: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}`,
           copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/{#shareCode#}
@@ -4417,8 +4443,8 @@
             /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
           shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
           shareCodeExcludeRegular: ["lanzouyx"],
-          checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-          accessCode: /([0-9a-zA-Z]{3,})/gi,
+          checkAccessCode: checkAccessCode_pattern$1,
+          accessCode: accessCode_pattern$1,
           uiLinkShow: `${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#} 提取码: {#accessCode#}`,
           blank: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}`,
           copyUrl: `https://${NetDiskParse_Lanzou_Config.hostname}/s/{#shareCode#}
@@ -4490,7 +4516,7 @@
         link_innerHTML: `ilanzou.com/s/([a-zA-Z0-9_-]{5,22})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?code=)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
         shareCode: /ilanzou.com\/s\/([a-zA-Z0-9_-]{5,22})/gi,
         shareCodeNeedRemoveStr: /ilanzou.com\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?code=)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?code=))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{3,})/gi,
         uiLinkShow: `www.ilanzou.com/s/{#shareCode#} 提取码: {#accessCode#}`,
         blank: `https://www.ilanzou.com/s/{#shareCode#}?code={#accessCode#}`,
@@ -4588,7 +4614,7 @@
         link_innerHTML: `[0-9a-zA-Z-_]+.sharepoint.com/[0-9a-zA-Z-_:]+/[0-9a-zA-Z-_:]+/personal/[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=\\?e=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
         shareCode: /[0-9a-zA-Z-_]+\/[0-9a-zA-Z-_:]+\/[0-9a-zA-Z-_:]+\/personal\/[0-9a-zA-Z-_]+\/([0-9a-zA-Z-_]+)/gi,
         shareCodeNeedRemoveStr: /[0-9a-zA-Z-_]+\/[0-9a-zA-Z-_:]+\/[0-9a-zA-Z-_:]+\/personal\/[0-9a-zA-Z-_]+\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=|\?e=)[\s\S]+/gi,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=|\\?e=))[\\s\\S]+", "gi"),
         accessCode: /([0-9a-zA-Z]{4,8})/gi,
         paramMatch:
           /([0-9a-zA-Z-_]+).sharepoint.com\/([0-9a-zA-Z-_:]+)\/([0-9a-zA-Z-_:]+)\/personal\/([0-9a-zA-Z-_]+)\/([0-9a-zA-Z-_]+)/i,
@@ -4638,7 +4664,7 @@
         link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /cloud.189.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://cloud.189.cn/t/{#shareCode#}",
@@ -4693,7 +4719,7 @@
         link_innerHTML: `(drive|fast).uc.cn/s/[0-9a-zA-Z]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]+|)`,
         shareCode: /(drive|fast).uc.cn\/s\/([0-9a-zA-Z]{8,24})/gi,
         shareCodeNeedRemoveStr: /(drive|fast).uc.cn\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?password=)[\s\S]+/gi,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?password=))[\\s\\S]+", "gi"),
         accessCode: /([0-9a-zA-Z]+)/gi,
         uiLinkShow: "drive.uc.cn/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://drive.uc.cn/s/{#shareCode#}",
@@ -4749,7 +4775,7 @@
         shareCode: /weiyun.com\/([0-9a-zA-Z-_]{7,24})/gi,
         shareCodeNeedRemoveStr: /weiyun.com\//gi,
         shareCodeNotMatch: /^(ftn_handler)/,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{4,6})/gi,
         uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://share.weiyun.com/{#shareCode#}",
@@ -4790,6 +4816,8 @@
       },
     },
   };
+  const checkAccessCode_pattern = new RegExp("((?<!解压)密码|(访问码|提取码))[\\s\\S]+", "g");
+  const accessCode_pattern = /[0-9a-zA-Z]{4}/gi;
   const NetDiskRule_wenshushu = {
     rule: [
       {
@@ -4797,8 +4825,8 @@
         link_innerHTML: `(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)/f/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /(wenshushu.cn|wss.ink|ws28.cn|wss1.cn|ws59.cn|wss.cc)\/f\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /[0-9a-zA-Z]{4}/gi,
+        checkAccessCode: checkAccessCode_pattern,
+        accessCode: accessCode_pattern,
         uiLinkShow: "www.wenshushu.cn/f/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.wenshushu.cn/f/{#shareCode#}",
         copyUrl: "https://www.wenshushu.cn/f/{#shareCode#}\n密码：{#accessCode#}",
@@ -4808,8 +4836,8 @@
         link_innerHTML: `wenshushu.cn/k/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /wenshushu.cn\/k\/([a-zA-Z0-9_-]{8,14})/gi,
         shareCodeNeedRemoveStr: /wenshushu.cn\/k\//gi,
-        checkAccessCode: /(访问码|密码|提取码)[\s\S]+/g,
-        accessCode: /[0-9a-zA-Z]{4}/gi,
+        checkAccessCode: checkAccessCode_pattern,
+        accessCode: accessCode_pattern,
         uiLinkShow: "www.wenshushu.cn/k/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://www.wenshushu.cn/k/{#shareCode#}",
         copyUrl: "https://www.wenshushu.cn/k/{#shareCode#}\n密码：{#accessCode#}",
@@ -4863,7 +4891,7 @@
         link_innerHTML: `xunlei.com/s/[0-9a-zA-Z-_]{8,30}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|提取码|密码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
         shareCode: /xunlei.com\/s\/([0-9a-zA-Z-_]{8,30})/gi,
         shareCodeNeedRemoveStr: /xunlei.com\/s\//gi,
-        checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
+        checkAccessCode: new RegExp("((?<!解压)密码|(访问码|提取码|\\?pwd=))[\\s\\S]+", "g"),
         accessCode: /([0-9a-zA-Z]{4})/gi,
         uiLinkShow: "pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#} 提取码: {#accessCode#}",
         blank: "https://pan.xunlei.com/s/{#shareCode#}?pwd={#accessCode#}",
@@ -6624,7 +6652,7 @@
         Qmsg.error("请先在设置中配置百度网盘-表单参数");
         return;
       }
-      postForm = NetDiskRuleUtils.replaceParam(postForm, {
+      postForm = NetDiskRuleUtils.replacePlaceholder(postForm, {
         shareCode,
         accessCode,
       });
@@ -8976,9 +9004,9 @@
             });
           }
         }
-        for (let i = 0; i < NetDisk.$extraRule.shareCodeNotMatchRegExpList.length; i++) {
-          const shareCodeNotMatchRegExp = NetDisk.$extraRule.shareCodeNotMatchRegExpList[i];
-          if (__shareCode__.match(shareCodeNotMatchRegExp)) {
+        for (let i = 0; i < NetDisk.$extraRule.shareCodeBlackList.length; i++) {
+          const shareCodeBlackListItem = NetDisk.$extraRule.shareCodeBlackList[i];
+          if (__shareCode__.match(shareCodeBlackListItem)) {
             handlerConfig.debugConfig?.logCallBack?.({
               status: false,
               msg: [
@@ -9047,10 +9075,10 @@
         const ruleConfig =
           handlerConfig.debugConfig?.config ??
           NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
-        if (!ruleConfig.checkAccessCode) {
+        if (utils.isNull(ruleConfig.checkAccessCode)) {
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
-            msg: "因未配置规则checkAccessCode，默认accessCode的值为空",
+            msg: "因未配置规则checkAccessCode，所以设置accessCode的值为空字符串",
           });
           return "";
         }
@@ -9059,7 +9087,7 @@
           status: true,
           msg: [
             `正则: checkAccessCode`,
-            "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
+            "作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码，如果匹配到，那对匹配到的字符串进行二次处理",
             `结果: `,
             CommonUtil.toStr(accessCodeMatch),
           ],
@@ -9070,10 +9098,24 @@
             status: true,
             msg: "取最后一个值: " + accessCodeMatchValue,
           });
+          for (let index = 0; index < NetDisk.$extraRule.checkAccessCodeBlackList.length; index++) {
+            const checkAccessCodeBlackListItem = NetDisk.$extraRule.checkAccessCodeBlackList[index];
+            if (accessCodeMatchValue.match(checkAccessCodeBlackListItem)) {
+              handlerConfig.debugConfig?.logCallBack?.({
+                status: false,
+                msg: [
+                  `正则: 内置的checkAccessCodeBlackList`,
+                  "作用: 匹配到提取码，但提取码中包含禁止的字符串",
+                  `结果: 返回空字符串`,
+                ],
+              });
+              return "";
+            }
+          }
           if (!ruleConfig.accessCode) {
             handlerConfig.debugConfig?.logCallBack?.({
               status: true,
-              msg: "因未配置规则accessCode，默认accessCode的值为空",
+              msg: "因未配置规则accessCode，所以设置accessCode的值为空字符串",
             });
             return "";
           }
@@ -9105,9 +9147,9 @@
           }
         }
         if (utils.isNotNull(__accessCode__)) {
-          for (let i = 0; i < NetDisk.$extraRule.accessCodeNotMatchRegExpList.length; i++) {
-            const accessCodeNotMatchRegExp = NetDisk.$extraRule.accessCodeNotMatchRegExpList[i];
-            if (__accessCode__.match(accessCodeNotMatchRegExp)) {
+          for (let i = 0; i < NetDisk.$extraRule.accessCodeBlackList.length; i++) {
+            const accessCodeBlackListItem = NetDisk.$extraRule.accessCodeBlackList[i];
+            if (__accessCode__.match(accessCodeBlackListItem)) {
               __accessCode__ = "";
               handlerConfig.debugConfig?.logCallBack?.({
                 status: true,
@@ -9141,8 +9183,8 @@
               }
             }
           }
-          for (let i = 0; i < NetDisk.$extraRule.accessCodeNeedRemoveStr.length; i++) {
-            const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.accessCodeNeedRemoveStr[i];
+          for (let i = 0; i < NetDisk.$extraRule.removeNotNeedStrByAccessCode.length; i++) {
+            const accessCodeNeedRemoveStrRegExp = NetDisk.$extraRule.removeNotNeedStrByAccessCode[i];
             __accessCode__ = NetDiskHandlerUtil.replaceText(__accessCode__, accessCodeNeedRemoveStrRegExp, "");
           }
           handlerConfig.debugConfig?.logCallBack?.({
@@ -9166,10 +9208,6 @@
             });
           }
         }
-        handlerConfig.debugConfig?.logCallBack?.({
-          status: true,
-          msg: "处理完毕的accessCode: " + __accessCode__,
-        });
         return __accessCode__;
       };
       const handlerByAutoFill = (__accessCode__) => {
@@ -9217,7 +9255,7 @@
         if (__accessCode__ === handlerConfig.shareCode) {
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
-            msg: "最终结果判定访问码为空，因为分享码和提取到的访问码相同: " + __accessCode__,
+            msg: "因分享码和提取到的访问码相同，判断为空: " + __accessCode__,
           });
           return "";
         }
@@ -9228,6 +9266,10 @@
       accessCode = handlerByUserRuleCustomAccessCode(accessCode);
       accessCode = handlerOhter(accessCode);
       accessCode = NetDiskHandlerAccessCode.handler(handlerConfig, accessCode);
+      handlerConfig.debugConfig?.logCallBack?.({
+        status: true,
+        msg: "访问码最终值: " + accessCode,
+      });
       return accessCode;
     },
     extractShowLink(handlerConfig) {
@@ -9244,7 +9286,7 @@
       const ruleConfig =
         handlerConfig.debugConfig?.config ??
         NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
-      let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
+      let uiLink = NetDiskRuleUtils.replacePlaceholder(ruleConfig.uiLinkShow, {
         shareCode: handlerConfig.shareCode,
       });
       handlerConfig.debugConfig?.logCallBack?.({
@@ -9252,7 +9294,7 @@
         msg: [`正则: uiLinkShow`, "作用: 用于显示在弹窗中的字符串", "备注: 对shareCode进行参数替换", `结果: ${uiLink}`],
       });
       if (typeof handlerConfig.accessCode === "string" && handlerConfig.accessCode.trim() != "") {
-        uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
+        uiLink = NetDiskRuleUtils.replacePlaceholder(uiLink, {
           accessCode: handlerConfig.accessCode,
         });
         handlerConfig.debugConfig?.logCallBack?.({
@@ -9265,7 +9307,7 @@
           ],
         });
       } else {
-        uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.noAccessCodeRegExp, "");
+        uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.removeNotNeedStrByNoAccessCode, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -9286,7 +9328,7 @@
               replaceParamData[`$${index}`] = paramMatchArray[index];
             }
           }
-          uiLink = NetDiskRuleUtils.replaceParam(uiLink, replaceParamData);
+          uiLink = NetDiskRuleUtils.replacePlaceholder(uiLink, replaceParamData);
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: [
@@ -15316,7 +15358,7 @@
         NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let blankUrl = ruleConfig.blank;
       if (handlerConfig.shareCode) {
-        blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
+        blankUrl = NetDiskRuleUtils.replacePlaceholder(blankUrl, {
           shareCode: handlerConfig.shareCode,
         });
         handlerConfig.debugConfig?.logCallBack?.({
@@ -15325,7 +15367,7 @@
         });
       }
       if (handlerConfig.accessCode && handlerConfig.accessCode !== "") {
-        blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
+        blankUrl = NetDiskRuleUtils.replacePlaceholder(blankUrl, {
           accessCode: handlerConfig.accessCode,
         });
         handlerConfig.debugConfig?.logCallBack?.({
@@ -15333,7 +15375,7 @@
           msg: [`正则: blank`, "作用: 用于点击跳转的链接", "备注: 对accessCode进行参数替换", `结果: ${blankUrl}`],
         });
       } else {
-        blankUrl = NetDiskHandlerUtil.replaceText(blankUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
+        blankUrl = NetDiskHandlerUtil.replaceText(blankUrl, NetDisk.$extraRule.removeNotNeedStrByNoAccessCode, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -15353,7 +15395,7 @@
             replaceParamData[`$${index}`] = paramMatchArray[index];
           }
         }
-        blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, replaceParamData);
+        blankUrl = NetDiskRuleUtils.replacePlaceholder(blankUrl, replaceParamData);
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -15372,7 +15414,7 @@
         NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let copyUrl = ruleConfig["copyUrl"];
       if (handlerConfig.shareCode) {
-        copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
+        copyUrl = NetDiskRuleUtils.replacePlaceholder(copyUrl, {
           shareCode: handlerConfig.shareCode,
         });
         handlerConfig.debugConfig?.logCallBack?.({
@@ -15381,7 +15423,7 @@
         });
       }
       if (handlerConfig.accessCode && handlerConfig.accessCode !== "") {
-        copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
+        copyUrl = NetDiskRuleUtils.replacePlaceholder(copyUrl, {
           accessCode: handlerConfig.accessCode,
         });
         handlerConfig.debugConfig?.logCallBack?.({
@@ -15389,7 +15431,7 @@
           msg: [`正则: copyUrl`, "作用: 用于复制到剪贴板的链接", "备注: 对accessCode进行参数替换", `结果: ${copyUrl}`],
         });
       } else {
-        copyUrl = NetDiskHandlerUtil.replaceText(copyUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
+        copyUrl = NetDiskHandlerUtil.replaceText(copyUrl, NetDisk.$extraRule.removeNotNeedStrByNoAccessCode, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -15409,7 +15451,7 @@
             replaceParamData[`$${index}`] = paramMatchArray[index];
           }
         }
-        copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, replaceParamData);
+        copyUrl = NetDiskRuleUtils.replacePlaceholder(copyUrl, replaceParamData);
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -16797,13 +16839,13 @@
       return true;
     },
   };
-  const NetDiskUserRuleReplaceParam_matchRange_text = (key) => {
+  const NetDiskRuleReplacePlaceholder_text = (key) => {
     return {
       "matchRange-text-before": NetDiskRuleData.matchRange_text.before(key).toString(),
       "matchRange-text-after": NetDiskRuleData.matchRange_text.after(key).toString(),
     };
   };
-  const NetDiskUserRuleReplaceParam_matchRange_html = (key) => {
+  const NetDiskRuleReplacePlaceholder_html = (key) => {
     return {
       "matchRange-html-before": NetDiskRuleData.matchRange_html.before(key).toString(),
       "matchRange-html-after": NetDiskRuleData.matchRange_html.after(key).toString(),
@@ -17029,13 +17071,13 @@
         let netDiskRegularOption = {
           ...otherRuleParams,
         };
-        netDiskRegularOption.link_innerText = NetDiskRuleUtils.replaceParam(
+        netDiskRegularOption.link_innerText = NetDiskRuleUtils.replacePlaceholder(
           netDiskRegularOption.link_innerText,
-          NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+          NetDiskRuleReplacePlaceholder_text(ruleKey)
         );
-        netDiskRegularOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+        netDiskRegularOption.link_innerHTML = NetDiskRuleUtils.replacePlaceholder(
           netDiskRegularOption.link_innerText,
-          NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+          NetDiskRuleReplacePlaceholder_html(ruleKey)
         );
         if (typeof shareCode === "string") {
           netDiskRegularOption.shareCode = new RegExp(shareCode, "gi");
@@ -18362,15 +18404,15 @@
       for (let index = 0; index < netDiskMatchRule.length; index++) {
         const netDiskMatchRuleOption = netDiskMatchRule[index];
         if (typeof netDiskMatchRuleOption.link_innerText === "string") {
-          netDiskMatchRuleOption.link_innerText = NetDiskRuleUtils.replaceParam(
+          netDiskMatchRuleOption.link_innerText = NetDiskRuleUtils.replacePlaceholder(
             netDiskMatchRuleOption.link_innerText,
-            NetDiskUserRuleReplaceParam_matchRange_text(ruleKey)
+            NetDiskRuleReplacePlaceholder_text(ruleKey)
           );
         }
         if (typeof netDiskMatchRuleOption.link_innerHTML === "string") {
-          netDiskMatchRuleOption.link_innerHTML = NetDiskRuleUtils.replaceParam(
+          netDiskMatchRuleOption.link_innerHTML = NetDiskRuleUtils.replacePlaceholder(
             netDiskMatchRuleOption.link_innerHTML,
-            NetDiskUserRuleReplaceParam_matchRange_html(ruleKey)
+            NetDiskRuleReplacePlaceholder_html(ruleKey)
           );
         }
         netDiskMatchRuleHandler.push(netDiskMatchRuleOption);
@@ -21824,6 +21866,35 @@
       });
     },
   };
+  const NetDiskExtraRule = {
+    shareCodeBlackList: [
+      /vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
+      /comp|web|undefined|1125|unproved|console|account|favicon|setc/g,
+    ],
+    checkAccessCodeBlackList: [],
+    accessCodeBlackList: [/^(font|http)/gi],
+    removeNotNeedStrByAccessCode: [
+      " ",
+      "：",
+      ":",
+      "\n",
+      /(解压|)密码/gi,
+      "提取码",
+      "访问码",
+      "?password=",
+      "?pwd=",
+      "&pwd=",
+      "?p=",
+    ],
+    removeNotNeedStrByNoAccessCode: [
+      /(\n| )/gi,
+      /(解压|)密码(:|：)/gi,
+      /提取码(:|：)/gi,
+      /访问码(:|：)/gi,
+      /(\?password=|\?pwd=|&pwd=|\?p=)/gi,
+      /{#(encodeURI-|encodeURIComponent-|decodeURI-|decodeURIComponent-|)accessCode#}/gi,
+    ],
+  };
   const NetDisk = {
     $data: {
       isMatchedLink: false,
@@ -21841,33 +21912,7 @@
       ruleSetting: {},
       rule: [],
     },
-    $extraRule: {
-      shareCodeNotMatchRegExpList: [
-        /vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
-        /comp|web|undefined|1125|unproved|console|account|favicon|setc/g,
-      ],
-      accessCodeNotMatchRegExpList: [/^(font|http)/gi],
-      accessCodeNeedRemoveStr: [
-        "：",
-        " ",
-        ":",
-        "\n",
-        "提取码",
-        "密码",
-        "?password=",
-        "?pwd=",
-        "&pwd=",
-        "?p=",
-        "访问码",
-      ],
-      noAccessCodeRegExp: [
-        /( |提取码:|\n密码：)/gi,
-        /{#accessCode#}/gi,
-        /{#encodeURI-accessCode#}|{#encodeURIComponent-accessCode#}/gi,
-        /{#decodeURI-accessCode#}|{#decodeURIComponent-accessCode#}/gi,
-        /(\?pwd=|&pwd=|\?password=|\?p=)/gi,
-      ],
-    },
+    $extraRule: NetDiskExtraRule,
     init() {
       this.initDictMapping();
     },

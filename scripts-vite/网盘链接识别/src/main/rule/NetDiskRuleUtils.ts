@@ -48,7 +48,7 @@ export const NetDiskRuleUtils = {
     return data;
   },
   /**
-   * 参数替换，区分大小写
+   * 替换占位符，注意区分大小写
    *
    * 例如
    * + {#shareCode#} => xxxx
@@ -57,19 +57,38 @@ export const NetDiskRuleUtils = {
    * @param text
    * @param data
    */
-  replaceParam(
+  replacePlaceholder(
     text: string,
-    data: {
-      [key: string]: string;
-    } = {}
+    data:
+      | {
+          [key: string]: string;
+        }
+      | {
+          key: string;
+          value: string;
+        }[] = {}
   ): string {
     if (typeof text !== "string") {
       return text;
     }
-    const keys = Object.keys(data);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      let replacedText = data[key];
+    let iterator: {
+      key: string;
+      value: string;
+    }[] = [];
+    if (Array.isArray(data)) {
+      iterator = data;
+    } else {
+      const keys = Object.keys(data);
+      iterator = keys.map((key) => {
+        const value = data[key];
+        return {
+          key,
+          value,
+        };
+      });
+    }
+    for (let i = 0; i < iterator.length; i++) {
+      const { key, value: replacedText } = iterator[i];
       if (utils.isNotNull(replacedText)) {
         try {
           text = text.replaceAll(`{#encodeURI-${key}#}`, encodeURI(replacedText));

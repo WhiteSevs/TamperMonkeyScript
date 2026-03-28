@@ -1,3 +1,6 @@
+const checkAccessCode_pattern = /((?<!解压)|密码(访问码|提取码|\?pwd=))[\s\S]+/g;
+const accessCode_pattern = /([0-9a-zA-Z]{4})/gi;
+
 export const NetDiskRule_baidu: NetDiskRuleOption = {
   /** 规则 */
   rule: <NetDiskMatchRuleConfig[]>[
@@ -6,8 +9,8 @@ export const NetDiskRule_baidu: NetDiskRuleOption = {
       link_innerHTML: `pan.baidu.com/s/[0-9a-zA-Z-_]{6,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /pan.baidu.com\/s\/([0-9a-zA-Z-_]+)/gi,
       shareCodeNeedRemoveStr: /pan.baidu.com\/s\//gi,
-      checkAccessCode: /(访问码|密码|提取码|\?pwd=)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
       blank: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
       copyUrl: "https://pan.baidu.com/s/{#shareCode#}?pwd={#accessCode#}",
@@ -17,8 +20,8 @@ export const NetDiskRule_baidu: NetDiskRuleOption = {
       link_innerHTML: `pan.baidu.com/(share|wap)/init\\?surl=[0-9a-zA-Z-_]{5,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|&pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /pan.baidu.com\/(share|wap)\/init\?surl=([0-9a-zA-Z-_]+)/gi,
       shareCodeNeedRemoveStr: /pan.baidu.com\/(share|wap)\/init\?surl=/gi,
-      checkAccessCode: /(访问码|密码|提取码|&pwd=)[\s\S]+/g,
-      accessCode: /([0-9a-zA-Z]{4})/gi,
+      checkAccessCode: checkAccessCode_pattern,
+      accessCode: accessCode_pattern,
       uiLinkShow: "pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
       blank: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
       copyUrl: "https://pan.baidu.com/share/init?surl={#shareCode#}&pwd={#accessCode#}",
