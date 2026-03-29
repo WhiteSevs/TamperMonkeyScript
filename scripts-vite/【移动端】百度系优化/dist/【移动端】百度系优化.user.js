@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.28.17
+// @version      2026.3.29
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-Du8pNiNk.js"(exports$1, module) {
+    "entrance-C1bKlmFD.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -25330,7 +25330,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       const UISwitch = function (
         text,
         key,
-        defaultValue,
+        defaultValue = false,
         clickCallBack,
         description,
         afterAddToUListCallBack,
@@ -27713,11 +27713,11 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             "uni-app .load-more",
             (event) => {
               domUtils.preventEvent(event);
-              let $loadMore = event.target;
-              let vue3Ins = VueUtils.getVue3($loadMore);
-              let vue2Ins = VueUtils.getVue($loadMore);
+              const $loadMore = event.target;
+              const vue3Ins = VueUtils.getVue3($loadMore);
+              const vue2Ins = VueUtils.getVue($loadMore);
               if (vue2Ins) {
-                let handleClick = vue2Ins?.$listeners?.["handle-click"];
+                const handleClick = vue2Ins?.$listeners?.["handle-click"];
                 if (typeof handleClick === "function") {
                   handleClick();
                   log.success(`uni-app ===> __vue__ 加载更多评论`);
@@ -27725,7 +27725,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   log.error("uni-app ==> __vue__ 点击加载更多失败");
                 }
               } else if (vue3Ins) {
-                let onHandleClick = vue3Ins?.attrs?.onHandleClick;
+                const onHandleClick = vue3Ins?.attrs?.onHandleClick;
                 if (typeof onHandleClick === "function") {
                   onHandleClick();
                   log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
@@ -27744,7 +27744,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             document,
             "scroll",
             utils.debounce(async () => {
-              let $loadMore = $("uni-app .load-more");
+              const $loadMore = $("uni-app .load-more");
               if ($loadMore) {
                 if (utils.isVisible($loadMore, true)) {
                   $loadMore.click();
@@ -27799,7 +27799,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
             (event, $click) => {
               domUtils.preventEvent(event);
-              const vueInst = VueUtils.getVue3($click);
+              const vueInst = VueUtils.getVue($click);
               const tid = vueInst?.props?.config?.param?.tid || vueInst?.config?.param?.tid;
               if (typeof tid === "number") {
                 const url = TiebaUrlHandler.getThread(tid);
@@ -28195,17 +28195,15 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 } else if ($click.classList.contains("pb-at")) {
                   domUtils.preventEvent(event);
                   log.info("点击@");
-                  let vue3Ins = VueUtils.getVue3($click);
-                  let vueIns = VueUtils.getVue($click);
+                  const vue3Ins = VueUtils.getVue3($click);
+                  const vueIns = VueUtils.getVue($click);
                   let un2 = vue3Ins?.props?.content?.text || vueIns?.content?.text;
-                  vue3Ins?.props?.content?.type || vueIns?.content?.type;
                   if (un2 == null) {
-                    log.error("获取用户un失败");
                     Qmsg.error("获取用户un失败");
                     return;
                   }
                   un2 = un2.replace(/^@/g, "");
-                  let userHomeUrl = TiebaUrlHandler.getUserHomeByUN(un2);
+                  const userHomeUrl = TiebaUrlHandler.getUserHomeByUN(un2);
                   window.open(userHomeUrl, "_blank");
                 }
               }
@@ -28604,6 +28602,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			right: 0;
 			bottom: 0;
 			padding: 0;
+      display: flex;
+      flex-direction: column;
 		}
 		#nav-top-search{
 			top: 0;
@@ -28677,7 +28677,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 		.search-result-model{
 			display: flex;
 			padding: 0px 10px;
-   			width: 100%;
+      width: 100%;
 			top: 0.48rem;
 			height: 0.32rem;
 			z-index: inherit;
@@ -28819,8 +28819,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       display: flex;
       justify-content: space-between;
       height: unset !important;
-      padding: 0px 10px;
+      padding: 5px 10px;
       width: -webkit-fill-available;
+      flex: 1;
+      overflow: auto;
     }
     .search-result-model .search-result-type-wrapper{
       display: flex;

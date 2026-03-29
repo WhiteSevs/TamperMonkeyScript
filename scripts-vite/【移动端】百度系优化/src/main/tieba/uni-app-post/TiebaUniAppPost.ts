@@ -180,11 +180,11 @@ export const TiebaUniAppPost = {
       "uni-app .load-more",
       (event) => {
         DOMUtils.preventEvent(event);
-        let $loadMore = event.target;
-        let vue3Ins = VueUtils.getVue3($loadMore);
-        let vue2Ins = VueUtils.getVue($loadMore);
+        const $loadMore = event.target;
+        const vue3Ins = VueUtils.getVue3($loadMore);
+        const vue2Ins = VueUtils.getVue($loadMore);
         if (vue2Ins) {
-          let handleClick = vue2Ins?.$listeners?.["handle-click"];
+          const handleClick = vue2Ins?.$listeners?.["handle-click"];
           if (typeof handleClick === "function") {
             handleClick();
             log.success(`uni-app ===> __vue__ 加载更多评论`);
@@ -192,7 +192,7 @@ export const TiebaUniAppPost = {
             log.error("uni-app ==> __vue__ 点击加载更多失败");
           }
         } else if (vue3Ins) {
-          let onHandleClick = vue3Ins?.attrs?.onHandleClick;
+          const onHandleClick = vue3Ins?.attrs?.onHandleClick;
           if (typeof onHandleClick === "function") {
             onHandleClick();
             log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
@@ -211,7 +211,7 @@ export const TiebaUniAppPost = {
       document,
       "scroll",
       utils.debounce(async () => {
-        let $loadMore = $<HTMLDivElement>("uni-app .load-more");
+        const $loadMore = $<HTMLDivElement>("uni-app .load-more");
         if ($loadMore) {
           if (utils.isVisible($loadMore, true)) {
             $loadMore.click();
@@ -275,7 +275,7 @@ export const TiebaUniAppPost = {
       ".pic-popup-guide-thread-wrapper .thread-guide-item-wake",
       (event, $click) => {
         DOMUtils.preventEvent(event);
-        const vueInst = VueUtils.getVue3($click);
+        const vueInst = VueUtils.getVue($click);
         const tid = vueInst?.props?.config?.param?.tid || vueInst?.config?.param?.tid;
         if (typeof tid === "number") {
           const url = TiebaUrlHandler.getThread(tid);
@@ -716,17 +716,16 @@ export const TiebaUniAppPost = {
           } else if ($click.classList.contains("pb-at")) {
             DOMUtils.preventEvent(event);
             log.info("点击@");
-            let vue3Ins = VueUtils.getVue3($click);
-            let vueIns = VueUtils.getVue($click);
+            const vue3Ins = VueUtils.getVue3($click);
+            const vueIns = VueUtils.getVue($click);
             let un: string | null = vue3Ins?.props?.content?.text || vueIns?.content?.text;
-            let type: number | null = vue3Ins?.props?.content?.type || vueIns?.content?.type;
+            // const type: number | null = vue3Ins?.props?.content?.type || vueIns?.content?.type;
             if (un == null) {
-              log.error("获取用户un失败");
               Qmsg.error("获取用户un失败");
               return;
             }
             un = un.replace(/^@/g, "");
-            let userHomeUrl = TiebaUrlHandler.getUserHomeByUN(un);
+            const userHomeUrl = TiebaUrlHandler.getUserHomeByUN(un);
             window.open(userHomeUrl, "_blank");
           }
         }

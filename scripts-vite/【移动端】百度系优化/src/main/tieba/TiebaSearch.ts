@@ -520,6 +520,8 @@ const TiebaSearch = {
 			right: 0;
 			bottom: 0;
 			padding: 0;
+      display: flex;
+      flex-direction: column;
 		}
 		#nav-top-search{
 			top: 0;
@@ -593,7 +595,7 @@ const TiebaSearch = {
 		.search-result-model{
 			display: flex;
 			padding: 0px 10px;
-   			width: 100%;
+      width: 100%;
 			top: 0.48rem;
 			height: 0.32rem;
 			z-index: inherit;
@@ -729,8 +731,10 @@ const TiebaSearch = {
       display: flex;
       justify-content: space-between;
       height: unset !important;
-      padding: 0px 10px;
+      padding: 5px 10px;
       width: -webkit-fill-available;
+      flex: 1;
+      overflow: auto;
     }
     .search-result-model .search-result-type-wrapper{
       display: flex;
