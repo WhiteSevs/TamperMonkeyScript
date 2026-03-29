@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.29
+// @version      2026.3.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -8654,6 +8654,14 @@
             }
           },
         },
+        "dy-live-shortcut-shielYellowCar": {
+          callback() {
+            log.info(`触发快捷键 ==> 【屏蔽】小黄车`);
+            const KEY2 = "live-shielYellowCar";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
+          },
+        },
       };
     },
   };
@@ -12395,6 +12403,34 @@
       };
     },
   };
+  const DouYinFollowBlock = {
+    init() {
+      Panel.execMenuOnce("dy-follow-blockUserLiveFlashingAvatar", () => {
+        return this.blockUserLiveFlashingAvatar();
+      });
+    },
+    blockUserLiveFlashingAvatar() {
+      log.info(`【屏蔽】用户直播时闪烁的头像`);
+      return addStyle(
+        `
+    .route-scroll-container [data-e2e="follow-slide-avatar"] *{
+        animation: none !important;
+    }
+    .route-scroll-container [data-e2e="follow-slide-avatar"] span{
+        border: transparent;
+    }
+    .route-scroll-container [data-e2e="follow-slide-avatar"] img[src*="avatar-live"]{
+        display: none !important;
+    }
+    `
+      );
+    },
+  };
+  const DouYinFollow = {
+    init() {
+      DouYinFollowBlock.init();
+    },
+  };
   const DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
@@ -12457,6 +12493,9 @@
         } else if (DouYinRouter.isNote()) {
           log.info(`Router:  笔记页面`);
           DouYinNote.init();
+        } else if (DouYinRouter.isFollow()) {
+          log.info(`Router: 关注页面`);
+          DouYinFollow.init();
         } else {
           log.warn("子router: " + window.location.href);
         }
@@ -13794,7 +13833,7 @@
             ],
           },
           {
-            text: "自定义快捷键",
+            text: "自定义功能快捷键",
             type: "deepMenu",
             views: [
               {
@@ -14262,7 +14301,7 @@
                     void 0,
                     "为你找到以下结果，问问AI智能总结内容"
                   ),
-                  UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-search-blockUserLiveFlashingAvatar", false),
+                  UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-search-blockUserLiveFlashingAvatar"),
                 ],
               },
             ],
@@ -14456,13 +14495,22 @@
             ],
           },
           {
-            text: "自定义快捷键",
+            text: "自定义功能快捷键",
             type: "deepMenu",
             views: [
               {
                 text: "",
                 type: "container",
                 views: [
+                  UIButtonShortCut(
+                    "【屏蔽】小黄车",
+                    "",
+                    "dy-live-shortcut-shielYellowCar",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
                   UIButtonShortCut(
                     "【屏蔽】聊天室",
                     "",
@@ -14916,12 +14964,24 @@
       },
     ],
   };
+  const PanelFollowrConfig = {
+    id: "panel-config-follow",
+    title: "关注",
+    views: [
+      {
+        text: "布局屏蔽-关注列表",
+        type: "container",
+        views: [UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-follow-blockUserLiveFlashingAvatar")],
+      },
+    ],
+  };
   PanelContent.addContentConfig([
     PanelGeneralConfig,
     PanelVideoConfig,
     PanelRecommendConfig,
     PanelSearchConfig,
     PanelLiveConfig,
+    PanelFollowrConfig,
     PanelUserConfig,
   ]);
   PanelContent.addContentConfig([

@@ -15,6 +15,7 @@ import { MPanelShareVideoConfig } from "./setting/mobile-view/shareVideo";
 import { MPanelShareMusicConfig } from "./setting/mobile-view/shareMusic";
 import { PanelMenu } from "@components/setting/panel-menu";
 import { PanelRecommendConfig } from "./setting/view/recommend";
+import { PanelFollowrConfig } from "./setting/view/follow";
 
 PanelContent.addContentConfig([
   PanelGeneralConfig,
@@ -22,6 +23,7 @@ PanelContent.addContentConfig([
   PanelRecommendConfig,
   PanelSearchConfig,
   PanelLiveConfig,
+  PanelFollowrConfig,
   PanelUserConfig,
 ]);
 PanelContent.addContentConfig([

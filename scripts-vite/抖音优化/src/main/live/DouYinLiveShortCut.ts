@@ -75,6 +75,14 @@ export const DouYinLiveShortCut = {
           }
         },
       },
+      "dy-live-shortcut-shielYellowCar": {
+        callback() {
+          log.info(`触发快捷键 ==> 【屏蔽】小黄车`);
+          const KEY = "live-shielYellowCar";
+          const enable = Panel.getValue<boolean>(KEY);
+          Panel.setValue(KEY, !enable);
+        },
+      },
     };
   },
 };

@@ -136,13 +136,22 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "自定义快捷键",
+          text: "自定义功能快捷键",
           type: "deepMenu",
           views: [
             {
               text: "",
               type: "container",
               views: [
+                UIButtonShortCut(
+                  "【屏蔽】小黄车",
+                  "",
+                  "dy-live-shortcut-shielYellowCar",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinLiveShortCut.shortCut
+                ),
                 UIButtonShortCut(
                   "【屏蔽】聊天室",
                   "",

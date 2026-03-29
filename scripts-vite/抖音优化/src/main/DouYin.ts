@@ -22,6 +22,7 @@ import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinVideoFilter } from "./video/filter/DouYinVideoFilter";
 import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
+import { DouYinFollow } from "./follow/DouYinFollow";
 
 export const DouYin = {
   init() {
@@ -92,6 +93,9 @@ export const DouYin = {
       } else if (DouYinRouter.isNote()) {
         log.info(`Router:  笔记页面`);
         DouYinNote.init();
+      } else if (DouYinRouter.isFollow()) {
+        log.info(`Router: 关注页面`);
+        DouYinFollow.init();
       } else {
         log.warn("子router: " + window.location.href);
       }

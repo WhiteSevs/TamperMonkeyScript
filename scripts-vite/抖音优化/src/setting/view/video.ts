@@ -364,7 +364,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "自定义快捷键",
+          text: "自定义功能快捷键",
           type: "deepMenu",
           views: [
             {
