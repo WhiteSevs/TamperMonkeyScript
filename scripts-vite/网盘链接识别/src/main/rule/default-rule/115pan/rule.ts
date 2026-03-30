@@ -6,7 +6,7 @@ export const NetDiskRule_115pan: NetDiskRuleOption = {
       link_innerHTML: `(115.com|115cdn.com|anxia.com)/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z-_]{8,24})/gi,
       shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
-      checkAccessCode: /((?<!解压)密码|(访问码|提取码|\?password=))[\s\S]+/gi,
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码|\?password=)[\s\S]+/gi,
       accessCode: /(访问码|密码|提取码|\?password=)([0-9a-zA-Z]{4})/i,
       paramMatch: /(115.com|115cdn.com|anxia.com)/i,
       uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",

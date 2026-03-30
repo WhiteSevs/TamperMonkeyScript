@@ -8,7 +8,7 @@ export const NetDiskRule_123pan: NetDiskRuleOption = {
       link_innerHTML: `${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: new RegExp(`${_123pan_Link_Host_Pattern}/s/([a-zA-Z0-9_-]{8,14})`, "gi"),
       shareCodeNeedRemoveStr: new RegExp(`${_123pan_Link_Host_Pattern}/s/`, "gi"),
-      checkAccessCode: /((?<!解压)密码|(访问码|提取码|\?pwd=))[\s\S]+/g,
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码|\?pwd=)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "123pan.com/s/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://123pan.com/s/{#shareCode#}",

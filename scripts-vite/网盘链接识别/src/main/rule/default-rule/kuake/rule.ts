@@ -6,7 +6,7 @@ export const NetDiskRule_kuake: NetDiskRuleOption = {
       link_innerHTML: `quark.cn/s/[0-9a-zA-Z-_]{8,24}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /quark.cn\/s\/([0-9a-zA-Z-_]{8,24})/gi,
       shareCodeNeedRemoveStr: /quark.cn\/s\//gi,
-      checkAccessCode: /((?<!解压)密码|(访问码|提取码|\?password=|\?pwd=))[\s\S]+/gi,
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码|\?password=|\?pwd=)[\s\S]+/gi,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "quark.cn/s/{#shareCode#}?pwd={#accessCode#}",
       blank: "https://pan.quark.cn/s/{#shareCode#}?pwd={#accessCode#}",

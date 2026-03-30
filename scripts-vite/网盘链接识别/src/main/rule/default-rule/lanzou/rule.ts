@@ -1,7 +1,7 @@
 import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskParse_Lanzou_Config } from "./parse";
 
-const checkAccessCode_pattern = /((?<!解压)密码|(访问码|提取码))[\s\S]+/g;
+const checkAccessCode_pattern = /(((?<!解压)密码)|访问码|提取码)[\s\S]+/g;
 const accessCode_pattern = /([0-9a-zA-Z]{3,})/gi;
 
 export const NetDiskRule_lanzou = (): NetDiskRuleOption => {

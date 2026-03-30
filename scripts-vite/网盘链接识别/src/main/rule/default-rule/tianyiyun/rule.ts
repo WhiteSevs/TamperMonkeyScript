@@ -6,7 +6,7 @@ export const NetDiskRule_tianyiyun: NetDiskRuleOption = {
       link_innerHTML: `(cloud.189.cn/web/share\\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn/t/([a-zA-Z0-9_-]{8,14}))([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
       shareCode: /cloud.189.cn\/web\/share\?code=([0-9a-zA-Z_-]){8,14}|cloud.189.cn\/t\/([a-zA-Z0-9_-]{8,14})/gi,
       shareCodeNeedRemoveStr: /cloud.189.cn\/t\/|cloud.189.cn\/web\/share\?code=/gi,
-      checkAccessCode: /((?<!解压)密码|(访问码|提取码))[\s\S]+/g,
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4})/gi,
       uiLinkShow: "cloud.189.cn/t/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://cloud.189.cn/t/{#shareCode#}",

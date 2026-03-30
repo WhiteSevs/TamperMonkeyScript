@@ -132,7 +132,7 @@ declare interface NetDiskUserCustomRuleRegexp {
    *
    * 会自动进行正则转换，正则模式ig
    */
-  checkAccessCode?: string;
+  checkAccessCode?: string | string[];
   /**
    * 匹配提取码
    *

@@ -119,13 +119,21 @@ export const NetDiskUserRule = {
           msg: "regexp缺失的键名: copyUrl，类型: string",
         };
       }
-      if (typeof ruleRegExp["accessCode"] === "string" && typeof ruleRegExp["checkAccessCode"] !== "string") {
+      if (
+        typeof ruleRegExp["accessCode"] === "string" &&
+        typeof ruleRegExp["checkAccessCode"] !== "string" &&
+        !Array.isArray(ruleRegExp["checkAccessCode"])
+      ) {
         return {
           success: false,
           msg: "regexp设置了accessCode但是没有设置checkAccessCode",
         };
       }
-      if (typeof ruleRegExp["accessCode"] !== "string" && typeof ruleRegExp["checkAccessCode"] === "string") {
+      if (
+        typeof ruleRegExp["accessCode"] !== "string" &&
+        typeof ruleRegExp["checkAccessCode"] === "string" &&
+        !Array.isArray(ruleRegExp["checkAccessCode"])
+      ) {
         return {
           success: false,
           msg: "regexp设置了checkAccessCode但是没有设置accessCode",

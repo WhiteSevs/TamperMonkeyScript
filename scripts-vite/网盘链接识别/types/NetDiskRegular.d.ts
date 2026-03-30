@@ -43,9 +43,9 @@ declare interface NetDiskMatchRuleConfig {
    */
   shareCodeExcludeRegular?: string[];
   /**
-   * （可选）正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码，如果匹配到，那对匹配到的字符串进行二次处理
+   * （可选）正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码，如果匹配到，那对匹配到的字符串进行二次处理，`accessCode`将对匹配的结果的进行match处理
    */
-  checkAccessCode?: RegExp;
+  checkAccessCode?: RegExp | RegExp[];
   /**
    * （可选）正则：用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码
    *

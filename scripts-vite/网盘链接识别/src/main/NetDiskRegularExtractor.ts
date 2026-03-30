@@ -167,7 +167,23 @@ export const NetDiskRegularExtractor = {
         });
         return "";
       }
-      const accessCodeMatch = handlerConfig.matchText.match(ruleConfig.checkAccessCode);
+      const checkAccessCode = Array.isArray(ruleConfig.checkAccessCode)
+        ? ruleConfig.checkAccessCode
+        : [ruleConfig.checkAccessCode];
+      if (!checkAccessCode.length) {
+        handlerConfig.debugConfig?.logCallBack?.({
+          status: true,
+          msg: "checkAccessCode规则为空，所以设置accessCode的值为空字符串",
+        });
+        return "";
+      }
+      let accessCodeMatch: RegExpMatchArray | null = null;
+      for (const pattern of checkAccessCode) {
+        accessCodeMatch = handlerConfig.matchText.match(pattern);
+        if (accessCodeMatch) {
+          break;
+        }
+      }
       handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [

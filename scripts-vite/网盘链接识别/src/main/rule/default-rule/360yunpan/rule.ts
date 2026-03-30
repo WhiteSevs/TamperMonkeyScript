@@ -1,4 +1,4 @@
-const checkAccessCode_Pattern = /((?<!解压)密码|(访问码|提取码|\?password=))[\s\S]+/gi;
+const checkAccessCode_Pattern = /(((?<!解压)密码)|访问码|提取码|\?password=)[\s\S]+/gi;
 const accessCode_Pattern = /([0-9a-zA-Z]+)/gi;
 
 export const NetDiskRule_360yunpan: NetDiskRuleOption = {

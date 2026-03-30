@@ -7,7 +7,7 @@ export const NetDiskRule_weiyun: NetDiskRuleOption = {
       shareCode: /weiyun.com\/([0-9a-zA-Z-_]{7,24})/gi,
       shareCodeNeedRemoveStr: /weiyun.com\//gi,
       shareCodeNotMatch: /^(ftn_handler)/,
-      checkAccessCode: /((?<!解压)密码|(访问码|提取码))[\s\S]+/g,
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码)[\s\S]+/g,
       accessCode: /([0-9a-zA-Z]{4,6})/gi,
       uiLinkShow: "share.weiyun.com/{#shareCode#} 提取码: {#accessCode#}",
       blank: "https://share.weiyun.com/{#shareCode#}",
