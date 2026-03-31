@@ -1542,7 +1542,7 @@ class ElementEvent extends ElementAnimate {
           callback(
             evt,
             {
-              isDoubleClick: true,
+              isDouble: true,
             },
             $selector
           );
@@ -1553,7 +1553,7 @@ class ElementEvent extends ElementAnimate {
             callback(
               evt,
               {
-                isDoubleClick: false,
+                isDouble: false,
               },
               $selector
             );

@@ -417,12 +417,12 @@ export declare interface DOMUtilsAddEventListenerResult {
  */
 export declare type DOMUtilsDoubleEventOption = {
   /**
-   * 是否是双击
+   * 是否是双次
    *
-   * + `true`：双击
-   * + `false`：单击
+   * + `true`：双次
+   * + `false`：单次
    */
-  isDoubleClick: boolean;
+  isDouble: boolean;
 };
 
 /**
@@ -430,7 +430,7 @@ export declare type DOMUtilsDoubleEventOption = {
  */
 export declare type DOMUtilsDoubleEventEventListenerOption = DOMUtilsEventListenerOption & {
   /**
-   * 检测单击的延迟事件
+   * 检测单次的延迟时间(ms)
    * @default 200
    */
   checkClickTime?: number;
