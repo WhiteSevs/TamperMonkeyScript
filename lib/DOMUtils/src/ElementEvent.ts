@@ -1,6 +1,7 @@
 import { CommonUtils } from "./CommonUtils";
 import { ElementAnimate } from "./ElementAnimate";
 import { GlobalData } from "./GlobalData";
+import { OriginPrototype } from "./OriginPrototype";
 import type {
   DOMUtils_Event,
   DOMUtils_EventType,
@@ -177,12 +178,14 @@ class ElementEvent extends ElementAnimate {
         ("capture" in currentParam ||
           "once" in currentParam ||
           "passive" in currentParam ||
-          "isComposedPath" in currentParam)
+          "isComposedPath" in currentParam ||
+          "overrideTarget" in currentParam)
       ) {
         option.capture = currentParam.capture;
         option.once = currentParam.once;
         option.passive = currentParam.passive;
         option.isComposedPath = currentParam.isComposedPath;
+        option.overrideTarget = currentParam.overrideTarget;
       }
       return option;
     };
@@ -231,6 +234,7 @@ class ElementEvent extends ElementAnimate {
       once: false,
       passive: false,
       isComposedPath: false,
+      overrideTarget: true,
     };
     if (typeof selector === "function") {
       // 这是为没有selector的情况
@@ -294,8 +298,25 @@ class ElementEvent extends ElementAnimate {
               return false;
             });
             if (findValue) {
-              // 这里尝试使用defineProperty修改event的target值
-              // 不建议使用覆盖target，因为可能会有兼容性问题
+              if (listenerOption.overrideTarget) {
+                // 这里尝试使用defineProperty修改event的target值
+                try {
+                  const originTarget = event.target;
+                  OriginPrototype.Object.defineProperty(event, "target", {
+                    value: $target,
+                    get() {
+                      return $target;
+                    },
+                  });
+                  OriginPrototype.Object.defineProperty(event, "originTarget", {
+                    value: $target,
+                    get() {
+                      return originTarget;
+                    },
+                  });
+                  // oxlint-disable-next-line no-empty
+                } catch {}
+              }
               execCallback = true;
               call_this = $target;
               call_event = event;

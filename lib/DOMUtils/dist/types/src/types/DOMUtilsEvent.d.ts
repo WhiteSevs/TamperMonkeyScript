@@ -372,6 +372,13 @@ export declare type DOMUtilsEventListenerOption = AddEventListenerOptions & {
    * @default false
    */
   isComposedPath?: boolean;
+  /**
+   * 是否覆写`target`，仅传入了子元素的`selectorTarget`时才会生效
+   *
+   * 原始的`target`将命名为`originTarget`
+   * @default true
+   */
+  overrideTarget?: boolean;
 };
 export declare type DOMUtilsElementEventType =
   | HTMLElement
