@@ -25,16 +25,6 @@ export const DouYinHook = {
     Panel.execMenu("dy-cookie-remove__ac__", () => {
       this.removeCookie();
     });
-    Panel.onceExec("dy-video-or-live-doubleClickAction", () => {
-      if (DouYinRouter.isIndex()) {
-        const videoAction = Panel.getValue<string>("dy-video-doubleClickAction");
-        if (videoAction === "") return;
-      } else if (DouYinRouter.isLive()) {
-        const liveAction = Panel.getValue<string>("dy-live-doubleClickAction");
-        if (liveAction === "") return;
-      }
-      this.disableDoubleClickLike();
-    });
     // if (DouYinRouter.isLive()) {
     //   Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
     //     this.liveMessage();
@@ -390,85 +380,6 @@ export const DouYinHook = {
       }
     );
     return listener.off;
-  },
-  /**
-   * 禁用双击点赞
-   */
-  disableDoubleClickLike() {
-    let latestClickTime: number | null = null;
-    let preventFlag = true;
-    const check = () => {
-      preventFlag = false;
-      if (DouYinRouter.isIndex()) {
-        const videoAction = Panel.getValue<string>("dy-video-doubleClickAction");
-        if (videoAction === "") return;
-      } else if (DouYinRouter.isLive()) {
-        const liveAction = Panel.getValue<string>("dy-live-doubleClickAction");
-        if (liveAction === "") return;
-      }
-      preventFlag = true;
-    };
-    Panel.addValueChangeListener("dy-video-doubleClickAction", check);
-    Panel.addValueChangeListener("dy-live-doubleClickAction", check);
-    Hook.element_addEventListener((target, eventName, listener) => {
-      const listenerStr = listener.toString();
-      if (
-        eventName === "click" &&
-        target instanceof HTMLElement &&
-        ((DouYinRouter.isIndex() &&
-          target?.classList?.contains("xgplayer") &&
-          listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
-          (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
-      ) {
-        log.success(`hook：success click double event listener`);
-        return function (this: any, ...eventArgs: any[]) {
-          if (!preventFlag) return;
-          if (latestClickTime == null) {
-            // first click
-            latestClickTime = Date.now();
-          }
-          const currentClickTime = Date.now();
-          const [event] = eventArgs;
-          const calcValue = currentClickTime - latestClickTime;
-          if (calcValue > 50 && calcValue <= 288) {
-            latestClickTime = currentClickTime;
-            log.success("阻止触发双击点赞：" + calcValue);
-            if (event instanceof Event) {
-              const $target = event.target;
-              if ($target && $target instanceof HTMLVideoElement) {
-                // 因为双击会暂停视频，所以这里再播放
-                if ($target.paused) {
-                  const listener = DOMUtils.on($target, "play", () => {
-                    log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
-                    utils.workerClearTimeout(timeId);
-                    $target.pause();
-                    listener.off();
-                  });
-                  const timeId = utils.workerSetTimeout(() => {
-                    listener.off();
-                  }, 1000);
-                } else {
-                  const listener = DOMUtils.on($target, "pause", () => {
-                    log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
-                    utils.workerClearTimeout(timeId);
-                    $target.play();
-                    listener.off();
-                  });
-                  const timeId = utils.workerSetTimeout(() => {
-                    listener.off();
-                  }, 1000);
-                }
-              }
-            }
-            return;
-          }
-          // 更新最后点击的时间
-          latestClickTime = currentClickTime;
-          const ret = Reflect.apply(listener, this, eventArgs);
-          return ret;
-        };
-      }
-    });
   },
   /**
    * 对直播消息过滤的劫持

@@ -28,6 +28,7 @@ export const MDouYinShareChallenge = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },
@@ -52,6 +53,7 @@ export const MDouYinShareChallenge = {
     };
     const result = DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
       capture: true,
+      overrideTarget: false,
     });
     return [result.off];
   },

@@ -32,6 +32,7 @@ export const MDouYinShareMusic = {
     };
     const result = DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
       capture: true,
+      overrideTarget: false,
     });
     return [result.off];
   },

@@ -104,7 +104,10 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                   void 0,
                   "为你找到以下结果，问问AI智能总结内容"
                 ),
+                UISwitch("【屏蔽】AI为你生成回答", "dy-search-blockAIAssistant"),
                 UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-search-blockUserLiveFlashingAvatar"),
+                UISwitch("【屏蔽】关键词选项", "dy-search-blockKeywordsOptions"),
+                UISwitch("【屏蔽】侧边栏", "dy-search-blockSideBar"),
               ],
             },
           ],

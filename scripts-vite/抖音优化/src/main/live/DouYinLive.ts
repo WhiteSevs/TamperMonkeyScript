@@ -596,25 +596,24 @@ export const DouYinLive = {
    * @param doubleClickAction 双击动作
    * @param oneClickAction 单击动作
    */
-  oneClickOrDoubleClickAction(
+  async oneClickOrDoubleClickAction(
     doubleClickAction: "website-fullscreen" | "fullscreen",
     oneClickAction: "switch-video-play-state"
   ) {
     const isWebSiteFullScreen = doubleClickAction === "website-fullscreen";
     log.info("双击video动作：" + doubleClickAction);
-    const listener = DOMUtils.onDoubleClick(
+    const listener = DOMUtils.onOneOrDouble(
       document,
       '[id^="living_player_container"] .douyin-player',
       (evt, $selector, options) => {
-        // @ts-expect-error
-        const $click = evt.originTarget || evt.srcElement;
+        const $click = evt.target;
         if ($click instanceof Element) {
           if ($click.closest(".douyin-player-controls")) {
             return;
           }
         }
-        DOMUtils.preventEvent(evt);
-        if (options.isDoubleClick) {
+        if (options.isDouble) {
+          DOMUtils.preventEvent(evt);
           DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
         } else {
           if (oneClickAction == "switch-video-play-state") {
@@ -635,6 +634,9 @@ export const DouYinLive = {
       },
       {
         capture: true,
+        eventType: "click",
+        checkClickTime: 250,
+        overrideTarget: false,
       }
     );
     return [

@@ -321,30 +321,26 @@ export const DouYinVideoPlayer = {
    * @param action 动作
    */
   doubleClickAction(action: "website-fullscreen" | "fullscreen") {
-    let isDouble = false;
     const isWebSiteFullScreen = action === "website-fullscreen";
     log.info("双击video动作：" + action);
-    const listener = DOMUtils.on<MouseEvent | PointerEvent>(
+    const listener = DOMUtils.onOneOrDouble(
       document,
-      "click",
       [".newVideoPlayer", ".slider-video"],
-      () => {
-        if (isDouble) {
-          isDouble = false;
+      (evt, $selector, options) => {
+        if (options.isDouble) {
+          // 双击
+          DOMUtils.preventEvent(evt);
           this.autoEnterElementFullScreen(true, isWebSiteFullScreen);
-        } else {
-          isDouble = true;
-          setTimeout(() => {
-            isDouble = false;
-          }, 250);
         }
+      },
+      {
+        capture: true,
+        eventType: "click",
+        checkClickTime: 250,
+        overrideTarget: false,
       }
     );
-    return [
-      () => {
-        listener.off();
-      },
-    ];
+    return listener.off;
   },
   /**
    * 评论区移到中间

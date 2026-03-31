@@ -64,9 +64,8 @@ export const MDouYinShareNote = {
       document,
       "click",
       "#masonry .card",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        const $click = event.target as HTMLDivElement;
         const rectFiber = utils.getReactInstance($click).reactFiber;
         if (!rectFiber) {
           log.error("获取reactFiber失败");
@@ -77,7 +76,7 @@ export const MDouYinShareNote = {
         const url = DouYinUrl.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
-      { capture: true }
+      { capture: true, overrideTarget: false }
     );
     return [result.off];
   },
@@ -140,9 +139,8 @@ export const MDouYinShareNote = {
       document,
       "click",
       ".message-con__footer",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        const $click = event.target as HTMLElement;
         const rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {
@@ -167,9 +165,8 @@ export const MDouYinShareNote = {
       document,
       "click",
       ".container .related-list-con .related-note-item",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        const $click = event.target as HTMLElement;
         const rectFiber = utils.getReactInstance($click).reactFiber;
 
         if (!rectFiber) {

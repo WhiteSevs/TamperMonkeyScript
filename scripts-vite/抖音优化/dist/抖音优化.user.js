@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.30
+// @version      2026.3.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @connect      *
@@ -2180,6 +2180,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
   const addStyle = domUtils.addStyle.bind(domUtils);
+  const addBlockCSS = CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
@@ -3197,16 +3198,6 @@
       Panel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
       });
-      Panel.onceExec("dy-video-or-live-doubleClickAction", () => {
-        if (DouYinRouter.isIndex()) {
-          const videoAction = Panel.getValue("dy-video-doubleClickAction");
-          if (videoAction === "") return;
-        } else if (DouYinRouter.isLive()) {
-          const liveAction = Panel.getValue("dy-live-doubleClickAction");
-          if (liveAction === "") return;
-        }
-        this.disableDoubleClickLike();
-      });
     },
     removeCookie() {
       const cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
@@ -3492,79 +3483,6 @@
         }
       );
       return listener.off;
-    },
-    disableDoubleClickLike() {
-      let latestClickTime = null;
-      let preventFlag = true;
-      const check = () => {
-        preventFlag = false;
-        if (DouYinRouter.isIndex()) {
-          const videoAction = Panel.getValue("dy-video-doubleClickAction");
-          if (videoAction === "") return;
-        } else if (DouYinRouter.isLive()) {
-          const liveAction = Panel.getValue("dy-live-doubleClickAction");
-          if (liveAction === "") return;
-        }
-        preventFlag = true;
-      };
-      Panel.addValueChangeListener("dy-video-doubleClickAction", check);
-      Panel.addValueChangeListener("dy-live-doubleClickAction", check);
-      Hook.element_addEventListener((target, eventName, listener) => {
-        const listenerStr = listener.toString();
-        if (
-          eventName === "click" &&
-          target instanceof HTMLElement &&
-          ((DouYinRouter.isIndex() &&
-            target?.classList?.contains("xgplayer") &&
-            listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) ||
-            (DouYinRouter.isLive() && target?.classList?.contains("douyin-player")))
-        ) {
-          log.success(`hook：success click double event listener`);
-          return function (...eventArgs) {
-            if (!preventFlag) return;
-            if (latestClickTime == null) {
-              latestClickTime = Date.now();
-            }
-            const currentClickTime = Date.now();
-            const [event] = eventArgs;
-            const calcValue = currentClickTime - latestClickTime;
-            if (calcValue > 50 && calcValue <= 288) {
-              latestClickTime = currentClickTime;
-              log.success("阻止触发双击点赞：" + calcValue);
-              if (event instanceof Event) {
-                const $target = event.target;
-                if ($target && $target instanceof HTMLVideoElement) {
-                  if ($target.paused) {
-                    const listener2 = domUtils.on($target, "play", () => {
-                      log.info(`双击前该视频在暂停中，这里触发播放，主动暂停视频`);
-                      utils.workerClearTimeout(timeId);
-                      $target.pause();
-                      listener2.off();
-                    });
-                    const timeId = utils.workerSetTimeout(() => {
-                      listener2.off();
-                    }, 1e3);
-                  } else {
-                    const listener2 = domUtils.on($target, "pause", () => {
-                      log.info(`双击前该视频在播放中，这里触发暂停，主动播放视频`);
-                      utils.workerClearTimeout(timeId);
-                      $target.play();
-                      listener2.off();
-                    });
-                    const timeId = utils.workerSetTimeout(() => {
-                      listener2.off();
-                    }, 1e3);
-                  }
-                }
-              }
-              return;
-            }
-            latestClickTime = currentClickTime;
-            const ret = Reflect.apply(listener, this, eventArgs);
-            return ret;
-          };
-        }
-      });
     },
     liveMessage() {
       log.info(`对直播消息过滤的劫持`);
@@ -4235,7 +4153,7 @@
     },
   };
   const blockCSS$8 =
-    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {\n  display: none !important;\n}\n';
+    '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]),\n/* 左上角顶部的 抖音精选 */\n#douyin-navigation > a[href*="/jingxuan"]:empty {\n  display: none !important;\n}\n';
   const DouYinGestureBackHashConfig = {
     videoCommentDrawer: "videoCommentDrawer",
   };
@@ -7050,25 +6968,25 @@
       }
     },
     doubleClickAction(action) {
-      let isDouble = false;
       const isWebSiteFullScreen = action === "website-fullscreen";
       log.info("双击video动作：" + action);
-      const listener = domUtils.on(document, "click", [".newVideoPlayer", ".slider-video"], () => {
-        if (isDouble) {
-          isDouble = false;
-          this.autoEnterElementFullScreen(true, isWebSiteFullScreen);
-        } else {
-          isDouble = true;
-          setTimeout(() => {
-            isDouble = false;
-          }, 250);
-        }
-      });
-      return [
-        () => {
-          listener.off();
+      const listener = domUtils.onOneOrDouble(
+        document,
+        [".newVideoPlayer", ".slider-video"],
+        (evt, $selector, options) => {
+          if (options.isDouble) {
+            domUtils.preventEvent(evt);
+            this.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+          }
         },
-      ];
+        {
+          capture: true,
+          eventType: "click",
+          checkClickTime: 250,
+          overrideTarget: false,
+        }
+      );
+      return listener.off;
     },
     changeCommentToBottom() {
       log.info("评论区移到中间");
@@ -9383,21 +9301,21 @@
       log.info(`禁用快捷键送礼 - localStorage处理`);
       window.localStorage.setItem("disable_shortcut_key_v2", "false");
     },
-    oneClickOrDoubleClickAction(doubleClickAction, oneClickAction) {
+    async oneClickOrDoubleClickAction(doubleClickAction, oneClickAction) {
       const isWebSiteFullScreen = doubleClickAction === "website-fullscreen";
       log.info("双击video动作：" + doubleClickAction);
-      const listener = domUtils.onDoubleClick(
+      const listener = domUtils.onOneOrDouble(
         document,
         '[id^="living_player_container"] .douyin-player',
         (evt, $selector, options) => {
-          const $click = evt.originTarget || evt.srcElement;
+          const $click = evt.target;
           if ($click instanceof Element) {
             if ($click.closest(".douyin-player-controls")) {
               return;
             }
           }
-          domUtils.preventEvent(evt);
-          if (options.isDoubleClick) {
+          if (options.isDouble) {
+            domUtils.preventEvent(evt);
             DouYinVideoPlayer.autoEnterElementFullScreen(true, isWebSiteFullScreen);
           } else {
             if (oneClickAction == "switch-video-play-state") {
@@ -9418,6 +9336,9 @@
         },
         {
           capture: true,
+          eventType: "click",
+          checkClickTime: 250,
+          overrideTarget: false,
         }
       );
       return [
@@ -9716,6 +9637,15 @@
       Panel.execMenuOnce("dy-search-blockUserLiveFlashingAvatar", () => {
         return this.blockUserLiveFlashingAvatar();
       });
+      Panel.execMenuOnce("dy-search-blockKeywordsOptions", () => {
+        return this.blockKeywordsOptions();
+      });
+      Panel.execMenuOnce("dy-search-blockSideBar", () => {
+        return this.blockSideBar();
+      });
+      Panel.execMenuOnce("dy-search-blockAIAssistant", () => {
+        return this.blockAIAssistant();
+      });
       this.resizeSearchFilterBar();
     },
     resizeSearchFilterBar() {
@@ -9774,7 +9704,11 @@
     },
     blockAskAI() {
       log.info(`【屏蔽】问问AI`);
-      return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:empty):has(svg)");
+      return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
+    },
+    blockAIAssistant() {
+      log.info(`【屏蔽】AI为你生成回答`);
+      return addBlockCSS('#search-result-container .search-result-card:first-child:has([data-card-name*="search_ai"])');
     },
     blockUserLiveFlashingAvatar() {
       log.info(`【屏蔽】用户直播时闪烁的头像`);
@@ -9788,6 +9722,14 @@
       }
     `
       );
+    },
+    blockKeywordsOptions() {
+      log.info(`【屏蔽】关键词选项`);
+      return addBlockCSS("#search-toolbar-container > div:nth-child(2):not(:empty)");
+    },
+    blockSideBar() {
+      log.info(`【屏蔽】侧边栏`);
+      return addBlockCSS("#douyin-sidebar");
     },
   };
   const DouYinSearch = {
@@ -12704,9 +12646,8 @@
         document,
         "click",
         ".user-playlet-list .playlet-item",
-        (event) => {
+        (event, $click) => {
           domUtils.preventEvent(event);
-          const $click = event.target;
           const reactFiber = utils.getReactInstance($click)?.reactFiber;
           const key = reactFiber?.key;
           if (key == null) {
@@ -12738,9 +12679,8 @@
         document,
         "click",
         ".post-list-container .user-post-cover",
-        (event) => {
+        (event, $click) => {
           domUtils.preventEvent(event);
-          const $click = event.target;
           const reactFiber = utils.getReactInstance($click)?.reactFiber;
           if (reactFiber?.return?.memoizedProps?.productionUrl) {
             const url = reactFiber?.return?.memoizedProps?.productionUrl;
@@ -12831,9 +12771,8 @@
         document,
         "click",
         "#masonry .card",
-        (event) => {
+        (event, $click) => {
           domUtils.preventEvent(event);
-          const $click = event.target;
           const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
@@ -12844,7 +12783,7 @@
           const url = DouYinUrl.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
       return [result.off];
     },
@@ -12898,9 +12837,8 @@
         document,
         "click",
         ".message-con__footer",
-        (event) => {
+        (event, $click) => {
           domUtils.preventEvent(event);
-          const $click = event.target;
           const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
@@ -12921,9 +12859,8 @@
         document,
         "click",
         ".container .related-list-con .related-note-item",
-        (event) => {
+        (event, $click) => {
           domUtils.preventEvent(event);
-          const $click = event.target;
           const rectFiber = utils.getReactInstance($click).reactFiber;
           if (!rectFiber) {
             log.error("获取reactFiber失败");
@@ -12966,6 +12903,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     },
@@ -12987,6 +12925,7 @@
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
         capture: true,
+        overrideTarget: false,
       });
       return [result.off];
     },
@@ -13018,6 +12957,7 @@
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
         capture: true,
+        overrideTarget: false,
       });
       return [result.off];
     },
@@ -14301,7 +14241,10 @@
                     void 0,
                     "为你找到以下结果，问问AI智能总结内容"
                   ),
+                  UISwitch("【屏蔽】AI为你生成回答", "dy-search-blockAIAssistant"),
                   UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-search-blockUserLiveFlashingAvatar"),
+                  UISwitch("【屏蔽】关键词选项", "dy-search-blockKeywordsOptions"),
+                  UISwitch("【屏蔽】侧边栏", "dy-search-blockSideBar"),
                 ],
               },
             ],

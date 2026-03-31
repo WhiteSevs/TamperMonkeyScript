@@ -3,6 +3,7 @@ import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { addBlockCSS } from "@components/env.base";
 
 export const DouYinSearchBlock = {
   init() {
@@ -17,6 +18,15 @@ export const DouYinSearchBlock = {
     });
     Panel.execMenuOnce("dy-search-blockUserLiveFlashingAvatar", () => {
       return this.blockUserLiveFlashingAvatar();
+    });
+    Panel.execMenuOnce("dy-search-blockKeywordsOptions", () => {
+      return this.blockKeywordsOptions();
+    });
+    Panel.execMenuOnce("dy-search-blockSideBar", () => {
+      return this.blockSideBar();
+    });
+    Panel.execMenuOnce("dy-search-blockAIAssistant", () => {
+      return this.blockAIAssistant();
     });
     this.resizeSearchFilterBar();
   },
@@ -87,7 +97,14 @@ export const DouYinSearchBlock = {
   blockAskAI() {
     // 为你找到以下结果，问问AI智能总结内容
     log.info(`【屏蔽】问问AI`);
-    return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:empty):has(svg)");
+    return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
+  },
+  /**
+   * 【屏蔽】AI为你生成回答
+   */
+  blockAIAssistant() {
+    log.info(`【屏蔽】AI为你生成回答`);
+    return addBlockCSS('#search-result-container .search-result-card:first-child:has([data-card-name*="search_ai"])');
   },
   /**
    * 【屏蔽】用户直播时闪烁的头像
@@ -102,5 +119,19 @@ export const DouYinSearchBlock = {
         --live-color: transparent !important;
       }
     `);
+  },
+  /**
+   * 【屏蔽】关键词选项
+   */
+  blockKeywordsOptions() {
+    log.info(`【屏蔽】关键词选项`);
+    return addBlockCSS("#search-toolbar-container > div:nth-child(2):not(:empty)");
+  },
+  /**
+   * 【屏蔽】侧边栏
+   */
+  blockSideBar() {
+    log.info(`【屏蔽】侧边栏`);
+    return addBlockCSS("#douyin-sidebar");
   },
 };

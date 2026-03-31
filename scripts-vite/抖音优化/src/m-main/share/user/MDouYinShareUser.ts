@@ -22,10 +22,9 @@ export const MDouYinShareUser = {
       document,
       "click",
       ".user-playlet-list .playlet-item",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
 
-        const $click = event.target as HTMLDivElement;
         const reactFiber = utils.getReactInstance($click)?.reactFiber;
         const key = reactFiber?.key;
         if (key == null) {
@@ -60,9 +59,8 @@ export const MDouYinShareUser = {
       document,
       "click",
       ".post-list-container .user-post-cover",
-      (event) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        const $click = event.target as HTMLDivElement;
         const reactFiber = utils.getReactInstance($click)?.reactFiber;
         if (reactFiber?.return?.memoizedProps?.productionUrl) {
           const url = reactFiber?.return?.memoizedProps?.productionUrl;

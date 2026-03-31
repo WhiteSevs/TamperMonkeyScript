@@ -17,6 +17,8 @@ div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
 .card-item:has(.h5-ad-video-card),
 .card-item:has([data-is-ad="true"]),
 /* 左侧导航栏的下面的下载抖音精选 */
-[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]) {
+[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]),
+/* 左上角顶部的 抖音精选 */
+#douyin-navigation > a[href*="/jingxuan"]:empty {
   display: none !important;
 }
