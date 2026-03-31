@@ -164,7 +164,7 @@ class ElementEvent extends ElementAnimate {
      * @param option
      */
     const getOption = function (args: IArguments, startIndex: number, option: DOMUtilsEventListenerOption) {
-      const currentParam = args[startIndex];
+      const currentParam: boolean | DOMUtilsEventListenerOption = args[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
         if (typeof args[startIndex + 1] === "boolean") {
@@ -174,18 +174,21 @@ class ElementEvent extends ElementAnimate {
           option.passive = args[startIndex + 2];
         }
       } else if (
+        currentParam &&
         typeof currentParam === "object" &&
         ("capture" in currentParam ||
           "once" in currentParam ||
           "passive" in currentParam ||
           "isComposedPath" in currentParam ||
-          "overrideTarget" in currentParam)
+          "overrideTarget" in currentParam ||
+          "isPreventEvent" in currentParam)
       ) {
         option.capture = currentParam.capture;
         option.once = currentParam.once;
         option.passive = currentParam.passive;
         option.isComposedPath = currentParam.isComposedPath;
         option.overrideTarget = currentParam.overrideTarget;
+        option.isPreventEvent = currentParam.isPreventEvent;
       }
       return option;
     };
@@ -264,6 +267,9 @@ class ElementEvent extends ElementAnimate {
          * @param event
          */
         const handlerCallBack = function (event: Event) {
+          if (listenerOption.isPreventEvent) {
+            that.preventEvent(event);
+          }
           let call_this: Element | undefined = void 0;
           let call_event: Event | undefined = void 0;
           let call_$selector: HTMLElement | undefined = void 0;
@@ -512,10 +518,15 @@ class ElementEvent extends ElementAnimate {
      * @param option
      */
     const getOption = function (args1: IArguments, startIndex: number, option: EventListenerOptions) {
-      const currentParam: EventListenerOptions | boolean = args1[startIndex];
+      const currentParam: boolean | DOMUtilsEventListenerOption = args1[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
-      } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
+      } else if (
+        currentParam &&
+        typeof currentParam === "object" &&
+        currentParam != null &&
+        "capture" in currentParam
+      ) {
         option.capture = currentParam.capture;
       }
       return option;

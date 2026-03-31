@@ -366,19 +366,26 @@ export declare interface DOMUtilsEventListenerOptionsAttribute {
  */
 export declare type DOMUtilsEventListenerOption = AddEventListenerOptions & {
   /**
-   * 是否使用 event.composedPath() 来代替 event.target
+   * 前提：传入了`selector`参数
    *
-   * 一般用于设置了selector参数
+   * 是否使用 event.composedPath() 来代替 event.target
    * @default false
    */
   isComposedPath?: boolean;
   /**
+   * 前提：传入了`selector`参数
+   *
    * 是否覆写`target`，仅传入了子元素的`selectorTarget`时才会生效
    *
    * 原始的`target`将命名为`originTarget`
    * @default true
    */
   overrideTarget?: boolean;
+  /**
+   * 是否阻止事件传播，包括阻止默认行为
+   * @default false
+   */
+  isPreventEvent?: boolean;
 };
 export declare type DOMUtilsElementEventType =
   | HTMLElement
