@@ -1456,6 +1456,12 @@ class ElementEvent extends ElementAnimate {
     options?: DOMUtilsDoubleEventEventListenerOption | boolean
   ): {
     off(): void;
+    /**
+     * 主动触发事件
+     * @param event 事件
+     * @param option 配置，如果不传入配置，则默认`isDouble`固定为false
+     */
+    emit(event: Event, option?: DOMUtilsDoubleEventOption): void;
   };
   /**
    * 监听事件单/双次触发
@@ -1475,9 +1481,21 @@ class ElementEvent extends ElementAnimate {
     options?: DOMUtilsDoubleEventEventListenerOption | boolean
   ): {
     off(): void;
+    /**
+     * 主动触发事件
+     * @param event 事件
+     * @param option 配置，如果不传入配置，则默认`isDouble`固定为false
+     */
+    emit(event: Event, option?: DOMUtilsDoubleEventOption): void;
   };
   onOneOrDouble(...args: any[]): {
     off(): void;
+    /**
+     * 主动触发事件
+     * @param event 事件
+     * @param option 配置，如果不传入配置，则默认`isDouble`固定为false
+     */
+    emit(event: Event, option?: DOMUtilsDoubleEventOption): void;
   } {
     const $el: DOMUtilsElementEventType = args[0];
     let selector: string | string[] | undefined | null = void 0;
@@ -1570,6 +1588,14 @@ class ElementEvent extends ElementAnimate {
         pointerUpListener.off();
         // @ts-expect-error
         eventNodeMap = null;
+      },
+      emit(event, option) {
+        callback(
+          event,
+          option || {
+            isDouble: false,
+          }
+        );
       },
     };
   }

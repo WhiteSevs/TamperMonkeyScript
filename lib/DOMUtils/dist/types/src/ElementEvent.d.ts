@@ -433,6 +433,12 @@ declare class ElementEvent extends ElementAnimate {
      */
     onOneOrDouble($el: DOMUtilsElementEventType, handler: (event: Event, option: DOMUtilsDoubleEventOption) => void | Promise<void>, options?: DOMUtilsDoubleEventEventListenerOption | boolean): {
         off(): void;
+        /**
+         * 主动触发事件
+         * @param event 事件
+         * @param option 配置，如果不传入配置，则默认`isDouble`固定为false
+         */
+        emit(event: Event, option?: DOMUtilsDoubleEventOption): void;
     };
     /**
      * 监听事件单/双次触发
@@ -443,6 +449,12 @@ declare class ElementEvent extends ElementAnimate {
      */
     onOneOrDouble<T = HTMLElement>($el: DOMUtilsElementEventType, selector: string | string[], handler: <E extends Event = Event>(event: E, $selector: T, option: DOMUtilsDoubleEventOption) => void | Promise<void>, options?: DOMUtilsDoubleEventEventListenerOption | boolean): {
         off(): void;
+        /**
+         * 主动触发事件
+         * @param event 事件
+         * @param option 配置，如果不传入配置，则默认`isDouble`固定为false
+         */
+        emit(event: Event, option?: DOMUtilsDoubleEventOption): void;
     };
     /**
      * 阻止事件传递
