@@ -1,5 +1,5 @@
 import { ElementAnimate } from "./ElementAnimate";
-import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsAddEventListenerResult, DOMUtilsDoubleClickOption, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
+import type { DOMUtils_Event, DOMUtils_EventType, DOMUtilsAddEventListenerResult, DOMUtilsDoubleEventEventListenerOption, DOMUtilsDoubleEventOption, DOMUtilsElementEventType, DOMUtilsEventListenerOption, DOMUtilsEventListenerOptionsAttribute } from "./types/DOMUtilsEvent";
 import type { DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import { WindowApi } from "./WindowApi";
@@ -426,22 +426,22 @@ declare class ElementEvent extends ElementAnimate {
      */
     onInput($el: HTMLInputElement | HTMLTextAreaElement, handler: (evt: InputEvent) => void | Promise<void>, option?: DOMUtilsEventListenerOption | boolean): DOMUtilsAddEventListenerResult;
     /**
-     * 双击监听，适配移动端
+     * 监听事件单/双次触发
      * @param $el 监听的元素
      * @param handler 处理的回调函数
      * @param options 监听器的配置
      */
-    onDoubleClick($el: DOMUtilsElementEventType, handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    onOneOrDouble($el: DOMUtilsElementEventType, handler: (event: Event, option: DOMUtilsDoubleEventOption) => void | Promise<void>, options?: DOMUtilsDoubleEventEventListenerOption | boolean): {
         off(): void;
     };
     /**
-     * 双击监听，适配移动端
+     * 监听事件单/双次触发
      * @param $el 监听的元素
      * @param selector 子元素选择器
      * @param handler 处理的回调函数
      * @param options 监听器的配置
      */
-    onDoubleClick<T = HTMLElement>($el: DOMUtilsElementEventType, selector: string | string[], handler: (event: MouseEvent | PointerEvent | TouchEvent, $selector: T, option: DOMUtilsDoubleClickOption) => void | Promise<void>, options?: DOMUtilsEventListenerOption | boolean): {
+    onOneOrDouble<T = HTMLElement>($el: DOMUtilsElementEventType, selector: string | string[], handler: <E extends Event = Event>(event: E, $selector: T, option: DOMUtilsDoubleEventOption) => void | Promise<void>, options?: DOMUtilsDoubleEventEventListenerOption | boolean): {
         off(): void;
     };
     /**

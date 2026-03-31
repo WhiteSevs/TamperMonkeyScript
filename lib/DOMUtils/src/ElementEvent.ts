@@ -1,14 +1,14 @@
 import { CommonUtils } from "./CommonUtils";
 import { ElementAnimate } from "./ElementAnimate";
 import { GlobalData } from "./GlobalData";
-import { OriginPrototype } from "./OriginPrototype";
 import type {
   DOMUtils_Event,
   DOMUtils_EventType,
   DOMUtilsAddEventListenerResult,
-  DOMUtilsDoubleClickHandler,
-  DOMUtilsDoubleClickHandlerWithSelector,
-  DOMUtilsDoubleClickOption,
+  DOMUtilsDoubleEventEventListenerOption,
+  DOMUtilsDoubleEventHandler,
+  DOMUtilsDoubleEventHandlerWithSelector,
+  DOMUtilsDoubleEventOption,
   DOMUtilsElementEventType,
   DOMUtilsEventListenerOption,
   DOMUtilsEventListenerOptionsAttribute,
@@ -242,6 +242,9 @@ class ElementEvent extends ElementAnimate {
       listenerOption = getOption(args, 4, listenerOption);
     }
     $elList.forEach(($elItem) => {
+      // window和document共用一个对象
+      // 这样就能处理子元素选择器无法匹配的问题
+      const targetIsWindow = CommonUtils.isWin($elItem);
       // 遍历事件名设置元素事件
       eventTypeList.forEach((eventName) => {
         /**
@@ -275,12 +278,7 @@ class ElementEvent extends ElementAnimate {
             } else {
               $target = event.target as HTMLElement;
             }
-            let $parent = $elItem;
-            if (CommonUtils.isWin($parent)) {
-              // window和document共用一个对象
-              // 这样就能处理子元素选择器无法匹配的问题
-              $parent = that.windowApi.document.documentElement;
-            }
+            const $parent = targetIsWindow ? that.windowApi.document.documentElement : $elItem;
             const findValue = selectorList.find((selectors) => {
               // 判断目标元素是否匹配选择器
               if (that.matches($target, selectors)) {
@@ -297,20 +295,7 @@ class ElementEvent extends ElementAnimate {
             });
             if (findValue) {
               // 这里尝试使用defineProperty修改event的target值
-              const originTarget = event.target;
-              try {
-                OriginPrototype.Object.defineProperty(event, "target", {
-                  get() {
-                    return $target;
-                  },
-                });
-                OriginPrototype.Object.defineProperty(event, "originTarget", {
-                  get() {
-                    return originTarget;
-                  },
-                });
-                // oxlint-disable-next-line no-empty
-              } catch {}
+              // 不建议使用覆盖target，因为可能会有兼容性问题
               execCallback = true;
               call_this = $target;
               call_event = event;
@@ -618,6 +603,9 @@ class ElementEvent extends ElementAnimate {
         if (handlers.length === 0) {
           // 如果没有任意的handler，那么删除该属性
           CommonUtils.delete(elementEvents, eventType);
+          if (Object.keys(elementEvents).length === 0) {
+            CommonUtils.delete($elItem, GlobalData.domEventSymbol);
+          }
         }
       });
       Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
@@ -663,13 +651,13 @@ class ElementEvent extends ElementAnimate {
     }
     $elList.forEach(($elItem) => {
       const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
-      symbolList.forEach((symbolItem) => {
-        if (!symbolItem.toString().startsWith("Symbol(events_")) {
+      symbolList.forEach((__symbol__) => {
+        if (!__symbol__.toString().startsWith("Symbol(events_")) {
           return;
         }
         const elementEvents: {
           [key: string]: DOMUtilsEventListenerOptionsAttribute[];
-        } = Reflect.get($elItem, symbolItem) || {};
+        } = Reflect.get($elItem, __symbol__) || {};
         const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
         iterEventNameList.forEach((eventName) => {
           const handlers: DOMUtilsEventListenerOptionsAttribute[] = elementEvents[eventName];
@@ -681,8 +669,11 @@ class ElementEvent extends ElementAnimate {
               capture: handler.option.capture,
             });
           }
-          const events = Reflect.get($elItem, symbolItem);
+          const events = Reflect.get($elItem, __symbol__);
           CommonUtils.delete(events, eventName);
+          if (Object.keys(events).length === 0) {
+            CommonUtils.delete($elItem, __symbol__);
+          }
         });
       });
     });
@@ -1454,44 +1445,44 @@ class ElementEvent extends ElementAnimate {
     };
   }
   /**
-   * 双击监听，适配移动端
+   * 监听事件单/双次触发
    * @param $el 监听的元素
    * @param handler 处理的回调函数
    * @param options 监听器的配置
    */
-  onDoubleClick(
+  onOneOrDouble(
     $el: DOMUtilsElementEventType,
-    handler: (event: MouseEvent | PointerEvent | TouchEvent, option: DOMUtilsDoubleClickOption) => void | Promise<void>,
-    options?: DOMUtilsEventListenerOption | boolean
+    handler: (event: Event, option: DOMUtilsDoubleEventOption) => void | Promise<void>,
+    options?: DOMUtilsDoubleEventEventListenerOption | boolean
   ): {
     off(): void;
   };
   /**
-   * 双击监听，适配移动端
+   * 监听事件单/双次触发
    * @param $el 监听的元素
    * @param selector 子元素选择器
    * @param handler 处理的回调函数
    * @param options 监听器的配置
    */
-  onDoubleClick<T = HTMLElement>(
+  onOneOrDouble<T = HTMLElement>(
     $el: DOMUtilsElementEventType,
     selector: string | string[],
-    handler: (
-      event: MouseEvent | PointerEvent | TouchEvent,
+    handler: <E extends Event = Event>(
+      event: E,
       $selector: T,
-      option: DOMUtilsDoubleClickOption
+      option: DOMUtilsDoubleEventOption
     ) => void | Promise<void>,
-    options?: DOMUtilsEventListenerOption | boolean
+    options?: DOMUtilsDoubleEventEventListenerOption | boolean
   ): {
     off(): void;
   };
-  onDoubleClick(...args: any[]): {
+  onOneOrDouble(...args: any[]): {
     off(): void;
   } {
     const $el: DOMUtilsElementEventType = args[0];
     let selector: string | string[] | undefined | null = void 0;
-    let handler: DOMUtilsDoubleClickHandler | DOMUtilsDoubleClickHandlerWithSelector;
-    let options: DOMUtilsEventListenerOption | boolean | undefined;
+    let handler: DOMUtilsDoubleEventHandler | DOMUtilsDoubleEventHandlerWithSelector;
+    let options: DOMUtilsDoubleEventEventListenerOption | boolean | undefined;
     if (args.length === 2) {
       if (typeof args[1] === "function") {
         handler = args[1];
@@ -1514,37 +1505,41 @@ class ElementEvent extends ElementAnimate {
       throw new Error("args length error");
     }
 
-    let clickMap = new WeakMap<Element, PointerEvent>();
-    let isDoubleClick = false;
+    let eventNodeMap = new WeakMap<Element, Event>();
+    let isDouble = false;
     let timer: number | undefined = void 0;
+    let eventType: DOMUtils_EventType | DOMUtils_EventType[] = "pointerup";
     /** 检测是否是单击的延迟时间 */
-    const checkClickTime = 200;
+    let checkClickTime = 200;
+    if (typeof options === "object" && options != null) {
+      if (typeof options.eventType === "string" || Array.isArray(options.eventType)) {
+        eventType = options.eventType;
+      }
+      if (typeof options.checkClickTime === "number") {
+        checkClickTime = options.checkClickTime;
+      }
+    }
 
-    const dblclick_handler = (
-      evt: MouseEvent | PointerEvent | TouchEvent,
-      option: DOMUtilsDoubleClickOption,
-      $selector?: HTMLElement
-    ) => {
+    const callback = (evt: Event, option: DOMUtilsDoubleEventOption, $selector?: HTMLElement) => {
       if ($selector) {
-        return (<DOMUtilsDoubleClickHandlerWithSelector>handler)(evt, $selector, option);
+        return (<DOMUtilsDoubleEventHandlerWithSelector>handler)(evt, $selector, option);
       } else {
-        return (<DOMUtilsDoubleClickHandler>handler)(evt, option);
+        return (<DOMUtilsDoubleEventHandler>handler)(evt, option);
       }
     };
 
     const pointerUpListener = this.on(
       $el,
-      "pointerup",
+      eventType,
       selector,
       (evt, $selector) => {
-        // this.preventEvent(evt);
         clearTimeout(timer);
         timer = void 0;
-        if (isDoubleClick && clickMap.has($selector as Element)) {
-          isDoubleClick = false;
-          clickMap.delete($selector);
-          /* 判定为双击 */
-          dblclick_handler(
+        if (isDouble && eventNodeMap.has($selector as Element)) {
+          isDouble = false;
+          eventNodeMap.delete($selector);
+          // 判定为双次
+          callback(
             evt,
             {
               isDoubleClick: true,
@@ -1553,9 +1548,9 @@ class ElementEvent extends ElementAnimate {
           );
         } else {
           timer = setTimeout(() => {
-            isDoubleClick = false;
-            // 判断为单击
-            dblclick_handler(
+            isDouble = false;
+            // 判断为单次
+            callback(
               evt,
               {
                 isDoubleClick: false,
@@ -1563,8 +1558,8 @@ class ElementEvent extends ElementAnimate {
               $selector
             );
           }, checkClickTime);
-          isDoubleClick = true;
-          clickMap.set($selector as Element, evt);
+          isDouble = true;
+          eventNodeMap.set($selector as Element, evt);
         }
       },
       options
@@ -1574,7 +1569,7 @@ class ElementEvent extends ElementAnimate {
       off() {
         pointerUpListener.off();
         // @ts-expect-error
-        clickMap = null;
+        eventNodeMap = null;
       },
     };
   }

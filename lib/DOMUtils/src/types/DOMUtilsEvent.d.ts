@@ -415,7 +415,7 @@ export declare interface DOMUtilsAddEventListenerResult {
 /**
  * 传递的双击配置信息
  */
-export declare type DOMUtilsDoubleClickOption = {
+export declare type DOMUtilsDoubleEventOption = {
   /**
    * 是否是双击
    *
@@ -426,18 +426,34 @@ export declare type DOMUtilsDoubleClickOption = {
 };
 
 /**
+ * 传入的配置项
+ */
+export declare type DOMUtilsDoubleEventEventListenerOption = DOMUtilsEventListenerOption & {
+  /**
+   * 检测单击的延迟事件
+   * @default 200
+   */
+  checkClickTime?: number;
+  /**
+   * 监听的事件
+   * @default "pointerup"
+   */
+  eventType?: DOMUtils_EventType;
+};
+
+/**
  * 双击的处理函数
  */
-export declare type DOMUtilsDoubleClickHandler = (
-  event: MouseEvent | PointerEvent | TouchEvent,
-  option: DOMUtilsDoubleClickOption
+export declare type DOMUtilsDoubleEventHandler = (
+  event: Event,
+  option: DOMUtilsDoubleEventOption
 ) => void | Promise<void>;
 
 /**
  * 双击的处理函数（传入了selector）
  */
-export declare type DOMUtilsDoubleClickHandlerWithSelector<T = HTMLElement> = (
-  event: MouseEvent | PointerEvent | TouchEvent,
+export declare type DOMUtilsDoubleEventHandlerWithSelector<T = HTMLElement> = (
+  event: Event,
   $selector: T,
-  option: DOMUtilsDoubleClickOption
+  option: DOMUtilsDoubleEventOption
 ) => void | Promise<void>;
