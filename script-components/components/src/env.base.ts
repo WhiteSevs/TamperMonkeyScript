@@ -186,6 +186,11 @@ const OriginPrototype = {
  */
 const addStyle = domUtils.addStyle.bind(domUtils);
 
+/** 
+ * 添加屏蔽CSS
+ */
+const addBlockCSS = CommonUtil.addBlockCSS.bind(CommonUtil);
+
 /**
  * 元素选择器
  */
@@ -268,4 +273,5 @@ export {
   utils,
   VUE_ROOT_ID,
   getPageMaxZIndex,
+  addBlockCSS,
 };
