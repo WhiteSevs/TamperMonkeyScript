@@ -1,6 +1,6 @@
 {
   "name": "qmsg",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
   "keywords": [
     "ScriptCat",
@@ -10,6 +10,10 @@
     "toast",
     "typescript"
   ],
+  "homepage": "https://github.com/WhiteSevs/Qmsg",
+  "bugs": {
+    "url": "https://github.com/WhiteSevs/Qmsg/issues"
+  },
   "license": "MIT",
   "author": "WhiteSev",
   "files": [
@@ -23,6 +27,7 @@
   "types": "dist/index.d.ts",
   "jsdelivr": "dist/index.umd.js",
   "exports": {
+    "./dist/*": "./dist/*",
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
@@ -41,27 +46,27 @@
     "build": "pnpm run format && pnpm run lint && rollup -c"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@rollup/plugin-commonjs": "^29.0.0",
+    "@eslint/js": "^10.0.1",
+    "@rollup/plugin-commonjs": "^29.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
-    "browserslist": "^4.28.1",
-    "caniuse-lite": "^1.0.30001770",
-    "eslint": "^9.39.2",
+    "browserslist": "^4.28.2",
+    "caniuse-lite": "^1.0.30001784",
+    "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-compat": "^6.0.2",
-    "eslint-plugin-prettier": "^5.5.4",
-    "globals": "^16.5.0",
-    "oxfmt": "^0.32.0",
-    "oxlint": "1.46.0",
-    "prettier": "^3.7.4",
-    "rollup": "^4.54.0",
+    "eslint-plugin-compat": "^7.0.1",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.4.0",
+    "oxfmt": "^0.43.0",
+    "oxlint": "1.58.0",
+    "prettier": "^3.8.1",
+    "rollup": "^4.60.1",
     "rollup-plugin-clear": "^2.0.7",
     "tslib": "^2.8.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.1"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0"
   },
   "packageManager": "pnpm@10.29.3"
 }
