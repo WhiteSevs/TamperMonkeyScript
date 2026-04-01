@@ -1,5 +1,5 @@
-# v1.7.0
+# v1.7.1
 
-## Deps
+## Feat
 
-- 移除依赖`worker-timers`
+- 导出`dist`文件夹，用于`moduleResolution: "bundler"`使用
