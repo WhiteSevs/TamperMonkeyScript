@@ -139,13 +139,13 @@ export const TiebaBaNei = {
         "uni-app .swiperItemWrapper .video-feed  .wake-app",
         "uni-app .swiperItemWrapper > div > div",
       ],
-      function (event) {
+      function (event, $click) {
         DOMUtils.preventEvent(event);
-        let vueInstance = VueUtils.getVue(event.target);
-        let pbUrl = vueInstance?.pbUrl;
-        let collectH5Url = vueInstance?.collectH5Url;
-        let tid = vueInstance?.tid ?? vueInstance?.thread?.tid ?? vueInstance?.config?.param?.tid;
-        let id = vueInstance?.id ?? vueInstance?.thread?.id;
+        const vueInst = VueUtils.getVue(event.target);
+        const pbUrl = vueInst?.pbUrl;
+        const collectH5Url = vueInst?.collectH5Url;
+        const tid = vueInst?.tid ?? vueInst?.thread?.tid ?? vueInst?.config?.param?.tid;
+        const id = vueInst?.id ?? vueInst?.thread?.id;
         let newUrl = "";
         if (pbUrl) {
           newUrl = window.location.origin + pbUrl;
@@ -155,6 +155,7 @@ export const TiebaBaNei = {
           // 合辑
           newUrl = decodeURIComponent(collectH5Url);
         } else {
+          log.error($click);
           Qmsg.error("获取帖子链接失败");
           return;
         }
@@ -326,7 +327,7 @@ export const TiebaBaNei = {
 				top: 48px;
 			}
 			#search .search-result-model{
-				top: 48px;
+        flex: 0 auto;
 				height: 32px;
 			}
 			#search .search-result-model .search-result-model-item[data-active]:after{

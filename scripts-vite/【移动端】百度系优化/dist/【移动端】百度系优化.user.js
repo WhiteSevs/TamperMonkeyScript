@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.29
+// @version      2026.4.1
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-C1bKlmFD.js"(exports$1, module) {
+    "entrance-CMe35jZS.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -589,6 +589,7 @@
         clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
       };
       const addStyle$1 = domUtils.addStyle.bind(domUtils);
+      CommonUtil.addBlockCSS.bind(CommonUtil);
       const $ = DOMUtils.selector.bind(DOMUtils);
       const $$ = DOMUtils.selectorAll.bind(DOMUtils);
       const VUE_ROOT_ID = "vite-app";
@@ -8282,13 +8283,13 @@ div[class^="new-summary-container_"] {
               "uni-app .swiperItemWrapper .video-feed  .wake-app",
               "uni-app .swiperItemWrapper > div > div",
             ],
-            function (event) {
+            function (event, $click) {
               domUtils.preventEvent(event);
-              let vueInstance = VueUtils.getVue(event.target);
-              let pbUrl = vueInstance?.pbUrl;
-              let collectH5Url = vueInstance?.collectH5Url;
-              let tid = vueInstance?.tid ?? vueInstance?.thread?.tid ?? vueInstance?.config?.param?.tid;
-              let id = vueInstance?.id ?? vueInstance?.thread?.id;
+              const vueInst = VueUtils.getVue(event.target);
+              const pbUrl = vueInst?.pbUrl;
+              const collectH5Url = vueInst?.collectH5Url;
+              const tid = vueInst?.tid ?? vueInst?.thread?.tid ?? vueInst?.config?.param?.tid;
+              const id = vueInst?.id ?? vueInst?.thread?.id;
               let newUrl = "";
               if (pbUrl) {
                 newUrl = window.location.origin + pbUrl;
@@ -8297,6 +8298,7 @@ div[class^="new-summary-container_"] {
               } else if (typeof collectH5Url === "string") {
                 newUrl = decodeURIComponent(collectH5Url);
               } else {
+                log.error($click);
                 Qmsg.error("获取帖子链接失败");
                 return;
               }
@@ -8438,7 +8440,7 @@ div[class^="new-summary-container_"] {
 				top: 48px;
 			}
 			#search .search-result-model{
-				top: 48px;
+        flex: 0 auto;
 				height: 32px;
 			}
 			#search .search-result-model .search-result-model-item[data-active]:after{
@@ -28220,24 +28222,30 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           searchSuggestion: null,
           currentSearchText: "",
         },
-        $ele: {
+        $el: {
           $searchInput: null,
         },
         init($input) {
-          this.$ele.$searchInput = $input;
+          this.$el.$searchInput = $input;
           this.initSearchSuggestion();
           let $oldMoreBtnDesc = $(".more-btn-desc");
           domUtils.on($oldMoreBtnDesc, "click", () => {
             this.enterSeachMode();
           });
-          domUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
+          const search = utils.debounce(() => {
             this.frontPageSeach();
           });
-          domUtils.onKeyboard(this.$ele.$searchInput, "keyup", (keyName) => {
-            if (keyName !== "Enter") {
+          domUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
+            search();
+          });
+          domUtils.onKeyup(this.$el.$searchInput, (evt) => {
+            if (evt.key !== "Enter") {
               return;
             }
-            this.frontPageSeach();
+            search();
+          });
+          domUtils.on(this.$el.$searchInput, "search", () => {
+            search();
           });
           domUtils.on(TiebaSearch.$el.$navSearchBack, "click", function () {
             TiebaSearch.quitSearchMode();
@@ -28247,14 +28255,14 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           domUtils.hide(TiebaSearch.$el.$selectWrapper);
           TiebaSearch.showSearchContainer();
           setTimeout(() => {
-            this.$ele.$searchInput.focus();
+            this.$el.$searchInput.focus();
           }, 20);
         },
         quiteSearchMode() {
           TiebaSearch.hideSearchContainer();
         },
         getSearchText() {
-          return this.$ele.$searchInput.value.trim();
+          return this.$el.$searchInput.value.trim();
         },
         frontPageSeach() {
           log.success("当前是在首页");
@@ -28302,8 +28310,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           let searchSuggestion = __pops__.searchSuggestion({
             $selfDocument: document,
             className: "WhiteSevsSearchSelect",
-            $target: this.$ele.$searchInput,
-            $inputTarget: this.$ele.$searchInput,
+            $target: this.$el.$searchInput,
+            $inputTarget: this.$el.$searchInput,
             data: [],
             isAbsolute: false,
             followTargetWidth: true,
@@ -28483,7 +28491,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 TiebaSearchSuggestion.init(this.$el.$searchInput);
                 return;
               }
-              const searchEvent = () => {
+              const searchEvent = utils.debounce(() => {
                 let searchText = this.getSearchText();
                 if (utils.isNull(searchText)) {
                   alert("请勿输入纯空格或空内容");
@@ -28499,7 +28507,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 this.showSearchResultModel();
                 this.clearOldSearchResult();
                 this.searchThread();
-              };
+              });
               domUtils.click(this.$el.$searchBtn, () => {
                 searchEvent();
               });
@@ -28507,6 +28515,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 if (evt.code !== "Enter") {
                   return;
                 }
+                searchEvent();
+              });
+              domUtils.on(this.$el.$searchInput, "search", () => {
                 searchEvent();
               });
               domUtils.click(this.$el.$navSearchBack, () => {
@@ -28690,6 +28701,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
 			overflow: auto;
       margin-top: 0;
       max-height: unset;
+      flex: 1;
 		}
 		.search-result-list .search_result{
 			background: var(--result-item-bg-color);
@@ -28821,7 +28833,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       height: unset !important;
       padding: 5px 10px;
       width: -webkit-fill-available;
-      flex: 1;
       overflow: auto;
     }
     .search-result-model .search-result-type-wrapper{

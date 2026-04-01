@@ -14,28 +14,38 @@ const TiebaSearchSuggestion = {
     searchSuggestion: null as unknown as any,
     currentSearchText: "",
   },
-  $ele: {
+  $el: {
     /**
      * 输入框
      */
     $searchInput: null as unknown as HTMLInputElement,
   },
   init($input: HTMLInputElement) {
-    this.$ele.$searchInput = $input;
+    this.$el.$searchInput = $input;
     this.initSearchSuggestion();
     let $oldMoreBtnDesc = $<HTMLElement>(".more-btn-desc")!;
     DOMUtils.on($oldMoreBtnDesc, "click", () => {
       this.enterSeachMode();
     });
-    DOMUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
+    const search = utils.debounce(() => {
       this.frontPageSeach();
     });
-    DOMUtils.onKeyboard(this.$ele.$searchInput, "keyup", (keyName) => {
-      if (keyName !== "Enter") {
+    // 点击搜索
+    DOMUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
+      search();
+    });
+    // 回车搜索
+    DOMUtils.onKeyup(this.$el.$searchInput, (evt) => {
+      if (evt.key !== "Enter") {
         return;
       }
-      this.frontPageSeach();
+      search();
     });
+    // 移动端键盘按下搜索键
+    DOMUtils.on(this.$el.$searchInput, "search", () => {
+      search();
+    });
+    // 退出搜索模式
     DOMUtils.on(TiebaSearch.$el.$navSearchBack, "click", function () {
       TiebaSearch.quitSearchMode();
     });
@@ -48,7 +58,7 @@ const TiebaSearchSuggestion = {
     TiebaSearch.showSearchContainer();
     // 自动获取焦点
     setTimeout(() => {
-      this.$ele.$searchInput.focus();
+      this.$el.$searchInput.focus();
     }, 20);
   },
   /**
@@ -61,7 +71,7 @@ const TiebaSearchSuggestion = {
    * 获取搜索内容
    */
   getSearchText() {
-    return this.$ele.$searchInput.value.trim();
+    return this.$el.$searchInput.value.trim();
   },
   /**
    * 帖子外搜索(也就是首页搜索吧)
@@ -130,8 +140,8 @@ const TiebaSearchSuggestion = {
     let searchSuggestion = pops.searchSuggestion({
       $selfDocument: document,
       className: "WhiteSevsSearchSelect",
-      $target: this.$ele.$searchInput,
-      $inputTarget: this.$ele.$searchInput,
+      $target: this.$el.$searchInput,
+      $inputTarget: this.$el.$searchInput,
       data: [],
       isAbsolute: false,
       followTargetWidth: true,
@@ -395,7 +405,7 @@ const TiebaSearch = {
        *
        * 按下回车键搜索
        */
-      const searchEvent = () => {
+      const searchEvent = utils.debounce(() => {
         let searchText = this.getSearchText();
         if (utils.isNull(searchText)) {
           alert("请勿输入纯空格或空内容");
@@ -413,7 +423,7 @@ const TiebaSearch = {
         this.showSearchResultModel();
         this.clearOldSearchResult();
         this.searchThread();
-      };
+      });
       // 点击搜索
       DOMUtils.click(this.$el.$searchBtn, () => {
         searchEvent();
@@ -423,6 +433,10 @@ const TiebaSearch = {
         if (evt.code !== "Enter") {
           return;
         }
+        searchEvent();
+      });
+      // 监听 search 事件
+      DOMUtils.on(this.$el.$searchInput, "search", () => {
         searchEvent();
       });
       // 设置返回按钮的点击事件-退出搜索模式
@@ -608,6 +622,7 @@ const TiebaSearch = {
 			overflow: auto;
       margin-top: 0;
       max-height: unset;
+      flex: 1;
 		}
 		.search-result-list .search_result{
 			background: var(--result-item-bg-color);
@@ -733,7 +748,6 @@ const TiebaSearch = {
       height: unset !important;
       padding: 5px 10px;
       width: -webkit-fill-available;
-      flex: 1;
       overflow: auto;
     }
     .search-result-model .search-result-type-wrapper{
