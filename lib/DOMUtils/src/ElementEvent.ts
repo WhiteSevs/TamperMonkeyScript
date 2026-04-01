@@ -173,22 +173,12 @@ class ElementEvent extends ElementAnimate {
         if (typeof args[startIndex + 2] === "boolean") {
           option.passive = args[startIndex + 2];
         }
-      } else if (
-        currentParam &&
-        typeof currentParam === "object" &&
-        ("capture" in currentParam ||
-          "once" in currentParam ||
-          "passive" in currentParam ||
-          "isComposedPath" in currentParam ||
-          "overrideTarget" in currentParam ||
-          "isPreventEvent" in currentParam)
-      ) {
-        option.capture = currentParam.capture;
-        option.once = currentParam.once;
-        option.passive = currentParam.passive;
-        option.isComposedPath = currentParam.isComposedPath;
-        option.overrideTarget = currentParam.overrideTarget;
-        option.isPreventEvent = currentParam.isPreventEvent;
+      } else if (currentParam && typeof currentParam === "object") {
+        for (const key in option) {
+          if (Reflect.has(currentParam, key)) {
+            Reflect.set(option, key, currentParam[key as keyof typeof currentParam]);
+          }
+        }
       }
       return option;
     };
@@ -308,16 +298,16 @@ class ElementEvent extends ElementAnimate {
                 // 这里尝试使用defineProperty修改event的target值
                 try {
                   const originTarget = event.target;
-                  OriginPrototype.Object.defineProperty(event, "target", {
-                    value: $target,
-                    get() {
-                      return $target;
+                  OriginPrototype.Object.defineProperties(event, {
+                    target: {
+                      get() {
+                        return $target;
+                      },
                     },
-                  });
-                  OriginPrototype.Object.defineProperty(event, "originTarget", {
-                    value: $target,
-                    get() {
-                      return originTarget;
+                    originTarget: {
+                      get() {
+                        return originTarget;
+                      },
                     },
                   });
                   // oxlint-disable-next-line no-empty
@@ -521,12 +511,7 @@ class ElementEvent extends ElementAnimate {
       const currentParam: boolean | DOMUtilsEventListenerOption = args1[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
-      } else if (
-        currentParam &&
-        typeof currentParam === "object" &&
-        currentParam != null &&
-        "capture" in currentParam
-      ) {
+      } else if (currentParam && typeof currentParam === "object" && "capture" in currentParam) {
         option.capture = currentParam.capture;
       }
       return option;
