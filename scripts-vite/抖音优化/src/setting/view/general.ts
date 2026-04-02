@@ -1,7 +1,7 @@
 import { DOMUtils, log } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { AutoOpenOrClose } from "../all-open-or-close";
 import { UIOwn } from "@components/setting/components/ui-own";
 
@@ -259,6 +259,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                   "自动等待元素出现并关闭登录弹窗"
                 ),
                 UISwitch("【屏蔽】左侧导航栏关注右边的小红点", "shieldLeftNavigator-tab-follow-red-dot"),
+                UISwitch("【屏蔽】是否续播手机在看的直播？", "block-continue-watching-phone-watching-live"),
               ],
             },
           ],
@@ -329,8 +330,8 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator"),
-                UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu"),
+                UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
+                UISwitch("【屏蔽】顶部右侧的菜单栏", "shield-topNav-rightMenu"),
               ],
             },
             {
@@ -362,6 +363,8 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UISwitch("【屏蔽】搜索框", "shieldSearch"),
+                UISwitch("【屏蔽】搜索按钮", "blockSearchButton"),
+                UISwitch("【屏蔽】搜索建议", "blockSearchSuggestion"),
                 UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder"),
                 UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch"),
                 UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot"),

@@ -5,7 +5,7 @@ import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
-import type { ReactFiberNode } from "@whitesev/utils/dist/types/src/types/React";
+import type { ReactFiberNode } from "@whitesev/utils/dist/types/src/types/React.js";
 import Qmsg from "qmsg";
 import { GM_download, unsafeWindow } from "ViteGM";
 import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoConversionInfo } from "../../../../types/DouYinVideoType";

@@ -1,9 +1,8 @@
-import { Panel } from "@components/setting/panel";
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { DouYinUtils } from "@/utils/DouYinUtils";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addBlockCSS } from "@components/env.base";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinSearchBlock = {
   init() {

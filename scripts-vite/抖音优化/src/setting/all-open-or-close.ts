@@ -1,5 +1,5 @@
 import { DOMUtils } from "@/env";
-import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
+import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu.js";
 
 const afterEnterDeepMenuCallBack: PopsPanelDeepViewConfig["afterEnterDeepMenuCallBack"] = (formConfig, container) => {
   const $oneClickOpen = container.$sectionBodyContainer.querySelector<HTMLAnchorElement>(".keyboard-oneClickOpen");

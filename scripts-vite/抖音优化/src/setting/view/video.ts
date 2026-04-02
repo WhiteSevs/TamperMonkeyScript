@@ -9,7 +9,7 @@ import { UISelect } from "@components/setting/components/ui-select";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { Panel } from "@components/setting/panel";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { AutoOpenOrClose } from "../all-open-or-close";
 
 export const PanelVideoConfig: PopsPanelContentConfig = {

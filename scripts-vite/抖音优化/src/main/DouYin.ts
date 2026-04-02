@@ -23,6 +23,7 @@ import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinVideoFilter } from "./video/filter/DouYinVideoFilter";
 import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
 import { DouYinFollow } from "./follow/DouYinFollow";
+import { DouYinBlock } from "./block-frame/DouYinBlock";
 
 export const DouYin = {
   init() {
@@ -39,6 +40,7 @@ export const DouYin = {
     DouYinVideoFilter.init();
     DouYinNetWorkHook.init();
     DouYinRedirect.init();
+    DouYinBlock.init();
     Panel.execMenuOnce("watchLoginDialogToClose", () => {
       return DouYinAccount.watchLoginDialogToClose();
     });
@@ -51,10 +53,6 @@ export const DouYin = {
     Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
       this.removeMetaAppleItunesApp();
     });
-    BlockLeftNavigator.init();
-    blockLeftNavigatorOther.init();
-    BlockTopNavigator.init();
-    BlockSearchFrame.init();
 
     Panel.execMenuOnce(
       "dy-common-listenRouterChange",

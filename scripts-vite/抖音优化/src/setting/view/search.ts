@@ -1,4 +1,4 @@
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UISelect } from "@components/setting/components/ui-select";
 import { AutoOpenOrClose } from "../all-open-or-close";

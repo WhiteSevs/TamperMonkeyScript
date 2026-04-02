@@ -1,11 +1,18 @@
 import { Panel } from "@components/setting/panel";
 import { addStyle, log } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { addBlockCSS } from "@components/env.base";
 
 export const BlockSearchFrame = {
   init() {
     Panel.execMenuOnce("shieldSearch", () => {
       return this.shieldSearch();
+    });
+    Panel.execMenuOnce("blockSearchButton", () => {
+      return this.blockSearchButton();
+    });
+    Panel.execMenuOnce("blockSearchSuggestion", () => {
+      return this.blockSearchSuggestion();
     });
     Panel.execMenuOnce("shieldSearchPlaceholder", () => {
       return this.shieldSearchPlaceholder();
@@ -25,6 +32,25 @@ export const BlockSearchFrame = {
     return CommonUtil.addBlockCSS(
       '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
     );
+  },
+  /**
+   * 【屏蔽】搜索按钮
+   */
+  blockSearchButton() {
+    log.info(`【屏蔽】搜索按钮`);
+    return addBlockCSS(
+      // 按钮左边的竖线
+      'div:empty:has(+button[data-e2e="searchbar-button"])',
+      // 按钮
+      'button[data-e2e="searchbar-button"]'
+    );
+  },
+  /**
+   * 【屏蔽】搜索建议
+   */
+  blockSearchSuggestion() {
+    log.info(`【屏蔽】搜索建议`);
+    return addBlockCSS('button[data-e2e="searchbar-button"]+div:has([data-text])');
   },
   /**
    * 【屏蔽】搜索框的提示

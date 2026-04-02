@@ -132,11 +132,19 @@ export const BlockTopNavigator = {
       addStyle(/*css*/ `
        /* pc端 or mobile端*/
       @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
+        #slidelist{
+          --recommend-video-slide-show-opt: 0px;
+        }
         #slidelist .page-recommend-container{
-          --recommend-video-container-margin-height: 0px;
-          margin: var(--recommend-video-container-margin-height) 0px !important;
-          height: ${window.innerHeight}px !important;
-          height: round(nearest, 100dvh, 1px) !important;
+          margin: 0px !important;
+          height: calc(${window.innerHeight}px - var(--recommend-video-slide-show-opt)) !important;
+          height: calc(round(nearest, 100dvh, 1px) - var(--recommend-video-slide-show-opt)) !important;
+        }
+        /* 当前播放的视频 */
+        #slidelist .page-recommend-container:has([data-e2e="feed-active-video"]),
+        /* 当前播放的直播 */
+        #slidelist .page-recommend-container:has([data-e2e="feed-live"] [data-e2e="live-slider"]){
+          margin-bottom: 12px !important;
         }
       }
 			`)
@@ -406,10 +414,10 @@ export const BlockTopNavigator = {
     return result;
   },
   /**
-   * 【屏蔽】右侧菜单栏
+   * 【屏蔽】顶部右侧的菜单栏
    */
   shieldRightMenu() {
-    log.info(`【屏蔽】右侧菜单栏`);
+    log.info(`【屏蔽】顶部右侧的菜单栏`);
     return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
   },
   /**
