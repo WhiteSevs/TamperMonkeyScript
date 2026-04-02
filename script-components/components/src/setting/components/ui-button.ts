@@ -1,7 +1,7 @@
-import type { PopsPanelButtonConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-button";
-import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
-import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
-import type { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
+import type { PopsPanelButtonConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-button.js";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common.js";
+import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button.js";
+import type { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon.js";
 import { ATTRIBUTE_INIT } from "../panel-config";
 
 /**

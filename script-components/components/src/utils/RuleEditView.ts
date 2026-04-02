@@ -1,4 +1,4 @@
-import type { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
+import type { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index.js";
 import { DOMUtils, pops, utils } from "../env.base";
 
 type RuleEditViewOption<T> = {

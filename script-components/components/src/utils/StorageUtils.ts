@@ -1,5 +1,5 @@
 import utils from "@whitesev/utils";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import {
   GM_addValueChangeListener,
   GM_deleteValue,

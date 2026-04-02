@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import Qmsg from "qmsg";
 import { DOMUtils, log, pops, utils } from "../env.base";
 import { PanelUISize } from "../setting/panel-ui-size";
@@ -885,7 +885,7 @@ class RulePanelView<T> {
   ) {
     // 动画配置
     /** 前一个菜单元素 */
-    const $currentSection = $el.matches("section") ? $el : $el.closest("section")!;
+    const $currentSection = $el.closest("section")!;
     const $deepMenuSection = DOMUtils.createElement("section", {
       className: "pops-panel-container pops-panel-deepMenu-container",
       innerHTML: /*html*/ `

@@ -1,4 +1,4 @@
-import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu.js";
 import { MenuRegister } from "../env.base";
 import { Panel } from "./panel";
 import { PanelContent } from "./panel-content";

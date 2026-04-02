@@ -1,11 +1,11 @@
-import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
-import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container.js";
+import type { PopsPanelDeepViewConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu.js";
 import type {
   PopsPanelConfig,
   PopsPanelContentConfig,
   PopsPanelViewConfig,
-} from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import Qmsg from "qmsg";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "./../utils/CommonUtil";

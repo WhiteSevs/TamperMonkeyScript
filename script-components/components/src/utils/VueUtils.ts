@@ -1,4 +1,4 @@
-import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import { unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 import { DOMUtils, log, utils } from "../env.base";

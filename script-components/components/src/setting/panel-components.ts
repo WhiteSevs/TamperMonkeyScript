@@ -1,5 +1,5 @@
 import Utils from "@whitesev/utils";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import { UIButton } from "./components/ui-button";
 import { UIButtonShortCut } from "./components/ui-button-shortcut";
 import { UIInput } from "./components/ui-input";

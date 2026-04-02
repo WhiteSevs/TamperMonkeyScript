@@ -1,4 +1,4 @@
-import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
+import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button.js";
 import Qmsg from "qmsg";
 import { DOMUtils, log } from "../../env.base";
 import { ATTRIBUTE_INIT } from "../panel-config";

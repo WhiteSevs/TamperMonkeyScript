@@ -1,7 +1,7 @@
 import type {
   PopsPanelSelectConfig,
   PopsPanelSelectDataOption,
-} from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
+} from "@whitesev/pops/dist/types/src/components/panel/types/components-select.js";
 import { log } from "../../env.base";
 import { Panel } from "../panel";
 import { PanelComponents, type PanelComponentsStorageApiValue } from "../panel-components";

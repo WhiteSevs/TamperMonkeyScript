@@ -1,5 +1,5 @@
-import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
-import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common.js";
+import type { PopsPanelSwitchConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch.js";
 import Qmsg from "qmsg";
 import { DOMUtils, log, pops } from "../../env.base";
 import { Panel } from "../panel";

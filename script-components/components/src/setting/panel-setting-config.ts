@@ -1,4 +1,4 @@
-import type { QmsgPosition } from "qmsg/dist/src/types/config";
+import type { QmsgPosition } from "qmsg/dist/src/types/config.js";
 
 const PanelSettingConfig = {
   /** Toast位置 */

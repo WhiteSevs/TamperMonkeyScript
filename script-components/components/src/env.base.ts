@@ -12,7 +12,7 @@ import {
   unsafeWindow,
 } from "ViteGM";
 import Qmsg from "qmsg";
-import type { QmsgPosition } from "qmsg/dist/src/types/config";
+import type { QmsgPosition } from "qmsg/dist/src/types/config.js";
 import { createApp } from "vue";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { Panel } from "./setting/panel";

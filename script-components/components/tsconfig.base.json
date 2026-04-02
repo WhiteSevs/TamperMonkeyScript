@@ -1,16 +1,16 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "esnext",
     "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": ["esnext", "DOM"],
     "skipLibCheck": true,
     "noEmit": true,
     "allowJs": true,
@@ -18,6 +18,7 @@
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "remove",
     "sourceMap": false,
-    "typeRoots": ["types"]
+    "typeRoots": ["types"],
+    "rootDir": "./../../"
   }
 }
