@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 export abstract class TestUIBase {
   /**

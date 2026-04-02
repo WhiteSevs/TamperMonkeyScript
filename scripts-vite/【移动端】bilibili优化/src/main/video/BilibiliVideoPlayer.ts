@@ -8,7 +8,7 @@ import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-pl
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
-import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliVideoArtPlayer, type BilibiliVideoArtPlayerOption } from "./artplayer/ArtPlayer";

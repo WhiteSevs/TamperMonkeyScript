@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.16
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.12/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -1257,20 +1257,20 @@
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -1282,7 +1282,7 @@
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -1293,9 +1293,9 @@
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -1303,7 +1303,7 @@
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -1316,7 +1316,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1392,8 +1395,8 @@
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -2036,20 +2039,20 @@
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -2064,7 +2067,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -2286,6 +2289,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
   const addStyle = domUtils.addStyle.bind(domUtils);
+  CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
@@ -11700,7 +11704,7 @@
   const UISwitch = function (
     text,
     key,
-    defaultValue,
+    defaultValue = false,
     clickCallBack,
     description,
     afterAddToUListCallBack,

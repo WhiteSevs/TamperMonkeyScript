@@ -1,5 +1,5 @@
 import { GM, GM_getValues, GM_setValues } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
@@ -8,7 +8,7 @@ import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container.js";
 
 export class ApiTest_getValues extends ApiAsyncTestBase {
   public isSupport() {

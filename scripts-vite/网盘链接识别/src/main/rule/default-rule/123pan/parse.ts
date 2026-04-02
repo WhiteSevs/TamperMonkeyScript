@@ -3,7 +3,7 @@ import { NetDiskCheckLinkValidityStatus } from "@/main/handler/check-valid/NetDi
 import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
 import Qmsg from "qmsg";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 import { NetDiskCheckLinkValidity_123pan } from "./checkLinkValidity";

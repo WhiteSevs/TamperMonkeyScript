@@ -1,6 +1,6 @@
 import { $$, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { indexedDB } from "@whitesev/utils/dist/types/src/indexedDB";
+import { indexedDB } from "@whitesev/utils/dist/types/src/indexedDB.js";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
 type IndexedDBReplaceRecordData = {

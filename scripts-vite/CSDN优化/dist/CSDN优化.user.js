@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.22
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_addValueChangeListener
@@ -528,6 +528,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
+  CommonUtil$1.addBlockCSS.bind(CommonUtil$1);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
@@ -2398,10 +2399,50 @@
       };
       return this;
     }
-    search(name, value) {
+    searchParams(name, value) {
       this.__searchParams.value.add({
         name,
         value,
+      });
+      return this;
+    }
+    search(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "same",
+      });
+      return this;
+    }
+    searchStartsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "startsWith",
+      });
+      return this;
+    }
+    searchEndsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "endsWith",
+      });
+      return this;
+    }
+    searchIncludes(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "includes",
+      });
+      return this;
+    }
+    searchMatch(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "match",
       });
       return this;
     }
@@ -2465,8 +2506,10 @@
             } else if (this.__origin.type === "match") {
               if (this.__origin.value instanceof RegExp) {
                 return this.__origin.value.test(urlInst.origin);
+              } else if (typeof this.__origin.value === "string") {
+                return urlInst.origin.match(this.__origin.value);
               } else {
-                throw new TypeError("origin value should be RegExp by type " + this.__origin.type);
+                throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
               }
             } else {
               throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
@@ -2504,8 +2547,10 @@
             } else if (this.__protocol.type === "match") {
               if (this.__protocol.value instanceof RegExp) {
                 return this.__protocol.value.test(urlInst.protocol);
-              } else {
+              } else if (typeof this.__protocol.value === "string") {
                 return urlInst.protocol.match(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
               }
             } else {
               throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
@@ -2545,8 +2590,10 @@
             } else if (this.__host.type === "match") {
               if (this.__host.value instanceof RegExp) {
                 return this.__host.value.test(host);
-              } else {
+              } else if (typeof this.__host.value === "string") {
                 return host.match(this.__host.value);
+              } else {
+                throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
               }
             } else {
               throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
@@ -2584,8 +2631,10 @@
             } else if (this.__pathname.type === "match") {
               if (this.__pathname.value instanceof RegExp) {
                 return this.__pathname.value.test(urlInst.pathname);
-              } else {
+              } else if (typeof this.__pathname.value === "string") {
                 return urlInst.pathname.match(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
               }
             } else {
               throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
@@ -2594,15 +2643,72 @@
             return true;
           }
         },
+
         () => {
           let flag2 = true;
-          if (this.__searchParams.value.size > 0) {
-            const searchParamsList = [];
-            this.__searchParams.value.forEach((item) => {
-              searchParamsList.push(item);
-            });
-            for (let index = 0; index < searchParamsList.length; index++) {
-              const item = searchParamsList[index];
+          const searchParamsList = [];
+          this.__searchParams.value.forEach((item) => {
+            searchParamsList.push(item);
+          });
+          for (let index = 0; index < searchParamsList.length; index++) {
+            const item = searchParamsList[index];
+            if (item.type) {
+              if (item.type === "same") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search === item.value.toString();
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "startsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.startsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "endsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.endsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "includes") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.includes(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "match") {
+                if (item.value instanceof RegExp) {
+                  return item.value.test(urlInst.search);
+                } else if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.match(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+                }
+              } else {
+                throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+              }
+            } else {
               if (typeof item.name === "string") {
                 let value = item.value;
                 if (
@@ -2628,7 +2734,7 @@
                     break;
                   }
                 } else {
-                  throw new TypeError("searchParams value should be string、RegExp、boolean、number、null、undefined");
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
                 }
               } else if (item.name instanceof RegExp) {
                 let targetKey = void 0;
@@ -2660,7 +2766,7 @@
                     }
                   } else {
                     throw new TypeError(
-                      "searchParams value should be string、RegExp、boolean、number、null、undefined"
+                      "searchParams value should be string, RegExp, boolean, number, null, undefined"
                     );
                   }
                 } else {
@@ -2680,19 +2786,22 @@
   }
   const RouterUtil = {
     host(host, href) {
-      return new RouterBuilder(href).host(host);
+      return RouterUtil.builder(href).host(host);
     },
     hostName(name, href) {
-      return new RouterBuilder(href).hostName(name);
+      return RouterUtil.builder(href).hostName(name);
     },
-    seach(name, value, href) {
-      return new RouterBuilder(href).search(name, value);
+    search(value, href) {
+      return RouterUtil.builder(href).search(value);
+    },
+    seachParams(name, value, href) {
+      return RouterUtil.builder(href).searchParams(name, value);
     },
     pathname(name, href) {
-      return new RouterBuilder(href).pathname(name);
+      return RouterUtil.builder(href).pathname(name);
     },
     protocol(protocol, href) {
-      return new RouterBuilder(href).protocol(protocol);
+      return RouterUtil.builder(href).protocol(protocol);
     },
     builder(href) {
       return new RouterBuilder(href);
@@ -4413,7 +4522,7 @@
   const UISwitch = function (
     text,
     key,
-    defaultValue,
+    defaultValue = false,
     clickCallBack,
     description,
     afterAddToUListCallBack,

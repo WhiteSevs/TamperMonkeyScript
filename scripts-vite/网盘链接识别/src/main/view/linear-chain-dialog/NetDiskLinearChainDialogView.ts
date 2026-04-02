@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
 

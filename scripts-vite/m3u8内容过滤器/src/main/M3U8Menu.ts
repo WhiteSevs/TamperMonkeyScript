@@ -1,6 +1,6 @@
 import { MenuRegister } from "@/env";
 import { M3U8Rule } from "./M3U8Rule";
-import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu.js";
 
 /**
  * 脚本菜单相关

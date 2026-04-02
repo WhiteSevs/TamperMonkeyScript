@@ -16,7 +16,7 @@ import { NetDiskCheckLinkValidity_uc } from "@/main/rule/default-rule/uc/checkLi
 import { NetDiskLinkView } from "@/main/view/link-view/NetDiskLinkView";
 import { NetDiskCheckLinkValidity_115pan } from "@/main/rule/default-rule/115pan/checkLinkValidity";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
-import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
+import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx.js";
 import { NetDiskCheckLinkValidity_360yunpan } from "@/main/rule/default-rule/360yunpan/checkLinkValidity";
 import { NetDiskCheckLinkValidityStatus } from "./NetDiskCheckLinkValidityStatus";
 import { NetDiskCheckLinkValidity_feijipan } from "@/main/rule/default-rule/feijipan/checkLinkValidity";

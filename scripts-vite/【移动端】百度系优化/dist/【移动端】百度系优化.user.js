@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.1
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -16,7 +16,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.30/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-CMe35jZS.js"(exports$1, module) {
+    "entrance-CoIhRUbf.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -6534,7 +6534,7 @@ match-attr##srcid##yx_entity_pc_san
         }
       }
       const searchToolBarCSS =
-        ".search-toolbar-container {\n  --back-icon-size: 14px;\n  --back-icon-padding-top-bottom: 12px;\n  --back-icon-padding-left-right: 14px;\n  --empty-icon-size: 14px;\n  --container-padding: 10px;\n  --input-height: 36px;\n  --input-border-height: 2px;\n  --suggestion-text-color: #6d6d6d;\n  --suggestion-left-icon-size: 26px;\n  --suggestion-left-icon-color: #6d6d6d;\n  --suggestion-right-icon-size: 22px;\n}\n.search-toolbar-container {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: 10000;\n  width: 100vw;\n  opacity: 1;\n  visibility: visible;\n  transition: all 0.2s;\n}\n.search-toolbar-inner {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n\n.search-toolbar {\n  display: flex;\n  align-items: center;\n  padding: var(--container-padding) 0px;\n  background: #fff;\n  position: sticky;\n  bottom: 0;\n}\n\n.search-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.search-icon svg {\n  width: 100%;\n  height: 100%;\n}\n.search-toolbar-back {\n  width: var(--back-icon-size);\n  height: var(--back-icon-size);\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\n}\n.search-form {\n  width: 100%;\n  border: var(--input-border-height) solid #222;\n  height: var(--input-height);\n  border-radius: 10px;\n  display: flex;\n  align-items: center;\n  margin-right: 10px;\n  position: relative;\n}\n.search-toolbar-input {\n  flex: 1;\n  margin: 12px;\n  border: 0;\n  background: transparent;\n}\n.search-toolbar-input::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n}\n.search-toolbar-input::-moz-search-clear-button {\n  display: none;\n}\n.search-toolbar-input:focus,\n.search-toolbar-input:focus-visible,\n.search-toolbar-input:focus-within {\n  outline: none;\n}\n.search-toolbar-input-inner {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  margin-right: 16px;\n}\n.search-toolbar-empty {\n  width: var(--empty-icon-size);\n  height: var(--empty-icon-size);\n  padding: 2px;\n}\n.search-form-submit {\n  font-size: 14px;\n  background: transparent;\n  border: 0;\n  margin: 0;\n  padding: 0;\n  user-select: none;\n  -webkit-user-select: none;\n}\n.search-form-submit[disabled] {\n  color: #6d6d6d;\n}\n.search-suggestion {\n  background: #f2f2f2;\n  flex: 1;\n  display: flex;\n  flex-direction: column-reverse;\n  height: 100%;\n  height: -webkit-fill-available;\n  overflow-y: auto;\n}\n.search-suggestion-item {\n  display: flex;\n  align-items: center;\n  padding: 8px 16px;\n}\n.search-suggestion-item-left-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: var(--suggestion-left-icon-size);\n  height: var(--suggestion-left-icon-size);\n}\n.search-suggestion-item-left-icon svg {\n  fill: var(--suggestion-left-icon-color);\n}\n.search-suggestion-item-text {\n  margin-left: 6px;\n  width: 100%;\n  text-align: left;\n  color: #000000;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  line-height: normal;\n}\n.search-suggestion-item-text em {\n  color: var(--suggestion-text-color);\n  font-style: unset;\n}\n.search-suggestion-item-right-icon {\n  display: flex;\n  align-items: center;\n  width: var(--suggestion-right-icon-size);\n  height: var(--suggestion-right-icon-size);\n}\n";
+        ".search-toolbar-container {\n  --back-icon-size: 14px;\n  --back-icon-padding-top-bottom: 12px;\n  --back-icon-padding-left-right: 14px;\n  --empty-icon-size: 14px;\n  --container-padding: 10px;\n  --input-height: 36px;\n  --input-border-height: 2px;\n  --suggestion-text-color: #6d6d6d;\n  --suggestion-left-icon-size: 26px;\n  --suggestion-left-icon-color: #6d6d6d;\n  --suggestion-right-icon-size: 22px;\n}\n.search-toolbar-container {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: 10000;\n  width: 100vw;\n  opacity: 1;\n  visibility: visible;\n  transition: all 0.2s;\n}\n.search-toolbar-inner {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n\n.search-toolbar {\n  display: flex;\n  align-items: center;\n  padding: var(--container-padding) 0px;\n  background: #fff;\n  position: sticky;\n  bottom: 0;\n}\n\n.search-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.search-icon svg {\n  width: 100%;\n  height: 100%;\n}\n.search-toolbar-back {\n  width: var(--back-icon-size);\n  height: var(--back-icon-size);\n  padding: var(--back-icon-padding-top-bottom) var(--back-icon-padding-left-right);\n}\n.search-form {\n  width: 100%;\n  border: var(--input-border-height) solid #222;\n  height: var(--input-height);\n  border-radius: 10px;\n  display: flex;\n  align-items: center;\n  margin-right: 10px;\n  position: relative;\n}\n.search-toolbar-input {\n  flex: 1;\n  margin: 12px;\n  border: 0;\n  background: transparent;\n}\n.search-toolbar-input::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n}\n.search-toolbar-input::-moz-search-clear-button {\n  display: none;\n}\n.search-toolbar-input:focus,\n.search-toolbar-input:focus-visible,\n.search-toolbar-input:focus-within {\n  outline: none;\n}\n.search-toolbar-input-inner {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  margin-right: 16px;\n}\n.search-toolbar-empty {\n  width: var(--empty-icon-size);\n  height: var(--empty-icon-size);\n  padding: 2px;\n}\n.search-form-submit {\n  font-size: 14px;\n  background: transparent;\n  border: 0;\n  margin: 0;\n  padding: 0;\n  user-select: none;\n  -webkit-user-select: none;\n}\n.search-form-submit[disabled] {\n  color: #6d6d6d;\n}\n.search-suggestion {\n  background: #f2f2f2;\n  flex: 1;\n  display: flex;\n  flex-direction: column-reverse;\n  height: 100%;\n  height: fit-content;\n  overflow-y: auto;\n}\n.search-suggestion-item {\n  display: flex;\n  align-items: center;\n  padding: 8px 16px;\n}\n.search-suggestion-item-left-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: var(--suggestion-left-icon-size);\n  height: var(--suggestion-left-icon-size);\n}\n.search-suggestion-item-left-icon svg {\n  fill: var(--suggestion-left-icon-color);\n}\n.search-suggestion-item-text {\n  margin-left: 6px;\n  width: 100%;\n  text-align: left;\n  color: #000000;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  line-height: normal;\n}\n.search-suggestion-item-text em {\n  color: var(--suggestion-text-color);\n  font-style: unset;\n}\n.search-suggestion-item-right-icon {\n  display: flex;\n  align-items: center;\n  width: var(--suggestion-right-icon-size);\n  height: var(--suggestion-right-icon-size);\n}\n";
       const BaiduSearchToolBar = {
         $el: {
           $container: null,
@@ -28786,7 +28786,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       flex-direction: column;
       justify-content: space-between;
       flex: 1;
-      height: -webkit-fill-available;
+      height: 100%;
+      height: fit-content;
     }
 		#search .search-result-author-name {
 			font-weight: unset;

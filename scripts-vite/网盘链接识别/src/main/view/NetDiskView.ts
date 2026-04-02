@@ -1,4 +1,4 @@
-import type { PopsEventConfig } from "@whitesev/pops/dist/types/src/types/event";
+import type { PopsEventConfig } from "@whitesev/pops/dist/types/src/types/event.js";
 import { NetDiskViewSizeConfig } from "./NetDiskViewSizeConfig";
 import { NetDiskSuspension } from "./suspension/NetDiskSuspensionView";
 import { NetDiskLinkView } from "./link-view/NetDiskLinkView";

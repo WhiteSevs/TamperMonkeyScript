@@ -1,7 +1,7 @@
 import { $, addStyle, log, pops } from "@/env";
 import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
-import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types";
+import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types/index.js";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 

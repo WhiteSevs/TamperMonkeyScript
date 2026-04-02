@@ -3,11 +3,11 @@ import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container.js";
 import type {
   PopsPanelContentConfig,
   PopsPanelViewConfig,
-} from "@whitesev/pops/dist/types/src/components/panel/types/index";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 import { NetDisk } from "../NetDisk";

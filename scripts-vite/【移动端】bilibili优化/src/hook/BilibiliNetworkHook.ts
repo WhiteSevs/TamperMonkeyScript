@@ -6,7 +6,7 @@ import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 
 export const XhrHook = {
   _ajaxHooker_: null as null | UtilsAjaxHookResult,

@@ -3,8 +3,8 @@ import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
+import type { HttpxResponse } from "@whitesev/utils/dist/types/src/types/Httpx.js";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 

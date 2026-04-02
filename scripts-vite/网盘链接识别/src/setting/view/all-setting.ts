@@ -10,7 +10,7 @@ import { UISelectMultiple } from "@components/setting/components/ui-select-multi
 import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import DOMUtils from "@whitesev/domutils";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import Qmsg from "qmsg";
 
 export const PanelUI_allSetting = (): PopsPanelContentConfig => {

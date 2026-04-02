@@ -1,4 +1,4 @@
-import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
 import { GeneratePanelStorage } from "./NetDiskDataUtils";
 
 // /** 数据过滤器 一般用于数据覆盖 */

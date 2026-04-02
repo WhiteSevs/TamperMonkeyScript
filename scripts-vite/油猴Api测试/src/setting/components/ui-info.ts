@@ -1,7 +1,7 @@
 import { DOMUtils, utils } from "@/env";
-import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
+import type { PopsPanelOwnConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-own.js";
 import { Tag, TagUtil, type TagName } from "../tag";
-import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
+import type { PopsPanelRightAsideContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-common.js";
 import { UIOwn } from "@components/setting/components/ui-own";
 
 export type UIInfoResultConfig = {

@@ -1,6 +1,6 @@
 import { CookieRule } from "@/main/cookieRule/CookieRule";
 import { UIButton } from "@components/setting/components/ui-button";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 export const Component_Rule: PopsPanelContentConfig = {
   id: "view-rule",

@@ -1,7 +1,7 @@
 import { log, utils } from "@/env";
 import { M3U8Rule } from "@/main/M3U8Rule";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 
 export const NetWorkHook = {
   get ajaxHooker(): UtilsAjaxHookResult {

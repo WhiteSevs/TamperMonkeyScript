@@ -1,7 +1,7 @@
 import { $$, log, OriginPrototype, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@components/utils/VueUtils";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 

@@ -1,5 +1,5 @@
 import { UISwitch } from "@components/setting/components/ui-switch";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 export const Component_Common: PopsPanelContentConfig = {
   id: "view-general",

@@ -1,5 +1,5 @@
 import { GM, GM_info } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
@@ -7,7 +7,7 @@ import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 import type { TagName } from "@/setting/tag";
-import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container.js";
 
 export class ApiTest_info extends ApiAsyncTestBase {
   public isSupport() {

@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";

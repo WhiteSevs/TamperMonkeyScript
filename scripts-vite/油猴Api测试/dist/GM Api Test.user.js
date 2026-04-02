@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -813,7 +813,7 @@
       },
     },
   };
-  const version$3 = "1.7.0";
+  const version$3 = "1.7.1";
   CompatibleProcessing();
   class Qmsg {
     $data;
@@ -897,7 +897,7 @@
     }
   }
   const qmsg = new Qmsg();
-  const version$2 = "1.9.11";
+  const version$2 = "2.0.5";
   let WindowApi$1 = class WindowApi {
     defaultApi = {
       document,
@@ -1932,6 +1932,7 @@
   const OriginPrototype$1 = {
     Object: {
       defineProperty: Object.defineProperty,
+      defineProperties: Object.defineProperties,
     },
   };
   class ElementEvent extends ElementAnimate {
@@ -1957,17 +1958,12 @@
           if (typeof args2[startIndex + 2] === "boolean") {
             option2.passive = args2[startIndex + 2];
           }
-        } else if (
-          typeof currentParam === "object" &&
-          ("capture" in currentParam ||
-            "once" in currentParam ||
-            "passive" in currentParam ||
-            "isComposedPath" in currentParam)
-        ) {
-          option2.capture = currentParam.capture;
-          option2.once = currentParam.once;
-          option2.passive = currentParam.passive;
-          option2.isComposedPath = currentParam.isComposedPath;
+        } else if (currentParam && typeof currentParam === "object") {
+          for (const key in option2) {
+            if (Reflect.has(currentParam, key)) {
+              Reflect.set(option2, key, currentParam[key]);
+            }
+          }
         }
         return option2;
       };
@@ -2006,6 +2002,7 @@
         once: false,
         passive: false,
         isComposedPath: false,
+        overrideTarget: true,
       };
       if (typeof selector === "function") {
         listenerCallBack = selector;
@@ -2014,6 +2011,7 @@
         listenerOption = getOption(args, 4, listenerOption);
       }
       $elList.forEach(($elItem) => {
+        const targetIsWindow = CommonUtils.isWin($elItem);
         eventTypeList.forEach((eventName) => {
           const checkOptionOnceToRemoveEventListener = () => {
             if (listenerOption.once) {
@@ -2021,6 +2019,9 @@
             }
           };
           const handlerCallBack = function (event) {
+            if (listenerOption.isPreventEvent) {
+              that.preventEvent(event);
+            }
             let call_this = void 0;
             let call_event = void 0;
             let call_$selector = void 0;
@@ -2036,10 +2037,7 @@
               } else {
                 $target = event.target;
               }
-              let $parent = $elItem;
-              if (CommonUtils.isWin($parent)) {
-                $parent = that.windowApi.document.documentElement;
-              }
+              const $parent = targetIsWindow ? that.windowApi.document.documentElement : $elItem;
               const findValue = selectorList.find((selectors) => {
                 if (that.matches($target, selectors)) {
                   return true;
@@ -2052,13 +2050,23 @@
                 return false;
               });
               if (findValue) {
-                try {
-                  OriginPrototype$1.Object.defineProperty(event, "target", {
-                    get() {
-                      return $target;
-                    },
-                  });
-                } catch {}
+                if (listenerOption.overrideTarget) {
+                  try {
+                    const originTarget = event.target;
+                    OriginPrototype$1.Object.defineProperties(event, {
+                      target: {
+                        get() {
+                          return $target;
+                        },
+                      },
+                      originTarget: {
+                        get() {
+                          return originTarget;
+                        },
+                      },
+                    });
+                  } catch {}
+                }
                 execCallback = true;
                 call_this = $target;
                 call_event = event;
@@ -2103,7 +2111,7 @@
         const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
-        } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
+        } else if (currentParam && typeof currentParam === "object" && "capture" in currentParam) {
           option2.capture = currentParam.capture;
         }
         return option2;
@@ -2182,6 +2190,9 @@
           }
           if (handlers.length === 0) {
             CommonUtils.delete(elementEvents, eventType);
+            if (Object.keys(elementEvents).length === 0) {
+              CommonUtils.delete($elItem, GlobalData.domEventSymbol);
+            }
           }
         });
         Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
@@ -2209,11 +2220,11 @@
       }
       $elList.forEach(($elItem) => {
         const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
-        symbolList.forEach((symbolItem) => {
-          if (!symbolItem.toString().startsWith("Symbol(events_")) {
+        symbolList.forEach((__symbol__) => {
+          if (!__symbol__.toString().startsWith("Symbol(events_")) {
             return;
           }
-          const elementEvents = Reflect.get($elItem, symbolItem) || {};
+          const elementEvents = Reflect.get($elItem, __symbol__) || {};
           const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
           iterEventNameList.forEach((eventName) => {
             const handlers = elementEvents[eventName];
@@ -2225,8 +2236,11 @@
                 capture: handler.option.capture,
               });
             }
-            const events = Reflect.get($elItem, symbolItem);
+            const events = Reflect.get($elItem, __symbol__);
             CommonUtils.delete(events, eventName);
+            if (Object.keys(events).length === 0) {
+              CommonUtils.delete($elItem, __symbol__);
+            }
           });
         });
       });
@@ -2616,7 +2630,7 @@
         },
       };
     }
-    onDoubleClick(...args) {
+    onOneOrDouble(...args) {
       const $el = args[0];
       let selector = void 0;
       let handler;
@@ -2642,11 +2656,20 @@
       } else {
         throw new Error("args length error");
       }
-      let clickMap = new WeakMap();
-      let isDoubleClick = false;
+      let eventNodeMap = new WeakMap();
+      let isDouble = false;
       let timer = void 0;
-      const checkClickTime = 200;
-      const dblclick_handler = (evt, option, $selector) => {
+      let eventType = "pointerup";
+      let checkClickTime = 200;
+      if (typeof options === "object" && options != null) {
+        if (typeof options.eventType === "string" || Array.isArray(options.eventType)) {
+          eventType = options.eventType;
+        }
+        if (typeof options.checkClickTime === "number") {
+          checkClickTime = options.checkClickTime;
+        }
+      }
+      const callback = (evt, option, $selector) => {
         if ($selector) {
           return handler(evt, $selector, option);
         } else {
@@ -2655,34 +2678,34 @@
       };
       const pointerUpListener = this.on(
         $el,
-        "pointerup",
+        eventType,
         selector,
         (evt, $selector) => {
           clearTimeout(timer);
           timer = void 0;
-          if (isDoubleClick && clickMap.has($selector)) {
-            isDoubleClick = false;
-            clickMap.delete($selector);
-            dblclick_handler(
+          if (isDouble && eventNodeMap.has($selector)) {
+            isDouble = false;
+            eventNodeMap.delete($selector);
+            callback(
               evt,
               {
-                isDoubleClick: true,
+                isDouble: true,
               },
               $selector
             );
           } else {
             timer = setTimeout(() => {
-              isDoubleClick = false;
-              dblclick_handler(
+              isDouble = false;
+              callback(
                 evt,
                 {
-                  isDoubleClick: false,
+                  isDouble: false,
                 },
                 $selector
               );
             }, checkClickTime);
-            isDoubleClick = true;
-            clickMap.set($selector, evt);
+            isDouble = true;
+            eventNodeMap.set($selector, evt);
           }
         },
         options
@@ -2690,7 +2713,15 @@
       return {
         off() {
           pointerUpListener.off();
-          clickMap = null;
+          eventNodeMap = null;
+        },
+        emit(event, option) {
+          callback(
+            event,
+            option || {
+              isDouble: false,
+            }
+          );
         },
       };
     }
@@ -3931,7 +3962,7 @@
     }
   };
   const domUtils$2 = new DOMUtils$1();
-  const version$1 = "4.2.3";
+  const version$1 = "4.2.4";
   const GlobalConfig = {
     config: {},
     setGlobalConfig(config) {
@@ -6918,6 +6949,8 @@
   }
 }
 `;
+  var skeletonCSS =
+    ".pops-skeleton-item {\n  --el-skeleton-color: #f0f2f5;\n  --el-skeleton-to-color: #e6e8eb;\n  width: 100%;\n  height: 18px;\n  border-radius: 4px;\n  background: var(--el-skeleton-color);\n  display: inline-block;\n}\n.pops-skeleton-item[data-circle] {\n  border-radius: 50%;\n}\n.pops-skeleton-item[data-img] {\n  width: unset;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 0px;\n}\n.pops-skeleton-item[data-img] svg {\n  color: #dcdfe6;\n  fill: currentcolor;\n  width: 22%;\n  height: 22%;\n}\n.pops-skeleton-item[data-animated] {\n  background: linear-gradient(\n    90deg,\n    var(--el-skeleton-color) 25%,\n    var(--el-skeleton-to-color) 37%,\n    var(--el-skeleton-color) 63%\n  );\n  background-size: 400% 100%;\n  animation: pops-el-skeleton-loading 1.4s ease infinite;\n}\n@keyframes pops-el-skeleton-loading {\n  0% {\n    background-position: 100% 50%;\n  }\n  100% {\n    background-position: 0 50%;\n  }\n}\n";
   const PopsCSS = {
     index: indexCSS,
     ninePalaceGridPosition: ninePalaceGridPositionCSS,
@@ -6936,6 +6969,7 @@
     panelCSS,
     rightClickMenu: rightClickMenuCSS,
     panelComponents_Select: panelComponents_Select_CSS,
+    skeletonCSS,
   };
   const PopsAnimation = {
     $data: {},
@@ -7955,6 +7989,10 @@
           css: PopsCSS.common,
         },
         {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
+        },
+        {
           name: "alertCSS",
           css: PopsCSS.alertCSS,
         },
@@ -8161,6 +8199,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
         {
           name: "confirmCSS",
@@ -8374,6 +8416,10 @@
           css: PopsCSS.common,
         },
         {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
+        },
+        {
           name: "drawerCSS",
           css: PopsCSS.drawerCSS,
         },
@@ -8583,6 +8629,7 @@
                 <style data-model-name="index">${PopsCSS.index}</style>
                 <style data-model-name="anim">${PopsCSS.anim}</style>
                 <style data-model-name="common">${PopsCSS.common}</style>
+                <style data-model-name="skeleton">${PopsCSS.skeletonCSS}</style>
                 `
                 : ""
             }
@@ -8844,6 +8891,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
         {
           name: "folderCSS",
@@ -9672,6 +9723,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
         {
           name: "iframeCSS",
@@ -11270,6 +11325,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
         {
           name: "tooltipCSS",
@@ -14098,6 +14157,10 @@
           css: PopsCSS.common,
         },
         {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
+        },
+        {
           name: "panelCSS",
           css: PopsCSS.panelCSS,
         },
@@ -14370,6 +14433,10 @@
           css: PopsCSS.common,
         },
         {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
+        },
+        {
           name: "promptCSS",
           css: PopsCSS.promptCSS,
         },
@@ -14588,6 +14655,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
         {
           name: "rightClickMenu",
@@ -15083,6 +15154,10 @@
         {
           name: "common",
           css: PopsCSS.common,
+        },
+        {
+          name: "skeleton",
+          css: PopsCSS.skeletonCSS,
         },
       ]);
       PopsElementHandler.addStyle($shadowRoot, config.style);
@@ -15975,7 +16050,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.11.11";
+  const version = "2.11.13";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -16093,8 +16168,9 @@
         );
       }
       waitForRequestKeys() {
+        const winHookInsts = win.__ajaxHooker.hookInsts;
         if (!this.request.async) {
-          win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
+          winHookInsts.forEach(({ hookFns, filters }) => {
             if (this.shouldFilter(filters)) return;
             hookFns.forEach((fn) => {
               if (getType(fn) === "[object Function]") catchError(fn, this.request);
@@ -16107,10 +16183,10 @@
         }
         const promises = [];
         const ignoreKeys = new Set(["type", "async", "response"]);
-        win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
+        winHookInsts.forEach(({ hookFns, filters }) => {
           if (this.shouldFilter(filters)) return;
           promises.push(
-            Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(() => {
+            Promise.all(hookFns.map((fn, index) => catchError(fn, this.request, index))).then(() => {
               const requestKeys = [];
               for (const key in this.request) !ignoreKeys.has(key) && requestKeys.push(key);
               return Promise.all(
@@ -16490,10 +16566,43 @@
         });
       });
     }
+    const removeHook = (fn, onlyRemove = false) => {
+      let flag = false;
+      for (let index = hookInst.hookFns.length - 1; index >= 0; index--) {
+        const __fn__ = hookInst.hookFns[index];
+        if (fn === __fn__) {
+          hookInst.hookFns.splice(index, 1);
+          flag = true;
+          if (onlyRemove) {
+            break;
+          }
+        }
+      }
+      return flag;
+    };
+    const removeFilter = () => {
+      if (Array.isArray(hookInst.filters)) {
+        hookInst.filters.length = 0;
+      } else {
+        hookInst.filters = [];
+      }
+    };
     return {
-      hook: (fn) => hookInst.hookFns.push(fn),
+      hook: (fn) => {
+        hookInst.hookFns.push(fn);
+        return {
+          remove: () => {
+            return removeHook(fn, true);
+          },
+        };
+      },
       filter: (arr) => {
-        if (Array.isArray(arr)) hookInst.filters = arr;
+        if (Array.isArray(arr)) {
+          hookInst.filters = arr;
+        }
+        return {
+          remove: removeFilter,
+        };
       },
       protect: () => {
         readonly(win, "XMLHttpRequest", winAh.fakeXHR);
@@ -16509,6 +16618,8 @@
           delete win.__ajaxHooker;
         }
       },
+      removeHook,
+      removeFilter,
     };
   };
   const AjaxHooker1_2_4 = function () {
@@ -16905,10 +17016,41 @@
       Object.keys(realXhr).forEach((key) => (fakeXhr[key] = realXhr[key]));
       fakeXhr.prototype = realXhr.prototype;
       win.fetch = fakeFetch;
+      const removeHook = (fn, onlyRemove = false) => {
+        let flag = false;
+        for (let index = hookFns.length - 1; index >= 0; index--) {
+          const __fn__ = hookFns[index];
+          if (fn === __fn__) {
+            hookFns.splice(index, 1);
+            flag = true;
+            if (onlyRemove) {
+              break;
+            }
+          }
+        }
+        return flag;
+      };
+      const removeFilter = () => {
+        if (Array.isArray(filter)) {
+          filter.length = 0;
+        } else {
+          filter = void 0;
+        }
+      };
       return {
-        hook: (fn) => hookFns.push(fn),
+        hook: (fn) => {
+          hookFns.push(fn);
+          return {
+            remove: () => {
+              return removeHook(fn, true);
+            },
+          };
+        },
         filter: (arr) => {
           filter = Array.isArray(arr) && arr.map(toFilterObj);
+          return {
+            remove: removeFilter,
+          };
         },
         protect: () => {
           readonly(win, "XMLHttpRequest", fakeXhr);
@@ -16918,6 +17060,8 @@
           writable(win, "XMLHttpRequest", realXhr);
           writable(win, "fetch", realFetch);
         },
+        removeHook,
+        removeFilter,
       };
     })();
   };
@@ -17340,10 +17484,18 @@
         this.items.set(key, value);
       });
     }
-    forEach(callbackfn) {
+    forEach(cb) {
       this.items.forEach((value, key) => {
-        callbackfn(value, key, this);
+        cb(value, key, this);
       });
+    }
+    find(cb) {
+      for (const [key, value] of this.items.entries()) {
+        const result = cb(value, key, this);
+        if (result) {
+          return result;
+        }
+      }
     }
     startsWith(key) {
       const keys = this.keys();
@@ -18004,32 +18156,32 @@
           if (requestOption.data != null && processData) {
             const method2 = requestOption.method;
             if (method2 === "GET" || method2 === "HEAD") {
-              const urlObj = new URL(requestOption.url);
+              const urlInst = new URL(requestOption.url);
               let urlSearch = "";
-              let isHandler = false;
+              let deleteData = false;
               if (typeof requestOption.data === "string") {
-                isHandler = true;
+                deleteData = true;
                 urlSearch = requestOption.data;
               } else if (typeof requestOption.data === "object") {
-                isHandler = true;
+                deleteData = true;
                 const searchParams = new URLSearchParams(requestOption.data);
                 urlSearch = searchParams.toString();
               }
-              if (isHandler) {
+              if (deleteData) {
                 Reflect.deleteProperty(requestOption, "data");
               }
-              if (urlSearch != "") {
-                if (urlObj.search === "") {
-                  urlObj.search = urlSearch;
+              if (urlSearch.trim() != "") {
+                if (urlInst.search.trim() === "") {
+                  urlInst.search = urlSearch;
                 } else {
-                  if (urlObj.search.endsWith("&")) {
-                    urlObj.search = urlObj.search + urlSearch;
+                  if (urlInst.search.trim().endsWith("&")) {
+                    urlInst.search = urlInst.search + urlSearch;
                   } else {
-                    urlObj.search = `${urlObj.search}&${urlSearch}`;
+                    urlInst.search = `${urlInst.search}&${urlSearch}`;
                   }
                 }
               }
-              requestOption.url = urlObj.toString();
+              requestOption.url = urlInst.toString();
             } else if (method2 === "POST" && requestOption.headers != null) {
               const headersKeyList = Object.keys(requestOption.headers);
               const ContentTypeIndex = headersKeyList.findIndex((headerKey) => {
@@ -18039,9 +18191,9 @@
                 );
               });
               if (ContentTypeIndex !== -1) {
-                const ContentTypeKey = headersKeyList[ContentTypeIndex];
-                const ContentType = requestOption.headers[ContentTypeKey];
-                if (ContentType.includes("application/json")) {
+                const contentTypeKey = headersKeyList[ContentTypeIndex];
+                const contentType = requestOption.headers[contentTypeKey].toLowerCase();
+                if (contentType.includes("application/json")) {
                   if (requestOption.data instanceof FormData) {
                     const entries = {};
                     requestOption.data.forEach((value, key) => {
@@ -18051,13 +18203,13 @@
                   } else if (typeof requestOption.data === "object") {
                     requestOption.data = JSON.stringify(requestOption.data);
                   }
-                } else if (ContentType.includes("application/x-www-form-urlencoded")) {
+                } else if (contentType.includes("application/x-www-form-urlencoded")) {
                   if (typeof requestOption.data === "object") {
                     requestOption.data = new URLSearchParams(requestOption.data).toString();
                   }
-                } else if (ContentType.includes("multipart/form-data")) {
+                } else if (contentType.includes("multipart/form-data")) {
                   if (requestOption.data instanceof FormData) {
-                    Reflect.deleteProperty(requestOption.headers, ContentTypeKey);
+                    Reflect.deleteProperty(requestOption.headers, contentTypeKey);
                   }
                 }
               }
@@ -20137,12 +20289,11 @@ ${err.stack}`);
       result = await Promise.all(result);
       return result.join("");
     }
-    ajaxHooker = (useOldVersion = false) => {
-      if (useOldVersion) {
-        return AjaxHooker1_2_4();
-      } else {
-        return ajaxHooker();
-      }
+    ajaxHooker = () => {
+      return ajaxHooker();
+    };
+    oldAjaxHooker = () => {
+      return AjaxHooker1_2_4();
     };
     canvasClickByPosition(canvasElement, clientX = 0, clientY = 0, view = this.windowApi.window) {
       if (!(canvasElement instanceof HTMLCanvasElement)) {
@@ -21161,16 +21312,23 @@ ${err.stack}`);
           characterDataOldValue: void 0,
         },
         immediate: false,
+        once: false,
       };
       observer_config = that.assign(default_obverser_config, observer_config);
       const windowMutationObserver =
         this.windowApi.window.MutationObserver ||
         this.windowApi.window.webkitMutationObserver ||
         this.windowApi.window.MozMutationObserver;
-      const mutationObserver = new windowMutationObserver(function (mutations, observer) {
+      const handler = (mutations, observer) => {
+        if (observer_config.once) {
+          observer.disconnect();
+        }
         if (typeof observer_config.callback === "function") {
           observer_config.callback(mutations, observer);
         }
+      };
+      const mutationObserver = new windowMutationObserver(function (mutations, observer) {
+        handler(mutations, observer);
       });
       if (Array.isArray(target) || target instanceof NodeList) {
         target.forEach((item) => {
@@ -21184,39 +21342,48 @@ ${err.stack}`);
         mutationObserver.observe(target, observer_config.config);
       }
       if (observer_config.immediate) {
-        if (typeof observer_config.callback === "function") {
-          observer_config.callback([], mutationObserver);
-        }
+        handler([], mutationObserver);
       }
       return mutationObserver;
     }
-    mutationVisible(target, callback, options) {
+    mutationVisible($el, callback, options) {
       if (typeof IntersectionObserver === "undefined") {
         throw new TypeError("IntersectionObserver is not defined");
       }
-      if (target == null) {
+      if ($el == null) {
         throw new TypeError("mutatuinVisible target is null");
       }
+      options = options || {};
       let defaultOptions = {
         root: null,
         rootMargin: "0px 0px 0px 0px",
         threshold: [0.01, 0.99],
       };
-      defaultOptions = this.assign(defaultOptions, options || {});
+      defaultOptions = this.assign(defaultOptions, options);
+      const handler = (entries, observer) => {
+        if (options.once) {
+          observer.disconnect();
+        }
+        if (typeof callback === "function") {
+          callback(entries, observer);
+        }
+      };
       const intersectionObserver = new IntersectionObserver((entries, observer) => {
         if (entries[0].isIntersecting) {
-          if (typeof callback === "function") {
-            callback(entries, observer);
-          }
+          handler(entries, observer);
         }
       }, defaultOptions);
-      if (Array.isArray(target)) {
-        target.forEach((item) => {
-          intersectionObserver.observe(item);
+      if (Array.isArray($el)) {
+        $el.forEach(($elItem) => {
+          intersectionObserver.observe($elItem);
         });
       } else {
-        intersectionObserver.observe(target);
+        intersectionObserver.observe($el);
       }
+      if (options.immediate) {
+        handler([], intersectionObserver);
+      }
+      return intersectionObserver;
     }
     noConflict() {
       if (this.windowApi.window.Utils) {
@@ -21893,10 +22060,16 @@ ${err.stack}`);
       return searhParamsStr;
     }
     searchParamStrToObj(searhParamsStr) {
-      if (typeof searhParamsStr !== "string") {
-        return {};
+      const params = {};
+      if (searhParamsStr == null) {
+        return params;
       }
-      return Object.fromEntries(new URLSearchParams(searhParamsStr));
+      const urlSearchParams =
+        searhParamsStr instanceof URLSearchParams ? searhParamsStr : new URLSearchParams(searhParamsStr);
+      urlSearchParams.forEach((value, key) => {
+        Reflect.set(params, key, value);
+      });
+      return params;
     }
     tryCatch = TryCatch;
     uniqueArray(
@@ -22631,6 +22804,70 @@ ${err.stack}`);
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
+    },
   };
   const utils = utils$1.noConflict();
   const domUtils = domUtils$2.noConflict();
@@ -22638,7 +22875,6 @@ ${err.stack}`);
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -22714,24 +22950,29 @@ ${err.stack}`);
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -22751,6 +22992,7 @@ ${err.stack}`);
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
+  CommonUtil2.addBlockCSS.bind(CommonUtil2);
   domUtils$2.selector.bind(domUtils$2);
   domUtils$2.selectorAll.bind(domUtils$2);
   new utils.GM_Cookie();
@@ -23298,18 +23540,22 @@ ${err.stack}`);
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new utils$1.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -23322,15 +23568,44 @@ ${err.stack}`);
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -23368,6 +23643,7 @@ ${err.stack}`);
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -23483,20 +23759,20 @@ ${err.stack}`);
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -23508,7 +23784,7 @@ ${err.stack}`);
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -23519,9 +23795,9 @@ ${err.stack}`);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -23529,7 +23805,7 @@ ${err.stack}`);
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -23542,7 +23818,10 @@ ${err.stack}`);
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -23618,8 +23897,8 @@ ${err.stack}`);
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -23819,13 +24098,24 @@ ${err.stack}`);
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -24251,20 +24541,20 @@ ${err.stack}`);
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -24279,7 +24569,7 @@ ${err.stack}`);
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;

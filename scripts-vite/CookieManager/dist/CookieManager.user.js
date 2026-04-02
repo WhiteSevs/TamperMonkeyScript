@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.15
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @grant        GM.cookie
@@ -329,6 +329,70 @@
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
+    },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
     },
   };
   const KEY = "GM_Panel";
@@ -661,20 +725,20 @@
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -686,7 +750,7 @@
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -697,9 +761,9 @@
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -707,7 +771,7 @@
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -720,7 +784,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -796,8 +863,8 @@
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -997,13 +1064,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1429,20 +1507,20 @@
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -1457,7 +1535,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -1562,7 +1640,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -1638,24 +1715,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   ({
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -1675,6 +1757,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   });
   const addStyle = domUtils.addStyle.bind(domUtils);
+  CommonUtil.addBlockCSS.bind(CommonUtil);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
@@ -3010,7 +3093,7 @@
   const UISwitch = function (
     text,
     key,
-    defaultValue,
+    defaultValue = false,
     clickCallBack,
     description,
     afterAddToUListCallBack,

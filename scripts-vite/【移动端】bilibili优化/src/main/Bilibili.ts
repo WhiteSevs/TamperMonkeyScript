@@ -13,7 +13,7 @@ import { BilibiliDynamic } from "./dynamic/BilibiliDynamic";
 import { BilibiliHook } from "@/hook/BilibiliHook";
 import { BilibiliHead } from "./head/BilibiliHead";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import { BilibiliSpace } from "./space/BilibiliSpace";
 import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";

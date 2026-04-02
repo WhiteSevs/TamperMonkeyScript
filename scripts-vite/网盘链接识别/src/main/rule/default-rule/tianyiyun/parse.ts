@@ -3,7 +3,7 @@ import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
 import Qmsg from "qmsg";
 
 export class NetDiskParse_Tianyiyun extends ParseFileCore {

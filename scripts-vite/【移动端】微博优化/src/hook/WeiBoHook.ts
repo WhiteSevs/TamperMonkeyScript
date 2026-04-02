@@ -4,7 +4,7 @@ import { WeiBoNetWorkHook } from "./WeiBoNetWorkHook";
 import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
 import { WeiBo } from "@/main/WeiBo";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { Panel } from "@components/setting/panel";
 

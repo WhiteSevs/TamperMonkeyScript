@@ -2,11 +2,11 @@ import { httpx, log, utils } from "@/env";
 import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types";
 import Qmsg from "qmsg";
 import { NetDiskAuthorization_feijipan_appToken } from "./authorization";
 import { EncryUtil } from "./encry";
 import type { FeiJiPanListJSON, FeiJiPanRecommendJSON } from "./Type";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
 
 export class NetDiskParse_feijipan extends ParseFileCore {
   isVip = false;

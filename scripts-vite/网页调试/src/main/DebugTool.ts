@@ -2,7 +2,10 @@ import { console, copy, MenuRegister } from "@/env";
 import { GlobalSettingConfig } from "@/setting/config";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import type { UtilsGMMenuClickCallBackData, UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import type {
+  UtilsGMMenuClickCallBackData,
+  UtilsGMMenuOption,
+} from "@whitesev/utils/dist/types/src/types/UtilsGMMenu.js";
 import { Chii } from "./Chii/Chii";
 import { Eruda } from "./Eruda/Eruda";
 import { PageSpy } from "./PageSpy/PageSpy";

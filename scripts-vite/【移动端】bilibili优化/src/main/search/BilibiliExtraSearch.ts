@@ -5,7 +5,7 @@ import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
-import type { QmsgMsg } from "qmsg/dist/src/QmsgInst";
+import type { QmsgMsg } from "qmsg/dist/src/QmsgInst.js";
 import beautifyCSS from "./css/beautify.css?raw";
 
 /**

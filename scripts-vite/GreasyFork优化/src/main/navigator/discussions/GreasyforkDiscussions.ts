@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { Panel } from "@components/setting/panel";
-import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
+import type { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index.js";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { DiscuessionsFilterRule, GreasyforkDiscussionsFilter } from "./GreasyforkDiscussionsFilter";

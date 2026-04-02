@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UIButton } from "@components/setting/components/ui-button";
 import { DebugToolConfig } from "@/main/DebugToolConfig";
 import { DOMUtils, utils } from "@/env";

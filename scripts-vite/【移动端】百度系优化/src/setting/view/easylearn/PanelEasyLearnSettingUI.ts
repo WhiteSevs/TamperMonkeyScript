@@ -1,6 +1,6 @@
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 const PanelEasyLearnSettingUI: PopsPanelContentConfig = {
   id: "baidu-panel-config-easy-learn",

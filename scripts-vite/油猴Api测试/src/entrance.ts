@@ -2,7 +2,7 @@ import { Panel } from "@components/setting/panel";
 import { PanelContent } from "@components/setting/panel-content";
 import { PanelMenu } from "@components/setting/panel-menu";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { GMTotal } from "./main/GMTotal";
 import { GrantTest_close } from "./main/grant/close";
 import { GrantTest_focus } from "./main/grant/focus";

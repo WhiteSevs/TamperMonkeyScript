@@ -41,7 +41,6 @@ export const GreasyforkScriptsCollectEvent = async function (scriptId: string | 
   const checkFavoriteFormInfo = (form: FormData, scriptId: string | number) => {
     let flag = false;
     scriptId = scriptId.toString().trim();
-    // @ts-expect-error
     for (const [key, value] of form.entries()) {
       if (key === "scripts-included[]" && value.toString().trim() === scriptId) {
         flag = true;

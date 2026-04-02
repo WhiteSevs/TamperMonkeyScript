@@ -2,7 +2,7 @@ import { utils } from "@/env";
 import { tieba_add_request_params_sign } from "@/main/tieba/api/sign";
 import { TiebaGlobalData } from "@/main/tieba/data/GlobalData";
 import { CommonUtil } from "@components/utils/CommonUtil";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 import { GM_getValue } from "ViteGM";
 
 export const NetWorkHook = {

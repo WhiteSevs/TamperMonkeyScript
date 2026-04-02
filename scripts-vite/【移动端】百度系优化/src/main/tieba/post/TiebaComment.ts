@@ -2,7 +2,7 @@ import { $, $$, DOMUtils, addStyle, httpx, loadingView, log, pops, utils } from 
 import { LoadingView } from "@/utils/LoadingView";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
-import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
+import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx.js";
 import Qmsg from "qmsg";
 import { ref } from "vue";
 import { TiebaCore } from "../TiebaCore";

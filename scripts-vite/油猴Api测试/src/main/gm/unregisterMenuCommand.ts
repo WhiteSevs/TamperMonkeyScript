@@ -1,6 +1,6 @@
 import { GM, GM_registerMenuCommand, GM_unregisterMenuCommand } from "ViteGM";
 import { ApiTestBase } from "../base/ApiTestBase";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
@@ -10,7 +10,7 @@ import { TagUtil } from "@/setting/tag";
 import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container";
+import type { PopsPanelContainerConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-container.js";
 
 export class ApiTest_unregisterMenuCommand extends ApiAsyncTestBase {
   public isSupport() {

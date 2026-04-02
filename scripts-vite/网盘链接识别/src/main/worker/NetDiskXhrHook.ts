@@ -1,5 +1,5 @@
 import { utils } from "@/env";
-import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskWorker } from "./NetDiskWorker";
 

@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import type Artplayer from "artplayer";
-import type { Selector } from "artplayer/types/component";
+import type { Selector } from "artplayer/types/component.js";
 import type { Events, Setting } from "artplayer";
 import { unsafeWindow } from "ViteGM";
 

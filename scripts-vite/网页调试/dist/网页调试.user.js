@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.3.10.22
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
@@ -394,6 +394,70 @@
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
+    formatVideoDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      const zeroPadding = function (num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      };
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return `${minutes}:${zeroPadding(seconds)}`;
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    formatTimeStamp(time, endTime) {
+      if (typeof time === "number") {
+        if (time < 1e12) {
+          const padZeroLength = String(Date.now()).length - String(time).length;
+          time = time * Math.pow(10, padZeroLength);
+        }
+      }
+      let result = time;
+      let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
+      let currentTime = new Date(endTime ?? Date.now());
+      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
+      if (days > 0) {
+        if (days > 7) {
+          result = utils.formatTime(oldTime.getTime());
+        } else {
+          result = days + "天前";
+        }
+      } else {
+        let leave1 = timeDifference % (24 * 3600 * 1e3);
+        let hours = Math.floor(leave1 / (3600 * 1e3));
+        if (hours > 0) {
+          result = hours + "小时前";
+        } else {
+          let leave2 = leave1 % (3600 * 1e3);
+          let minutes = Math.floor(leave2 / (60 * 1e3));
+          if (minutes > 0) {
+            result = minutes + "分钟前";
+          } else {
+            let leave3 = leave2 % (60 * 1e3);
+            let seconds = Math.round(leave3 / 1e3);
+            result = seconds + "秒前";
+          }
+        }
+      }
+      return result;
+    },
   };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
@@ -401,7 +465,6 @@
   const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   const SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.fn.Utils.AnyTouch();
-  const DEBUG = false;
   log.config({
     debug: false,
     logMaxCount: 250,
@@ -477,24 +540,29 @@
   });
   const httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG,
+    logDetails: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
   });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
-    } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+  httpx.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") {
+        Qmsg.warning("请求取消", { consoleLogContent: true });
+      } else if (data.type === "onerror") {
+        Qmsg.error("请求异常", { consoleLogContent: true });
+      } else if (data.type === "ontimeout") {
+        Qmsg.error("请求超时", { consoleLogContent: true });
+      } else {
+        Qmsg.error("其它错误", { consoleLogContent: true });
+      }
+      return data;
     }
-    return data;
-  });
+  );
   const OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
@@ -514,6 +582,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
   const addStyle = domUtils.addStyle.bind(domUtils);
+  CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
@@ -1052,18 +1121,22 @@
   class StorageUtils {
     storageKey;
     listenerData;
+    cacheData;
+    callbacks = [];
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
         if (trimKey == "") {
-          throw new Error("key参数不能为空字符串");
+          throw new Error("key can not be empty string");
         }
         this.storageKey = trimKey;
       } else {
-        throw new Error("key参数类型错误，必须是字符串");
+        throw new TypeError("key must be a string");
       }
       this.listenerData = new Utils.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
+      this.setLocalValue = this.setLocalValue.bind(this);
+      this.destory = this.destory.bind(this);
       this.set = this.set.bind(this);
       this.get = this.get.bind(this);
       this.getAll = this.getAll.bind(this);
@@ -1076,15 +1149,44 @@
       this.removeValueChangeListener = this.removeValueChangeListener.bind(this);
       this.emitValueChangeListener = this.emitValueChangeListener.bind(this);
     }
-    getLocalValue() {
-      let localValue = _GM_getValue(this.storageKey);
-      if (localValue == null) {
-        localValue = {};
-        this.setLocalValue(localValue);
+    [Symbol.dispose]() {
+      this.destory();
+    }
+    async [Symbol.asyncDispose]() {
+      this.destory();
+    }
+    destory() {
+      this.cacheData = null;
+      for (let index = this.callbacks.length - 1; index >= 0; index--) {
+        const cb = this.callbacks[index];
+        cb();
+        this.callbacks.splice(index, 1);
       }
-      return localValue;
+    }
+    getLocalValue() {
+      if (this.cacheData == null) {
+        let localValue = _GM_getValue(this.storageKey);
+        if (localValue == null) {
+          localValue = {};
+          this.setLocalValue(localValue);
+        }
+        this.destory();
+        this.cacheData = localValue;
+        const listenerId = _GM_addValueChangeListener(this.storageKey, (name, oldValue, newValue) => {
+          this.cacheData = null;
+          this.cacheData = newValue;
+        });
+        this.callbacks.push(() => {
+          _GM_removeValueChangeListener(listenerId);
+        });
+        return localValue;
+      } else {
+        return this.cacheData;
+      }
     }
     setLocalValue(value) {
+      this.cacheData = null;
+      this.cacheData = value;
       _GM_setValue(this.storageKey, value);
     }
     set(key, value) {
@@ -1122,6 +1224,7 @@
       return Reflect.ownKeys(localValue).map((key) => Reflect.get(localValue, key));
     }
     clear() {
+      this.destory();
       _GM_deleteValue(this.storageKey);
     }
     addValueChangeListener(key, callback) {
@@ -1237,20 +1340,20 @@
           return;
         }
         const attributes = config.attributes;
-        let __attr_init__ = attributes[ATTRIBUTE_INIT];
+        const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
+          const __attr_result__ = __attr_init__();
           if (typeof __attr_result__ === "boolean" && !__attr_result__) {
             return;
           }
         }
-        let menuDefaultConfig = new Map();
-        let key = attributes[ATTRIBUTE_KEY];
+        const menuDefaultConfig = new Map();
+        const key = attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = attributes[ATTRIBUTE_DEFAULT_VALUE];
           menuDefaultConfig.set(key, defaultValue);
         }
-        let moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
         if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
           Object.keys(moreMenuDefaultConfig).forEach((key2) => {
             const defaultValue = moreMenuDefaultConfig[key2];
@@ -1262,7 +1365,7 @@
           return;
         }
         if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
@@ -1273,9 +1376,9 @@
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
+          const configItem = configList[index];
           initDefaultValue(configItem);
-          let childViews = configItem.views;
+          const childViews = configItem.views;
           if (childViews && Array.isArray(childViews)) {
             loopInitDefaultValue(childViews);
           }
@@ -1283,7 +1386,7 @@
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
+        const leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.views) {
           continue;
         }
@@ -1296,7 +1399,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log.warn("该key已存在，初始化默认值失败: " + key);
+        log.warn("该key已存在，初始化默认值失败: ", {
+          key,
+          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        });
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1372,8 +1478,8 @@
       const listenerIdList = [];
       let destoryFnList = [];
       const addStoreValueCallback = (enableValue, args) => {
-        let dynamicMenuStoreValueList = [];
-        let dynamicDestoryFnList = [];
+        const dynamicMenuStoreValueList = [];
+        const dynamicDestoryFnList = [];
         let resultValueList = [];
         if (Array.isArray(args)) {
           resultValueList = resultValueList.concat(args);
@@ -1573,13 +1679,24 @@
       const flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    onceExec(key, callback) {
+    onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
       if (this.$data.onceExecData.has(key)) {
         return;
+      }
+      if (runWithMenuEnable) {
+        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
+          const menuEnable = !!Panel.getValue(it);
+          if (!menuEnable) {
+            return true;
+          }
+        });
+        if (findIndex !== -1) {
+          return;
+        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -2005,20 +2122,20 @@
               });
             }
           }
-          const fragment = document.createDocumentFragment();
+          const $fragment = document.createDocumentFragment();
           for (const pathInfo of searchConfigResult) {
-            let $resultItem = createSearchResultItem(pathInfo);
-            fragment.appendChild($resultItem);
+            const $resultItem = createSearchResultItem(pathInfo);
+            $fragment.appendChild($resultItem);
           }
           clearSearchResult();
-          $searchResultWrapper.append(fragment);
+          $searchResultWrapper.append($fragment);
         };
         domUtils.on(
           $searchInput,
           "input",
           utils.debounce((evt2) => {
             domUtils.preventEvent(evt2);
-            let searchText = domUtils.val($searchInput).trim();
+            const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
               clearSearchResult();
               return;
@@ -2033,7 +2150,7 @@
       $asideItems.forEach(($asideItem) => {
         domUtils.on($asideItem, "dblclick", dbclick_callback);
       });
-      let clickMap = new WeakMap();
+      const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
       let isMobileTouch = false;
@@ -3766,7 +3883,7 @@
   const UISwitch = function (
     text,
     key,
-    defaultValue,
+    defaultValue = false,
     clickCallBack,
     description,
     afterAddToUListCallBack,

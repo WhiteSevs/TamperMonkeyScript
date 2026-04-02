@@ -1,14 +1,14 @@
 import { NetDiskView } from "../view/NetDiskView";
 import { pops, utils } from "@/env";
-import type { PopsPanelConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import { PopsLoadingConfig } from "@whitesev/pops/dist/types/src/components/loading/types/index";
-import { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
-import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { PopsAlertConfig } from "@whitesev/pops/dist/types/src/components/alert/types/index";
-import { PopsPromptConfig } from "@whitesev/pops/dist/types/src/components/prompt/types/index";
+import type { PopsPanelConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
+import { PopsLoadingConfig } from "@whitesev/pops/dist/types/src/components/loading/types/index.js";
+import { PopsConfirmConfig } from "@whitesev/pops/dist/types/src/components/confirm/types/index.js";
+import { PopsFolderConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
+import { PopsAlertConfig } from "@whitesev/pops/dist/types/src/components/alert/types/index.js";
+import { PopsPromptConfig } from "@whitesev/pops/dist/types/src/components/prompt/types/index.js";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { PopsRightClickMenuConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
-import type { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
+import { PopsRightClickMenuConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index.js";
+import type { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation.js";
 
 export type PopsSizeConfig = {
   /** PC端 */

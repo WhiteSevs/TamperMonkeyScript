@@ -1,7 +1,7 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { log } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
-import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import { BilibiliOpus } from "./BilibiliOpus";
 import { Panel } from "@components/setting/panel";
 

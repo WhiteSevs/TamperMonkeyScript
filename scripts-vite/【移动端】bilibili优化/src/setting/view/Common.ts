@@ -6,7 +6,7 @@ import { UIInputPassword } from "@components/setting/components/ui-input-passwor
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 const SettingUICommon: PopsPanelContentConfig = {
   id: "panel-common",

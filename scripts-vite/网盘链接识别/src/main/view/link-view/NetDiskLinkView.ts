@@ -1,8 +1,8 @@
 import { DataPaging, DOMUtils, log, pops } from "@/env";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskRegularExtractor } from "@/main/NetDiskRegularExtractor";
-import { type Paging } from "@whitesev/data-paging/dist/types/src/index";
-import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
+import { type Paging } from "@whitesev/data-paging/dist/types/src/index.js";
+import { PopsRightClickMenuDataConfig } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index.js";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import {
   NetDiskCheckLinkValidity,

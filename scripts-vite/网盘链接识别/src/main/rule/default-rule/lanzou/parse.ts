@@ -3,8 +3,8 @@ import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
 import { ParseFileCore } from "@/main/handler/parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskView } from "@/main/view/NetDiskView";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import type { HttpxResponseData } from "@whitesev/utils/src/types/Httpx";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index.js";
+import type { HttpxResponseData } from "@whitesev/utils/dist/types/src/types/Httpx.js";
 import Qmsg from "qmsg";
 
 export const NetDiskParse_Lanzou_Config = {

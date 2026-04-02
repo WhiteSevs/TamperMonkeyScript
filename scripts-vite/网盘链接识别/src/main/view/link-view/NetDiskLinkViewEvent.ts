@@ -10,7 +10,7 @@ import DOMUtils from "@whitesev/domutils";
 import type {
   PopsRightClickMenuConfig,
   PopsRightClickMenuDataConfig,
-} from "@whitesev/pops/dist/types/src/components/rightClickMenu/types";
+} from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index.js";
 import Qmsg from "qmsg";
 import {
   NetDiskLinkView,

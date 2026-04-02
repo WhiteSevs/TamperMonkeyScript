@@ -1,5 +1,5 @@
 import { DebugToolConfig } from "@/main/DebugToolConfig";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISlider } from "@components/setting/components/ui-slider";

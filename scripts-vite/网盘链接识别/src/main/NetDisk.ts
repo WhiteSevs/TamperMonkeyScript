@@ -1,7 +1,7 @@
 import { log, MenuRegister, utils } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import Utils from "@whitesev/utils";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { NetDiskExtraRule } from "./rule/NetDiskExtraRule";

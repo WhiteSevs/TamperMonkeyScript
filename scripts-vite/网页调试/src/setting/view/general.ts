@@ -1,7 +1,7 @@
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UIInput } from "@components/setting/panel-components";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { GlobalSettingConfig } from "../config";
 
 export const PanelUI_general: PopsPanelContentConfig = {

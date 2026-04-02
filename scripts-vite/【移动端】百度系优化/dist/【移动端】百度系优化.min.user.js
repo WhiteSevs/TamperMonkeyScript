@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.1
+// @version      2026.4.2
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -16,7 +16,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.0/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.30/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
@@ -773,7 +773,7 @@ match-attr##srcid##note_lead`),S.getValue("baidu-search-enable-default-intercept
   display: flex;
   flex-direction: column-reverse;
   height: 100%;
-  height: -webkit-fill-available;
+  height: fit-content;
   overflow-y: auto;
 }
 .search-suggestion-item {
@@ -1907,7 +1907,8 @@ span[data-sex="2"] {
       flex-direction: column;
       justify-content: space-between;
       flex: 1;
-      height: -webkit-fill-available;
+      height: 100%;
+      height: fit-content;
     }
 		#search .search-result-author-name {
 			font-weight: unset;

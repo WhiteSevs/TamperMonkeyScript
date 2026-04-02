@@ -2,7 +2,7 @@ import { DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { VueUtils } from "@components/utils/VueUtils";
-import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 
 export const TiebaHybridUsergrowBaseCommentFocus = {
   init() {

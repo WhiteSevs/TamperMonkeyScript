@@ -2,7 +2,7 @@ import { $, DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { LoadingView } from "@/utils/LoadingView";
 import { Panel } from "@components/setting/panel";
-import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types";
+import type { PopsSearchSuggestionData } from "@whitesev/pops/dist/types/src/components/searchSuggestion/types/index.js";
 import Qmsg from "qmsg";
 import { TiebaNewPCApi } from "./api/TiebaNewPCApi";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
@@ -702,7 +702,8 @@ const TiebaSearch = {
       flex-direction: column;
       justify-content: space-between;
       flex: 1;
-      height: -webkit-fill-available;
+      height: 100%;
+      height: fit-content;
     }
 		#search .search-result-author-name {
 			font-weight: unset;

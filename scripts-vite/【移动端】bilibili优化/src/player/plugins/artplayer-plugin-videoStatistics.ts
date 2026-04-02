@@ -1,5 +1,5 @@
 import Artplayer from "artplayer";
-import type { ComponentOption } from "artplayer/types/component";
+import type { ComponentOption } from "artplayer/types/component.js";
 import {
   ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
   type ArtPlayerPluginM4SAudioSupportEvent,

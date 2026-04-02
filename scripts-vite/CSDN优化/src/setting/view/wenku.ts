@@ -1,6 +1,6 @@
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 export const SettingUIWenKu: PopsPanelContentConfig = {
   id: "panel-wenku",

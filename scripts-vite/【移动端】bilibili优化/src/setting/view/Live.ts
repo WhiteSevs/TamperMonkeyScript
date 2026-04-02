@@ -4,7 +4,7 @@ import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
 const SettingUILive: PopsPanelContentConfig = {
   id: "panel-live",

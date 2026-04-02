@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliHead } from "./head/BilibiliHead";
 import { BilibiliRouter } from "@/router/BilibiliRouter";

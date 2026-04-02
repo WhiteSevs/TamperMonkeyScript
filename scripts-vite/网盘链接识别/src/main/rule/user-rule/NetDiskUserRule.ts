@@ -14,7 +14,7 @@ import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
 import { StorageUtils } from "@components/utils/StorageUtils";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { NetDiskRequire } from "./NetDiskRequire";

@@ -9,9 +9,9 @@ import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@comp
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { RuleStorage } from "@components/utils/RuleStorage";
 import { RuleView } from "@components/utils/RuleView";
-import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple.js";
 import Utils from "@whitesev/utils";
-import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 import Qmsg from "qmsg";
 import { XHSArticleFilterBase } from "./XHSArticleFilterBase";
 

@@ -1,7 +1,7 @@
 import { $, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import Qmsg from "qmsg";
 
 export const BilibiliUtils = {

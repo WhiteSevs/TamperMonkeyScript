@@ -2,7 +2,7 @@ import { $$, DOMUtils, log, MenuRegister, utils } from "@/env";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { RulePanelView } from "@components/utils/RulePanelView";
-import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu.js";
 import { GM_getValue } from "ViteGM";
 import Qmsg from "qmsg";
 import { NetDisk } from "../NetDisk";
