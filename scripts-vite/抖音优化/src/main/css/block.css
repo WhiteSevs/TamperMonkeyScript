@@ -19,6 +19,9 @@ div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
 /* 左侧导航栏的下面的下载抖音精选 */
 [data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]),
 /* 左上角顶部的 抖音精选 */
-#douyin-navigation > a[href*="/jingxuan"]:empty {
+#douyin-navigation > a[href*="/jingxuan"]:empty,
+/* 直播页面 左侧导航栏的下面的下载抖音精选 */
+[data-e2e="douyin-navigation"] div:has(>div:only-child>img[src*="/webcast/douyin_live/media/"]),
+[data-e2e="douyin-navigation"] div:only-child:has(>img[src*="/webcast/douyin_live/media/"]) {
   display: none !important;
 }
