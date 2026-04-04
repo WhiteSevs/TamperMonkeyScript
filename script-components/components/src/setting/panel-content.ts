@@ -56,13 +56,35 @@ const PanelContent = {
   },
   /**
    * 获取左侧底部默认的配置项
+   * @param config 配置项
    */
-  getDefaultBottomContentConfig(): PopsPanelContentConfig[] {
+  getDefaultBottomContentConfig(config?: {
+    /**
+     * 翻译函数
+     */
+    translateCallback?: (text: string, translateMap?: Record<string, any>) => string;
+  }): PopsPanelContentConfig[] {
     if (this.$data.__defaultBottomContentConfig.length) {
       return this.$data.__defaultBottomContentConfig;
     }
     let isDoubleClick = false;
     let timer: number | undefined = void 0;
+    /**
+     * 翻译函数的回调
+     * @param text 文本
+     */
+    const translateCallback = (text: string, translateMap?: Record<string, any>) => {
+      if (config && typeof config.translateCallback === "function") {
+        return config.translateCallback(text, translateMap);
+      } else {
+        if (typeof translateMap === "object" && translateMap) {
+          for (const key in translateMap) {
+            text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+          }
+        }
+        return text;
+      }
+    };
 
     /**
      * 导出至文件
@@ -93,21 +115,21 @@ const PanelContent = {
       const importConfig = (importEndCallBack?: () => void) => {
         const $alert = pops.alert({
           title: {
-            text: "请选择导入方式",
+            text: translateCallback("请选择导入方式"),
             position: "center",
           },
           content: {
             text: /*html*/ `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
             html: true,
           },
           btn: {
             ok: { enable: false },
             close: {
               enable: true,
-              callback(details, event) {
+              callback(details) {
                 details.close();
               },
             },
@@ -120,12 +142,12 @@ const PanelContent = {
           height: PanelUISize.info.height,
           style: /*css*/ `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -143,7 +165,9 @@ const PanelContent = {
          * 将获取到的配置更新至存储
          */
         const updateConfigToStorage = async (data: any) => {
-          const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+          const clearLocalStorage = confirm(
+            translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+          );
           if (clearLocalStorage) {
             if (typeof GM_listValues === "function") {
               if (typeof GM_deleteValue === "function") {
@@ -151,12 +175,12 @@ const PanelContent = {
                 localStorageKeys.forEach((key) => {
                   GM_deleteValue(key);
                 });
-                Qmsg.success("已清空脚本存储的配置");
+                Qmsg.success(translateCallback("已清空脚本存储的配置"));
               } else {
-                Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
               }
             } else {
-              Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+              Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
             }
           }
           if (typeof GM_setValues === "function") {
@@ -168,7 +192,7 @@ const PanelContent = {
               GM_setValue(key, value);
             });
           }
-          Qmsg.success("配置导入完毕");
+          Qmsg.success(translateCallback("配置导入完毕"));
           importEndCallBack?.();
         };
         /**
@@ -178,7 +202,7 @@ const PanelContent = {
           return new Promise<boolean>(async (resolve) => {
             const data = utils.toJSON(configText);
             if (Object.keys(data).length === 0) {
-              Qmsg.warning("解析为空配置，不导入");
+              Qmsg.warning(translateCallback("解析为空配置，不导入"));
             } else {
               await updateConfigToStorage(data);
             }
@@ -193,7 +217,7 @@ const PanelContent = {
             type: "file",
             accept: ".json",
           });
-          DOMUtils.on($input, ["propertychange", "input"], (event) => {
+          DOMUtils.on($input, ["propertychange", "input"], () => {
             if (!$input.files?.length) {
               return;
             }
@@ -212,37 +236,37 @@ const PanelContent = {
           $alert.close();
           const $prompt = pops.prompt({
             title: {
-              text: "网络导入",
+              text: translateCallback("网络导入"),
               position: "center",
             },
             content: {
               text: "",
-              placeholder: "请填写URL",
+              placeholder: translateCallback("请填写URL"),
               focus: true,
             },
             btn: {
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
               ok: {
-                text: "导入",
-                callback: async (details, event) => {
+                text: translateCallback("导入"),
+                callback: async (details) => {
                   const url = details.text;
                   if (utils.isNull(url)) {
-                    Qmsg.error("请填入完整的url");
+                    Qmsg.error(translateCallback("请填入完整的url"));
                     return;
                   }
-                  const $loading = Qmsg.loading("正在获取配置...");
+                  const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                   const response = await httpx.get(url, {
                     allowInterceptConfig: false,
                   });
                   $loading.close();
                   if (!response.status) {
                     log.error(response);
-                    Qmsg.error("获取配置失败", { consoleLogContent: true });
+                    Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                     return;
                   }
                   const flag = await importFile(response.data.responseText);
@@ -265,7 +289,7 @@ const PanelContent = {
           });
           const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
           const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
-          DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+          DOMUtils.on($promptInput, ["input", "propertychange"], () => {
             const value = DOMUtils.val($promptInput);
             if (value === "") {
               DOMUtils.attr($promptOk, "disabled", "true");
@@ -289,7 +313,7 @@ const PanelContent = {
           $alert.close();
           let clipboardText = await CommonUtil.getClipboardText();
           if (clipboardText.trim() === "") {
-            Qmsg.warning("获取到的剪贴板内容为空");
+            Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
             return;
           }
           const flag = await importFile(clipboardText);
@@ -307,13 +331,13 @@ const PanelContent = {
       ) => {
         const $alert = pops.alert({
           title: {
-            text: "请选择导出方式",
+            text: translateCallback("请选择导出方式"),
             position: "center",
           },
           content: {
             text: /*html*/ `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
             html: true,
           },
@@ -321,7 +345,7 @@ const PanelContent = {
             ok: { enable: false },
             close: {
               enable: true,
-              callback(details, event) {
+              callback(details) {
                 details.close();
               },
             },
@@ -334,12 +358,12 @@ const PanelContent = {
           height: PanelUISize.info.height,
           style: /*css*/ `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -362,40 +386,38 @@ const PanelContent = {
             Qmsg.error(error.toString(), { consoleLogContent: true });
           }
         });
-        DOMUtils.on($exportToClipboard, "click", async (event) => {
+        DOMUtils.on($exportToClipboard, "click", async () => {
           const result = await utils.copy(fileData);
           if (result) {
-            Qmsg.success("复制成功");
+            Qmsg.success(translateCallback("复制成功"));
             $alert.close();
           } else {
-            Qmsg.error("复制失败");
+            Qmsg.error(translateCallback("复制失败"));
           }
         });
       };
       const $dialog = pops.confirm({
         title: {
-          text: "配置",
+          text: translateCallback("配置"),
           position: "center",
         },
         content: {
-          text: /*html*/ `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+          text: /*html*/ `<textarea name="config-value" id="config" readonly></textarea>`,
           html: true,
         },
         btn: {
           ok: {
             enable: true,
             type: "primary",
-            text: "导入",
-            callback(eventDetails, event) {
+            text: translateCallback("导入"),
+            callback() {
               importConfig();
             },
           },
           cancel: {
             enable: true,
-            text: "导出",
-            callback(eventDetails, event) {
+            text: translateCallback("导出"),
+            callback() {
               exportConfig(void 0, configDataStr);
             },
           },
@@ -444,7 +466,7 @@ const PanelContent = {
           Reflect.set(configData, key, value);
         });
       } else {
-        Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+        Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
         const panelLocalValue = GM_getValue(KEY);
         Reflect.set(configData, KEY, panelLocalValue);
       }
@@ -463,7 +485,9 @@ const PanelContent = {
     return [
       {
         id: "script-version",
-        title: `版本：${GM_info?.script?.version || "未知"}`,
+        title: translateCallback(`版本：{{version}}`, {
+          version: GM_info?.script?.version || translateCallback("未知"),
+        }),
         isBottom: true,
         views: [],
         clickFirstCallback() {
@@ -472,7 +496,7 @@ const PanelContent = {
         afterRender(config) {
           /* 是否是双击 */
           const anyTouch = new AnyTouch(config.$asideLiElement);
-          anyTouch.on("tap", function (event) {
+          anyTouch.on("tap", function () {
             clearTimeout(timer);
             timer = void 0;
             if (isDoubleClick) {

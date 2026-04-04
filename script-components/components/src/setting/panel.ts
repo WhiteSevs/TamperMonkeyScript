@@ -953,6 +953,7 @@ const Panel = {
     if (!preventRegisterSearchPlugin) {
       this.registerConfigSearch({ $panel, content });
     }
+    return { $panel, content };
   },
   /**
    * 注册设置面板的搜索功能（双击左侧选项第一个）
@@ -962,6 +963,10 @@ const Panel = {
     $panel: ReturnType<typeof pops.panel>;
     content: PopsPanelContentConfig[];
     searchDialogStyle?: string;
+    /**
+     * 翻译函数
+     */
+    translateCallback?: (text: string, translateMap?: Record<string, any>) => string;
   }) {
     const { $panel, content } = config;
     type SearchPath = {
@@ -974,6 +979,23 @@ const Panel = {
         description?: string;
       };
       next?: SearchPath;
+    };
+    /**
+     * 翻译函数的回调
+     * @param text 文本
+     * @param translateMap 翻译映射
+     */
+    const translateCallback = (text: string, translateMap?: Record<string, any>) => {
+      if (typeof config.translateCallback === "function") {
+        return config.translateCallback(text, translateMap);
+      } else {
+        if (typeof translateMap === "object" && translateMap) {
+          for (const key in translateMap) {
+            text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+          }
+        }
+        return text;
+      }
     };
     const asyncQueryProperty = async <T extends any = any>(
       target: any,
@@ -1044,13 +1066,13 @@ const Panel = {
       DOMUtils.preventEvent(evt);
       const $alert = pops.alert({
         title: {
-          text: "搜索配置",
+          text: translateCallback("搜索配置"),
           position: "center",
         },
         content: {
           text: /*html*/ `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1152,7 +1174,11 @@ const Panel = {
           );
           const $targetAsideItem = $asideItems[pathInfo.index!];
           if (!$targetAsideItem) {
-            Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+            Qmsg.error(
+              translateCallback(`左侧项下标{{index}}不存在`, {
+                index: pathInfo.index,
+              })
+            );
             return;
           }
           $targetAsideItem.scrollIntoView({
@@ -1179,7 +1205,7 @@ const Panel = {
               if ($findDeepMenu) {
                 $findDeepMenu.click();
               } else {
-                Qmsg.error("未找到对应的二级菜单");
+                Qmsg.error(translateCallback("未找到对应的二级菜单"));
                 return {
                   isFind: true,
                   data: target,
@@ -1214,7 +1240,7 @@ const Panel = {
                   addFlashingClass($findTargetMenu);
                 });
               } else {
-                Qmsg.error("未找到对应的菜单项");
+                Qmsg.error(translateCallback("未找到对应的菜单项"));
               }
               return {
                 isFind: true,
