@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.4.2
+// @version            2026.4.4
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,17 +13,16 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.8.18/i18next.min.js
-// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@26.0.3/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
-// @connect            cn-greasyfork.org
 // @grant              GM_addStyle
 // @grant              GM_addValueChangeListener
 // @grant              GM_deleteValue

@@ -4,7 +4,10 @@ import { en_US_language } from "./en-US/en-US";
 import { GM_getValue } from "ViteGM";
 import { KEY } from "@components/setting/panel-config";
 
+let flag = false;
 export const LanguageInit = function () {
+  if (flag) return;
+  flag = true;
   let settingPanel = GM_getValue(KEY, {}) as any;
   let lng = settingPanel["setting-language"] || "zh-CN";
   i18next.init({

@@ -1,22 +1,21 @@
 import i18next from "i18next";
 import { LanguageInit } from "./language/language";
-import { SCRIPT_NAME } from "@components/env.base";
 
 LanguageInit();
-const _SCRIPT_NAME_ = SCRIPT_NAME || i18next.t("GreasyFork优化");
+const _SCRIPT_NAME_ = i18next.t("GreasyFork优化");
 
-export { _SCRIPT_NAME_ as SCRIPT_NAME };
 export {
-  utils,
-  DOMUtils,
-  log,
-  MenuRegister,
-  httpx,
-  addStyle,
-  pops,
   $,
   $$,
-  MountVue,
-  VUE_ROOT_ID,
+  addStyle,
   cookieManager,
+  DOMUtils,
+  httpx,
+  log,
+  MenuRegister,
+  MountVue,
+  pops,
+  utils,
+  VUE_ROOT_ID,
 } from "@components/env.base";
+export { _SCRIPT_NAME_ as SCRIPT_NAME };

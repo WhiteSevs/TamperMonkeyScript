@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.4.2
+// @version            2026.4.4
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,17 +13,16 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.8.18/i18next.min.js
-// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@26.0.3/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
-// @connect            cn-greasyfork.org
 // @grant              GM_addStyle
 // @grant              GM_addValueChangeListener
 // @grant              GM_deleteValue
@@ -672,12 +671,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -697,21 +708,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -724,12 +735,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -741,7 +752,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -749,12 +762,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -766,13 +779,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -786,7 +799,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -804,41 +817,41 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
+                    const flag2 = await importFile(response.data.responseText);
+                    if (!flag2) {
                       return;
                     }
                     details.close();
@@ -857,7 +870,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -880,11 +893,11 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
+            const flag2 = await importFile(clipboardText);
+            if (!flag2) {
               return;
             }
           });
@@ -895,13 +908,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -909,7 +922,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -922,12 +935,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -946,40 +959,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -1028,7 +1039,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1044,15 +1055,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1250,7 +1263,7 @@
       return listenerId;
     }
     removeValueChangeListener(listenerId) {
-      let flag = false;
+      let flag2 = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
           const value = listenerData[index];
@@ -1260,12 +1273,12 @@
           ) {
             listenerData.splice(index, 1);
             index--;
-            flag = true;
+            flag2 = true;
           }
         }
         this.listenerData.set(key, listenerData);
       }
-      return flag;
+      return flag2;
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
@@ -1538,14 +1551,14 @@
           }
         };
         for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
+          const flag2 = handleResult(it);
+          if (typeof flag2 === "boolean" && !flag2) {
             break;
           }
           if (Array.isArray(it)) {
             for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
+              const flag22 = handleResult(it2);
+              if (typeof flag22 === "boolean" && !flag22) {
                 break;
               }
             }
@@ -1579,13 +1592,13 @@
         }
       };
       const checkMenuExec = () => {
-        let flag = false;
+        let flag2 = false;
         if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
+          flag2 = checkExec(keyList);
         } else {
-          flag = keyList.every((key) => getMenuValue(key));
+          flag2 = keyList.every((key) => getMenuValue(key));
         }
-        return flag;
+        return flag2;
       };
       const valueChangeCallback = async (valueOption) => {
         const execFlag = checkMenuExec();
@@ -1654,16 +1667,16 @@
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
+            let flag2 = !!this.getValue(__key__);
             const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
             if (disabled) {
-              flag = false;
+              flag2 = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
             if (isReverse) {
-              flag = !flag;
+              flag2 = !flag2;
             }
-            return flag;
+            return flag2;
           });
           return execFlag;
         },
@@ -1687,8 +1700,8 @@
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      const flag2 = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag2;
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
@@ -1803,9 +1816,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1848,13 +1874,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1946,7 +1972,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1967,7 +1997,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1998,7 +2028,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -2247,260 +2277,76 @@
     },
   };
   const zh_CN_language = {
-    GreasyFork优化: "GreasyFork优化",
-    请求取消: "请求取消",
-    请求超时: "请求超时",
-    请求异常: "请求异常",
-    通用: "通用",
-    账号: "账号",
-    密码: "密码",
-    语言: "语言",
-    "账号/密码": "账号/密码",
-    请输入账号: "请输入账号",
-    请输入密码: "请输入密码",
-    自动登录: "自动登录",
-    自动登录当前保存的账号: "自动登录当前保存的账号",
-    "清空账号/密码": "清空账号/密码",
-    点击清空: "点击清空",
-    "确定清空账号和密码？": "确定清空账号和密码？",
-    "已清空账号/密码": "已清空账号/密码",
-    "源代码同步【脚本列表】": "源代码同步【脚本列表】",
-    一键同步: "一键同步",
-    前往用户主页: "前往用户主页",
-    获取当前已登录的用户主页失败: "获取当前已登录的用户主页失败",
-    "源代码同步【未上架的脚本】": "源代码同步【未上架的脚本】",
-    "源代码同步【库】": "源代码同步【库】",
-    论坛: "论坛",
-    功能: "功能",
-    过滤重复的评论: "过滤重复的评论",
-    "过滤掉重复的评论数量(≥2)": "过滤掉重复的评论数量(≥2)",
-    "过滤脚本(id)": "过滤脚本(id)",
-    "请输入脚本id，每行一个": "请输入脚本id，每行一个",
-    "过滤发布的用户(id)": "过滤发布的用户(id)",
-    "请输入用户id，每行一个": "请输入用户id，每行一个",
-    "过滤回复的用户(id)": "过滤回复的用户(id)",
-    优化: "优化",
-    固定当前语言: "固定当前语言",
-    无: "无",
-    "如button、input、textarea": "如button、input、textarea",
-    更直观的查看版本迭代: "更直观的查看版本迭代",
-    美化上传图片按钮: "美化上传图片按钮",
-    放大上传区域: "放大上传区域",
-    优化图片浏览: "优化图片浏览",
-    使用Viewer浏览图片: "使用Viewer浏览图片",
-    覆盖图床图片跳转: "覆盖图床图片跳转",
-    "配合上面的【优化图片浏览】更优雅浏览图片": "配合上面的【优化图片浏览】更优雅浏览图片",
-    '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>':
-      '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>',
-    代码: "代码",
-    添加复制代码按钮: "添加复制代码按钮",
-    更优雅的复制: "更优雅的复制",
-    快捷键: "快捷键",
-    "【F】键全屏、【Alt+Shift+F】键宽屏": "【F】键全屏、【Alt+Shift+F】键宽屏",
-    库: "库",
-    脚本列表: "脚本列表",
-    "请输入屏蔽规则，每行一个": "请输入屏蔽规则，每行一个",
-    请求admin内容失败: "请求admin内容失败",
-    解析admin的源代码同步表单失败: "解析admin的源代码同步表单失败",
-    源代码同步失败: "源代码同步失败",
-    获取用户信息失败: "获取用户信息失败",
-    获取用户的收藏集失败: "获取用户的收藏集失败",
-    "解析Script Sets失败": "解析Script Sets失败",
     "获取收藏集{{setsId}}失败": "获取收藏集{{setsId}}失败",
     "获取表单元素#edit_script_set失败": "获取表单元素#edit_script_set失败",
-    更新收藏集表单请求失败: "更新收藏集表单请求失败",
-    请先在菜单中录入账号: "请先在菜单中录入账号",
-    请先在菜单中录入密码: "请先在菜单中录入密码",
-    "获取csrf-token失败": "获取csrf-token失败",
-    "正在登录中...": "正在登录中...",
-    "登录失败，请在控制台查看原因": "登录失败，请在控制台查看原因",
-    "登录成功，1s后自动跳转": "登录成功，1s后自动跳转",
-    "登录失败，可能是账号/密码错误，请在控制台查看原因": "登录失败，可能是账号/密码错误，请在控制台查看原因",
-    "美化 历史版本 页面": "美化 历史版本 页面",
-    未找到history_versions元素列表: "未找到history_versions元素列表",
     "yyyy年MM月dd日 HH:mm:ss": "yyyy-MM-dd HH:mm:ss",
-    "美化 Greasyfork Beautify脚本": "美化 Greasyfork Beautify脚本",
-    "❌ 最多同时长传5张图": "❌ 最多同时长传5张图片",
     "❌ 图片：{{name}} 大小：{{size}}": "❌ 图片：{{name}} 大小：{{size}}",
     "已过滤：{{oldCount}}": "已过滤：{{oldCount}}",
-    寻找引用: "寻找引用",
-    获取脚本id失败: "获取脚本id失败",
-    收藏: "收藏",
-    请先登录账号: "请先登录账号",
-    获取用户id失败: "获取用户id失败",
-    "获取收藏夹中...": "获取收藏夹中...",
-    收藏集: "收藏集",
-    "添加中...": "添加中...",
     "添加失败，{{selector}}元素不存在": "添加失败，{{selector}}元素不存在",
     "未找到{{selector}}元素": "未找到{{selector}}元素",
-    添加失败: "添加失败",
-    添加成功: "添加成功",
-    "删除中...": "删除中...",
-    删除成功: "删除成功",
-    添加: "添加",
-    刪除: "刪除",
-    "拦截跳转：": "拦截跳转：",
-    今日检查: "今日检查",
-    复制代码: "复制代码",
-    "加载文件中...": "加载文件中...",
-    复制成功: "复制成功",
-    "✅ 复制成功!": "✅ 复制成功!",
     "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}":
       "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
-    "导航至：": "导航至：",
-    "请先登录账号！": "请先登录账号！",
-    "获取信息中，请稍后...": "获取信息中，请稍后...",
     "获取成功，共 {{count}} 个": "获取成功，共 {{count}} 个",
-    "评分：": "评分：",
-    "语言：": "语言：",
-    "版本：": "版本：",
-    "更新：": "更新：",
-    同步代码: "同步代码",
-    "同步中...": "同步中...",
-    手动: "手动",
-    自动: "自动",
     "同步方式：{{syncMode}}": "同步方式：{{syncMode}}",
-    同步成功: "同步成功",
-    同步失败: "同步失败",
-    该脚本未设置同步信息: "该脚本未设置同步信息",
     "上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载": "上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载",
-    "名称：": "名称：",
-    "进度：": "进度：",
-    "未获取到【脚本列表】": "未获取到【脚本列表】",
-    "源代码同步成功，3秒后更新下一个": "源代码同步成功，3秒后更新下一个",
-    全部更新失败: "全部更新失败",
     "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}":
       "全部更新完毕<br >成功：{{successNums}}<br >失败：{{failedNums}}<br >总计：{{scriptUrlListLength}}",
-    "⚙ 设置": "⚙ 设置",
     "{{SCRIPT_NAME}}-设置": "{{SCRIPT_NAME}}-设置",
-    美化页面元素: "美化页面元素",
-    美化历史版本页面: "美化历史版本页面",
-    "美化Greasyfork Beautify脚本": "美化Greasyfork Beautify脚本",
-    获取表单csrfToken失败: "获取表单csrfToken失败",
-    Toast配置: "Toast配置",
-    Toast位置: "Toast位置",
-    左上角: "左上角",
-    顶部: "顶部",
-    右上角: "右上角",
-    左边: "左边",
-    中间: "中间",
-    右边: "右边",
-    左下角: "左下角",
-    底部: "底部",
-    右下角: "右下角",
-    Toast显示在页面九宫格的位置: "Toast显示在页面九宫格的位置",
-    最多显示的数量: "最多显示的数量",
-    限制Toast显示的数量: "限制Toast显示的数量",
-    逆序弹出: "逆序弹出",
-    修改Toast弹出的顺序: "修改Toast弹出的顺序",
-    该脚本已经在该收藏集中: "该脚本已经在该收藏集中",
-    其它错误: "其它错误",
-    启用: "启用",
-    开启后下面的过滤功能才会生效: "开启后下面的功能才会生效",
-    屏蔽脚本: "屏蔽脚本",
-    点击查看规则: "点击查看规则",
-    过滤: "过滤",
-    代码同步: "代码同步",
-    美化: "美化",
-    修复代码行号显示: "修复代码行号显示",
-    修复代码行数超过1k行号显示不全问题: "修复代码行数超过1k行号显示不全问题",
-    "添加【寻找引用】按钮": "添加【寻找引用】按钮",
-    "在脚本栏添加按钮，一般用于搜索引用该库的相关脚本": "在脚本栏添加按钮，一般用于搜索引用该库的相关脚本",
-    "添加【收藏】按钮": "添加【收藏】按钮",
-    "在脚本栏添加按钮，一般用于快捷收藏该脚本/库": "在脚本栏添加按钮，一般用于快捷收藏该脚本/库",
-    修复图片宽度显示问题: "修复图片宽度显示问题",
-    修复图片在移动端宽度超出浏览器宽度问题: "修复图片在移动端宽度超出浏览器宽度问题",
-    "添加【今日检查】信息块": "添加【今日检查】信息块",
-    "在脚本信息栏添加【今日检查】信息块": "在脚本信息栏添加【今日检查】信息块",
-    "给Markdown添加【复制】按钮": "给Markdown添加【复制】按钮",
-    "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容":
-      "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容",
-    开启后下面的功能才会生效: "开启后下面的功能才会生效",
-    检测页面加载: "检测页面加载",
-    "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面":
-      "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面",
-    检测间隔: "检测间隔",
-    "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面":
-      "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面",
-    美化顶部导航栏: "美化顶部导航栏",
-    "可能会跟Greasyfork Beautify脚本有冲突": "可能会跟Greasyfork Beautify脚本有冲突",
-    美化脚本列表: "美化脚本列表",
-    "双列显示且添加脚本卡片操作项（安装、收藏）": "双列显示且添加脚本卡片操作项（安装、收藏）",
-    操作面板: "操作面板",
-    "添加【操作面板】按钮": "添加【操作面板】按钮",
-    "在脚本列表页面时为顶部导航栏添加【操作面板】按钮": "在脚本列表页面时为顶部导航栏添加【操作面板】按钮",
-    操作: "操作",
-    安装此脚本: "安装此脚本",
-    脚本: "脚本",
-    历史版本: "历史版本",
-    自定义已读颜色: "自定义已读颜色",
-    在讨论内生效: "在讨论内生效",
-    用户: "用户",
-    控制台: "控制台",
-    "迁移【控制台】到顶部导航栏": "迁移【控制台】到顶部导航栏",
-    "将【控制台】按钮移动到顶部导航栏，节省空间": "将【控制台】按钮移动到顶部导航栏，节省空间",
-    "在版本下面添加【安装】、【查看代码】按钮": "在版本下面添加【安装】、【查看代码】按钮",
-    查看代码: "查看代码",
-    添加快捷操作按钮: "添加快捷操作按钮",
-    "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效":
-      "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效",
-    选择需要过滤的选项: "选择需要过滤的选项",
     "确定{{type}}：{{filterId}}？": "确定{{type}}：{{filterId}}？",
     "已删除：{{scriptId}}": "已删除：{{scriptId}}",
-    帮助文档: "帮助文档",
-    "请输入规则，每行一个": "请输入规则，每行一个",
-    选择过滤的选项: "选择过滤的选项",
     "脚本id：{{text}}": "脚本id：{{text}}",
     "脚本名：{{text}}": "脚本名：{{text}}",
     "作者id：{{text}}": "作者id：{{text}}",
     "作者名：{{text}}": "作者名：{{text}}",
-    "作用域：脚本、脚本搜索、用户主页": "作用域：脚本、脚本搜索、用户主页",
     "更新到 {{version}} 版本": "更新到 {{version}} 版本",
     "降级到 {{version}} 版本": "降级到 {{version}} 版本",
     "重新安装 {{version}} 版本": "重新安装 {{version}} 版本",
     "发布的用户id：{{text}}": "发布的用户id：{{text}}",
-    自定义快捷键: "自定义快捷键",
-    点击录入快捷键: "点击录入快捷键",
-    快捷键发表回复: "快捷键发表回复",
     "在输入框内按下快捷发表回复，例如：{{key}}": "在输入框内按下快捷发表回复，例如：{{key}}",
-    请先执行当前的录入操作: "请先执行当前的录入操作",
-    清空快捷键: "清空快捷键",
-    "请按下快捷键...": "请按下快捷键...",
-    成功录入: "成功录入",
     "快捷键 {{key}} 已被 {{isUsedKey}} 占用": "快捷键 {{key}} 已被 {{isUsedKey}} 占用",
-    私聊: "私聊",
-    美化私信页面: "美化私信页面",
-    美化为左右对话模式: "美化为左右对话模式",
-    "最后回复：": "最后回复：",
-    进入: "进入",
-    记住回复内容: "记住回复内容",
-    "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复":
-      "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复",
-    表单: "表单",
-    自动清理空间: "自动清理空间",
-    不清理: "不清理",
     "{{value}} 天": "{{value}} 天",
     "{{value}} 周": "{{value}} 周",
     "{{value}} 个月": "{{value}} 个月",
-    半年: "半年",
-    计算中: "计算中",
-    根据设置的间隔时间自动清理保存的回复内容: "根据设置的间隔时间自动清理保存的回复内容",
     "数据占用空间：{{size}}": "数据占用空间：{{size}}",
-    当前存储的数据所占用的空间大小: "当前存储的数据所占用的空间大小",
-    清空: "清空",
-    清理成功: "清理成功",
-    清理失败: "清理失败",
-    "Url To WebhookUrl": "Url 转 WebhookUrl",
-    关闭: "关闭",
-    "例如：": "例如：",
-    "结果：": "结果：",
-    转换前: "转换前",
-    转换后: "转换后",
-    使用namespace查询脚本信息: "使用namespace查询脚本信息",
-    脚本管理: "脚本管理",
-    "开启后检测已安装的脚本信息更准确，但是速度会更慢": "开启后检测已安装的脚本信息更准确，但是速度会更慢",
-    美化私信列表: "美化私信列表",
-    搜索: "搜索",
+  };
+  const en_Setting_Seaching = {
+    搜索配置: "Seaching Setting",
+    请输入需要搜素的配置名称: "Please enter the name of the configuration to be searched",
+    "左侧项下标{{index}}不存在": "Left item index {{index}} does not exist",
+    未找到对应的二级菜单: "Unable to find the corresponding submenu",
+    未找到对应的菜单项: "Unable to find the corresponding menu item",
+  };
+  const en_version_content_config = {
+    请选择导入方式: "Please select the import method",
+    本地导入: "Local Import",
+    网络导入: "Network Import",
+    剪贴板导入: "Clipboard Import",
+    "是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）":
+      "Are you sure to clear your account and password? (If you click the cancel button, only the configuration will be overwritten)",
+    已清空脚本存储的配置: "Script storage configuration cleared",
+    "不支持GM_deleteValue函数，无法执行删除脚本配置":
+      "The GM_deleteValue function is not supported, and the script configuration cannot be deleted",
+    "不支持GM_listValues函数，无法清空脚本存储的配置":
+      "The GM_listValues function is not supported, and the script configuration cannot be cleared",
+    配置导入完毕: "Configuration import completed",
+    "解析为空配置，不导入": "Parsing as an empty configuration, not imported",
+    导入: "Import",
+    请填写URL: "Please fill in the URL",
+    请填入完整的url: "Please fill in the complete URL",
+    "正在获取配置...": "Getting configuration...",
+    获取配置失败: "Configuration parsing failed",
+    获取到的剪贴板内容为空: "The clipboard content is empty",
+    请选择导出方式: "Please select export method",
+    导出至文件: "Export to file",
+    导出至剪贴板: "Export to clipboard",
+    复制成功: "Copy successful",
+    复制失败: "Copy failed",
+    配置: "Configuration",
+    "不支持函数GM_listValues，仅导出菜单配置":
+      "The function GM_listValues is not supported, only menu configuration is exported",
+    "版本：{{version}}": "Version: {{version}}",
+    导出: "Export",
+    未知: "unknown",
   };
   const en_US_language = {
     GreasyFork优化: "GreasyFork Optimization",
@@ -2601,7 +2447,6 @@
     今日检查: "Today's inspection",
     复制代码: "Copy Code",
     "加载文件中...": "Loading files...",
-    复制成功: "Copy successful",
     "✅ 复制成功!": "✅ Copy successful!",
     "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}":
       "Current language: {{currentLocaleLanguage}}, switch to {{localeLanguage}} in 3 seconds",
@@ -2812,8 +2657,19 @@
     "查询中...": "Querying...",
     查询失败: "Query failed",
     获取收藏集id失败: "Failed to obtain collection id",
+    查询用户注册时间: "Query user registration time",
+    "在用户名称后面添加查询按钮，点击查询用户注册时间":
+      "Add a query button after the user name, click to query user registration time",
+    "新增【关键词】搜索框": "Added [keyword] search box",
+    输入自定义关键词后自动执行过滤: "Automatic filtering after entering a custom keyword",
+    搜素结果过滤: "Search result filtering",
+    ...en_Setting_Seaching,
+    ...en_version_content_config,
   };
+  let flag = false;
   const LanguageInit = function () {
+    if (flag) return;
+    flag = true;
     let settingPanel = _GM_getValue(KEY, {});
     let lng = settingPanel["setting-language"] || "zh-CN";
     i18next.init({
@@ -2830,7 +2686,7 @@
     });
   };
   LanguageInit();
-  SCRIPT_NAME || i18next.t("GreasyFork优化");
+  i18next.t("GreasyFork优化");
   const GithubUrl2WebhookUrl = {
     init() {},
     showView() {
@@ -4227,8 +4083,8 @@
               if (findShortcut.key in option) {
                 log.info("调用快捷键", findShortcut);
                 if (typeof config?.beforeCallBack === "function") {
-                  const flag = await config.beforeCallBack();
-                  if (typeof flag === "boolean" && !flag) {
+                  const flag2 = await config.beforeCallBack();
+                  if (typeof flag2 === "boolean" && !flag2) {
                     return;
                   }
                 }
@@ -4318,28 +4174,28 @@
       _GM_setValue(this.KEY, localOptions);
     }
     emptyOption(key) {
-      let flag = false;
+      let flag2 = false;
       const localOptions = this.getLocalAllOptions();
       const findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex !== -1) {
         localOptions[findIndex].value = null;
-        flag = true;
+        flag2 = true;
       }
       this.initData(localOptions);
       _GM_setValue(this.KEY, localOptions);
-      return flag;
+      return flag2;
     }
     deleteOption(key) {
-      let flag = false;
+      let flag2 = false;
       const localOptions = this.getLocalAllOptions();
       const findValueIndex = localOptions.findIndex((item) => item.key === key);
       if (findValueIndex !== -1) {
         localOptions.splice(findValueIndex, 1);
-        flag = true;
+        flag2 = true;
       }
       this.initData(localOptions);
       _GM_setValue(this.KEY, localOptions);
-      return flag;
+      return flag2;
     }
     translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
@@ -5437,15 +5293,15 @@
     }
     let alertHTML = "";
     const checkFavoriteFormInfo = (form, scriptId2) => {
-      let flag = false;
+      let flag2 = false;
       scriptId2 = scriptId2.toString().trim();
       for (const [key, value] of form.entries()) {
         if (key === "scripts-included[]" && value.toString().trim() === scriptId2) {
-          flag = true;
+          flag2 = true;
           break;
         }
       }
-      return flag;
+      return flag2;
     };
     userCollection.forEach((userCollectInfo) => {
       alertHTML += `
@@ -6630,11 +6486,11 @@
             })
             .filter((item) => typeof item === "boolean");
           if (fitlerFlagList.length !== 0) {
-            let flag = false;
+            let flag2 = false;
             fitlerFlagList.forEach((enable) => {
-              flag = flag || enable;
+              flag2 = flag2 || enable;
             });
-            if (flag) {
+            if (flag2) {
               domUtils.hide($scriptList, false);
             } else {
               domUtils.show($scriptList, false);
@@ -7792,6 +7648,9 @@
         }
         const storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") {
+          valueChangeCallBack(isSelectedInfo);
+        }
       },
       data,
     };
@@ -8199,6 +8058,10 @@
             (isSelectedInfo) => {
               log.info("改变语言：" + isSelectedInfo.text);
               i18next.changeLanguage(isSelectedInfo.value);
+            },
+            void 0,
+            () => {
+              window.location.reload();
             }
           ),
         ],
@@ -8974,7 +8837,7 @@
     views: [
       {
         type: "container",
-        text: "搜素结果过滤",
+        text: i18next.t("搜素结果过滤"),
         views: [
           UISwitch(
             i18next.t("新增【关键词】搜索框"),
@@ -9086,6 +8949,35 @@
       GithubUrl2WebhookUrl.showView();
     },
   });
+  const settingMenu = PanelMenu.getMenuOption(0);
+  settingMenu.showText = () => {
+    return i18next.t("⚙ 设置");
+  };
+  settingMenu.callback = () => {
+    const result = Panel.showPanel(
+      [
+        ...PanelContent.getAllContentConfig(),
+        ...PanelContent.getDefaultBottomContentConfig({
+          translateCallback(text, translateMap) {
+            return i18next.t(text, translateMap);
+          },
+        }),
+      ],
+      i18next.t("{{SCRIPT_NAME}}-设置", {
+        SCRIPT_NAME: i18next.t("GreasyFork优化"),
+      }),
+      true,
+      true
+    );
+    Panel.registerConfigSearch({
+      $panel: result.$panel,
+      content: result.content,
+      translateCallback(text, translateMap) {
+        return i18next.t(text, translateMap);
+      },
+    });
+  };
+  PanelMenu.updateMenuOption(settingMenu);
   Panel.$data.panelConfig = {
     style: UIScriptListCSS,
   };

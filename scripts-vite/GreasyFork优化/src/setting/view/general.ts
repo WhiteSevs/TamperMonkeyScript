@@ -138,6 +138,10 @@ export const SettingUIGeneral: PopsPanelContentConfig = {
           (isSelectedInfo) => {
             log.info("改变语言：" + isSelectedInfo.text);
             i18next.changeLanguage(isSelectedInfo.value);
+          },
+          void 0,
+          () => {
+            window.location.reload();
           }
         ),
       ],

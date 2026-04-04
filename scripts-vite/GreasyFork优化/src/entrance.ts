@@ -23,6 +23,35 @@ PanelMenu.addMenuOption({
     GithubUrl2WebhookUrl.showView();
   },
 });
+const settingMenu = PanelMenu.getMenuOption(0);
+settingMenu.showText = () => {
+  return i18next.t("⚙ 设置");
+};
+settingMenu.callback = () => {
+  const result = Panel.showPanel(
+    [
+      ...PanelContent.getAllContentConfig(),
+      ...PanelContent.getDefaultBottomContentConfig({
+        translateCallback(text, translateMap) {
+          return i18next.t(text, translateMap);
+        },
+      }),
+    ],
+    i18next.t("{{SCRIPT_NAME}}-设置", {
+      SCRIPT_NAME: i18next.t("GreasyFork优化"),
+    }),
+    true,
+    true
+  );
+  Panel.registerConfigSearch({
+    $panel: result.$panel,
+    content: result.content,
+    translateCallback(text, translateMap) {
+      return i18next.t(text, translateMap);
+    },
+  });
+};
+PanelMenu.updateMenuOption(settingMenu);
 Panel.$data.panelConfig = {
   style: UIScriptListCSS,
 };

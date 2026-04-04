@@ -26,7 +26,7 @@ const userConfig = await GenerateUserConfig({
     userscript: {
       name: localizedConfig.name,
       // GM_xmlhttpRequest允许访问的域
-      connect: ["greasyfork.org", "sleazyfork.org", "cn-greasyfork.org"],
+      connect: ["greasyfork.org", "sleazyfork.org"],
       // 脚本描述
       description: localizedConfig.description,
       // 脚本图标
@@ -43,7 +43,7 @@ const userConfig = await GenerateUserConfig({
       // import库的文件映射
       externalGlobals: {
         i18next: cdn.jsdelivrFastly("i18next", "i18next.min.js"),
-        otpauth: cdn.jsdelivrFastly("OTPAuth", "dist/otpauth.umd.js"),
+        otpauth: cdn.jsdelivrFastly("OTPAuth", "dist/otpauth.umd.min.js"),
       },
       // import资源文件的映射
       externalResource: {},

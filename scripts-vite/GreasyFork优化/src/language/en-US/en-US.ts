@@ -1,3 +1,44 @@
+const en_Setting_Seaching = {
+  搜索配置: "Seaching Setting",
+  请输入需要搜素的配置名称: "Please enter the name of the configuration to be searched",
+  "左侧项下标{{index}}不存在": "Left item index {{index}} does not exist",
+  未找到对应的二级菜单: "Unable to find the corresponding submenu",
+  未找到对应的菜单项: "Unable to find the corresponding menu item",
+};
+
+const en_version_content_config = {
+  请选择导入方式: "Please select the import method",
+  本地导入: "Local Import",
+  网络导入: "Network Import",
+  剪贴板导入: "Clipboard Import",
+  "是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）":
+    "Are you sure to clear your account and password? (If you click the cancel button, only the configuration will be overwritten)",
+  已清空脚本存储的配置: "Script storage configuration cleared",
+  "不支持GM_deleteValue函数，无法执行删除脚本配置":
+    "The GM_deleteValue function is not supported, and the script configuration cannot be deleted",
+  "不支持GM_listValues函数，无法清空脚本存储的配置":
+    "The GM_listValues function is not supported, and the script configuration cannot be cleared",
+  配置导入完毕: "Configuration import completed",
+  "解析为空配置，不导入": "Parsing as an empty configuration, not imported",
+  导入: "Import",
+  请填写URL: "Please fill in the URL",
+  请填入完整的url: "Please fill in the complete URL",
+  "正在获取配置...": "Getting configuration...",
+  获取配置失败: "Configuration parsing failed",
+  获取到的剪贴板内容为空: "The clipboard content is empty",
+  请选择导出方式: "Please select export method",
+  导出至文件: "Export to file",
+  导出至剪贴板: "Export to clipboard",
+  复制成功: "Copy successful",
+  复制失败: "Copy failed",
+  配置: "Configuration",
+  "不支持函数GM_listValues，仅导出菜单配置":
+    "The function GM_listValues is not supported, only menu configuration is exported",
+  "版本：{{version}}": "Version: {{version}}",
+  导出: "Export",
+  未知: "unknown",
+};
+
 export const en_US_language = {
   GreasyFork优化: "GreasyFork Optimization",
   请求取消: "http request cancel",
@@ -108,7 +149,6 @@ export const en_US_language = {
   今日检查: "Today's inspection",
   复制代码: "Copy Code",
   "加载文件中...": "Loading files...",
-  复制成功: "Copy successful",
   "✅ 复制成功!": "✅ Copy successful!",
   "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}":
     "Current language: {{currentLocaleLanguage}}, switch to {{localeLanguage}} in 3 seconds",
@@ -327,4 +367,12 @@ export const en_US_language = {
   "查询中...": "Querying...",
   查询失败: "Query failed",
   获取收藏集id失败: "Failed to obtain collection id",
+  查询用户注册时间: "Query user registration time",
+  "在用户名称后面添加查询按钮，点击查询用户注册时间":
+    "Add a query button after the user name, click to query user registration time",
+  "新增【关键词】搜索框": "Added [keyword] search box",
+  输入自定义关键词后自动执行过滤: "Automatic filtering after entering a custom keyword",
+  搜素结果过滤: "Search result filtering",
+  ...en_Setting_Seaching,
+  ...en_version_content_config,
 };

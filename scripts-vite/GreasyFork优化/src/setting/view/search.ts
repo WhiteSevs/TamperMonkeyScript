@@ -8,7 +8,7 @@ export const SettingUIScriptSearch: PopsPanelContentConfig = {
   views: [
     {
       type: "container",
-      text: "搜素结果过滤",
+      text: i18next.t("搜素结果过滤"),
       views: [
         UISwitch(
           i18next.t("新增【关键词】搜索框"),
