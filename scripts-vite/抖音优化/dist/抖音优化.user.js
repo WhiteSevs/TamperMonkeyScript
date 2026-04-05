@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.4
+// @version      2026.4.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -469,12 +469,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -494,21 +506,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -521,12 +533,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -538,7 +550,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -546,12 +560,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -563,13 +577,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -583,7 +597,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -601,37 +615,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -654,7 +668,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -677,7 +691,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -692,13 +706,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -706,7 +720,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -719,12 +733,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -743,40 +757,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -825,7 +837,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -841,15 +853,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1600,9 +1614,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1645,13 +1672,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1699,7 +1726,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1743,7 +1771,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1764,7 +1796,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1795,7 +1827,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -2370,7 +2402,7 @@
   const DouYinAccount = {
     disguiseLogin() {
       log.info("伪装登录");
-      let result = [CommonUtil.addBlockCSS(".login-tooltip-slot")];
+      let result = [addBlockCSS(".login-tooltip-slot")];
       const WAIT_TIME = 2e4;
       const uid = parseInt((Math.random() * 1e10).toString());
       const info = {
@@ -2627,7 +2659,7 @@
         },
       });
       return [
-        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
+        addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
         () => {
           observer.disconnect();
         },
@@ -2659,7 +2691,7 @@
         },
       });
       return [
-        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+        addBlockCSS('[id^="related-video-card-login-guide"]'),
         addStyle(
           `
         /* 去除遮罩层 */
@@ -3704,6 +3736,26 @@
       });
     },
   };
+  const DouYinElement = {
+    videoFullScreen() {
+      return 'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon';
+    },
+    activeVideoFullScreen() {
+      return '[data-e2e="feed-active-video"] .xgplayer-fullscreen';
+    },
+    searchPageActiveVideoFullScreen() {
+      return '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon';
+    },
+    liveWebsiteFullScreen() {
+      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right div:has(>svg path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])';
+    },
+    liveFullScreen() {
+      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M9.5 8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-13zm10 11h-1.501v2H20.5a1 1 0 0 0 1-1v-2.5h-2V19zm-7 0v-1.5h-2V20a1 1 0 0 0 1 1h2.499v-2H12.5zm0-6h1.499v-2H11.5a1 1 0 0 0-1 1v2.5h2V13zm7 0h-1.501v-2H20.5a1 1 0 0 1 1 1v2.5h-2V13z"])';
+    },
+    liveQuitFullScreen() {
+      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])';
+    },
+  };
   const DouYinUtils = {
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
@@ -3864,7 +3916,7 @@
     blockBottomVideoToolBar() {
       log.info("【屏蔽】播放器组件");
       return [
-        CommonUtil.addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
+        addBlockCSS("xg-controls.xgplayer-controls", ".douyin-player-controls"),
         DouYinVideoPlayer.removeStyleBottom(),
         addStyle(
           `
@@ -3879,15 +3931,15 @@
     },
     blockPlay() {
       log.info(`【屏蔽】播放`);
-      return CommonUtil.addBlockCSS(".xgplayer-play", ".douyin-player-controls .douyin-player-play");
+      return addBlockCSS(".xgplayer-play", ".douyin-player-controls .douyin-player-play");
     },
     blockRefresh() {
       log.info(`【屏蔽】刷新`);
-      return CommonUtil.addBlockCSS(".douyin-player-controls .douyin-player-play+slot:has(svg)");
+      return addBlockCSS(".douyin-player-controls .douyin-player-play+slot:has(svg)");
     },
     blockTime() {
       log.info(`【屏蔽】播放时长`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         ".xgplayer-time",
 
         ".search-result-card .xgplayer[id^='oK_'] xg-controls.xgplayer-controls xg-left-grid.xg-left-grid .xgplayer-play+xg-icon.xgplayer-time"
@@ -3895,19 +3947,19 @@
     },
     blockChapterContainer() {
       log.info(`【屏蔽】章节要点`);
-      return CommonUtil.addBlockCSS('.chapterContainer[data-e2e="chapter-container"]');
+      return addBlockCSS('.chapterContainer[data-e2e="chapter-container"]');
     },
     blockBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
-      return CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]');
+      return addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]');
     },
     aiNotes() {
       log.info(`【屏蔽】AI笔记`);
-      return CommonUtil.addBlockCSS('.ai-note-container[data-e2e="ai-note-container"]');
+      return addBlockCSS('.ai-note-container[data-e2e="ai-note-container"]');
     },
     autoPlay() {
       log.info(`【屏蔽】连播`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         ".xgplayer-autoplay-setting",
         '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer',
         ".douyin-player-controls .douyin-player-controls-right slot:last-child:not([data-index])"
@@ -3915,35 +3967,35 @@
     },
     clearScreen() {
       log.info(`【屏蔽】清屏`);
-      return CommonUtil.addBlockCSS(".xgplayer-immersive-switch-setting");
+      return addBlockCSS(".xgplayer-immersive-switch-setting");
     },
     playclarity() {
       log.info(`【屏蔽】清晰度`);
-      return CommonUtil.addBlockCSS(".xgplayer-playclarity-setting");
+      return addBlockCSS(".xgplayer-playclarity-setting");
     },
     playback() {
       log.info(`【屏蔽】倍速`);
-      return CommonUtil.addBlockCSS(".xgplayer-playback-setting");
+      return addBlockCSS(".xgplayer-playback-setting");
     },
     watchLater() {
       log.info(`【屏蔽】稍后再看`);
-      return CommonUtil.addBlockCSS(".xgplayer-watch-later");
+      return addBlockCSS(".xgplayer-watch-later");
     },
     miniMode() {
       log.info(`【屏蔽】小窗模式`);
-      return CommonUtil.addBlockCSS(".xgplayer-pip");
+      return addBlockCSS(".xgplayer-pip");
     },
     volume() {
       log.info(`【屏蔽】音量`);
-      return CommonUtil.addBlockCSS(".xgplayer-volume", ".douyin-player-controls .douyin-player-volume");
+      return addBlockCSS(".xgplayer-volume", ".douyin-player-controls .douyin-player-volume");
     },
     pageFullScreen() {
       log.info(`【屏蔽】网页全屏`);
-      return CommonUtil.addBlockCSS(".xgplayer-page-full-screen");
+      return addBlockCSS(".xgplayer-page-full-screen");
     },
     fullScreen() {
       log.info(`【屏蔽】进入全屏`);
-      return CommonUtil.addBlockCSS(".xgplayer-fullscreen");
+      return addBlockCSS(".xgplayer-fullscreen");
     },
   };
   const DouYinVideoBlock_BottomToolbar_videoInfo = {
@@ -3973,7 +4025,7 @@
     blockVideoInfoWrap() {
       log.info("【屏蔽】视频信息");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           "#video-info-wrap",
           '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
           '[data-e2e="feed-live"] .douyin-player > div:has(a[href])'
@@ -3984,22 +4036,20 @@
     },
     blockClickRecommend() {
       log.info(`【屏蔽】点击推荐或共xx人推荐`);
-      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+      return addBlockCSS(".xgplayer-recommend-tag");
     },
     blobkTitleTopTag() {
       log.info(`【屏蔽】视频标题上的标签`);
-      return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
+      return addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
     },
     blockVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
-      return [
-        CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),
-      ];
+      return [addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div')];
     },
     blockAIIdentifyTheScreen() {
       log.info(`【屏蔽】识别画面`);
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
           '[data-e2e="video-desc"] + div:has(svg g[filter*="icon_ai_svg__filter"]):not(:has(.under-title-tag))'
         ),
@@ -4033,7 +4083,7 @@
     },
     blockAuthorDeclaration() {
       log.info(`【屏蔽】作者声明`);
-      return [CommonUtil.addBlockCSS("div:has(>a.safetyBar)")];
+      return [addBlockCSS("div:has(>a.safetyBar)")];
     },
   };
   const DouYinVideoBlock_Comment = {
@@ -4047,11 +4097,11 @@
     },
     shieldUserCommentToolBar() {
       log.info("【屏蔽】评论工具栏");
-      return [CommonUtil.addBlockCSS(".comment-input-container")];
+      return [addBlockCSS(".comment-input-container")];
     },
     shieldUserCommentEveryOneAllSearch() {
       log.info("【屏蔽】大家都在搜");
-      return [CommonUtil.addBlockCSS(".comment-header-with-search")];
+      return [addBlockCSS(".comment-header-with-search")];
     },
   };
   const DouYinVideoBlock_Live_PlayerCompomemts = {
@@ -4062,7 +4112,7 @@
     },
     blockRefresh() {
       log.info(`【屏蔽】刷新`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="feed-live"] xg-left-grid .xgplayer-play+.pluginContainer',
         '.douyin-player-controls div:has(>svg path[d="M24.932 16.444c0-4.687-3.89-8.444-8.634-8.444a8.679 8.679 0 0 0-7.207 3.79v-1.558a.99.99 0 0 0-1.98 0v4.038c0 .547.444.99.99.99h4.038a.99.99 0 0 0 0-1.98h-1.646c1.137-1.963 3.304-3.3 5.804-3.3 3.7 0 6.655 2.918 6.655 6.464 0 3.547-2.956 6.465-6.655 6.465-2.963 0-5.459-1.88-6.326-4.453a.99.99 0 0 0-1.876.633c1.138 3.38 4.39 5.8 8.202 5.8 4.746 0 8.635-3.758 8.635-8.445z"])'
       );
@@ -4081,7 +4131,7 @@
     tipClickOrKeyboardFEnterLiveRoom() {
       log.info(`【屏蔽】点击或按F进入直播间`);
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '[data-e2e="feed-live"] .douyin-player > a',
           '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
           '.search-result-card [data-e2e="basicPlayer"] > a[href]',
@@ -4092,7 +4142,7 @@
     blockYellowCar() {
       log.info("【屏蔽】小黄车");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
           '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
           '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
@@ -4195,7 +4245,7 @@
               this.$data.menuSelector_slideMode,
               this.$data.menuSelector_onlyVideo,
             ];
-            this.$el.hideMenuStyle = CommonUtil.addBlockCSS(...selectorList);
+            this.$el.hideMenuStyle = addBlockCSS(...selectorList);
           } else {
             if (!document.contains(this.$el.hideMenuStyle)) {
               document.head.appendChild(this.$el.hideMenuStyle);
@@ -4230,23 +4280,23 @@
     },
     clearScreen() {
       log.info(`【屏蔽】右键菜单-清屏`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not([data-danmu-id]):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not([data-danmu-id]):not(:empty)`);
     },
     comment() {
       log.info(`【屏蔽】右键菜单-评论`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not([data-danmu-id]):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not([data-danmu-id]):not(:empty)`);
     },
     like() {
       log.info(`【屏蔽】右键菜单-赞`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not([data-danmu-id]):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not([data-danmu-id]):not(:empty)`);
     },
     enterAuthorHomePage() {
       log.info(`【屏蔽】右键菜单-进入作者主页`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(4):not([data-danmu-id]):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(4):not([data-danmu-id]):not(:empty)`);
     },
     recommendToFriends() {
       log.info(`【屏蔽】右键菜单-推荐给朋友`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         `${this.$data.menuSelector_slideMode} > *:nth-child(5):not([data-danmu-id]):not(:empty)`,
         `${this.$data.menuSelector_sliderVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
       );
@@ -4254,48 +4304,38 @@
     share() {
       log.info(`【屏蔽】右键菜单-分享`);
       if (DouYinRouter.isVideo()) {
-        return CommonUtil.addBlockCSS(
-          `${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
-        );
+        return addBlockCSS(`${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`);
       }
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
     },
     notInterested() {
       log.info(`【屏蔽】右键菜单-不感兴趣`);
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`);
     },
     feedback() {
       log.info(`【屏蔽】右键菜单-意见反馈`);
       if (DouYinRouter.isVideo()) {
-        return CommonUtil.addBlockCSS(
+        return addBlockCSS(
           `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
         );
       }
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`);
     },
     report() {
       log.info(`【屏蔽】右键菜单-举报`);
       if (DouYinRouter.isVideo()) {
-        return CommonUtil.addBlockCSS(
+        return addBlockCSS(
           `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
         );
       }
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`);
     },
     enterDetailsPage() {
       log.info(`【屏蔽】右键菜单-进入详情页`);
       if (DouYinRouter.isVideo()) {
         return;
       }
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`);
     },
   };
   const DouYinVideoBlock_RightMenu_Live = {
@@ -4333,7 +4373,7 @@
         const allEnable = ExecMenu.every((it) => it.enable);
         if (allEnable) {
           if (this.$el.hideMenuStyle == null) {
-            this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`);
+            this.$el.hideMenuStyle = addBlockCSS(`${this.$data.menuSelector}`);
           } else {
             if (!document.contains(this.$el.hideMenuStyle)) {
               document.head.appendChild(this.$el.hideMenuStyle);
@@ -4363,15 +4403,15 @@
     },
     notInterested() {
       log.info(`【屏蔽】右键菜单-直播间-不感兴趣`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not(:empty)`);
     },
     report() {
       log.info(`【屏蔽】右键菜单-直播间-举报`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not(:empty)`);
     },
     openBlankRoom() {
       log.info(`【屏蔽】右键菜单-直播间-在新标签页打开直播间`);
-      return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not(:empty)`);
+      return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not(:empty)`);
     },
   };
   const DouYinVideoBlock_RightToolbar = {
@@ -4384,6 +4424,9 @@
       });
       Panel.execMenuOnce("shieldAuthorAvatar", () => {
         return this.blockAuthorAvatar();
+      });
+      Panel.execMenuOnce("blockUserLiveSmallWindow", () => {
+        return this.blockUserLiveSmallWindow();
       });
       Panel.execMenuOnce("shieldLikeButton", () => {
         return this.blockLikeButton();
@@ -4409,12 +4452,12 @@
     },
     blockToolBar() {
       log.info(`【屏蔽】右侧工具栏`);
-      return CommonUtil.addBlockCSS(".slider-video .positionBox");
+      return addBlockCSS(".slider-video .positionBox");
     },
     shieldPlaySwitchButton() {
       log.info("【屏蔽】切换播放↑↓");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.positionBox  .xgplayer-playswitch[data-state="normal"]',
           "div.xgplayer-playswitch",
           ".xgplayer-playswitch",
@@ -4434,10 +4477,11 @@
       log.info(`【屏蔽】AI抖音`);
       window.localStorage.setItem("aiEntryClose", "1");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.immersive-player-switch-on-hide-interaction-area > div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
           '.immersive-player-switch-on-hide-interaction-area > div:has(>svg g[filter*="entryIcon_svg__filter"])',
           '.immersive-player-switch-on-hide-interaction-area > div > div:has(>svg g[filter*="entryIcon_svg__filter"])',
+          '.immersive-player-switch-on-hide-interaction-area > div > div:has(>div>svg g[filter*="entryIcon_svg__filter"])',
           '.xgplayer div:has(>svg path[d="M22.94 21.309l.58 1.364a45.819 45.819 0 0 0 2.125 4.34l.528.947-.108.056-1.077.543-.102.052-.054-.102-.576-1.087a44.077 44.077 0 0 1-.22-.423 7.704 7.704 0 0 0-3.902.001c-.087.169-.154.3-.219.422l-.576 1.087-.054.102-.102-.052-1.077-.543-.108-.056.059-.106.468-.841a45.902 45.902 0 0 0 2.125-4.34l.58-1.364.038-.086.091.017c.482.086.97.086 1.451 0l.093-.017.037.086zm6.011-.019a3.731 3.731 0 0 0-.173.9c-.022.342-.034.69-.034 1.035v3.067c0 .345.012.694.034 1.035l.022.227c.029.226.08.452.151.673l.05.153h-1.92l.049-.153c.095-.295.153-.597.173-.9.022-.345.033-.694.033-1.035v-3.067c0-.34-.01-.689-.033-1.034a3.753 3.753 0 0 0-.173-.9l-.05-.154h1.921l-.05.153zM17.161 5.395l.123.008a4.527 4.527 0 0 1 3.14 1.602 4.367 4.367 0 0 1 1.033 2.978l-.005.109c-.015.284-.063.56-.13.828l-.117.447 1.964-.504.113-.027c2.38-.549 4.824.818 5.465 3.136l.05.184a4.368 4.368 0 0 1-.534 3.265l-.06.097a4.495 4.495 0 0 1-1.965 1.674c-3.71 1.444-5.893-1.51-6.663-3.187l.134-.034 2.236-.575c.033.329.136.661.333.984a2.5 2.5 0 0 0 2.51 1.157l.113-.021a2.456 2.456 0 0 0 1.384-.825l.297-.448a2.37 2.37 0 0 0 .209-1.637l-.018-.075c-.334-1.268-1.63-2.035-2.914-1.753h-.01l-7.51 1.916h-.022a.056.056 0 0 1-.02-.01.048.048 0 0 1-.017-.037l.014-.205.136-2.238c.327.071.682.079 1.054-.008.973-.227 1.74-1.006 1.894-1.992a2.371 2.371 0 0 0-.303-1.578l-.055-.09a2.46 2.46 0 0 0-1.855-1.118l-.076-.006c-1.323-.076-2.469.897-2.596 2.188v.009l-.47 7.62a.047.047 0 0 1-.053.04l-.013-.002-.166-.065-2.15-.83c.169-.284.285-.612.316-.987l.007-.092a2.443 2.443 0 0 0-1.263-2.256l-.084-.043-.105-.048a2.482 2.482 0 0 0-1.508-.155l-.104.024a2.443 2.443 0 0 0-1.683 1.46c-.487 1.219.104 2.59 1.31 3.109l.008.003 7.22 2.797c.03.012.036.048.02.068l-.114.136-1.467 1.759a2.335 2.335 0 0 0-.79-.573l-.068-.03-.086-.034c-.873-.321-1.878-.147-2.566.484l-.069.065a2.407 2.407 0 0 0 .188 3.584 2.49 2.49 0 0 0 3.404-.268l.006-.006 3.485-4.165v3.166l-.5.607v-.004l-1.29 1.543c-1.559 1.868-4.346 2.229-6.28.782l-.092-.07a4.41 4.41 0 0 1-1.668-3.076l-.009-.113a4.384 4.384 0 0 1 1.619-3.688l.357-.297-1.892-.729c-2.323-.895-3.535-3.457-2.656-5.739a4.475 4.475 0 0 1 2.565-2.555 4.577 4.577 0 0 1 4.068.373l.393.244.12-1.995h-.001c.146-2.447 2.248-4.375 4.728-4.258zm4.679 17.909a45.987 45.987 0 0 1-.964 2.191 9.16 9.16 0 0 1 2.417 0 45.878 45.878 0 0 1-.963-2.191l-.245-.6-.245.6z"])',
           '.immersive-player-switch-on-hide-interaction-area > div:has(> div >svg >defs+ g[clip-path*="__lottie_element_"])'
         ),
@@ -4446,16 +4490,22 @@
     blockAuthorAvatar() {
       log.info("【屏蔽】作者头像");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-avatar"])',
           '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
         ),
       ];
     },
+    blockUserLiveSmallWindow() {
+      log.info(`【屏蔽】直播小窗`);
+      return addBlockCSS(
+        'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])'
+      );
+    },
     blockLikeButton() {
       log.info("【屏蔽】点赞");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-digg"])',
           '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
         ),
@@ -4464,7 +4514,7 @@
     blockCommentButton() {
       log.info("【屏蔽】评论");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="feed-comment-icon"])',
           '.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
         ),
@@ -4473,7 +4523,7 @@
     blockCollectionButton() {
       log.info("【屏蔽】收藏");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-collect"])',
           '.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
         ),
@@ -4482,7 +4532,7 @@
     blockSharenButton() {
       log.info("【屏蔽】分享");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-share"])',
           '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
         ),
@@ -4491,7 +4541,7 @@
     blockListenDouYinButton() {
       log.info("【屏蔽】听抖音");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.basePlayerContainer div[aria-describedby]:has(path[d="M9.68718 12.4801C8.612 14.3927 8.1197 16.7374 8.05821 19.0767C8.23942 18.9661 8.4351 18.8725 8.64383 18.7988L9.16952 18.6132C10.7699 18.0482 12.5315 18.8701 13.1042 20.4491L15.3865 26.7417C15.9591 28.3206 15.126 30.0586 13.5257 30.6236L13 30.8092C11.4155 31.3686 9.85676 30.6485 8.86663 29.2939C8.83318 29.2583 8.80192 29.22 8.7732 29.1788C7.33136 27.1149 6.42117 24.618 6.13186 21.9841C5.75876 18.5873 6.12658 14.6403 7.8929 11.4983C9.70099 8.28189 12.9317 6 17.9885 6C23.0436 6 26.2778 8.27305 28.092 11.4819C29.8643 14.6168 30.2393 18.557 29.8725 21.9536C29.5881 24.5883 28.6825 27.0875 27.2445 29.155C27.2194 29.1911 27.1924 29.2251 27.1636 29.2569C26.1749 30.6354 24.6023 31.3737 23.0035 30.8092L22.4778 30.6236C20.8774 30.0586 20.0443 28.3206 20.617 26.7417L22.8993 20.4491C23.472 18.8701 25.2335 18.0482 26.8339 18.6132L27.3596 18.7988C27.5669 18.8719 27.7613 18.9648 27.9415 19.0744C27.8783 16.7301 27.382 14.3817 26.3001 12.468C24.846 9.89593 22.2949 8.02429 17.9885 8.02428C13.684 8.02428 11.1369 9.90129 9.68718 12.4801Z"])'
         ),
       ];
@@ -4499,7 +4549,7 @@
     blockRelatedRecommendationsButton() {
       log.info("【屏蔽】看相关");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
           'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
           '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
@@ -4519,7 +4569,7 @@
     blockMoreButton() {
       log.info("【屏蔽】更多");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-play-more"])',
           '.basePlayerContainer div[data-e2e="video-play-more"]',
           '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
@@ -4577,7 +4627,7 @@
     blockRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
           '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
         ),
@@ -4593,32 +4643,25 @@
       log.info("【屏蔽】搜索悬浮栏");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
-          "#slideMode + div",
-          '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
-        )
+        addBlockCSS("#slideMode + div", '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])')
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
-          )
+          addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')
         );
       } else if (DouYinRouter.isUser()) {
         result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
-          )
+          addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')
         );
       } else if (DouYinRouter.isVideo()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
           )
         );
       } else if (DouYinRouter.isJingXuan()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-right-container div:has([data-e2e="modal-video-container"]) div:has(>div>input[data-e2e="searchbar-input"])'
           )
         );
@@ -4629,28 +4672,28 @@
       log.info("【屏蔽】网页全屏关闭按钮");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])',
           'div:has(>svg path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
       }
       if (DouYinRouter.isUser()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
       }
       if (DouYinRouter.isVideo()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
           )
         );
@@ -4659,15 +4702,15 @@
     },
     blockShopInfo() {
       log.info(`【屏蔽】购物信息`);
-      return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+      return addBlockCSS(`.xgplayer-shop-anchor`);
     },
     blockDanmaku() {
       log.info(`【屏蔽】弹幕`);
-      return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
+      return addBlockCSS(".basePlayerContainer .danmu");
     },
     blockStartPlayIcon() {
       log.info(`【屏蔽】中间的播放图标`);
-      return CommonUtil.addBlockCSS(".xgplayer-start");
+      return addBlockCSS(".xgplayer-start");
     },
   };
   const MobileCSS$1 =
@@ -5691,35 +5734,35 @@
     },
     blockEnterUserHomeMouseHoverTip() {
       log.info(`禁用进入作者主页按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`);
+      return addBlockCSS(` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`);
     },
     blockFollowMouseHoverTip() {
       log.info(`禁用关注按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="feed-follow-icon"]  .semi-portal`);
+      return addBlockCSS(`div[data-e2e="feed-follow-icon"]  .semi-portal`);
     },
     blockAddLikeMouseHoverTip() {
       log.info(`禁用点赞按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-digg"] + .semi-portal`);
+      return addBlockCSS(`div[data-e2e="video-player-digg"] + .semi-portal`);
     },
     blockCommentMouseHoverTip() {
       log.info(`禁用评论按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="feed-comment-icon"] + .semi-portal`);
+      return addBlockCSS(`div[data-e2e="feed-comment-icon"] + .semi-portal`);
     },
     blockCollectMouseHoverTip() {
       log.info(`禁用收藏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-collect"] + .semi-always-dark`);
+      return addBlockCSS(`div[data-e2e="video-player-collect"] + .semi-always-dark`);
     },
     blockShareMouseHoverTip() {
       log.info(`禁用分享按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-share-container"]`);
+      return addBlockCSS(`div[data-e2e="video-share-container"]`);
     },
     blockSeeCorrelationMouseHoverTip() {
       log.info(`禁用看相关推荐按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div:has(+[data-e2e="video-play-more"]) .semi-portal`);
+      return addBlockCSS(`div:has(+[data-e2e="video-play-more"]) .semi-portal`);
     },
     blockMoreMouseHoverTip() {
       log.info(`禁用更多按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`[data-e2e="video-play-more"] > div:has([data-e2e="more-music-detail"])`);
+      return addBlockCSS(`[data-e2e="video-play-more"] > div:has([data-e2e="more-music-detail"])`);
     },
   };
   const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
@@ -5742,23 +5785,23 @@
     },
     blockAutomaticBroadcast() {
       log.info(`禁用自动连播按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-auto-play"] + .xgTips`);
+      return addBlockCSS(`div[data-e2e="video-player-auto-play"] + .xgTips`);
     },
     blockClearScreenMouseHoverTip() {
       log.info(`禁用清屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
+      return addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
     },
     blockWatchLaterMouseHoverTip() {
       log.info(`禁用稍后再看按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-watch-later .xgTips`, `.xgplayer-watch-later-item + .xgTips`);
+      return addBlockCSS(`.xgplayer-watch-later .xgTips`, `.xgplayer-watch-later-item + .xgTips`);
     },
     blockPageFullScreenMouseHoverTip() {
       log.info(`禁用网页全屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
+      return addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
     },
     blockFullScreenMouseHoverTip() {
       log.info(`禁用全屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
+      return addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
     },
   };
   class ShortCut {
@@ -6145,26 +6188,6 @@
       };
     },
   };
-  const DouYinElement = {
-    videoFullScreen() {
-      return 'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon';
-    },
-    activeVideoFullScreen() {
-      return '[data-e2e="feed-active-video"] .xgplayer-fullscreen';
-    },
-    searchPageActiveVideoFullScreen() {
-      return '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon';
-    },
-    liveWebsiteFullScreen() {
-      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right div:has(>svg path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])';
-    },
-    liveFullScreen() {
-      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M9.5 8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-13zm10 11h-1.501v2H20.5a1 1 0 0 0 1-1v-2.5h-2V19zm-7 0v-1.5h-2V20a1 1 0 0 0 1 1h2.499v-2H12.5zm0-6h1.499v-2H11.5a1 1 0 0 0-1 1v2.5h2V13zm7 0h-1.501v-2H20.5a1 1 0 0 1 1 1v2.5h-2V13z"])';
-    },
-    liveQuitFullScreen() {
-      return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])';
-    },
-  };
   const DouYinVideoPlayer = {
     $flag: {
       isWaitEnterFullScreen: false,
@@ -6271,7 +6294,7 @@
       log.info("沉浸模式：" + mode);
       const result = [];
       if (typeof mode === "boolean" && mode) {
-        result.push(CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"));
+        result.push(addBlockCSS("xg-controls.xgplayer-controls"));
         result.push(...DouYinVideoBlock.blockSearchFloatingBar());
         result.push(DouYinVideoBlock_RightToolbar.blockToolBar());
         result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
@@ -7154,7 +7177,7 @@
       log.info("启用手机模式");
       const result = [];
       DouYin.initialScale();
-      result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar"), addStyle(MobileCSS$1));
+      result.push(addBlockCSS("img#douyin-temp-sidebar"), addStyle(MobileCSS$1));
       Panel.onceExec("repairProgressBar", () => {
         result.push(...this.repairVideoProgressBar());
       });
@@ -7654,7 +7677,7 @@
     shieldChatRoom() {
       log.info("【屏蔽】评论区（聊天室）");
       return [
-        CommonUtil.addBlockCSS("#chatroom", "#RightBackgroundLayout"),
+        addBlockCSS("#chatroom", "#RightBackgroundLayout"),
         addStyle(
           `
             div[data-e2e="living-container"],
@@ -7666,12 +7689,12 @@
     },
     shieldDoubleScreen() {
       log.info("【屏蔽】副屏");
-      return [CommonUtil.addBlockCSS("#double_screen")];
+      return [addBlockCSS("#double_screen")];
     },
     shielChatRoomVipSeats() {
       log.info("【屏蔽】评论区的贵宾席");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           "#chatroom > div > div:has(#audiencePanelScrollId)",
           '#chatroom > div > div:has([data-e2e="live-room-audience"])',
           '#chatroom > pace-island > div > div:has([data-e2e="live-room-audience"])'
@@ -7681,19 +7704,19 @@
     shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
       return [
-        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
-        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
-        CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
+        addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
+        addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
+        addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
       ];
     },
     shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
-      return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
+      return [addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
     },
     shieldUserFansIcon() {
       log.info("【屏蔽】粉丝牌");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
           '#chatroom .webcast-chatroom___item *:has(>img[src*="fansclub"])'
         ),
@@ -7702,7 +7725,7 @@
     shieldMessage() {
       log.info("【屏蔽】信息播报");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
           `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
           '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
@@ -7728,7 +7751,7 @@
     },
     blockDownloadClient() {
       log.info(`【屏蔽】右键菜单-下载客户端`);
-      return [CommonUtil.addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
+      return [addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
     },
   };
   const DouYinLiveBlock = {
@@ -7760,7 +7783,7 @@
     shieldGiftColumn() {
       log.info("【屏蔽】底部的礼物栏");
       const result = [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
           'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
           'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
@@ -7779,14 +7802,14 @@
       domUtils.waitNode("#BottomLayout:contains('多机位')", 1e4).then(($el) => {
         if (!$el) return;
         domUtils.attr($el, "data-multi-camera", "true");
-        result.push(CommonUtil.addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
+        result.push(addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
       });
       return result;
     },
     shieldTopToolBarInfo() {
       log.info("【屏蔽】顶栏信息");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
           'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
           'div[data-e2e="living-container"] xg-bar.xg-top-bar',
@@ -7806,14 +7829,14 @@
     shieldGiftEffects() {
       log.info("【屏蔽】礼物特效");
       const result = [
-        CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
+        addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
       ];
       return result;
     },
     shieldLucky() {
       log.info("【屏蔽】福袋");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)',
           "#ShortTouchLayout x-view",
           "#ShortTouchLayout .ShortTouchContainer"
@@ -7823,7 +7846,7 @@
     shieldYellowCar() {
       log.info("【屏蔽】小黄车");
       return [
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])',
           "#EcmoCardLayout"
         ),
@@ -7831,11 +7854,11 @@
     },
     shieldDanmu() {
       log.info("屏蔽弹幕");
-      return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu", "#DanmakuLayout")];
+      return [addBlockCSS("xg-danmu.xgplayer-danmu", "#DanmakuLayout")];
     },
     block_exhibition_banner_dylive_tooltip() {
       log.info(`【屏蔽】点亮展馆帮主播集星`);
-      return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
+      return [addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
     },
   };
   const DouYinLiveDanmaku = {
@@ -8061,56 +8084,56 @@
     },
     block() {
       log.info(`【屏蔽】播放器组件`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-controls');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-controls');
     },
     blockPlay() {
       log.info(`【屏蔽】播放`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-play');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-play');
     },
     blockRefresh() {
       log.info(`【屏蔽】刷新`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-play+slot:has(svg)');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-play+slot:has(svg)');
     },
     blockPlayclarity() {
       log.info(`【屏蔽】清晰度`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .QualitySwitchNewPlugin');
+      return addBlockCSS('[data-e2e="living-container"] .QualitySwitchNewPlugin');
     },
     blockThreeScreen() {
       log.info(`【屏蔽】三屏画面`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="triple_screen_icon"])');
+      return addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="triple_screen_icon"])');
     },
     blockScreenRotate() {
       log.info(`【屏蔽】屏幕旋转`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-rotate');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-rotate');
     },
     blockDanmakuSwitch() {
       log.info(`【屏蔽】弹幕开关`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="danmaku-setting-icon"])');
+      return addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="danmaku-setting-icon"])');
     },
     blockGiftSetting() {
       log.info(`【屏蔽】礼物设置`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="gift-setting"])');
+      return addBlockCSS('[data-e2e="living-container"] div:has(>[data-e2e="gift-setting"])');
     },
     blockVolume() {
       log.info(`【屏蔽】音量`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-volume');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-volume');
     },
     blockMiniMode() {
       log.info(`【屏蔽】小窗模式`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="living-container"] .douyin-player-controls slot > div:has(svg path[d="M22.5 10H10v11h6.25a1 1 0 1 1 0 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h12.5a2 2 0 0 1 2 2v4.5a1 1 0 1 1-2 0V10zm-9.465 6.622c0 .485.393.878.877.878h3.511a.878.878 0 0 0 .878-.878v-3.51a.878.878 0 0 0-1.756 0v1.348l-2.695-2.696a.878.878 0 1 0-1.241 1.241l2.74 2.74h-1.437a.878.878 0 0 0-.877.877zm6.074 1.878a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-4z"])'
       );
     },
     blockPageFullScreen() {
       log.info(`【屏蔽】网页全屏`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="living-container"] .douyin-player-controls slot > div:has(svg path[d="M9.75 8.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-2v-11a2 2 0 0 0-2-2H9.75zM15 11.25h-3.75a1 1 0 0 0-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 0 1-1 1z"])',
         '[data-e2e="living-container"] .douyin-player-controls slot > div:has(svg path[d="M7.75 10.5a2 2 0 0 1 2-2h12.5a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H9.75a2 2 0 0 1-2-2v-11zM14 15.75h-3.75v-2H13V11h2v3.75a1 1 0 0 1-1 1zm7.75.5H18a1 1 0 0 0-1 1V21h2v-2.75h2.75v-2z"])'
       );
     },
     blockFullScreen() {
       log.info(`【屏蔽】进入全屏`);
-      return CommonUtil.addBlockCSS('[data-e2e="living-container"] .douyin-player-fullscreen');
+      return addBlockCSS('[data-e2e="living-container"] .douyin-player-fullscreen');
     },
   };
   const DouYinLivePlayer = {
@@ -9122,7 +9145,7 @@
         },
       });
       return [
-        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+        addBlockCSS("#search-content-area > div > div:nth-child(2)"),
         addStyle(
           `
 			/* 把搜索结果宽度自适应 */
@@ -9137,11 +9160,11 @@
     },
     blockAIAsk() {
       log.info(`【屏蔽】AI问一问`);
-      return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
+      return addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
     },
     blockAskAI() {
       log.info(`【屏蔽】问问AI`);
-      return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
+      return addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
     },
     blockAIAssistant() {
       log.info(`【屏蔽】AI为你生成回答`);
@@ -11880,7 +11903,7 @@
     shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
       const result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
+      result.push(addBlockCSS("#douyin-navigation"));
       result.push(
         addStyle(
           `
@@ -11894,73 +11917,69 @@
     },
     block_tab_home() {
       log.info("【屏蔽】精选");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
     },
     block_tab_recommend() {
       log.info("【屏蔽】推荐");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
     },
     block_tab_ai_search() {
       log.info(`【屏蔽】AI搜索/抖音`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-      );
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])');
     },
     block_tab_follow() {
       log.info("【屏蔽】关注");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
     },
     block_tab_friend() {
       log.info("【屏蔽】朋友");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
     },
     block_tab_user_self() {
       log.info("【屏蔽】我的");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
     },
     block_tab_activity() {
       log.info(`【屏蔽】activity`);
-      return CommonUtil.addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])'
-      );
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])');
     },
     block_tab_live() {
       log.info("【屏蔽】直播");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
     },
     block_tab_vs() {
       log.info("【屏蔽】放映厅");
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
     },
     block_tab_series() {
       log.info(`短剧`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
     },
     block_tab_microgame() {
       log.info(`【屏蔽】小游戏`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
     },
     block_panel_menu_setting() {
       log.info(`【屏蔽】设置`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])'
       );
     },
     block_panel_menu_about() {
       log.info(`【屏蔽】关于`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])'
       );
     },
     block_panel_menu_q_a() {
       log.info(`【屏蔽】问题/反馈`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])'
       );
     },
     block_panel_menu_survey() {
       log.info(`【屏蔽】用户体验调研`);
-      return CommonUtil.addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
+      return addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
     },
   };
   const blockLeftNavigatorOther = {
@@ -11971,7 +11990,7 @@
     },
     tabFollowRedHot() {
       log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
         '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
       );
@@ -12000,7 +12019,7 @@
     },
     shieldSearch() {
       log.info("【屏蔽】搜索框");
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
       );
     },
@@ -12016,7 +12035,7 @@
       log.info("【屏蔽】搜索框的提示");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
         )
       );
@@ -12032,14 +12051,14 @@
     },
     shieldSearchGuessYouWantToSearch() {
       log.info("【屏蔽】搜索-猜你想搜");
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
       );
     },
     shieldSearchTiktokHotspot() {
       log.info("【屏蔽】搜索-抖音热点");
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
       );
@@ -12146,7 +12165,7 @@
     shieldTopNavigator() {
       log.info("【屏蔽】顶部导航栏");
       const result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-header"));
+      result.push(addBlockCSS("#douyin-header"));
       result.push(
         addStyle(
           `
@@ -12204,16 +12223,16 @@
       const result = [];
       const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
           'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
         )
       );
       if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
       } else if (DouYinRouter.isLive()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
           )
         );
@@ -12224,7 +12243,7 @@
       log.info("【屏蔽】客户端");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
           'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
           'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
@@ -12233,14 +12252,14 @@
       );
       if (DouYinRouter.isSearch()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
             'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
             '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
             '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
@@ -12253,14 +12272,14 @@
       log.info("【屏蔽】快捷访问");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
 
           'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
         )
       );
       if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
+        result.push(addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
         domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
           $semi?.remove();
         });
@@ -12271,19 +12290,19 @@
       log.info("【屏蔽】通知");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
           )
         );
@@ -12294,7 +12313,7 @@
       log.info("【屏蔽】私信");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
           '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
         )
@@ -12302,7 +12321,7 @@
       if (DouYinRouter.isSearch()) {
         log.info("搜索-【屏蔽】私信");
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'ul:has( div>div[data-e2e="im-entry"] )',
             'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
           )
@@ -12314,14 +12333,12 @@
       log.info("【屏蔽】投稿");
       const result = [];
       const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
-      result.push(
-        CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`)
-      );
+      result.push(addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`));
       if (DouYinRouter.isSearch()) {
-        result.push(CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
       } else if (DouYinRouter.isLive()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
           )
         );
@@ -12332,7 +12349,7 @@
       log.info("【屏蔽】客户端提示");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
           '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
           '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
@@ -12341,7 +12358,7 @@
       );
       if (DouYinRouter.isSearch()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
             'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
           )
@@ -12353,19 +12370,19 @@
       log.info("【屏蔽】壁纸");
       const result = [];
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
-          CommonUtil.addBlockCSS(
+          addBlockCSS(
             '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
             '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
           )
@@ -12375,24 +12392,24 @@
     },
     shieldRightMenu() {
       log.info(`【屏蔽】顶部右侧的菜单栏`);
-      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
+      return addBlockCSS(`div[id^="douyin-header-menu"]`);
     },
     shieldRightMenuMore() {
       log.info(`【屏蔽】更多`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
       );
     },
     shieldRightMenuLoginAvatar() {
       log.info(`【屏蔽】登录头像`);
-      return CommonUtil.addBlockCSS(
+      return addBlockCSS(
         `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
         `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
       );
     },
     shieldAISearch() {
       log.info(`【屏蔽】AI搜索/抖音`);
-      return CommonUtil.addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
+      return addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
     },
   };
   const DouYinBlock = {
@@ -12791,15 +12808,15 @@
     },
     blockRecommend() {
       log.info("【屏蔽】相关推荐");
-      return CommonUtil.addBlockCSS(".recommend-con");
+      return addBlockCSS(".recommend-con");
     },
     blockComment() {
       log.info("【屏蔽】评论");
-      return CommonUtil.addBlockCSS(".comment-con");
+      return addBlockCSS(".comment-con");
     },
     blockFooterToobar() {
       log.info("【屏蔽】底部工具栏");
-      return CommonUtil.addBlockCSS(".footer-con");
+      return addBlockCSS(".footer-con");
     },
     coverRecommend() {
       log.info("覆盖相关推荐的点击事件");
@@ -13969,6 +13986,13 @@
                   ),
                   UISwitch("【屏蔽】AI抖音", "blockAIDouYin"),
                   UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar"),
+                  UISwitch(
+                    "【屏蔽】直播小窗",
+                    "blockUserLiveSmallWindow",
+                    false,
+                    void 0,
+                    "当用户直播时出现在头像左边的小窗口"
+                  ),
                   UISwitch("【屏蔽】点赞", "shieldLikeButton"),
                   UISwitch("【屏蔽】评论", "shieldCommentButton"),
                   UISwitch("【屏蔽】收藏", "shieldCollectionButton"),

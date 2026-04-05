@@ -1,6 +1,6 @@
 import { $$, DOMUtils, log, utils } from "@/env";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 底部工具栏 - 视频信息区域
@@ -35,7 +35,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   blockVideoInfoWrap() {
     log.info("【屏蔽】视频信息");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         "#video-info-wrap",
         // 直播的信息区域
         '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
@@ -50,7 +50,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    */
   blockClickRecommend() {
     log.info(`【屏蔽】点击推荐或共xx人推荐`);
-    return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+    return addBlockCSS(".xgplayer-recommend-tag");
   },
   /**
    * 【屏蔽】视频标题上的标签
@@ -60,16 +60,14 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    */
   blobkTitleTopTag() {
     log.info(`【屏蔽】视频标题上的标签`);
-    return CommonUtil.addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
+    return addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
   },
   /**
    * 【屏蔽】视频标题下的标签
    */
   blockVideoUnderTitleTag() {
     log.info(`【屏蔽】视频标题下的标签`);
-    return [
-      CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div'),
-    ];
+    return [addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div')];
   },
   /**
    * 【屏蔽】识别画面
@@ -77,7 +75,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   blockAIIdentifyTheScreen() {
     log.info(`【屏蔽】识别画面`);
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         // 如果有视频标题下面的标签，如：合集、相关搜索等，那么会有.under-title-tag
         // 如果没有，那么仅【识别画面】一个
         '.under-title-tag + div:has(svg g[filter*="icon_ai_svg__filter"])',
@@ -120,6 +118,6 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    */
   blockAuthorDeclaration() {
     log.info(`【屏蔽】作者声明`);
-    return [CommonUtil.addBlockCSS("div:has(>a.safetyBar)")];
+    return [addBlockCSS("div:has(>a.safetyBar)")];
   },
 };

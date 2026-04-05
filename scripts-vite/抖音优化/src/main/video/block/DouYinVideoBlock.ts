@@ -8,6 +8,7 @@ import { DouYinVideoBlock_Comment } from "./DouYinVideoBlock_Comment";
 import { DouYinVideoBlock_Live } from "./DouYinVideoBlock_Live";
 import { DouYinVideoBlock_RightMenu, DouYinVideoBlock_RightMenu_Live } from "./DouYinVideoBlock_RightMenu";
 import { DouYinVideoBlock_RightToolbar } from "./DouYinVideoBlock_RightToolbar";
+import { addBlockCSS } from "@components/env.base";
 
 /**
  * 总屏蔽
@@ -56,7 +57,7 @@ export const DouYinVideoBlock = {
   blockRightExpandCommentButton() {
     log.info("【屏蔽】右侧的展开评论按钮");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         '#sliderVideo[data-e2e="feed-active-video"] > div > div > button[type="button"]',
         '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
       ),
@@ -74,7 +75,7 @@ export const DouYinVideoBlock = {
     log.info("【屏蔽】搜索悬浮栏");
     const result = [];
     result.push(
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         /* 看相关页面的 */
         "#slideMode + div",
         // 2024.7.16
@@ -84,7 +85,7 @@ export const DouYinVideoBlock = {
     if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
       // 搜索页面的
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           // 2024.7.30
           '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
         )
@@ -92,21 +93,19 @@ export const DouYinVideoBlock = {
     } else if (DouYinRouter.isUser()) {
       // 用户页面的
       result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])'
-        )
+        addBlockCSS('#douyin-right-container > div > div > div > div:has( div> input[data-e2e="searchbar-input"])')
       );
     } else if (DouYinRouter.isVideo()) {
       // 单个视频页面
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
         )
       );
     } else if (DouYinRouter.isJingXuan()) {
       // 精选
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container div:has([data-e2e="modal-video-container"]) div:has(>div>input[data-e2e="searchbar-input"])'
         )
       );
@@ -120,7 +119,7 @@ export const DouYinVideoBlock = {
     log.info("【屏蔽】网页全屏关闭按钮");
     const result = [];
     result.push(
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         // 2024.7.16
         '.playerContainer .slider-video > div > div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])',
         // 推荐视频 - 直播的左上角关闭按钮
@@ -130,7 +129,7 @@ export const DouYinVideoBlock = {
     if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
       // 搜索页面
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container  div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
@@ -138,7 +137,7 @@ export const DouYinVideoBlock = {
     if (DouYinRouter.isUser()) {
       // 用户页面
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
@@ -146,7 +145,7 @@ export const DouYinVideoBlock = {
     if (DouYinRouter.isVideo()) {
       // 单个视频页面
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           '#douyin-right-container  div > div > div:has( > svg > path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
@@ -158,20 +157,20 @@ export const DouYinVideoBlock = {
    */
   blockShopInfo() {
     log.info(`【屏蔽】购物信息`);
-    return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+    return addBlockCSS(`.xgplayer-shop-anchor`);
   },
   /**
    * 【屏蔽】弹幕
    */
   blockDanmaku() {
     log.info(`【屏蔽】弹幕`);
-    return CommonUtil.addBlockCSS(".basePlayerContainer .danmu");
+    return addBlockCSS(".basePlayerContainer .danmu");
   },
   /**
    * 【屏蔽】中间的播放图标
    */
   blockStartPlayIcon() {
     log.info(`【屏蔽】中间的播放图标`);
-    return CommonUtil.addBlockCSS(".xgplayer-start");
+    return addBlockCSS(".xgplayer-start");
   },
 };

@@ -1,8 +1,9 @@
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
+import { DouYinElement } from "@/main/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinUtils } from "@/utils/DouYinUtils";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
 import type { ReactFiberNode } from "@whitesev/utils/dist/types/src/types/React.js";
@@ -20,7 +21,6 @@ import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import { DouYinElement } from "@/main/DouYinElement";
 
 /**
  * 视频播放器的播放速度
@@ -142,7 +142,7 @@ export const DouYinVideoPlayer = {
     if (typeof mode === "boolean" && mode) {
       // 全部
       result.push(
-        CommonUtil.addBlockCSS(
+        addBlockCSS(
           /* 中间底部的视频控制工具栏 */
           "xg-controls.xgplayer-controls"
         )
@@ -1267,7 +1267,7 @@ export const DouYinVideoPlayer = {
     const result: HTMLStyleElement[] = [];
     DouYin.initialScale();
     /* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
-    result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
+    result.push(addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
     Panel.onceExec("repairProgressBar", () => {
       result.push(...this.repairVideoProgressBar());
     });

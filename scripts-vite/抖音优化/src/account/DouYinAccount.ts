@@ -1,9 +1,8 @@
 import { $, addStyle, DOMUtils, log, utils } from "@/env";
-import { DouYinElementUtil } from "../utils/DouYinElementUtil";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { CommonUtil } from "@components/utils/CommonUtil";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
+import { DouYinElementUtil } from "../utils/DouYinElementUtil";
 
 export const DouYinAccount = {
   /**
@@ -12,7 +11,7 @@ export const DouYinAccount = {
   disguiseLogin() {
     log.info("伪装登录");
     let result: any[] = [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         // 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
         ".login-tooltip-slot"
       ),
@@ -293,7 +292,7 @@ export const DouYinAccount = {
     });
 
     return [
-      CommonUtil.addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
+      addBlockCSS('div[id^="login-full-panel-"]', ".douyin_login_iframe:has(iframe)"),
       () => {
         observer.disconnect();
       },
@@ -329,7 +328,7 @@ export const DouYinAccount = {
       },
     });
     return [
-      CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+      addBlockCSS('[id^="related-video-card-login-guide"]'),
       addStyle(/*css*/ `
         /* 去除遮罩层 */
         [id^="related-video-card-login-guide"]+div{

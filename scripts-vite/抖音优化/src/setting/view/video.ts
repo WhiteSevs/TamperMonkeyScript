@@ -521,6 +521,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("【屏蔽】AI抖音", "blockAIDouYin"),
                 UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar"),
+                UISwitch(
+                  "【屏蔽】直播小窗",
+                  "blockUserLiveSmallWindow",
+                  false,
+                  void 0,
+                  "当用户直播时出现在头像左边的小窗口"
+                ),
                 UISwitch("【屏蔽】点赞", "shieldLikeButton"),
                 UISwitch("【屏蔽】评论", "shieldCommentButton"),
                 UISwitch("【屏蔽】收藏", "shieldCollectionButton"),

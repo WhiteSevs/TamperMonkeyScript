@@ -1,10 +1,9 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import blockCSS from "./block.css?raw";
-import { DouYinUtils } from "@/utils/DouYinUtils";
+import { DouYinUrl } from "@/router/DouYinUrl";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
-import { DouYinUrl } from "@/router/DouYinUrl";
-import { CommonUtil } from "@components/utils/CommonUtil";
+import blockCSS from "./block.css?raw";
 
 export const MDouYinShareNote = {
   init() {
@@ -39,21 +38,21 @@ export const MDouYinShareNote = {
    */
   blockRecommend() {
     log.info("【屏蔽】相关推荐");
-    return CommonUtil.addBlockCSS(".recommend-con");
+    return addBlockCSS(".recommend-con");
   },
   /**
    * 【屏蔽】评论
    */
   blockComment() {
     log.info("【屏蔽】评论");
-    return CommonUtil.addBlockCSS(".comment-con");
+    return addBlockCSS(".comment-con");
   },
   /**
    * 【屏蔽】底部工具栏
    */
   blockFooterToobar() {
     log.info("【屏蔽】底部工具栏");
-    return CommonUtil.addBlockCSS(".footer-con");
+    return addBlockCSS(".footer-con");
   },
   /**
    * 覆盖相关推荐的点击事件

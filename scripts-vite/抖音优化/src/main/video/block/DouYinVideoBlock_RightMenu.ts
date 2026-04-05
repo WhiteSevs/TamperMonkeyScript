@@ -1,7 +1,7 @@
 import { log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinVideoBlock_RightMenu = {
   $data: {
@@ -116,7 +116,7 @@ export const DouYinVideoBlock_RightMenu = {
             this.$data.menuSelector_slideMode,
             this.$data.menuSelector_onlyVideo,
           ];
-          this.$el.hideMenuStyle = CommonUtil.addBlockCSS(...selectorList)!;
+          this.$el.hideMenuStyle = addBlockCSS(...selectorList)!;
         } else {
           if (!document.contains(this.$el.hideMenuStyle)) {
             // 不在页面，重新添加
@@ -156,35 +156,35 @@ export const DouYinVideoBlock_RightMenu = {
    */
   clearScreen() {
     log.info(`【屏蔽】右键菜单-清屏`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】评论
    */
   comment() {
     log.info(`【屏蔽】右键菜单-评论`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】赞
    */
   like() {
     log.info(`【屏蔽】右键菜单-赞`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】进入作者主页
    */
   enterAuthorHomePage() {
     log.info(`【屏蔽】右键菜单-进入作者主页`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(4):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(4):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】推荐给朋友
    */
   recommendToFriends() {
     log.info(`【屏蔽】右键菜单-推荐给朋友`);
-    return CommonUtil.addBlockCSS(
+    return addBlockCSS(
       `${this.$data.menuSelector_slideMode} > *:nth-child(5):not([data-danmu-id]):not(:empty)`,
       `${this.$data.menuSelector_sliderVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
     );
@@ -195,11 +195,9 @@ export const DouYinVideoBlock_RightMenu = {
   share() {
     log.info(`【屏蔽】右键菜单-分享`);
     if (DouYinRouter.isVideo()) {
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector_onlyVideo} > *:nth-child(5):not([data-danmu-id]):not(:empty)`);
     }
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(6):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】不感兴趣
@@ -207,9 +205,7 @@ export const DouYinVideoBlock_RightMenu = {
   notInterested() {
     log.info(`【屏蔽】右键菜单-不感兴趣`);
     // 在进入详情页时，此选项没有
-    return CommonUtil.addBlockCSS(
-      `${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`
-    );
+    return addBlockCSS(`${this.$data.menuSelector_sliderVideo} > *:nth-child(7):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】意见反馈
@@ -217,11 +213,9 @@ export const DouYinVideoBlock_RightMenu = {
   feedback() {
     log.info(`【屏蔽】右键菜单-意见反馈`);
     if (DouYinRouter.isVideo()) {
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector_onlyVideo} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`);
     }
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(3):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】举报
@@ -229,11 +223,9 @@ export const DouYinVideoBlock_RightMenu = {
   report() {
     log.info(`【屏蔽】右键菜单-举报`);
     if (DouYinRouter.isVideo()) {
-      return CommonUtil.addBlockCSS(
-        `${this.$data.menuSelector_onlyVideo} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`
-      );
+      return addBlockCSS(`${this.$data.menuSelector_onlyVideo} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`);
     }
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(2):not([data-danmu-id]):not(:empty)`);
   },
   /**
    * 【屏蔽】进入详情页
@@ -243,7 +235,7 @@ export const DouYinVideoBlock_RightMenu = {
     if (DouYinRouter.isVideo()) {
       return;
     }
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-last-child(1):not([data-danmu-id]):not(:empty)`);
   },
 };
 
@@ -291,7 +283,7 @@ export const DouYinVideoBlock_RightMenu_Live = {
         // 全部执行了
         // 屏蔽总菜单
         if (this.$el.hideMenuStyle == null) {
-          this.$el.hideMenuStyle = CommonUtil.addBlockCSS(`${this.$data.menuSelector}`)!;
+          this.$el.hideMenuStyle = addBlockCSS(`${this.$data.menuSelector}`)!;
         } else {
           if (!document.contains(this.$el.hideMenuStyle)) {
             // 不在页面，重新添加
@@ -327,20 +319,20 @@ export const DouYinVideoBlock_RightMenu_Live = {
    */
   notInterested() {
     log.info(`【屏蔽】右键菜单-直播间-不感兴趣`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(1):not(:empty)`);
   },
   /**
    * 【屏蔽】举报
    */
   report() {
     log.info(`【屏蔽】右键菜单-直播间-举报`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(2):not(:empty)`);
   },
   /**
    * 【屏蔽】在新标签页打开直播间
    */
   openBlankRoom() {
     log.info(`【屏蔽】右键菜单-直播间-在新标签页打开直播间`);
-    return CommonUtil.addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not(:empty)`);
+    return addBlockCSS(`${this.$data.menuSelector} > *:nth-child(3):not(:empty)`);
   },
 };

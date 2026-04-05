@@ -1,6 +1,6 @@
 import { log } from "@/env";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 评论区
@@ -20,13 +20,13 @@ export const DouYinVideoBlock_Comment = {
    */
   shieldUserCommentToolBar() {
     log.info("【屏蔽】评论工具栏");
-    return [CommonUtil.addBlockCSS(".comment-input-container")];
+    return [addBlockCSS(".comment-input-container")];
   },
   /**
    * 【屏蔽】大家都在搜
    */
   shieldUserCommentEveryOneAllSearch() {
     log.info("【屏蔽】大家都在搜");
-    return [CommonUtil.addBlockCSS(".comment-header-with-search")];
+    return [addBlockCSS(".comment-header-with-search")];
   },
 };

@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log } from "@/env";
+import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinLiveBlock_ChatRoom = {
   init() {
@@ -35,7 +35,7 @@ export const DouYinLiveBlock_ChatRoom = {
   shieldChatRoom() {
     log.info("【屏蔽】评论区（聊天室）");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         "#chatroom",
         // 2025.6.29 新版
         "#RightBackgroundLayout"
@@ -52,7 +52,7 @@ export const DouYinLiveBlock_ChatRoom = {
    */
   shieldDoubleScreen() {
     log.info("【屏蔽】副屏");
-    return [CommonUtil.addBlockCSS("#double_screen")];
+    return [addBlockCSS("#double_screen")];
   },
   /**
    * 【屏蔽】评论区的贵宾席
@@ -60,7 +60,7 @@ export const DouYinLiveBlock_ChatRoom = {
   shielChatRoomVipSeats() {
     log.info("【屏蔽】评论区的贵宾席");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         "#chatroom > div > div:has(#audiencePanelScrollId)",
         '#chatroom > div > div:has([data-e2e="live-room-audience"])',
         // Firefox上的CSS，多了个pace-island
@@ -74,9 +74,9 @@ export const DouYinLiveBlock_ChatRoom = {
   shieldUserLevelIcon() {
     log.info("【屏蔽】用户等级图标");
     return [
-      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
-      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
-      CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
+      addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="level"])'),
+      addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="aweme_grade_buff"])'),
+      addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="league"])'),
     ];
   },
   /**
@@ -84,7 +84,7 @@ export const DouYinLiveBlock_ChatRoom = {
    */
   shieldUserVIPIcon() {
     log.info("【屏蔽】VIP图标");
-    return [CommonUtil.addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
+    return [addBlockCSS('#chatroom .webcast-chatroom___item *:has(>img[src*="subscribe"])')];
   },
   /**
    * 【屏蔽】粉丝牌
@@ -92,7 +92,7 @@ export const DouYinLiveBlock_ChatRoom = {
   shieldUserFansIcon() {
     log.info("【屏蔽】粉丝牌");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
         '#chatroom .webcast-chatroom___item *:has(>img[src*="fansclub"])'
       ),
@@ -105,7 +105,7 @@ export const DouYinLiveBlock_ChatRoom = {
     log.info("【屏蔽】信息播报");
     // 暂时失效
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         "#chatroom .webcast-chatroom___bottom-message",
         // 上面的滚动播报，xxx进入/加入了直播间
         `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
@@ -137,7 +137,7 @@ export const DouYinLiveBlock_VideoAreaRightMenu = {
    */
   blockDownloadClient() {
     log.info(`【屏蔽】右键菜单-下载客户端`);
-    return [CommonUtil.addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
+    return [addBlockCSS('.__menu_container_className:has(>a[href*="douyin-pc-web"])')];
   },
 };
 
@@ -181,7 +181,7 @@ export const DouYinLiveBlock = {
   shieldGiftColumn() {
     log.info("【屏蔽】底部的礼物栏");
     const result = [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         // 2025.5.9
         'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
         // Firefox上的CSS，多了个pace-island
@@ -206,7 +206,7 @@ export const DouYinLiveBlock = {
     DOMUtils.waitNode("#BottomLayout:contains('多机位')", 10000).then(($el) => {
       if (!$el) return;
       DOMUtils.attr($el, "data-multi-camera", "true");
-      result.push(CommonUtil.addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
+      result.push(addBlockCSS("#BottomLayout[data-multi-camera] .gitBarOptimizeEnabled"));
     });
 
     return result;
@@ -218,7 +218,7 @@ export const DouYinLiveBlock = {
   shieldTopToolBarInfo() {
     log.info("【屏蔽】顶栏信息");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
         // 2024.12.26
         'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
@@ -243,7 +243,7 @@ export const DouYinLiveBlock = {
   shieldGiftEffects() {
     log.info("【屏蔽】礼物特效");
     const result: (HTMLStyleElement | undefined)[] = [
-      CommonUtil.addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
+      addBlockCSS("#GiftTrayLayout", "#GiftEffectLayout", "#GiftMenuLayout", 'div[id^="gift_effect_bg_"]'),
     ];
     return result;
   },
@@ -253,7 +253,7 @@ export const DouYinLiveBlock = {
   shieldLucky() {
     log.info("【屏蔽】福袋");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)',
         // 2026.6.29 新版
         "#ShortTouchLayout x-view",
@@ -268,7 +268,7 @@ export const DouYinLiveBlock = {
   shieldYellowCar() {
     log.info("【屏蔽】小黄车");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])',
         // 2026.6.29 新版
         "#EcmoCardLayout"
@@ -281,7 +281,7 @@ export const DouYinLiveBlock = {
   shieldDanmu() {
     log.info("屏蔽弹幕");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         "xg-danmu.xgplayer-danmu",
         // 2025.6.29 新版
         "#DanmakuLayout"
@@ -293,6 +293,6 @@ export const DouYinLiveBlock = {
    */
   block_exhibition_banner_dylive_tooltip() {
     log.info(`【屏蔽】点亮展馆帮主播集星`);
-    return [CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
+    return [addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')];
   },
 };

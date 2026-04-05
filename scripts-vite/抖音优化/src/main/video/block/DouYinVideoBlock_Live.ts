@@ -1,7 +1,7 @@
 import { log } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoBlock_Live_PlayerCompomemts } from "./DouYinVideoBlock_Live_PlayerCompomemts";
+import { addBlockCSS } from "@components/env.base";
 
 export const DouYinVideoBlock_Live = {
   init() {
@@ -20,7 +20,7 @@ export const DouYinVideoBlock_Live = {
   tipClickOrKeyboardFEnterLiveRoom() {
     log.info(`【屏蔽】点击或按F进入直播间`);
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         '[data-e2e="feed-live"] .douyin-player > a',
         '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
         // 搜索页面的
@@ -35,7 +35,7 @@ export const DouYinVideoBlock_Live = {
   blockYellowCar() {
     log.info("【屏蔽】小黄车");
     return [
-      CommonUtil.addBlockCSS(
+      addBlockCSS(
         '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
         '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
         // 搜索页面的

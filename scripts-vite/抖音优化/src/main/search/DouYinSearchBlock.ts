@@ -72,7 +72,7 @@ export const DouYinSearchBlock = {
       },
     });
     return [
-      CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+      addBlockCSS("#search-content-area > div > div:nth-child(2)"),
       addStyle(/*css*/ `
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
@@ -88,7 +88,7 @@ export const DouYinSearchBlock = {
    */
   blockAIAsk() {
     log.info(`【屏蔽】AI问一问`);
-    return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
+    return addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
   },
   /**
    * 【屏蔽】问问AI
@@ -96,7 +96,7 @@ export const DouYinSearchBlock = {
   blockAskAI() {
     // 为你找到以下结果，问问AI智能总结内容
     log.info(`【屏蔽】问问AI`);
-    return CommonUtil.addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
+    return addBlockCSS("#search-toolbar-container>div:last-child:not(:first-child):not(:empty):has(svg)");
   },
   /**
    * 【屏蔽】AI为你生成回答
