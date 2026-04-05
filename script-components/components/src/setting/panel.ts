@@ -1120,7 +1120,8 @@ const Panel = {
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
