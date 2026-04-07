@@ -1,5 +1,5 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { DouYinUrl } from "@/router/DouYinUrl";
+import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
 import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
@@ -72,7 +72,7 @@ export const MDouYinShareNote = {
           return;
         }
         const awemeId = rectFiber?.return?.memoizedProps.awemeId;
-        const url = DouYinUrl.getNoteUrl(awemeId);
+        const url = DouYinUrlHandler.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true, overrideTarget: false }
@@ -93,7 +93,7 @@ export const MDouYinShareNote = {
         return;
       }
       const sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
-      const url = DouYinUrl.getUserHomeUrl(sec_id);
+      const url = DouYinUrlHandler.getUserHomeUrl(sec_id);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(document, "click", ".message-con__top", callback, { capture: true });
@@ -115,7 +115,7 @@ export const MDouYinShareNote = {
       const splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
       const currentSplitStr = splitStrArr[index];
       const hashtagId = currentSplitStr["hashtagId"];
-      const url = DouYinUrl.getHashTagUrl(hashtagId);
+      const url = DouYinUrlHandler.getHashTagUrl(hashtagId);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(
@@ -148,7 +148,7 @@ export const MDouYinShareNote = {
           return;
         }
         const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-        const url = DouYinUrl.getMusicUrl(musicId);
+        const url = DouYinUrlHandler.getMusicUrl(musicId);
         window.open(url, "_blank");
       },
       { capture: true }
@@ -175,7 +175,7 @@ export const MDouYinShareNote = {
         }
         const itemData = rectFiber?.return?.memoizedProps?.itemData;
         const awemeId = itemData["awemeId"];
-        const url = DouYinUrl.getNoteUrl(awemeId);
+        const url = DouYinUrlHandler.getNoteUrl(awemeId);
         window.open(url, "_blank");
       },
       { capture: true }

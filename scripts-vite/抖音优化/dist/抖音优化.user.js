@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.5
+// @version      2026.4.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2226,61 +2226,697 @@
       return this.__ajaxHooker;
     },
   };
+  class RouterBuilder {
+    __href__;
+    get __href() {
+      return this.__href__ || globalThis.location.href;
+    }
+    __origin = {
+      value: void 0,
+      type: "same",
+    };
+    __protocol = {
+      value: void 0,
+      type: "same",
+    };
+    __host = {
+      value: void 0,
+      type: "same",
+      hasPort: false,
+    };
+    __pathname = {
+      value: void 0,
+      type: "same",
+    };
+    __searchParams = {
+      value: new Set(),
+    };
+    otherInstResultWithOr = false;
+    constructor(href) {
+      if (typeof href === "string") {
+        this.href(href);
+      }
+    }
+    href(url) {
+      this.__href__ = url;
+      return this;
+    }
+    origin(origin) {
+      this.__origin = {
+        value: origin,
+        type: "same",
+      };
+      return this;
+    }
+    originStartsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "startsWith",
+      };
+      return this;
+    }
+    originEndsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "endsWith",
+      };
+      return this;
+    }
+    originIncludes(origin) {
+      this.__origin = {
+        value: origin,
+        type: "includes",
+      };
+      return this;
+    }
+    originMatch(origin) {
+      this.__origin = {
+        value: origin,
+        type: "match",
+      };
+      return this;
+    }
+    protocol(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "same",
+      };
+      return this;
+    }
+    protocolStartsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "startsWith",
+      };
+      return this;
+    }
+    protocolEndsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "endsWith",
+      };
+      return this;
+    }
+    protocolIncludes(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "includes",
+      };
+      return this;
+    }
+    protocolMatch(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "match",
+      };
+      return this;
+    }
+    host(host) {
+      this.__host = {
+        value: host,
+        type: "same",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostStartsWith(host) {
+      this.__host = {
+        value: host,
+        type: "startsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostEndsWith(host) {
+      this.__host = {
+        value: host,
+        type: "endsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostIncludes(host) {
+      this.__host = {
+        value: host,
+        type: "includes",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostMatch(host) {
+      this.__host = {
+        value: host,
+        type: "match",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostName(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "same",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameStartsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "startsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameEndsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "endsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameIncludes(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "includes",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameMatch(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "match",
+        hasPort: false,
+      };
+      return this;
+    }
+    pathname(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "same",
+      };
+      return this;
+    }
+    pathnameStartsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "startsWith",
+      };
+      return this;
+    }
+    pathnameEndsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "endsWith",
+      };
+      return this;
+    }
+    pathnameIncludes(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "includes",
+      };
+      return this;
+    }
+    pathnameMatch(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "match",
+      };
+      return this;
+    }
+    searchParams(name, value) {
+      this.__searchParams.value.add({
+        name,
+        value,
+      });
+      return this;
+    }
+    search(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "same",
+      });
+      return this;
+    }
+    searchStartsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "startsWith",
+      });
+      return this;
+    }
+    searchEndsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "endsWith",
+      });
+      return this;
+    }
+    searchIncludes(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "includes",
+      });
+      return this;
+    }
+    searchMatch(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "match",
+      });
+      return this;
+    }
+    build() {
+      if (!this.__host.value) {
+        throw new TypeError("host or hostName should be required");
+      }
+      const protocol = this.__protocol.value || "https";
+      const host = this.__host.value;
+      const pathname = this.__pathname.value || "/";
+      let url = `${protocol}://${host}${pathname}`;
+      if (this.__searchParams.value.size > 0) {
+        const searhList = [];
+        this.__searchParams.value.forEach((it) => {
+          if (typeof it.name === "string") {
+            let value = "";
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
+              value = it.value.toString();
+            }
+            searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
+          }
+        });
+        if (searhList.length) {
+          url += `?${searhList.join("&")}`;
+        }
+      }
+      return url;
+    }
+    or(href) {
+      this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
+      const routerBuilder = new RouterBuilder(href);
+      routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
+      return routerBuilder;
+    }
+    r() {
+      if (this.otherInstResultWithOr) {
+        return this.otherInstResultWithOr;
+      }
+      const urlInst = new URL(this.__href);
+      const flag = [
+        () => {
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin === this.__origin.value;
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "startsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.startsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "endsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.endsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "includes") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.includes(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "match") {
+              if (this.__origin.value instanceof RegExp) {
+                return this.__origin.value.test(urlInst.origin);
+              } else if (typeof this.__origin.value === "string") {
+                return urlInst.origin.match(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+              }
+            } else {
+              throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol === this.__protocol.value;
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "startsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.startsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "endsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.endsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "includes") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.includes(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "match") {
+              if (this.__protocol.value instanceof RegExp) {
+                return this.__protocol.value.test(urlInst.protocol);
+              } else if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.match(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+              }
+            } else {
+              throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+
+        () => {
+          if (this.__host.value) {
+            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
+            if (this.__host.type === "same") {
+              if (typeof this.__host.value === "string") {
+                return this.__host.value === host;
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "startsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.startsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "endsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.endsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "includes") {
+              if (typeof this.__host.value === "string") {
+                return host.includes(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "match") {
+              if (this.__host.value instanceof RegExp) {
+                return this.__host.value.test(host);
+              } else if (typeof this.__host.value === "string") {
+                return host.match(this.__host.value);
+              } else {
+                throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+              }
+            } else {
+              throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname === this.__pathname.value;
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "startsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.startsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "endsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.endsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "includes") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.includes(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "match") {
+              if (this.__pathname.value instanceof RegExp) {
+                return this.__pathname.value.test(urlInst.pathname);
+              } else if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.match(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+              }
+            } else {
+              throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+
+        () => {
+          let flag2 = true;
+          const searchParamsList = [];
+          this.__searchParams.value.forEach((item) => {
+            searchParamsList.push(item);
+          });
+          for (let index = 0; index < searchParamsList.length; index++) {
+            const item = searchParamsList[index];
+            if (item.type) {
+              if (item.type === "same") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search === item.value.toString();
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "startsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.startsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "endsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.endsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "includes") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.includes(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "match") {
+                if (item.value instanceof RegExp) {
+                  return item.value.test(urlInst.search);
+                } else if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.match(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+                }
+              } else {
+                throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+              }
+            } else {
+              if (typeof item.name === "string") {
+                let value = item.value;
+                if (
+                  value == null ||
+                  typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                ) {
+                  value = value == null ? void 0 : value.toString();
+                  if (!urlInst.searchParams.has(item.name, value)) {
+                    flag2 = false;
+                    break;
+                  }
+                } else if (value instanceof RegExp) {
+                  const targetValue = urlInst.searchParams.get(item.name);
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    flag2 = false;
+                    break;
+                  }
+                } else {
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+                }
+              } else if (item.name instanceof RegExp) {
+                let targetKey = void 0;
+                let targetValue = void 0;
+                urlInst.searchParams.forEach((__value__, __key__) => {
+                  if (!targetKey && __key__.match(item.name)) {
+                    targetKey = __key__;
+                    targetValue = __value__;
+                  }
+                });
+                if (targetKey) {
+                  let value = item.value;
+                  if (value == null);
+                  else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                    value = value.toString();
+                    flag2 = value === targetValue;
+                    if (!flag2) {
+                      break;
+                    }
+                  } else if (value instanceof RegExp) {
+                    if (targetValue) {
+                      if (!value.test(targetValue)) {
+                        flag2 = false;
+                        break;
+                      }
+                    } else {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    throw new TypeError(
+                      "searchParams value should be string, RegExp, boolean, number, null, undefined"
+                    );
+                  }
+                } else {
+                  flag2 = false;
+                  break;
+                }
+              } else {
+                throw new TypeError("searchParams name should be string or RegExp");
+              }
+            }
+          }
+          return flag2;
+        },
+      ].every((it) => it());
+      return flag;
+    }
+  }
+  const RouterUtil = {
+    host(host, href) {
+      return RouterUtil.builder(href).host(host);
+    },
+    hostName(name, href) {
+      return RouterUtil.builder(href).hostName(name);
+    },
+    search(value, href) {
+      return RouterUtil.builder(href).search(value);
+    },
+    seachParams(name, value, href) {
+      return RouterUtil.builder(href).searchParams(name, value);
+    },
+    pathname(name, href) {
+      return RouterUtil.builder(href).pathname(name);
+    },
+    protocol(protocol, href) {
+      return RouterUtil.builder(href).protocol(protocol);
+    },
+    builder(href) {
+      return new RouterBuilder(href);
+    },
+  };
   const DouYinRouter = {
-    isIndex() {
-      return window.location.hostname === "www.douyin.com" || window.location.hostname === "douyin.com";
+    isIndex(href) {
+      return RouterUtil.builder(href).hostName("www.douyin.com").or(href).hostName("douyin.com").r();
     },
     isLive() {
-      return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
+      return RouterUtil.hostName("live.douyin.com").r() || this.isFollowLive() || this.isRootLive();
     },
     isCreator() {
-      return window.location.hostname === "creator.douyin.com";
+      return RouterUtil.hostName("creator.douyin.com").r();
     },
     isFollow() {
-      return this.isIndex() && window.location.pathname.startsWith("/follow");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/follow").r();
     },
     isFollowLive() {
-      return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/follow/live/").r();
     },
     isRootLive() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/live/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/root/live/").r();
     },
     isRecommend() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return this.isIndex() && window.location.pathname === "/" && searchParams.has("recommend");
+      return this.isIndex() && RouterUtil.pathname("/").r() && RouterUtil.seachParams("recommend").r();
     },
-    isSearch() {
-      return this.isIndex() && (window.location.pathname.startsWith("/search/") || this.isRootSearch());
+    isSearch(href) {
+      return this.isIndex(href) && (this.isRootSearch(href) || RouterUtil.builder().pathnameStartsWith("/search/").r());
     },
-    isRootSearch() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/search/");
+    isRootSearch(href) {
+      return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/root/search/").r();
     },
     isChannel() {
-      return this.isIndex() && window.location.pathname.startsWith("/channel/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/channel/").r();
     },
     isDiscover() {
-      return this.isIndex() && window.location.pathname.startsWith("/discover/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/discover/").r();
     },
     isUser() {
-      return this.isIndex() && window.location.pathname.startsWith("/user/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/user/").r();
     },
     isVideo() {
-      return this.isIndex() && window.location.pathname.startsWith("/video/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/video/").r();
     },
     isNote() {
-      return this.isIndex() && window.location.pathname.startsWith("/note/");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/note/").r();
     },
     isJingXuan() {
-      return this.isIndex() && window.location.pathname.startsWith("/jingxuan");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/jingxuan").r();
     },
     isFriend() {
-      return this.isIndex() && window.location.pathname.startsWith("/friend");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/friend").r();
     },
     isChat() {
-      return this.isIndex() && window.location.pathname.startsWith("/chat");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/chat").r();
     },
     isAISearch() {
-      return this.isIndex() && window.location.pathname.startsWith("/aisearch");
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/aisearch").r();
+    },
+    isHot() {
+      return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/hot").r();
     },
   };
   const DouYinElementUtil = {
@@ -3621,6 +4257,602 @@
       ];
     },
   };
+  const BlockLeftNavigator = {
+    init() {
+      Panel.exec(
+        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
+        () => {
+          return this.shieldLeftNavigator();
+        },
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else;
+          }
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+        return this.block_tab_home();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+        return this.block_tab_recommend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+        return this.block_tab_follow();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+        return this.block_tab_friend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+        return this.block_tab_user_self();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+        return this.block_tab_live();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+        return this.block_tab_vs();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+        return this.block_tab_series();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
+        return this.block_tab_microgame();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+        return this.block_tab_ai_search();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-activity", () => {
+        return this.block_tab_activity();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-setting", () => {
+        return this.block_panel_menu_setting();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-about", () => {
+        return this.block_panel_menu_about();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-q_a", () => {
+        return this.block_panel_menu_q_a();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-survey", () => {
+        return this.block_panel_menu_survey();
+      });
+    },
+    shieldLeftNavigator() {
+      log.info("【屏蔽】左侧导航栏");
+      const result = [];
+      result.push(addBlockCSS("#douyin-navigation"));
+      result.push(
+        addStyle(
+          `
+			/* 修复顶部导航栏的宽度 */
+			#douyin-header{
+				width: 100%;
+			}`
+        )
+      );
+      return result;
+    },
+    block_tab_home() {
+      log.info("【屏蔽】精选");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
+    },
+    block_tab_recommend() {
+      log.info("【屏蔽】推荐");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
+    },
+    block_tab_ai_search() {
+      log.info(`【屏蔽】AI搜索/抖音`);
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])');
+    },
+    block_tab_follow() {
+      log.info("【屏蔽】关注");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
+    },
+    block_tab_friend() {
+      log.info("【屏蔽】朋友");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
+    },
+    block_tab_user_self() {
+      log.info("【屏蔽】我的");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
+    },
+    block_tab_activity() {
+      log.info(`【屏蔽】activity`);
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])');
+    },
+    block_tab_live() {
+      log.info("【屏蔽】直播");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
+    },
+    block_tab_vs() {
+      log.info("【屏蔽】放映厅");
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
+    },
+    block_tab_series() {
+      log.info(`短剧`);
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
+    },
+    block_tab_microgame() {
+      log.info(`【屏蔽】小游戏`);
+      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
+    },
+    block_panel_menu_setting() {
+      log.info(`【屏蔽】设置`);
+      return addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])'
+      );
+    },
+    block_panel_menu_about() {
+      log.info(`【屏蔽】关于`);
+      return addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])'
+      );
+    },
+    block_panel_menu_q_a() {
+      log.info(`【屏蔽】问题/反馈`);
+      return addBlockCSS(
+        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])'
+      );
+    },
+    block_panel_menu_survey() {
+      log.info(`【屏蔽】用户体验调研`);
+      return addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
+    },
+  };
+  const blockLeftNavigatorOther = {
+    init() {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot", () => {
+        return this.tabFollowRedHot();
+      });
+    },
+    tabFollowRedHot() {
+      log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
+      return addBlockCSS(
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
+        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
+      );
+    },
+  };
+  const BlockSearchFrame = {
+    init() {
+      Panel.execMenuOnce("shieldSearch", () => {
+        return this.shieldSearch();
+      });
+      Panel.execMenuOnce("blockSearchButton", () => {
+        return this.blockSearchButton();
+      });
+      Panel.execMenuOnce("blockSearchSuggestion", () => {
+        return this.blockSearchSuggestion();
+      });
+      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
+        return this.shieldSearchPlaceholder();
+      });
+      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+        return this.shieldSearchGuessYouWantToSearch();
+      });
+      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+        return this.shieldSearchTiktokHotspot();
+      });
+    },
+    shieldSearch() {
+      log.info("【屏蔽】搜索框");
+      return addBlockCSS(
+        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
+      );
+    },
+    blockSearchButton() {
+      log.info(`【屏蔽】搜索按钮`);
+      return addBlockCSS('div:empty:has(+button[data-e2e="searchbar-button"])', 'button[data-e2e="searchbar-button"]');
+    },
+    blockSearchSuggestion() {
+      log.info(`【屏蔽】搜索建议`);
+      return addBlockCSS('button[data-e2e="searchbar-button"]+div:has([data-text])');
+    },
+    shieldSearchPlaceholder() {
+      log.info("【屏蔽】搜索框的提示");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+        )
+      );
+      result.push(
+        addStyle(
+          `
+			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+				color: transparent;
+			}`
+        )
+      );
+      return result;
+    },
+    shieldSearchGuessYouWantToSearch() {
+      log.info("【屏蔽】搜索-猜你想搜");
+      return addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
+      );
+    },
+    shieldSearchTiktokHotspot() {
+      log.info("【屏蔽】搜索-抖音热点");
+      return addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
+      );
+    },
+  };
+  const BlockTopNavigator = {
+    init() {
+      Panel.exec(
+        ["shieldTopNavigator", "search-shieldTopNavigator"],
+        () => {
+          return this.shieldTopNavigator();
+        },
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          const mainValue = Panel.getValue(mainKey);
+          const childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else;
+          }
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce(
+        "shieldClientTip",
+        () => {
+          return this.shieldClientTip();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldFillingBricksAndStones",
+        () => {
+          return this.shieldFillingBricksAndStones();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldClient",
+        () => {
+          return this.shieldClient();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldQuickAccess",
+        () => {
+          return this.shieldQuickAccess();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldNotifitation",
+        () => {
+          return this.shieldNotifitation();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldPrivateMessage",
+        () => {
+          return this.shieldPrivateMessage();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldSubmission",
+        () => {
+          return this.shieldSubmission();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce(
+        "shieldWallpaper",
+        () => {
+          return this.shieldWallpaper();
+        },
+        void 0,
+        true
+      );
+      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
+        return this.shieldRightMenu();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+        return this.shieldRightMenuMore();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+        return this.shieldRightMenuLoginAvatar();
+      });
+      Panel.execMenuOnce("shield-topNav-ai-search", () => {
+        return this.shieldAISearch();
+      });
+    },
+    shieldTopNavigator() {
+      log.info("【屏蔽】顶部导航栏");
+      const result = [];
+      result.push(addBlockCSS("#douyin-header"));
+      result.push(
+        addStyle(
+          `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+			/* 兼容手机模式 */
+			@media screen and (max-width: 550px)  and (orientation: portrait) {
+				.is-mobile-pc{
+					--header-height: 0px !important;
+				}
+			}
+		`
+        )
+      );
+      result.push(
+        addStyle(
+          `
+       /* pc端 or mobile端*/
+      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
+        #slidelist{
+          --recommend-video-slide-show-opt: 0px;
+        }
+        #slidelist .page-recommend-container{
+          margin: 0px !important;
+          height: calc(${window.innerHeight}px - var(--recommend-video-slide-show-opt)) !important;
+          height: calc(round(nearest, 100dvh, 1px) - var(--recommend-video-slide-show-opt)) !important;
+        }
+        /* 当前播放的视频 */
+        #slidelist .page-recommend-container:has([data-e2e="feed-active-video"]),
+        /* 当前播放的直播 */
+        #slidelist .page-recommend-container:has([data-e2e="feed-live"] [data-e2e="live-slider"]){
+          margin-bottom: 12px !important;
+        }
+      }
+			`
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addStyle(
+            `
+				/* 把搜索顶部的工具栏置顶 */
+				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+					top: 0;
+				}`
+          )
+        );
+      }
+      return result;
+    },
+    shieldFillingBricksAndStones() {
+      log.info("【屏蔽】充钻石");
+      const result = [];
+      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
+      result.push(
+        addBlockCSS(
+          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
+          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldClient() {
+      log.info("【屏蔽】客户端");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addBlockCSS(
+            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
+            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldQuickAccess() {
+      log.info("【屏蔽】快捷访问");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
+
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
+        domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
+          $semi?.remove();
+        });
+      } else if (DouYinRouter.isLive());
+      return result;
+    },
+    shieldNotifitation() {
+      log.info("【屏蔽】通知");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addBlockCSS(
+            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          addBlockCSS(
+            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldPrivateMessage() {
+      log.info("【屏蔽】私信");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
+          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        log.info("搜索-【屏蔽】私信");
+        result.push(
+          addBlockCSS(
+            'ul:has( div>div[data-e2e="im-entry"] )',
+            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldSubmission() {
+      log.info("【屏蔽】投稿");
+      const result = [];
+      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
+      result.push(addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`));
+      if (DouYinRouter.isSearch()) {
+        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldClientTip() {
+      log.info("【屏蔽】客户端提示");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
+          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
+          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
+          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addBlockCSS(
+            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
+            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
+          )
+        );
+      }
+      return result;
+    },
+    shieldWallpaper() {
+      log.info("【屏蔽】壁纸");
+      const result = [];
+      result.push(
+        addBlockCSS(
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addBlockCSS(
+            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          addBlockCSS(
+            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
+          )
+        );
+      }
+      return result;
+    },
+    shieldRightMenu() {
+      log.info(`【屏蔽】顶部右侧的菜单栏`);
+      return addBlockCSS(`div[id^="douyin-header-menu"]`);
+    },
+    shieldRightMenuMore() {
+      log.info(`【屏蔽】更多`);
+      return addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
+      );
+    },
+    shieldRightMenuLoginAvatar() {
+      log.info(`【屏蔽】登录头像`);
+      return addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+      );
+    },
+    shieldAISearch() {
+      log.info(`【屏蔽】AI搜索/抖音`);
+      return addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
+    },
+  };
+  const DouYinBlock = {
+    init() {
+      BlockLeftNavigator.init();
+      blockLeftNavigatorOther.init();
+      BlockTopNavigator.init();
+      BlockSearchFrame.init();
+      Panel.execMenuOnce("block-continue-watching-phone-watching-live", () => {
+        return this.continueWatchingPhoneWatchingLive();
+      });
+    },
+    continueWatchingPhoneWatchingLive() {
+      log.info(`【屏蔽】是否续播手机在看的直播？`);
+      return addBlockCSS(
+        '#douyin-header>div:nth-child(2):has([aria-label*="直播"]):not(header)>div:first-child:not(:empty)'
+      );
+    },
+  };
   const blockCSS$8 =
     '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\n#douyin-web-download-guide-container\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\n/* 但是这个CSS又会屏蔽右键菜单 */\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\n/* 下载客户端，使用壁纸 */\ndiv:has(+#wallpaper-modal),\n/* 下载客户端，实时接收消息通知 */\n/* 下载客户端，实时接收好友消息 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\n/* 客户端登录访问更便捷 */\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\n/* 前往电脑客户端，即享下载视频 */\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\n/* so.douyin.com的广告item */\n.card-item:has(.h5-ad-video-card),\n.card-item:has([data-is-ad="true"]),\n/* 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:first-child>img[src*="douyin-pc-web"]),\n/* 左上角顶部的 抖音精选 */\n#douyin-navigation > a[href*="/jingxuan"]:empty,\n/* 直播页面 左侧导航栏的下面的下载抖音精选 */\n[data-e2e="douyin-navigation"] div:has(>div:only-child>img[src*="/webcast/douyin_live/media/"]),\n[data-e2e="douyin-navigation"] div:only-child:has(>img[src*="/webcast/douyin_live/media/"]) {\n  display: none !important;\n}\n';
   const DouYinGestureBackHashConfig = {
@@ -3646,6 +4878,50 @@
         log.info("从首页跳转到根目录");
         window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
       }
+    },
+  };
+  const DouYinFollowBlock = {
+    init() {
+      Panel.execMenuOnce("dy-follow-blockUserLiveFlashingAvatar", () => {
+        return this.blockUserLiveFlashingAvatar();
+      });
+    },
+    blockUserLiveFlashingAvatar() {
+      log.info(`【屏蔽】用户直播时闪烁的头像`);
+      return addStyle(
+        `
+    .route-scroll-container [data-e2e="follow-slide-avatar"] *{
+        animation: none !important;
+    }
+    .route-scroll-container [data-e2e="follow-slide-avatar"] span{
+        border: transparent;
+    }
+    .route-scroll-container [data-e2e="follow-slide-avatar"] img[src*="avatar-live"]{
+        display: none !important;
+    }
+    `
+      );
+    },
+  };
+  const DouYinFollow = {
+    init() {
+      DouYinFollowBlock.init();
+    },
+  };
+  const DouYinHotBlock = {
+    init() {
+      Panel.execMenuOnce("dy-hot-blockRightHotList", () => {
+        return this.blockRightHotList();
+      });
+    },
+    blockRightHotList() {
+      log.info(`【屏蔽】右侧抖音热榜`);
+      return addBlockCSS('#douyin-right-container [data-e2e="feed-right-list-container"]');
+    },
+  };
+  const DouYinHot = {
+    init() {
+      DouYinHotBlock.init();
     },
   };
   const ReactUtils = {
@@ -4659,7 +5935,7 @@
             '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
           )
         );
-      } else if (DouYinRouter.isJingXuan()) {
+      } else if (DouYinRouter.isJingXuan() || DouYinRouter.isHot()) {
         result.push(
           addBlockCSS(
             '#douyin-right-container div:has([data-e2e="modal-video-container"]) div:has(>div>input[data-e2e="searchbar-input"])'
@@ -5870,7 +7146,7 @@
                   }
                 }
                 const callback = option[findShortcut.key].callback;
-                await callback();
+                await callback(findShortcut.key);
               }
             }
           },
@@ -6860,7 +8136,7 @@
               },
             });
           },
-          { capture: true }
+          { capture: true, overrideTarget: false }
         );
         domUtils.on(
           $dialog.$pops,
@@ -6949,6 +8225,7 @@
           },
           {
             capture: true,
+            overrideTarget: false,
           }
         );
       };
@@ -7169,7 +8446,7 @@
             }
           });
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
       return [result.off];
     },
@@ -7227,6 +8504,7 @@
           },
           {
             capture: true,
+            overrideTarget: false,
           }
         );
         domUtils.on(
@@ -7243,6 +8521,7 @@
           },
           {
             capture: true,
+            overrideTarget: false,
           }
         );
       });
@@ -7330,7 +8609,7 @@
         document,
         "click",
         `.xgplayer div[data-e2e="feed-comment-icon"]`,
-        (event) => {
+        () => {
           log.info(`手势 => 打开评论区`);
           domUtils.waitNode($closeSelector, 1e4).then(($el) => {
             if (!$el) {
@@ -7342,18 +8621,20 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       const result2 = domUtils.on(
         document,
         "click",
         $closeSelector,
-        (event) => {
+        () => {
           log.info(`手势 => 关闭评论区`);
           gestureback.quitGestureBackMode();
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       return [result1.off, result2.off];
@@ -7486,10 +8767,9 @@
         ["pointerdown", "pointerup"],
         '.video-info-detail[data-e2e="video-info"] .title[data-e2e="video-desc"]',
         (evt) => {
-          evt.stopImmediatePropagation();
-          evt.stopPropagation();
+          domUtils.preventEvent(evt, true);
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
       return [
         addStyle(
@@ -7609,6 +8889,7 @@
       };
       const listener = domUtils.on(document, "click", ".dy-comment-time", handleTimeClick, {
         capture: true,
+        overrideTarget: false,
       });
       const lockFn = new utils.LockFunction(() => {
         if (DouYinRouter.isLive()) return;
@@ -8320,6 +9601,7 @@
           },
           {
             capture: true,
+            overrideTarget: false,
           }
         );
         return [result.off, switchLiveRoom.destory];
@@ -8523,6 +9805,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     },
@@ -9192,9 +10475,19 @@
       return addBlockCSS("#douyin-sidebar");
     },
   };
+  const DouYinRouterChangeData = {
+    beforeURL: void 0,
+    currentURL: globalThis.location.href,
+  };
   const DouYinSearch = {
     init() {
       DouYinSearchBlock.init();
+      Panel.execMenu("dy-search-setSearchResultType", (option) => {
+        if (utils.isNull(option.value)) return;
+        if (DouYinRouterChangeData.beforeURL == null || !DouYinRouter.isSearch(DouYinRouterChangeData.beforeURL)) {
+          this.setSearchResultType(option.value);
+        }
+      });
       Panel.execMenuOnce("dy-search-allowContextMenu", () => {
         return this.allowContextMenu();
       });
@@ -9206,6 +10499,22 @@
       });
       Panel.execMenuOnce("dy-search-setSearchResultFilterWithVideoStyle", (option) => {
         return this.setSearchResultFilterWithVideoStyle(option.value);
+      });
+    },
+    setSearchResultType(value) {
+      log.info(`搜索结果类型: ${value}`);
+      const typeSelectors = {
+        general: '#search-toolbar-container span[data-key="general"]',
+        video: '#search-toolbar-container span[data-key="video"]',
+        user: '#search-toolbar-container span[data-key="user"]',
+        live: '#search-toolbar-container span[data-key="live"]',
+      };
+      if (!(value in typeSelectors)) {
+        throw new Error(`搜索结果类型错误：${value}`);
+      }
+      domUtils.waitNode(typeSelectors[value], 1e4).then(($el) => {
+        if (!$el) return;
+        $el.click();
       });
     },
     mobileMode(option) {
@@ -9312,6 +10621,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       const result2 = domUtils.on(
@@ -9334,6 +10644,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       return [result1.off, result2.off];
@@ -9377,10 +10688,9 @@
         "contextmenu",
         ['input[data-e2e="searchbar-input"]'],
         (evt) => {
-          evt.stopPropagation();
-          return true;
+          domUtils.preventEvent(evt, true);
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
       return [
         () => {
@@ -11805,628 +13115,27 @@
       };
     },
   };
-  const DouYinFollowBlock = {
-    init() {
-      Panel.execMenuOnce("dy-follow-blockUserLiveFlashingAvatar", () => {
-        return this.blockUserLiveFlashingAvatar();
-      });
+  const DouYinUrlHandler = {
+    getVideoUrl(videoId) {
+      return "https://www.douyin.com/video/" + videoId;
     },
-    blockUserLiveFlashingAvatar() {
-      log.info(`【屏蔽】用户直播时闪烁的头像`);
-      return addStyle(
-        `
-    .route-scroll-container [data-e2e="follow-slide-avatar"] *{
-        animation: none !important;
-    }
-    .route-scroll-container [data-e2e="follow-slide-avatar"] span{
-        border: transparent;
-    }
-    .route-scroll-container [data-e2e="follow-slide-avatar"] img[src*="avatar-live"]{
-        display: none !important;
-    }
-    `
-      );
+    getCollectionUrl(collectionId) {
+      return "https://www.douyin.com/collection/" + collectionId;
     },
-  };
-  const DouYinFollow = {
-    init() {
-      DouYinFollowBlock.init();
+    getNoteUrl(noteId) {
+      return "https://www.douyin.com/note/" + noteId;
     },
-  };
-  const BlockLeftNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
-        () => {
-          return this.shieldLeftNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          const mainValue = Panel.getValue(mainKey);
-          const childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
-        return this.block_tab_home();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
-        return this.block_tab_recommend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
-        return this.block_tab_follow();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
-        return this.block_tab_friend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
-        return this.block_tab_user_self();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
-        return this.block_tab_live();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
-        return this.block_tab_vs();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
-        return this.block_tab_series();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-microgame", () => {
-        return this.block_tab_microgame();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
-        return this.block_tab_ai_search();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-activity", () => {
-        return this.block_tab_activity();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-setting", () => {
-        return this.block_panel_menu_setting();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-about", () => {
-        return this.block_panel_menu_about();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-q_a", () => {
-        return this.block_panel_menu_q_a();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-panel-menu-survey", () => {
-        return this.block_panel_menu_survey();
-      });
+    getHashTagUrl(hashTagId) {
+      return "https://www.douyin.com/hashtag/" + hashTagId;
     },
-    shieldLeftNavigator() {
-      log.info("【屏蔽】左侧导航栏");
-      const result = [];
-      result.push(addBlockCSS("#douyin-navigation"));
-      result.push(
-        addStyle(
-          `
-			/* 修复顶部导航栏的宽度 */
-			#douyin-header{
-				width: 100%;
-			}`
-        )
-      );
-      return result;
+    getUserHomeUrl(sec_uid) {
+      return "https://www.douyin.com/user/" + sec_uid;
     },
-    block_tab_home() {
-      log.info("【屏蔽】精选");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)');
+    getMusicUrl(musicId) {
+      return "https://www.douyin.com/music/" + musicId;
     },
-    block_tab_recommend() {
-      log.info("【屏蔽】推荐");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)');
-    },
-    block_tab_ai_search() {
-      log.info(`【屏蔽】AI搜索/抖音`);
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])');
-    },
-    block_tab_follow() {
-      log.info("【屏蔽】关注");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)');
-    },
-    block_tab_friend() {
-      log.info("【屏蔽】朋友");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)');
-    },
-    block_tab_user_self() {
-      log.info("【屏蔽】我的");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)');
-    },
-    block_tab_activity() {
-      log.info(`【屏蔽】activity`);
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"])');
-    },
-    block_tab_live() {
-      log.info("【屏蔽】直播");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)');
-    },
-    block_tab_vs() {
-      log.info("【屏蔽】放映厅");
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)');
-    },
-    block_tab_series() {
-      log.info(`短剧`);
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)');
-    },
-    block_tab_microgame() {
-      log.info(`【屏蔽】小游戏`);
-      return addBlockCSS('[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-microgame)');
-    },
-    block_panel_menu_setting() {
-      log.info(`【屏蔽】设置`);
-      return addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M13.6032 3.57455L13.6012 3.5734C13.1238 3.29458 12.5424 3.17798 12.003 3.17798C11.4626 3.17798 10.8801 3.29506 10.4003 3.57252L10.4002 3.57256L5.91125 6.16801C5.8962 6.17671 5.88145 6.18593 5.86705 6.19566L5.84354 6.21152C5.45545 6.47347 5.12936 6.69357 4.8772 6.89334C4.615 7.10106 4.37899 7.32726 4.20899 7.62136C4.03466 7.92295 3.96491 8.23437 3.93338 8.55508C3.90423 8.8515 3.90425 9.20597 3.90427 9.6083V9.60833L3.90427 9.64131V14.3507L3.90427 14.3836V14.3837C3.90425 14.7881 3.90423 15.144 3.93334 15.4414C3.96481 15.7628 4.03439 16.0749 4.20852 16.377C4.37847 16.6719 4.61457 16.8985 4.877 17.1066C5.12925 17.3066 5.45543 17.5267 5.84343 17.7886L5.86705 17.8046C5.88145 17.8143 5.8962 17.8235 5.91125 17.8322L10.4002 20.4276C10.8801 20.7051 11.4625 20.8222 12.003 20.8222C12.5424 20.8222 13.1239 20.7056 13.6013 20.4267L13.6032 20.4257L18.0887 17.8322C18.1038 17.8235 18.1185 17.8143 18.1329 17.8046L18.1565 17.7887C18.5445 17.5267 18.8706 17.3066 19.1228 17.1069C19.385 16.8991 19.621 16.6729 19.791 16.3789C19.9653 16.0773 20.0351 15.7658 20.0666 15.4451C20.0957 15.1487 20.0957 14.7942 20.0957 14.3919V14.3919L20.0957 14.3589V9.64131L20.0957 9.60833V9.60831C20.0957 9.20598 20.0957 8.8515 20.0666 8.55508C20.0351 8.23437 19.9653 7.92295 19.791 7.62136C19.621 7.32726 19.385 7.10106 19.1228 6.89334C18.8706 6.69357 18.5445 6.47347 18.1564 6.21153L18.1329 6.19566C18.1185 6.18593 18.1038 6.17671 18.0887 6.16801L13.6032 3.57455ZM11.1512 4.87106C11.3488 4.75678 11.656 4.67798 12.003 4.67798C12.3506 4.67798 12.6538 4.75694 12.8454 4.86907L12.8454 4.86908L12.8489 4.87109L17.3153 7.45352C17.7211 7.72744 17.9929 7.91194 18.1913 8.06909C18.3882 8.22508 18.4583 8.31311 18.4923 8.37202C18.522 8.42343 18.5543 8.50378 18.5738 8.70186C18.5949 8.91616 18.5957 9.1962 18.5957 9.64131V14.3589C18.5957 14.804 18.5949 15.0841 18.5738 15.2983C18.5543 15.4964 18.522 15.5768 18.4923 15.6282C18.4583 15.6871 18.3882 15.7751 18.1913 15.9311C17.9929 16.0883 17.7211 16.2728 17.3153 16.5467L12.8489 19.1291L12.8489 19.1291L12.8454 19.1311C12.6538 19.2433 12.3506 19.3222 12.003 19.3222C11.656 19.3222 11.3488 19.2434 11.1512 19.1292L11.1511 19.1291L6.68465 16.5467C6.27885 16.2727 6.00712 16.0883 5.80886 15.9311C5.61219 15.7752 5.54221 15.6871 5.50811 15.628C5.47819 15.5761 5.44575 15.4948 5.42621 15.2952C5.4051 15.0796 5.40427 14.7978 5.40427 14.3507V9.64131C5.40427 9.1962 5.40511 8.91616 5.42618 8.70186C5.44565 8.50378 5.47793 8.42343 5.50764 8.37202C5.54169 8.31311 5.61175 8.22508 5.80866 8.06909C6.00703 7.91194 6.27888 7.72744 6.68464 7.45352L11.1511 4.87109L11.1512 4.87106ZM10.029 12C10.029 10.9114 10.9114 10.0289 12 10.0289C13.0886 10.0289 13.9711 10.9114 13.9711 12C13.9711 13.0886 13.0886 13.971 12 13.971C10.9114 13.971 10.029 13.0886 10.029 12ZM12 8.52893C10.083 8.52893 8.52896 10.083 8.52896 12C8.52896 13.917 10.083 15.471 12 15.471C13.917 15.471 15.4711 13.917 15.4711 12C15.4711 10.083 13.917 8.52893 12 8.52893Z"])'
-      );
-    },
-    block_panel_menu_about() {
-      log.info(`【屏蔽】关于`);
-      return addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M5.68365 7.62549C5.68365 6.55301 6.55307 5.68359 7.62555 5.68359C8.69803 5.68359 9.56744 6.55301 9.56744 7.62549C9.56744 8.69797 8.69803 9.56738 7.62555 9.56738C6.55307 9.56738 5.68365 8.69797 5.68365 7.62549ZM7.62555 4.18359C5.72464 4.18359 4.18365 5.72458 4.18365 7.62549C4.18365 9.52639 5.72464 11.0674 7.62555 11.0674C9.52645 11.0674 11.0674 9.52639 11.0674 7.62549C11.0674 5.72458 9.52645 4.18359 7.62555 4.18359ZM5.68365 16.3741C5.68365 15.3017 6.55307 14.4322 7.62555 14.4322C8.69803 14.4322 9.56744 15.3017 9.56744 16.3741C9.56744 17.4466 8.69803 18.316 7.62555 18.316C6.55307 18.316 5.68365 17.4466 5.68365 16.3741ZM7.62555 12.9322C5.72464 12.9322 4.18365 14.4732 4.18365 16.3741C4.18365 18.275 5.72464 19.816 7.62555 19.816C9.52646 19.816 11.0674 18.275 11.0674 16.3741C11.0674 14.4732 9.52646 12.9322 7.62555 12.9322ZM16.3741 5.68359C15.3017 5.68359 14.4322 6.55301 14.4322 7.62549C14.4322 8.69797 15.3017 9.56738 16.3741 9.56738C17.4466 9.56738 18.316 8.69797 18.316 7.62549C18.316 6.55301 17.4466 5.68359 16.3741 5.68359ZM12.9322 7.62549C12.9322 5.72458 14.4732 4.18359 16.3741 4.18359C18.275 4.18359 19.816 5.72458 19.816 7.62549C19.816 9.52639 18.275 11.0674 16.3741 11.0674C14.4732 11.0674 12.9322 9.52639 12.9322 7.62549ZM14.4322 16.3741C14.4322 15.3017 15.3017 14.4322 16.3741 14.4322C17.4466 14.4322 18.316 15.3017 18.316 16.3741C18.316 17.4466 17.4466 18.316 16.3741 18.316C15.3017 18.316 14.4322 17.4466 14.4322 16.3741ZM16.3741 12.9322C14.4732 12.9322 12.9322 14.4732 12.9322 16.3741C12.9322 18.275 14.4732 19.816 16.3741 19.816C18.275 19.816 19.816 18.275 19.816 16.3741C19.816 14.4732 18.275 12.9322 16.3741 12.9322Z"])'
-      );
-    },
-    block_panel_menu_q_a() {
-      log.info(`【屏蔽】问题/反馈`);
-      return addBlockCSS(
-        '[data-e2e="douyin-navigation"] #panel-menu > div:has(path[d="M11.9999 4.75C7.99575 4.75 4.74976 7.99599 4.74976 12.0001C4.74976 16.0043 7.99575 19.2502 11.9999 19.2502C16.004 19.2502 19.25 16.0043 19.25 12.0001C19.25 10.5774 18.841 9.2525 18.1344 8.13394C16.8488 6.0989 14.5816 4.75 11.9999 4.75ZM3.24976 12.0001C3.24976 7.16756 7.16732 3.25 11.9999 3.25C15.1176 3.25 17.8537 4.88105 19.4025 7.33284C20.2561 8.68408 20.75 10.2856 20.75 12.0001C20.75 16.8327 16.8324 20.7502 11.9999 20.7502C7.16732 20.7502 3.24976 16.8327 3.24976 12.0001ZM8.25 10C8.25 7.92894 9.92894 6.25 12 6.25C14.0711 6.25 15.75 7.92894 15.75 10C15.75 11.8142 14.4617 13.3275 12.75 13.675V14.5H11.25V13C11.25 12.5858 11.5858 12.25 12 12.25C13.2426 12.25 14.25 11.2426 14.25 10C14.25 8.75736 13.2426 7.75 12 7.75C10.7574 7.75 9.75 8.75736 9.75 10H8.25ZM13.25 16.5625C13.25 17.2528 12.6903 17.8125 12 17.8125C11.3097 17.8125 10.75 17.2528 10.75 16.5625C10.75 15.8722 11.3097 15.3125 12 15.3125C12.6903 15.3125 13.25 15.8722 13.25 16.5625Z"])'
-      );
-    },
-    block_panel_menu_survey() {
-      log.info(`【屏蔽】用户体验调研`);
-      return addBlockCSS('[data-e2e="douyin-navigation"] #panel-menu #btn-feelgood');
-    },
-  };
-  const blockLeftNavigatorOther = {
-    init() {
-      Panel.execMenuOnce("shieldLeftNavigator-tab-follow-red-dot", () => {
-        return this.tabFollowRedHot();
-      });
-    },
-    tabFollowRedHot() {
-      log.info(`【屏蔽】左侧导航栏关注右边的小红点`);
-      return addBlockCSS(
-        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:has(svg):nth-child(3)',
-        '[data-e2e="douyin-navigation"] > div > div > div .tab-follow a > div:nth-child(3):not(:has(>div>*))'
-      );
-    },
-  };
-  const BlockSearchFrame = {
-    init() {
-      Panel.execMenuOnce("shieldSearch", () => {
-        return this.shieldSearch();
-      });
-      Panel.execMenuOnce("blockSearchButton", () => {
-        return this.blockSearchButton();
-      });
-      Panel.execMenuOnce("blockSearchSuggestion", () => {
-        return this.blockSearchSuggestion();
-      });
-      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
-        return this.shieldSearchPlaceholder();
-      });
-      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
-        return this.shieldSearchGuessYouWantToSearch();
-      });
-      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
-        return this.shieldSearchTiktokHotspot();
-      });
-    },
-    shieldSearch() {
-      log.info("【屏蔽】搜索框");
-      return addBlockCSS(
-        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
-      );
-    },
-    blockSearchButton() {
-      log.info(`【屏蔽】搜索按钮`);
-      return addBlockCSS('div:empty:has(+button[data-e2e="searchbar-button"])', 'button[data-e2e="searchbar-button"]');
-    },
-    blockSearchSuggestion() {
-      log.info(`【屏蔽】搜索建议`);
-      return addBlockCSS('button[data-e2e="searchbar-button"]+div:has([data-text])');
-    },
-    shieldSearchPlaceholder() {
-      log.info("【屏蔽】搜索框的提示");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
-        )
-      );
-      result.push(
-        addStyle(
-          `
-			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-				color: transparent;
-			}`
-        )
-      );
-      return result;
-    },
-    shieldSearchGuessYouWantToSearch() {
-      log.info("【屏蔽】搜索-猜你想搜");
-      return addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
-      );
-    },
-    shieldSearchTiktokHotspot() {
-      log.info("【屏蔽】搜索-抖音热点");
-      return addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
-      );
-    },
-  };
-  const BlockTopNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldTopNavigator", "search-shieldTopNavigator"],
-        () => {
-          return this.shieldTopNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          const mainValue = Panel.getValue(mainKey);
-          const childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce(
-        "shieldClientTip",
-        () => {
-          return this.shieldClientTip();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldFillingBricksAndStones",
-        () => {
-          return this.shieldFillingBricksAndStones();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldClient",
-        () => {
-          return this.shieldClient();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldQuickAccess",
-        () => {
-          return this.shieldQuickAccess();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldNotifitation",
-        () => {
-          return this.shieldNotifitation();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldPrivateMessage",
-        () => {
-          return this.shieldPrivateMessage();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldSubmission",
-        () => {
-          return this.shieldSubmission();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce(
-        "shieldWallpaper",
-        () => {
-          return this.shieldWallpaper();
-        },
-        void 0,
-        true
-      );
-      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
-        return this.shieldRightMenu();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
-        return this.shieldRightMenuMore();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
-        return this.shieldRightMenuLoginAvatar();
-      });
-      Panel.execMenuOnce("shield-topNav-ai-search", () => {
-        return this.shieldAISearch();
-      });
-    },
-    shieldTopNavigator() {
-      log.info("【屏蔽】顶部导航栏");
-      const result = [];
-      result.push(addBlockCSS("#douyin-header"));
-      result.push(
-        addStyle(
-          `
-			/* 修复视频的高度 */
-			#douyin-right-container{
-				padding-top: 0px !important;
-			}
-			/* 兼容手机模式 */
-			@media screen and (max-width: 550px)  and (orientation: portrait) {
-				.is-mobile-pc{
-					--header-height: 0px !important;
-				}
-			}
-		`
-        )
-      );
-      result.push(
-        addStyle(
-          `
-       /* pc端 or mobile端*/
-      @media screen and ((min-width: 800px) or ((max-width: 550px) and (orientation: portrait))) {
-        #slidelist{
-          --recommend-video-slide-show-opt: 0px;
-        }
-        #slidelist .page-recommend-container{
-          margin: 0px !important;
-          height: calc(${window.innerHeight}px - var(--recommend-video-slide-show-opt)) !important;
-          height: calc(round(nearest, 100dvh, 1px) - var(--recommend-video-slide-show-opt)) !important;
-        }
-        /* 当前播放的视频 */
-        #slidelist .page-recommend-container:has([data-e2e="feed-active-video"]),
-        /* 当前播放的直播 */
-        #slidelist .page-recommend-container:has([data-e2e="feed-live"] [data-e2e="live-slider"]){
-          margin-bottom: 12px !important;
-        }
-      }
-			`
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addStyle(
-            `
-				/* 把搜索顶部的工具栏置顶 */
-				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-					top: 0;
-				}`
-          )
-        );
-      }
-      return result;
-    },
-    shieldFillingBricksAndStones() {
-      log.info("【屏蔽】充钻石");
-      const result = [];
-      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
-      result.push(
-        addBlockCSS(
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
-          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldClient() {
-      log.info("【屏蔽】客户端");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])',
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M18 18.75H6V17.25H18V18.75Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addBlockCSS(
-            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
-            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
-            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldQuickAccess() {
-      log.info("【屏蔽】快捷访问");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
-
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
-        domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
-          $semi?.remove();
-        });
-      } else if (DouYinRouter.isLive());
-      return result;
-    },
-    shieldNotifitation() {
-      log.info("【屏蔽】通知");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addBlockCSS(
-            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          addBlockCSS(
-            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldPrivateMessage() {
-      log.info("【屏蔽】私信");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
-          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        log.info("搜索-【屏蔽】私信");
-        result.push(
-          addBlockCSS(
-            'ul:has( div>div[data-e2e="im-entry"] )',
-            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldSubmission() {
-      log.info("【屏蔽】投稿");
-      const result = [];
-      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
-      result.push(addBlockCSS(`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`));
-      if (DouYinRouter.isSearch()) {
-        result.push(addBlockCSS(`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`));
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldClientTip() {
-      log.info("【屏蔽】客户端提示");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
-          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
-          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
-          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addBlockCSS(
-            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
-            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
-          )
-        );
-      }
-      return result;
-    },
-    shieldWallpaper() {
-      log.info("【屏蔽】壁纸");
-      const result = [];
-      result.push(
-        addBlockCSS(
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addBlockCSS(
-            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          addBlockCSS(
-            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
-          )
-        );
-      }
-      return result;
-    },
-    shieldRightMenu() {
-      log.info(`【屏蔽】顶部右侧的菜单栏`);
-      return addBlockCSS(`div[id^="douyin-header-menu"]`);
-    },
-    shieldRightMenuMore() {
-      log.info(`【屏蔽】更多`);
-      return addBlockCSS(
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
-      );
-    },
-    shieldRightMenuLoginAvatar() {
-      log.info(`【屏蔽】登录头像`);
-      return addBlockCSS(
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
-      );
-    },
-    shieldAISearch() {
-      log.info(`【屏蔽】AI搜索/抖音`);
-      return addBlockCSS(`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`);
-    },
-  };
-  const DouYinBlock = {
-    init() {
-      BlockLeftNavigator.init();
-      blockLeftNavigatorOther.init();
-      BlockTopNavigator.init();
-      BlockSearchFrame.init();
-      Panel.execMenuOnce("block-continue-watching-phone-watching-live", () => {
-        return this.continueWatchingPhoneWatchingLive();
-      });
-    },
-    continueWatchingPhoneWatchingLive() {
-      log.info(`【屏蔽】是否续播手机在看的直播？`);
-      return addBlockCSS(
-        '#douyin-header>div:nth-child(2):has([aria-label*="直播"]):not(header)>div:first-child:not(:empty)'
-      );
+    getSearchUrl(searchText) {
+      return "https://www.douyin.com/search/" + encodeURIComponent(searchText);
     },
   };
   const DouYin = {
@@ -12491,6 +13200,9 @@
         } else if (DouYinRouter.isFollow()) {
           log.info(`Router: 关注页面`);
           DouYinFollow.init();
+        } else if (DouYinRouter.isHot()) {
+          log.info(`Router: 热点榜`);
+          DouYinHot.init();
         } else {
           log.warn("子router: " + window.location.href);
         }
@@ -12546,6 +13258,8 @@
         const beforeUrl = url;
         const currentUrl = window.location.href;
         url = currentUrl;
+        DouYinRouterChangeData.beforeURL = beforeUrl;
+        DouYinRouterChangeData.currentURL = currentUrl;
         log.success(`Router Change Before: ` + beforeUrl);
         log.success(`Router Change Now: ` + currentUrl);
         Panel.emitUrlChangeWithExecMenuOnceEvent({
@@ -12559,10 +13273,6 @@
     },
     navSearchClickToNewTab() {
       log.info(`新标签页打开搜索结果`);
-      const getSearchUrl = (searchText) => {
-        const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
-        return url;
-      };
       const listener_1 = domUtils.on(
         document,
         "click",
@@ -12582,23 +13292,23 @@
               return;
             }
             const $input = $doubleClick.querySelector("input");
-            let searchValue = $input.value;
-            if (searchValue == null || searchValue === "") {
+            let searchText = $input.value;
+            if (searchText == null || searchText === "") {
               const $before = domUtils.prev($input);
               if ($before) {
-                searchValue = domUtils.text($before);
+                searchText = domUtils.text($before);
               } else {
                 const placeholder = $input.placeholder.trim();
                 if (placeholder != null && placeholder !== "" && placeholder !== "搜索你感兴趣的内容") {
-                  searchValue = placeholder;
+                  searchText = placeholder;
                 } else {
                   log.error("搜索内容为空，不进行搜索");
                   return;
                 }
               }
             }
-            log.info(`当前的搜索内容：` + searchValue);
-            url = getSearchUrl(searchValue);
+            log.info(`当前的搜索内容：` + searchText);
+            url = DouYinUrlHandler.getSearchUrl(searchText);
           }
           log.info(`新标签页打开搜索：${url}`);
           window.open(url, "_blank");
@@ -12606,6 +13316,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       const listener_2 = domUtils.on(
@@ -12614,13 +13325,12 @@
         '[data-e2e="searchbar-button"] + div [data-text][data-index]',
         (evt, $selector) => {
           const $click = evt.composedPath()[0];
-          if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
+          const $icon = $click.closest(".icon[data-text]");
+          if ($icon && $selector.contains($icon)) {
             return;
           }
-          const closeIconSelector =
-            'svg:has(path[d="M7.93 8.7a.545.545 0 1 0 .77-.772L6.773 5.999 8.7 4.071a.545.545 0 0 0-.771-.771L6 5.228 4.072 3.3a.545.545 0 1 0-.771.771l1.928 1.928L3.3 7.93a.545.545 0 0 0 .772.77L6 6.772l1.928 1.928z"])';
-          const $closeSVG = $click.matches(closeIconSelector) ? $click : $click.closest(closeIconSelector);
-          if ($closeSVG) {
+          const $closeSVG = $click.closest("svg");
+          if ($closeSVG && $selector.contains($closeSVG)) {
             return;
           }
           domUtils.preventEvent(evt);
@@ -12630,11 +13340,12 @@
             Qmsg.error("未找到搜索建议内容");
             return;
           }
-          const url = getSearchUrl(searchText);
+          console.log($click);
+          const url = DouYinUrlHandler.getSearchUrl(searchText);
           window.open(url, "_blank");
           return false;
         },
-        { capture: true, isComposedPath: true }
+        { capture: true, isComposedPath: true, overrideTarget: false }
       );
       return [listener_1.off, listener_2.off];
     },
@@ -12664,26 +13375,6 @@
   };
   const blockCSS$4 =
     "/* 顶部 打开看看 登录 */\n.adapt-login-header,\n/* 上面屏蔽后的空白区域 */\n.user-card .nav-bar-placeholder,\n/* 视频区域底部的【打开抖音App看更多内容】 */\n.select-list .img-button {\n  display: none !important;\n}\n";
-  const DouYinUrl = {
-    getVideoUrl(videoId) {
-      return "https://www.douyin.com/video/" + videoId;
-    },
-    getCollectionUrl(collectionId) {
-      return "https://www.douyin.com/collection/" + collectionId;
-    },
-    getNoteUrl(noteId) {
-      return "https://www.douyin.com/note/" + noteId;
-    },
-    getHashTagUrl(hashTagId) {
-      return "https://www.douyin.com/hashtag/" + hashTagId;
-    },
-    getUserHomeUrl(sec_uid) {
-      return "https://www.douyin.com/user/" + sec_uid;
-    },
-    getMusicUrl(musicId) {
-      return "https://www.douyin.com/music/" + musicId;
-    },
-  };
   const MDouYinShareUser = {
     init() {
       addStyle(blockCSS$4);
@@ -12718,7 +13409,7 @@
             return;
           }
           const currentPlaylet = playletList[index];
-          const url = DouYinUrl.getCollectionUrl(currentPlaylet["mix_id"]);
+          const url = DouYinUrlHandler.getCollectionUrl(currentPlaylet["mix_id"]);
           window.open(url, "_blank");
         },
         {
@@ -12833,7 +13524,7 @@
             return;
           }
           const awemeId = rectFiber?.return?.memoizedProps.awemeId;
-          const url = DouYinUrl.getNoteUrl(awemeId);
+          const url = DouYinUrlHandler.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true, overrideTarget: false }
@@ -12851,7 +13542,7 @@
           return;
         }
         const sec_id = rectFiber?.return?.return?.memoizedProps?.video?.authorInfo?.sec_uid;
-        const url = DouYinUrl.getUserHomeUrl(sec_id);
+        const url = DouYinUrlHandler.getUserHomeUrl(sec_id);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", ".message-con__top", callback, { capture: true });
@@ -12870,7 +13561,7 @@
         const splitStrArr = rectFiber?.return?.return?.return?.return?.memoizedProps?.video?.splitStrArr;
         const currentSplitStr = splitStrArr[index];
         const hashtagId = currentSplitStr["hashtagId"];
-        const url = DouYinUrl.getHashTagUrl(hashtagId);
+        const url = DouYinUrlHandler.getHashTagUrl(hashtagId);
         window.open(url, "_blank");
       };
       const result = domUtils.on(
@@ -12899,7 +13590,7 @@
             return;
           }
           const musicId = rectFiber?.return?.return?.memoizedProps?.video?.musicId;
-          const url = DouYinUrl.getMusicUrl(musicId);
+          const url = DouYinUrlHandler.getMusicUrl(musicId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -12922,7 +13613,7 @@
           }
           const itemData = rectFiber?.return?.memoizedProps?.itemData;
           const awemeId = itemData["awemeId"];
-          const url = DouYinUrl.getNoteUrl(awemeId);
+          const url = DouYinUrlHandler.getNoteUrl(awemeId);
           window.open(url, "_blank");
         },
         { capture: true }
@@ -12973,7 +13664,7 @@
         const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
         const index = rectFiber.index;
         const currentList = listData[index];
-        const url = DouYinUrl.getVideoUrl(currentList["aweme_id"]);
+        const url = DouYinUrlHandler.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
@@ -13005,7 +13696,7 @@
         const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
         const index = rectFiber.index;
         const currentList = listData[index];
-        const url = DouYinUrl.getVideoUrl(currentList["aweme_id"]);
+        const url = DouYinUrlHandler.getVideoUrl(currentList["aweme_id"]);
         window.open(url, "_blank");
       };
       const result = domUtils.on(document, "click", "#pagelet-worklist li.item", callback, {
@@ -13072,6 +13763,9 @@
         <a href="javascript:;" class="keyboard-oneClickClose">一键全部关闭</a>
     `,
     afterEnterDeepMenuCallBack,
+  };
+  const DouYinShortCut = {
+    shortCut: new ShortCut("general-short-cut"),
   };
   function queryGPUInfo() {
     const isFirefox = /Firefox/.test(window.navigator.userAgent);
@@ -13254,6 +13948,36 @@
                 text: "Url重定向",
                 type: "container",
                 views: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "自定义功能快捷键",
+            views: [
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UIButtonShortCut(
+                    "【屏蔽】左侧导航栏",
+                    void 0,
+                    "shortcut-shieldLeftNavigator",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "【屏蔽】顶部导航栏",
+                    void 0,
+                    "shortcut-shieldTopNavigator",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinShortCut.shortCut
+                  ),
+                ],
               },
             ],
           },
@@ -14220,6 +14944,28 @@
                 text: "",
                 type: "container",
                 views: [
+                  UISelect("搜索结果类型", "dy-search-setSearchResultType", "", [
+                    {
+                      text: "无",
+                      value: "",
+                    },
+                    {
+                      text: "综合",
+                      value: "general",
+                    },
+                    {
+                      text: "视频",
+                      value: "video",
+                    },
+                    {
+                      text: "用户",
+                      value: "user",
+                    },
+                    {
+                      text: "直播",
+                      value: "live",
+                    },
+                  ]),
                   UISwitch("阻止屏蔽搜索框的右键菜单", "dy-search-allowContextMenu", false),
                   UISwitch(
                     "禁止点击视频区域进入全屏",
@@ -14981,6 +15727,17 @@
       },
     ],
   };
+  const PanelHotConfig = {
+    id: "panel-config-hot",
+    title: "热点榜",
+    views: [
+      {
+        text: "布局屏蔽",
+        type: "container",
+        views: [UISwitch("【屏蔽】右侧抖音热榜", "dy-hot-blockRightHotList")],
+      },
+    ],
+  };
   PanelContent.addContentConfig([
     PanelGeneralConfig,
     PanelVideoConfig,
@@ -14989,6 +15746,7 @@
     PanelLiveConfig,
     PanelFollowrConfig,
     PanelUserConfig,
+    PanelHotConfig,
   ]);
   PanelContent.addContentConfig([
     MPanelShareUserConfig,

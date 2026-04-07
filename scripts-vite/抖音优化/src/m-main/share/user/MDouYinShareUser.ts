@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import Qmsg from "qmsg";
-import { DouYinUrl } from "@/router/DouYinUrl";
+import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
 import { Panel } from "@components/setting/panel";
 
 export const MDouYinShareUser = {
@@ -42,7 +42,7 @@ export const MDouYinShareUser = {
           return;
         }
         const currentPlaylet = playletList[index];
-        const url = DouYinUrl.getCollectionUrl(currentPlaylet["mix_id"]);
+        const url = DouYinUrlHandler.getCollectionUrl(currentPlaylet["mix_id"]);
         window.open(url, "_blank");
       },
       {

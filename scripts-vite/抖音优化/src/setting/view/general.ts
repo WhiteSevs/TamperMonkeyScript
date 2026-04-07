@@ -4,6 +4,8 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { AutoOpenOrClose } from "../all-open-or-close";
 import { UIOwn } from "@components/setting/components/ui-own";
+import { UIButtonShortCut } from "@components/setting/panel-components";
+import { DouYinShortCut } from "@/main/DouYinShortCut";
 
 /**
  * 获取渲染的显卡信息，可能是核显，也可能是独显
@@ -183,6 +185,36 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               text: "Url重定向",
               type: "container",
               views: [UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")],
+            },
+          ],
+        },
+        {
+          type: "deepMenu",
+          text: "自定义功能快捷键",
+          views: [
+            {
+              type: "container",
+              text: "",
+              views: [
+                UIButtonShortCut(
+                  "【屏蔽】左侧导航栏",
+                  void 0,
+                  "shortcut-shieldLeftNavigator",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinShortCut.shortCut
+                ),
+                UIButtonShortCut(
+                  "【屏蔽】顶部导航栏",
+                  void 0,
+                  "shortcut-shieldTopNavigator",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinShortCut.shortCut
+                ),
+              ],
             },
           ],
         },

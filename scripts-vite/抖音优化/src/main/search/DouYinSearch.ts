@@ -1,13 +1,21 @@
-import { DOMUtils, addStyle, cookieManager, log } from "@/env";
+import { DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel, type ExecMenuCallBackOption } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchBlock } from "./DouYinSearchBlock";
+import { DouYinRouterChangeData } from "../DouYinRouterChangeData";
 
 export const DouYinSearch = {
   init() {
     DouYinSearchBlock.init();
+    Panel.execMenu("dy-search-setSearchResultType", (option) => {
+      if (utils.isNull(option.value)) return;
+      if (DouYinRouterChangeData.beforeURL == null || !DouYinRouter.isSearch(DouYinRouterChangeData.beforeURL)) {
+        // 当前首次访问|Router改变前不是搜索结果页
+        this.setSearchResultType(option.value);
+      }
+    });
     Panel.execMenuOnce("dy-search-allowContextMenu", () => {
       return this.allowContextMenu();
     });
@@ -19,6 +27,26 @@ export const DouYinSearch = {
     });
     Panel.execMenuOnce("dy-search-setSearchResultFilterWithVideoStyle", (option) => {
       return this.setSearchResultFilterWithVideoStyle(option.value);
+    });
+  },
+  /**
+   * 搜索结果类型
+   * @param value 选择类型
+   */
+  setSearchResultType(value: "general" | "video" | "user" | "live") {
+    log.info(`搜索结果类型: ${value}`);
+    const typeSelectors = {
+      general: '#search-toolbar-container span[data-key="general"]',
+      video: '#search-toolbar-container span[data-key="video"]',
+      user: '#search-toolbar-container span[data-key="user"]',
+      live: '#search-toolbar-container span[data-key="live"]',
+    };
+    if (!(value in typeSelectors)) {
+      throw new Error(`搜索结果类型错误：${value}`);
+    }
+    DOMUtils.waitNode(typeSelectors[value], 1e4).then(($el) => {
+      if (!$el) return;
+      $el.click();
     });
   },
   /**
@@ -131,6 +159,7 @@ export const DouYinSearch = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     // 这个是对应 纯视频
@@ -154,6 +183,7 @@ export const DouYinSearch = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     return [result1.off, result2.off];
@@ -200,10 +230,9 @@ export const DouYinSearch = {
       "contextmenu",
       ['input[data-e2e="searchbar-input"]'],
       (evt) => {
-        evt.stopPropagation();
-        return true;
+        DOMUtils.preventEvent(evt, true);
       },
-      { capture: true }
+      { capture: true, overrideTarget: false }
     );
 
     return [

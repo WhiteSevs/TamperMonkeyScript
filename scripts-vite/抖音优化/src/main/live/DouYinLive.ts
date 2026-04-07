@@ -93,6 +93,7 @@ export const DouYinLive = {
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       return [result.off, switchLiveRoom.destory];
@@ -314,6 +315,7 @@ export const DouYinLive = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },

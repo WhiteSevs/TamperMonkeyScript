@@ -1,4 +1,4 @@
-export const DouYinUrl = {
+export const DouYinUrlHandler = {
   /**
    * 获取视频链接
    * @param videoId 视频id
@@ -40,5 +40,12 @@ export const DouYinUrl = {
    */
   getMusicUrl(musicId: string | number) {
     return "https://www.douyin.com/music/" + musicId;
+  },
+  /**
+   * 获取搜索链接
+   * @param searchText 搜索关键词
+   */
+  getSearchUrl(searchText: string) {
+    return "https://www.douyin.com/search/" + encodeURIComponent(searchText);
   },
 };

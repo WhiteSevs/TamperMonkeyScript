@@ -2,7 +2,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
-import { DouYinUrl } from "@/router/DouYinUrl";
+import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
 
 export const MDouYinShareChallenge = {
   init() {
@@ -48,7 +48,7 @@ export const MDouYinShareChallenge = {
       const listData = rectFiber?.return?.return?.return?.memoizedProps.listData;
       const index = rectFiber.index;
       const currentList = listData[index];
-      const url = DouYinUrl.getVideoUrl(currentList["aweme_id"]);
+      const url = DouYinUrlHandler.getVideoUrl(currentList["aweme_id"]);
       window.open(url, "_blank");
     };
     const result = DOMUtils.on(document, "click", "#pagelet-worklist li.item", callback, {

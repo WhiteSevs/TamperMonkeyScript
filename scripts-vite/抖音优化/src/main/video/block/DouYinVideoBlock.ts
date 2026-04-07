@@ -102,8 +102,9 @@ export const DouYinVideoBlock = {
           '[data-e2e="video-detail"] .video-detail-container > div > div > div:nth-child(2):has( div> input[data-e2e="searchbar-input"])'
         )
       );
-    } else if (DouYinRouter.isJingXuan()) {
+    } else if (DouYinRouter.isJingXuan() || DouYinRouter.isHot()) {
       // 精选
+      // 热点榜
       result.push(
         addBlockCSS(
           '#douyin-right-container div:has([data-e2e="modal-video-container"]) div:has(>div>input[data-e2e="searchbar-input"])'

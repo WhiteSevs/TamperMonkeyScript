@@ -904,7 +904,7 @@ export const DouYinVideoPlayer = {
             },
           });
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
       DOMUtils.on(
         $dialog.$pops,
@@ -999,6 +999,7 @@ export const DouYinVideoPlayer = {
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     };
@@ -1255,7 +1256,7 @@ export const DouYinVideoPlayer = {
           }
         });
       },
-      { capture: true }
+      { capture: true, overrideTarget: false }
     );
     return [result.off];
   },
@@ -1324,6 +1325,7 @@ export const DouYinVideoPlayer = {
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
       // 让拖拽进度条的按钮拖拽时修改进度条高度
@@ -1341,6 +1343,7 @@ export const DouYinVideoPlayer = {
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     });
@@ -1450,7 +1453,7 @@ export const DouYinVideoPlayer = {
       document,
       "click",
       `.xgplayer div[data-e2e="feed-comment-icon"]`,
-      (event) => {
+      () => {
         log.info(`手势 => 打开评论区`);
         DOMUtils.waitNode($closeSelector, 10000).then(($el) => {
           if (!$el) {
@@ -1462,18 +1465,20 @@ export const DouYinVideoPlayer = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     const result2 = DOMUtils.on(
       document,
       "click",
       $closeSelector,
-      (event) => {
+      () => {
         log.info(`手势 => 关闭评论区`);
         gestureback.quitGestureBackMode();
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     return [result1.off, result2.off];
@@ -1627,10 +1632,9 @@ export const DouYinVideoPlayer = {
       ["pointerdown", "pointerup"],
       '.video-info-detail[data-e2e="video-info"] .title[data-e2e="video-desc"]',
       (evt) => {
-        evt.stopImmediatePropagation();
-        evt.stopPropagation();
+        DOMUtils.preventEvent(evt, true);
       },
-      { capture: true }
+      { capture: true, overrideTarget: false }
     );
 
     return [
@@ -1774,6 +1778,7 @@ export const DouYinVideoPlayer = {
     // 添加点击事件监听
     const listener = DOMUtils.on(document, "click", ".dy-comment-time", handleTimeClick, {
       capture: true,
+      overrideTarget: false,
     });
     const lockFn = new utils.LockFunction(() => {
       if (DouYinRouter.isLive()) return;

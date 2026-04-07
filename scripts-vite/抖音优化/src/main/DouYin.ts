@@ -6,14 +6,13 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { DouYinAccount } from "../account/DouYinAccount";
 import { DouYinHook } from "../hook/DouYinHook";
-import { BlockLeftNavigator } from "./block-frame/blockLeftNavigator";
-import { blockLeftNavigatorOther } from "./block-frame/blockLeftNavigatorOther";
-import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
-import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
+import { DouYinBlock } from "./block-frame/DouYinBlock";
 import { DouYinChannel } from "./channel/DouYinChannel";
 import blockCSS from "./css/block.css?raw";
 import { DouYinGestureBackClearHash } from "./DouYinGestureBackConfig";
 import { DouYinRedirect } from "./DouYinRedirect";
+import { DouYinFollow } from "./follow/DouYinFollow";
+import { DouYinHot } from "./hot/DouYinHot";
 import { DouYinLive } from "./live/DouYinLive";
 import { DouYinNote } from "./note/DouYinNote";
 import { DouYinRecommend } from "./recommend/DouYinRecommend";
@@ -22,8 +21,8 @@ import { DouYinUser } from "./user/DouYinUser";
 import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinVideoFilter } from "./video/filter/DouYinVideoFilter";
 import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
-import { DouYinFollow } from "./follow/DouYinFollow";
-import { DouYinBlock } from "./block-frame/DouYinBlock";
+import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
+import { DouYinRouterChangeData } from "./DouYinRouterChangeData";
 
 export const DouYin = {
   init() {
@@ -94,6 +93,9 @@ export const DouYin = {
       } else if (DouYinRouter.isFollow()) {
         log.info(`Router: 关注页面`);
         DouYinFollow.init();
+      } else if (DouYinRouter.isHot()) {
+        log.info(`Router: 热点榜`);
+        DouYinHot.init();
       } else {
         log.warn("子router: " + window.location.href);
       }
@@ -163,6 +165,8 @@ export const DouYin = {
       const beforeUrl = url;
       const currentUrl = window.location.href;
       url = currentUrl;
+      DouYinRouterChangeData.beforeURL = beforeUrl;
+      DouYinRouterChangeData.currentURL = currentUrl;
       log.success(`Router Change Before: ` + beforeUrl);
       log.success(`Router Change Now: ` + currentUrl);
       Panel.emitUrlChangeWithExecMenuOnceEvent({
@@ -179,11 +183,8 @@ export const DouYin = {
    */
   navSearchClickToNewTab() {
     log.info(`新标签页打开搜索结果`);
-    const getSearchUrl = (searchText: string) => {
-      const url = `https://www.douyin.com/search/${encodeURIComponent(searchText)}`;
-      return url;
-    };
-    // 搜索框点击
+    // 搜索框按钮点击
+    // 超链接点击
     const listener_1 = DOMUtils.on(
       document,
       "click",
@@ -205,25 +206,25 @@ export const DouYin = {
             return;
           }
           const $input = $doubleClick.querySelector<HTMLInputElement>("input")!;
-          let searchValue = $input.value;
-          if (searchValue == null || searchValue === "") {
+          let searchText = $input.value;
+          if (searchText == null || searchText === "") {
             // 这时候获取不到搜索内容
             // 搜索内容元素在input前面
             const $before = DOMUtils.prev($input);
             if ($before) {
-              searchValue = DOMUtils.text($before);
+              searchText = DOMUtils.text($before);
             } else {
               const placeholder = $input.placeholder.trim();
               if (placeholder != null && placeholder !== "" && placeholder !== "搜索你感兴趣的内容") {
-                searchValue = placeholder;
+                searchText = placeholder;
               } else {
                 log.error("搜索内容为空，不进行搜索");
                 return;
               }
             }
           }
-          log.info(`当前的搜索内容：` + searchValue);
-          url = getSearchUrl(searchValue);
+          log.info(`当前的搜索内容：` + searchText);
+          url = DouYinUrlHandler.getSearchUrl(searchText);
         }
         log.info(`新标签页打开搜索：${url}`);
         window.open(url, "_blank");
@@ -231,6 +232,7 @@ export const DouYin = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     // 搜索建议
@@ -240,15 +242,13 @@ export const DouYin = {
       '[data-e2e="searchbar-button"] + div [data-text][data-index]',
       (evt, $selector) => {
         const $click = evt.composedPath()[0] as HTMLElement;
-        if ($click.closest(".icon[data-text]") || $click.matches(".icon[data-text]")) {
+        const $icon = $click.closest(".icon[data-text]");
+        if ($icon && $selector.contains($icon)) {
           // 忽略点击填入输入框的图标
           return;
         }
-        const closeIconSelector =
-          'svg:has(path[d="M7.93 8.7a.545.545 0 1 0 .77-.772L6.773 5.999 8.7 4.071a.545.545 0 0 0-.771-.771L6 5.228 4.072 3.3a.545.545 0 1 0-.771.771l1.928 1.928L3.3 7.93a.545.545 0 0 0 .772.77L6 6.772l1.928 1.928z"])';
-
-        const $closeSVG = $click.matches(closeIconSelector) ? $click : $click.closest<HTMLElement>(closeIconSelector);
-        if ($closeSVG) {
+        const $closeSVG = $click.closest<HTMLElement>("svg");
+        if ($closeSVG && $selector.contains($closeSVG)) {
           // 忽略点击关闭图标
           // 但是好像依旧不生效
           return;
@@ -260,11 +260,12 @@ export const DouYin = {
           Qmsg.error("未找到搜索建议内容");
           return;
         }
-        const url = getSearchUrl(searchText);
+        console.log($click);
+        const url = DouYinUrlHandler.getSearchUrl(searchText);
         window.open(url, "_blank");
         return false;
       },
-      { capture: true, isComposedPath: true }
+      { capture: true, isComposedPath: true, overrideTarget: false }
     );
     return [listener_1.off, listener_2.off];
   },
