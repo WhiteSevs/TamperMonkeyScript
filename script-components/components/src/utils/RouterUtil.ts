@@ -17,6 +17,10 @@ class RouterBuilder {
   private __host = {
     value: void 0 as string | RegExp | undefined,
     type: "same" as MatchType,
+    /** 
+     * + `true`: `window.location.host`
+     * + `false`: `window.location.hostname`
+     */
     hasPort: false as boolean,
   };
   private __pathname = {
@@ -33,7 +37,12 @@ class RouterBuilder {
       type?: MatchType;
     }>(),
   };
-
+  /** 
+   * 其它实例的结果
+   * 
+   * 用于or比较结果
+   */
+  private otherInstResultWithOr: boolean = false;
   constructor(href?: string) {
     if (typeof href === "string") {
       this.href(href);
@@ -336,12 +345,20 @@ class RouterBuilder {
    * @param href
    */
   or(href?: string) {
-    return new RouterBuilder(href);
+    this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
+    const routerBuilder =  new RouterBuilder(href);
+    routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
+    return routerBuilder;
   }
   /**
    * 获取判断结果
    */
   r(): boolean {
+    if(this.otherInstResultWithOr){
+      // 直接true了
+      // 无需判断
+      return this.otherInstResultWithOr;
+    }
     const urlInst = new URL(this.__href);
     const flag = [
       // origin
