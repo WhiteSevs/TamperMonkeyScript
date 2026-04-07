@@ -27,8 +27,9 @@ type ShortCutOptionWindow = {
   target?: "window";
   /**
    * 触发该快捷键的回调
+   * @param key 当前`key`
    */
-  callback(): void | Promise<void>;
+  callback(key: string): void | Promise<void>;
 };
 
 type ShortCutOptionElement = {
@@ -41,8 +42,9 @@ type ShortCutOptionElement = {
   target?: string | Element | (() => IPromise<Element | void | Promise<void>>);
   /**
    * 触发该快捷键的回调
+   * @param key 当前`key`
    */
-  callback(): void | Promise<void>;
+  callback(key: string): void | Promise<void>;
 };
 
 /** 监听全局的快捷键配置 */
@@ -169,7 +171,7 @@ class ShortCut {
                 }
               }
               const callback = option[findShortcut.key].callback;
-              await callback();
+              await callback(findShortcut.key);
             }
           }
         },
