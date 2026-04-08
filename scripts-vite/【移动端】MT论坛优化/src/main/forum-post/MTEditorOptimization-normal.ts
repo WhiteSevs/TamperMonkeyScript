@@ -312,7 +312,7 @@ export const MTEditorOptimizationNormal = {
    */
   setInputChangeEvent() {
     const that = this;
-    DOMUtils.on(that.$el.$input, ["input", "propertychange"], function (event) {
+    DOMUtils.on(this.$el.$input, ["input", "propertychange"], function () {
       /* 输入框内容改变，高度也改变事件 */
       let inputText = that.$el.$input.value;
       if (inputText === "") {
@@ -337,7 +337,7 @@ export const MTEditorOptimizationNormal = {
   setInputChangeSaveEvent() {
     const that = this;
 
-    DOMUtils.on(this.$el.$input, ["input", "propertychange"], async (event) => {
+    DOMUtils.on(this.$el.$input, ["input", "propertychange"], async () => {
       const inputText = that.$el.$input.value;
       const $reply = that.$el.$input.closest(".reply_area")!.querySelector<HTMLElement>(".reply_user_content")!;
       const replyUrl = $reply.getAttribute("data-reply-url")!;
@@ -713,9 +713,9 @@ export const MTEditorOptimizationNormal = {
       document,
       "click",
       '.comiis_postli_times .dialog[href*="reply"]',
-      async (event) => {
+      async (event, selectorTarget) => {
         DOMUtils.preventEvent(event);
-        let $reply = event.target as HTMLAnchorElement;
+        let $reply = selectorTarget as any as HTMLAnchorElement;
         DOMUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
 
         let response = await httpx.get(DOMUtils.attr($reply, "datahref") || $reply.href + "&inajax=1", {
@@ -755,6 +755,7 @@ export const MTEditorOptimizationNormal = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },
@@ -821,7 +822,7 @@ export const MTEditorOptimizationNormal = {
    * 菜单-图标切换事件
    */
   setMenuIconToggleEvent() {
-    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function (this: HTMLElement, event) {
+    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function (this: HTMLElement) {
       let $click = this;
       if ($click.classList.contains("f_0")) {
         // 已显示、隐藏
@@ -839,17 +840,12 @@ export const MTEditorOptimizationNormal = {
    * 菜单-图片点击事件
    */
   setMenuImageClickEvent() {
-    DOMUtils.on(
-      "#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle",
-      "click",
-      function (this: HTMLElement, event) {
-        let $click = this;
-        DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
-        DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
+    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle", "click", function (this: HTMLElement) {
+      DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
+      DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
 
-        DOMUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
-      }
-    );
+      DOMUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
+    });
   },
   /**
    * 菜单-图标-切换图片组的事件
@@ -859,8 +855,7 @@ export const MTEditorOptimizationNormal = {
       "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
       "click",
       "li",
-      function (this: HTMLElement, event) {
-        let $click = event.target as HTMLLIElement;
+      function (this: HTMLElement, evt, $click) {
         DOMUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
         DOMUtils.addClass($click, "bg_f");
         unsafeWindow
@@ -868,6 +863,9 @@ export const MTEditorOptimizationNormal = {
           .hide()
           .eq(unsafeWindow.$($click).index())
           .fadeIn();
+      },
+      {
+        overrideTarget: false,
       }
     );
   },
@@ -875,34 +873,29 @@ export const MTEditorOptimizationNormal = {
    * 菜单-表情点击事件
    */
   setMenuSmileClickEvent() {
-    DOMUtils.on(
-      "#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile",
-      "click",
-      function (this: HTMLElement, event) {
-        let $click = this;
-        DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
-        DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
+    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile", "click", function (this: HTMLElement) {
+      DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
+      DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
 
-        DOMUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
-        let smileDOM = $<HTMLElement>("#comiis_foot_menu_beautify_big .menu_body .comiis_bqbox")!;
-        if ((DOMUtils.attr(smileDOM, "data-isLoaded") as any) != 1) {
-          DOMUtils.attr(smileDOM, "data-isLoaded", 1);
-          smileDOM.querySelectorAll("img").forEach((item) => {
-            let data_src = item.getAttribute("data-src");
-            if (data_src) {
-              item.setAttribute("src", data_src);
-            }
-          });
-        }
+      DOMUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
+      let smileDOM = $<HTMLElement>("#comiis_foot_menu_beautify_big .menu_body .comiis_bqbox")!;
+      if ((DOMUtils.attr(smileDOM, "data-isLoaded") as any) != 1) {
+        DOMUtils.attr(smileDOM, "data-isLoaded", 1);
+        smileDOM.querySelectorAll("img").forEach((item) => {
+          let data_src = item.getAttribute("data-src");
+          if (data_src) {
+            item.setAttribute("src", data_src);
+          }
+        });
       }
-    );
+    });
   },
   /**
    * 菜单-表情-切换表情组的点击事件
    */
   setMenuSmileTabClickEvent() {
-    DOMUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function (this: HTMLElement, event) {
-      let $click = this;
+    DOMUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function (this: HTMLElement) {
+      const $click = this;
       DOMUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_smilies_key li a");
 
       DOMUtils.addClass($click.querySelector("a")!, "bg_f b_l b_r");
@@ -917,7 +910,7 @@ export const MTEditorOptimizationNormal = {
    * 菜单-插入点击事件
    */
   setMenuInsertClickEvent() {
-    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", (event) => {
+    DOMUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", () => {
       DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
       DOMUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
       DOMUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
@@ -1023,7 +1016,7 @@ export const MTEditorOptimizationNormal = {
                     </a>
                 `,
       });
-      DOMUtils.on($ubbs, "click", (event) => {
+      DOMUtils.on($ubbs, "click", () => {
         DOMUtils.removeClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_0");
         DOMUtils.addClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_d");
         let $font = $ubbs.querySelector<HTMLAnchorElement>(".comiis_xifont")!;

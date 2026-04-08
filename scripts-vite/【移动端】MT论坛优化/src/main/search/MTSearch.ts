@@ -129,7 +129,7 @@ export const MTSearch = {
       DOMUtils.on(
         $empty,
         "click",
-        (event) => {
+        () => {
           let $input = document.querySelector<HTMLInputElement>("#scform_srchtxt");
           if ($input) {
             $input.value = "";

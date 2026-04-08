@@ -347,40 +347,58 @@ export const MTPaidThemePost = {
       });
     });
 
-    let $paymentSubjectReminderIsFreeList = document.querySelector<HTMLElement>("#paymentSubjectReminderIsFreeList")!;
-    DOMUtils.on($paymentSubjectReminderIsFreeList, "click", "a", (event) => {
-      let $click = event.target as HTMLAnchorElement;
-      var tIndex = parseInt($click.getAttribute("t-index")!);
-      var tHref = $click.getAttribute("t-href")!;
-      data[tIndex]["isVisited"] = true;
-      MTPaidThemePost.setTipData(data);
-      window.open(tHref, "_blank");
-      $click.setAttribute("style", "color: #000000;");
-      if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") {
-        return;
+    const $paymentSubjectReminderIsFreeList = document.querySelector<HTMLElement>("#paymentSubjectReminderIsFreeList")!;
+    DOMUtils.on(
+      $paymentSubjectReminderIsFreeList,
+      "click",
+      "a",
+      (event, selectorTarget) => {
+        const $click = selectorTarget as any as HTMLAnchorElement;
+        const tIndex = parseInt($click.getAttribute("t-index")!);
+        const tHref = $click.getAttribute("t-href")!;
+        data[tIndex]["isVisited"] = true;
+        MTPaidThemePost.setTipData(data);
+        window.open(tHref, "_blank");
+        $click.setAttribute("style", "color: #000000;");
+        if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") {
+          return;
+        }
+        $click.parentElement.parentElement.children[0].remove();
+        DOMUtils.append(
+          $paymentSubjectReminderIsFreeList,
+          $click?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement!
+        );
+        const $del = document.querySelector<HTMLDivElement>(".subjectcanvisit summary span.icon_msgs.bg_del.f_f")!;
+        const notVisitedNumsStr = DOMUtils.text($del);
+        const notVisitedNums = parseInt(notVisitedNumsStr) - 1;
+        if (notVisitedNums > 0) {
+          DOMUtils.html($del, notVisitedNums.toString());
+        } else {
+          $del.remove();
+        }
+      },
+      {
+        overrideTarget: false,
       }
-      $click.parentElement.parentElement.children[0].remove();
-      DOMUtils.append(
-        $paymentSubjectReminderIsFreeList,
-        $click?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement!
-      );
-      let $del = document.querySelector<HTMLDivElement>(".subjectcanvisit summary span.icon_msgs.bg_del.f_f")!;
-      let notVisitedNumsStr = DOMUtils.text($del);
-      let notVisitedNums = parseInt(notVisitedNumsStr) - 1;
-      if (notVisitedNums > 0) {
-        DOMUtils.html($del, notVisitedNums.toString());
-      } else {
-        $del.remove();
+    );
+    const $paymentSubjectReminderIsPaidList = document.querySelector<HTMLDivElement>(
+      "paymentSubjectReminderIsPaidList"
+    )!;
+    DOMUtils.on(
+      $paymentSubjectReminderIsPaidList,
+      "click",
+      "a",
+      (event, selectorTarget) => {
+        const $click = selectorTarget as any as HTMLAnchorElement;
+        const t_index = $click.getAttribute("t-index")!;
+        const t_href = $click.getAttribute("t-href")!;
+        window.open(t_href, "_blank");
+        $click.setAttribute("style", "color: #000000;");
+      },
+      {
+        overrideTarget: false,
       }
-    });
-    let $paymentSubjectReminderIsPaidList = document.querySelector<HTMLDivElement>("paymentSubjectReminderIsPaidList")!;
-    DOMUtils.on($paymentSubjectReminderIsPaidList, "click", "a", (event) => {
-      let $click = event.target as HTMLAnchorElement;
-      var t_index = $click.getAttribute("t-index")!;
-      var t_href = $click.getAttribute("t-href")!;
-      window.open(t_href, "_blank");
-      $click.setAttribute("style", "color: #000000;");
-    });
+    );
   },
   getTipData() {
     return GM_getValue<DataOption[]>(this.$key.tipData, []);

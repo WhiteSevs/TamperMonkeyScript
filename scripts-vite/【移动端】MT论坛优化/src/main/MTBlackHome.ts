@@ -306,13 +306,29 @@ export const MTBlackHome = {
     );
 
     // 添加黑名单头像点击事件
-    DOMUtils.on($item, "click", ".blackhome-user img", function () {
-      window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
-    });
+    DOMUtils.on(
+      $item,
+      "click",
+      ".blackhome-user img",
+      function () {
+        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     // 添加操作人头像点击事件
-    DOMUtils.on($item, "click", ".blackhome-operator-user img", function () {
-      window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
-    });
+    DOMUtils.on(
+      $item,
+      "click",
+      ".blackhome-operator-user img",
+      function () {
+        window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     return $item;
   },
 };

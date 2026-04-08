@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.4.9
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -635,12 +635,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -660,21 +672,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -687,12 +699,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -704,7 +716,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -712,12 +726,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -729,13 +743,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -749,7 +763,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -767,37 +781,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -820,7 +834,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -843,7 +857,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -858,13 +872,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -872,7 +886,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -885,12 +899,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -909,40 +923,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -991,7 +1003,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1007,15 +1019,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1766,9 +1780,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1811,13 +1838,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1865,7 +1892,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1909,7 +1937,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1930,7 +1962,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1961,7 +1993,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -2700,12 +2732,28 @@
           "data-operator-uid": userInfo.operatorid,
         }
       );
-      domUtils.on($item, "click", ".blackhome-user img", function () {
-        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
-      });
-      domUtils.on($item, "click", ".blackhome-operator-user img", function () {
-        window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
-      });
+      domUtils.on(
+        $item,
+        "click",
+        ".blackhome-user img",
+        function () {
+          window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
+        },
+        {
+          overrideTarget: false,
+        }
+      );
+      domUtils.on(
+        $item,
+        "click",
+        ".blackhome-operator-user img",
+        function () {
+          window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
+        },
+        {
+          overrideTarget: false,
+        }
+      );
       return $item;
     },
   };
@@ -2872,10 +2920,18 @@
           "data-sf": userInfo.sf,
         }
       );
-      DOMUtils.on($item, "click", ".online-user-avatar", (event) => {
-        DOMUtils.preventEvent(event);
-        window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
-      });
+      DOMUtils.on(
+        $item,
+        "click",
+        ".online-user-avatar",
+        (event) => {
+          DOMUtils.preventEvent(event);
+          window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
+        },
+        {
+          overrideTarget: false,
+        }
+      );
       return $item;
     },
   };
@@ -3294,95 +3350,724 @@
       }
     },
   };
+  class RouterBuilder {
+    __href__;
+    get __href() {
+      return this.__href__ || globalThis.location.href;
+    }
+    __origin = {
+      value: void 0,
+      type: "same",
+    };
+    __protocol = {
+      value: void 0,
+      type: "same",
+    };
+    __host = {
+      value: void 0,
+      type: "same",
+      hasPort: false,
+    };
+    __pathname = {
+      value: void 0,
+      type: "same",
+    };
+    __searchParams = {
+      value: new Set(),
+    };
+    otherInstResultWithOr = false;
+    constructor(href) {
+      if (typeof href === "string") {
+        this.href(href);
+      }
+    }
+    href(url) {
+      this.__href__ = url;
+      return this;
+    }
+    origin(origin) {
+      this.__origin = {
+        value: origin,
+        type: "same",
+      };
+      return this;
+    }
+    originStartsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "startsWith",
+      };
+      return this;
+    }
+    originEndsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "endsWith",
+      };
+      return this;
+    }
+    originIncludes(origin) {
+      this.__origin = {
+        value: origin,
+        type: "includes",
+      };
+      return this;
+    }
+    originMatch(origin) {
+      this.__origin = {
+        value: origin,
+        type: "match",
+      };
+      return this;
+    }
+    protocol(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "same",
+      };
+      return this;
+    }
+    protocolStartsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "startsWith",
+      };
+      return this;
+    }
+    protocolEndsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "endsWith",
+      };
+      return this;
+    }
+    protocolIncludes(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "includes",
+      };
+      return this;
+    }
+    protocolMatch(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "match",
+      };
+      return this;
+    }
+    host(host) {
+      this.__host = {
+        value: host,
+        type: "same",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostStartsWith(host) {
+      this.__host = {
+        value: host,
+        type: "startsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostEndsWith(host) {
+      this.__host = {
+        value: host,
+        type: "endsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostIncludes(host) {
+      this.__host = {
+        value: host,
+        type: "includes",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostMatch(host) {
+      this.__host = {
+        value: host,
+        type: "match",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostName(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "same",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameStartsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "startsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameEndsWith(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "endsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameIncludes(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "includes",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameMatch(hostName) {
+      this.__host = {
+        value: hostName,
+        type: "match",
+        hasPort: false,
+      };
+      return this;
+    }
+    pathname(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "same",
+      };
+      return this;
+    }
+    pathnameStartsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "startsWith",
+      };
+      return this;
+    }
+    pathnameEndsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "endsWith",
+      };
+      return this;
+    }
+    pathnameIncludes(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "includes",
+      };
+      return this;
+    }
+    pathnameMatch(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "match",
+      };
+      return this;
+    }
+    searchParams(name, value) {
+      this.__searchParams.value.add({
+        name,
+        value,
+      });
+      return this;
+    }
+    search(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "same",
+      });
+      return this;
+    }
+    searchStartsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "startsWith",
+      });
+      return this;
+    }
+    searchEndsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "endsWith",
+      });
+      return this;
+    }
+    searchIncludes(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "includes",
+      });
+      return this;
+    }
+    searchMatch(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "match",
+      });
+      return this;
+    }
+    build() {
+      if (!this.__host.value) {
+        throw new TypeError("host or hostName should be required");
+      }
+      const protocol = this.__protocol.value || "https";
+      const host = this.__host.value;
+      const pathname = this.__pathname.value || "/";
+      let url = `${protocol}://${host}${pathname}`;
+      if (this.__searchParams.value.size > 0) {
+        const searhList = [];
+        this.__searchParams.value.forEach((it) => {
+          if (typeof it.name === "string") {
+            let value = "";
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
+              value = it.value.toString();
+            }
+            searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
+          }
+        });
+        if (searhList.length) {
+          url += `?${searhList.join("&")}`;
+        }
+      }
+      return url;
+    }
+    or(href) {
+      this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
+      const routerBuilder = new RouterBuilder(href);
+      routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
+      return routerBuilder;
+    }
+    r() {
+      if (this.otherInstResultWithOr) {
+        return this.otherInstResultWithOr;
+      }
+      const urlInst = new URL(this.__href);
+      const flag = [
+        () => {
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin === this.__origin.value;
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "startsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.startsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "endsWith") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.endsWith(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "includes") {
+              if (typeof this.__origin.value === "string") {
+                return urlInst.origin.includes(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be string by type " + this.__origin.type);
+              }
+            } else if (this.__origin.type === "match") {
+              if (this.__origin.value instanceof RegExp) {
+                return this.__origin.value.test(urlInst.origin);
+              } else if (typeof this.__origin.value === "string") {
+                return urlInst.origin.match(this.__origin.value);
+              } else {
+                throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+              }
+            } else {
+              throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol === this.__protocol.value;
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "startsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.startsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "endsWith") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.endsWith(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "includes") {
+              if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.includes(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+              }
+            } else if (this.__protocol.type === "match") {
+              if (this.__protocol.value instanceof RegExp) {
+                return this.__protocol.value.test(urlInst.protocol);
+              } else if (typeof this.__protocol.value === "string") {
+                return urlInst.protocol.match(this.__protocol.value);
+              } else {
+                throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+              }
+            } else {
+              throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+
+        () => {
+          if (this.__host.value) {
+            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
+            if (this.__host.type === "same") {
+              if (typeof this.__host.value === "string") {
+                return this.__host.value === host;
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "startsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.startsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "endsWith") {
+              if (typeof this.__host.value === "string") {
+                return host.endsWith(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "includes") {
+              if (typeof this.__host.value === "string") {
+                return host.includes(this.__host.value);
+              } else {
+                throw new TypeError("host value should be string by type " + this.__host.type);
+              }
+            } else if (this.__host.type === "match") {
+              if (this.__host.value instanceof RegExp) {
+                return this.__host.value.test(host);
+              } else if (typeof this.__host.value === "string") {
+                return host.match(this.__host.value);
+              } else {
+                throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+              }
+            } else {
+              throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+        () => {
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname === this.__pathname.value;
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "startsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.startsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "endsWith") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.endsWith(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "includes") {
+              if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.includes(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+              }
+            } else if (this.__pathname.type === "match") {
+              if (this.__pathname.value instanceof RegExp) {
+                return this.__pathname.value.test(urlInst.pathname);
+              } else if (typeof this.__pathname.value === "string") {
+                return urlInst.pathname.match(this.__pathname.value);
+              } else {
+                throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+              }
+            } else {
+              throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+            }
+          } else {
+            return true;
+          }
+        },
+
+        () => {
+          let flag2 = true;
+          const searchParamsList = [];
+          this.__searchParams.value.forEach((item) => {
+            searchParamsList.push(item);
+          });
+          for (let index = 0; index < searchParamsList.length; index++) {
+            const item = searchParamsList[index];
+            if (item.type) {
+              if (item.type === "same") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search === item.value.toString();
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "startsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.startsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "endsWith") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.endsWith(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "includes") {
+                if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.includes(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
+                }
+              } else if (item.type === "match") {
+                if (item.value instanceof RegExp) {
+                  return item.value.test(urlInst.search);
+                } else if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                ) {
+                  return urlInst.search.match(item.value.toString());
+                } else {
+                  throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+                }
+              } else {
+                throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+              }
+            } else {
+              if (typeof item.name === "string") {
+                let value = item.value;
+                if (
+                  value == null ||
+                  typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                ) {
+                  value = value == null ? void 0 : value.toString();
+                  if (!urlInst.searchParams.has(item.name, value)) {
+                    flag2 = false;
+                    break;
+                  }
+                } else if (value instanceof RegExp) {
+                  const targetValue = urlInst.searchParams.get(item.name);
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    flag2 = false;
+                    break;
+                  }
+                } else {
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+                }
+              } else if (item.name instanceof RegExp) {
+                let targetKey = void 0;
+                let targetValue = void 0;
+                urlInst.searchParams.forEach((__value__, __key__) => {
+                  if (!targetKey && __key__.match(item.name)) {
+                    targetKey = __key__;
+                    targetValue = __value__;
+                  }
+                });
+                if (targetKey) {
+                  let value = item.value;
+                  if (value == null);
+                  else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                    value = value.toString();
+                    flag2 = value === targetValue;
+                    if (!flag2) {
+                      break;
+                    }
+                  } else if (value instanceof RegExp) {
+                    if (targetValue) {
+                      if (!value.test(targetValue)) {
+                        flag2 = false;
+                        break;
+                      }
+                    } else {
+                      flag2 = false;
+                      break;
+                    }
+                  } else {
+                    throw new TypeError(
+                      "searchParams value should be string, RegExp, boolean, number, null, undefined"
+                    );
+                  }
+                } else {
+                  flag2 = false;
+                  break;
+                }
+              } else {
+                throw new TypeError("searchParams name should be string or RegExp");
+              }
+            }
+          }
+          return flag2;
+        },
+      ].every((it) => it());
+      return flag;
+    }
+  }
+  const RouterUtil = {
+    host(host, href) {
+      return RouterUtil.builder(href).host(host);
+    },
+    hostName(name, href) {
+      return RouterUtil.builder(href).hostName(name);
+    },
+    search(value, href) {
+      return RouterUtil.builder(href).search(value);
+    },
+    seachParams(name, value, href) {
+      return RouterUtil.builder(href).searchParams(name, value);
+    },
+    pathname(name, href) {
+      return RouterUtil.builder(href).pathname(name);
+    },
+    protocol(protocol, href) {
+      return RouterUtil.builder(href).protocol(protocol);
+    },
+    builder(href) {
+      return new RouterBuilder(href);
+    },
+  };
   const MTRouter = {
     isKMiSign() {
-      return window.location.pathname.startsWith("/k_misign-sign.html");
+      return RouterUtil.builder().pathnameStartsWith("/k_misign-sign.html").r();
     },
     isPost() {
-      const searchParams = new URLSearchParams(window.location.search);
       return (
-        window.location.pathname.startsWith("/thread-") ||
-        (window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "viewthread"))
+        RouterUtil.builder().pathnameStartsWith("/thread-").r() ||
+        RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "viewthread").r()
       );
     },
     isPage() {
-      return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
+      return RouterUtil.builder()
+        .pathnameMatch(/^\/page-([0-9]+).html/g)
+        .r();
     },
     isGuide() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "guide");
+      return RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "guide").r();
     },
     isPlate() {
-      return Boolean(window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
+      return RouterUtil.builder()
+        .pathnameMatch(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
+        .r();
     },
     isSearch() {
-      return window.location.pathname.startsWith("/search.php");
+      return RouterUtil.builder().pathnameStartsWith("/search.php").r();
     },
     isSpace() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/home.php") && searchParams.has("mod", "space");
+      return RouterUtil.builder().pathnameStartsWith("/home.php").searchParams("mod", "space").r();
     },
     isMySpace() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return (
-        window.location.pathname.startsWith("/home.php") &&
-        searchParams.has("mod", "space") &&
-        searchParams.has("do", "profile") &&
-        searchParams.has("mycenter")
-      );
+      return RouterUtil.builder()
+        .pathnameStartsWith("/home.php")
+        .searchParams("mod", "space")
+        .searchParams("do", "profile")
+        .searchParams("mycenter")
+        .r();
     },
     isSpaceWithAt() {
-      return window.location.pathname.startsWith("/space-uid-");
+      return RouterUtil.builder().pathnameStartsWith("/space-uid-").r();
     },
     isForumList() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/forum.php") && searchParams.has("forumlist");
+      return RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("forumlist").r();
     },
     isMessage() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return (
-        window.location.pathname.startsWith("/home.php") &&
-        searchParams.has("mod", "space") &&
-        searchParams.has("do", "notice")
-      );
+      return RouterUtil.builder()
+        .pathnameStartsWith("/home.php")
+        .searchParams("mod", "space")
+        .searchParams("do", "notice")
+        .r();
     },
     isMessageList() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return (
-        window.location.pathname.startsWith("/home.php") &&
-        searchParams.has("mod", "space") &&
-        searchParams.has("do", "pm")
-      );
+      return RouterUtil.builder()
+        .pathnameStartsWith("/home.php")
+        .searchParams("mod", "space")
+        .searchParams("do", "pm")
+        .r();
     },
     isPointsMall() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return (
-        window.location.pathname.startsWith("/keke_integralmall-keke_integralmall.html") ||
-        (window.location.pathname.startsWith("/plugin.php") && searchParams.has("id", "keke_integralmal"))
-      );
+      return RouterUtil.builder()
+        .pathnameStartsWith("/keke_integralmall-keke_integralmall.html")
+        .or()
+        .pathnameStartsWith("/plugin.php")
+        .searchParams("id", "keke_integralmal")
+        .r();
     },
     isPostPublish() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return window.location.pathname.startsWith("/forum.php") && searchParams.has("mod", "post");
+      return RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "post").r();
     },
     isPostPublish_voting() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return (
-        (window.location.pathname.startsWith("/forum.php") && searchParams.has("special", "1")) ||
-        searchParams.has("fid", "42")
-      );
+      return RouterUtil.builder()
+        .pathnameStartsWith("/forum.php")
+        .searchParams("special", "1")
+        .or()
+        .searchParams("fid", "42")
+        .r();
     },
     isPostPublish_edit() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return this.isPostPublish() && searchParams.has("action", "edit");
+      return this.isPostPublish() && RouterUtil.seachParams("action", "edit").r();
     },
     isPostPublish_newthread() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return this.isPostPublish() && searchParams.has("action", "newthread");
+      return this.isPostPublish() && RouterUtil.seachParams("action", "newthread").r();
     },
     isPostPublish_reply() {
-      const searchParams = new URLSearchParams(window.location.search);
-      return this.isPostPublish() && searchParams.has("action", "reply");
+      return this.isPostPublish() && RouterUtil.seachParams("action", "reply").r();
     },
   };
   const optimizationCSS$1 =
@@ -4847,7 +5532,7 @@
     },
     setInputChangeEvent() {
       const that = this;
-      domUtils.on(that.$el.$input, ["input", "propertychange"], function (event) {
+      domUtils.on(this.$el.$input, ["input", "propertychange"], function () {
         let inputText = that.$el.$input.value;
         if (inputText === "") {
           that.$el.$btn_submit.setAttribute("data-text", "false");
@@ -4865,7 +5550,7 @@
     },
     setInputChangeSaveEvent() {
       const that = this;
-      domUtils.on(this.$el.$input, ["input", "propertychange"], async (event) => {
+      domUtils.on(this.$el.$input, ["input", "propertychange"], async () => {
         const inputText = that.$el.$input.value;
         const $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
         const replyUrl = $reply.getAttribute("data-reply-url");
@@ -5209,9 +5894,9 @@
         document,
         "click",
         '.comiis_postli_times .dialog[href*="reply"]',
-        async (event) => {
+        async (event, selectorTarget) => {
           domUtils.preventEvent(event);
-          let $reply = event.target;
+          let $reply = selectorTarget;
           domUtils.attr("#comiis_foot_menu_beautify_big", "data-model", "reply");
           let response = await httpx.get(domUtils.attr($reply, "datahref") || $reply.href + "&inajax=1", {
             fetch: true,
@@ -5249,6 +5934,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     },
@@ -5303,7 +5989,7 @@
       });
     },
     setMenuIconToggleEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function (event) {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a i", "click", function () {
         let $click = this;
         if ($click.classList.contains("f_0")) {
           domUtils.hide("#comiis_foot_menu_beautify_big .menu_body", false);
@@ -5316,7 +6002,7 @@
       });
     },
     setMenuImageClickEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle", "click", function (event) {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_pictitle", "click", function () {
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
         domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
@@ -5327,8 +6013,7 @@
         "#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key",
         "click",
         "li",
-        function (event) {
-          let $click = event.target;
+        function (evt, $click) {
           domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
           domUtils.addClass($click, "bg_f");
           _unsafeWindow
@@ -5336,11 +6021,14 @@
             .hide()
             .eq(_unsafeWindow.$($click).index())
             .fadeIn();
+        },
+        {
+          overrideTarget: false,
         }
       );
     },
     setMenuSmileClickEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile", "click", function (event) {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.comiis_smile", "click", function () {
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
         domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
@@ -5357,8 +6045,8 @@
       });
     },
     setMenuSmileTabClickEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function (event) {
-        let $click = this;
+      domUtils.on("#comiis_foot_menu_beautify_big #comiis_smilies_key li", "click", function () {
+        const $click = this;
         domUtils.removeClass("#comiis_foot_menu_beautify_big #comiis_smilies_key li a");
         domUtils.addClass($click.querySelector("a"), "bg_f b_l b_r");
         _unsafeWindow
@@ -5369,7 +6057,7 @@
       });
     },
     setMenuInsertClickEvent() {
-      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", (event) => {
+      domUtils.on("#comiis_foot_menu_beautify_big .menu_icon a.commis_insert_bbs", "click", () => {
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_post_tab", false);
         domUtils.hide("#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab", false);
         domUtils.show("#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab", false);
@@ -5457,7 +6145,7 @@
                     </a>
                 `,
         });
-        domUtils.on($ubbs, "click", (event) => {
+        domUtils.on($ubbs, "click", () => {
           domUtils.removeClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_0");
           domUtils.addClass("#comiis_insert_ubb_tab div.comiis_post_urlico ul li.quickUBBs a.comiis_xifont", "f_d");
           let $font = $ubbs.querySelector(".comiis_xifont");
@@ -5883,14 +6571,21 @@
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
 			`
         );
-        domUtils.on(document, "click", ".reader-copy-button", async function (event) {
-          domUtils.preventEvent(event);
-          let $click = event.target;
-          let codeElement = $($click.getAttribute("data-code-selector"));
-          await utils.copy(codeElement.outerText || codeElement.innerText);
-          Qmsg.success("已复制到剪贴板");
-          return false;
-        });
+        domUtils.on(
+          document,
+          "click",
+          ".reader-copy-button",
+          async function (event, $click) {
+            domUtils.preventEvent(event);
+            const codeElement = $($click.getAttribute("data-code-selector"));
+            await utils.copy(codeElement.outerText || codeElement.innerText);
+            Qmsg.success("已复制到剪贴板");
+            return false;
+          },
+          {
+            overrideTarget: false,
+          }
+        );
       }
       let comiis_blockcode = $$(".comiis_blockcode.comiis_bodybg");
       comiis_blockcode.forEach(($comiis_bodybg) => {
@@ -6232,7 +6927,7 @@
         DOMUtils.on(
           $empty,
           "click",
-          (event) => {
+          () => {
             let $input = document.querySelector("#scform_srchtxt");
             if ($input) {
               $input.value = "";
@@ -6943,40 +7638,56 @@
           height: "300px",
         });
       });
-      let $paymentSubjectReminderIsFreeList = document.querySelector("#paymentSubjectReminderIsFreeList");
-      domUtils.on($paymentSubjectReminderIsFreeList, "click", "a", (event) => {
-        let $click = event.target;
-        var tIndex = parseInt($click.getAttribute("t-index"));
-        var tHref = $click.getAttribute("t-href");
-        data[tIndex]["isVisited"] = true;
-        MTPaidThemePost.setTipData(data);
-        window.open(tHref, "_blank");
-        $click.setAttribute("style", "color: #000000;");
-        if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") {
-          return;
+      const $paymentSubjectReminderIsFreeList = document.querySelector("#paymentSubjectReminderIsFreeList");
+      domUtils.on(
+        $paymentSubjectReminderIsFreeList,
+        "click",
+        "a",
+        (event, selectorTarget) => {
+          const $click = selectorTarget;
+          const tIndex = parseInt($click.getAttribute("t-index"));
+          const tHref = $click.getAttribute("t-href");
+          data[tIndex]["isVisited"] = true;
+          MTPaidThemePost.setTipData(data);
+          window.open(tHref, "_blank");
+          $click.setAttribute("style", "color: #000000;");
+          if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") {
+            return;
+          }
+          $click.parentElement.parentElement.children[0].remove();
+          domUtils.append(
+            $paymentSubjectReminderIsFreeList,
+            $click?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement
+          );
+          const $del = document.querySelector(".subjectcanvisit summary span.icon_msgs.bg_del.f_f");
+          const notVisitedNumsStr = domUtils.text($del);
+          const notVisitedNums2 = parseInt(notVisitedNumsStr) - 1;
+          if (notVisitedNums2 > 0) {
+            domUtils.html($del, notVisitedNums2.toString());
+          } else {
+            $del.remove();
+          }
+        },
+        {
+          overrideTarget: false,
         }
-        $click.parentElement.parentElement.children[0].remove();
-        domUtils.append(
-          $paymentSubjectReminderIsFreeList,
-          $click?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement
-        );
-        let $del = document.querySelector(".subjectcanvisit summary span.icon_msgs.bg_del.f_f");
-        let notVisitedNumsStr = domUtils.text($del);
-        let notVisitedNums2 = parseInt(notVisitedNumsStr) - 1;
-        if (notVisitedNums2 > 0) {
-          domUtils.html($del, notVisitedNums2.toString());
-        } else {
-          $del.remove();
+      );
+      const $paymentSubjectReminderIsPaidList = document.querySelector("paymentSubjectReminderIsPaidList");
+      domUtils.on(
+        $paymentSubjectReminderIsPaidList,
+        "click",
+        "a",
+        (event, selectorTarget) => {
+          const $click = selectorTarget;
+          $click.getAttribute("t-index");
+          const t_href = $click.getAttribute("t-href");
+          window.open(t_href, "_blank");
+          $click.setAttribute("style", "color: #000000;");
+        },
+        {
+          overrideTarget: false,
         }
-      });
-      let $paymentSubjectReminderIsPaidList = document.querySelector("paymentSubjectReminderIsPaidList");
-      domUtils.on($paymentSubjectReminderIsPaidList, "click", "a", (event) => {
-        let $click = event.target;
-        $click.getAttribute("t-index");
-        var t_href = $click.getAttribute("t-href");
-        window.open(t_href, "_blank");
-        $click.setAttribute("style", "color: #000000;");
-      });
+      );
     },
     getTipData() {
       return _GM_getValue(this.$key.tipData, []);
@@ -8450,14 +9161,15 @@
     },
     init() {
       this.registerMenu();
-      let lockFn = new utils.LockFunction(() => {
-        this.runRule();
+      const lockFn = new utils.LockFunction(() => {
+        this.execRule();
       });
       utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
         },
+        immediate: true,
         callback: () => {
           lockFn.run();
         },
@@ -8494,7 +9206,7 @@
       };
     },
     showView() {
-      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8505,7 +9217,7 @@
           },
         };
       }
-      let ruleView = new RuleView({
+      const ruleView = new RuleView({
         title: "我的屏蔽",
         data: () => {
           return this.getData();
@@ -8635,19 +9347,56 @@
             },
           },
         },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                filterCallBack() {
+                  return true;
+                },
+              },
+              {
+                name: "启用",
+                value: "enable",
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.name.match(matchText));
+                },
+              },
+            ],
+          },
+        },
       });
       ruleView.showView();
     },
-    runRule() {
-      let shieldUserList = this.getData();
+    execRule() {
+      const shieldUserList = this.getData();
       function checkIsFilter(postForumInfo) {
         for (const shieldItem of shieldUserList) {
-          let shieldOption = shieldItem["data"];
-          let findValue = Object.keys(shieldOption).find((keyName) => {
-            let value = shieldOption[keyName];
+          const shieldOption = shieldItem["data"];
+          const findValue = Object.keys(shieldOption).find((keyName) => {
+            const value = shieldOption[keyName];
             if (utils.isNotNull(value)) {
-              let regExpValue = new RegExp(value, "i");
-              let postForumValue = Reflect.get(postForumInfo, keyName);
+              const regExpValue = new RegExp(value, "i");
+              const postForumValue = Reflect.get(postForumInfo, keyName);
               if (
                 typeof postForumValue === "string" &&
                 utils.isNotNull(postForumValue) &&
@@ -8665,9 +9414,8 @@
         }
         return false;
       }
-      if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost()) {
-        this.getData();
-        document.querySelectorAll(".comiis_forumlist .forumlist_li").forEach((item) => {
+      if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSpace()) {
+        $$(".comiis_forumlist .forumlist_li").forEach((item) => {
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
@@ -8687,13 +9435,13 @@
               .replace(/来自/g, ""),
           };
           if (utils.isNull(postForumInfo.postPlateName)) {
-            postForumInfo.postPlateName = document.querySelector("#comiis_wx_title_box").innerText;
+            postForumInfo.postPlateName = $("#comiis_wx_title_box").innerText;
           }
           if (checkIsFilter(postForumInfo)) {
             item.remove();
           }
         });
-        document.querySelectorAll(".comiis_postlist .comiis_postli").forEach((item) => {
+        $$(".comiis_postlist .comiis_postli").forEach((item) => {
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
           let postForumInfo = {
@@ -8711,7 +9459,6 @@
         });
       }
       if (MTRouter.isMessageList()) {
-        this.getData();
         $$(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
           let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
           let postForumInfo = {
@@ -9282,6 +10029,50 @@
             },
           },
         },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "启用",
+                value: "enable",
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.name.match(matchText));
+                },
+              },
+              {
+                name: "商品名",
+                value: "productName",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.productName.match(matchText));
+                },
+              },
+            ],
+          },
+        },
       });
       ruleView.showView();
     },
@@ -9518,6 +10309,50 @@
             deleteCallBack: (data) => {
               return this.deleteData(data);
             },
+          },
+        },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "启用",
+                value: "enable",
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.name.match(matchText));
+                },
+              },
+              {
+                name: "标签名",
+                value: "label-name",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.labelName.match(matchText));
+                },
+              },
+            ],
           },
         },
       });
@@ -10344,11 +11179,19 @@
       );
       domUtils.attr("#filedata", "multiple", true);
       domUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
-      domUtils.on(document, "#comiis_pictitle_key li", "click", function () {
-        domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
-        domUtils.addClass(this, "bg_f");
-        _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
-      });
+      domUtils.on(
+        document,
+        "#comiis_pictitle_key li",
+        "click",
+        function () {
+          domUtils.removeClass("#comiis_pictitle_key li", "bg_f");
+          domUtils.addClass(this, "bg_f");
+          _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
+        },
+        {
+          overrideTarget: false,
+        }
+      );
       let top_height = parseInt(domUtils.css("#comiis_head", "height")) || 0;
       let fatie_toupiao = parseInt(domUtils.css("#comiis_sub", "height")) || 0;
       let extra_margin_bottom = $("#pollm_c_1") ? 60 : 0;
@@ -10606,7 +11449,7 @@
     },
     setInputChangeEvent() {
       const that = this;
-      domUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function (event) {
+      domUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function () {
         let data = null;
         if (MTRouter.isPostPublish_voting()) {
           let $title = that.$el.$form.querySelector("input[name='subject']");
@@ -11072,7 +11915,7 @@
                 <p>0</p>
             </a>`
       );
-      domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
+      domUtils.on(this.$el.$input, ["input", "propertychange"], () => {
         let userInputText = this.$el.$input.value;
         let userInputTextLength = utils.getTextLength(userInputText);
         let parsedText = MTEditorPreview.parseText(userInputText);
@@ -11116,7 +11959,7 @@
                 <a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a>
                 `,
         });
-        domUtils.on($ubbs, "click", (event) => {
+        domUtils.on($ubbs, "click", () => {
           let bottomEle = $(`#comiis_post_qydiv li[data-key='${value.key}']`);
           if (!bottomEle) {
             log.error("未找到该元素");
@@ -11220,15 +12063,22 @@
       let originImageList = $("#imglist");
       let originImageListParent = domUtils.parent(originImageList);
       domUtils.before(".gm_plugin_chartbed .bqbox_t", originImageListParent);
-      domUtils.on("#imglist .comiis_font", "click", (event) => {
+      domUtils.on("#imglist .comiis_font", "click", () => {
         $("#filedata").click();
       });
-      domUtils.on("#comiis_pictitle_tab #comiis_pictitle_key", "click", "li", function (event) {
-        let $click = event.target;
-        domUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
-        domUtils.addClass($click, "bg_f");
-        _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
-      });
+      domUtils.on(
+        "#comiis_pictitle_tab #comiis_pictitle_key",
+        "click",
+        "li",
+        function (event, $click) {
+          domUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
+          domUtils.addClass($click, "bg_f");
+          _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
+        },
+        {
+          overrideTarget: false,
+        }
+      );
       Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
         MTEditorImageBed_Hello.init();
       });
@@ -11276,7 +12126,7 @@
               </div>
             </div>`
       );
-      domUtils.on(".gm_plugin_previewpostforum", "click", function (event) {
+      domUtils.on(".gm_plugin_previewpostforum", "click", function () {
         let $click = this;
         if ($$("#polldatas").length) {
           MTEditorPreview.parseVoteText();
@@ -11731,7 +12581,7 @@
       });
     },
     setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
-      domUtils.on($file, "change", (event) => {
+      domUtils.on($file, "change", () => {
         if (!$file.files?.length) {
           return;
         }

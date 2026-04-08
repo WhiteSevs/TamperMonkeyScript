@@ -589,12 +589,20 @@ export const MTEditorOptimization = {
     /* 添加上传多个文件功能 */
     DOMUtils.attr("#filedata", "multiple", true);
     DOMUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
-    DOMUtils.on(document, "#comiis_pictitle_key li", "click", function () {
-      /* 图床-各个菜单点击事件 */
-      DOMUtils.removeClass("#comiis_pictitle_key li", "bg_f");
-      DOMUtils.addClass(this, "bg_f");
-      unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(unsafeWindow.$(this).index()).fadeIn();
-    });
+    DOMUtils.on(
+      document,
+      "#comiis_pictitle_key li",
+      "click",
+      function () {
+        /* 图床-各个菜单点击事件 */
+        DOMUtils.removeClass("#comiis_pictitle_key li", "bg_f");
+        DOMUtils.addClass(this, "bg_f");
+        unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(unsafeWindow.$(this).index()).fadeIn();
+      },
+      {
+        overrideTarget: false,
+      }
+    );
 
     let top_height = parseInt(DOMUtils.css("#comiis_head", "height")) || 0;
     let fatie_toupiao = parseInt(DOMUtils.css("#comiis_sub", "height")) || 0;
@@ -900,7 +908,7 @@ export const MTEditorOptimization = {
    */
   setInputChangeEvent() {
     const that = this;
-    DOMUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function (event) {
+    DOMUtils.on([this.$el.$input, this.$el.$title].filter(Boolean), ["input", "propertychange"], function () {
       /* 记录输入的文本保存到indexDB中 */
       let data = null as any as EditorStorageOption["data"];
       if (MTRouter.isPostPublish_voting()) {
@@ -1419,7 +1427,7 @@ export const MTEditorOptimization = {
                 <p>0</p>
             </a>`
     );
-    DOMUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
+    DOMUtils.on(this.$el.$input, ["input", "propertychange"], () => {
       let userInputText = this.$el.$input.value;
       let userInputTextLength = utils.getTextLength(userInputText);
       let parsedText = MTEditorPreview.parseText(userInputText);
@@ -1465,7 +1473,7 @@ export const MTEditorOptimization = {
                 <a href="javascript:;" class="comiis_xifont f_d"><i class="comiis_font"></i>${value["key"]}</a>
                 `,
       });
-      DOMUtils.on($ubbs, "click", (event) => {
+      DOMUtils.on($ubbs, "click", () => {
         let bottomEle = $<HTMLLIElement>(`#comiis_post_qydiv li[data-key='${value.key}']`)!;
         if (!bottomEle) {
           log.error("未找到该元素");
@@ -1580,15 +1588,22 @@ export const MTEditorOptimization = {
     let originImageListParent = DOMUtils.parent(originImageList);
     DOMUtils.before(".gm_plugin_chartbed .bqbox_t", originImageListParent);
     // 修复自带图片的点击上传功能
-    DOMUtils.on("#imglist .comiis_font", "click", (event) => {
+    DOMUtils.on("#imglist .comiis_font", "click", () => {
       $<HTMLInputElement>("#filedata")!.click();
     });
-    DOMUtils.on("#comiis_pictitle_tab #comiis_pictitle_key", "click", "li", function (this: HTMLElement, event) {
-      let $click = event.target as HTMLLIElement;
-      DOMUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
-      DOMUtils.addClass($click, "bg_f");
-      unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(unsafeWindow.$($click).index()).fadeIn();
-    });
+    DOMUtils.on(
+      "#comiis_pictitle_tab #comiis_pictitle_key",
+      "click",
+      "li",
+      function (this: HTMLElement, event, $click) {
+        DOMUtils.removeClass("#comiis_pictitle_tab #comiis_pictitle_key li", "bg_f");
+        DOMUtils.addClass($click, "bg_f");
+        unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(unsafeWindow.$($click).index()).fadeIn();
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
       MTEditorImageBed_Hello.init();
     });
@@ -1640,7 +1655,7 @@ export const MTEditorOptimization = {
             </div>`
     );
 
-    DOMUtils.on(".gm_plugin_previewpostforum", "click", function (this: HTMLElement, event) {
+    DOMUtils.on(".gm_plugin_previewpostforum", "click", function (this: HTMLElement) {
       let $click = this;
       if ($$("#polldatas").length) {
         /* 当前是投票帖子 */

@@ -422,14 +422,21 @@ export const MTForumPost = {
 			.reader-copy-button{background:#000;background-size:cover;background-repeat:no-repeat;background-position:0;color:#fff;line-height:40px;display:block;text-align:center;border-radius:5px;cursor:pointer;font-size:15px;width:70px;user-select:none}
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
 			`);
-      DOMUtils.on(document, "click", ".reader-copy-button", async function (event) {
-        DOMUtils.preventEvent(event);
-        let $click = event.target as HTMLElement;
-        let codeElement = $<HTMLElement>($click.getAttribute("data-code-selector")!)!;
-        await utils.copy(codeElement.outerText || codeElement.innerText);
-        Qmsg.success("已复制到剪贴板");
-        return false;
-      });
+      DOMUtils.on(
+        document,
+        "click",
+        ".reader-copy-button",
+        async function (event, $click) {
+          DOMUtils.preventEvent(event);
+          const codeElement = $<HTMLElement>($click.getAttribute("data-code-selector")!)!;
+          await utils.copy(codeElement.outerText || codeElement.innerText);
+          Qmsg.success("已复制到剪贴板");
+          return false;
+        },
+        {
+          overrideTarget: false,
+        }
+      );
     }
     let comiis_blockcode = $$<HTMLElement>(".comiis_blockcode.comiis_bodybg")!;
     comiis_blockcode.forEach(($comiis_bodybg) => {

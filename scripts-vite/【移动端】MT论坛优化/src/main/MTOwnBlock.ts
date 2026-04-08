@@ -1,4 +1,4 @@
-import { $$, log, pops, utils } from "@/env";
+import { $, $$, log, pops, utils } from "@/env";
 import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -44,14 +44,15 @@ export const MTOwnBlock = {
   },
   init() {
     this.registerMenu();
-    let lockFn = new utils.LockFunction(() => {
-      this.runRule();
+    const lockFn = new utils.LockFunction(() => {
+      this.execRule();
     });
     utils.mutationObserver(document, {
       config: {
         subtree: true,
         childList: true,
       },
+      immediate: true,
       callback: () => {
         lockFn.run();
       },
@@ -97,8 +98,7 @@ export const MTOwnBlock = {
    * 显示视图
    */
   showView() {
-    const that = this;
-    let panelHandlerComponents = pops.fn.PanelHandlerComponents();
+    const panelHandlerComponents = pops.fn.PanelHandlerComponents();
     /**
      * 自定义存储api的配置
      * @param uuid
@@ -113,7 +113,7 @@ export const MTOwnBlock = {
         },
       };
     }
-    let ruleView = new RuleView({
+    const ruleView = new RuleView({
       title: "我的屏蔽",
       data: () => {
         return this.getData();
@@ -261,22 +261,59 @@ export const MTOwnBlock = {
           },
         },
       },
+      bottomControls: {
+        filter: {
+          enable: true,
+          option: [
+            {
+              name: "无",
+              value: "",
+              filterCallBack() {
+                return true;
+              },
+            },
+            {
+              name: "启用",
+              value: "enable",
+              filterCallBack(data) {
+                return data.enable;
+              },
+            },
+            {
+              name: "未启用",
+              value: "notEnable",
+              filterCallBack(data) {
+                return !data.enable;
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名",
+              value: "name",
+              filterCallBack(data, matchText) {
+                return Boolean(data.name.match(matchText));
+              },
+            },
+          ],
+        },
+      },
     });
     ruleView.showView();
   },
   /**
    * 执行规则
    */
-  runRule() {
-    let shieldUserList = this.getData();
+  execRule() {
+    const shieldUserList = this.getData();
     function checkIsFilter(postForumInfo: BlockOption["data"]) {
       for (const shieldItem of shieldUserList) {
-        let shieldOption = shieldItem["data"];
-        let findValue = Object.keys(shieldOption).find((keyName) => {
-          let value = (shieldOption as any)[keyName];
+        const shieldOption = shieldItem["data"];
+        const findValue = Object.keys(shieldOption).find((keyName) => {
+          const value = (shieldOption as any)[keyName];
           if (utils.isNotNull(value)) {
-            let regExpValue = new RegExp(value, "i");
-            let postForumValue = Reflect.get(postForumInfo, keyName);
+            const regExpValue = new RegExp(value, "i");
+            const postForumValue = Reflect.get(postForumInfo, keyName);
             if (
               typeof postForumValue === "string" &&
               utils.isNotNull(postForumValue) &&
@@ -294,11 +331,10 @@ export const MTOwnBlock = {
       }
       return false;
     }
-    if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost()) {
-      // 导航、板块、帖子
-      let shieldUserList = this.getData();
-      /* 帖子元素列表 */
-      document.querySelectorAll<HTMLElement>(".comiis_forumlist .forumlist_li").forEach((item) => {
+    if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSpace()) {
+      // 导航、板块、帖子、个人空间
+      // 帖子元素列表
+      $$<HTMLElement>(".comiis_forumlist .forumlist_li").forEach((item) => {
         let $topUser = item.querySelector<HTMLAnchorElement>("a.top_user")!;
         let uidMatch = $topUser.href.match(MTRegExp.uid)!;
         let postForumInfo: BlockOption["data"] = {
@@ -324,7 +360,7 @@ export const MTOwnBlock = {
             .replace(/来自/g, ""),
         };
         if (utils.isNull(postForumInfo.postPlateName)) {
-          postForumInfo.postPlateName = document.querySelector<HTMLElement>("#comiis_wx_title_box")!.innerText;
+          postForumInfo.postPlateName = $<HTMLElement>("#comiis_wx_title_box")!.innerText;
         }
         /* console.log(`
                     用户名: ${postForumInfo.user}
@@ -340,7 +376,7 @@ export const MTOwnBlock = {
         }
       });
       /* 帖子内的每个人的元素列表 */
-      document.querySelectorAll<HTMLElement>(".comiis_postlist .comiis_postli").forEach((item) => {
+      $$<HTMLElement>(".comiis_postlist .comiis_postli").forEach((item) => {
         let $topUser = item.querySelector<HTMLAnchorElement>("a.top_user")!;
         let uidMatch = $topUser.href.match(MTRegExp.uid)!;
         let postForumInfo: BlockOption["data"] = {
@@ -373,7 +409,6 @@ export const MTOwnBlock = {
     }
     if (MTRouter.isMessageList()) {
       // 消息列表
-      let shieldUserList = this.getData();
       $$<HTMLLIElement>(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
         let uidMatch = item.querySelector<HTMLAnchorElement>("a.b_b")!.href.match(MTRegExp.uid)!;
         let postForumInfo: BlockOption["data"] = {

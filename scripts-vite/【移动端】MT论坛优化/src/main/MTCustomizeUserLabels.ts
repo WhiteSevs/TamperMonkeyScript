@@ -245,6 +245,50 @@ export const MTCustomizeUserLabels = {
           },
         },
       },
+      bottomControls: {
+        filter: {
+          enable: true,
+          option: [
+            {
+              name: "无",
+              value: "",
+              filterCallBack(data) {
+                return true;
+              },
+            },
+            {
+              name: "启用",
+              value: "enable",
+              filterCallBack(data) {
+                return data.enable;
+              },
+            },
+            {
+              name: "未启用",
+              value: "notEnable",
+              filterCallBack(data) {
+                return !data.enable;
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名",
+              value: "name",
+              filterCallBack(data, matchText) {
+                return Boolean(data.name.match(matchText));
+              },
+            },
+            {
+              name: "标签名",
+              value: "label-name",
+              filterCallBack(data, matchText) {
+                return Boolean(data.labelName.match(matchText));
+              },
+            },
+          ],
+        },
+      },
     });
     ruleView.showView();
   },

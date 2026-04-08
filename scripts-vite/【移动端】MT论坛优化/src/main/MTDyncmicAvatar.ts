@@ -238,7 +238,7 @@ export const MTDyncmicAvatar = {
     },
     successCallBack: Function
   ) {
-    DOMUtils.on<InputEvent>($file, "change", (event) => {
+    DOMUtils.on<InputEvent>($file, "change", () => {
       if (!$file.files?.length) {
         return;
       }
