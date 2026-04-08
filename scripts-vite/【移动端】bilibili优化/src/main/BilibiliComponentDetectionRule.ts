@@ -15,7 +15,6 @@ export type BilibiliUserLabelRule = {
   enable: boolean;
   /** 规则名 */
   name: string;
-
   data: {
     /** 是否显示标签名称 */
     isShowDisplayName: boolean;
@@ -336,6 +335,51 @@ export const BilibiliComponentDetectionRule = {
           deleteCallBack: (data) => {
             return this.deleteData(data);
           },
+        },
+      },
+      bottomControls: {
+        filter: {
+          enable: true,
+          option: [
+            {
+              name: "无",
+              value: "",
+              filterCallBack() {
+                return true;
+              },
+            },
+            {
+              name: "启用",
+              value: "enable",
+              filterCallBack(data) {
+                return data.enable;
+              },
+            },
+            {
+              name: "未启用",
+              value: "notEnable",
+              filterCallBack(data) {
+                return !data.enable;
+              },
+            },
+          ],
+          inputOption: [
+            {
+              name: "规则名",
+              value: "name",
+              filterCallBack(data, matchText) {
+                return Boolean(data.name.match(matchText));
+              },
+            },
+            {
+              name: "关键词",
+              value: "keywords",
+              filterCallBack(data, matchText) {
+                const find = data.data.keywords.find((it: string) => Boolean(it.match(matchText)));
+                return !!find;
+              },
+            },
+          ],
         },
       },
     });
