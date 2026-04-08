@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.4.9
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -649,12 +649,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -674,21 +686,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -701,12 +713,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -718,7 +730,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -726,12 +740,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -743,13 +757,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -763,7 +777,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -781,37 +795,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -834,7 +848,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -857,7 +871,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -872,13 +886,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -886,7 +900,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -899,12 +913,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -923,40 +937,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -1005,7 +1017,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1021,15 +1033,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1780,9 +1794,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1825,13 +1852,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1879,7 +1906,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1923,7 +1951,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1944,7 +1976,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1975,7 +2007,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -5216,6 +5248,50 @@
             deleteCallBack: (data) => {
               return this.deleteData(data);
             },
+          },
+        },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "无",
+                value: "",
+                filterCallBack(data) {
+                  return true;
+                },
+              },
+              {
+                name: "启用",
+                value: "enable",
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "notEnable",
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名",
+                value: "name",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.name.match(matchText));
+                },
+              },
+              {
+                name: "商品名",
+                value: "productName",
+                filterCallBack(data, matchText) {
+                  return Boolean(data.productName.match(matchText));
+                },
+              },
+            ],
           },
         },
       });
