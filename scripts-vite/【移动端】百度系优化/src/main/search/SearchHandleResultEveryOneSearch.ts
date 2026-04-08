@@ -55,12 +55,20 @@ export const SearchHandleResultEveryOneSearch = {
                     ${rwListContainerHTML}</div>
                 </div>`
       );
-      DOMUtils.on($recommend, "click", ".rw-list-new", (event, selectorTarget) => {
-        let searchText = DOMUtils.text(selectorTarget.querySelector("span")!).trim();
-        log.success("中间 点击大家还在搜 ==> " + searchText);
-        DOMUtils.preventEvent(event);
-        window.location.href = `https://m.baidu.com/s?word=${searchText}`;
-      });
+      DOMUtils.on(
+        $recommend,
+        "click",
+        ".rw-list-new",
+        (event, $list) => {
+          const searchText = DOMUtils.text($list.querySelector("span")!).trim();
+          log.success("中间 点击大家还在搜 ==> " + searchText);
+          DOMUtils.preventEvent(event);
+          window.location.href = `https://m.baidu.com/s?word=${searchText}`;
+        },
+        {
+          overrideTarget: false,
+        }
+      );
     });
   },
   /**
@@ -91,12 +99,20 @@ export const SearchHandleResultEveryOneSearch = {
       if (!$everyOne.closest("#results")) {
         $("#results")?.appendChild($everyOne);
       }
-      DOMUtils.on($everyOne, "click", ".rw-list-new", (event, selectorTarget) => {
-        let searchText = selectorTarget.querySelector("span")?.textContent?.trim();
-        log.success("底部 点击大家还在搜 ==> " + searchText);
-        DOMUtils.preventEvent(event);
-        window.location.href = `https://m.baidu.com/s?word=${selectorTarget?.textContent?.trim()}`;
-      });
+      DOMUtils.on(
+        $everyOne,
+        "click",
+        ".rw-list-new",
+        (event, $list) => {
+          const searchText = $list.querySelector("span")?.textContent?.trim();
+          log.success("底部 点击大家还在搜 ==> " + searchText);
+          DOMUtils.preventEvent(event);
+          window.location.href = `https://m.baidu.com/s?word=${$list?.textContent?.trim()}`;
+        },
+        {
+          overrideTarget: false,
+        }
+      );
     });
   },
 };

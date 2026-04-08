@@ -221,7 +221,7 @@ export const BaiduSearchToolBar = {
    * 监听输入框内容改变
    */
   setInputEvent() {
-    DOMUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
+    DOMUtils.on(this.$el.$input, ["input", "propertychange"], () => {
       // 判断是否为空，动态修改图标显示和颜色
       if (this.$el.$input.value === "") {
         // 空的
@@ -311,7 +311,7 @@ export const BaiduSearchToolBar = {
   setFormEvent() {
     DOMUtils.on(this.$el.$form, "submit", (event) => {
       DOMUtils.preventEvent(event);
-      let searchText = this.$el.$input.value;
+      const searchText = this.$el.$input.value;
       log.success("提交表单 搜索 ==> " + searchText);
       window.location.href = `${window.location.origin}/s?word=${searchText}`;
     });

@@ -20,9 +20,9 @@ export const TiebaCollectionCenter = {
       document,
       "click",
       ".collection-center .image-card",
-      (event, selectorTarget) => {
+      (event, $click) => {
         DOMUtils.preventEvent(event);
-        const vueInst = VueUtils.getVue(selectorTarget);
+        const vueInst = VueUtils.getVue($click);
         if (!vueInst) {
           Qmsg.error("获取vue实例失败");
           return;

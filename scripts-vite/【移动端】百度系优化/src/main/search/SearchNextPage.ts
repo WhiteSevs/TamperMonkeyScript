@@ -85,7 +85,6 @@ const SearchNextPage = {
       DOMUtils.on(
         document,
         "scroll",
-        void 0,
         async () => {
           if (isLoadingNextPage) {
             return;
@@ -509,7 +508,6 @@ const SearchNextPage_SearchCraft = {
       DOMUtils.on(
         document,
         "scroll",
-        void 0,
         async () => {
           if (isLoadingNextPage) {
             return;

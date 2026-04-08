@@ -95,25 +95,25 @@ export const TiebaHotTopic = {
       "click",
       "body > .page-content .topic-cards .card-wrapper",
       (event, $cardWrapper) => {
-        let vueIns = VueUtils.getVue($cardWrapper);
-        if (!vueIns) {
+        const vueInst = VueUtils.getVue($cardWrapper);
+        if (!vueInst) {
           log.info($cardWrapper);
           Qmsg.error("未找到vue实例");
           return;
         }
-        let cardType = vueIns.cardType;
+        const cardType = vueInst.cardType;
         if (cardType === "hot-thread") {
           DOMUtils.preventEvent(event);
-          let id = vueIns?.cardData?.id;
+          const id = vueInst?.cardData?.id;
           if (typeof id !== "number") {
             Qmsg.error("获取帖子id失败");
             return;
           }
-          let url = TiebaUrlHandler.getThread(id);
+          const url = TiebaUrlHandler.getThread(id);
           window.open(url, "_blank");
         }
       },
-      { capture: true }
+      { capture: true, overrideTarget: false }
     );
   },
 };

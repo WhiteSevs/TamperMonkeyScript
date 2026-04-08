@@ -81,7 +81,7 @@
      */
     setGlobalTouchClickCheck() {
       DOMUtils.on(document, "touchstart", function (event) {
-        let $click = event.target as HTMLElement;
+        const $click = event.target as HTMLElement;
         if (ElementCheckIn.isContainsInSmallToolbar($click)) {
           return;
         }

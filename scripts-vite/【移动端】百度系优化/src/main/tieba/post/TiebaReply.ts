@@ -323,97 +323,111 @@ export const TiebaReply = {
       }
       return true;
     }
-    DOMUtils.on(document, "click", ".post-item .content", (event) => {
-      if (!checkNotEmitReply(event)) {
-        return;
-      }
-      let $clickContent = event.target as HTMLDivElement;
-      that.$data.replyCommentData.value = void 0;
-      that.$data.type.value = void 0;
-      log.info("点击内容，触发设置当前回复的对象");
-      try {
-        let $commentBoxWrap = that.getCommentBoxWrap();
-        $commentBoxWrap.classList.remove("comment-box-wrap-lzl");
-        let $postItem = $clickContent.closest(".post-item") as HTMLDivElement;
-        let itemData = ($postItem as any)["data-whitesev"];
-        let $textContent = $clickContent.querySelector(".text-content") as HTMLDivElement;
-        let textContent = $textContent.innerText;
-        log.info("获取元素上的数据", itemData);
+    DOMUtils.on(
+      document,
+      "click",
+      ".post-item .content",
+      (event, $content) => {
+        if (!checkNotEmitReply(event)) {
+          return;
+        }
+        that.$data.replyCommentData.value = void 0;
+        that.$data.type.value = void 0;
+        log.info("点击内容，触发设置当前回复的对象");
+        try {
+          const $commentBoxWrap = that.getCommentBoxWrap();
+          $commentBoxWrap.classList.remove("comment-box-wrap-lzl");
+          const $postItem = $content.closest(".post-item") as HTMLDivElement;
+          const itemData = ($postItem as any)["data-whitesev"];
+          const $textContent = $content.querySelector(".text-content") as HTMLDivElement;
+          const textContent = $textContent.innerText;
+          log.info("获取元素上的数据", itemData);
 
-        let authorName = itemData["userName"] as string;
-        let pid = itemData["userPostId"] as number;
-        that.setCurrentReplyUser(pid, authorName);
-        that.$data.replyCommentData.value = {
-          type: "comment",
-          data: {
-            page: "pb",
-            pid: pid,
-            authorName: authorName,
-            content: textContent,
-          },
-        };
-        that.$data.type.value = "comment";
-        that.$data.isShowFullEditor.value = true;
-      } catch (error: any) {
-        log.error(error);
-        Qmsg.error(error.toString(), {
-          zIndex: utils.getMaxZIndex() + 100,
-        });
+          const authorName = itemData["userName"] as string;
+          const pid = itemData["userPostId"] as number;
+          that.setCurrentReplyUser(pid, authorName);
+          that.$data.replyCommentData.value = {
+            type: "comment",
+            data: {
+              page: "pb",
+              pid: pid,
+              authorName: authorName,
+              content: textContent,
+            },
+          };
+          that.$data.type.value = "comment";
+          that.$data.isShowFullEditor.value = true;
+        } catch (error: any) {
+          log.error(error);
+          Qmsg.error(error.toString(), {
+            zIndex: utils.getMaxZIndex() + 100,
+          });
+        }
+      },
+      {
+        overrideTarget: false,
       }
-    });
+    );
     /* 楼中楼弹窗的内容 */
-    DOMUtils.on(document, "click", "#whitesev-reply-dialog .whitesev-reply-dialog-content-item", (event) => {
-      let $clickContent = event.target as HTMLDivElement;
-      if ($clickContent.classList.contains("whitesev-reply-dialog-sheet-main-content")) {
-        /* 点击的是最顶部的层主 */
-        return;
-      }
-      if (!checkNotEmitReply(event)) {
-        return;
-      }
-      that.$data.replyLzlCommentData.value = void 0;
-      that.$data.type.value = void 0;
-      log.info("点击楼中楼内容，触发设置当前回复的对象");
-      try {
-        let $commentBoxWrap = that.getCommentBoxWrap();
-        $commentBoxWrap.classList.add("comment-box-wrap-lzl");
-        let $replyDialog = $clickContent.closest("#whitesev-reply-dialog") as HTMLDivElement;
-        let $userComment = $clickContent.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
-        let userCommentText = $userComment.innerText;
-        let mainData = ($replyDialog as any)["data-whitesev"];
-        let itemData = ($clickContent as any)["data-lzl-item"];
-        log.info("主数据-获取元素上的数据", mainData);
-        log.info("获取元素上的数据", itemData);
+    DOMUtils.on(
+      document,
+      "click",
+      "#whitesev-reply-dialog .whitesev-reply-dialog-content-item",
+      (event, $contentItem) => {
+        if ($contentItem.classList.contains("whitesev-reply-dialog-sheet-main-content")) {
+          /* 点击的是最顶部的层主 */
+          return;
+        }
+        if (!checkNotEmitReply(event)) {
+          return;
+        }
+        that.$data.replyLzlCommentData.value = void 0;
+        that.$data.type.value = void 0;
+        log.info("点击楼中楼内容，触发设置当前回复的对象");
+        try {
+          const $commentBoxWrap = that.getCommentBoxWrap();
+          $commentBoxWrap.classList.add("comment-box-wrap-lzl");
+          const $replyDialog = $contentItem.closest("#whitesev-reply-dialog") as HTMLDivElement;
+          const $userComment = $contentItem.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
+          const userCommentText = $userComment.innerText;
+          const mainData = ($replyDialog as any)["data-whitesev"];
+          const itemData = ($contentItem as any)["data-lzl-item"];
+          log.info("主数据-获取元素上的数据", mainData);
+          log.info("获取元素上的数据", itemData);
 
-        let authorName = (itemData["userInfo"]["user_nickname"] || itemData["userInfo"]["user_name"]) as string;
-        let pid = itemData["data"]["post_id"] as number;
-        let lzlId = itemData["data"]["comment_id"] as number;
-        let portrait = itemData["portrait"] as string;
-        let floor = mainData["userFloor"] as number;
+          const authorName = (itemData["userInfo"]["user_nickname"] || itemData["userInfo"]["user_name"]) as string;
+          const pid = itemData["data"]["post_id"] as number;
+          const lzlId = itemData["data"]["comment_id"] as number;
+          const portrait = itemData["portrait"] as string;
+          const floor = mainData["userFloor"] as number;
 
-        that.setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait);
+          that.setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait);
 
-        that.$data.replyLzlCommentData.value = {
-          type: "lzl-comment",
-          data: {
-            page: "lzl",
-            content: userCommentText,
-            authorName,
-            floor,
-            lzlId,
-            pid,
-            portrait,
-          },
-        };
-        that.$data.type.value = "lzl-comment";
-        that.$data.isShowFullEditor.value = true;
-      } catch (error: any) {
-        log.error(error);
-        Qmsg.error(error.toString(), {
-          zIndex: utils.getMaxZIndex() + 100,
-        });
+          that.$data.replyLzlCommentData.value = {
+            type: "lzl-comment",
+            data: {
+              page: "lzl",
+              content: userCommentText,
+              authorName,
+              floor,
+              lzlId,
+              pid,
+              portrait,
+            },
+          };
+          that.$data.type.value = "lzl-comment";
+          that.$data.isShowFullEditor.value = true;
+        } catch (error: any) {
+          log.error(error);
+          Qmsg.error(error.toString(), {
+            zIndex: utils.getMaxZIndex() + 100,
+          });
+        }
+      },
+      {
+        overrideTarget: false,
       }
-    });
+    );
   },
   /**
    * 将输入框的值设置到原输入框中

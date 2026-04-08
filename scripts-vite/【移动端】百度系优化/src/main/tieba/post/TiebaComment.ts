@@ -784,86 +784,100 @@ const TiebaComment = {
       }
     }
     /* 楼中楼的更多按钮 */
-    DOMUtils.on(document, "click", ".post-item .user-comment-handler", function (event) {
-      DOMUtils.preventEvent(event);
-      let $click = event.target as HTMLDivElement;
-      let $item = $click.closest(".post-item") as HTMLDivElement;
-      let $textContent = $item.querySelector(".text-content") as HTMLDivElement;
-      let data = ($item as any)["data-whitesev"] as FloorCommentData;
-      log.info("获取本条回复的数据", data);
-      if (!data) {
-        Qmsg.error("获取本条回复的数据失败");
-        return;
-      }
-      let userId = data["userId"];
-      let user = data["userShowName"] || data["userName"];
-      let userPostId = data["userPostId"] as number;
+    DOMUtils.on(
+      document,
+      "click",
+      ".post-item .user-comment-handler",
+      function (event, $click) {
+        DOMUtils.preventEvent(event);
+        const $item = $click.closest(".post-item") as HTMLDivElement;
+        const $textContent = $item.querySelector(".text-content") as HTMLDivElement;
+        const data = ($item as any)["data-whitesev"] as FloorCommentData;
+        log.info("获取本条回复的数据", data);
+        if (!data) {
+          Qmsg.error("获取本条回复的数据失败");
+          return;
+        }
+        const userId = data["userId"];
+        const user = data["userShowName"] || data["userName"];
+        const userPostId = data["userPostId"] as number;
 
-      let content = $textContent.innerText;
-      clickCallBack({
-        $item: $item,
-        content: content,
-        userId: userId,
-        user: user,
-        userPostId: userPostId,
-        successDeleteCallBack() {
-          let $appView = $<HTMLDivElement>(".app-view");
-          let $interactionBar = $<HTMLDivElement>(".main-thread-content .interaction-bar");
-          if ($interactionBar) {
-            let vueObj = VueUtils.getVue($interactionBar);
-            if (!vueObj) {
+        const content = $textContent.innerText;
+        clickCallBack({
+          $item: $item,
+          content: content,
+          userId: userId,
+          user: user,
+          userPostId: userPostId,
+          successDeleteCallBack() {
+            const $appView = $<HTMLDivElement>(".app-view");
+            const $interactionBar = $<HTMLDivElement>(".main-thread-content .interaction-bar");
+            if ($interactionBar) {
+              const vueInst = VueUtils.getVue($interactionBar);
+              if (!vueInst) {
+                return;
+              }
+              if (vueInst?.interactionNum?.reply) {
+                vueInst.interactionNum.reply--;
+              }
+            } else if ($appView) {
+              const vueInst = VueUtils.getVue($appView);
+              if (!vueInst) {
+                return;
+              }
+              if (vueInst?.interactionNum?.reply) {
+                vueInst.interactionNum.reply--;
+              }
+            }
+          },
+        });
+      },
+      {
+        overrideTarget: false,
+      }
+    );
+    DOMUtils.on(
+      document,
+      "click",
+      "#whitesev-reply-dialog .user-comment-handler",
+      function (event, $click) {
+        DOMUtils.preventEvent(event);
+        const $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item") as HTMLDivElement;
+        const $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
+        const data = ($item as any)["data-lzl-item"] as LzlItemData;
+        log.info("获取本条楼中楼回复的数据", data);
+        if (!data) {
+          Qmsg.error("获取本条回复的数据失败");
+          return;
+        }
+        const userId = data["userInfo"]["user_id"];
+        const user = data["userInfo"]["user_name"] || data["userInfo"]["user_nickname"] || data["userInfo"]["nickname"];
+        const userPostId = data["data"]["comment_id"] as number;
+
+        const content = $textContent.innerText;
+        clickCallBack({
+          $item: $item,
+          content: content,
+          userId: userId,
+          user: user,
+          userPostId: userPostId,
+          successDeleteCallBack() {
+            const $commentNum = $item.querySelector<HTMLDivElement>(".whitesev-reply-dialog-sheet-comment-num");
+            if (!$commentNum) {
               return;
             }
-            if (vueObj?.interactionNum?.reply) {
-              vueObj.interactionNum.reply--;
-            }
-          } else if ($appView) {
-            let vueObj = VueUtils.getVue($appView);
-            if (!vueObj) {
+            const commentNum = parseInt($commentNum.innerText);
+            if (!isNaN(commentNum)) {
               return;
             }
-            if (vueObj?.interactionNum?.reply) {
-              vueObj.interactionNum.reply--;
-            }
-          }
-        },
-      });
-    });
-    DOMUtils.on(document, "click", "#whitesev-reply-dialog .user-comment-handler", function (event) {
-      DOMUtils.preventEvent(event);
-      let $click = event.target as HTMLDivElement;
-      let $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item") as HTMLDivElement;
-      let $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment") as HTMLDivElement;
-      let data = ($item as any)["data-lzl-item"] as LzlItemData;
-      log.info("获取本条楼中楼回复的数据", data);
-      if (!data) {
-        Qmsg.error("获取本条回复的数据失败");
-        return;
+            $commentNum.innerText = (commentNum - 1).toString() + "条回复";
+          },
+        });
+      },
+      {
+        overrideTarget: false,
       }
-      let userId = data["userInfo"]["user_id"];
-      let user = data["userInfo"]["user_name"] || data["userInfo"]["user_nickname"] || data["userInfo"]["nickname"];
-      let userPostId = data["data"]["comment_id"] as number;
-
-      let content = $textContent.innerText;
-      clickCallBack({
-        $item: $item,
-        content: content,
-        userId: userId,
-        user: user,
-        userPostId: userPostId,
-        successDeleteCallBack() {
-          let $commentNum = $item.querySelector<HTMLDivElement>(".whitesev-reply-dialog-sheet-comment-num");
-          if (!$commentNum) {
-            return;
-          }
-          let commentNum = parseInt($commentNum.innerText);
-          if (!isNaN(commentNum)) {
-            return;
-          }
-          $commentNum.innerText = (commentNum - 1).toString() + "条回复";
-        },
-      });
-    });
+    );
   },
   /** 用户贴吧等级CSS */
   getLevelCSS() {
@@ -1927,23 +1941,37 @@ const TiebaComment = {
     /* 点击遮罩层则关闭弹窗 */
     DOMUtils.on(dialog.querySelector(".whitesev-reply-dialog-bg"), "click", closeDialog);
     /* 处理评论的头像点击新标签页打开主页 */
-    DOMUtils.on(dialog, "click", ".whitesev-reply-dialog-avatar", function (event) {
-      DOMUtils.preventEvent(event);
-      window.open(
-        "/home/main?id=" +
-          (event.target as HTMLDivElement)?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
-        "_blank"
-      );
-    });
+    DOMUtils.on(
+      dialog,
+      "click",
+      ".whitesev-reply-dialog-avatar",
+      function (event, $click) {
+        DOMUtils.preventEvent(event);
+        window.open(
+          "/home/main?id=" + $click?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
+          "_blank"
+        );
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     /* 处理评论的名字点击新标签页打开主页 */
-    DOMUtils.on(dialog, "click", ".whitesev-reply-dialog-user-info", function (event) {
-      DOMUtils.preventEvent(event);
-      window.open(
-        "/home/main?id=" +
-          (event.target as HTMLDivElement)?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
-        "_blank"
-      );
-    });
+    DOMUtils.on(
+      dialog,
+      "click",
+      ".whitesev-reply-dialog-user-info",
+      function (event, $click) {
+        DOMUtils.preventEvent(event);
+        window.open(
+          "/home/main?id=" + $click?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
+          "_blank"
+        );
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     /* 去除楼中楼回复@的超链接错误跳转 */
     dialog.querySelectorAll(".whitesev-reply-dialog-user-comment a[portrait]").forEach((item) => {
       item.setAttribute("href", "/home/main?id=" + item.getAttribute("portrait"));

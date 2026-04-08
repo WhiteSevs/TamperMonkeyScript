@@ -239,6 +239,7 @@
         },
         {
           capture: true,
+          overrideTarget: false,
         }
       );
     });

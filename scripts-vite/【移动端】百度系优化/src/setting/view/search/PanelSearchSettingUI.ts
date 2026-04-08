@@ -351,7 +351,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
                     const $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
                       "a.baidu-search-shield-css-reset"
                     ) as HTMLAnchorElement;
-                    DOMUtils.on($searchShield, "click", void 0, () => {
+                    DOMUtils.on($searchShield, "click", () => {
                       BaiduSearchBlockRule.clearLocalRule();
                       const $textArea = rightContainerOptions.ulElement.querySelector("textarea");
                       $textArea!.value = "";

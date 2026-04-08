@@ -470,8 +470,7 @@ const TiebaSearch = {
         this.$el.$searchModelWrapper,
         "click",
         ".search-result-type-wrapper .search-result-type-item[data-value]",
-        (event) => {
-          const $click = event.target as HTMLDivElement;
+        (event, $click) => {
           // 设置当前选项的访问状态
           this.$el.$searchModelWrapper
             .querySelectorAll(".search-result-type-item")
@@ -487,6 +486,9 @@ const TiebaSearch = {
           }
           log.success("设置当前搜索结果模式：" + $click.innerText, searchType);
           searchEvent();
+        },
+        {
+          overrideTarget: false,
         }
       );
       DOMUtils.on(this.$el.$searchSortType, "change", () => {

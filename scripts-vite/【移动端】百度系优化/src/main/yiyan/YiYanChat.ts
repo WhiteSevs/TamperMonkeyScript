@@ -372,8 +372,8 @@ const YiYanChat = {
         $enterBtn.click();
       }
     });
-    DOMUtils.on($enterBtn, "click", void 0, sendEvent);
-    DOMUtils.on($clearHistoryBtn, "click", void 0, function () {
+    DOMUtils.on($enterBtn, "click", sendEvent);
+    DOMUtils.on($clearHistoryBtn, "click", function () {
       YiYanChat.clearHistoryQuestion();
     });
   },
@@ -601,7 +601,7 @@ const YiYanChat = {
           `,
       });
       let codeCopyText = codeHeader.querySelector(".code-copy-text") as HTMLElement;
-      DOMUtils.on(codeCopyText, "click", void 0, function () {
+      DOMUtils.on(codeCopyText, "click", function () {
         try {
           utils.copy(copyText);
           Qmsg.success("复制成功");

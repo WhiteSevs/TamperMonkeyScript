@@ -19,13 +19,12 @@ export const TiebaTopicTemplate = {
       document,
       "click",
       ".topic-share-item",
-      function (event) {
+      function (event, $click) {
         /* 设置正确跳转帖子 */
         DOMUtils.preventEvent(event);
         window?.stop();
-        let clickNode = event.target;
-        let pid = VueUtils.getVue(clickNode)?.item.tid;
-        let url = TiebaUrlHandler.getThread(pid);
+        const pid = VueUtils.getVue($click)?.item.tid;
+        const url = TiebaUrlHandler.getThread(pid);
         log.success(`跳转至: ${url}`);
         if (Panel.getValue("baidu_tieba_topic_openANewTab")) {
           window.open(url, "_blank");
@@ -36,6 +35,7 @@ export const TiebaTopicTemplate = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },

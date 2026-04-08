@@ -43,10 +43,9 @@ export const TiebaHybrid = {
       document,
       "click",
       ".scroll-list-wrapper .threadcardclass",
-      function (event) {
+      function (event, $click) {
         DOMUtils.preventEvent(event);
-        let clickNode = event.target;
-        let tid = VueUtils.getVue(clickNode)?.tid;
+        const tid = VueUtils.getVue($click)?.tid;
         if (utils.isNull(tid)) {
           Qmsg.error("获取帖子的tid失败");
           return;
@@ -55,6 +54,7 @@ export const TiebaHybrid = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },

@@ -178,21 +178,20 @@ export const TiebaUniAppPost = {
       document,
       "click",
       "uni-app .load-more",
-      (event) => {
+      (event, $loadMore) => {
         DOMUtils.preventEvent(event);
-        const $loadMore = event.target;
-        const vue3Ins = VueUtils.getVue3($loadMore);
-        const vue2Ins = VueUtils.getVue($loadMore);
-        if (vue2Ins) {
-          const handleClick = vue2Ins?.$listeners?.["handle-click"];
+        const vue3Inst = VueUtils.getVue3($loadMore);
+        const vue2Inst = VueUtils.getVue($loadMore);
+        if (vue2Inst) {
+          const handleClick = vue2Inst?.$listeners?.["handle-click"];
           if (typeof handleClick === "function") {
             handleClick();
             log.success(`uni-app ===> __vue__ 加载更多评论`);
           } else {
             log.error("uni-app ==> __vue__ 点击加载更多失败");
           }
-        } else if (vue3Ins) {
-          const onHandleClick = vue3Ins?.attrs?.onHandleClick;
+        } else if (vue3Inst) {
+          const onHandleClick = vue3Inst?.attrs?.onHandleClick;
           if (typeof onHandleClick === "function") {
             onHandleClick();
             log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
@@ -205,6 +204,7 @@ export const TiebaUniAppPost = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     DOMUtils.on(
@@ -287,6 +287,7 @@ export const TiebaUniAppPost = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     return listener.off;
@@ -296,26 +297,34 @@ export const TiebaUniAppPost = {
    */
   repairClickToUserHome() {
     log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
-    const listener = DOMUtils.on(document, "click", ".player-line-left", (event, $click) => {
-      DOMUtils.preventEvent(event);
-      const vueInst = VueUtils.getVue3($click);
-      if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
-        const portrait = vueInst.props.playerInfo.portrait;
-        const url = TiebaUrlHandler.getUserHome(portrait);
-        window.open(url, "_blank");
-      } else {
-        const $wakeApp = $click.querySelector(".wake-app");
-        const vue2Inst = VueUtils.getVue($wakeApp);
-        const portrait = vue2Inst?.config?.param?.portrait;
-        if (typeof portrait === "string") {
+    const listener = DOMUtils.on(
+      document,
+      "click",
+      ".player-line-left",
+      (event, $click) => {
+        DOMUtils.preventEvent(event);
+        const vueInst = VueUtils.getVue3($click);
+        if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
+          const portrait = vueInst.props.playerInfo.portrait;
           const url = TiebaUrlHandler.getUserHome(portrait);
           window.open(url, "_blank");
         } else {
-          log.error("获取portrait失败", $click, vue2Inst);
-          Qmsg.error("获取portrait失败");
+          const $wakeApp = $click.querySelector(".wake-app");
+          const vue2Inst = VueUtils.getVue($wakeApp);
+          const portrait = vue2Inst?.config?.param?.portrait;
+          if (typeof portrait === "string") {
+            const url = TiebaUrlHandler.getUserHome(portrait);
+            window.open(url, "_blank");
+          } else {
+            log.error("获取portrait失败", $click, vue2Inst);
+            Qmsg.error("获取portrait失败");
+          }
         }
+      },
+      {
+        overrideTarget: false,
       }
-    });
+    );
     const listener2 = DOMUtils.on(
       document,
       "click",
@@ -348,6 +357,7 @@ export const TiebaUniAppPost = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     return [listener.off, listener2.off];
@@ -392,6 +402,7 @@ export const TiebaUniAppPost = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     return listener.off;
@@ -401,11 +412,19 @@ export const TiebaUniAppPost = {
    */
   rememberChooseSeeCommentSort() {
     log.info(`uni-app ===> 记住评论排序`);
-    DOMUtils.on(document, "click", "uni-view.reply-top .switch-tab .tab-item", (event, $click) => {
-      const chooseSortText = $click.textContent!.trim();
-      GM_setValue(TiebaGlobalData.saveSortTypeKey, chooseSortText);
-      log.info(`切换评论排序：${chooseSortText}`);
-    });
+    DOMUtils.on(
+      document,
+      "click",
+      "uni-view.reply-top .switch-tab .tab-item",
+      (event, $click) => {
+        const chooseSortText = $click.textContent!.trim();
+        GM_setValue(TiebaGlobalData.saveSortTypeKey, chooseSortText);
+        log.info(`切换评论排序：${chooseSortText}`);
+      },
+      {
+        overrideTarget: false,
+      }
+    );
     DOMUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
       if (!$tabItem) {
         return;
@@ -521,18 +540,42 @@ export const TiebaUniAppPost = {
         Qmsg.error(`未找到关闭楼中楼回复弹窗的按钮`);
       }
     }
-    DOMUtils.on(document, "click", ".lzl-wrapper", () => {
-      log.info(`点击楼中楼回复`);
-      gestureBack.enterGestureBackMode();
-    });
-    DOMUtils.on(document, "click", ".lzl-close-icon", () => {
-      log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
-      gestureBack.quitGestureBackMode();
-    });
-    DOMUtils.on(document, "click", ".lzl-float-container .error-close", () => {
-      log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
-      gestureBack.quitGestureBackMode();
-    });
+    DOMUtils.on(
+      document,
+      "click",
+      ".lzl-wrapper",
+      () => {
+        log.info(`点击楼中楼回复`);
+        gestureBack.enterGestureBackMode();
+      },
+      {
+        overrideTarget: false,
+      }
+    );
+    DOMUtils.on(
+      document,
+      "click",
+      ".lzl-close-icon",
+      () => {
+        log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
+        gestureBack.quitGestureBackMode();
+      },
+      {
+        overrideTarget: false,
+      }
+    );
+    DOMUtils.on(
+      document,
+      "click",
+      ".lzl-float-container .error-close",
+      () => {
+        log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
+        gestureBack.quitGestureBackMode();
+      },
+      {
+        overrideTarget: false,
+      }
+    );
   },
   /**
    * 图片预览手势返回
@@ -556,22 +599,30 @@ export const TiebaUniAppPost = {
         log.warn(`未找到退出图片预览模式的按钮`);
       }
     }
-    DOMUtils.on(document, "click", "img", (event, selectorTarget) => {
-      const $click = selectorTarget as any as HTMLImageElement;
-      const $parent = $click.parentElement!;
-      if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
-        // <uni-app>内的图片
-        gestureBack.enterGestureBackMode();
-        DOMUtils.waitNode(".img-preview .back-icon-con", 10000).then(($backIcon) => {
-          if (!$backIcon) {
-            return;
-          }
-          DOMUtils.on($backIcon, "click", () => {
-            gestureBack.quitGestureBackMode();
+    DOMUtils.on(
+      document,
+      "click",
+      "img",
+      (event, selectorTarget) => {
+        const $click = selectorTarget as any as HTMLImageElement;
+        const $parent = $click.parentElement!;
+        if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
+          // <uni-app>内的图片
+          gestureBack.enterGestureBackMode();
+          DOMUtils.waitNode(".img-preview .back-icon-con", 10000).then(($backIcon) => {
+            if (!$backIcon) {
+              return;
+            }
+            DOMUtils.on($backIcon, "click", () => {
+              gestureBack.quitGestureBackMode();
+            });
           });
-        });
+        }
+      },
+      {
+        overrideTarget: false,
       }
-    });
+    );
   },
   /**
    * 修复搜索功能

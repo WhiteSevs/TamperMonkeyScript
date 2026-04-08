@@ -141,7 +141,7 @@ export const TiebaBaNei = {
       ],
       function (event, $click) {
         DOMUtils.preventEvent(event);
-        const vueInst = VueUtils.getVue(event.target);
+        const vueInst = VueUtils.getVue($click);
         const pbUrl = vueInst?.pbUrl;
         const collectH5Url = vueInst?.collectH5Url;
         const tid = vueInst?.tid ?? vueInst?.thread?.tid ?? vueInst?.config?.param?.tid;
@@ -169,6 +169,7 @@ export const TiebaBaNei = {
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
   },

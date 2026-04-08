@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.4.9
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
@@ -74,7 +74,7 @@
   };
 
   importCSS(
-    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-466beea8]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-466beea8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-466beea8]{font-weight:700}.posts-item-title[data-v-466beea8],.posts-item-content[data-v-466beea8],.posts-item-media-container[data-v-466beea8]{margin:10px 0}.posts-item-footer[data-v-466beea8]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-466beea8]{text-align:center}.posts-item-footer-icon-container[data-v-466beea8]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-466beea8]{padding:0 10px}#main[data-v-6a6acb0b]{z-index:1000;width:100%;height:100%}.big-text[data-v-6a6acb0b]{font-weight:700}.top-container[data-v-6a6acb0b]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-6a6acb0b]{width:100%;height:100px}.user-info-bg-main[data-v-6a6acb0b]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-6a6acb0b]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-6a6acb0b]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-449d5239]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-449d5239]:last-child{border-bottom:0}.user-info[data-v-449d5239]{display:flex;align-items:center;gap:5px}.user-time[data-v-449d5239]{font-size:.8em;color:#999}.user-avatar img[data-v-449d5239]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-449d5239]{font-size:.9em;color:#4a4a4a}.post-info[data-v-449d5239]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-449d5239]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-449d5239]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-449d5239]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-449d5239]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449d5239]{color:#999}.bottom-msg[data-v-449d5239]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-449d5239]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-ca89eb7d]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-ca89eb7d]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-ca89eb7d]:last-child{border-bottom:0}.user-info[data-v-ca89eb7d]{display:flex;align-items:center;gap:5px}.user-time[data-v-ca89eb7d]{font-size:.8em;color:#999}.user-avatar img[data-v-ca89eb7d]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-ca89eb7d]{font-size:.9em}.reply-content .quote-user[data-v-ca89eb7d]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-ca89eb7d]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-ca89eb7d]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-ca89eb7d]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-ca89eb7d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-ca89eb7d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ca89eb7d]{color:#999}.bottom-msg[data-v-ca89eb7d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-ca89eb7d]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-47090b9c]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
+    ' @charset "UTF-8";.follow-forum-container[data-v-0997b456]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-0997b456]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-0997b456]{width:50%;max-width:50%;display:flex;align-items:flex-start;margin:10px 0}.follow-forum-avatar[data-v-0997b456]{border-radius:12px}.follow-forum-item-right-container[data-v-0997b456]{margin:0 10px;width:inherit;display:flex;flex-direction:column}.follow-forum-item-name[data-v-0997b456]{display:flex;align-items:center;width:-webkit-fill-available;width:-moz-available}.follow-forum-item-level[data-level][data-v-0997b456]{margin:5px;padding:2px;border-radius:3px;font-size:.6rem;line-height:.6rem;font-weight:700;text-align:center;background:var(--v57a124ec);color:var(--v5fd91c62)}.follow-forum-item-level[data-level="0"][data-v-0997b456],.follow-forum-item-level[data-level="1"][data-v-0997b456],.follow-forum-item-level[data-level="2"][data-v-0997b456],.follow-forum-item-level[data-level="3"][data-v-0997b456]{background:var(--v06c9c7b5)}.follow-forum-item-level[data-level="4"][data-v-0997b456],.follow-forum-item-level[data-level="5"][data-v-0997b456],.follow-forum-item-level[data-level="6"][data-v-0997b456],.follow-forum-item-level[data-level="7"][data-v-0997b456],.follow-forum-item-level[data-level="8"][data-v-0997b456],.follow-forum-item-level[data-level="9"][data-v-0997b456]{background:var(--v06c9d6bf)}.follow-forum-item-level[data-level="10"][data-v-0997b456],.follow-forum-item-level[data-level="11"][data-v-0997b456],.follow-forum-item-level[data-level="12"][data-v-0997b456],.follow-forum-item-level[data-level="13"][data-v-0997b456],.follow-forum-item-level[data-level="14"][data-v-0997b456],.follow-forum-item-level[data-level="15"][data-v-0997b456]{background:var(--v7b7013d5)}.follow-forum-item-level[data-level="16"][data-v-0997b456],.follow-forum-item-level[data-level="17"][data-v-0997b456],.follow-forum-item-level[data-level="18"][data-v-0997b456]{background:var(--v7b72ce12)}.follow-forum-item-info[data-v-0997b456]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-466beea8]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-466beea8]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-466beea8]{font-weight:700}.posts-item-title[data-v-466beea8],.posts-item-content[data-v-466beea8],.posts-item-media-container[data-v-466beea8]{margin:10px 0}.posts-item-footer[data-v-466beea8]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-466beea8]{text-align:center}.posts-item-footer-icon-container[data-v-466beea8]{display:flex;align-items:center;justify-content:center;gap:0px 6px}.posts-item-right-user-info[data-v-466beea8]{padding:0 10px}#main[data-v-c3b562f1]{z-index:1000;width:100%;height:100%}.big-text[data-v-c3b562f1]{font-weight:700}.top-container[data-v-c3b562f1]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-c3b562f1]{width:100%;height:100px}.user-info-bg-main[data-v-c3b562f1]{width:100%;height:160px;position:absolute;background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg);background-size:100%;background-repeat:no-repeat}.user-avatar-top-background[data-v-c3b562f1]{position:absolute;width:100%;height:40%;padding:0;margin:0;border-top-left-radius:12px;border-top-right-radius:12px;background:#fff;transform:translateY(100%)}.user-info-container[data-v-c3b562f1]{padding:0 10px}.nav-left-arrow-icon[data-v-bc111b45]{align-content:center;padding-left:0!important}.nav-title[data-v-bc111b45]{font-weight:700;text-align:center;padding:10px}.user-avatar[data-v-bc111b45]{text-align:center;padding-bottom:20px}.user-info-item[data-v-bc111b45]{display:flex;padding:10px;flex-wrap:wrap}.user-desc-key[data-v-bc111b45]{width:60px;display:block}.user-end-text[data-v-bc111b45]{padding:0 20px}.user-top[data-v-0f66748b]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-0f66748b]{align-content:center;padding-left:0!important}.top-title-name[data-v-0f66748b]{text-align:center;padding:10px}.user-main[data-v-0f66748b]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-0f66748b]{padding:0 10px}.user-container .el-scrollbar__view[data-v-0f66748b]{height:100%}.user-item[data-v-0f66748b]{margin:10px 0}.user-item-row[data-v-0f66748b]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-0f66748b]{padding:0 10px}.user-name[data-v-0f66748b],.user-sign-text[data-v-0f66748b]{text-align:left}.user-sign-text[data-v-0f66748b]{color:#a2a2a2}.user-follow-btn[data-v-0f66748b]{float:right}.user-info[data-v-0f66748b]{display:grid}.user-item-row-left[data-v-0f66748b]{display:flex}.user-item-row-right[data-v-0f66748b]{float:right}.user-top[data-v-bd0dd246]{height:40px;width:100%;position:relative}.top-left-arrow-icon[data-v-bd0dd246]{align-content:center;padding-left:0!important}.top-title-name[data-v-bd0dd246]{text-align:center;padding:10px}.user-main[data-v-bd0dd246]{padding:0;position:absolute;inset:40px 0 0;width:100%;height:calc(100% - 40px)}.user-container[data-v-bd0dd246]{padding:0 10px}.user-container .el-scrollbar__view[data-v-bd0dd246]{height:100%}.user-item[data-v-bd0dd246]{margin:10px 0}.user-item-row[data-v-bd0dd246]{display:flex;align-items:center;justify-content:space-between}.user-item-row-center[data-v-bd0dd246]{padding:0 10px;align-content:center}.user-name[data-v-bd0dd246],.user-sign-text[data-v-bd0dd246]{text-align:left}.user-sign-text[data-v-bd0dd246]{color:#a2a2a2}.user-follow-btn[data-v-bd0dd246]{float:right}.user-info[data-v-bd0dd246]{display:grid}.user-item-row-left[data-v-bd0dd246]{display:flex}.user-item-row-right[data-v-bd0dd246]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{display:flex;align-items:center;gap:10px;padding:10px 0}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-449d5239]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item[data-v-449d5239]:last-child{border-bottom:0}.user-info[data-v-449d5239]{display:flex;align-items:center;gap:5px}.user-time[data-v-449d5239]{font-size:.8em;color:#999}.user-avatar img[data-v-449d5239]{width:35px;height:35px;border-radius:50%}.reply-content[data-v-449d5239]{font-size:.9em;color:#4a4a4a}.post-info[data-v-449d5239]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-449d5239]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-449d5239]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-449d5239]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-449d5239]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449d5239]{color:#999}.bottom-msg[data-v-449d5239]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-449d5239]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.post-list-item[data-v-ca89eb7d]{display:flex;flex-direction:column;gap:10px;padding:10px 15px;border-bottom:5px solid #efefef;--forum-icon-size: 56px}.post-list-item .biao[data-v-ca89eb7d]{display:inline-block;vertical-align:-10%;-webkit-flex-shrink:0;-ms-flex-negative:0;background:#eee;width:4px;height:16px;margin-right:5px;border-radius:4px}.post-list-item[data-v-ca89eb7d]:last-child{border-bottom:0}.user-info[data-v-ca89eb7d]{display:flex;align-items:center;gap:5px}.user-time[data-v-ca89eb7d]{font-size:.8em;color:#999}.user-avatar img[data-v-ca89eb7d]{width:35px;height:35px;border-radius:50%}.reply-content p[data-v-ca89eb7d]{font-size:.9em}.reply-content .quote-user[data-v-ca89eb7d]{padding-left:4px;color:#848691;margin-top:2px}.post-info[data-v-ca89eb7d]{display:flex;align-items:center;background-color:#efefef;color:#434343;border-radius:6px}.post-info__inner[data-v-ca89eb7d]{display:flex;align-items:center;width:100%;padding:8px}.post-content[data-v-ca89eb7d]{overflow:hidden;line-clamp:2;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;color:#545454;margin-left:5px}.post-image[data-v-ca89eb7d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-ca89eb7d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ca89eb7d]{color:#999}.bottom-msg[data-v-ca89eb7d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-ca89eb7d]{color:#848691;font-size:14px;font-weight:400;font-style:normal;overflow:hidden}.bottom-msg[data-v-47090b9c]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height: 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;background:#fff}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{padding:0;margin:40px 0 0}#small-toolbar[data-v-6db624a6]{position:fixed;bottom:0;width:100%;background:#fff;height:.56rem;display:flex;align-items:center;z-index:1000}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;margin:10px 15px;width:100%;font-size:.16rem;line-height:.16rem;display:flex;align-items:center;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{width:100%;background:#e9e9e9;border-radius:.06rem;padding:.06rem;border:0;outline:none;font-size:.14rem;line-height:.14rem;cursor:default}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;display:flex;align-items:safe center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{padding:8px;display:flex;flex-direction:column;align-items:center}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;outline:0!important;font-size:.16rem}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{overflow:auto;background-color:#e5e5e5;padding:.06rem;height:100%;border-radius:5px}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{position:fixed;bottom:0;width:100%;background:#fff;display:flex;align-items:center;z-index:100099;flex-flow:column}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-left:.2rem;padding-top:.06rem}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{display:flex;align-items:end;width:-moz-available;width:-webkit-fill-available;padding:.06rem .1rem;height:.6rem}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0px .1rem;height:100%}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem 0;padding:0px 0px .06rem;margin-right:auto}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{margin:0 20px;display:flex;flex-direction:column;align-items:center}#full-toolbar .emoji-panel[data-v-e3390787]{width:100%;height:30vh;background-color:#efefef;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:-moz-available;height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]{display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{display:flex;width:-webkit-fill-available;width:-moz-available;align-items:center;justify-content:space-between;padding:.16rem}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)} '
   );
 
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-CoIhRUbf.js"(exports$1, module) {
+    "entrance-aHkmOQjf.js"(exports$1, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -689,12 +689,24 @@
         getConfig(index = 0) {
           return this.$data.contentConfig.get(index) ?? [];
         },
-        getDefaultBottomContentConfig() {
+        getDefaultBottomContentConfig(config) {
           if (this.$data.__defaultBottomContentConfig.length) {
             return this.$data.__defaultBottomContentConfig;
           }
           let isDoubleClick = false;
           let timer = void 0;
+          const translateCallback = (text, translateMap) => {
+            if (config && typeof config.translateCallback === "function") {
+              return config.translateCallback(text, translateMap);
+            } else {
+              if (typeof translateMap === "object" && translateMap) {
+                for (const key in translateMap) {
+                  text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+                }
+              }
+              return text;
+            }
+          };
           const exportToFile = (fileName, fileData) => {
             if (typeof fileData !== "string") {
               fileData = CommonUtil.toStr(fileData);
@@ -714,21 +726,21 @@
             const importConfig = (importEndCallBack) => {
               const $alert = __pops__.alert({
                 title: {
-                  text: "请选择导入方式",
+                  text: translateCallback("请选择导入方式"),
                   position: "center",
                 },
                 content: {
                   text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
                   html: true,
                 },
                 btn: {
                   ok: { enable: false },
                   close: {
                     enable: true,
-                    callback(details, event) {
+                    callback(details) {
                       details.close();
                     },
                   },
@@ -741,12 +753,12 @@
                 height: PanelUISize.info.height,
                 style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -758,7 +770,9 @@
               const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
               const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
               const updateConfigToStorage = async (data) => {
-                const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+                const clearLocalStorage = confirm(
+                  translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+                );
                 if (clearLocalStorage) {
                   if (typeof _GM_listValues === "function") {
                     if (typeof _GM_deleteValue === "function") {
@@ -766,12 +780,12 @@
                       localStorageKeys.forEach((key) => {
                         _GM_deleteValue(key);
                       });
-                      Qmsg.success("已清空脚本存储的配置");
+                      Qmsg.success(translateCallback("已清空脚本存储的配置"));
                     } else {
-                      Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                      Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                     }
                   } else {
-                    Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                    Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
                   }
                 }
                 if (typeof _GM_setValues === "function") {
@@ -783,13 +797,13 @@
                     _GM_setValue(key, value);
                   });
                 }
-                Qmsg.success("配置导入完毕");
+                Qmsg.success(translateCallback("配置导入完毕"));
               };
               const importFile = (configText) => {
                 return new Promise(async (resolve) => {
                   const data = utils.toJSON(configText);
                   if (Object.keys(data).length === 0) {
-                    Qmsg.warning("解析为空配置，不导入");
+                    Qmsg.warning(translateCallback("解析为空配置，不导入"));
                   } else {
                     await updateConfigToStorage(data);
                   }
@@ -803,7 +817,7 @@
                   type: "file",
                   accept: ".json",
                 });
-                domUtils.on($input, ["propertychange", "input"], (event2) => {
+                domUtils.on($input, ["propertychange", "input"], () => {
                   if (!$input.files?.length) {
                     return;
                   }
@@ -821,37 +835,37 @@
                 $alert.close();
                 const $prompt = __pops__.prompt({
                   title: {
-                    text: "网络导入",
+                    text: translateCallback("网络导入"),
                     position: "center",
                   },
                   content: {
                     text: "",
-                    placeholder: "请填写URL",
+                    placeholder: translateCallback("请填写URL"),
                     focus: true,
                   },
                   btn: {
                     close: {
                       enable: true,
-                      callback(details, event2) {
+                      callback(details) {
                         details.close();
                       },
                     },
                     ok: {
-                      text: "导入",
-                      callback: async (details, event2) => {
+                      text: translateCallback("导入"),
+                      callback: async (details) => {
                         const url = details.text;
                         if (utils.isNull(url)) {
-                          Qmsg.error("请填入完整的url");
+                          Qmsg.error(translateCallback("请填入完整的url"));
                           return;
                         }
-                        const $loading = Qmsg.loading("正在获取配置...");
+                        const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                         const response = await httpx.get(url, {
                           allowInterceptConfig: false,
                         });
                         $loading.close();
                         if (!response.status) {
                           log.error(response);
-                          Qmsg.error("获取配置失败", { consoleLogContent: true });
+                          Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                           return;
                         }
                         const flag = await importFile(response.data.responseText);
@@ -874,7 +888,7 @@
                 });
                 const $promptInput = $prompt.$shadowRoot.querySelector("input");
                 const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-                domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+                domUtils.on($promptInput, ["input", "propertychange"], () => {
                   const value = domUtils.val($promptInput);
                   if (value === "") {
                     domUtils.attr($promptOk, "disabled", "true");
@@ -897,7 +911,7 @@
                 $alert.close();
                 let clipboardText = await CommonUtil.getClipboardText();
                 if (clipboardText.trim() === "") {
-                  Qmsg.warning("获取到的剪贴板内容为空");
+                  Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
                   return;
                 }
                 const flag = await importFile(clipboardText);
@@ -912,13 +926,13 @@
             ) => {
               const $alert = __pops__.alert({
                 title: {
-                  text: "请选择导出方式",
+                  text: translateCallback("请选择导出方式"),
                   position: "center",
                 },
                 content: {
                   text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
                   html: true,
                 },
@@ -926,7 +940,7 @@
                   ok: { enable: false },
                   close: {
                     enable: true,
-                    callback(details, event) {
+                    callback(details) {
                       details.close();
                     },
                   },
@@ -939,12 +953,12 @@
                 height: PanelUISize.info.height,
                 style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -965,40 +979,38 @@
                   Qmsg.error(error.toString(), { consoleLogContent: true });
                 }
               });
-              domUtils.on($exportToClipboard, "click", async (event) => {
+              domUtils.on($exportToClipboard, "click", async () => {
                 const result = await utils.copy(fileData);
                 if (result) {
-                  Qmsg.success("复制成功");
+                  Qmsg.success(translateCallback("复制成功"));
                   $alert.close();
                 } else {
-                  Qmsg.error("复制失败");
+                  Qmsg.error(translateCallback("复制失败"));
                 }
               });
             };
             const $dialog = __pops__.confirm({
               title: {
-                text: "配置",
+                text: translateCallback("配置"),
                 position: "center",
               },
               content: {
-                text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+                text: `<textarea name="config-value" id="config" readonly></textarea>`,
                 html: true,
               },
               btn: {
                 ok: {
                   enable: true,
                   type: "primary",
-                  text: "导入",
-                  callback(eventDetails, event) {
+                  text: translateCallback("导入"),
+                  callback() {
                     importConfig();
                   },
                 },
                 cancel: {
                   enable: true,
-                  text: "导出",
-                  callback(eventDetails, event) {
+                  text: translateCallback("导出"),
+                  callback() {
                     exportConfig(void 0, configDataStr);
                   },
                 },
@@ -1047,7 +1059,7 @@
                 Reflect.set(configData, key, value);
               });
             } else {
-              Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+              Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
               const panelLocalValue = _GM_getValue(KEY);
               Reflect.set(configData, KEY, panelLocalValue);
             }
@@ -1063,15 +1075,17 @@
           return [
             {
               id: "script-version",
-              title: `版本：${_GM_info?.script?.version || "未知"}`,
+              title: translateCallback(`版本：{{version}}`, {
+                version: _GM_info?.script?.version || translateCallback("未知"),
+              }),
               isBottom: true,
               views: [],
               clickFirstCallback() {
                 return false;
               },
-              afterRender(config) {
-                const anyTouch = new AnyTouch(config.$asideLiElement);
-                anyTouch.on("tap", function (event) {
+              afterRender(config2) {
+                const anyTouch = new AnyTouch(config2.$asideLiElement);
+                anyTouch.on("tap", function () {
                   clearTimeout(timer);
                   timer = void 0;
                   if (isDoubleClick) {
@@ -1822,9 +1836,22 @@
           if (!preventRegisterSearchPlugin) {
             this.registerConfigSearch({ $panel, content });
           }
+          return { $panel, content };
         },
         registerConfigSearch(config) {
           const { $panel, content } = config;
+          const translateCallback = (text, translateMap) => {
+            if (typeof config.translateCallback === "function") {
+              return config.translateCallback(text, translateMap);
+            } else {
+              if (typeof translateMap === "object" && translateMap) {
+                for (const key in translateMap) {
+                  text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+                }
+              }
+              return text;
+            }
+          };
           const asyncQueryProperty = async (target, handler) => {
             if (target == null) {
               return;
@@ -1867,13 +1894,13 @@
             domUtils.preventEvent(evt);
             const $alert = __pops__.alert({
               title: {
-                text: "搜索配置",
+                text: translateCallback("搜索配置"),
                 position: "center",
               },
               content: {
                 text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1921,7 +1948,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1965,7 +1993,11 @@
                 );
                 const $targetAsideItem = $asideItems2[pathInfo.index];
                 if (!$targetAsideItem) {
-                  Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+                  Qmsg.error(
+                    translateCallback(`左侧项下标{{index}}不存在`, {
+                      index: pathInfo.index,
+                    })
+                  );
                   return;
                 }
                 $targetAsideItem.scrollIntoView({
@@ -1988,7 +2020,7 @@
                     if ($findDeepMenu) {
                       $findDeepMenu.click();
                     } else {
-                      Qmsg.error("未找到对应的二级菜单");
+                      Qmsg.error(translateCallback("未找到对应的二级菜单"));
                       return {
                         isFind: true,
                         data: target,
@@ -2019,7 +2051,7 @@
                         addFlashingClass($findTargetMenu);
                       });
                     } else {
-                      Qmsg.error("未找到对应的菜单项");
+                      Qmsg.error(translateCallback("未找到对应的菜单项"));
                     }
                     return {
                       isFind: true,
@@ -2506,6 +2538,7 @@
         __searchParams = {
           value: new Set(),
         };
+        otherInstResultWithOr = false;
         constructor(href) {
           if (typeof href === "string") {
             this.href(href);
@@ -2773,9 +2806,15 @@
           return url;
         }
         or(href) {
-          return new RouterBuilder(href);
+          this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
+          const routerBuilder = new RouterBuilder(href);
+          routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
+          return routerBuilder;
         }
         r() {
+          if (this.otherInstResultWithOr) {
+            return this.otherInstResultWithOr;
+          }
           const urlInst = new URL(this.__href);
           const flag = [
             () => {
@@ -4872,12 +4911,20 @@
                     ${rwListContainerHTML}</div>
                 </div>`
             );
-            domUtils.on($recommend, "click", ".rw-list-new", (event, selectorTarget) => {
-              let searchText = domUtils.text(selectorTarget.querySelector("span")).trim();
-              log.success("中间 点击大家还在搜 ==> " + searchText);
-              domUtils.preventEvent(event);
-              window.location.href = `https://m.baidu.com/s?word=${searchText}`;
-            });
+            domUtils.on(
+              $recommend,
+              "click",
+              ".rw-list-new",
+              (event, $list) => {
+                const searchText = domUtils.text($list.querySelector("span")).trim();
+                log.success("中间 点击大家还在搜 ==> " + searchText);
+                domUtils.preventEvent(event);
+                window.location.href = `https://m.baidu.com/s?word=${searchText}`;
+              },
+              {
+                overrideTarget: false,
+              }
+            );
           });
         },
         handleBottom(everyOnceList) {
@@ -4904,12 +4951,20 @@
             if (!$everyOne.closest("#results")) {
               $("#results")?.appendChild($everyOne);
             }
-            domUtils.on($everyOne, "click", ".rw-list-new", (event, selectorTarget) => {
-              let searchText = selectorTarget.querySelector("span")?.textContent?.trim();
-              log.success("底部 点击大家还在搜 ==> " + searchText);
-              domUtils.preventEvent(event);
-              window.location.href = `https://m.baidu.com/s?word=${selectorTarget?.textContent?.trim()}`;
-            });
+            domUtils.on(
+              $everyOne,
+              "click",
+              ".rw-list-new",
+              (event, $list) => {
+                const searchText = $list.querySelector("span")?.textContent?.trim();
+                log.success("底部 点击大家还在搜 ==> " + searchText);
+                domUtils.preventEvent(event);
+                window.location.href = `https://m.baidu.com/s?word=${$list?.textContent?.trim()}`;
+              },
+              {
+                overrideTarget: false,
+              }
+            );
           });
         },
       };
@@ -5807,22 +5862,30 @@ match-attr##srcid##yx_entity_pc_san
             }
           `,
               });
-              domUtils.on($dialog.$pops, "click", ".quick-add-rule-item", (evt2, selectorTarget) => {
-                domUtils.preventEvent(evt);
-                const index = Number(selectorTarget.getAttribute("data-list-index"));
-                const rule = ruleList[index];
-                if (rule == null) {
-                  log.error(rule, index);
-                  Qmsg.error("规则不存在");
-                  return;
+              domUtils.on(
+                $dialog.$pops,
+                "click",
+                ".quick-add-rule-item",
+                (evt2, $ruleItem) => {
+                  domUtils.preventEvent(evt);
+                  const index = Number($ruleItem.getAttribute("data-list-index"));
+                  const rule = ruleList[index];
+                  if (rule == null) {
+                    log.error(rule, index);
+                    Qmsg.error("规则不存在");
+                    return;
+                  }
+                  log.info("添加过滤规则：", rule);
+                  Qmsg.success("添加成功");
+                  this.addRule(rule);
+                  this.initRule();
+                  BaiduHandleResultItem.removeAds();
+                  $dialog.close();
+                },
+                {
+                  overrideTarget: false,
                 }
-                log.info("添加过滤规则：", rule);
-                Qmsg.success("添加成功");
-                this.addRule(rule);
-                this.initRule();
-                BaiduHandleResultItem.removeAds();
-                $dialog.close();
-              });
+              );
             },
             {
               capture: true,
@@ -6055,7 +6118,6 @@ match-attr##srcid##yx_entity_pc_san
             domUtils.on(
               document,
               "scroll",
-              void 0,
               async () => {
                 if (isLoadingNextPage) {
                   return;
@@ -6385,7 +6447,6 @@ match-attr##srcid##yx_entity_pc_san
             domUtils.on(
               document,
               "scroll",
-              void 0,
               async () => {
                 if (isLoadingNextPage) {
                   return;
@@ -6702,7 +6763,7 @@ match-attr##srcid##yx_entity_pc_san
           this.setInputText(searchText);
         },
         setInputEvent() {
-          domUtils.on(this.$el.$input, ["input", "propertychange"], (event) => {
+          domUtils.on(this.$el.$input, ["input", "propertychange"], () => {
             if (this.$el.$input.value === "") {
               this.clearSuggestion();
               this.$el.$empty.style.display = "none";
@@ -6763,7 +6824,7 @@ match-attr##srcid##yx_entity_pc_san
         setFormEvent() {
           domUtils.on(this.$el.$form, "submit", (event) => {
             domUtils.preventEvent(event);
-            let searchText = this.$el.$input.value;
+            const searchText = this.$el.$input.value;
             log.success("提交表单 搜索 ==> " + searchText);
             window.location.href = `${window.location.origin}/s?word=${searchText}`;
           });
@@ -7246,19 +7307,6 @@ div[class^="new-summary-container_"] {
               }
               const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
               if ($foldSwitch) {
-                const $more = $foldSwitch.closest(`[data-module="more"]`);
-                if ($more) {
-                  domUtils.hide($more);
-                } else {
-                  log.error("未找到展开按钮元素");
-                }
-                const $content =
-                  $result.querySelector(`[class*="content-folded"]`) || $result.querySelector("#baikan-content");
-                if ($content) {
-                  domUtils.css($content, "max-height", "unset !important");
-                } else {
-                  log.error("未找到展开内容元素");
-                }
                 log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
                 return;
               }
@@ -7328,6 +7376,7 @@ div[class^="new-summary-container_"] {
             globalResultClickEvent,
             {
               capture: true,
+              overrideTarget: false,
             }
           );
         },
@@ -7335,7 +7384,7 @@ div[class^="new-summary-container_"] {
       const SearchHomeMinificationShieldCSS =
         "html,\nbody,\ndiv#header {\n  height: calc(100vh - 120px);\n}\nform#index-form {\n  position: static;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  margin: auto !important;\n  width: 90%;\n}\ndiv#navs ~ div,\n#login-wraps,\na.square-enterance,\ndiv#ts-image-uploader-icon,\ndiv.baiduappcall-wrap div.voice.call,\ndiv.tab_news,\ndiv#navs {\n  display: none !important;\n}\n/* 图片logo往下移40px */\n#logo {\n  padding-top: 40px;\n}\n";
       const SearchHomeShieldCSS =
-        "/* 右上角的 banner 热播爆款好剧 */\n#index-card #userinfo-wrap .index-banner,\n/* 搜索框下面的轮播推广 */\n#header div:has(>div>div>#carousel-img-item) {\n  display: none !important;\n}\n";
+        "/* 右上角的 banner 热播爆款好剧 */\n#index-card #userinfo-wrap .index-banner,\n/* 搜索框下面的轮播推广 */\n#header div:has(>div>div>#carousel-img-item),\n/* 右上角应用的gif推广图片 拍照秒解难题 */\n.result-molecule img.square-bubble-dynamic {\n  display: none !important;\n}\n";
       const BaiduSearchHome = {
         init() {
           addStyle$1(SearchHomeShieldCSS);
@@ -8285,7 +8334,7 @@ div[class^="new-summary-container_"] {
             ],
             function (event, $click) {
               domUtils.preventEvent(event);
-              const vueInst = VueUtils.getVue(event.target);
+              const vueInst = VueUtils.getVue($click);
               const pbUrl = vueInst?.pbUrl;
               const collectH5Url = vueInst?.collectH5Url;
               const tid = vueInst?.tid ?? vueInst?.thread?.tid ?? vueInst?.config?.param?.tid;
@@ -8311,6 +8360,7 @@ div[class^="new-summary-container_"] {
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
         },
@@ -8489,9 +8539,9 @@ div[class^="new-summary-container_"] {
             document,
             "click",
             ".collection-center .image-card",
-            (event, selectorTarget) => {
+            (event, $click) => {
               DOMUtils.preventEvent(event);
-              const vueInst = VueUtils.getVue(selectorTarget);
+              const vueInst = VueUtils.getVue($click);
               if (!vueInst) {
                 Qmsg.error("获取vue实例失败");
                 return;
@@ -21913,6 +21963,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 },
                 {
                   capture: true,
+                  overrideTarget: false,
                 }
               );
             });
@@ -22521,7 +22572,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       });
-      const Home = _export_sfc(_sfc_main$d, [["__scopeId", "data-v-6a6acb0b"]]);
+      const Home = _export_sfc(_sfc_main$d, [["__scopeId", "data-v-c3b562f1"]]);
       const _hoisted_1$a = { class: "user-avatar" };
       const _hoisted_2$8 = { class: "user-info" };
       const _hoisted_3$8 = { class: "user-info-item" };
@@ -23711,25 +23762,25 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             "click",
             "body > .page-content .topic-cards .card-wrapper",
             (event, $cardWrapper) => {
-              let vueIns = VueUtils.getVue($cardWrapper);
-              if (!vueIns) {
+              const vueInst = VueUtils.getVue($cardWrapper);
+              if (!vueInst) {
                 log.info($cardWrapper);
                 Qmsg.error("未找到vue实例");
                 return;
               }
-              let cardType = vueIns.cardType;
+              const cardType = vueInst.cardType;
               if (cardType === "hot-thread") {
                 domUtils.preventEvent(event);
-                let id = vueIns?.cardData?.id;
+                const id = vueInst?.cardData?.id;
                 if (typeof id !== "number") {
                   Qmsg.error("获取帖子id失败");
                   return;
                 }
-                let url = TiebaUrlHandler.getThread(id);
+                const url = TiebaUrlHandler.getThread(id);
                 window.open(url, "_blank");
               }
             },
-            { capture: true }
+            { capture: true, overrideTarget: false }
           );
         },
       };
@@ -23804,10 +23855,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             document,
             "click",
             ".scroll-list-wrapper .threadcardclass",
-            function (event) {
+            function (event, $click) {
               domUtils.preventEvent(event);
-              let clickNode = event.target;
-              let tid = VueUtils.getVue(clickNode)?.tid;
+              const tid = VueUtils.getVue($click)?.tid;
               if (utils.isNull(tid)) {
                 Qmsg.error("获取帖子的tid失败");
                 return;
@@ -23816,6 +23866,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
         },
@@ -26922,7 +26973,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -27713,21 +27764,20 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             document,
             "click",
             "uni-app .load-more",
-            (event) => {
+            (event, $loadMore) => {
               domUtils.preventEvent(event);
-              const $loadMore = event.target;
-              const vue3Ins = VueUtils.getVue3($loadMore);
-              const vue2Ins = VueUtils.getVue($loadMore);
-              if (vue2Ins) {
-                const handleClick = vue2Ins?.$listeners?.["handle-click"];
+              const vue3Inst = VueUtils.getVue3($loadMore);
+              const vue2Inst = VueUtils.getVue($loadMore);
+              if (vue2Inst) {
+                const handleClick = vue2Inst?.$listeners?.["handle-click"];
                 if (typeof handleClick === "function") {
                   handleClick();
                   log.success(`uni-app ===> __vue__ 加载更多评论`);
                 } else {
                   log.error("uni-app ==> __vue__ 点击加载更多失败");
                 }
-              } else if (vue3Ins) {
-                const onHandleClick = vue3Ins?.attrs?.onHandleClick;
+              } else if (vue3Inst) {
+                const onHandleClick = vue3Inst?.attrs?.onHandleClick;
                 if (typeof onHandleClick === "function") {
                   onHandleClick();
                   log.success(`uni-app ===> __vueParentComponent 加载更多评论`);
@@ -27740,6 +27790,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
           domUtils.on(
@@ -27813,32 +27864,41 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
           return listener.off;
         },
         repairClickToUserHome() {
           log.info(`uni-app ===> 修复点击进入用户主页（包括用户头像、用户名）`);
-          const listener = domUtils.on(document, "click", ".player-line-left", (event, $click) => {
-            domUtils.preventEvent(event);
-            const vueInst = VueUtils.getVue3($click);
-            if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
-              const portrait = vueInst.props.playerInfo.portrait;
-              const url = TiebaUrlHandler.getUserHome(portrait);
-              window.open(url, "_blank");
-            } else {
-              const $wakeApp = $click.querySelector(".wake-app");
-              const vue2Inst = VueUtils.getVue($wakeApp);
-              const portrait = vue2Inst?.config?.param?.portrait;
-              if (typeof portrait === "string") {
+          const listener = domUtils.on(
+            document,
+            "click",
+            ".player-line-left",
+            (event, $click) => {
+              domUtils.preventEvent(event);
+              const vueInst = VueUtils.getVue3($click);
+              if (typeof vueInst?.props?.playerInfo?.portrait === "string") {
+                const portrait = vueInst.props.playerInfo.portrait;
                 const url = TiebaUrlHandler.getUserHome(portrait);
                 window.open(url, "_blank");
               } else {
-                log.error("获取portrait失败", $click, vue2Inst);
-                Qmsg.error("获取portrait失败");
+                const $wakeApp = $click.querySelector(".wake-app");
+                const vue2Inst = VueUtils.getVue($wakeApp);
+                const portrait = vue2Inst?.config?.param?.portrait;
+                if (typeof portrait === "string") {
+                  const url = TiebaUrlHandler.getUserHome(portrait);
+                  window.open(url, "_blank");
+                } else {
+                  log.error("获取portrait失败", $click, vue2Inst);
+                  Qmsg.error("获取portrait失败");
+                }
               }
+            },
+            {
+              overrideTarget: false,
             }
-          });
+          );
           const listener2 = domUtils.on(
             document,
             "click",
@@ -27871,6 +27931,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
           return [listener.off, listener2.off];
@@ -27904,17 +27965,26 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
           return listener.off;
         },
         rememberChooseSeeCommentSort() {
           log.info(`uni-app ===> 记住评论排序`);
-          domUtils.on(document, "click", "uni-view.reply-top .switch-tab .tab-item", (event, $click) => {
-            const chooseSortText = $click.textContent.trim();
-            _GM_setValue(TiebaGlobalData.saveSortTypeKey, chooseSortText);
-            log.info(`切换评论排序：${chooseSortText}`);
-          });
+          domUtils.on(
+            document,
+            "click",
+            "uni-view.reply-top .switch-tab .tab-item",
+            (event, $click) => {
+              const chooseSortText = $click.textContent.trim();
+              _GM_setValue(TiebaGlobalData.saveSortTypeKey, chooseSortText);
+              log.info(`切换评论排序：${chooseSortText}`);
+            },
+            {
+              overrideTarget: false,
+            }
+          );
           domUtils.waitNode("uni-view.reply-top .switch-tab .tab-item", 1e4).then(($tabItem) => {
             if (!$tabItem) {
               return;
@@ -28010,18 +28080,42 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               Qmsg.error(`未找到关闭楼中楼回复弹窗的按钮`);
             }
           }
-          domUtils.on(document, "click", ".lzl-wrapper", () => {
-            log.info(`点击楼中楼回复`);
-            gestureBack.enterGestureBackMode();
-          });
-          domUtils.on(document, "click", ".lzl-close-icon", () => {
-            log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
-            gestureBack.quitGestureBackMode();
-          });
-          domUtils.on(document, "click", ".lzl-float-container .error-close", () => {
-            log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
-            gestureBack.quitGestureBackMode();
-          });
+          domUtils.on(
+            document,
+            "click",
+            ".lzl-wrapper",
+            () => {
+              log.info(`点击楼中楼回复`);
+              gestureBack.enterGestureBackMode();
+            },
+            {
+              overrideTarget: false,
+            }
+          );
+          domUtils.on(
+            document,
+            "click",
+            ".lzl-close-icon",
+            () => {
+              log.info(`点击关闭按钮-关闭楼中楼回复弹窗`);
+              gestureBack.quitGestureBackMode();
+            },
+            {
+              overrideTarget: false,
+            }
+          );
+          domUtils.on(
+            document,
+            "click",
+            ".lzl-float-container .error-close",
+            () => {
+              log.info(`点击遮罩层-关闭楼中楼回复弹窗`);
+              gestureBack.quitGestureBackMode();
+            },
+            {
+              overrideTarget: false,
+            }
+          );
         },
         optimizationImagePreviewBackGestureReturn() {
           log.info(`uni-app ===> 图片预览手势返回`);
@@ -28042,21 +28136,29 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               log.warn(`未找到退出图片预览模式的按钮`);
             }
           }
-          domUtils.on(document, "click", "img", (event, selectorTarget) => {
-            const $click = selectorTarget;
-            const $parent = $click.parentElement;
-            if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
-              gestureBack.enterGestureBackMode();
-              domUtils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
-                if (!$backIcon) {
-                  return;
-                }
-                domUtils.on($backIcon, "click", () => {
-                  gestureBack.quitGestureBackMode();
+          domUtils.on(
+            document,
+            "click",
+            "img",
+            (event, selectorTarget) => {
+              const $click = selectorTarget;
+              const $parent = $click.parentElement;
+              if ($parent.localName === "uni-image" && $parent.classList.contains("pb-image")) {
+                gestureBack.enterGestureBackMode();
+                domUtils.waitNode(".img-preview .back-icon-con", 1e4).then(($backIcon) => {
+                  if (!$backIcon) {
+                    return;
+                  }
+                  domUtils.on($backIcon, "click", () => {
+                    gestureBack.quitGestureBackMode();
+                  });
                 });
-              });
+              }
+            },
+            {
+              overrideTarget: false,
             }
-          });
+          );
         },
         async repairSearch() {
           log.info(`uni-app ===> 修复搜索功能`);
@@ -28546,8 +28648,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 this.$el.$searchModelWrapper,
                 "click",
                 ".search-result-type-wrapper .search-result-type-item[data-value]",
-                (event) => {
-                  const $click = event.target;
+                (event, $click) => {
                   this.$el.$searchModelWrapper
                     .querySelectorAll(".search-result-type-item")
                     .forEach((ele) => ele.removeAttribute("data-active"));
@@ -28562,6 +28663,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   }
                   log.success("设置当前搜索结果模式：" + $click.innerText, searchType);
                   searchEvent();
+                },
+                {
+                  overrideTarget: false,
                 }
               );
               domUtils.on(this.$el.$searchSortType, "change", () => {
@@ -29960,85 +30064,99 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               $deleteBtn?.remove();
             }
           }
-          domUtils.on(document, "click", ".post-item .user-comment-handler", function (event) {
-            domUtils.preventEvent(event);
-            let $click = event.target;
-            let $item = $click.closest(".post-item");
-            let $textContent = $item.querySelector(".text-content");
-            let data = $item["data-whitesev"];
-            log.info("获取本条回复的数据", data);
-            if (!data) {
-              Qmsg.error("获取本条回复的数据失败");
-              return;
+          domUtils.on(
+            document,
+            "click",
+            ".post-item .user-comment-handler",
+            function (event, $click) {
+              domUtils.preventEvent(event);
+              const $item = $click.closest(".post-item");
+              const $textContent = $item.querySelector(".text-content");
+              const data = $item["data-whitesev"];
+              log.info("获取本条回复的数据", data);
+              if (!data) {
+                Qmsg.error("获取本条回复的数据失败");
+                return;
+              }
+              const userId = data["userId"];
+              const user = data["userShowName"] || data["userName"];
+              const userPostId = data["userPostId"];
+              const content = $textContent.innerText;
+              clickCallBack({
+                $item,
+                content,
+                userId,
+                user,
+                userPostId,
+                successDeleteCallBack() {
+                  const $appView = $(".app-view");
+                  const $interactionBar = $(".main-thread-content .interaction-bar");
+                  if ($interactionBar) {
+                    const vueInst = VueUtils.getVue($interactionBar);
+                    if (!vueInst) {
+                      return;
+                    }
+                    if (vueInst?.interactionNum?.reply) {
+                      vueInst.interactionNum.reply--;
+                    }
+                  } else if ($appView) {
+                    const vueInst = VueUtils.getVue($appView);
+                    if (!vueInst) {
+                      return;
+                    }
+                    if (vueInst?.interactionNum?.reply) {
+                      vueInst.interactionNum.reply--;
+                    }
+                  }
+                },
+              });
+            },
+            {
+              overrideTarget: false,
             }
-            let userId = data["userId"];
-            let user = data["userShowName"] || data["userName"];
-            let userPostId = data["userPostId"];
-            let content = $textContent.innerText;
-            clickCallBack({
-              $item,
-              content,
-              userId,
-              user,
-              userPostId,
-              successDeleteCallBack() {
-                let $appView = $(".app-view");
-                let $interactionBar = $(".main-thread-content .interaction-bar");
-                if ($interactionBar) {
-                  let vueObj = VueUtils.getVue($interactionBar);
-                  if (!vueObj) {
+          );
+          domUtils.on(
+            document,
+            "click",
+            "#whitesev-reply-dialog .user-comment-handler",
+            function (event, $click) {
+              domUtils.preventEvent(event);
+              const $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item");
+              const $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment");
+              const data = $item["data-lzl-item"];
+              log.info("获取本条楼中楼回复的数据", data);
+              if (!data) {
+                Qmsg.error("获取本条回复的数据失败");
+                return;
+              }
+              const userId = data["userInfo"]["user_id"];
+              const user =
+                data["userInfo"]["user_name"] || data["userInfo"]["user_nickname"] || data["userInfo"]["nickname"];
+              const userPostId = data["data"]["comment_id"];
+              const content = $textContent.innerText;
+              clickCallBack({
+                $item,
+                content,
+                userId,
+                user,
+                userPostId,
+                successDeleteCallBack() {
+                  const $commentNum = $item.querySelector(".whitesev-reply-dialog-sheet-comment-num");
+                  if (!$commentNum) {
                     return;
                   }
-                  if (vueObj?.interactionNum?.reply) {
-                    vueObj.interactionNum.reply--;
-                  }
-                } else if ($appView) {
-                  let vueObj = VueUtils.getVue($appView);
-                  if (!vueObj) {
+                  const commentNum = parseInt($commentNum.innerText);
+                  if (!isNaN(commentNum)) {
                     return;
                   }
-                  if (vueObj?.interactionNum?.reply) {
-                    vueObj.interactionNum.reply--;
-                  }
-                }
-              },
-            });
-          });
-          domUtils.on(document, "click", "#whitesev-reply-dialog .user-comment-handler", function (event) {
-            domUtils.preventEvent(event);
-            let $click = event.target;
-            let $item = $click.closest(".whitesev-reply-dialog-sheet-other-content-item");
-            let $textContent = $item.querySelector(".whitesev-reply-dialog-user-comment");
-            let data = $item["data-lzl-item"];
-            log.info("获取本条楼中楼回复的数据", data);
-            if (!data) {
-              Qmsg.error("获取本条回复的数据失败");
-              return;
+                  $commentNum.innerText = (commentNum - 1).toString() + "条回复";
+                },
+              });
+            },
+            {
+              overrideTarget: false,
             }
-            let userId = data["userInfo"]["user_id"];
-            let user =
-              data["userInfo"]["user_name"] || data["userInfo"]["user_nickname"] || data["userInfo"]["nickname"];
-            let userPostId = data["data"]["comment_id"];
-            let content = $textContent.innerText;
-            clickCallBack({
-              $item,
-              content,
-              userId,
-              user,
-              userPostId,
-              successDeleteCallBack() {
-                let $commentNum = $item.querySelector(".whitesev-reply-dialog-sheet-comment-num");
-                if (!$commentNum) {
-                  return;
-                }
-                let commentNum = parseInt($commentNum.innerText);
-                if (!isNaN(commentNum)) {
-                  return;
-                }
-                $commentNum.innerText = (commentNum - 1).toString() + "条回复";
-              },
-            });
-          });
+          );
         },
         getLevelCSS() {
           let colorConversion = new utils.ColorConversion();
@@ -30935,22 +31053,36 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           }
           domUtils.on(dialog.querySelector(".whitesev-reply-dialog-close"), "click", closeDialog);
           domUtils.on(dialog.querySelector(".whitesev-reply-dialog-bg"), "click", closeDialog);
-          domUtils.on(dialog, "click", ".whitesev-reply-dialog-avatar", function (event) {
-            domUtils.preventEvent(event);
-            window.open(
-              "/home/main?id=" +
-                event.target?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
-              "_blank"
-            );
-          });
-          domUtils.on(dialog, "click", ".whitesev-reply-dialog-user-info", function (event) {
-            domUtils.preventEvent(event);
-            window.open(
-              "/home/main?id=" +
-                event.target?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
-              "_blank"
-            );
-          });
+          domUtils.on(
+            dialog,
+            "click",
+            ".whitesev-reply-dialog-avatar",
+            function (event, $click) {
+              domUtils.preventEvent(event);
+              window.open(
+                "/home/main?id=" + $click?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
+                "_blank"
+              );
+            },
+            {
+              overrideTarget: false,
+            }
+          );
+          domUtils.on(
+            dialog,
+            "click",
+            ".whitesev-reply-dialog-user-info",
+            function (event, $click) {
+              domUtils.preventEvent(event);
+              window.open(
+                "/home/main?id=" + $click?.closest(".whitesev-reply-dialog-user-line")?.getAttribute("data-portrait"),
+                "_blank"
+              );
+            },
+            {
+              overrideTarget: false,
+            }
+          );
           dialog.querySelectorAll(".whitesev-reply-dialog-user-comment a[portrait]").forEach((item) => {
             item.setAttribute("href", "/home/main?id=" + item.getAttribute("portrait"));
             item.removeAttribute("onclick");
@@ -31632,91 +31764,105 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             }
             return true;
           }
-          domUtils.on(document, "click", ".post-item .content", (event) => {
-            if (!checkNotEmitReply(event)) {
-              return;
+          domUtils.on(
+            document,
+            "click",
+            ".post-item .content",
+            (event, $content) => {
+              if (!checkNotEmitReply(event)) {
+                return;
+              }
+              that.$data.replyCommentData.value = void 0;
+              that.$data.type.value = void 0;
+              log.info("点击内容，触发设置当前回复的对象");
+              try {
+                const $commentBoxWrap = that.getCommentBoxWrap();
+                $commentBoxWrap.classList.remove("comment-box-wrap-lzl");
+                const $postItem = $content.closest(".post-item");
+                const itemData = $postItem["data-whitesev"];
+                const $textContent = $content.querySelector(".text-content");
+                const textContent = $textContent.innerText;
+                log.info("获取元素上的数据", itemData);
+                const authorName = itemData["userName"];
+                const pid = itemData["userPostId"];
+                that.setCurrentReplyUser(pid, authorName);
+                that.$data.replyCommentData.value = {
+                  type: "comment",
+                  data: {
+                    page: "pb",
+                    pid,
+                    authorName,
+                    content: textContent,
+                  },
+                };
+                that.$data.type.value = "comment";
+                that.$data.isShowFullEditor.value = true;
+              } catch (error) {
+                log.error(error);
+                Qmsg.error(error.toString(), {
+                  zIndex: utils.getMaxZIndex() + 100,
+                });
+              }
+            },
+            {
+              overrideTarget: false,
             }
-            let $clickContent = event.target;
-            that.$data.replyCommentData.value = void 0;
-            that.$data.type.value = void 0;
-            log.info("点击内容，触发设置当前回复的对象");
-            try {
-              let $commentBoxWrap = that.getCommentBoxWrap();
-              $commentBoxWrap.classList.remove("comment-box-wrap-lzl");
-              let $postItem = $clickContent.closest(".post-item");
-              let itemData = $postItem["data-whitesev"];
-              let $textContent = $clickContent.querySelector(".text-content");
-              let textContent = $textContent.innerText;
-              log.info("获取元素上的数据", itemData);
-              let authorName = itemData["userName"];
-              let pid = itemData["userPostId"];
-              that.setCurrentReplyUser(pid, authorName);
-              that.$data.replyCommentData.value = {
-                type: "comment",
-                data: {
-                  page: "pb",
-                  pid,
-                  authorName,
-                  content: textContent,
-                },
-              };
-              that.$data.type.value = "comment";
-              that.$data.isShowFullEditor.value = true;
-            } catch (error) {
-              log.error(error);
-              Qmsg.error(error.toString(), {
-                zIndex: utils.getMaxZIndex() + 100,
-              });
+          );
+          domUtils.on(
+            document,
+            "click",
+            "#whitesev-reply-dialog .whitesev-reply-dialog-content-item",
+            (event, $contentItem) => {
+              if ($contentItem.classList.contains("whitesev-reply-dialog-sheet-main-content")) {
+                return;
+              }
+              if (!checkNotEmitReply(event)) {
+                return;
+              }
+              that.$data.replyLzlCommentData.value = void 0;
+              that.$data.type.value = void 0;
+              log.info("点击楼中楼内容，触发设置当前回复的对象");
+              try {
+                const $commentBoxWrap = that.getCommentBoxWrap();
+                $commentBoxWrap.classList.add("comment-box-wrap-lzl");
+                const $replyDialog = $contentItem.closest("#whitesev-reply-dialog");
+                const $userComment = $contentItem.querySelector(".whitesev-reply-dialog-user-comment");
+                const userCommentText = $userComment.innerText;
+                const mainData = $replyDialog["data-whitesev"];
+                const itemData = $contentItem["data-lzl-item"];
+                log.info("主数据-获取元素上的数据", mainData);
+                log.info("获取元素上的数据", itemData);
+                const authorName = itemData["userInfo"]["user_nickname"] || itemData["userInfo"]["user_name"];
+                const pid = itemData["data"]["post_id"];
+                const lzlId = itemData["data"]["comment_id"];
+                const portrait = itemData["portrait"];
+                const floor = mainData["userFloor"];
+                that.setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait);
+                that.$data.replyLzlCommentData.value = {
+                  type: "lzl-comment",
+                  data: {
+                    page: "lzl",
+                    content: userCommentText,
+                    authorName,
+                    floor,
+                    lzlId,
+                    pid,
+                    portrait,
+                  },
+                };
+                that.$data.type.value = "lzl-comment";
+                that.$data.isShowFullEditor.value = true;
+              } catch (error) {
+                log.error(error);
+                Qmsg.error(error.toString(), {
+                  zIndex: utils.getMaxZIndex() + 100,
+                });
+              }
+            },
+            {
+              overrideTarget: false,
             }
-          });
-          domUtils.on(document, "click", "#whitesev-reply-dialog .whitesev-reply-dialog-content-item", (event) => {
-            let $clickContent = event.target;
-            if ($clickContent.classList.contains("whitesev-reply-dialog-sheet-main-content")) {
-              return;
-            }
-            if (!checkNotEmitReply(event)) {
-              return;
-            }
-            that.$data.replyLzlCommentData.value = void 0;
-            that.$data.type.value = void 0;
-            log.info("点击楼中楼内容，触发设置当前回复的对象");
-            try {
-              let $commentBoxWrap = that.getCommentBoxWrap();
-              $commentBoxWrap.classList.add("comment-box-wrap-lzl");
-              let $replyDialog = $clickContent.closest("#whitesev-reply-dialog");
-              let $userComment = $clickContent.querySelector(".whitesev-reply-dialog-user-comment");
-              let userCommentText = $userComment.innerText;
-              let mainData = $replyDialog["data-whitesev"];
-              let itemData = $clickContent["data-lzl-item"];
-              log.info("主数据-获取元素上的数据", mainData);
-              log.info("获取元素上的数据", itemData);
-              let authorName = itemData["userInfo"]["user_nickname"] || itemData["userInfo"]["user_name"];
-              let pid = itemData["data"]["post_id"];
-              let lzlId = itemData["data"]["comment_id"];
-              let portrait = itemData["portrait"];
-              let floor = mainData["userFloor"];
-              that.setCurrentReplyLzlUser(pid, authorName, lzlId, floor, portrait);
-              that.$data.replyLzlCommentData.value = {
-                type: "lzl-comment",
-                data: {
-                  page: "lzl",
-                  content: userCommentText,
-                  authorName,
-                  floor,
-                  lzlId,
-                  pid,
-                  portrait,
-                },
-              };
-              that.$data.type.value = "lzl-comment";
-              that.$data.isShowFullEditor.value = true;
-            } catch (error) {
-              log.error(error);
-              Qmsg.error(error.toString(), {
-                zIndex: utils.getMaxZIndex() + 100,
-              });
-            }
-          });
+          );
         },
         setInputValue(value) {
           let commentBoxVueObj = this.getCommentBoxWrapVue();
@@ -32637,7 +32783,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const GlobalEvent = {
             setGlobalTouchClickCheck() {
               domUtils.on(document, "touchstart", function (event) {
-                let $click = event.target;
+                const $click = event.target;
                 if (ElementCheckIn.isContainsInSmallToolbar($click)) {
                   return;
                 }
@@ -33325,12 +33471,11 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             document,
             "click",
             ".topic-share-item",
-            function (event) {
+            function (event, $click) {
               domUtils.preventEvent(event);
               window?.stop();
-              let clickNode = event.target;
-              let pid = VueUtils.getVue(clickNode)?.item.tid;
-              let url = TiebaUrlHandler.getThread(pid);
+              const pid = VueUtils.getVue($click)?.item.tid;
+              const url = TiebaUrlHandler.getThread(pid);
               log.success(`跳转至: ${url}`);
               if (Panel.getValue("baidu_tieba_topic_openANewTab")) {
                 window.open(url, "_blank");
@@ -33341,6 +33486,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
         },
@@ -33624,7 +33770,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 "click",
                 (evt) => {
                   domUtils.preventEvent(evt);
-                  let $drawer = __pops__.drawer({
+                  const $drawer = __pops__.drawer({
                     title: {
                       enable: true,
                       text: `
@@ -35202,7 +35348,7 @@ div[class*='ads'],
                           const $searchShield = rightContainerOptions?.formHeaderDivElement?.querySelector(
                             "a.baidu-search-shield-css-reset"
                           );
-                          domUtils.on($searchShield, "click", void 0, () => {
+                          domUtils.on($searchShield, "click", () => {
                             BaiduSearchBlockRule.clearLocalRule();
                             const $textArea = rightContainerOptions.ulElement.querySelector("textarea");
                             $textArea.value = "";

@@ -326,7 +326,7 @@ export const BaiduTieBa = {
         "click",
         (evt) => {
           DOMUtils.preventEvent(evt);
-          let $drawer = pops.drawer({
+          const $drawer = pops.drawer({
             title: {
               enable: true,
               text: /*html*/ `

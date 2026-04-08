@@ -415,22 +415,30 @@ match-attr##srcid##yx_entity_pc_san
             }
           `,
         });
-        DOMUtils.on($dialog.$pops, "click", ".quick-add-rule-item", (evt2, selectorTarget) => {
-          DOMUtils.preventEvent(evt);
-          const index = Number(selectorTarget.getAttribute("data-list-index")!);
-          const rule = ruleList[index];
-          if (rule == null) {
-            log.error(rule, index);
-            Qmsg.error("规则不存在");
-            return;
+        DOMUtils.on(
+          $dialog.$pops,
+          "click",
+          ".quick-add-rule-item",
+          (evt2, $ruleItem) => {
+            DOMUtils.preventEvent(evt);
+            const index = Number($ruleItem.getAttribute("data-list-index")!);
+            const rule = ruleList[index];
+            if (rule == null) {
+              log.error(rule, index);
+              Qmsg.error("规则不存在");
+              return;
+            }
+            log.info("添加过滤规则：", rule);
+            Qmsg.success("添加成功");
+            this.addRule(rule);
+            this.initRule();
+            BaiduHandleResultItem.removeAds();
+            $dialog.close();
+          },
+          {
+            overrideTarget: false,
           }
-          log.info("添加过滤规则：", rule);
-          Qmsg.success("添加成功");
-          this.addRule(rule);
-          this.initRule();
-          BaiduHandleResultItem.removeAds();
-          $dialog.close();
-        });
+        );
       },
       {
         capture: true,

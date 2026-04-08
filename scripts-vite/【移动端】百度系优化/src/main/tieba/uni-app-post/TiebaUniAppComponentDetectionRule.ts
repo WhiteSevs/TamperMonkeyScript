@@ -541,7 +541,7 @@ export const TiebaUniAppComponentDetectionRule = {
         type: "file",
         accept: ".json",
       });
-      DOMUtils.on($input, ["propertychange", "input"], (event) => {
+      DOMUtils.on($input, ["propertychange", "input"], () => {
         if (!$input.files?.length) {
           return;
         }
