@@ -15,17 +15,28 @@ import type {
 } from "../types/PopsDOMUtilsEventType";
 import { PopsSafeUtils } from "./PopsSafeUtils";
 import { popsUtils } from "./PopsUtils";
-/**
- * 存储在元素属性上的事件名
- */
-const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1));
+
+/* 数据 */
+const GlobalData = {
+  /** .on添加在元素存储的事件 */
+  domEventSymbol: Symbol("events_" + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)),
+};
+
+const CommonUtils = {
+  isWin: popsUtils.isWin.bind(popsUtils),
+  delete: popsUtils.delete.bind(popsUtils),
+  isNodeList: popsUtils.isNodeList.bind(popsUtils),
+};
 
 class PopsDOMUtilsEvent {
+  get windowApi() {
+    return PopsCore.window;
+  }
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
    * @param eventType 需要监听的事件
-   * @param callback 绑定事件触发的回调函数
+   * @param handler 绑定事件触发的回调函数
    * @param option
    * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * + once 表示事件是否只触发一次。默认为false
@@ -42,14 +53,14 @@ class PopsDOMUtilsEvent {
   on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(
     element: PopsDOMUtilsElementEventType,
     eventType: T | T[],
-    callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T]) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
   ): PopsDOMUtilsAddEventListenerResult;
   /**
    * 绑定事件
    * @param element 需要绑定的元素|元素数组|window
    * @param eventType 需要监听的事件
-   * @param callback 绑定事件触发的回调函数
+   * @param handler 绑定事件触发的回调函数
    * @param option
    * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * + once 表示事件是否只触发一次。默认为false
@@ -66,7 +77,7 @@ class PopsDOMUtilsEvent {
   on<T extends Event = Event>(
     element: PopsDOMUtilsElementEventType,
     eventType: string | string[],
-    callback: (this: HTMLElement, event: T) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
   ): PopsDOMUtilsAddEventListenerResult;
   /**
@@ -74,30 +85,30 @@ class PopsDOMUtilsEvent {
    * @param element 需要绑定的元素|元素数组|window
    * @param eventType 需要监听的事件
    * @param selector 子元素选择器
-   * @param callback 绑定事件触发的回调函数
+   * @param handler 绑定事件触发的回调函数
    * @param option
    * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * + once 表示事件是否只触发一次。默认为false
    * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click、tap、hover事件
-   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
-   * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    * @example
    * // 监听全局document下的子元素a.xx的click事件
-   * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    */
   on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(
     element: PopsDOMUtilsElementEventType,
     eventType: T | T[],
     selector: string | string[] | undefined | null,
-    callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T], $selector: E) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
   ): PopsDOMUtilsAddEventListenerResult;
   /**
@@ -105,30 +116,30 @@ class PopsDOMUtilsEvent {
    * @param element 需要绑定的元素|元素数组|window
    * @param eventType 需要监听的事件
    * @param selector 子元素选择器
-   * @param callback 绑定事件触发的回调函数
+   * @param handler 绑定事件触发的回调函数
    * @param option
    * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
    * + once 表示事件是否只触发一次。默认为false
    * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
    * @example
    * // 监听元素a.xx的click、tap、hover事件
-   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
-   * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    * @example
    * // 监听全局document下的子元素a.xx的click事件
-   * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-   *    console.log("事件触发", event, selectorTarget)
+   * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+   *    console.log("事件触发", event, $selector)
    * })
    */
   on<T extends Event = Event>(
     element: PopsDOMUtilsElementEventType,
     eventType: string | string[],
     selector: string | string[] | undefined | null,
-    callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
+    handler: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void,
     option?: PopsDOMUtilsEventListenerOption | boolean
   ): PopsDOMUtilsAddEventListenerResult;
   on<T extends Event = Event>(
@@ -153,7 +164,7 @@ class PopsDOMUtilsEvent {
      * @param option
      */
     const getOption = function (args: IArguments, startIndex: number, option: PopsDOMUtilsEventListenerOption) {
-      const currentParam = args[startIndex];
+      const currentParam: boolean | PopsDOMUtilsEventListenerOption = args[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
         if (typeof args[startIndex + 1] === "boolean") {
@@ -162,17 +173,12 @@ class PopsDOMUtilsEvent {
         if (typeof args[startIndex + 2] === "boolean") {
           option.passive = args[startIndex + 2];
         }
-      } else if (
-        typeof currentParam === "object" &&
-        ("capture" in currentParam ||
-          "once" in currentParam ||
-          "passive" in currentParam ||
-          "isComposedPath" in currentParam)
-      ) {
-        option.capture = currentParam.capture;
-        option.once = currentParam.once;
-        option.passive = currentParam.passive;
-        option.isComposedPath = currentParam.isComposedPath;
+      } else if (currentParam && typeof currentParam === "object") {
+        for (const key in option) {
+          if (Reflect.has(currentParam, key)) {
+            Reflect.set(option, key, currentParam[key as keyof typeof currentParam]);
+          }
+        }
       }
       return option;
     };
@@ -221,6 +227,7 @@ class PopsDOMUtilsEvent {
       once: false,
       passive: false,
       isComposedPath: false,
+      overrideTarget: true,
     };
     if (typeof selector === "function") {
       // 这是为没有selector的情况
@@ -232,6 +239,9 @@ class PopsDOMUtilsEvent {
       listenerOption = getOption(args, 4, listenerOption);
     }
     $elList.forEach(($elItem) => {
+      // window和document共用一个对象
+      // 这样就能处理子元素选择器无法匹配的问题
+      const targetIsWindow = CommonUtils.isWin($elItem);
       // 遍历事件名设置元素事件
       eventTypeList.forEach((eventName) => {
         /**
@@ -247,6 +257,9 @@ class PopsDOMUtilsEvent {
          * @param event
          */
         const handlerCallBack = function (event: Event) {
+          if (listenerOption.isPreventEvent) {
+            that.preventEvent(event);
+          }
           let call_this: Element | undefined = void 0;
           let call_event: Event | undefined = void 0;
           let call_$selector: HTMLElement | undefined = void 0;
@@ -265,12 +278,7 @@ class PopsDOMUtilsEvent {
             } else {
               $target = event.target as HTMLElement;
             }
-            let $parent = $elItem;
-            if (popsUtils.isWin($parent)) {
-              // window和document共用一个对象
-              // 这样就能处理子元素选择器无法匹配的问题
-              $parent = PopsCore.document.documentElement;
-            }
+            const $parent = targetIsWindow ? that.windowApi.document.documentElement : $elItem;
             const findValue = selectorList.find((selectors) => {
               // 判断目标元素是否匹配选择器
               if (that.matches($target, selectors)) {
@@ -286,15 +294,25 @@ class PopsDOMUtilsEvent {
               return false;
             });
             if (findValue) {
-              // 这里尝试使用defineProperty修改event的target值
-              try {
-                OriginPrototype.Object.defineProperty(event, "target", {
-                  get() {
-                    return $target;
-                  },
-                });
-                // oxlint-disable-next-line no-empty
-              } catch {}
+              if (listenerOption.overrideTarget) {
+                // 这里尝试使用defineProperty修改event的target值
+                try {
+                  const originTarget = event.target;
+                  OriginPrototype.Object.defineProperties(event, {
+                    target: {
+                      get() {
+                        return $target;
+                      },
+                    },
+                    originTarget: {
+                      get() {
+                        return originTarget;
+                      },
+                    },
+                  });
+                  // oxlint-disable-next-line no-empty
+                } catch {}
+              }
               execCallback = true;
               call_this = $target;
               call_event = event;
@@ -318,7 +336,7 @@ class PopsDOMUtilsEvent {
         // 获取对象上的事件
         const elementEvents: {
           [k: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
-        } = Reflect.get($elItem, SymbolEvents) || {};
+        } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
         // 初始化对象上的xx事件
         elementEvents[eventName] = elementEvents[eventName] || [];
         elementEvents[eventName].push({
@@ -328,7 +346,7 @@ class PopsDOMUtilsEvent {
           callback: listenerCallBack,
         });
         // 覆盖事件
-        Reflect.set($elItem, SymbolEvents, elementEvents);
+        Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
       });
     });
 
@@ -456,7 +474,7 @@ class PopsDOMUtilsEvent {
       array: PopsDOMUtilsEventListenerOptionsAttribute[]
     ) => boolean
   ): void;
-  off<T extends Event>(
+  off<T extends Event = Event>(
     element: HTMLElement | string | NodeList | HTMLElement[] | Window | Document | Element | null | typeof globalThis,
     eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string | string[],
     selector:
@@ -490,10 +508,10 @@ class PopsDOMUtilsEvent {
      * @param option
      */
     const getOption = function (args1: IArguments, startIndex: number, option: EventListenerOptions) {
-      const currentParam: EventListenerOptions | boolean = args1[startIndex];
+      const currentParam: boolean | PopsDOMUtilsEventListenerOption = args1[startIndex];
       if (typeof currentParam === "boolean") {
         option.capture = currentParam;
-      } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
+      } else if (currentParam && typeof currentParam === "object" && "capture" in currentParam) {
         option.capture = currentParam.capture;
       }
       return option;
@@ -530,7 +548,11 @@ class PopsDOMUtilsEvent {
     /**
      * 事件的回调函数
      */
-    let listenerCallBack: (this: HTMLElement, event: T, $selector: HTMLElement) => void = callback as any;
+    let listenerCallBack: (this: HTMLElement, event: T, $selector: HTMLElement) => void = callback as (
+      this: HTMLElement,
+      event: Event,
+      $selector?: HTMLElement
+    ) => void | boolean;
 
     /**
      * 事件的配置
@@ -559,7 +581,7 @@ class PopsDOMUtilsEvent {
       // 获取对象上的事件
       const elementEvents: {
         [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
-      } = Reflect.get($elItem, SymbolEvents) || {};
+      } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
       eventTypeList.forEach((eventName) => {
         const handlers = elementEvents[eventName] || [];
         // 过滤出需要删除的事件
@@ -597,10 +619,13 @@ class PopsDOMUtilsEvent {
         }
         if (handlers.length === 0) {
           // 如果没有任意的handler，那么删除该属性
-          popsUtils.delete(elementEvents, eventType);
+          CommonUtils.delete(elementEvents, eventType);
+          if (Object.keys(elementEvents).length === 0) {
+            CommonUtils.delete($elItem, GlobalData.domEventSymbol);
+          }
         }
       });
-      Reflect.set($elItem, SymbolEvents, elementEvents);
+      Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
     });
   }
   /**
@@ -645,14 +670,14 @@ class PopsDOMUtilsEvent {
       eventTypeList = eventTypeList.concat(eventType.split(" "));
     }
     $elList.forEach(($elItem) => {
-      const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), SymbolEvents])];
-      symbolList.forEach((symbolItem) => {
-        if (!symbolItem.toString().startsWith("Symbol(events_")) {
+      const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
+      symbolList.forEach((__symbol__) => {
+        if (!__symbol__.toString().startsWith("Symbol(events_")) {
           return;
         }
         const elementEvents: {
           [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
-        } = Reflect.get($elItem, symbolItem) || {};
+        } = Reflect.get($elItem, __symbol__) || {};
         const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
         iterEventNameList.forEach((eventName) => {
           const handlers: PopsDOMUtilsEventListenerOptionsAttribute[] = elementEvents[eventName];
@@ -660,12 +685,15 @@ class PopsDOMUtilsEvent {
             return;
           }
           for (const handler of handlers) {
-            $elItem.removeEventListener(eventName, handler.callback, {
-              capture: handler["option"]["capture"],
+            $elItem.removeEventListener(eventName, handler.handlerCallBack, {
+              capture: handler.option.capture,
             });
           }
-          const events = Reflect.get($elItem, symbolItem);
-          popsUtils.delete(events, eventName);
+          const events = Reflect.get($elItem, __symbol__);
+          CommonUtils.delete(events, eventName);
+          if (Object.keys(events).length === 0) {
+            CommonUtils.delete($elItem, __symbol__);
+          }
         });
       });
     });
@@ -751,8 +779,7 @@ class PopsDOMUtilsEvent {
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback，但是这种会让使用了$selector的没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -762,17 +789,16 @@ class PopsDOMUtilsEvent {
    * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
   emit(
-    element: HTMLElement | string | NodeList | any[] | Window | Document,
+    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document,
     eventType: string | string[],
-    details?: object,
-    useDispatchToEmitEvent?: boolean
+    useDispatchToTriggerEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -782,17 +808,58 @@ class PopsDOMUtilsEvent {
    * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
   emit(
-    element: HTMLElement | string | NodeList | any[] | Window | Document,
+    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document,
+    eventType: string | string[],
+    extraDetails?: object,
+    useDispatchToTriggerEvent?: boolean
+  ): void;
+  /**
+   * 主动触发事件
+   * @param element 需要触发的元素|元素数组|window
+   * @param eventType 需要触发的事件
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+   * @example
+   * // 触发元素a.xx的click事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click")
+   * DOMUtils.emit("a.xx","click")
+   * // 触发元素a.xx的click、tap、hover事件
+   * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+   * DOMUtils.emit("a.xx",["click","tap","hover"])
+   */
+  emit(
+    element: Element | string | NodeList | any[] | Window | Document,
     eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[],
-    details?: object,
-    useDispatchToEmitEvent?: boolean
+    useDispatchToTriggerEvent?: boolean
+  ): void;
+  /**
+   * 主动触发事件
+   * @param element 需要触发的元素|元素数组|window
+   * @param event 触发的事件
+   * @param extraDetails （可选）赋予触发的Event的额外属性
+   * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+   * @example
+   * DOMUtils.emit("a.xx", new Event("click"))
+   * @example
+   * DOMUtils.emit("a.xx", new Event("click"), {
+   *   disableHook: true
+   * })
+   * @example
+   * DOMUtils.emit("a.xx", new Event("click"), {
+   *   disableHook: true
+   * },false)
+   */
+  emit(
+    element: Element | string | NodeList | any[] | Window | Document,
+    event: Event,
+    extraDetails?: object,
+    useDispatchToTriggerEvent?: boolean
   ): void;
   /**
    * 主动触发事件
    * @param element 需要触发的元素|元素数组|window
    * @param eventType 需要触发的事件
-   * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-   * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
+   * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+   * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
    * @example
    * // 触发元素a.xx的click事件
    * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -802,174 +869,10 @@ class PopsDOMUtilsEvent {
    * DOMUtils.emit("a.xx",["click","tap","hover"])
    */
   emit(
-    element: HTMLElement | string | NodeList | any[] | Window | Document,
-    eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string,
-    details?: object,
-    useDispatchToEmitEvent: boolean = true
-  ) {
-    if (typeof element === "string") {
-      element = this.selector(element) as HTMLElement;
-    }
-    if (element == null) {
-      return;
-    }
-    let elementList = [];
-    if (element instanceof NodeList || Array.isArray(element)) {
-      element = element as HTMLElement[];
-      elementList = [...element];
-    } else {
-      elementList = [element];
-    }
-    let eventTypeList: string[] = [];
-    if (Array.isArray(eventType)) {
-      eventTypeList = eventType as string[];
-    } else if (typeof eventType === "string") {
-      eventTypeList = eventType.split(" ");
-    }
-
-    elementList.forEach((elementItem) => {
-      // 获取对象上的事件
-      const events = elementItem[SymbolEvents] || {};
-      eventTypeList.forEach((_eventType_) => {
-        let event: Event = null as any;
-        if (details && details instanceof Event) {
-          event = details;
-        } else {
-          event = new Event(_eventType_);
-          if (details) {
-            Object.keys(details).forEach((keyName) => {
-              (event as any)[keyName] = (details as any)[keyName];
-            });
-          }
-        }
-        if (useDispatchToEmitEvent == false && _eventType_ in events) {
-          events[_eventType_].forEach((eventsItem: any) => {
-            eventsItem.callback(event);
-          });
-        } else {
-          elementItem.dispatchEvent(event);
-        }
-      });
-    });
-  }
-
-  /**
-   * 绑定或触发元素的click事件
-   * @param element 目标元素
-   * @param handler （可选）事件处理函数
-   * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
-   * @example
-   * // 触发元素a.xx的click事件
-   * DOMUtils.click(document.querySelector("a.xx"))
-   * DOMUtils.click("a.xx")
-   * DOMUtils.click("a.xx"，function(){
-   *  console.log("触发click事件成功")
-   * })
-   * */
-  click(
-    element: HTMLElement | string | Window,
-    handler?: (event: PopsDOMUtils_Event["click"]) => void,
-    details?: any,
-    useDispatchToEmitEvent?: boolean
-  ) {
-    if (typeof element === "string") {
-      element = this.selector(element) as HTMLElement;
-    }
-    if (element == null) {
-      return;
-    }
-    if (handler == null) {
-      this.emit(element, "click", details, useDispatchToEmitEvent);
-    } else {
-      const listener = this.on(element, "click", handler);
-      return listener;
-    }
-  }
-  /**
-   * 绑定或触发元素的blur事件
-   * @param element 目标元素
-   * @param handler （可选）事件处理函数
-   * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
-   * @example
-   * // 触发元素a.xx的blur事件
-   * DOMUtils.blur(document.querySelector("a.xx"))
-   * DOMUtils.blur("a.xx")
-   * DOMUtils.blur("a.xx"，function(){
-   *  console.log("触发blur事件成功")
-   * })
-   * */
-  blur(
-    element: HTMLElement | string | Window,
-    handler?: (event: PopsDOMUtils_Event["blur"]) => void,
-    details?: object,
-    useDispatchToEmitEvent?: boolean
-  ) {
-    if (typeof element === "string") {
-      element = this.selector(element) as HTMLElement;
-    }
-    if (element == null) {
-      return;
-    }
-    if (handler === null) {
-      this.emit(element, "blur", details, useDispatchToEmitEvent);
-    } else {
-      const listener = this.on(element, "blur", handler as (event: Event) => void);
-      return listener;
-    }
-  }
-  /**
-   * 绑定或触发元素的focus事件
-   * @param element 目标元素
-   * @param handler （可选）事件处理函数
-   * @param details （可选）赋予触发的Event的额外属性
-   * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
-   * @example
-   * // 触发元素a.xx的focus事件
-   * DOMUtils.focus(document.querySelector("a.xx"))
-   * DOMUtils.focus("a.xx")
-   * DOMUtils.focus("a.xx"，function(){
-   *  console.log("触发focus事件成功")
-   * })
-   * */
-  focus(
-    element: HTMLElement | string | Window,
-    handler?: (event: PopsDOMUtils_Event["focus"]) => void,
-    details?: object,
-    useDispatchToEmitEvent?: boolean
-  ) {
-    if (typeof element === "string") {
-      element = this.selector(element) as HTMLElement;
-    }
-    if (element == null) {
-      return;
-    }
-    if (handler == null) {
-      this.emit(element, "focus", details, useDispatchToEmitEvent);
-    } else {
-      const listener = this.on(element, "focus", handler);
-      return listener;
-    }
-  }
-  /**
-   * 当鼠标移入或移出元素时触发事件
-   * @param element 当前元素
-   * @param handler 事件处理函数
-   * @param option 配置
-   * @example
-   * // 监听a.xx元素的移入或移出
-   * DOMUtils.hover(document.querySelector("a.xx"),()=>{
-   *   console.log("移入/移除");
-   * })
-   * DOMUtils.hover("a.xx",()=>{
-   *   console.log("移入/移除");
-   * })
-   */
-  onHover(
-    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Node,
-    handler: (this: HTMLElement, event: PopsDOMUtils_Event["hover"]) => void,
-    option?: boolean | PopsDOMUtilsEventListenerOption
+    element: Element | string | NodeList | any[] | Window | Document,
+    eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string | string[] | Event,
+    extraDetails?: object | boolean,
+    useDispatchToTriggerEvent: boolean = true
   ) {
     const that = this;
     if (typeof element === "string") {
@@ -978,11 +881,108 @@ class PopsDOMUtilsEvent {
     if (element == null) {
       return;
     }
-    if (popsUtils.isNodeList(element)) {
+    let $elList: (Document | Window | Element)[] = [];
+    if (element instanceof NodeList || Array.isArray(element)) {
+      $elList = $elList.concat(Array.from(element));
+    } else {
+      $elList.push(element);
+    }
+
+    /**
+     * 主动添加属性
+     */
+    const addExtraProp = (event: Event, obj: any) => {
+      if (event instanceof Event && typeof obj === "object" && obj != null && !Array.isArray(obj)) {
+        const detailKeys = Object.keys(obj);
+        detailKeys.forEach((keyName) => {
+          const value = Reflect.get(obj, keyName);
+          // 在event上添加属性
+          Reflect.set(event, keyName, value);
+        });
+      }
+    };
+
+    let eventTypeList: string[] = [];
+    /**
+     * 主动传递的事件
+     */
+    let __event__: Event | null = null;
+    if (Array.isArray(eventType)) {
+      eventTypeList = eventType.filter((it) => typeof it === "string" && it.trim() !== "");
+    } else if (typeof eventType === "string") {
+      eventTypeList = eventType.split(" ");
+    } else if (eventType instanceof Event) {
+      __event__ = eventType;
+      addExtraProp(__event__, extraDetails);
+    }
+
+    $elList.forEach(($elItem) => {
+      /* 获取对象上的事件 */
+      const elementEvents: {
+        [key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
+      } = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+
+      /**
+       * 触发事件
+       */
+      const dispatchEvent = (event: Event, eventTypeItem: string) => {
+        if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
+          // 直接调用.on监听的事件
+          elementEvents[eventTypeItem].forEach((eventsItem) => {
+            eventsItem.handlerCallBack(event);
+          });
+        } else {
+          $elItem.dispatchEvent(event);
+        }
+      };
+
+      if (__event__) {
+        // 使用主动传递的事件直接触发
+        const event = __event__;
+        const eventTypeItem = event.type;
+        dispatchEvent(event, eventTypeItem);
+      } else {
+        eventTypeList.forEach((eventTypeItem) => {
+          // 构造事件
+          const event = new Event(eventTypeItem);
+          addExtraProp(event, extraDetails);
+          dispatchEvent(event, eventTypeItem);
+        });
+      }
+    });
+  }
+  /**
+   * 当按键松开时触发事件
+   * keydown - > keypress - > keyup
+   * @param element 当前元素
+   * @param handler 事件处理函数
+   * @param option 配置
+   * @example
+   * // 监听a.xx元素的按键松开
+   * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
+   *   console.log("按键松开");
+   * })
+   * DOMUtils.keyup("a.xx",()=>{
+   *   console.log("按键松开");
+   * })
+   */
+  onKeyup(
+    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
+    handler: (this: HTMLElement, event: PopsDOMUtils_Event["keyup"]) => void,
+    option?: boolean | PopsDOMUtilsEventListenerOption
+  ) {
+    const that = this;
+    if (element == null) {
+      return;
+    }
+    if (typeof element === "string") {
+      element = that.selectorAll(element);
+    }
+    if (CommonUtils.isNodeList(element)) {
       // 设置
       const listenerList: (PopsDOMUtilsAddEventListenerResult | undefined)[] = [];
       element.forEach(($ele) => {
-        const listener = that.onHover($ele as HTMLElement, handler, option);
+        const listener = that.onKeyup($ele as HTMLElement, handler, option);
         listenerList.push(listener);
       });
       return {
@@ -996,49 +996,12 @@ class PopsDOMUtilsEvent {
         },
       } as PopsDOMUtilsAddEventListenerResult;
     }
-    const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
-    const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
-
-    return {
-      off() {
-        mouseenter_listener.off();
-        mouseleave_listener.off();
-      },
-    } as PopsDOMUtilsAddEventListenerResult;
-  }
-  /**
-   * 当按键松开时触发事件
-   * keydown - > keypress - > keyup
-   * @param target 当前元素
-   * @param handler 事件处理函数
-   * @param option 配置
-   * @example
-   * // 监听a.xx元素的按键松开
-   * DOMUtils.keyup(document.querySelector("a.xx"),()=>{
-   *   console.log("按键松开");
-   * })
-   * DOMUtils.keyup("a.xx",()=>{
-   *   console.log("按键松开");
-   * })
-   */
-  onKeyup(
-    target: HTMLElement | string | Window | typeof globalThis,
-    handler: (event: PopsDOMUtils_Event["keyup"]) => void,
-    option?: boolean | AddEventListenerOptions
-  ) {
-    if (target == null) {
-      return;
-    }
-    if (typeof target === "string") {
-      target = this.selector(target) as HTMLElement;
-    }
-    const listener = this.on(target, "keyup", handler, option);
-    return listener;
+    return that.on(element, "keyup", null, handler, option);
   }
   /**
    * 当按键按下时触发事件
-   * keydown - > keypress - > keyup
-   * @param target 目标
+   * keydown - > keypress(已弃用) - > keyup
+   * @param element 目标
    * @param handler 事件处理函数
    * @param option 配置
    * @example
@@ -1051,18 +1014,36 @@ class PopsDOMUtilsEvent {
    * })
    */
   onKeydown(
-    target: HTMLElement | Window | typeof globalThis | string,
-    handler: (event: PopsDOMUtils_Event["keydown"]) => void,
-    option?: boolean | AddEventListenerOptions
+    element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
+    handler: (this: HTMLElement, event: PopsDOMUtils_Event["keydown"]) => void,
+    option?: boolean | PopsDOMUtilsEventListenerOption
   ) {
-    if (target == null) {
+    const that = this;
+    if (element == null) {
       return;
     }
-    if (typeof target === "string") {
-      target = this.selector(target) as HTMLElement;
+    if (typeof element === "string") {
+      element = that.selectorAll(element);
     }
-    const listener = this.on(target, "keydown", handler, option);
-    return listener;
+    if (CommonUtils.isNodeList(element)) {
+      // 设置
+      const listenerList: (PopsDOMUtilsAddEventListenerResult | undefined)[] = [];
+      element.forEach(($ele) => {
+        const listener = that.onKeydown($ele as HTMLElement, handler, option);
+        listenerList.push(listener);
+      });
+      return {
+        off() {
+          listenerList.forEach((listener) => {
+            if (!listener) {
+              return;
+            }
+            listener.off();
+          });
+        },
+      } as PopsDOMUtilsAddEventListenerResult;
+    }
+    return that.on(element, "keydown", null, handler, option);
   }
   /**
    * 阻止事件传递
@@ -1166,7 +1147,7 @@ class PopsDOMUtilsEvent {
       const onlyStopPropagation: boolean = args[1];
       return stopEvent(args[0], onlyStopPropagation);
     } else {
-      const $el: HTMLElement = args[0];
+      const $el: Element | Document | ShadowRoot = args[0];
       let eventNameList: string | string[] = args[1];
       let selector: string | string[] | null | undefined = void 0;
       let capture = false;
@@ -1182,7 +1163,9 @@ class PopsDOMUtilsEvent {
             onlyStopPropagation?: boolean;
           }
         | undefined = void 0;
-      if (typeof args[2] === "string" || Array.isArray(args[2])) {
+      if (args.length === 2) {
+        // ignore
+      } else if (typeof args[2] === "string" || Array.isArray(args[2])) {
         // selector
         selector = args[2];
         if (typeof args[3] === "object" && args[3] != null) {

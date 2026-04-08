@@ -1,10 +1,11 @@
 import type { ParseHTMLReturnType, PopsDOMUtils_Event, PopsDOMUtils_EventType, PopsDOMUtilsAddEventListenerResult, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsCSSProperty, PopsDOMUtilsCSSPropertyType, PopsDOMUtilsElementEventType, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtilsTargetElementType } from "../types/PopsDOMUtilsEventType";
 declare class PopsDOMUtilsEvent {
+    get windowApi(): Window & typeof globalThis;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -18,12 +19,12 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
@@ -37,57 +38,57 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
      * @param selector 子元素选择器
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
      * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
      * @example
      * // 监听元素a.xx的click、tap、hover事件
-     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
-     * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
      * @example
      * // 监听全局document下的子元素a.xx的click事件
-     * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
      */
-    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends PopsDOMUtils_EventType = PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, handler: <E extends HTMLElement = HTMLElement>(this: E, event: PopsDOMUtils_Event[T], $selector: E) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
      * @param eventType 需要监听的事件
      * @param selector 子元素选择器
-     * @param callback 绑定事件触发的回调函数
+     * @param handler 绑定事件触发的回调函数
      * @param option
      * + capture 表示事件是否在捕获阶段触发。默认为false，即在冒泡阶段触发
      * + once 表示事件是否只触发一次。默认为false
      * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
      * @example
      * // 监听元素a.xx的click、tap、hover事件
-     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
-     * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on("a.xx",["click","tap","hover"],(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
      * @example
      * // 监听全局document下的子元素a.xx的click事件
-     * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
-     *    console.log("事件触发", event, selectorTarget)
+     * DOMUtils.on(document,"click tap hover","a.xx",(event, $selector)=>{
+     *    console.log("事件触发", event, $selector)
      * })
      */
-    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
+    on<T extends Event = Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, handler: <E extends HTMLElement = HTMLElement>(this: E, event: T, $selector: E) => void, option?: PopsDOMUtilsEventListenerOption | boolean): PopsDOMUtilsAddEventListenerResult;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -171,8 +172,7 @@ declare class PopsDOMUtilsEvent {
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
-     * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback，但是这种会让使用了$selector的没有值
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -181,13 +181,13 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: string | string[], details?: object, useDispatchToEmitEvent?: boolean): void;
+    emit(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string | string[], useDispatchToTriggerEvent?: boolean): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
      * @param eventType 需要触发的事件
-     * @param details 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
-     * @param useDispatchToEmitEvent 是否使用dispatchEvent来触发事件,默认true
+     * @param extraDetails 赋予触发的Event的额外属性，如果是Event类型，那么将自动代替默认new的Event对象
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
      * @example
      * // 触发元素a.xx的click事件
      * DOMUtils.emit(document.querySelector("a.xx"),"click")
@@ -196,71 +196,43 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    emit(element: HTMLElement | string | NodeList | any[] | Window | Document, eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[], details?: object, useDispatchToEmitEvent?: boolean): void;
+    emit(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string | string[], extraDetails?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
-     * 绑定或触发元素的click事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
+     * 主动触发事件
+     * @param element 需要触发的元素|元素数组|window
+     * @param eventType 需要触发的事件
+     * @param useDispatchToTriggerEvent 是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
      * @example
      * // 触发元素a.xx的click事件
-     * DOMUtils.click(document.querySelector("a.xx"))
-     * DOMUtils.click("a.xx")
-     * DOMUtils.click("a.xx"，function(){
-     *  console.log("触发click事件成功")
-     * })
-     * */
-    click(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["click"]) => void, details?: any, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
-    /**
-     * 绑定或触发元素的blur事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的blur事件
-     * DOMUtils.blur(document.querySelector("a.xx"))
-     * DOMUtils.blur("a.xx")
-     * DOMUtils.blur("a.xx"，function(){
-     *  console.log("触发blur事件成功")
-     * })
-     * */
-    blur(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["blur"]) => void, details?: object, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
-    /**
-     * 绑定或触发元素的focus事件
-     * @param element 目标元素
-     * @param handler （可选）事件处理函数
-     * @param details （可选）赋予触发的Event的额外属性
-     * @param useDispatchToEmitEvent （可选）是否使用dispatchEvent来触发事件,默认true
-     * @example
-     * // 触发元素a.xx的focus事件
-     * DOMUtils.focus(document.querySelector("a.xx"))
-     * DOMUtils.focus("a.xx")
-     * DOMUtils.focus("a.xx"，function(){
-     *  console.log("触发focus事件成功")
-     * })
-     * */
-    focus(element: HTMLElement | string | Window, handler?: (event: PopsDOMUtils_Event["focus"]) => void, details?: object, useDispatchToEmitEvent?: boolean): PopsDOMUtilsAddEventListenerResult | undefined;
-    /**
-     * 当鼠标移入或移出元素时触发事件
-     * @param element 当前元素
-     * @param handler 事件处理函数
-     * @param option 配置
-     * @example
-     * // 监听a.xx元素的移入或移出
-     * DOMUtils.hover(document.querySelector("a.xx"),()=>{
-     *   console.log("移入/移除");
-     * })
-     * DOMUtils.hover("a.xx",()=>{
-     *   console.log("移入/移除");
-     * })
+     * DOMUtils.emit(document.querySelector("a.xx"),"click")
+     * DOMUtils.emit("a.xx","click")
+     * // 触发元素a.xx的click、tap、hover事件
+     * DOMUtils.emit(document.querySelector("a.xx"),"click tap hover")
+     * DOMUtils.emit("a.xx",["click","tap","hover"])
      */
-    onHover(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: PopsDOMUtils_Event["hover"]) => void, option?: boolean | PopsDOMUtilsEventListenerOption): PopsDOMUtilsAddEventListenerResult | undefined;
+    emit(element: Element | string | NodeList | any[] | Window | Document, eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[], useDispatchToTriggerEvent?: boolean): void;
+    /**
+     * 主动触发事件
+     * @param element 需要触发的元素|元素数组|window
+     * @param event 触发的事件
+     * @param extraDetails （可选）赋予触发的Event的额外属性
+     * @param useDispatchToTriggerEvent （可选）是否使用dispatchEvent来触发事件，默认true，如果为false，则直接调用通过.on监听的callback()，但是这种只有一个入参，如果使用$selector则没有值
+     * @example
+     * DOMUtils.emit("a.xx", new Event("click"))
+     * @example
+     * DOMUtils.emit("a.xx", new Event("click"), {
+     *   disableHook: true
+     * })
+     * @example
+     * DOMUtils.emit("a.xx", new Event("click"), {
+     *   disableHook: true
+     * },false)
+     */
+    emit(element: Element | string | NodeList | any[] | Window | Document, event: Event, extraDetails?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
-     * @param target 当前元素
+     * @param element 当前元素
      * @param handler 事件处理函数
      * @param option 配置
      * @example
@@ -272,11 +244,11 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键松开");
      * })
      */
-    onKeyup(target: HTMLElement | string | Window | typeof globalThis, handler: (event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
+    onKeyup(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: PopsDOMUtils_Event["keyup"]) => void, option?: boolean | PopsDOMUtilsEventListenerOption): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 当按键按下时触发事件
-     * keydown - > keypress - > keyup
-     * @param target 目标
+     * keydown - > keypress(已弃用) - > keyup
+     * @param element 目标
      * @param handler 事件处理函数
      * @param option 配置
      * @example
@@ -288,7 +260,7 @@ declare class PopsDOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    onKeydown(target: HTMLElement | Window | typeof globalThis | string, handler: (event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | AddEventListenerOptions): PopsDOMUtilsAddEventListenerResult | undefined;
+    onKeydown(element: PopsDOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: PopsDOMUtils_Event["keydown"]) => void, option?: boolean | PopsDOMUtilsEventListenerOption): PopsDOMUtilsAddEventListenerResult | undefined;
     /**
      * 阻止事件传递
      *

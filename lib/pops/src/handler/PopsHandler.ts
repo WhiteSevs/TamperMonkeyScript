@@ -57,7 +57,7 @@ export const PopsHandler = {
           evt.stopImmediatePropagation();
           evt.stopPropagation();
         },
-        { capture: true }
+        { capture: true, overrideTarget: false }
       );
     }
     return {

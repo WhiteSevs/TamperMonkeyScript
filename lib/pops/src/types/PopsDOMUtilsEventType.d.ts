@@ -33,12 +33,16 @@ export type PopsDOMUtils_MouseEventType = keyof PopsDOMUtils_MouseEvent;
  * 鼠标事件
  */
 export interface PopsDOMUtils_KeyboardEvent {
+  /** 键盘按下事件 */
   keydown: KeyboardEvent;
   /**
+   * 键盘按压事件(字符键)
+   *
    * @link https://developer.mozilla.org/zh-CN/docs/Web/API/Element/keypress_event
    * @deprecated
    */
   keypress: KeyboardEvent;
+  /** 键盘释放事件 */
   keyup: KeyboardEvent;
 }
 export type PopsDOMUtils_KeyboardEventType = keyof PopsDOMUtils_KeyboardEvent;
@@ -270,11 +274,26 @@ export type ParseHTMLReturnType<T1, T2> = T1 extends true ? (T2 extends true ? D
  */
 export declare type PopsDOMUtilsEventListenerOption = AddEventListenerOptions & {
   /**
-   * 是否使用 event.composedPath() 来代替 event.target
+   * 前提：传入了`selector`参数
    *
-   * 一般用于设置了selector参数
+   * 是否使用 event.composedPath() 来代替 event.target
+   * @default false
    */
   isComposedPath?: boolean;
+  /**
+   * 前提：传入了`selector`参数
+   *
+   * 是否覆写`target`，仅传入了子元素的`selectorTarget`时才会生效
+   *
+   * 原始的`target`将命名为`originTarget`
+   * @default true
+   */
+  overrideTarget?: boolean;
+  /**
+   * 是否阻止事件传播，包括阻止默认行为
+   * @default false
+   */
+  isPreventEvent?: boolean;
 };
 
 export type PopsDOMUtilsTargetElementType = IArray<HTMLElement> | string | NodeList;
