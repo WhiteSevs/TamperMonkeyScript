@@ -21,7 +21,7 @@
     "@mgdn/bvid": "^0.4.0",
     "@whitesev/data-paging": "^0.0.4",
     "@whitesev/domutils": "^2.0.5",
-    "@whitesev/pops": "^4.2.4",
+    "@whitesev/pops": "^4.2.5",
     "@whitesev/utils": "^2.11.14",
     "artplayer": "5.4.0",
     "artplayer-plugin-danmuku": "^5.2.0",
