@@ -418,7 +418,20 @@ export const BlockTopNavigator = {
    */
   shieldRightMenu() {
     log.info(`【屏蔽】顶部右侧的菜单栏`);
-    return addBlockCSS(`div[id^="douyin-header-menu"]`);
+    return [
+      addBlockCSS(`div[id^="douyin-header-menu"]`),
+      // 让搜索框居中
+      addStyle(/*css*/ `
+      #douyin-header header>[data-click="doubleClick"]{
+          margin-right: 0px !important;
+      }
+      #douyin-header header div:has(+[id^="douyin-header-menu"]){
+          margin: auto !important;
+          left: 0 !important;
+          right: 0 !important;
+      }
+      `),
+    ];
   },
   /**
    * 【屏蔽】更多

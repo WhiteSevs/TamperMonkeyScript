@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.7
+// @version      2026.4.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -4816,7 +4816,21 @@
     },
     shieldRightMenu() {
       log.info(`【屏蔽】顶部右侧的菜单栏`);
-      return addBlockCSS(`div[id^="douyin-header-menu"]`);
+      return [
+        addBlockCSS(`div[id^="douyin-header-menu"]`),
+        addStyle(
+          `
+      #douyin-header header>[data-click="doubleClick"]{
+          margin-right: 0px !important;
+      }
+      #douyin-header header div:has(+[id^="douyin-header-menu"]){
+          margin: auto !important;
+          left: 0 !important;
+          right: 0 !important;
+      }
+      `
+        ),
+      ];
     },
     shieldRightMenuMore() {
       log.info(`【屏蔽】更多`);
@@ -5370,6 +5384,21 @@
       Panel.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch", () => {
         return this.shieldUserCommentEveryOneAllSearch();
       });
+      Panel.execMenuOnce("dy-video-comment-blockDetails", () => {
+        return this.blockDetails();
+      });
+      Panel.execMenuOnce("dy-video-comment-blockTAWork", () => {
+        return this.blockTAWork();
+      });
+      Panel.execMenuOnce("dy-video-comment-blockComment", () => {
+        return this.blockComment();
+      });
+      Panel.execMenuOnce("dy-video-comment-blockAskAI", () => {
+        return this.blockAskAI();
+      });
+      Panel.execMenuOnce("dy-video-comment-blockRelatedRecommend", () => {
+        return this.blockRelatedRecommend();
+      });
     },
     shieldUserCommentToolBar() {
       log.info("【屏蔽】评论工具栏");
@@ -5378,6 +5407,36 @@
     shieldUserCommentEveryOneAllSearch() {
       log.info("【屏蔽】大家都在搜");
       return [addBlockCSS(".comment-header-with-search")];
+    },
+    blockDetails() {
+      log.info("【屏蔽】详情");
+      return addBlockCSS(
+        '#videoSideCard [role="tablist"] [aria-controls="semiTabPaneldetail_tab"][aria-selected="false"]'
+      );
+    },
+    blockTAWork() {
+      log.info("【屏蔽】TA的作品");
+      return addBlockCSS(
+        '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelauthor_card"][aria-selected="false"]'
+      );
+    },
+    blockComment() {
+      log.info("【屏蔽】评论");
+      return addBlockCSS(
+        '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelcomment"][aria-selected="false"]'
+      );
+    },
+    blockAskAI() {
+      log.info("【屏蔽】问AI");
+      return addBlockCSS(
+        '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelai_card"][aria-selected="false"]'
+      );
+    },
+    blockRelatedRecommend() {
+      log.info("【屏蔽】相关推荐");
+      return addBlockCSS(
+        '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelrelated_card"][aria-selected="false"]'
+      );
     },
   };
   const DouYinVideoBlock_Live_PlayerCompomemts = {
@@ -14886,8 +14945,19 @@
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
               {
-                text: AutoOpenOrClose.text,
                 type: "container",
+                text: AutoOpenOrClose.text,
+                views: [
+                  UISwitch("【屏蔽】详情", "dy-video-comment-blockDetails"),
+                  UISwitch("【屏蔽】TA的作品", "dy-video-comment-blockTAWork"),
+                  UISwitch("【屏蔽】评论", "dy-video-comment-blockComment"),
+                  UISwitch("【屏蔽】问AI", "dy-video-comment-blockAskAI"),
+                  UISwitch("【屏蔽】相关推荐", "dy-video-comment-blockRelatedRecommend"),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
                 views: [
                   UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar"),
                   UISwitch(

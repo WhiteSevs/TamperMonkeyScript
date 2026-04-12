@@ -4,6 +4,7 @@ import { blockLeftNavigatorOther } from "./blockLeftNavigatorOther";
 import { BlockSearchFrame } from "./blockSearchFrame";
 import { BlockTopNavigator } from "./blockTopNavigator";
 import { Panel } from "@components/setting/panel";
+import { DouYinBlockAdaptation } from "./DouYinBlockAdaptation";
 
 export const DouYinBlock = {
   init() {
@@ -11,7 +12,7 @@ export const DouYinBlock = {
     blockLeftNavigatorOther.init();
     BlockTopNavigator.init();
     BlockSearchFrame.init();
-
+    DouYinBlockAdaptation.init();
     Panel.execMenuOnce("block-continue-watching-phone-watching-live", () => {
       return this.continueWatchingPhoneWatchingLive();
     });

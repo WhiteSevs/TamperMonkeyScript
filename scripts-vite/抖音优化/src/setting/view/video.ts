@@ -691,8 +691,19 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
             {
-              text: AutoOpenOrClose.text,
               type: "container",
+              text: AutoOpenOrClose.text,
+              views: [
+                UISwitch("【屏蔽】详情", "dy-video-comment-blockDetails"),
+                UISwitch("【屏蔽】TA的作品", "dy-video-comment-blockTAWork"),
+                UISwitch("【屏蔽】评论", "dy-video-comment-blockComment"),
+                UISwitch("【屏蔽】问AI", "dy-video-comment-blockAskAI"),
+                UISwitch("【屏蔽】相关推荐", "dy-video-comment-blockRelatedRecommend"),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
               views: [
                 UISwitch("【屏蔽】底部的评论工具栏", "dy-video-shieldUserCommentToolBar"),
                 UISwitch(
