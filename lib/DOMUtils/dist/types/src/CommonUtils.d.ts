@@ -6,7 +6,7 @@ export declare const CommonUtils: {
      * 判断元素是否已显示或已连接
      * @param $el
      */
-    isShow($el: HTMLElement): boolean;
+    isShow($el: Element): boolean;
     /**
      * 创建安全的html
      * @param text 字符串
@@ -17,12 +17,12 @@ export declare const CommonUtils: {
      * @param $el 元素
      * @param text 文本
      */
-    setSafeHTML($el: HTMLElement, text: string): void;
+    setSafeHTML($el: Element, text: string): void;
     /**
      * 用于强制显示元素并获取它的高度宽度等其它属性
      * @param $el
      */
-    forceShow($el: HTMLElement): {
+    forceShow($el: Element): {
         /**
          * 恢复修改的style
          */
@@ -33,12 +33,12 @@ export declare const CommonUtils: {
      * @param element
      * @param styleName style名
      */
-    getStyleValue(element: HTMLElement | CSSStyleDeclaration, styleName: string): number;
+    getStyleValue(element: Element | CSSStyleDeclaration, styleName: string): number;
     /**
      * 判断是否是window，例如window、self、globalThis
-     * @param target
+     * @param obj
      */
-    isWin(target: any): boolean;
+    isWin(obj: any): boolean;
     /**
      * 判断对象是否是元素
      * @param $el
@@ -52,15 +52,15 @@ export declare const CommonUtils: {
     isDOM($el: any): boolean;
     /**
      * 删除对象上的属性
-     * @param target
+     * @param obj
      * @param propName
      */
-    delete(target: any, propName: any): boolean | undefined;
+    delete(obj: any, propName: any): boolean | undefined;
     /**
      * 判断是否是元素列表
-     * @param $ele
+     * @param $el
      */
-    isNodeList($ele: any): $ele is any[] | NodeList;
+    isNodeList($el: any): $el is any[] | NodeList;
     /** 获取 animationend 在各个浏览器的兼容名 */
     getAnimationEndNameList(): string[];
     /** 获取 transitionend 在各个浏览器的兼容名 */

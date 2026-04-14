@@ -1059,7 +1059,7 @@ class DOMUtils extends ElementHandler {
     handler($el, $fragment);
   }
   /**
-   * 移除元素
+   * 移除元素（包括它和内部使用.on添加的监听事件）
    * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
    * @example
    * DOMUtils.remove(document.querySelector("a.xx"))
@@ -1067,20 +1067,25 @@ class DOMUtils extends ElementHandler {
    * DOMUtils.remove("a.xx")
    * DOMUtils.remove([a.xxx, div.xxx, span.xxx])
    * */
-  remove($el: DOMUtilsTargetElementType | Element) {
-    const that = this;
+  remove($el: DOMUtilsTargetElementType | Element | null | undefined) {
     if (typeof $el === "string") {
-      $el = that.selectorAll($el);
+      $el = this.selectorAll($el);
     }
     if ($el == null) {
       return;
     }
     if (CommonUtils.isNodeList($el)) {
       $el.forEach(($elItem) => {
-        that.remove($elItem as HTMLElement);
+        this.remove($elItem as HTMLElement);
       });
       return;
     }
+    // 移除事件
+    $el.querySelectorAll("*").forEach(($elItem) => {
+      if (!($elItem instanceof Element)) return;
+      this.offAll($elItem);
+    });
+    this.offAll($el);
     if (typeof $el.remove === "function") {
       $el.remove();
     } else if ($el.parentElement) {
@@ -1113,7 +1118,7 @@ class DOMUtils extends ElementHandler {
       return;
     }
     if ($el.innerHTML) {
-      $el.innerHTML = "";
+      CommonUtils.setSafeHTML($el, "");
     } else if ($el.textContent) {
       $el.textContent = "";
     }
@@ -1392,7 +1397,7 @@ class DOMUtils extends ElementHandler {
       $parent.replaceChild($newEl as Node, $el);
     } else {
       that.after($el, $newEl as HTMLElement);
-      $el.remove();
+      this.remove($el);
     }
   }
   /**

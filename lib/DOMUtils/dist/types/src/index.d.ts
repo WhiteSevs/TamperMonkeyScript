@@ -351,7 +351,7 @@ declare class DOMUtils extends ElementHandler {
      * */
     before($el: DOMUtilsTargetElementType, ...args: (HTMLElement | string | Element | DocumentFragment | (HTMLElement | string | Element | DocumentFragment)[] | NodeList)[]): void;
     /**
-     * 移除元素
+     * 移除元素（包括它和内部使用.on添加的监听事件）
      * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
      * @example
      * DOMUtils.remove(document.querySelector("a.xx"))
@@ -359,7 +359,7 @@ declare class DOMUtils extends ElementHandler {
      * DOMUtils.remove("a.xx")
      * DOMUtils.remove([a.xxx, div.xxx, span.xxx])
      * */
-    remove($el: DOMUtilsTargetElementType | Element): void;
+    remove($el: DOMUtilsTargetElementType | Element | null | undefined): void;
     /**
      * 移除元素内所有的子元素
      * @param $el 目标元素

@@ -15,7 +15,7 @@ export const CommonUtils = {
    * 判断元素是否已显示或已连接
    * @param $el
    */
-  isShow($el: HTMLElement) {
+  isShow($el: Element) {
     return Boolean($el.getClientRects().length);
   },
   /**
@@ -37,7 +37,7 @@ export const CommonUtils = {
    * @param $el 元素
    * @param text 文本
    */
-  setSafeHTML($el: HTMLElement, text: string) {
+  setSafeHTML($el: Element, text: string) {
     // 创建 TrustedHTML 策略（需 CSP 允许）
     $el.innerHTML = this.createSafeHTML(text);
   },
@@ -45,16 +45,16 @@ export const CommonUtils = {
    * 用于强制显示元素并获取它的高度宽度等其它属性
    * @param $el
    */
-  forceShow($el: HTMLElement) {
-    const dupNode = $el.cloneNode(true) as HTMLElement;
-    dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
-    this.windowApi.document.documentElement.appendChild(dupNode);
+  forceShow($el: Element) {
+    const $clone = $el.cloneNode(true) as HTMLElement;
+    $clone.setAttribute("style", "visibility: hidden !important;display:block !important;");
+    this.windowApi.document.documentElement.appendChild($clone);
     return {
       /**
        * 恢复修改的style
        */
       recovery() {
-        dupNode.remove();
+        $clone.remove();
       },
     };
   },
@@ -63,7 +63,7 @@ export const CommonUtils = {
    * @param element
    * @param styleName style名
    */
-  getStyleValue(element: HTMLElement | CSSStyleDeclaration, styleName: string) {
+  getStyleValue(element: Element | CSSStyleDeclaration, styleName: string) {
     let view = null;
     let styles = null;
     if (element instanceof CSSStyleDeclaration) {
@@ -85,37 +85,37 @@ export const CommonUtils = {
   },
   /**
    * 判断是否是window，例如window、self、globalThis
-   * @param target
+   * @param obj
    */
-  isWin(target: any) {
-    if (typeof target !== "object") {
+  isWin(obj: any) {
+    if (typeof obj !== "object") {
       return false;
     }
-    if (target instanceof Node) {
+    if (obj instanceof Node) {
       return false;
     }
-    if (target === globalThis) {
+    if (obj === globalThis) {
       return true;
     }
-    if (target === window) {
+    if (obj === window) {
       return true;
     }
-    if (target === self) {
+    if (obj === self) {
       return true;
     }
-    if (target === globalThis) {
+    if (obj === globalThis) {
       return true;
     }
-    if (target === window) {
+    if (obj === window) {
       return true;
     }
-    if (target === self) {
+    if (obj === self) {
       return true;
     }
-    if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
+    if (typeof unsafeWindow !== "undefined" && obj === unsafeWindow) {
       return true;
     }
-    if (target?.Math?.toString() !== "[object Math]") {
+    if (obj?.Math?.toString() !== "[object Math]") {
       return false;
     }
     return true;
@@ -135,22 +135,22 @@ export const CommonUtils = {
   },
   /**
    * 删除对象上的属性
-   * @param target
+   * @param obj
    * @param propName
    */
-  delete(target: any, propName: any) {
+  delete(obj: any, propName: any) {
     if (typeof Reflect === "object" && Reflect != null && Reflect.deleteProperty) {
-      return Reflect.deleteProperty(target, propName);
+      return Reflect.deleteProperty(obj, propName);
     } else {
-      delete target[propName];
+      delete obj[propName];
     }
   },
   /**
    * 判断是否是元素列表
-   * @param $ele
+   * @param $el
    */
-  isNodeList($ele: any): $ele is any[] | NodeList {
-    return Array.isArray($ele) || $ele instanceof NodeList;
+  isNodeList($el: any): $el is any[] | NodeList {
+    return Array.isArray($el) || $el instanceof NodeList;
   },
   /** 获取 animationend 在各个浏览器的兼容名 */
   getAnimationEndNameList() {

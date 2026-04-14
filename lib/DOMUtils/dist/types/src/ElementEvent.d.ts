@@ -159,13 +159,13 @@ declare class ElementEvent extends ElementAnimate {
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
+     * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
      */
     offAll(element: DOMUtilsElementEventType, eventType?: string): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
+     * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
      */
     offAll(element: DOMUtilsElementEventType, eventType?: DOMUtils_EventType | DOMUtils_EventType[]): void;
     /**
