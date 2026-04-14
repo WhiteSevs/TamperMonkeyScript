@@ -31,7 +31,7 @@ export interface PopsPanelButtonConfig extends PopsPanelGeneralConfig<PopsPanelB
      */
     buttonText: string | (() => string);
     /**
-     * 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码，留空则是没有图标
+     * 按钮的图标，已配置的svg请看pops.fn.iconSVG，或者自定义的图标svg代码，留空则是没有图标
      * @default ""
      */
     buttonIcon?: PopsIconType;

@@ -99,7 +99,7 @@ export class ToolTip {
     PopsElementHandler.addDarkStyle($toolTipContainer, this.$data.config.darkStyle);
     // 处理是否显示箭头元素
     if (!this.$data.config.showArrow) {
-      $toolTipArrow.remove();
+      popsDOMUtils.remove($toolTipArrow);
     }
     return {
       $toolTipContainer: $toolTipContainer,
@@ -445,7 +445,7 @@ export class ToolTip {
    */
   destory() {
     if (this.$el.$toolTip) {
-      this.$el.$toolTip.remove();
+      popsDOMUtils.remove(this.$el.$toolTip);
     }
     // @ts-expect-error
     this.$el.$toolTip = null;

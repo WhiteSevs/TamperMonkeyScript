@@ -179,9 +179,7 @@ declare class Pops {
                 transformLeft: number;
                 transformTop: number;
             };
-            onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): {
-                off: () => void;
-            };
+            remove($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType | Element | null | undefined): void;
             get windowApi(): Window & typeof globalThis;
             on<T extends import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType = "drag" | "click" | "scroll" | "blur" | "focus" | "search" | "input" | "resize" | "reset" | "play" | "change" | "contextmenu" | "dblclick" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "hover" | "keydown" | "keypress" | "keyup" | "abort" | "beforeunload" | "error" | "hashchange" | "load" | "pageshow" | "pagehide" | "unload" | "focusin" | "focusout" | "copy" | "cut" | "paste" | "afterprint" | "beforeprint" | "dragend" | "dragenter" | "dragleave" | "dragover" | "dragstart" | "drop" | "canplay" | "canplaythrough" | "durationchange" | "emptied" | "ended" | "loadeddata" | "loadedmetadata" | "loadstart" | "pause" | "playing" | "progress" | "ratechange" | "seeked" | "seeking" | "stalled" | "suspend" | "timeupdate" | "volumechange" | "waiting" | "animationend" | "animationiteration" | "animationstart" | "transitionend" | "touchstart" | "touchmove" | "touchend" | "touchcancel" | "touchenter" | "touchleave" | "message" | "online" | "offline" | "popstate" | "show" | "storage" | "toggle" | "wheel" | "propertychange" | "fullscreenchange" | "DOMContentLoaded">(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: T | T[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event[T]) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult;
             on<T extends Event = Event>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string | string[], handler: <E extends HTMLElement = HTMLElement>(this: E, event: T) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): import("./types/PopsDOMUtilsEventType").PopsDOMUtilsAddEventListenerResult;
@@ -221,6 +219,9 @@ declare class Pops {
             matches($el: HTMLElement | Element | null | undefined, selector: string): boolean;
             closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
             closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+            onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): {
+                off: () => void;
+            };
         };
         /** pops创建的实例使用的工具类 */
         InstanceUtils: {

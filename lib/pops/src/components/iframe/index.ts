@@ -103,16 +103,16 @@ export const PopsIframe = {
 
     const $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
     const {
-      $pops: $pops,
-      $headerBtnClose: headerCloseBtnElement,
-      $headerControls: headerControlsElement,
-      $title: $title,
-      $iframe: $iframe,
-      $loading: loadingElement,
-      $contentLoading: $contentLoading,
-      $headerBtnMin: headerMinBtnElement,
-      $headerBtnMax: headerMaxBtnElement,
-      $headerBtnMise: headerMiseBtnElement,
+      $pops,
+      $headerBtnClose,
+      $headerControls,
+      $title,
+      $iframe,
+      $loading,
+      $contentLoading,
+      $headerBtnMin,
+      $headerBtnMax,
+      $headerBtnMise,
     } = PopsHandler.handleQueryElement($anim, popsType);
     let $iframeContainer = popsDOMUtils.selector<HTMLDivElement>(".pops-iframe-container");
     if (!$iframeContainer) {
@@ -169,11 +169,11 @@ export const PopsIframe = {
 
     popsDOMUtils.on($iframe, "load", () => {
       // iframe加载中...
-      loadingElement?.remove();
+      popsDOMUtils.remove($loading);
       $contentLoading!.style.animation = "iframeLoadingChange_85 0.3s forwards";
       popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
         // 动画加载完毕就移除
-        $contentLoading!.remove();
+        popsDOMUtils.remove($contentLoading);
       });
 
       if (config.title!.text!.trim() === "" && $iframe!.contentDocument) {
@@ -207,7 +207,7 @@ export const PopsIframe = {
     let origin_top = "";
     let origin_is_max = false;
     popsDOMUtils.on<PointerEvent | MouseEvent>(
-      headerMinBtnElement,
+      $headerBtnMin,
       "click",
       (event) => {
         event.preventDefault();
@@ -220,11 +220,11 @@ export const PopsIframe = {
         $pops.style.transitionDuration = "";
 
         $pops.setAttribute(TYPE_MODULE, "min");
-        headerControlsElement.setAttribute("type", "min");
+        $headerControls.setAttribute("type", "min");
         // 隐藏放大图标
-        headerMaxBtnElement.style.setProperty("display", "none");
+        $headerBtnMax.style.setProperty("display", "none");
         // 显示复位图标
-        headerMiseBtnElement.style.setProperty("display", "");
+        $headerBtnMise.style.setProperty("display", "");
         if (typeof config?.btn?.min?.callback === "function") {
           config.btn.min.callback(evtConfig, event);
         }
@@ -236,7 +236,7 @@ export const PopsIframe = {
     );
     // 最大化按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
-      headerMaxBtnElement,
+      $headerBtnMax,
       "click",
       (event) => {
         event.preventDefault();
@@ -255,11 +255,11 @@ export const PopsIframe = {
         $pops.classList.add("pops-iframe-unset-transform");
         $pops.classList.remove("pops-iframe-unset-transition");
         $pops.setAttribute(TYPE_MODULE, "max");
-        headerControlsElement.setAttribute("type", "max");
+        $headerControls.setAttribute("type", "max");
         // 隐藏放大图标
-        headerMaxBtnElement.style.setProperty("display", "none");
+        $headerBtnMax.style.setProperty("display", "none");
         // 显示复位图标
-        headerMiseBtnElement.style.setProperty("display", "");
+        $headerBtnMise.style.setProperty("display", "");
         if (typeof config?.btn?.max?.callback === "function") {
           config.btn.max.callback(evtConfig, event);
         }
@@ -270,10 +270,10 @@ export const PopsIframe = {
       }
     );
     // 先隐藏窗口化按钮
-    headerMiseBtnElement?.style?.setProperty("display", "none");
+    $headerBtnMise?.style?.setProperty("display", "none");
     // 复位按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
-      headerMiseBtnElement,
+      $headerBtnMise,
       "click",
       (event) => {
         event.preventDefault();
@@ -285,23 +285,23 @@ export const PopsIframe = {
           $pops.classList.add("pops-iframe-unset-transform");
           $pops.classList.remove("pops-iframe-unset-transition");
           $pops.setAttribute(TYPE_MODULE, "max");
-          headerControlsElement.setAttribute("type", "max");
+          $headerControls.setAttribute("type", "max");
         } else {
           origin_is_max = false;
           $pops.style.left = origin_left;
           $pops.style.top = origin_top;
           $pops.style.transitionDuration = "";
           $pops.style.transform = "";
-          headerControlsElement.removeAttribute("type");
+          $headerControls.removeAttribute("type");
           $pops.removeAttribute(TYPE_MODULE);
           $pops.classList.remove("pops-iframe-unset-top");
           $pops.classList.remove("pops-iframe-unset-left");
           $pops.classList.remove("pops-iframe-unset-transform");
 
           // 显示放大图标
-          headerMaxBtnElement.style.setProperty("display", "");
+          $headerBtnMax.style.setProperty("display", "");
           // 隐藏复位图标
-          headerMiseBtnElement.style.setProperty("display", "none");
+          $headerBtnMise.style.setProperty("display", "none");
         }
         if (typeof config?.btn?.mise?.callback === "function") {
           config.btn.mise.callback(evtConfig, event);
@@ -314,7 +314,7 @@ export const PopsIframe = {
     );
     // 关闭按钮点击事件
     popsDOMUtils.on<MouseEvent | PointerEvent>(
-      headerCloseBtnElement,
+      $headerBtnClose,
       "click",
       async (event) => {
         event.preventDefault();

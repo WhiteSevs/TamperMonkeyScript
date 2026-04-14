@@ -631,19 +631,19 @@ class PopsDOMUtilsEvent {
   /**
    * 取消绑定所有的事件
    * @param element 需要取消绑定的元素|元素数组
-   * @param eventType （可选）需要取消监听的事件
+   * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
    */
   offAll(element: PopsDOMUtilsElementEventType, eventType?: string): void;
   /**
    * 取消绑定所有的事件
    * @param element 需要取消绑定的元素|元素数组
-   * @param eventType （可选）需要取消监听的事件
+   * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
    */
   offAll(element: PopsDOMUtilsElementEventType, eventType?: PopsDOMUtils_EventType | PopsDOMUtils_EventType[]): void;
   /**
    * 取消绑定所有的事件
    * @param element 需要取消绑定的元素|元素数组
-   * @param eventType （可选）需要取消监听的事件
+   * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
    */
   offAll(
     element: PopsDOMUtilsElementEventType,
@@ -1412,6 +1412,43 @@ class PopsDOMUtilsEvent {
       const $closest = $el?.closest<E>(selector);
       return $closest;
     }
+  }
+  /**
+   * 监input、textarea的输入框值改变的事件
+   */
+  onInput(
+    $el: HTMLInputElement | HTMLTextAreaElement,
+    callback: (evt: InputEvent) => void | Promise<void>,
+    option?: PopsDOMUtilsEventListenerOption | boolean
+  ) {
+    /**
+     * 是否正在输入中
+     */
+    let isComposite = false;
+    const __callback = async (event: InputEvent) => {
+      if (isComposite) return;
+      await callback(event);
+    };
+    const __composition_start_callback = () => {
+      isComposite = true;
+    };
+    const __composition_end_callback = () => {
+      isComposite = false;
+      this.emit($el, "input", {
+        isComposite,
+      });
+    };
+    const inputListener = this.on($el, "input", __callback, option);
+    const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
+    const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
+
+    return {
+      off: () => {
+        inputListener.off();
+        compositionStartListener.off();
+        compositionEndListener.off();
+      },
+    };
   }
 }
 
@@ -2312,7 +2349,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
        * 恢复修改的style
        */
       recovery() {
-        $cloneNode.remove();
+        popsDOMUtils.remove($cloneNode);
       },
     };
   }
@@ -2531,41 +2568,40 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
     };
   }
   /**
-   * 监input、textarea的输入框值改变的事件
-   */
-  onInput(
-    $el: HTMLInputElement | HTMLTextAreaElement,
-    callback: (evt: InputEvent) => void | Promise<void>,
-    option?: PopsDOMUtilsEventListenerOption | boolean
-  ) {
-    /**
-     * 是否正在输入中
-     */
-    let isComposite = false;
-    const __callback = async (event: InputEvent) => {
-      if (isComposite) return;
-      await callback(event);
-    };
-    const __composition_start_callback = () => {
-      isComposite = true;
-    };
-    const __composition_end_callback = () => {
-      isComposite = false;
-      this.emit($el, "input", {
-        isComposite,
+   * 移除元素（包括它和内部使用.on添加的监听事件）
+   * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
+   * @example
+   * DOMUtils.remove(document.querySelector("a.xx"))
+   * DOMUtils.remove(document.querySelectorAll("a.xx"))
+   * DOMUtils.remove("a.xx")
+   * DOMUtils.remove([a.xxx, div.xxx, span.xxx])
+   * */
+  remove($el: PopsDOMUtilsTargetElementType | Element | null | undefined) {
+    if (typeof $el === "string") {
+      $el = this.selectorAll($el);
+    }
+    if ($el == null) {
+      return;
+    }
+    if (CommonUtils.isNodeList($el)) {
+      $el.forEach(($elItem) => {
+        this.remove($elItem as HTMLElement);
       });
-    };
-    const inputListener = this.on($el, "input", __callback, option);
-    const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
-    const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
-
-    return {
-      off: () => {
-        inputListener.off();
-        compositionStartListener.off();
-        compositionEndListener.off();
-      },
-    };
+      return;
+    }
+    // 移除事件
+    $el.querySelectorAll("*").forEach(($elItem) => {
+      if (!($elItem instanceof Element)) return;
+      this.offAll($elItem);
+    });
+    this.offAll($el);
+    if (typeof $el.remove === "function") {
+      $el.remove();
+    } else if ($el.parentElement) {
+      $el.parentElement.removeChild($el);
+    } else if ($el.parentNode) {
+      $el.parentNode.removeChild($el);
+    }
   }
 }
 

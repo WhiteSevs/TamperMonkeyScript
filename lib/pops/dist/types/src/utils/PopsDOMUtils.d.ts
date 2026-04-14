@@ -150,13 +150,13 @@ declare class PopsDOMUtilsEvent {
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
+     * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
      */
     offAll(element: PopsDOMUtilsElementEventType, eventType?: string): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
-     * @param eventType （可选）需要取消监听的事件
+     * @param eventType （可选）需要取消监听的事件，不传入该参数则遍历所有监听的事件
      */
     offAll(element: PopsDOMUtilsElementEventType, eventType?: PopsDOMUtils_EventType | PopsDOMUtils_EventType[]): void;
     /**
@@ -419,6 +419,12 @@ declare class PopsDOMUtilsEvent {
      */
     closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
     closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+    /**
+     * 监input、textarea的输入框值改变的事件
+     */
+    onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: PopsDOMUtilsEventListenerOption | boolean): {
+        off: () => void;
+    };
 }
 declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 获取 animationend 在各个浏览器的兼容名 */
@@ -755,11 +761,15 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
         transformTop: number;
     };
     /**
-     * 监input、textarea的输入框值改变的事件
-     */
-    onInput($el: HTMLInputElement | HTMLTextAreaElement, callback: (evt: InputEvent) => void | Promise<void>, option?: PopsDOMUtilsEventListenerOption | boolean): {
-        off: () => void;
-    };
+     * 移除元素（包括它和内部使用.on添加的监听事件）
+     * @param $el 目标元素，可以是数组、单个元素、NodeList、元素选择器
+     * @example
+     * DOMUtils.remove(document.querySelector("a.xx"))
+     * DOMUtils.remove(document.querySelectorAll("a.xx"))
+     * DOMUtils.remove("a.xx")
+     * DOMUtils.remove([a.xxx, div.xxx, span.xxx])
+     * */
+    remove($el: PopsDOMUtilsTargetElementType | Element | null | undefined): void;
 }
 declare const popsDOMUtils: PopsDOMUtils;
 export { popsDOMUtils };

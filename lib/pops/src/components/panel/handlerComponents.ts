@@ -204,7 +204,7 @@ export const PanelHandlerComponents = () => {
     clearDeepMenuContainer() {
       this.$el.$panelRightSectionWrapper
         ?.querySelectorAll("section.pops-panel-deepMenu-container")
-        .forEach(($el) => $el.remove());
+        .forEach(($el) => popsDOMUtils.remove($el));
     },
     /**
      * 清空左侧容器已访问记录
@@ -1375,7 +1375,7 @@ export const PanelHandlerComponents = () => {
          */
         removeValidErrorMsg() {
           const $validErrorMsg = this.$el.panelInput.querySelector(".pops-panel-input-valid-error");
-          $validErrorMsg?.remove();
+          popsDOMUtils.remove($validErrorMsg);
         },
       };
       PopsPanelInput.init();
@@ -1673,7 +1673,7 @@ export const PanelHandlerComponents = () => {
                 // 移除旧的元素
                 while ($li.nextElementSibling) {
                   if ($li.nextElementSibling.classList.contains(childUListClassName)) {
-                    $li.nextElementSibling.remove();
+                    popsDOMUtils.remove($li.nextElementSibling);
                   } else {
                     break;
                   }
@@ -2912,8 +2912,8 @@ export const PanelHandlerComponents = () => {
          * 更新tag信息
          */
         updateTagItem() {
-          this.$el.$section.querySelectorAll<HTMLElement>(".el-select__choose_tag").forEach(($ele) => {
-            $ele.remove();
+          this.$el.$section.querySelectorAll<HTMLElement>(".el-select__choose_tag").forEach(($elItem) => {
+            popsDOMUtils.remove($elItem);
           });
           this.initTagElement();
         },
@@ -3269,7 +3269,7 @@ export const PanelHandlerComponents = () => {
          * 移除选中项元素
          */
         removeSelectedTagItem($tag: HTMLElement) {
-          $tag.remove();
+          popsDOMUtils.remove($tag);
           this.checkTagEmpty();
         },
         /**

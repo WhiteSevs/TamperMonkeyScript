@@ -31,10 +31,10 @@ export const PopsInstHandler = {
      */
     const removeInst = async (instCommonConfig: PopsInstGeneralConfig) => {
       await instCommonConfig.emitter.emit("pops:before-destory", instCommonConfig);
-      instCommonConfig?.$anim?.remove();
-      instCommonConfig?.$pops?.remove();
-      instCommonConfig?.$mask?.remove();
-      instCommonConfig?.$shadowContainer?.remove();
+      popsDOMUtils.remove(instCommonConfig?.$anim);
+      popsDOMUtils.remove(instCommonConfig?.$pops);
+      popsDOMUtils.remove(instCommonConfig?.$mask);
+      popsDOMUtils.remove(instCommonConfig?.$shadowContainer);
       await instCommonConfig.emitter.emit("pops:destory");
       // 再清空全部监听的事件
       await instCommonConfig.emitter.offAll();

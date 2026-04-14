@@ -19,7 +19,7 @@ export const PopsAnimation = {
       this.$data = null as any;
       this.$data = popsDOMUtils.getKeyFrames($style.sheet!);
       popsUtils.setTimeout(() => {
-        $style.remove();
+        popsDOMUtils.remove($style);
       }, 50);
     }
   },
@@ -110,7 +110,7 @@ export const PopsAnimation = {
           // 显示上层菜单
           popsDOMUtils.cssShow($el);
           // 移除下一层的菜单
-          $next.remove();
+          popsDOMUtils.remove($next);
           if (typeof option.exitToRemoveElementCallback === "function") {
             await option.exitToRemoveElementCallback();
           }

@@ -586,7 +586,7 @@ export const PopsFolder = {
         const currentBreadcrumb = $click.closest<HTMLSpanElement>("span.pops-folder-file-list-breadcrumb-allFiles");
         if (currentBreadcrumb) {
           while (currentBreadcrumb.nextElementSibling) {
-            currentBreadcrumb.nextElementSibling.remove();
+            popsDOMUtils.remove(currentBreadcrumb.nextElementSibling);
           }
         } else {
           console.error("获取导航按钮失败");
@@ -712,13 +712,13 @@ export const PopsFolder = {
                 $downloadIframe.src = downloadUrl;
                 $downloadIframe.onload = function () {
                   popsUtils.setTimeout(() => {
-                    $downloadIframe.remove();
+                    popsDOMUtils.remove($downloadIframe);
                   }, 1000);
                 };
                 $shadowRoot.appendChild($downloadIframe);
                 popsUtils.setTimeout(
                   () => {
-                    $downloadIframe.remove();
+                    popsDOMUtils.remove($downloadIframe);
                   },
                   3 * 60 * 1000
                 );
@@ -905,7 +905,7 @@ export const PopsFolder = {
           ...Array.from(folderListSortFileNameElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
           ...Array.from(folderListSortLatestTimeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
           ...Array.from(folderListSortFileSizeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
-        ].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
+        ].forEach(($elItem) => $elItem.classList.remove("pops-folder-icon-active"));
       }
       /**
        * 修改导航箭头的状态

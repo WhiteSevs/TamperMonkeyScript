@@ -201,7 +201,7 @@ export const PopsRightClickMenu = {
           popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
             capture: true,
           });
-          $menu.remove();
+          popsDOMUtils.remove($menu);
         };
         if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
           // 有动画
@@ -221,7 +221,7 @@ export const PopsRightClickMenu = {
           popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
         } else {
           // 无动画
-          $menu.remove();
+          popsDOMUtils.remove($menu);
         }
       },
       /**
@@ -557,7 +557,7 @@ export const PopsRightClickMenu = {
                     removeElement(menuData.child);
                   }
                 });
-                $el.remove();
+                popsDOMUtils.remove($el);
               }
               // 遍历根元素的上的__menuData__.child，判断
               removeElement(li_menuData.child);

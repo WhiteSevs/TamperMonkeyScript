@@ -400,7 +400,7 @@ export const PopsSearchSuggestion = {
                 const result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
                 if (typeof result === "boolean" && result) {
                   data.splice(data.indexOf(dataItem), 1);
-                  $searchItem.remove();
+                  popsDOMUtils.remove($searchItem);
                 }
               }
               if (!SearchSuggestion.$el.$dropdownContainer.children.length) {
@@ -603,9 +603,11 @@ export const PopsSearchSuggestion = {
        * 移除正在搜索中的提示
        */
       removePromptsInSearch() {
-        SearchSuggestion.$el.$dropdownContainer
-          .querySelector<HTMLLIElement>(`li.pops-${popsType}-search-suggestion-dropdown-searching-item`)
-          ?.remove();
+        popsDOMUtils.remove(
+          SearchSuggestion.$el.$dropdownContainer.querySelector<HTMLLIElement>(
+            `li.pops-${popsType}-search-suggestion-dropdown-searching-item`
+          )
+        );
       },
       /**
        * 更新搜索建议框的位置(top、left)
