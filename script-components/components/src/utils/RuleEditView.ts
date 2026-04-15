@@ -112,11 +112,11 @@ class RuleEditView<T> {
           
       }
       .rule-form-container li{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 5px 20px;
-          gap: 10px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 5px 20px;
+        gap: 10px;
       }
       .rule-form-ulist-dynamic{
         --button-margin-top: 0px;
@@ -139,16 +139,16 @@ class RuleEditView<T> {
         width: 100%;
       }
       .pops-panel-item-left-main-text{
-          max-width: 150px;
+        max-width: 150px;
       }
       .pops-panel-item-right-text{
-          padding-left: 30px;
+        padding-left: 30px;
       }
       .pops-panel-item-right-text,
       .pops-panel-item-right-main-text{
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .pops-panel-item-left-desc-text{
         line-height: normal;
