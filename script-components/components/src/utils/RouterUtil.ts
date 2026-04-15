@@ -17,7 +17,7 @@ class RouterBuilder {
   private __host = {
     value: void 0 as string | RegExp | undefined,
     type: "same" as MatchType,
-    /** 
+    /**
      * + `true`: `window.location.host`
      * + `false`: `window.location.hostname`
      */
@@ -37,9 +37,9 @@ class RouterBuilder {
       type?: MatchType;
     }>(),
   };
-  /** 
+  /**
    * 其它实例的结果
-   * 
+   *
    * 用于or比较结果
    */
   private otherInstResultWithOr: boolean = false;
@@ -346,7 +346,7 @@ class RouterBuilder {
    */
   or(href?: string) {
     this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
-    const routerBuilder =  new RouterBuilder(href);
+    const routerBuilder = new RouterBuilder(href);
     routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
     return routerBuilder;
   }
@@ -354,7 +354,7 @@ class RouterBuilder {
    * 获取判断结果
    */
   r(): boolean {
-    if(this.otherInstResultWithOr){
+    if (this.otherInstResultWithOr) {
       // 直接true了
       // 无需判断
       return this.otherInstResultWithOr;
