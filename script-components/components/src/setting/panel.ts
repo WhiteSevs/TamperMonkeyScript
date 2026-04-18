@@ -7,6 +7,7 @@ import type {
 } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
 import Qmsg from "qmsg";
+import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";
 import { CommonUtil } from "./../utils/CommonUtil";
 import {
@@ -19,6 +20,7 @@ import {
 } from "./panel-config";
 import { PanelContent } from "./panel-content";
 import { PanelMenu } from "./panel-menu";
+import { PanelMenuResultsHandler, type PanelMenuExecMenuResult } from "./panel-menu-results-handler";
 import { PopsPanelStorageApi } from "./panel-storage";
 import { PanelUISize } from "./panel-ui-size";
 
@@ -53,21 +55,14 @@ type ExecMenuCallBackOption<T = any> = {
    * @example
    * addStoreValue([Function)])
    */
-  addStoreValue: (...args: ExecMenuResult) => void;
-};
-
-type ExecMenuResultInst = {
-  /**
-   * 样式元素
-   */
-  $css?: (Element | null | undefined)[] | (Element | null | undefined);
-  /**
-   * 卸载函数，在菜单项为关闭状态时执行卸载
-   */
-  destory?: () => void;
+  addStoreValue: (...args: PanelMenuExecMenuResult) => void;
 };
 
 type OnceExecMenuStoreData = {
+  /**
+   * 监听的键名
+   */
+  keyList: string[];
   /**
    * 重载菜单执行
    *
@@ -90,32 +85,28 @@ type OnceExecMenuStoreData = {
    */
   clear(): void;
   /**
-   * 执行卸载函数，该函数是由菜单执行回调的返回值中的函数构成
-   */
-  destory(): void;
-  /**
    * 清空存储的元素列表
    */
-  clearStoreStyleElements: () => void;
+  clearStoreNodeList(): void;
+  /**
+   * 执行卸载函数，该函数是由菜单执行回调的返回值中的函数构成
+   *
+   * 执行后情况存储的数组
+   */
+  execDestoryFnAndClear(): void;
   /**
    * 移除值改变的监听器
    */
-  removeValueChangeListener: () => void;
+  removeValueChangeListener(): void;
   /**
    * 清空存储的一次执行的键
    */
-  clearOnceExecMenuData: () => void;
+  clearOnceExecMenuData(): void;
+  /**
+   * 判断是否执行
+   */
+  checkMenuExec(): boolean;
 };
-
-type ExecMenuResult =
-  | ExecMenuResultInst
-  | Element
-  | null
-  | undefined
-  | void
-  | (Element | undefined | null | (() => void))[]
-  | any
-  | any[];
 
 type UrlChangeWithExecMenuOnceEventConfig = {
   /** 当前url */
@@ -397,12 +388,14 @@ const Panel = {
        * 是否立即触发此回调，此配置不会触发其它对该键的监听回调
        *
        * 如果同时设置了immediateAll，则该配置优先级最高
+       * @default false
        */
       immediate?: boolean;
       /**
        * 是否立即触发所有监听此键的回调
        *
        * 如果同时设置了immediate，则该配置优先级最低
+       * @default false
        */
       immediateAll?: boolean;
     }
@@ -451,18 +444,19 @@ const Panel = {
    *
    * + true （默认）只执行一次，且会监听键的值改变
    * + false 不会监听键的值改变
+   * @returns
+   *
+   * + `undefined` 执行的键不存在
    */
   async exec<T = any>(
     queryKey: string | string[] | (() => string | string[]),
-    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult,
     checkExec?: (
       /** 键名列表 */
       keyList: string[]
     ) => boolean,
     once: boolean = true
   ) {
-    const that = this;
-
     let queryKeyFn: () => string | string[];
     if (typeof queryKey === "string" || Array.isArray(queryKey)) {
       queryKeyFn = () => queryKey;
@@ -495,153 +489,25 @@ const Panel = {
         return this.$data.onceExecMenuData.get(storageKey)!;
       }
     }
-    /**
-     * 存储菜单返回的值，在监听到值改变且值为false时执行删除元素
-     *
-     * 例如：元素
-     */
-    let storeValueList: Element[] = [];
     /** 所有监听的id列表 */
     const listenerIdList: number[] = [];
-    /**
-     * 执行卸载的函数
-     */
-    let destoryFnList: ((...args: any[]) => void)[] = [];
-    /**
-     * 主动添加存储值
-     * @param args 支持以下类型
-     * + [Element、null、undefined、Function]
-     * + Element
-     * + Function
-     * + null
-     * + undefined
-     * + ExecMenuResultInst
-     */
-    const addStoreValueCallback = (enableValue: boolean, args: any) => {
-      const dynamicMenuStoreValueList: typeof storeValueList = [];
-      const dynamicDestoryFnList: ((...args: any[]) => void)[] = [];
-      let resultValueList: any[] = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
-        // 额外处理ExecMenuResultInst类型
-        const handleArgs = (obj: any) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              // 元素
-              resultValueList.push(obj);
-            } else {
-              // 对象，包括数组
-              const { $css, destory } = obj as ExecMenuResultInst;
-              if ($css != null) {
-                // 元素
-                if (Array.isArray($css)) {
-                  resultValueList = resultValueList.concat($css);
-                } else {
-                  resultValueList.push($css);
-                }
-              }
-              if (typeof destory === "function") {
-                resultValueList.push(destory);
-              }
-            }
-          } else {
-            resultValueList.push(obj);
-          }
-        };
-        if (args != null && Array.isArray(args)) {
-          for (const it of args) {
-            handleArgs(it);
-          }
+
+    const panelMenuResultsHandler = new PanelMenuResultsHandler({
+      keyList: keyList,
+      getValue: (key: string) => {
+        const value = this.getValue<boolean>(key);
+        return Boolean(value);
+      },
+      checkExec(keyList) {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
         } else {
-          handleArgs(args);
+          flag = keyList.every((key) => this.getValue(key));
         }
-      }
-      const handleResult = (it: any) => {
-        if (it == null) {
-          // 空的
-          return;
-        }
-        if (it instanceof Element) {
-          // 元素
-          dynamicMenuStoreValueList.push(it);
-          return;
-        }
-        if (typeof it === "function") {
-          // 函数（判断为卸载函数）
-          dynamicDestoryFnList.push(it);
-          return;
-        }
-      };
-      for (const it of resultValueList) {
-        const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
-          // 数组套数组
-          for (const it2 of it) {
-            const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
-          }
-        }
-      }
-      // 先执行旧的卸载函数和移除添加的元素
-      // 清理之前存储的元素列表
-      execClearStoreStyleElements();
-      // 执行卸载函数
-      execDestory();
-      if (enableValue) {
-        // 执行
-        // 追加存储的元素列表
-        // 追加卸载函数
-        storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-        destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-      }
-    };
-    /**
-     * 获取值
-     */
-    const getMenuValue = (key: string) => {
-      const value = this.getValue<boolean>(key);
-      return Boolean(value);
-    };
-    /**
-     * 清空之前存储的值（例如：元素）
-     */
-    const execClearStoreStyleElements = () => {
-      for (let index = 0; index < storeValueList.length; index++) {
-        const $css = storeValueList[index];
-        $css?.remove();
-        storeValueList.splice(index, 1);
-        index--;
-      }
-    };
-    /**
-     * 执行卸载函数
-     */
-    const execDestory = () => {
-      for (let index = 0; index < destoryFnList.length; index++) {
-        const destoryFnItem = destoryFnList[index];
-        destoryFnItem();
-        destoryFnList.splice(index, 1);
-        index--;
-      }
-    };
-    /**
-     * 判断执行
-     */
-    const checkMenuExec = () => {
-      let flag = false;
-      if (typeof checkExec === "function") {
-        flag = checkExec(keyList);
-      } else {
-        flag = keyList.every((key) => getMenuValue(key));
-      }
-      return flag;
-    };
+        return flag;
+      },
+    });
     /**
      * 值改变触发的回调
      */
@@ -655,8 +521,8 @@ const Panel = {
         oldValue: any;
       }
     ) => {
-      const execFlag = checkMenuExec();
-      let callbackResult: ExecMenuResult = [];
+      const execFlag = panelMenuResultsHandler.checkMenuExec();
+      let callbackResult: PanelMenuExecMenuResult = [];
       if (execFlag) {
         // 开启
         // 获取回调函数的返回值
@@ -666,11 +532,11 @@ const Panel = {
           triggerKey: valueOption?.key,
           value: (isArrayKey ? valueList : valueList[0]) as T,
           addStoreValue: (...args: any[]) => {
-            return addStoreValueCallback(execFlag, args);
+            return panelMenuResultsHandler.handlerResult(execFlag, args);
           },
         });
       }
-      addStoreValueCallback(execFlag, callbackResult);
+      panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
     };
     // 仅执行一次
     // 那么需要添加值改变监听
@@ -689,23 +555,21 @@ const Panel = {
     await valueChangeCallback();
 
     const result: OnceExecMenuStoreData = {
+      checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+      keyList: keyList,
       reload() {
-        this.clearStoreStyleElements();
-        this.destory();
+        this.clearStoreNodeList();
+        this.execDestoryFnAndClear();
         valueChangeCallback();
       },
       clear() {
-        this.clearStoreStyleElements();
-        this.destory();
+        panelMenuResultsHandler.clearStoreNodeList();
+        this.execDestoryFnAndClear();
         this.removeValueChangeListener();
         this.clearOnceExecMenuData();
       },
-      clearStoreStyleElements: () => {
-        return execClearStoreStyleElements();
-      },
-      destory() {
-        return execDestory();
-      },
+      clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+      execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
       removeValueChangeListener: () => {
         listenerIdList.forEach((listenerId) => {
           this.removeValueChangeListener(listenerId);
@@ -713,7 +577,7 @@ const Panel = {
       },
       clearOnceExecMenuData() {
         if (once) {
-          that.$data.onceExecMenuData.delete(storageKey);
+          Panel.$data.onceExecMenuData.delete(storageKey);
         }
       },
     };
@@ -723,6 +587,8 @@ const Panel = {
   },
   /**
    * 自动判断菜单是否启用，如果启用，执行回调，如果不启用，执行卸载函数
+   *
+   * 但是只有`once=true`时才会监听值改变并触发`callback`，如果已执行`callback`后再通过开关改为false时，这时候是不会执行卸载函数的
    * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
    * @param callback 回调
    * @param isReverse 逆反判断菜单启用，默认false
@@ -730,14 +596,14 @@ const Panel = {
    */
   async execMenu<T = any>(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult,
     isReverse: boolean = false,
     once: boolean = false
   ) {
     return await this.exec<T>(
       key,
-      async (option) => {
-        return await callback(option);
+      async (...args) => {
+        return await callback(...args);
       },
       (keyList) => {
         const execFlag = keyList.every((__key__) => {
@@ -769,7 +635,7 @@ const Panel = {
    */
   async execMenuOnce<T = any>(
     key: string | string[],
-    callback: (option: ExecMenuCallBackOption<T>) => ExecMenuResult,
+    callback: (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult,
     isReverse: boolean = false,
     listenUrlChange: boolean = false
   ) {
@@ -777,16 +643,150 @@ const Panel = {
     if (listenUrlChange) {
       if (result) {
         // result可能是新的返回值或者是旧的存储的返回值
-        const urlChangeEvent = () => {
+        const urlChangeCallback = () => {
           result.reload();
         };
         // 移除旧的监听
         this.removeUrlChangeWithExecMenuOnceListener(key);
         // 添加新的监听
-        this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+        this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
       }
     }
     return result;
+  },
+  /**
+   * 执行多个菜单，当所有菜单都执行时，执行相应的回调，只要有任意一个菜单未执行，那么执行该回调的卸载函数
+   * @param menus 需要执行的菜单项
+   * @param allExecCallback 当menus都执行时调用的回调函数
+   * @param isReverse 逆反判断菜单启用，默认false
+   * @param once 是否是只执行一次，默认false
+   * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果该回调为监听Router改变，请设置该值false，否则会反复触发此回调进行多次监听Router
+   */
+  async execMoreMenu<T = any>(
+    menus: [string, (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult][],
+    allExecCallback: () => PanelMenuExecMenuResult,
+    isReverse: boolean = false,
+    once: boolean = false,
+    listenUrlChange: boolean = false
+  ) {
+    const results = await Promise.all(
+      menus.map(async ([key, callback]) => {
+        const menuResult = await this.execMenu<T>(
+          key,
+          (...args) => {
+            const result = callback(...args);
+            return result;
+          },
+          isReverse,
+          once
+        );
+        return menuResult;
+      })
+    );
+    const panelMenuResultsHandler = new PanelMenuResultsHandler({
+      keyList: menus.map(([key]) => key),
+      getValue: (key) => {
+        const value = this.getValue<boolean>(key);
+        return Boolean(value);
+      },
+    });
+
+    const listenerIdList: number[] = [];
+
+    const __destory__ = (removeListener: boolean = false) => {
+      // exec destory and remove
+      // remove node
+      panelMenuResultsHandler.clearStoreNodeList();
+      panelMenuResultsHandler.execDestoryFnAndClear();
+      if (removeListener) {
+        // remove listener
+        for (const listenerId of listenerIdList) {
+          this.removeValueChangeListener(listenerId);
+        }
+        for (const result of results) {
+          if (result) {
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+          }
+        }
+      }
+    };
+    const __allExecCallback__ = () => {
+      const allExecFlag = results.every((result) => {
+        if (result) {
+          return result.checkMenuExec();
+        } else {
+          return true;
+        }
+      });
+      __destory__(false);
+      if (allExecFlag) {
+        const execResult = allExecCallback();
+        // store destory function or store node
+        panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+      }
+    };
+    __allExecCallback__();
+    for (const result of results) {
+      if (result) {
+        // result可能是新的返回值或者是旧的存储的返回值
+        const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+          __allExecCallback__();
+        });
+        listenerIdList.push(listenerId);
+        if (listenUrlChange) {
+          const urlChangeCallback = () => {
+            result.reload();
+          };
+          // 移除旧的监听
+          this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+          // 添加新的监听
+          this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+        }
+      }
+    }
+    return {
+      clear() {
+        for (const result of results) {
+          result?.clear();
+        }
+        this.execDestoryFnAndClear();
+        this.removeValueChangeListener();
+      },
+      /**
+       * 执行销毁函数
+       */
+      execDestoryFnAndClear() {
+        for (const result of results) {
+          result?.execDestoryFnAndClear();
+        }
+        __destory__(false);
+      },
+      removeValueChangeListener() {
+        for (const result of results) {
+          result?.removeValueChangeListener();
+        }
+        __destory__(true);
+      },
+    };
+  },
+
+  /**
+   * 执行多个菜单，当所有菜单都执行时，执行相应的回调，只要有任意一个菜单未执行，那么执行该回调的卸载函数
+   *
+   * 只会执行一次
+   * @param menus 需要执行的菜单项
+   * @param allExecCallback 当menus都执行时调用的回调函数
+   * @param isReverse 逆反判断菜单启用，默认false
+   * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果该回调为监听Router改变，请设置该值false，否则会反复触发此回调进行多次监听Router
+   */
+  async execMoreMenuOnce<T = any>(
+    menus: [string, (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult][],
+    allExecCallback: () => PanelMenuExecMenuResult,
+    isReverse: boolean = false,
+    listenUrlChange: boolean = false
+  ) {
+    const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+    return results;
   },
   /**
    * 移除已执行的仅执行一次的菜单
@@ -1131,7 +1131,7 @@ const Panel = {
 				`,
       });
 
-      const $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
+      // const $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
       const $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
       const $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
 
@@ -1486,11 +1486,18 @@ const Panel = {
   },
   /**
    * 把key:string[]转为string
+   *
+   * 如果是字符串数组，且只有一个，则取出来
+   * @param key
    */
   transformKey(key: string | string[]) {
     if (Array.isArray(key)) {
-      const keyArray = key.sort();
-      return JSON.stringify(keyArray);
+      if (key.length > 1) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key[0];
+      }
     } else {
       return key;
     }
@@ -1499,7 +1506,6 @@ const Panel = {
    * 通过.value获取动态值，即该值在其它地方进行.setValue时，此地方也能获取到最新值
    */
   getDynamicValue<T extends any = boolean | undefined>(key: string, defaultValue?: T) {
-    const that = this;
     let isInit = false;
     let __value = defaultValue;
     const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -1512,7 +1518,7 @@ const Panel = {
       get value() {
         if (!isInit) {
           isInit = true;
-          __value = that.getValue<T>(key, defaultValue);
+          __value = Panel.getValue<T>(key, defaultValue);
         }
         return __value;
       },
@@ -1520,16 +1526,14 @@ const Panel = {
        * 销毁监听
        */
       destory() {
-        that.removeValueChangeListener(listenerId);
+        Panel.removeValueChangeListener(listenerId);
       },
     };
   },
 };
 
-export {
-  Panel,
-  type ExecMenuCallBackOption,
-  type ExecMenuResultInst,
-  type OnceExecMenuStoreData,
-  type UrlChangeWithExecMenuOnceEventConfig,
-};
+if (import.meta.env.DEV) {
+  Reflect.set(unsafeWindow, "Panel", Panel);
+}
+
+export { Panel, type ExecMenuCallBackOption, type OnceExecMenuStoreData, type UrlChangeWithExecMenuOnceEventConfig };
