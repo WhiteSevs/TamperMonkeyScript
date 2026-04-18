@@ -2,7 +2,6 @@ import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinSearchBlock = {
   init() {
@@ -26,6 +25,15 @@ export const DouYinSearchBlock = {
     });
     Panel.execMenuOnce("dy-search-blockAIAssistant", () => {
       return this.blockAIAssistant();
+    });
+    Panel.execMenuOnce("dy-search-blockColumn", () => {
+      return this.blockColumn();
+    });
+    Panel.execMenuOnce("dy-search-blockSingleColumn", () => {
+      return this.blockSingleColumn();
+    });
+    Panel.execMenuOnce("dy-search-blockFilter", () => {
+      return this.blockFilter();
     });
     this.resizeSearchFilterBar();
   },
@@ -132,5 +140,30 @@ export const DouYinSearchBlock = {
   blockSideBar() {
     log.info(`【屏蔽】侧边栏`);
     return addBlockCSS("#douyin-sidebar");
+  },
+  /**
+   * 【屏蔽】多列
+   */
+  blockColumn() {
+    log.info(`【屏蔽】多列`);
+    return addBlockCSS('#search-toolbar-container *:has(>svg rect[x="11"][y="11.5"][rx="1"])');
+  },
+  /**
+   * 【屏蔽】单列
+   */
+  blockSingleColumn() {
+    log.info(`【屏蔽】单列`);
+    return addBlockCSS(
+      '#search-toolbar-container *:has(>svg path[d="M4.963 7.628h10.36a.923.923 0 0 1 .922.923v7.025a.923.923 0 0 1-.923.924H4.964a.923.923 0 0 1-.923-.924V8.551a.923.923 0 0 1 .922-.923zm.923 1.384a.462.462 0 0 0-.461.462v5.18a.461.461 0 0 0 .461.46H14.4a.461.461 0 0 0 .462-.46v-5.18a.461.461 0 0 0-.462-.462H5.886z"])'
+    );
+  },
+  /**
+   * 【屏蔽】筛选
+   */
+  blockFilter() {
+    log.info(`【屏蔽】筛选`);
+    return addBlockCSS(
+      '#search-toolbar-container *:has(>span svg path[d="M9.898 8.28a.75.75 0 0 1-1.06 0l-2.83-2.828L3.18 8.28a.75.75 0 0 1-1.06-1.06l3.358-3.36a.75.75 0 0 1 1.061 0l3.359 3.36a.75.75 0 0 1 0 1.06z"])'
+    );
   },
 };

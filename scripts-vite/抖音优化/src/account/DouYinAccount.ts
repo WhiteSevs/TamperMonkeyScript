@@ -18,7 +18,7 @@ export const DouYinAccount = {
     ];
     // DouYinNetWorkHook.hookUserNoLoginResponse();
     const WAIT_TIME = 20000;
-    const uid = parseInt((Math.random() * 10000000000).toString());
+    const uid = parseInt((Math.random() * 1e5).toString());
     // const uid = 114514;
     const info = {
       uid: uid,

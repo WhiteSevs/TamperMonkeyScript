@@ -120,16 +120,20 @@ export const DouYinHook = {
         enableKey: string;
         code: string[];
         otherCodeList?: KeyboardOtherCodeName[];
-        callback?: (event: { code: string; otherCodeList: KeyboardOtherCodeName[] }) => void;
+        /**
+         * @returns
+         * + false: 自动阻止触发
+         */
+        callback?: (event: { code: string; otherCodeList: KeyboardOtherCodeName[] }) => void | false;
       }[] = [
         {
           // 取消赞|空格
           enableKey: "dy-keyboard-hook-likeOrDislike",
-          code: ["KeyZ"],
+          code: ["KeyZ", "Space"],
           callback(evt) {
             // 必须是空格时才执行下面的
             if (evt.code !== "Space") return;
-            if (DouYinRouter.isChat()) return;
+            if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
             utils.workerClearTimeout(timeId);
             timeId = utils.workerSetTimeout(() => {
               const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
@@ -154,7 +158,8 @@ export const DouYinHook = {
                 log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
                 $play.click();
               }
-            }, 288);
+            }, 250);
+            return false;
           },
         },
         {
@@ -335,13 +340,16 @@ export const DouYinHook = {
             // 未启用
             continue;
           }
-          // 阻止触发
           if (typeof keyboardConfig.callback === "function") {
-            keyboardConfig.callback({
+            const result = keyboardConfig.callback({
               code: code,
               otherCodeList: otherCodeList,
             });
+            if (result == null) {
+              continue;
+            }
           }
+          // 阻止触发
           flag = false;
           break;
         }

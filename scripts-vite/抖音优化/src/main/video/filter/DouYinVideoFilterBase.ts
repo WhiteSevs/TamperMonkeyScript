@@ -1126,7 +1126,7 @@ export class DouYinVideoFilterBase {
     if (args.length === 1) {
       const $video = args[0];
       if ($video != null && $video instanceof HTMLElement) {
-        $video.remove();
+        DOMUtils.remove($video);
       }
     } else if (args.length === 2) {
       const videoList = args[0];
@@ -1134,7 +1134,7 @@ export class DouYinVideoFilterBase {
       if (typeof deleteIndex === "number") {
         const item = videoList[deleteIndex];
         if (item != null && item instanceof Element) {
-          item?.remove();
+          DOMUtils.remove(item);
         }
         videoList.splice(deleteIndex, 1);
       }

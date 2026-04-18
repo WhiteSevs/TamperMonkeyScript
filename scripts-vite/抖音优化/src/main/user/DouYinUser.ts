@@ -1,15 +1,18 @@
-import { addStyle, DOMUtils, log, utils } from "@/env";
-import blockCSS from "./css/block.css?raw";
+import { addStyle, DOMUtils, utils } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
+import blockCSS from "./css/block.css?raw";
+import { DouYinUserBlock } from "./block/DouYinUserBlock";
 
 export const DouYinUser = {
   init() {
     addStyle(blockCSS);
+    DouYinUserBlock.init();
     DOMUtils.onReady(() => {
       Panel.execMenu("dy-user-addShowUserUID", () => {
-        this.addShowUserUID();
+        return this.addShowUserUID();
       });
     });
   },
@@ -17,6 +20,7 @@ export const DouYinUser = {
    * 显示UID
    */
   addShowUserUID() {
+    const nodeClassName = "gm-user-uid";
     ReactUtils.waitReactPropsToSet(`[data-e2e="user-detail"] [data-e2e="user-info"]`, "reactFiber", {
       msg: "显示UID",
       check(reactInstance) {
@@ -24,11 +28,11 @@ export const DouYinUser = {
       },
       set(reactInstance, $target) {
         const uid: string = reactInstance?.return?.memoizedProps?.userInfo?.uid;
-        DOMUtils.remove($target.querySelectorAll<HTMLElement>(".gm-user-uid"));
+        DOMUtils.remove($target.querySelectorAll<HTMLElement>(`.${nodeClassName}`));
         const $userUID = DOMUtils.createElement(
           "p",
           {
-            className: "gm-user-uid",
+            className: nodeClassName,
             innerHTML: /*html*/ `
 							<span>UID：${uid}</span>
 						`,

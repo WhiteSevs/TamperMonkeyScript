@@ -989,7 +989,7 @@ export const DouYinVideoFilter = {
               // 设置删除事件
               DOMUtils.on($dynamicDelete, "click", (event) => {
                 DOMUtils.preventEvent(event);
-                $dynamicUListContainer.remove();
+                DOMUtils.remove($dynamicUListContainer);
                 if (Array.isArray(data.dynamicData)) {
                   const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                   if (findIndex !== -1) {

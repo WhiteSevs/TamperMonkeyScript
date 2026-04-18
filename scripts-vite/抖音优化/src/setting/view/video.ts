@@ -487,10 +487,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
-                UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+                UIButton("规则导入", "导入自定义的规则", "导入", void 0, false, false, "primary", () => {
                   DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                 }),
-                UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+                UIButton("规则导出", "导出自定义的规则", "导出", void 0, false, false, "primary", () => {
                   DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(SCRIPT_NAME + "-视频过滤规则.json");
                 }),
               ],
@@ -565,7 +565,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-video-blockTitleTopTag",
                   false,
                   void 0,
-                  "例如：每周精选、抖音精选"
+                  "例如：每周精选、抖音精选、游戏评分"
                 ),
                 UISwitch(
                   "【屏蔽】视频标题下面的标签",

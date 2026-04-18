@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.12
+// @version      2026.4.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,8 +12,8 @@
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -940,6 +940,111 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag = false;
+      if (typeof this.option.checkExec === "function") {
+        flag = this.option.checkExec(this.option.keyList);
+      } else {
+        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -1269,7 +1374,6 @@
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -1296,110 +1400,25 @@
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag = false;
+          if (typeof checkExec === "function") {
+            flag = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
+          return flag;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -1408,11 +1427,11 @@
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -1426,23 +1445,21 @@
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -1450,7 +1467,7 @@
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -1460,8 +1477,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1485,14 +1502,107 @@
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -1736,7 +1846,6 @@
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -2048,14 +2157,17 @@
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -2065,12 +2177,12 @@
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },
@@ -3040,7 +3152,7 @@
       log.info("伪装登录");
       let result = [addBlockCSS(".login-tooltip-slot")];
       const WAIT_TIME = 2e4;
-      const uid = parseInt((Math.random() * 1e10).toString());
+      const uid = parseInt((Math.random() * 1e5).toString());
       const info = {
         uid,
         secUid: "",
@@ -3918,10 +4030,10 @@
         let keyboardConfigList = [
           {
             enableKey: "dy-keyboard-hook-likeOrDislike",
-            code: ["KeyZ"],
+            code: ["KeyZ", "Space"],
             callback(evt) {
               if (evt.code !== "Space") return;
-              if (DouYinRouter.isChat()) return;
+              if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
               utils.workerClearTimeout(timeId);
               timeId = utils.workerSetTimeout(() => {
                 const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
@@ -3946,7 +4058,8 @@
                   log.info(`当前视频播放按钮状态：${player.state}，点击切换状态`, $play);
                   $play.click();
                 }
-              }, 288);
+              }, 250);
+              return false;
             },
           },
           {
@@ -4121,10 +4234,13 @@
               continue;
             }
             if (typeof keyboardConfig.callback === "function") {
-              keyboardConfig.callback({
+              const result = keyboardConfig.callback({
                 code,
                 otherCodeList,
               });
+              if (result == null) {
+                continue;
+              }
             }
             flag = false;
             break;
@@ -4705,7 +4821,7 @@
       if (DouYinRouter.isSearch()) {
         result.push(addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
         domUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 1e4).then(($semi) => {
-          $semi?.remove();
+          domUtils.remove($semi);
         });
       } else if (DouYinRouter.isLive());
       return result;
@@ -5329,8 +5445,12 @@
       return addBlockCSS(".xgplayer-recommend-tag");
     },
     blobkTitleTopTag() {
-      log.info(`【屏蔽】视频标题上的标签`);
-      return addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
+      log.info(`【屏蔽】视频标题上面的标签`);
+      return addBlockCSS(
+        "span:has(+#video-info-wrap):has(img)",
+        "span:has(+div #video-info-wrap):has(img)",
+        ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+      );
     },
     blockVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
@@ -7019,7 +7139,7 @@
       if (args.length === 1) {
         const $video = args[0];
         if ($video != null && $video instanceof HTMLElement) {
-          $video.remove();
+          DOMUtils.remove($video);
         }
       } else if (args.length === 2) {
         const videoList = args[0];
@@ -7027,7 +7147,7 @@
         if (typeof deleteIndex === "number") {
           const item = videoList[deleteIndex];
           if (item != null && item instanceof Element) {
-            item?.remove();
+            DOMUtils.remove(item);
           }
           videoList.splice(deleteIndex, 1);
         }
@@ -7765,6 +7885,7 @@
     doubleClickAction(action) {
       const isWebSiteFullScreen = action === "website-fullscreen";
       log.info("双击video动作：" + action);
+      let videoPaused = false;
       const listener = domUtils.onOneOrDouble(
         document,
         [".newVideoPlayer", ".slider-video"],
@@ -7772,6 +7893,22 @@
           if (options.isDouble) {
             domUtils.preventEvent(evt);
             this.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+          }
+          const $video = $selector.querySelector("video");
+          if (!$video) {
+            Qmsg.error("未找到video元素");
+            return;
+          }
+          if (options.isDouble) {
+            if (videoPaused) {
+              log.info(`双击动作：${$video.paused ? "由暂停恢复到双击前的播放" : "保持暂停"}`);
+              $video.pause();
+            } else {
+              log.info(`双击动作：${$video.paused ? "保持播放" : "由播放恢复到双击前的暂停"}`);
+              $video.play();
+            }
+          } else {
+            videoPaused = $video.paused;
           }
         },
         {
@@ -10448,6 +10585,15 @@
       Panel.execMenuOnce("dy-search-blockAIAssistant", () => {
         return this.blockAIAssistant();
       });
+      Panel.execMenuOnce("dy-search-blockColumn", () => {
+        return this.blockColumn();
+      });
+      Panel.execMenuOnce("dy-search-blockSingleColumn", () => {
+        return this.blockSingleColumn();
+      });
+      Panel.execMenuOnce("dy-search-blockFilter", () => {
+        return this.blockFilter();
+      });
       this.resizeSearchFilterBar();
     },
     resizeSearchFilterBar() {
@@ -10532,6 +10678,22 @@
     blockSideBar() {
       log.info(`【屏蔽】侧边栏`);
       return addBlockCSS("#douyin-sidebar");
+    },
+    blockColumn() {
+      log.info(`【屏蔽】多列`);
+      return addBlockCSS('#search-toolbar-container *:has(>svg rect[x="11"][y="11.5"][rx="1"])');
+    },
+    blockSingleColumn() {
+      log.info(`【屏蔽】单列`);
+      return addBlockCSS(
+        '#search-toolbar-container *:has(>svg path[d="M4.963 7.628h10.36a.923.923 0 0 1 .922.923v7.025a.923.923 0 0 1-.923.924H4.964a.923.923 0 0 1-.923-.924V8.551a.923.923 0 0 1 .922-.923zm.923 1.384a.462.462 0 0 0-.461.462v5.18a.461.461 0 0 0 .461.46H14.4a.461.461 0 0 0 .462-.46v-5.18a.461.461 0 0 0-.462-.462H5.886z"])'
+      );
+    },
+    blockFilter() {
+      log.info(`【屏蔽】筛选`);
+      return addBlockCSS(
+        '#search-toolbar-container *:has(>span svg path[d="M9.898 8.28a.75.75 0 0 1-1.06 0l-2.83-2.828L3.18 8.28a.75.75 0 0 1-1.06-1.06l3.358-3.36a.75.75 0 0 1 1.061 0l3.359 3.36a.75.75 0 0 1 0 1.06z"])'
+      );
     },
   };
   const DouYinRouterChangeData = {
@@ -10760,16 +10922,141 @@
   };
   const blockCSS$6 =
     '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\n  display: none !important;\n}\n';
+  const DouYinUserBlockInfo = {
+    init() {
+      Panel.execMenuOnce("dy-user-block-name", () => {
+        return this.blockName();
+      });
+      Panel.execMenuOnce("dy-user-block-follow", () => {
+        return this.blockFollow();
+      });
+      Panel.execMenuOnce("dy-user-block-fans", () => {
+        return this.blockFans();
+      });
+      Panel.execMenuOnce("dy-user-block-likes", () => {
+        return this.blockLikes();
+      });
+      Panel.execMenuOnce("dy-user-block-id", () => {
+        return this.blockId();
+      });
+      Panel.execMenuOnce("dy-user-block-ip", () => {
+        return this.blockIp();
+      });
+      Panel.execMenuOnce("dy-user-block-age", () => {
+        return this.blockAge();
+      });
+      Panel.execMenuOnce("dy-user-block-intro", () => {
+        return this.blockIntro();
+      });
+      Panel.execMenuOnce("dy-user-block-shareHomeButton", () => {
+        return this.shareHomeButton();
+      });
+      Panel.execMenuOnce("dy-user-block-moreButton", () => {
+        return this.moreButton();
+      });
+      Panel.execMenuOnce("dy-user-block-followButton", () => {
+        return this.followButton();
+      });
+      Panel.execMenuOnce("dy-user-block-messageButton", () => {
+        return this.messageButton();
+      });
+    },
+    blockName() {
+      log.info(`【屏蔽】用户名`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] > div:first-child');
+    },
+    blockFollow() {
+      log.info(`【屏蔽】关注`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] [data-e2e="user-info-follow"]');
+    },
+    blockFans() {
+      log.info(`【屏蔽】粉丝`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] [data-e2e="user-info-fans"]');
+    },
+    blockLikes() {
+      log.info(`【屏蔽】获赞`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] [data-e2e="user-info-like"]');
+    },
+    blockId() {
+      log.info(`【屏蔽】抖音号`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"]  > p > span:nth-child(1)');
+    },
+    blockIp() {
+      log.info(`【屏蔽】IP属地`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] > p > span:nth-child(2)');
+    },
+    blockAge() {
+      log.info(`【屏蔽】年龄`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] > p > span:nth-child(3)');
+    },
+    blockIntro() {
+      log.info(`【屏蔽】介绍`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info"] ');
+    },
+    shareHomeButton() {
+      log.info(`【屏蔽】分享主页`);
+      return addBlockCSS('[data-e2e="user-detail"] #frame-user-info-share-button');
+    },
+    moreButton() {
+      log.info(`【屏蔽】更多`);
+      return addBlockCSS('[data-e2e="user-detail"] #tooltip');
+    },
+    followButton() {
+      log.info(`【屏蔽】关注`);
+      return addBlockCSS('[data-e2e="user-detail"] [data-e2e="user-info-follow-btn"]');
+    },
+    messageButton() {
+      log.info(`【屏蔽】私信`);
+      return addBlockCSS(
+        '[data-e2e="user-detail"] *:has(+[data-e2e="user-info-follow-btn"])',
+        '[data-e2e="user-detail"] [data-e2e="user-info-follow-btn"]+*'
+      );
+    },
+  };
+  const DouYinUserBlockWork = {
+    init() {
+      Panel.execMoreMenuOnce(
+        [
+          ["dy-user-works-block-works", () => this.blockWorks()],
+          ["dy-user-works-block-recommend", () => this.blockRecommend()],
+          ["dy-user-works-block-likes", () => this.blockLikes()],
+        ],
+        () => {
+          return addBlockCSS("#user-tabbar");
+        }
+      );
+    },
+    blockWorks() {
+      log.info(`【屏蔽】作品`);
+      return addBlockCSS("#user-tabbar #semiTabpost");
+    },
+    blockRecommend() {
+      log.info(`【屏蔽】推荐`);
+      return addBlockCSS("#user-tabbar #semiTabrecommend");
+    },
+    blockLikes() {
+      log.info(`【屏蔽】喜欢`);
+      return addBlockCSS("#user-tabbar #semiTablike");
+    },
+  };
+  const DouYinUserBlock = {
+    init() {
+      DouYinUserBlockInfo.init();
+      DouYinUserBlockWork.init();
+    },
+  };
   const DouYinUser = {
     init() {
       addStyle(blockCSS$6);
+      DouYinUserBlock.init();
       domUtils.onReady(() => {
         Panel.execMenu("dy-user-addShowUserUID", () => {
-          this.addShowUserUID();
+          return this.addShowUserUID();
         });
       });
     },
     addShowUserUID() {
+      const nodeClassName = "gm-user-uid";
       ReactUtils.waitReactPropsToSet(`[data-e2e="user-detail"] [data-e2e="user-info"]`, "reactFiber", {
         msg: "显示UID",
         check(reactInstance) {
@@ -10777,11 +11064,11 @@
         },
         set(reactInstance, $target) {
           const uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
-          domUtils.remove($target.querySelectorAll(".gm-user-uid"));
+          domUtils.remove($target.querySelectorAll(`.${nodeClassName}`));
           const $userUID = domUtils.createElement(
             "p",
             {
-              className: "gm-user-uid",
+              className: nodeClassName,
               innerHTML: `
 							<span>UID：${uid}</span>
 						`,
@@ -11582,11 +11869,11 @@
           
       }
       .rule-form-container li{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 5px 20px;
-          gap: 10px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 5px 20px;
+        gap: 10px;
       }
       .rule-form-ulist-dynamic{
         --button-margin-top: 0px;
@@ -11609,16 +11896,16 @@
         width: 100%;
       }
       .pops-panel-item-left-main-text{
-          max-width: 150px;
+        max-width: 150px;
       }
       .pops-panel-item-right-text{
-          padding-left: 30px;
+        padding-left: 30px;
       }
       .pops-panel-item-right-text,
       .pops-panel-item-right-main-text{
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .pops-panel-item-left-desc-text{
         line-height: normal;
@@ -12901,7 +13188,7 @@
                 const $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                 domUtils.on($dynamicDelete, "click", (event) => {
                   domUtils.preventEvent(event);
-                  $dynamicUListContainer.remove();
+                  domUtils.remove($dynamicUListContainer);
                   if (Array.isArray(data.dynamicData)) {
                     const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                     if (findIndex !== -1) {
@@ -13197,6 +13484,36 @@
       return "https://www.douyin.com/search/" + encodeURIComponent(searchText);
     },
   };
+  const DouYinShortCut = {
+    shortCut: new ShortCut("general-short-cut"),
+    $data: {},
+    init() {
+      this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
+        capture: true,
+        beforeCallBack() {},
+      });
+    },
+    shorCutMapOption() {
+      return {
+        "shortcut-shieldLeftNavigator": {
+          callback() {
+            log.info("触发快捷键 ==> 【屏蔽】左侧导航栏");
+            const KEY2 = "shieldLeftNavigator";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
+          },
+        },
+        "shortcut-shieldTopNavigator": {
+          callback() {
+            log.info("触发快捷键 ==> 【屏蔽】顶部导航栏");
+            const KEY2 = "shieldTopNavigator";
+            const enable = Panel.getValue(KEY2);
+            Panel.setValue(KEY2, !enable);
+          },
+        },
+      };
+    },
+  };
   const DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
@@ -13211,6 +13528,7 @@
       DouYinVideoFilter.init();
       DouYinRedirect.init();
       DouYinBlock.init();
+      DouYinShortCut.init();
       Panel.execMenuOnce("watchLoginDialogToClose", () => {
         return DouYinAccount.watchLoginDialogToClose();
       });
@@ -13822,9 +14140,6 @@
         <a href="javascript:;" class="keyboard-oneClickClose">一键全部关闭</a>
     `,
     afterEnterDeepMenuCallBack,
-  };
-  const DouYinShortCut = {
-    shortCut: new ShortCut("general-short-cut"),
   };
   function queryGPUInfo() {
     const isFirefox = /Firefox/.test(window.navigator.userAgent);
@@ -14735,10 +15050,10 @@
                 type: "container",
                 text: "",
                 views: [
-                  UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+                  UIButton("规则导入", "导入自定义的规则", "导入", void 0, false, false, "primary", () => {
                     DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                   }),
-                  UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+                  UIButton("规则导出", "导出自定义的规则", "导出", void 0, false, false, "primary", () => {
                     DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(_SCRIPT_NAME_ + "-视频过滤规则.json");
                   }),
                 ],
@@ -14813,7 +15128,7 @@
                     "dy-video-blockTitleTopTag",
                     false,
                     void 0,
-                    "例如：每周精选、抖音精选"
+                    "例如：每周精选、抖音精选、游戏评分"
                   ),
                   UISwitch(
                     "【屏蔽】视频标题下面的标签",
@@ -15124,6 +15439,15 @@
                   UISwitch("【屏蔽】用户直播时闪烁的头像", "dy-search-blockUserLiveFlashingAvatar"),
                   UISwitch("【屏蔽】关键词选项", "dy-search-blockKeywordsOptions"),
                   UISwitch("【屏蔽】侧边栏", "dy-search-blockSideBar"),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UISwitch("【屏蔽】多列", "dy-search-blockColumn"),
+                  UISwitch("【屏蔽】单列", "dy-search-blockSingleColumn"),
+                  UISwitch("【屏蔽】筛选", "dy-search-blockFilter"),
                 ],
               },
             ],
@@ -15592,9 +15916,76 @@
     title: "用户",
     views: [
       {
-        text: "功能",
         type: "container",
-        views: [UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid")],
+        text: "",
+        views: [
+          {
+            type: "deepMenu",
+            text: "功能",
+            views: [
+              {
+                text: "功能",
+                type: "container",
+                views: [
+                  UISwitch("显示UID", "dy-user-addShowUserUID", true, void 0, "在用户信息区域下方显示当前用户的uid"),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "container",
+        text: "",
+        views: [
+          {
+            type: "deepMenu",
+            text: "布局屏蔽-用户信息",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            views: [
+              {
+                type: "container",
+                text: AutoOpenOrClose.text,
+                views: [
+                  UISwitch("【屏蔽】用户名", "dy-user-block-name"),
+                  UISwitch("【屏蔽】关注", "dy-user-block-follow"),
+                  UISwitch("【屏蔽】粉丝", "dy-user-block-fans"),
+                  UISwitch("【屏蔽】获赞", "dy-user-block-likes"),
+                  UISwitch("【屏蔽】抖音号", "dy-user-block-id"),
+                  UISwitch("【屏蔽】IP属地", "dy-user-block-ip"),
+                  UISwitch("【屏蔽】年龄", "dy-user-block-age"),
+                  UISwitch("【屏蔽】介绍", "dy-user-block-intro"),
+                ],
+              },
+              {
+                type: "container",
+                text: "",
+                views: [
+                  UISwitch("【屏蔽】分享主页", "dy-user-block-shareHomeButton"),
+                  UISwitch("【屏蔽】...", "dy-user-block-moreButton"),
+                  UISwitch("【屏蔽】关注", "dy-user-block-followButton"),
+                  UISwitch("【屏蔽】私信", "dy-user-block-messageButton"),
+                ],
+              },
+            ],
+          },
+          {
+            type: "deepMenu",
+            text: "布局屏蔽-作品",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            views: [
+              {
+                type: "container",
+                text: AutoOpenOrClose.text,
+                views: [
+                  UISwitch("【屏蔽】作品", "dy-user-works-block-works"),
+                  UISwitch("【屏蔽】推荐", "dy-user-works-block-recommend"),
+                  UISwitch("【屏蔽】喜欢", "dy-user-works-block-likes"),
+                ],
+              },
+            ],
+          },
+        ],
       },
     ],
   };

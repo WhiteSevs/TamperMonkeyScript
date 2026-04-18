@@ -23,6 +23,7 @@ import { DouYinVideoFilter } from "./video/filter/DouYinVideoFilter";
 import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
 import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
 import { DouYinRouterChangeData } from "./DouYinRouterChangeData";
+import { DouYinShortCut } from "./DouYinShortCut";
 
 export const DouYin = {
   init() {
@@ -40,6 +41,7 @@ export const DouYin = {
     DouYinNetWorkHook.init();
     DouYinRedirect.init();
     DouYinBlock.init();
+    DouYinShortCut.init();
     Panel.execMenuOnce("watchLoginDialogToClose", () => {
       return DouYinAccount.watchLoginDialogToClose();
     });

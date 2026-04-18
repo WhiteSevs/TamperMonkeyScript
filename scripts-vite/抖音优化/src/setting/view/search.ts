@@ -132,6 +132,15 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】侧边栏", "dy-search-blockSideBar"),
               ],
             },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】多列", "dy-search-blockColumn"),
+                UISwitch("【屏蔽】单列", "dy-search-blockSingleColumn"),
+                UISwitch("【屏蔽】筛选", "dy-search-blockFilter"),
+              ],
+            },
           ],
         },
         {

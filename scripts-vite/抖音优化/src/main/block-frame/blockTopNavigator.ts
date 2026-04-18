@@ -255,7 +255,7 @@ export const BlockTopNavigator = {
       // 搜索页面
       result.push(addBlockCSS("div:has(>div>div>.quick-access-nav-icon)"));
       DOMUtils.waitNode('li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")', 10000).then(($semi) => {
-        $semi?.remove();
+        DOMUtils.remove($semi);
       });
     } else if (DouYinRouter.isLive()) {
       // 直播页面

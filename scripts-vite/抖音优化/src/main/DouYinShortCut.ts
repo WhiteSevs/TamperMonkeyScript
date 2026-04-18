@@ -1,9 +1,6 @@
-import { $$, log, utils } from "@/env";
-import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
+import { log } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
-import Qmsg from "qmsg";
-import { unsafeWindow } from "ViteGM";
 
 export const DouYinShortCut = {
   shortCut: new ShortCut("general-short-cut"),

@@ -53,14 +53,20 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
     return addBlockCSS(".xgplayer-recommend-tag");
   },
   /**
-   * 【屏蔽】视频标题上的标签
+   * 【屏蔽】视频标题上面的标签
    *
    * - 每周精选
    * - 抖音精选
+   * - 游戏评分
    */
   blobkTitleTopTag() {
-    log.info(`【屏蔽】视频标题上的标签`);
-    return addBlockCSS("span:has(+#video-info-wrap):has(img)", "span:has(+div #video-info-wrap):has(img)");
+    log.info(`【屏蔽】视频标题上面的标签`);
+    return addBlockCSS(
+      "span:has(+#video-info-wrap):has(img)",
+      "span:has(+div #video-info-wrap):has(img)",
+      // 游戏评分
+      ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+    );
   },
   /**
    * 【屏蔽】视频标题下的标签

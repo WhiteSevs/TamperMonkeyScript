@@ -323,6 +323,7 @@ export const DouYinVideoPlayer = {
   doubleClickAction(action: "website-fullscreen" | "fullscreen") {
     const isWebSiteFullScreen = action === "website-fullscreen";
     log.info("双击video动作：" + action);
+    let videoPaused: boolean = false;
     const listener = DOMUtils.onOneOrDouble(
       document,
       [".newVideoPlayer", ".slider-video"],
@@ -331,6 +332,25 @@ export const DouYinVideoPlayer = {
           // 双击
           DOMUtils.preventEvent(evt);
           this.autoEnterElementFullScreen(true, isWebSiteFullScreen);
+        }
+        const $video = $selector.querySelector("video");
+        if (!$video) {
+          Qmsg.error("未找到video元素");
+          return;
+        }
+        if (options.isDouble) {
+          // 恢复播放状态
+          // 因为如果双击前是暂停状态，那双击后会导致video暂停，所以这里恢复播放状态
+          if (videoPaused) {
+            log.info(`双击动作：${$video.paused ? "由暂停恢复到双击前的播放" : "保持暂停"}`);
+            $video.pause();
+          } else {
+            log.info(`双击动作：${$video.paused ? "保持播放" : "由播放恢复到双击前的暂停"}`);
+            $video.play();
+          }
+        } else {
+          // 单击
+          videoPaused = $video.paused;
         }
       },
       {
