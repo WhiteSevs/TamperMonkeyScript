@@ -8,7 +8,6 @@ export const DouYinShortCut = {
   init() {
     this.shortCut.initGlobalKeyboardListener(this.shorCutMapOption(), {
       capture: true,
-      beforeCallBack() {},
     });
   },
   /**

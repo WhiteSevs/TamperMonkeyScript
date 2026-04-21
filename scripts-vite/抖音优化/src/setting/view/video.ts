@@ -697,8 +697,19 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】详情", "dy-video-comment-blockDetails"),
                 UISwitch("【屏蔽】TA的作品", "dy-video-comment-blockTAWork"),
                 UISwitch("【屏蔽】评论", "dy-video-comment-blockComment"),
+                UISwitch("【屏蔽】合集", "dy-video-comment-blockCollection"),
                 UISwitch("【屏蔽】问AI", "dy-video-comment-blockAskAI"),
                 UISwitch("【屏蔽】相关推荐", "dy-video-comment-blockRelatedRecommend"),
+              ],
+            },
+            {
+              type: "container",
+              text: "",
+              views: [
+                UISwitch("【屏蔽】回复", "dy-video-comment-blockReply"),
+                UISwitch("【屏蔽】分享", "dy-video-comment-blockShare"),
+                UISwitch("【屏蔽】点赞", "dy-video-comment-blockLike"),
+                UISwitch("【屏蔽】不喜欢", "dy-video-comment-blockDislike"),
               ],
             },
             {

@@ -10,13 +10,13 @@ export const DouYinRouter = {
   /**
    * 直播
    */
-  isLive() {
-    return RouterUtil.hostName("live.douyin.com").r() || this.isFollowLive() || this.isRootLive();
+  isLive(href?: string) {
+    return RouterUtil.hostName("live.douyin.com").r() || this.isFollowLive(href) || this.isRootLive(href);
   },
   /**
    * 创作者中心
    */
-  isCreator() {
+  isCreator(href?: string) {
     return RouterUtil.hostName("creator.douyin.com").r();
   },
   /**
@@ -24,41 +24,47 @@ export const DouYinRouter = {
    *
    * + /follow
    */
-  isFollow() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/follow").r();
+  isFollow(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/follow").r();
   },
   /**
    * 关注-直播
    *
    * + /follow/live/
    */
-  isFollowLive() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/follow/live/").r();
+  isFollowLive(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/follow/live/").r();
   },
   /**
    * 刷视频时的点击进去的直播
    *
    * + /root/live/
    */
-  isRootLive() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/root/live/").r();
+  isRootLive(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/root/live/").r();
   },
   /**
    * 推荐视频
    *
    * + /?recommend=1
    */
-  isRecommend() {
-    return this.isIndex() && RouterUtil.pathname("/").r() && RouterUtil.seachParams("recommend").r();
+  isRecommend(href?: string) {
+    return this.isIndex(href) && RouterUtil.pathname("/").r() && RouterUtil.seachParams("recommend").r();
   },
   /**
    * 搜索
    *
    * + /search/
    * + /root/search/
+   * + /user/用户id/search/搜索内容
    */
   isSearch(href?: string) {
-    return this.isIndex(href) && (this.isRootSearch(href) || RouterUtil.builder().pathnameStartsWith("/search/").r());
+    return (
+      this.isIndex(href) &&
+      (this.isRootSearch(href) ||
+        RouterUtil.builder(href).pathnameStartsWith("/search/").r() ||
+        this.isUserSearch(href))
+    );
   },
   /**
    * 其它地方进去的搜索
@@ -73,75 +79,83 @@ export const DouYinRouter = {
    *
    * + /channel/
    */
-  isChannel() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/channel/").r();
+  isChannel(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/channel/").r();
   },
   /**
    * 精选
    *
    * + /discover/
    */
-  isDiscover() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/discover/").r();
+  isDiscover(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/discover/").r();
   },
   /**
    * 用户主页
    *
    * + /user/
    */
-  isUser() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/user/").r();
+  isUser(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/user/").r();
+  },
+  /**
+   * 用户主页顶部进去的搜索
+   *
+   * + /user/用户id/search/搜索内容
+   */
+  isUserSearch(href?: string) {
+    return this.isUser(href) && RouterUtil.builder(href).pathnameIncludes("/search/").r();
   },
   /**
    * 单个视频，一般是分享的视频链接
    *
    * + /video/
    */
-  isVideo() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/video/").r();
+  isVideo(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/video/").r();
   },
   /**
    * 笔记图文
    *
    * + /note/
    */
-  isNote() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/note/").r();
+  isNote(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/note/").r();
   },
   /**
    * 精选
    *
    * + /jingxuan/
    */
-  isJingXuan() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/jingxuan").r();
+  isJingXuan(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/jingxuan").r();
   },
   /**
    * 朋友
    *
    * + /friend
    */
-  isFriend() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/friend").r();
+  isFriend(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/friend").r();
   },
   /**
    * 私信
    *
    * + /chat
    */
-  isChat() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/chat").r();
+  isChat(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/chat").r();
   },
   /**
    * AI抖音
    */
-  isAISearch() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/aisearch").r();
+  isAISearch(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/aisearch").r();
   },
   /**
    * 热点榜
    */
-  isHot() {
-    return this.isIndex() && RouterUtil.builder().pathnameStartsWith("/hot").r();
+  isHot(href?: string) {
+    return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/hot").r();
   },
 };

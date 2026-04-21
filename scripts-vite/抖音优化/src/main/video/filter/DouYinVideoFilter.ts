@@ -1182,7 +1182,7 @@ export const DouYinVideoFilter = {
           enable: true,
           option: [
             {
-              name: "无",
+              name: "全部",
               value: "",
               selectedCallBack(config) {
                 Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);

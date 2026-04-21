@@ -34,7 +34,7 @@ export const DouYinSearch = {
    * @param value 选择类型
    */
   setSearchResultType(value: "general" | "video" | "user" | "live") {
-    log.info(`搜索结果类型: ${value}`);
+    log.info(`设置搜索结果类型: ${value}`);
     const typeSelectors = {
       general: '#search-toolbar-container span[data-key="general"]',
       video: '#search-toolbar-container span[data-key="video"]',
