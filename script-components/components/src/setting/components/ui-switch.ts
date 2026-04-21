@@ -35,7 +35,7 @@ export const UISwitch = function (
      */
     handler: ReturnType<typeof SwitchShortCut>;
     /**
-     * 存储该快捷键的键名，如果没有，则默认使用上面存储switch的key
+     * 指定存储该快捷键的键名，如果没有，则默认使用上面存储switch的key
      */
     key?: string;
     /**

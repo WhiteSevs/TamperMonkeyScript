@@ -111,125 +111,6 @@ class ShortCut {
     this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
   }
   /**
-   * 初始化全局键盘监听
-   * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
-   * @param config 配置
-   */
-  initGlobalKeyboardListener(
-    shortCutOption: ShortCutOption,
-    config?: {
-      /** 是否阻止默认行为 */
-      isPrevent?: boolean;
-      /** 是否使用捕获 */
-      capture?: boolean;
-      /** 在调用配置的快捷键之前触发的回调，如果返回false则不触配置的快捷键的回调 */
-      beforeCallBack?: () => void | boolean | Promise<void | boolean>;
-    }
-  ) {
-    if (!this.#data.localOptions.length) {
-      log.warn("快捷键配置为空");
-      return;
-    }
-    const that = this;
-    /**
-     * 设置监听事件
-     * @param $target 监听目标
-     * @param option 监听的配置
-     */
-    const setListenKeyboard = function ($target: Element | Window, option: ShortCutOption) {
-      DOMUtils.onKeyboard(
-        $target,
-        "keydown",
-        async (keyName, keyValue, ohterCodeList, event) => {
-          if (that.#flag.isWaitPress) {
-            return;
-          }
-          if (config?.isPrevent) {
-            DOMUtils.preventEvent(event);
-          }
-          // 判断是否存在对应的快捷键配置
-          const tempOption = {
-            keyName: keyName,
-            keyValue: keyValue,
-            ohterCodeList: ohterCodeList,
-          };
-          const tempOptionStr = JSON.stringify(tempOption);
-          const findShortcut = that.#data.localOptions.find((item) => {
-            const __option = item.value;
-            const __optionStr = JSON.stringify(__option);
-            if (__optionStr === tempOptionStr) {
-              return true;
-            }
-          });
-          if (findShortcut) {
-            if (findShortcut.key in option) {
-              log.info("调用快捷键", findShortcut);
-              if (typeof config?.beforeCallBack === "function") {
-                const flag = await config.beforeCallBack();
-                if (typeof flag === "boolean" && !flag) {
-                  return;
-                }
-              }
-              const callback = option[findShortcut.key].callback;
-              await callback(findShortcut.key);
-            }
-          }
-        },
-        {
-          capture: Boolean(config?.capture),
-        }
-      );
-    };
-    /**
-     * 全局的配置
-     */
-    const WindowShortCutOption: {
-      [key: string]: ShortCutOptionWindow;
-    } = {};
-    /**
-     * 元素的配置
-     */
-    const ElementShortCutOption: {
-      [key: string]: ShortCutOptionElement;
-    } = {};
-    Object.keys(shortCutOption).forEach((localKey) => {
-      const option = shortCutOption[localKey];
-      if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-        // null|undefined|""
-        option.target = "window";
-      }
-      if (option.target === "window") {
-        // 全局的
-        Reflect.set(WindowShortCutOption, localKey, option);
-      } else {
-        // 元素的
-        Reflect.set(ElementShortCutOption, localKey, option);
-      }
-    });
-
-    // 先设置监听window的快捷键
-    setListenKeyboard(window, WindowShortCutOption);
-    // 再设置监听元素的快捷键
-    DOMUtils.onReady(() => {
-      Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-        const option = ElementShortCutOption[localKey];
-        const shortCutOptionMap: ShortCutOption = {};
-        let target: Element | null | undefined | void = null;
-        if (typeof option.target === "string") {
-          target = await DOMUtils.waitNode(option.target, 10000);
-        } else if (typeof option.target === "function") {
-          target = await option.target();
-        } else {
-          target = option.target;
-        }
-        if (target) {
-          Reflect.set(shortCutOptionMap, localKey, option);
-          setListenKeyboard(target, shortCutOptionMap);
-        }
-      });
-    });
-  }
-  /**
    * 判断当前是否正在等待键盘按下按键
    */
   isWaitKeyboardPress(): boolean {
@@ -374,16 +255,166 @@ class ShortCut {
     }
   }
   /**
+   * 初始化全局键盘监听
+   * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+   * @param config 配置
+   */
+  initGlobalKeyboardListener(
+    shortCutOption: ShortCutOption | ShortCutOption[],
+    config?: {
+      /** 是否阻止默认行为 */
+      isPrevent?: boolean;
+      /** 是否仅阻止事件的传播 */
+      onlyStopPropagation?: boolean;
+      /** 是否使用捕获 */
+      capture?: boolean;
+      /** 在调用配置的快捷键之前触发的回调，如果返回false则不触配置的快捷键的回调 */
+      beforeCallBack?: () => void | boolean | Promise<void | boolean>;
+    }
+  ) {
+    if (!this.#data.localOptions.length) {
+      log.warn("快捷键配置为空");
+      return;
+    }
+    /**
+     * 设置监听事件
+     * @param $target 监听目标
+     * @param option 监听的配置
+     */
+    const setListenKeyboard = (
+      $target: Element | Window,
+      option: {
+        menuKey: string;
+        option: ShortCutOptionWindow | ShortCutOptionElement;
+      }[]
+    ) => {
+      DOMUtils.onKeyboard(
+        $target,
+        "keydown",
+        async (keyName, keyValue, ohterCodeList, event) => {
+          if (this.#flag.isWaitPress) {
+            return;
+          }
+          if (config?.isPrevent) {
+            DOMUtils.preventEvent(event);
+          }
+          if (config?.onlyStopPropagation) {
+            DOMUtils.preventEvent(event, true);
+          }
+          // 判断是否存在对应的快捷键配置
+          const tempOption = {
+            keyName: keyName,
+            keyValue: keyValue,
+            ohterCodeList: ohterCodeList,
+          };
+          const tempOptionStr = JSON.stringify(tempOption);
+          const findShortcuts = this.#data.localOptions.filter((item) => {
+            const __option = item.value;
+            const __optionStr = JSON.stringify(__option);
+            if (__optionStr === tempOptionStr) {
+              return true;
+            }
+            return false;
+          });
+          if (findShortcuts.length) {
+            for (const findShortcut of findShortcuts) {
+              log.info("调用快捷键", findShortcut);
+              if (typeof config?.beforeCallBack === "function") {
+                const flag = await config.beforeCallBack();
+                if (typeof flag === "boolean" && !flag) {
+                  return;
+                }
+              }
+              // 找快捷键对应的配置
+              const targetOptions = option.filter((item) => {
+                return item.menuKey === findShortcut.key;
+              });
+              if (targetOptions.length) {
+                for (const option of targetOptions) {
+                  await option.option.callback(findShortcut.key);
+                }
+              }
+            }
+          }
+        },
+        {
+          capture: Boolean(config?.capture),
+        }
+      );
+    };
+    /**
+     * 全局的配置
+     */
+    const WindowShortCutOptions: {
+      menuKey: string;
+      option: ShortCutOptionWindow;
+    }[] = [];
+    /**
+     * 元素的配置
+     */
+    const ElementShortCutOptions: {
+      menuKey: string;
+      option: ShortCutOptionElement;
+    }[] = [];
+    if (!Array.isArray(shortCutOption)) {
+      shortCutOption = [shortCutOption];
+    }
+    shortCutOption.forEach((shortCutOptionItem) => {
+      Object.keys(shortCutOptionItem).forEach((menuKey) => {
+        const option = shortCutOptionItem[menuKey];
+        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+          // null|undefined|""
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          // 全局的
+          WindowShortCutOptions.push({
+            menuKey: menuKey,
+            option: option as ShortCutOptionWindow,
+          });
+        } else {
+          // 元素的
+          ElementShortCutOptions.push({
+            menuKey: menuKey,
+            option: option as ShortCutOptionElement,
+          });
+        }
+      });
+    });
+
+    // 先设置监听window的快捷键
+    setListenKeyboard(window, WindowShortCutOptions);
+    // 再设置监听元素的快捷键
+    DOMUtils.onReady(() => {
+      ElementShortCutOptions.forEach(async (ElementShortCutOption) => {
+        const option = ElementShortCutOption.option;
+        let target: Element | null | undefined | void = null;
+        if (typeof option.target === "string") {
+          target = await DOMUtils.waitNode(option.target, 10000);
+        } else if (typeof option.target === "function") {
+          target = await option.target();
+        } else {
+          target = option.target;
+        }
+        if (target) {
+          setListenKeyboard(target, [ElementShortCutOption]);
+        }
+      });
+    });
+  }
+  /**
    * 录入快捷键
    * @param key 本地存储的快捷键键名
    */
   async enterShortcutKeys(key: string): Promise<{
     /** 是否成功录入 */
     status: boolean;
-    /** 设置面板中的键名 */
+    /** 当前配置的键名 */
     key: string;
-    /** 快捷键配置 */
+    /** 录入的快捷键配置 */
     option: ShortCutKeyboardOption;
+    /** 冲突的本地快捷键配置列表 */
+    localConflictOptions: ShortCutLocalStorageOption[];
   }> {
     this.#flag.isWaitPress = true;
     return new Promise((resolve) => {
@@ -395,41 +426,47 @@ class ShortCut {
         };
         let result = {} as Awaited<ReturnType<typeof this.enterShortcutKeys>>;
         try {
+          /**
+           * 当前录入的快捷键配置
+           */
           const shortcutJSONString = JSON.stringify(currentOption);
           let allOptions = this.getLocalAllOptions();
           if (Array.isArray(this.#data.otherShortCutOptions)) {
             allOptions = allOptions.concat(this.#data.otherShortCutOptions);
           }
-          for (let index = 0; index < allOptions.length; index++) {
-            let localValue = allOptions[index];
+          // 检测重复配置
+          const localConflictOptions = allOptions.filter((localValue) => {
             if (localValue.key === key) {
-              // 同一个配置的就不做判断了
-              continue;
+              // 忽略同一配置
+              return false;
             }
-            const localShortCutJSONString = JSON.stringify(localValue.value);
             /**
-             * 是否被其它快捷键占用
+             * 本地的快捷键配置
              */
-            let isUsedByOtherOption = false;
+            const localShortCutJSONString = JSON.stringify(localValue.value);
             if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-              // .value不为null且相同
-              isUsedByOtherOption = true;
+              // .value不为null且json字符串相同
+              // 配置冲突
+              return true;
             }
-            if (isUsedByOtherOption) {
-              // 快捷键被占用
-              result = {
-                status: false,
-                key: localValue.key,
-                option: currentOption,
-              };
-              return;
-            }
+            return false;
+          });
+          if (localConflictOptions.length) {
+            // 存在本地冲突的快捷键配置
+            result = {
+              status: false,
+              key: key,
+              option: currentOption,
+              localConflictOptions: localConflictOptions,
+            };
+            return result;
           }
           this.setOption(key, currentOption);
           result = {
             status: true,
             key: key,
             option: currentOption,
+            localConflictOptions: [],
           };
         } catch (error) {
           log.error(error);
@@ -437,6 +474,7 @@ class ShortCut {
             status: false,
             key: key,
             option: currentOption,
+            localConflictOptions: [],
           };
         } finally {
           if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
