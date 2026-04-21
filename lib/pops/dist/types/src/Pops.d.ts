@@ -140,8 +140,8 @@ declare class Pops {
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
-            addClassName($el: Element | undefined | null, className: string | string[] | (() => string | string[]) | undefined | null): void;
-            removeClassName($el: Element | undefined | null, className: string): void;
+            addClassName($el: Element | undefined | null, ...args: (string | string[] | (() => string | string[]) | undefined | null)[]): void;
+            removeClassName($el: Element | undefined | null, ...args: (string | string[] | (() => string | string[]) | undefined | null)[]): void;
             containsClassName($el: Element | undefined | null, className: string): boolean;
             css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCSSPropertyType): string;
             css($el: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsTargetElementType, property: string): string;
@@ -230,7 +230,7 @@ declare class Pops {
                 animElement: HTMLElement | null;
                 isOverMaxZIndex: boolean;
             };
-            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T) => 1 | 0 | -1;
+            sortElementListByProperty<T, R>(getBeforeValueFun: (value: T) => R, getAfterValueFun: (value: T) => R, sortByDesc?: boolean): (after_obj: T, before_obj: T /** 样式配置 */) => 1 | 0 | -1;
             isHide($el: Element): boolean;
             isNodeInPopsNode($el: Element): boolean;
             isAnimNode($el: Element): boolean;

@@ -292,9 +292,9 @@ export const PanelHandlerComponents = () => {
           ? bottomItemConfig.disableHoverCSS()
           : bottomItemConfig.disableHoverCSS;
       if (isDisableHoverCSS) {
-        $li.classList.add(disablHoverCSSClassName);
+        popsDOMUtils.addClassName($li, disablHoverCSSClassName);
       } else {
-        $li.classList.remove(disablHoverCSSClassName);
+        popsDOMUtils.removeClassName($li, disablHoverCSSClassName);
       }
       return $li;
     },
@@ -341,9 +341,9 @@ export const PanelHandlerComponents = () => {
           ? asideConfig.disableAsideItemHoverCSS()
           : asideConfig.disableAsideItemHoverCSS;
       if (isDisableItemHoverCSS) {
-        $li.classList.add(disablHoverCSSClassName);
+        popsDOMUtils.addClassName($li, disablHoverCSSClassName);
       } else {
-        $li.classList.remove(disablHoverCSSClassName);
+        popsDOMUtils.removeClassName($li, disablHoverCSSClassName);
       }
       return $li;
     },
@@ -1672,7 +1672,7 @@ export const PanelHandlerComponents = () => {
                 const childUListClassName = "pops-panel-select-child-forms";
                 // 移除旧的元素
                 while ($li.nextElementSibling) {
-                  if ($li.nextElementSibling.classList.contains(childUListClassName)) {
+                  if (popsDOMUtils.containsClassName($li.nextElementSibling, childUListClassName)) {
                     popsDOMUtils.remove($li.nextElementSibling);
                   } else {
                     break;
@@ -2121,21 +2121,21 @@ export const PanelHandlerComponents = () => {
            */
           setItemSelected($el: HTMLElement) {
             if (this.isItemSelected($el)) return;
-            $el.classList.add("select-item-is-selected");
+            popsDOMUtils.addClassName($el, "select-item-is-selected");
           },
           /**
            * 移除选项元素选中
            * @param $el 选项元素
            */
           removeItemSelected($el: HTMLElement) {
-            $el.classList.remove("select-item-is-selected");
+            popsDOMUtils.removeClassName($el, "select-item-is-selected");
           },
           /**
            * 判断选项元素是否选中
            * @param $el
            */
           isItemSelected($el: HTMLElement): boolean {
-            return $el.classList.contains("select-item-is-selected");
+            return popsDOMUtils.containsClassName($el, "select-item-is-selected");
           },
           /**
            * 获取项上存储的信息
@@ -2617,21 +2617,21 @@ export const PanelHandlerComponents = () => {
            */
           setItemSelected($select: HTMLElement) {
             if (this.isItemSelected($select)) return;
-            $select.classList.add("select__selected-item");
+            popsDOMUtils.addClassName($select, "select__selected-item");
           },
           /**
            * 移除选择项选中
            * @param $select 选择项元素（.select-item）
            */
           removeItemSelected($select: HTMLElement) {
-            $select.classList.remove("select__selected-item");
+            popsDOMUtils.removeClassName($select, "select__selected-item");
           },
           /**
            * 判断选择项是否选中
            * @param $select 选择项元素（.select-item）
            */
           isItemSelected($select: HTMLElement) {
-            return $select.classList.contains("select__selected-item");
+            return popsDOMUtils.containsClassName($select, "select__selected-item");
           },
           /**
            * 获取所有选项的信息
@@ -2966,21 +2966,21 @@ export const PanelHandlerComponents = () => {
          */
         setItemSelected($select: HTMLElement) {
           if (this.isItemSelected($select)) return;
-          $select.classList.add("select-item-is-selected");
+          popsDOMUtils.addClassName($select, "select-item-is-selected");
         },
         /**
          * 移除选项元素选中
          * @param $select 选项元素
          */
         removeItemSelected($select: HTMLElement) {
-          $select.classList.remove("select-item-is-selected");
+          popsDOMUtils.removeClassName($select, "select-item-is-selected");
         },
         /**
          * 判断选项元素是否选中
          * @param $select
          */
         isItemSelected($select: HTMLElement): boolean {
-          return $select.classList.contains("select-item-is-selected");
+          return popsDOMUtils.containsClassName($select, "select-item-is-selected");
         },
         /**
          * 添加选中信息
@@ -3307,11 +3307,11 @@ export const PanelHandlerComponents = () => {
         },
         /** 设置隐藏section的前面的空白 */
         setSectionIsNear() {
-          this.$el.$section.classList.add("is-near");
+          popsDOMUtils.addClassName(this.$el.$section, "is-near");
         },
         /** 取消设置隐藏section的前面的空白 */
         removeSectionIsNear() {
-          this.$el.$section.classList.remove("is-near");
+          popsDOMUtils.removeClassName(this.$el.$section, "is-near");
         },
         /**
          * 禁用标签
@@ -3426,13 +3426,13 @@ export const PanelHandlerComponents = () => {
          * 隐藏icon图标
          */
         hideIcon() {
-          this.$ele.panelButton.classList.add("pops-panel-button-no-icon");
+          popsDOMUtils.addClassName(this.$ele.panelButton, "pops-panel-button-no-icon");
         },
         /**
          * 显示icon图标
          */
         showIcon() {
-          this.$ele.panelButton.classList.remove("pops-panel-button-no-icon");
+          popsDOMUtils.removeClassName(this.$ele.panelButton, "pops-panel-button-no-icon");
         },
         /**
          * 设置icon图标的svg
@@ -3464,13 +3464,13 @@ export const PanelHandlerComponents = () => {
          * 添加按钮的图标在右边
          */
         setIconRight() {
-          this.$ele.button.classList.add("pops-panel-button-right-icon");
+          popsDOMUtils.addClassName(this.$ele.button, "pops-panel-button-right-icon");
         },
         /**
          * （默认）添加按钮的图标在左边
          */
         setIconLeft() {
-          this.$ele.button.classList.remove("pops-panel-button-right-icon");
+          popsDOMUtils.removeClassName(this.$ele.button, "pops-panel-button-right-icon");
         },
         /**
          * 设置按钮文本
@@ -3560,8 +3560,8 @@ export const PanelHandlerComponents = () => {
             const $itemLi = popsDOMUtils.createElement("li");
             // 每一项<li>内的子<ul>元素
             const $itemUL = popsDOMUtils.createElement("ul");
-            $itemUL.classList.add("pops-panel-forms-container-item-formlist");
-            $itemLi.classList.add("pops-panel-forms-container-item");
+            popsDOMUtils.addClassName($itemUL, "pops-panel-forms-container-item-formlist");
+            popsDOMUtils.addClassName($itemLi, "pops-panel-forms-container-item");
             // 区域头部的文字
             const formHeaderDivElement = popsDOMUtils.createElement("div", {
               className: "pops-panel-forms-container-item-header-text",
@@ -3782,8 +3782,8 @@ export const PanelHandlerComponents = () => {
         const formContainerListElement = popsDOMUtils.createElement("li");
         // 每一项<li>内的子<ul>元素
         const formContainerULElement = popsDOMUtils.createElement("ul");
-        formContainerListElement.classList.add("pops-panel-forms-container-item");
-        formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
+        popsDOMUtils.addClassName(formContainerListElement, "pops-panel-forms-container-item");
+        popsDOMUtils.addClassName(formContainerULElement, "pops-panel-forms-container-item-formlist");
         // 区域头部的文字
         const formHeaderDivElement = popsDOMUtils.createElement("div", {
           className: "pops-panel-forms-container-item-header-text",
@@ -3912,7 +3912,7 @@ export const PanelHandlerComponents = () => {
         headerTitleText = headerTitleText ?? title;
         if (typeof headerTitleText === "string" && headerTitleText.trim() !== "") {
           const $containerHeaderTitle = popsDOMUtils.createElement("li");
-          $containerHeaderTitle.classList.add("pops-panel-container-header-title-text");
+          popsDOMUtils.addClassName($containerHeaderTitle, "pops-panel-container-header-title-text");
           Reflect.set($containerHeaderTitle, "__asideConfig__", asideConfig);
           PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
           this.sectionContainerHeaderULElement.appendChild($containerHeaderTitle);

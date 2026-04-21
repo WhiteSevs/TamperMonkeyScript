@@ -31,6 +31,7 @@ export const PopsInstHandler = {
      */
     const removeInst = async (instCommonConfig: PopsInstGeneralConfig) => {
       await instCommonConfig.emitter.emit("pops:before-destory", instCommonConfig);
+      popsDOMUtils.offAll(instCommonConfig.$shadowRoot);
       popsDOMUtils.remove(instCommonConfig?.$anim);
       popsDOMUtils.remove(instCommonConfig?.$pops);
       popsDOMUtils.remove(instCommonConfig?.$mask);

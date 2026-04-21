@@ -1736,51 +1736,68 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
   /**
    * 添加className
    * @param $el 目标元素
-   * @param className className属性
+   * @param args className属性
    */
   addClassName(
     $el: Element | undefined | null,
-    className: string | string[] | (() => string | string[]) | undefined | null
+    ...args: (string | string[] | (() => string | string[]) | undefined | null)[]
   ) {
     if ($el == null) return;
-    if (className == null) return;
-
-    if (typeof className === "function") {
-      className = className();
-    }
-    if (!Array.isArray(className)) {
-      className = [className];
-    }
-    className.forEach((classNameStrItem) => {
-      if (typeof classNameStrItem !== "string") {
+    if (!($el instanceof Element)) return;
+    if (args.length === 0) return;
+    args.forEach((argItem) => {
+      if (argItem == null) return;
+      if (Array.isArray(argItem)) {
+        this.addClassName($el, ...argItem);
+        return;
+      }
+      if (typeof argItem === "function") {
+        argItem = argItem();
+      }
+      if (typeof argItem !== "string") {
         // 不是字符串
         return;
       }
-      if (classNameStrItem.trim() === "") {
+      if (argItem.trim() === "") {
         // 空字符串
         return;
       }
-      const classNameList = classNameStrItem.split(" ").filter((item) => item.trim() !== "");
-      $el?.classList?.add?.(...classNameList);
+      const classNameList = argItem.split(" ").filter((item) => item.trim() !== "");
+      $el.classList.add(...classNameList);
     });
   }
   /**
    * 删除className
    * @param $el 目标元素
-   * @param className className属性
+   * @param args className属性
    */
-  removeClassName($el: Element | undefined | null, className: string) {
-    if ($el == null) {
-      return;
-    }
-    if (typeof className !== "string") {
-      return;
-    }
-    if (className.trim() === "") {
-      return;
-    }
-    const classNameList = className.split(" ").filter((item) => item.trim() !== "");
-    $el.classList.remove(...classNameList);
+  removeClassName(
+    $el: Element | undefined | null,
+    ...args: (string | string[] | (() => string | string[]) | undefined | null)[]
+  ) {
+    if ($el == null) return;
+    if (!($el instanceof Element)) return;
+    if (args.length === 0) return;
+    args.forEach((argItem) => {
+      if (argItem == null) return;
+      if (Array.isArray(argItem)) {
+        this.removeClassName($el, ...argItem);
+        return;
+      }
+      if (typeof argItem === "function") {
+        argItem = argItem();
+      }
+      if (typeof argItem !== "string") {
+        // 不是字符串
+        return;
+      }
+      if (argItem.trim() === "") {
+        // 空字符串
+        return;
+      }
+      const classNameList = argItem.split(" ").filter((item) => item.trim() !== "");
+      $el.classList.remove(...classNameList);
+    });
   }
   /**
    * 判断元素是否包含某个className

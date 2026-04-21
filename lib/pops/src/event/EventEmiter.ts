@@ -14,7 +14,6 @@ class EventEmiter<T extends CustomEventMap = CustomEventMap> {
   >();
   constructor(type: PopsType) {
     this.type = type;
-    document.addEventListener;
   }
   on<P extends keyof EventMap>(
     eventName: P,

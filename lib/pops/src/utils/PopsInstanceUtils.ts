@@ -1,6 +1,7 @@
 import { PopsCommonCSSClassName } from "../config/CommonCSSClassName";
 import { PopsInstData } from "../PopsInst";
 import type { PopsInstStoreType } from "../types/main";
+import { popsDOMUtils } from "./PopsDOMUtils";
 import { popsUtils } from "./PopsUtils";
 
 export const PopsInstanceUtils = {
@@ -96,8 +97,8 @@ export const PopsInstanceUtils = {
   isHide($el: Element) {
     let flag = false;
     if (
-      $el?.classList?.contains(PopsCommonCSSClassName.hide) ||
-      $el?.classList?.contains(PopsCommonCSSClassName.hideImportant)
+      popsDOMUtils.containsClassName($el, PopsCommonCSSClassName.hide) ||
+      popsDOMUtils.containsClassName($el, PopsCommonCSSClassName.hideImportant)
     ) {
       flag = true;
     } else {

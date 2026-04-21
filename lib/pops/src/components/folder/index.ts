@@ -905,18 +905,18 @@ export const PopsFolder = {
           ...Array.from(folderListSortFileNameElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
           ...Array.from(folderListSortLatestTimeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
           ...Array.from(folderListSortFileSizeElement.querySelectorAll<HTMLElement>(".pops-folder-icon-active")),
-        ].forEach(($elItem) => $elItem.classList.remove("pops-folder-icon-active"));
+        ].forEach(($elItem) => popsDOMUtils.removeClassName($elItem, "pops-folder-icon-active"));
       }
       /**
        * 修改导航箭头的状态
+       * @param arrowUp ↑
+       * @param arrowDown ↓
+       * @param isDesc 是否逆反
        */
       changeArrowActive(arrowUp: HTMLElement, arrowDown: HTMLElement, isDesc: boolean) {
         this.removeArrowActiveStatus();
-        if (isDesc) {
-          arrowDown.classList.add("pops-folder-icon-active");
-        } else {
-          arrowUp.classList.add("pops-folder-icon-active");
-        }
+        const activeClassName = "pops-folder-icon-active";
+        popsDOMUtils.addClassName(isDesc ? arrowDown : arrowUp, activeClassName);
       }
       /**
        * 排序按钮的点击事件

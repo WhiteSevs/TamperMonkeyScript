@@ -214,9 +214,12 @@ export const PopsIframe = {
         event.stopPropagation();
         origin_left = $pops.style.left;
         origin_top = $pops.style.top;
-        $pops.classList.add("pops-iframe-unset-top");
-        $pops.classList.add("pops-iframe-unset-left");
-        $pops.classList.add("pops-iframe-unset-transform");
+        popsDOMUtils.addClassName(
+          $pops,
+          "pops-iframe-unset-top",
+          "pops-iframe-unset-left",
+          "pops-iframe-unset-transform"
+        );
         $pops.style.transitionDuration = "";
 
         $pops.setAttribute(TYPE_MODULE, "min");
@@ -249,11 +252,14 @@ export const PopsIframe = {
         $pops.style.transitionDuration = "";
         $pops.style.transform = "";
         $pops.removeAttribute(TYPE_MODULE);
-        $pops.classList.add("pops-iframe-unset-transition");
-        $pops.classList.add("pops-iframe-unset-left");
-        $pops.classList.add("pops-iframe-unset-top");
-        $pops.classList.add("pops-iframe-unset-transform");
-        $pops.classList.remove("pops-iframe-unset-transition");
+        popsDOMUtils.addClassName(
+          $pops,
+          "pops-iframe-unset-transition",
+          "pops-iframe-unset-left",
+          "pops-iframe-unset-top",
+          "pops-iframe-unset-transform"
+        );
+        popsDOMUtils.removeClassName($pops, "pops-iframe-unset-transition");
         $pops.setAttribute(TYPE_MODULE, "max");
         $headerControls.setAttribute("type", "max");
         // 隐藏放大图标
@@ -279,11 +285,14 @@ export const PopsIframe = {
         event.preventDefault();
         event.stopPropagation();
         if (origin_is_max && $pops.getAttribute(TYPE_MODULE) === "min") {
-          $pops.classList.add("pops-iframe-unset-transition");
-          $pops.classList.add("pops-iframe-unset-left");
-          $pops.classList.add("pops-iframe-unset-top");
-          $pops.classList.add("pops-iframe-unset-transform");
-          $pops.classList.remove("pops-iframe-unset-transition");
+          popsDOMUtils.addClassName(
+            $pops,
+            "pops-iframe-unset-transition",
+            "pops-iframe-unset-left",
+            "pops-iframe-unset-top",
+            "pops-iframe-unset-transform"
+          );
+          popsDOMUtils.removeClassName($pops, "pops-iframe-unset-transition");
           $pops.setAttribute(TYPE_MODULE, "max");
           $headerControls.setAttribute("type", "max");
         } else {
@@ -294,9 +303,12 @@ export const PopsIframe = {
           $pops.style.transform = "";
           $headerControls.removeAttribute("type");
           $pops.removeAttribute(TYPE_MODULE);
-          $pops.classList.remove("pops-iframe-unset-top");
-          $pops.classList.remove("pops-iframe-unset-left");
-          $pops.classList.remove("pops-iframe-unset-transform");
+          popsDOMUtils.removeClassName(
+            $pops,
+            "pops-iframe-unset-top",
+            "pops-iframe-unset-left",
+            "pops-iframe-unset-transform"
+          );
 
           // 显示放大图标
           $headerBtnMax.style.setProperty("display", "");

@@ -512,15 +512,15 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /**
      * 添加className
      * @param $el 目标元素
-     * @param className className属性
+     * @param args className属性
      */
-    addClassName($el: Element | undefined | null, className: string | string[] | (() => string | string[]) | undefined | null): void;
+    addClassName($el: Element | undefined | null, ...args: (string | string[] | (() => string | string[]) | undefined | null)[]): void;
     /**
      * 删除className
      * @param $el 目标元素
-     * @param className className属性
+     * @param args className属性
      */
-    removeClassName($el: Element | undefined | null, className: string): void;
+    removeClassName($el: Element | undefined | null, ...args: (string | string[] | (() => string | string[]) | undefined | null)[]): void;
     /**
      * 判断元素是否包含某个className
      * @param $el 目标元素
