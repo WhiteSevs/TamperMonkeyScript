@@ -109,7 +109,8 @@ export const DouYinVideoBlock_Comment = {
   blockCollection() {
     log.info("【屏蔽】合集");
     return addBlockCSS(
-      '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelplaylet_card"][aria-selected="false"]'
+      '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelplaylet_card"][aria-selected="false"]',
+      '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelcompilation_card"][aria-selected="false"]'
     );
   },
   /**
