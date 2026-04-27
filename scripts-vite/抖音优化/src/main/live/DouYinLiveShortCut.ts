@@ -11,7 +11,7 @@ export const DouYinLiveShortCut = {
     blockChatRoom: false,
   },
   init() {
-    this.shortCut.initGlobalKeyboardListener(this.getShortCutMap(), {
+    this.shortCut.initGlobalKeyboardListener(this.getShortCutOptions(), {
       beforeCallBack() {
         if (!DouYinRouter.isLive()) {
           // 仅允许在直播页面下生效
@@ -20,8 +20,15 @@ export const DouYinLiveShortCut = {
       },
     });
   },
-  getShortCutMap(): ShortCutOption {
+  getShortCutOptions(): ShortCutOption | ShortCutOption[] {
     return {
+      "live-shieldTopToolBarInfo": {
+        callback(key) {
+          log.info("快捷键 ==> 【屏蔽】顶栏信息");
+          const enable = Panel.getValue<boolean>(key);
+          Panel.setValue(key, !enable);
+        },
+      },
       "dy-live-block-chatroom": {
         callback() {
           log.info("快捷键 ==> 【屏蔽】聊天室");

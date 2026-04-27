@@ -473,7 +473,6 @@ export const DouYinVideoFilter = {
 
     // 按钮的点击回调
     const onClick = async ($container: HTMLElement) => {
-      const that = this;
       const reactFiber = utils.getReactInstance($container)?.reactFiber;
       const awemeInfo =
         reactFiber?.return?.memoizedProps?.awemeInfo ||
@@ -547,24 +546,24 @@ export const DouYinVideoFilter = {
           ok: {
             enable: true,
             text: "添加过滤规则",
-            callback() {
-              const ruleView = that.getRuleViewInstance();
-              ruleView.showEditView(false, that.getTemplateData());
+            callback: () => {
+              const ruleView = this.getRuleViewInstance();
+              ruleView.showEditView(false, this.getTemplateData());
             },
           },
           cancel: {
             enable: true,
             text: "规则管理器",
-            callback() {
-              that.showView();
+            callback: () => {
+              this.showView();
             },
           },
           other: {
             enable: Boolean(targetFilterOption.length),
             text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
             type: isHasMatchedRules ? "xiaomi-primary" : "violet",
-            callback() {
-              that.getRuleViewInstance().showView((data) => {
+            callback: () => {
+              this.getRuleViewInstance().showView((data) => {
                 const find = targetFilterOption.find((it) => {
                   return data.uuid === it.uuid;
                 });
@@ -591,7 +590,7 @@ export const DouYinVideoFilter = {
     /**
      * 创建解析按钮
      */
-    const createFilterParseButton = () => {
+    const createButton = () => {
       return DOMUtils.createElement("xg-icon", {
         className: "gm-video-filter-parse-btn",
         innerHTML: /*html*/ `
@@ -627,10 +626,14 @@ export const DouYinVideoFilter = {
       // 普通视频
       $$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
         ($xgRightGrid) => {
-          const $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createButton();
           DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
             DOMUtils.preventEvent(event);
-            const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer")!;
+            const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer");
+            if (!$basePlayerContainer) {
+              Qmsg.error("获取.basePlayerContainer失败");
+              return;
+            }
             await onClick($basePlayerContainer);
           });
           DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -646,10 +649,14 @@ export const DouYinVideoFilter = {
         if (!utils.isVisible($xgRightGrid, false)) {
           return;
         }
-        const $gmFilterParseBtn = createFilterParseButton();
+        const $gmFilterParseBtn = createButton();
         DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
           DOMUtils.preventEvent(event);
-          const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]')!;
+          const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]');
+          if (!$liveContainer) {
+            Qmsg.error(`未找到[data-e2e="feed-live"]`);
+            return;
+          }
           await onClick($liveContainer);
         });
         DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);

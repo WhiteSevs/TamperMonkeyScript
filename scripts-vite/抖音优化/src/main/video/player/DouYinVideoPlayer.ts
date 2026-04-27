@@ -44,7 +44,7 @@ export const DouYinVideoPlayer = {
       return this.fullScreen(config.value);
     });
     Panel.execMenuOnce("parseVideo", () => {
-      return this.hookDownloadButtonToParseVideo();
+      return this.supportVideoDownloader();
     });
     Panel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
       return this.hookCopyLinkButton();
@@ -532,11 +532,11 @@ export const DouYinVideoPlayer = {
     setRate(rate);
   },
   /**
-   * 修改页面的分享-下载按钮变成解析视频
+   * 视频下载支持
    * @param $parseNode 需要解析的元素
    */
-  hookDownloadButtonToParseVideo($parseNode?: Element) {
-    log.info("修改页面的分享-下载按钮变成解析视频");
+  supportVideoDownloader($parseNode?: Element) {
+    log.info("视频下载支持");
     type ParseVideoDownloadInfo = {
       /**
        * 视频宽度
@@ -1057,9 +1057,64 @@ export const DouYinVideoPlayer = {
       return fileNameTemplate;
     };
     /**
+     * 添加下载按钮
+     */
+    const addDownloadButton = () => {
+      const downloadButtonClassName = "gm-video-download-btn";
+      const createButton = () => {
+        const $btn = DOMUtils.createElement("xg-icon", {
+          className: downloadButtonClassName,
+          innerHTML: /*html*/ `
+        <div class="xgplayer-icon">
+          <span role="img" class="semi-icon semi-icon-default">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
+              <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="xg-tips">下载</div>
+				`,
+        });
+        return $btn;
+      };
+
+      const lockFn = new utils.LockFunction(() => {
+        if (DouYinRouter.isLive()) {
+          return;
+        }
+        // 普通视频
+        $$<HTMLElement>(`.basePlayerContainer xg-right-grid:not(:has(.${downloadButtonClassName}))`).forEach(
+          ($xgRightGrid) => {
+            const $btn = createButton();
+            DOMUtils.on($btn, "click", async (event) => {
+              DOMUtils.preventEvent(event);
+              await onClick($btn);
+            });
+            DOMUtils.prepend($xgRightGrid, $btn);
+          }
+        );
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return {
+        off() {
+          observer.disconnect();
+          DOMUtils.remove(`.${downloadButtonClassName}`);
+        },
+      };
+    };
+    /**
      * 点击回调
      */
-    const callback = ($click: Element) => {
+    const onClick = ($click: Element) => {
       if ($click.closest('[data-e2e="feed-live"]')) {
         Qmsg.error("无法解析直播video的下载信息");
         return;
@@ -1213,21 +1268,29 @@ export const DouYinVideoPlayer = {
       }
     };
     if ($parseNode) {
-      callback($parseNode);
+      onClick($parseNode);
     } else {
-      const result = DOMUtils.on<MouseEvent | PointerEvent>(
+      const listener = DOMUtils.on<MouseEvent | PointerEvent>(
         document,
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
         (evt, $click) => {
           DOMUtils.preventEvent(evt);
-          callback($click);
+          onClick($click);
         },
         {
           capture: true,
         }
       );
-      return [result.off];
+      Panel.execMenuOnce("dy-video-downloader-addDownloadButton", () => {
+        const { off } = addDownloadButton();
+        return [
+          () => {
+            off();
+          },
+        ];
+      });
+      return [listener.off];
     }
   },
   /**

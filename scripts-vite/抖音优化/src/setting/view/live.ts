@@ -144,6 +144,15 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
               type: "container",
               views: [
                 UIButtonShortCut(
+                  "【屏蔽】顶栏信息",
+                  "",
+                  "live-shieldTopToolBarInfo",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinLiveShortCut.shortCut
+                ),
+                UIButtonShortCut(
                   "【屏蔽】小黄车",
                   "",
                   "dy-live-shortcut-shielYellowCar",

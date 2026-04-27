@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.23
+// @version      2026.4.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -7717,7 +7717,7 @@
               return;
             }
             const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
-            DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
+            DouYinVideoPlayer.supportVideoDownloader($el);
           },
         },
         "dy-video-shortcut-playbackRate": {
@@ -7753,7 +7753,7 @@
         return this.fullScreen(config.value);
       });
       Panel.execMenuOnce("parseVideo", () => {
-        return this.hookDownloadButtonToParseVideo();
+        return this.supportVideoDownloader();
       });
       Panel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
         return this.hookCopyLinkButton();
@@ -8134,8 +8134,8 @@
       }
       setRate(rate);
     },
-    hookDownloadButtonToParseVideo($parseNode) {
-      log.info("修改页面的分享-下载按钮变成解析视频");
+    supportVideoDownloader($parseNode) {
+      log.info("视频下载支持");
       const showParseInfoDialog = (data) => {
         let showHTML = "";
         let showParseVideoInfoHTML = "";
@@ -8535,7 +8535,55 @@
         );
         return fileNameTemplate;
       };
-      const callback = ($click) => {
+      const addDownloadButton = () => {
+        const downloadButtonClassName = "gm-video-download-btn";
+        const createButton = () => {
+          const $btn = domUtils.createElement("xg-icon", {
+            className: downloadButtonClassName,
+            innerHTML: `
+        <div class="xgplayer-icon">
+          <span role="img" class="semi-icon semi-icon-default">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
+              <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="xg-tips">下载</div>
+				`,
+          });
+          return $btn;
+        };
+        const lockFn = new utils.LockFunction(() => {
+          if (DouYinRouter.isLive()) {
+            return;
+          }
+          $$(`.basePlayerContainer xg-right-grid:not(:has(.${downloadButtonClassName}))`).forEach(($xgRightGrid) => {
+            const $btn = createButton();
+            domUtils.on($btn, "click", async (event) => {
+              domUtils.preventEvent(event);
+              await onClick($btn);
+            });
+            domUtils.prepend($xgRightGrid, $btn);
+          });
+        });
+        const observer = utils.mutationObserver(document, {
+          config: {
+            subtree: true,
+            childList: true,
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+          },
+        });
+        return {
+          off() {
+            observer.disconnect();
+            domUtils.remove(`.${downloadButtonClassName}`);
+          },
+        };
+      };
+      const onClick = ($click) => {
         if ($click.closest('[data-e2e="feed-live"]')) {
           Qmsg.error("无法解析直播video的下载信息");
           return;
@@ -8675,21 +8723,29 @@
         }
       };
       if ($parseNode) {
-        callback($parseNode);
+        onClick($parseNode);
       } else {
-        const result = domUtils.on(
+        const listener = domUtils.on(
           document,
           "click",
           'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
           (evt, $click) => {
             domUtils.preventEvent(evt);
-            callback($click);
+            onClick($click);
           },
           {
             capture: true,
           }
         );
-        return [result.off];
+        Panel.execMenuOnce("dy-video-downloader-addDownloadButton", () => {
+          const { off } = addDownloadButton();
+          return [
+            () => {
+              off();
+            },
+          ];
+        });
+        return [listener.off];
       }
     },
     hookCopyLinkButton() {
@@ -9539,7 +9595,7 @@
       blockChatRoom: false,
     },
     init() {
-      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap(), {
+      this.shortCut.initGlobalKeyboardListener(this.getShortCutOptions(), {
         beforeCallBack() {
           if (!DouYinRouter.isLive()) {
             return false;
@@ -9547,8 +9603,15 @@
         },
       });
     },
-    getShortCutMap() {
+    getShortCutOptions() {
       return {
+        "live-shieldTopToolBarInfo": {
+          callback(key) {
+            log.info("快捷键 ==> 【屏蔽】顶栏信息");
+            const enable = Panel.getValue(key);
+            Panel.setValue(key, !enable);
+          },
+        },
         "dy-live-block-chatroom": {
           callback() {
             log.info("快捷键 ==> 【屏蔽】聊天室");
@@ -12863,7 +12926,6 @@
     addParseButton() {
       const filterBase = new DouYinVideoFilterBase();
       const onClick = async ($container) => {
-        const that = this;
         const reactFiber = utils.getReactInstance($container)?.reactFiber;
         const awemeInfo =
           reactFiber?.return?.memoizedProps?.awemeInfo ||
@@ -12932,24 +12994,24 @@
             ok: {
               enable: true,
               text: "添加过滤规则",
-              callback() {
-                const ruleView = that.getRuleViewInstance();
-                ruleView.showEditView(false, that.getTemplateData());
+              callback: () => {
+                const ruleView = this.getRuleViewInstance();
+                ruleView.showEditView(false, this.getTemplateData());
               },
             },
             cancel: {
               enable: true,
               text: "规则管理器",
-              callback() {
-                that.showView();
+              callback: () => {
+                this.showView();
               },
             },
             other: {
               enable: Boolean(targetFilterOption.length),
               text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
               type: isHasMatchedRules ? "xiaomi-primary" : "violet",
-              callback() {
-                that.getRuleViewInstance().showView((data) => {
+              callback: () => {
+                this.getRuleViewInstance().showView((data) => {
                   const find = targetFilterOption.find((it) => {
                     return data.uuid === it.uuid;
                   });
@@ -12973,7 +13035,7 @@
 			`,
         });
       };
-      const createFilterParseButton = () => {
+      const createButton = () => {
         return domUtils.createElement("xg-icon", {
           className: "gm-video-filter-parse-btn",
           innerHTML: `
@@ -13007,10 +13069,14 @@
           return;
         }
         $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(($xgRightGrid) => {
-          const $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createButton();
           domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
+            if (!$basePlayerContainer) {
+              Qmsg.error("获取.basePlayerContainer失败");
+              return;
+            }
             await onClick($basePlayerContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -13024,10 +13090,14 @@
           if (!utils.isVisible($xgRightGrid, false)) {
             return;
           }
-          const $gmFilterParseBtn = createFilterParseButton();
+          const $gmFilterParseBtn = createButton();
           domUtils.on($gmFilterParseBtn, "click", async (event) => {
             domUtils.preventEvent(event);
             const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
+            if (!$liveContainer) {
+              Qmsg.error(`未找到[data-e2e="feed-live"]`);
+              return;
+            }
             await onClick($liveContainer);
           });
           domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
@@ -14850,6 +14920,13 @@
                     "点击视频右侧工具栏的分享按钮-下载（无视<code>该视频不支持下载</code>的提示）"
                   ),
                   UISwitch(
+                    "添加下载按钮",
+                    "dy-video-downloader-addDownloadButton",
+                    true,
+                    void 0,
+                    "在视频底部组件的最右边添加下载按钮"
+                  ),
+                  UISwitch(
                     "弹出下载重命名文件名弹窗",
                     "dy-video-popupDownloadRenameFileName",
                     false,
@@ -15751,6 +15828,15 @@
                 text: "",
                 type: "container",
                 views: [
+                  UIButtonShortCut(
+                    "【屏蔽】顶栏信息",
+                    "",
+                    "live-shieldTopToolBarInfo",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
                   UIButtonShortCut(
                     "【屏蔽】小黄车",
                     "",

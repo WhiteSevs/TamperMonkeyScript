@@ -113,7 +113,7 @@ export const DouYinVideoPlayerShortCut = {
             return;
           }
           const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
-          DouYinVideoPlayer.hookDownloadButtonToParseVideo($el);
+          DouYinVideoPlayer.supportVideoDownloader($el);
         },
       },
       "dy-video-shortcut-playbackRate": {

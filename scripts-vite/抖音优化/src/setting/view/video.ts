@@ -194,6 +194,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "点击视频右侧工具栏的分享按钮-下载（无视<code>该视频不支持下载</code>的提示）"
                 ),
                 UISwitch(
+                  "添加下载按钮",
+                  "dy-video-downloader-addDownloadButton",
+                  true,
+                  void 0,
+                  "在视频底部组件的最右边添加下载按钮"
+                ),
+                UISwitch(
                   "弹出下载重命名文件名弹窗",
                   "dy-video-popupDownloadRenameFileName",
                   false,
