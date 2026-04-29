@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.27
+// @version      2026.4.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4010,6 +4010,14 @@
         const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
         const $active = $shadowRootActive ?? document.activeElement;
         if ($active == null) return false;
+        const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
+        if (isInputNode) return true;
+        const isCommentEditor = Boolean(
+          $active?.closest(".DraftEditor-editorContainer") ||
+          $active?.closest(".im-richtext-container") ||
+          $active?.closest(".comment-input-container")
+        );
+        if (isCommentEditor) return true;
         const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
         if (isInPops) return true;
         return false;
@@ -4039,8 +4047,8 @@
           {
             enableKey: "dy-keyboard-hook-likeOrDislike",
             code: ["KeyZ", "Space"],
-            callback(evt) {
-              if (evt.code !== "Space") return;
+            callback(option) {
+              if (option.code !== "Space") return;
               if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
               utils.workerClearTimeout(timeId);
               timeId = utils.workerSetTimeout(() => {
@@ -4245,6 +4253,7 @@
               const result = keyboardConfig.callback({
                 code,
                 otherCodeList,
+                keyboardEvent,
               });
               if (result == null) {
                 continue;

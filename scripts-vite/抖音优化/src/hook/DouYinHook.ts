@@ -61,18 +61,21 @@ export const DouYinHook = {
      * 是否禁止触发快捷键
      *
      * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者评论区输入框等...
+     * @returns
+     * + true 禁用
      */
     const isDisableTriggerKeyboard = () => {
       const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
       const $active = $shadowRootActive ?? document.activeElement;
       if ($active == null) return false;
-      // 仅判断是否是pops弹窗库内部的
-      // const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
-      // if (isInputNode) return true;
-      // const isCommentEditor = Boolean(
-      //   $active?.closest(".DraftEditor-editorContainer") || $active?.closest(".im-richtext-container")
-      // );
-      // if (isCommentEditor) return true;
+      const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
+      if (isInputNode) return true;
+      const isCommentEditor = Boolean(
+        $active?.closest(".DraftEditor-editorContainer") ||
+        $active?.closest(".im-richtext-container") ||
+        $active?.closest(".comment-input-container")
+      );
+      if (isCommentEditor) return true;
       const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
       if (isInPops) return true;
       return false;
@@ -124,15 +127,19 @@ export const DouYinHook = {
          * @returns
          * + false: 自动阻止触发
          */
-        callback?: (event: { code: string; otherCodeList: KeyboardOtherCodeName[] }) => void | false;
+        callback?: (option: {
+          code: string;
+          otherCodeList: KeyboardOtherCodeName[];
+          keyboardEvent: KeyboardEvent;
+        }) => void | false;
       }[] = [
         {
           // 取消赞|空格
           enableKey: "dy-keyboard-hook-likeOrDislike",
           code: ["KeyZ", "Space"],
-          callback(evt) {
+          callback(option) {
             // 必须是空格时才执行下面的
-            if (evt.code !== "Space") return;
+            if (option.code !== "Space") return;
             if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
             utils.workerClearTimeout(timeId);
             timeId = utils.workerSetTimeout(() => {
@@ -344,6 +351,7 @@ export const DouYinHook = {
             const result = keyboardConfig.callback({
               code: code,
               otherCodeList: otherCodeList,
+              keyboardEvent,
             });
             if (result == null) {
               continue;
