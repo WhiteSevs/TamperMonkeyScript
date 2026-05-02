@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.5.2
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,9 +12,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -585,7 +585,21 @@
   CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -661,12 +675,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -686,21 +712,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -713,12 +739,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -730,7 +756,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -738,12 +766,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -755,13 +783,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -775,7 +803,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -793,37 +821,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -846,7 +874,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -869,7 +897,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -884,13 +912,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -898,7 +926,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -911,12 +939,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -935,40 +963,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -1017,7 +1043,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1033,15 +1059,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1118,6 +1146,111 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag = false;
+      if (typeof this.option.checkExec === "function") {
+        flag = this.option.checkExec(this.option.keyList);
+      } else {
+        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -1447,7 +1580,6 @@
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -1474,110 +1606,25 @@
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag = false;
+          if (typeof checkExec === "function") {
+            flag = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
+          return flag;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -1586,11 +1633,11 @@
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -1604,23 +1651,21 @@
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -1628,7 +1673,7 @@
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -1638,8 +1683,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1663,14 +1708,107 @@
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -1792,9 +1930,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1837,13 +1988,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1891,7 +2042,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1900,7 +2052,6 @@
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -1935,7 +2086,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1956,7 +2111,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1987,7 +2142,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -2208,14 +2363,17 @@
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -2225,12 +2383,12 @@
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },

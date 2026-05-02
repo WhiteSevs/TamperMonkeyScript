@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.5.2
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -897,7 +897,42 @@
     }
   }
   const qmsg = new Qmsg();
-  const version$2 = "2.0.5";
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
+  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
+  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
+  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
+  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
+  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
+  const version$2 = "2.0.7";
   let WindowApi$1 = class WindowApi {
     defaultApi = {
       document,
@@ -953,7 +988,7 @@
       return this.api.clearInterval;
     }
   };
-  const CommonUtils = {
+  const CommonUtils$1 = {
     windowApi: new WindowApi$1({
       document,
       window,
@@ -980,12 +1015,12 @@
       $el.innerHTML = this.createSafeHTML(text);
     },
     forceShow($el) {
-      const dupNode = $el.cloneNode(true);
-      dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
-      this.windowApi.document.documentElement.appendChild(dupNode);
+      const $clone = $el.cloneNode(true);
+      $clone.setAttribute("style", "visibility: hidden !important;display:block !important;");
+      this.windowApi.document.documentElement.appendChild($clone);
       return {
         recovery() {
-          dupNode.remove();
+          $clone.remove();
         },
       };
     },
@@ -1008,35 +1043,35 @@
         return value;
       }
     },
-    isWin(target) {
-      if (typeof target !== "object") {
+    isWin(obj) {
+      if (typeof obj !== "object") {
         return false;
       }
-      if (target instanceof Node) {
+      if (obj instanceof Node) {
         return false;
       }
-      if (target === globalThis) {
+      if (obj === globalThis) {
         return true;
       }
-      if (target === window) {
+      if (obj === window) {
         return true;
       }
-      if (target === self) {
+      if (obj === self) {
         return true;
       }
-      if (target === globalThis) {
+      if (obj === globalThis) {
         return true;
       }
-      if (target === window) {
+      if (obj === window) {
         return true;
       }
-      if (target === self) {
+      if (obj === self) {
         return true;
       }
-      if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
+      if (typeof unsafeWindow !== "undefined" && obj === unsafeWindow) {
         return true;
       }
-      if (target?.Math?.toString() !== "[object Math]") {
+      if (obj?.Math?.toString() !== "[object Math]") {
         return false;
       }
       return true;
@@ -1044,15 +1079,15 @@
     isDOM($el) {
       return $el instanceof Node;
     },
-    delete(target, propName) {
+    delete(obj, propName) {
       if (typeof Reflect === "object" && Reflect != null && Reflect.deleteProperty) {
-        return Reflect.deleteProperty(target, propName);
+        return Reflect.deleteProperty(obj, propName);
       } else {
-        delete target[propName];
+        delete obj[propName];
       }
     },
-    isNodeList($ele) {
-      return Array.isArray($ele) || $ele instanceof NodeList;
+    isNodeList($el) {
+      return Array.isArray($el) || $el instanceof NodeList;
     },
     getAnimationEndNameList() {
       return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
@@ -1748,7 +1783,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           context.animate($ele, styles, duration, callback);
         });
@@ -1807,7 +1842,7 @@
         target = target;
         target.style.display = "";
         if (checkVisiblie) {
-          if (!CommonUtils.isShow(target)) {
+          if (!CommonUtils$1.isShow(target)) {
             target.style.setProperty("display", "unset", "important");
           }
         }
@@ -1830,7 +1865,7 @@
         target = target;
         target.style.display = "none";
         if (checkVisiblie) {
-          if (CommonUtils.isShow(target)) {
+          if (CommonUtils$1.isShow(target)) {
             target.style.setProperty("display", "none", "important");
           }
         }
@@ -1844,7 +1879,7 @@
       if (typeof element === "string") {
         element = elementSelector.selectorAll(element);
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           context.fadeIn($ele, duration, callback);
         });
@@ -1878,7 +1913,7 @@
       if (typeof element === "string") {
         element = elementSelector.selectorAll(element);
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           context.fadeOut($ele, duration, callback);
         });
@@ -1912,7 +1947,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           context.toggle($ele);
         });
@@ -1926,7 +1961,7 @@
     }
   }
   new ElementAnimate();
-  const GlobalData = {
+  const GlobalData$1 = {
     domEventSymbol: Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1)),
   };
   const OriginPrototype$1 = {
@@ -1942,10 +1977,10 @@
       this.windowApi = new WindowApi$1(windowApiOption);
     }
     getAnimationEndNameList() {
-      return CommonUtils.getAnimationEndNameList();
+      return CommonUtils$1.getAnimationEndNameList();
     }
     getTransitionEndNameList() {
-      return CommonUtils.getTransitionEndNameList();
+      return CommonUtils$1.getTransitionEndNameList();
     }
     on(element, eventType, selector, callback, option) {
       const getOption = function (args2, startIndex, option2) {
@@ -2011,7 +2046,7 @@
         listenerOption = getOption(args, 4, listenerOption);
       }
       $elList.forEach(($elItem) => {
-        const targetIsWindow = CommonUtils.isWin($elItem);
+        const targetIsWindow = CommonUtils$1.isWin($elItem);
         eventTypeList.forEach((eventName) => {
           const checkOptionOnceToRemoveEventListener = () => {
             if (listenerOption.once) {
@@ -2086,7 +2121,7 @@
             }
           };
           $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
-          const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+          const elementEvents = Reflect.get($elItem, GlobalData$1.domEventSymbol) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -2094,7 +2129,7 @@
             handlerCallBack,
             callback: listenerCallBack,
           });
-          Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
+          Reflect.set($elItem, GlobalData$1.domEventSymbol, elementEvents);
         });
       });
       return {
@@ -2157,7 +2192,7 @@
         filter = option;
       }
       $elList.forEach(($elItem) => {
-        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+        const elementEvents = Reflect.get($elItem, GlobalData$1.domEventSymbol) || {};
         eventTypeList.forEach((eventName) => {
           const handlers = elementEvents[eventName] || [];
           const handlersFiltered = typeof filter === "function" ? handlers.filter(filter) : handlers;
@@ -2189,13 +2224,13 @@
             }
           }
           if (handlers.length === 0) {
-            CommonUtils.delete(elementEvents, eventType);
+            CommonUtils$1.delete(elementEvents, eventType);
             if (Object.keys(elementEvents).length === 0) {
-              CommonUtils.delete($elItem, GlobalData.domEventSymbol);
+              CommonUtils$1.delete($elItem, GlobalData$1.domEventSymbol);
             }
           }
         });
-        Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
+        Reflect.set($elItem, GlobalData$1.domEventSymbol, elementEvents);
       });
     }
     offAll(element, eventType) {
@@ -2219,7 +2254,7 @@
         eventTypeList = eventTypeList.concat(eventType.split(" "));
       }
       $elList.forEach(($elItem) => {
-        const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
+        const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData$1.domEventSymbol])];
         symbolList.forEach((__symbol__) => {
           if (!__symbol__.toString().startsWith("Symbol(events_")) {
             return;
@@ -2237,9 +2272,9 @@
               });
             }
             const events = Reflect.get($elItem, __symbol__);
-            CommonUtils.delete(events, eventName);
+            CommonUtils$1.delete(events, eventName);
             if (Object.keys(events).length === 0) {
-              CommonUtils.delete($elItem, __symbol__);
+              CommonUtils$1.delete($elItem, __symbol__);
             }
           });
         });
@@ -2355,7 +2390,7 @@
         addExtraProp(__event__, extraDetails);
       }
       $elList.forEach(($elItem) => {
-        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+        const elementEvents = Reflect.get($elItem, GlobalData$1.domEventSymbol) || {};
         const dispatchEvent = (event, eventTypeItem) => {
           if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
             elementEvents[eventTypeItem].forEach((eventsItem) => {
@@ -2386,7 +2421,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           that.click($ele, handler, details, useDispatchToEmit);
         });
@@ -2407,7 +2442,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           that.focus($ele, handler, details, useDispatchToEmit);
         });
@@ -2428,7 +2463,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         element.forEach(($ele) => {
           that.focus($ele, handler, details, useDispatchToEmit);
         });
@@ -2449,7 +2484,7 @@
       if (element == null) {
         return;
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         const listenerList = [];
         element.forEach(($ele) => {
           const listener = that.onHover($ele, handler, option);
@@ -2487,7 +2522,7 @@
         once: true,
       };
       Object.assign(defaultOption, option || {});
-      const eventNameList = CommonUtils.getAnimationEndNameList();
+      const eventNameList = CommonUtils$1.getAnimationEndNameList();
       that.on(element, eventNameList, null, handler, defaultOption);
       if (!defaultOption.once) {
         return {
@@ -2509,7 +2544,7 @@
         once: true,
       };
       Object.assign(defaultOption, option || {});
-      const eventNameList = CommonUtils.getTransitionEndNameList();
+      const eventNameList = CommonUtils$1.getTransitionEndNameList();
       that.on(element, eventNameList, null, handler, defaultOption);
       if (!defaultOption.once) {
         return {
@@ -2527,7 +2562,7 @@
       if (typeof element === "string") {
         element = that.selectorAll(element);
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         const listenerList = [];
         element.forEach(($ele) => {
           const listener = that.onKeyup($ele, handler, option);
@@ -2554,7 +2589,7 @@
       if (typeof element === "string") {
         element = that.selectorAll(element);
       }
-      if (CommonUtils.isNodeList(element)) {
+      if (CommonUtils$1.isNodeList(element)) {
         const listenerList = [];
         element.forEach(($ele) => {
           const listener = that.onKeydown($ele, handler, option);
@@ -2810,7 +2845,7 @@
     noConflict() {
       const that = this;
       if (that.windowApi.window.DOMUtils) {
-        CommonUtils.delete(window, "DOMUtils");
+        CommonUtils$1.delete(window, "DOMUtils");
       }
       that.windowApi.window.DOMUtils = this;
       return this;
@@ -2823,7 +2858,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (attrValue == null) {
           return that.attr($el[0], attrName, attrValue);
         } else {
@@ -2893,7 +2928,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (typeof property === "string") {
           if (value == null) {
             return that.css($el[0], property);
@@ -2946,7 +2981,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (text == null) {
           return that.text($el[0]);
         } else {
@@ -2977,7 +3012,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (html == null) {
           return that.html($el[0]);
         } else {
@@ -2994,7 +3029,7 @@
           html = html.innerHTML;
         }
         if ("innerHTML" in $el) {
-          CommonUtils.setSafeHTML($el, html);
+          CommonUtils$1.setSafeHTML($el, html);
         }
       }
     }
@@ -3002,8 +3037,8 @@
       const that = this;
       let transform_left = 0;
       let transform_top = 0;
-      if (!(isShow || (!isShow && CommonUtils.isShow($el)))) {
-        const { recovery } = CommonUtils.forceShow($el);
+      if (!(isShow || (!isShow && CommonUtils$1.isShow($el)))) {
+        const { recovery } = CommonUtils$1.forceShow($el);
         const transformInfo = that.getTransform($el, true);
         recovery();
         return transformInfo;
@@ -3032,7 +3067,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (value == null) {
           return that.val($el[0]);
         } else {
@@ -3064,7 +3099,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         if (propValue == null) {
           return that.prop($el[0], propName);
         } else {
@@ -3092,7 +3127,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.removeAttr($elItem, attrName);
         });
@@ -3108,7 +3143,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.removeClass($elItem, className);
         });
@@ -3133,13 +3168,13 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.removeProp($elItem, propName);
         });
         return;
       }
-      CommonUtils.delete($el, propName);
+      CommonUtils$1.delete($el, propName);
     }
     addClass($el, className) {
       const that = this;
@@ -3149,7 +3184,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.addClass($elItem, className);
         });
@@ -3173,7 +3208,7 @@
       if ($el == null) {
         return false;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         let flag = true;
         for (let index = 0; index < $el.length; index++) {
           const $elItem = $el[index];
@@ -3202,7 +3237,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           this.append($elItem, ...args);
         });
@@ -3216,7 +3251,7 @@
           $ele.appendChild($target);
         } else {
           if (typeof $target === "string") {
-            $ele.insertAdjacentHTML("beforeend", CommonUtils.createSafeHTML($target));
+            $ele.insertAdjacentHTML("beforeend", CommonUtils$1.createSafeHTML($target));
           } else {
             $ele.appendChild($target);
           }
@@ -3224,7 +3259,7 @@
       };
       const $fragment = this.windowApi.document.createDocumentFragment();
       args.forEach((argItem) => {
-        if (CommonUtils.isNodeList(argItem)) {
+        if (CommonUtils$1.isNodeList(argItem)) {
           argItem.forEach((it) => {
             handler($fragment, it);
           });
@@ -3241,7 +3276,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           this.prepend($elItem, ...args);
         });
@@ -3255,7 +3290,7 @@
           $ele.appendChild($target);
         } else {
           if (typeof $target === "string") {
-            $ele.insertAdjacentHTML("afterbegin", CommonUtils.createSafeHTML($target));
+            $ele.insertAdjacentHTML("afterbegin", CommonUtils$1.createSafeHTML($target));
           } else {
             const $firstChild = $ele.firstChild;
             if ($firstChild) {
@@ -3268,7 +3303,7 @@
       };
       const $fragment = this.windowApi.document.createDocumentFragment();
       args.forEach((argItem) => {
-        if (CommonUtils.isNodeList(argItem)) {
+        if (CommonUtils$1.isNodeList(argItem)) {
           argItem.forEach((it) => {
             handler($fragment, it);
           });
@@ -3285,7 +3320,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           this.after($elItem, ...args);
         });
@@ -3299,7 +3334,7 @@
           $ele.appendChild($target);
         } else {
           if (typeof $target === "string") {
-            $ele.insertAdjacentHTML("afterend", CommonUtils.createSafeHTML($target));
+            $ele.insertAdjacentHTML("afterend", CommonUtils$1.createSafeHTML($target));
           } else {
             const $parent = $el.parentElement;
             const $nextSlibling = $el.nextSibling;
@@ -3313,7 +3348,7 @@
       };
       const $fragment = this.windowApi.document.createDocumentFragment();
       args.forEach((argItem) => {
-        if (CommonUtils.isNodeList(argItem)) {
+        if (CommonUtils$1.isNodeList(argItem)) {
           argItem.forEach((it) => {
             handler($fragment, it);
           });
@@ -3330,7 +3365,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           this.before($elItem, ...args);
         });
@@ -3344,7 +3379,7 @@
           $ele.appendChild($target);
         } else {
           if (typeof $target === "string") {
-            $el.insertAdjacentHTML("beforebegin", CommonUtils.createSafeHTML($target));
+            $el.insertAdjacentHTML("beforebegin", CommonUtils$1.createSafeHTML($target));
           } else {
             const $parent = $el.parentElement;
             if ($parent) {
@@ -3357,7 +3392,7 @@
       };
       const $fragment = this.windowApi.document.createDocumentFragment();
       args.forEach((argItem) => {
-        if (CommonUtils.isNodeList(argItem)) {
+        if (CommonUtils$1.isNodeList(argItem)) {
           argItem.forEach((it) => {
             handler($fragment, it);
           });
@@ -3368,19 +3403,23 @@
       handler($el, $fragment);
     }
     remove($el) {
-      const that = this;
       if (typeof $el === "string") {
-        $el = that.selectorAll($el);
+        $el = this.selectorAll($el);
       }
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
-          that.remove($elItem);
+          this.remove($elItem);
         });
         return;
       }
+      $el.querySelectorAll("*").forEach(($elItem) => {
+        if (!($elItem instanceof Element)) return;
+        this.offAll($elItem);
+      });
+      this.offAll($el);
       if (typeof $el.remove === "function") {
         $el.remove();
       } else if ($el.parentElement) {
@@ -3397,14 +3436,14 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.empty($elItem);
         });
         return;
       }
       if ($el.innerHTML) {
-        $el.innerHTML = "";
+        CommonUtils$1.setSafeHTML($el, "");
       } else if ($el.textContent) {
         $el.textContent = "";
       }
@@ -3428,7 +3467,7 @@
       if (typeof $el === "string") {
         $el = that.selector($el);
       }
-      if (CommonUtils.isWin($el)) {
+      if (CommonUtils$1.isWin($el)) {
         return that.windowApi.window.document.documentElement.clientWidth;
       }
       if ($el.nodeType === 9) {
@@ -3441,16 +3480,16 @@
           $el.documentElement.clientWidth
         );
       }
-      if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      if (isShow || (!isShow && CommonUtils$1.isShow($el))) {
         $el = $el;
-        if (parseFloat(CommonUtils.getStyleValue($el, "width").toString()) > 0) {
-          return parseFloat(CommonUtils.getStyleValue($el, "width").toString());
+        if (parseFloat(CommonUtils$1.getStyleValue($el, "width").toString()) > 0) {
+          return parseFloat(CommonUtils$1.getStyleValue($el, "width").toString());
         }
         if ($el.offsetWidth > 0) {
-          const borderLeftWidth = CommonUtils.getStyleValue($el, "borderLeftWidth");
-          const borderRightWidth = CommonUtils.getStyleValue($el, "borderRightWidth");
-          const paddingLeft = CommonUtils.getStyleValue($el, "paddingLeft");
-          const paddingRight = CommonUtils.getStyleValue($el, "paddingRight");
+          const borderLeftWidth = CommonUtils$1.getStyleValue($el, "borderLeftWidth");
+          const borderRightWidth = CommonUtils$1.getStyleValue($el, "borderRightWidth");
+          const paddingLeft = CommonUtils$1.getStyleValue($el, "paddingLeft");
+          const paddingRight = CommonUtils$1.getStyleValue($el, "paddingRight");
           const backHeight =
             parseFloat($el.offsetWidth.toString()) -
             parseFloat(borderLeftWidth.toString()) -
@@ -3462,7 +3501,7 @@
         return 0;
       } else {
         $el = $el;
-        const { recovery } = CommonUtils.forceShow($el);
+        const { recovery } = CommonUtils$1.forceShow($el);
         const width = that.width($el, true);
         recovery();
         return width;
@@ -3470,7 +3509,7 @@
     }
     height($el, isShow = false) {
       const that = this;
-      if (CommonUtils.isWin($el)) {
+      if (CommonUtils$1.isWin($el)) {
         return that.windowApi.window.document.documentElement.clientHeight;
       }
       if (typeof $el === "string") {
@@ -3486,16 +3525,16 @@
           $el.documentElement.clientHeight
         );
       }
-      if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      if (isShow || (!isShow && CommonUtils$1.isShow($el))) {
         $el = $el;
-        if (parseFloat(CommonUtils.getStyleValue($el, "height").toString()) > 0) {
-          return parseFloat(CommonUtils.getStyleValue($el, "height").toString());
+        if (parseFloat(CommonUtils$1.getStyleValue($el, "height").toString()) > 0) {
+          return parseFloat(CommonUtils$1.getStyleValue($el, "height").toString());
         }
         if ($el.offsetHeight > 0) {
-          const borderTopWidth = CommonUtils.getStyleValue($el, "borderTopWidth");
-          const borderBottomWidth = CommonUtils.getStyleValue($el, "borderBottomWidth");
-          const paddingTop = CommonUtils.getStyleValue($el, "paddingTop");
-          const paddingBottom = CommonUtils.getStyleValue($el, "paddingBottom");
+          const borderTopWidth = CommonUtils$1.getStyleValue($el, "borderTopWidth");
+          const borderBottomWidth = CommonUtils$1.getStyleValue($el, "borderBottomWidth");
+          const paddingTop = CommonUtils$1.getStyleValue($el, "paddingTop");
+          const paddingBottom = CommonUtils$1.getStyleValue($el, "paddingBottom");
           const backHeight =
             parseFloat($el.offsetHeight.toString()) -
             parseFloat(borderTopWidth.toString()) -
@@ -3507,7 +3546,7 @@
         return 0;
       } else {
         $el = $el;
-        const { recovery } = CommonUtils.forceShow($el);
+        const { recovery } = CommonUtils$1.forceShow($el);
         const height = that.height($el, true);
         recovery();
         return height;
@@ -3515,20 +3554,20 @@
     }
     outerWidth($el, isShow = false) {
       const that = this;
-      if (CommonUtils.isWin($el)) {
+      if (CommonUtils$1.isWin($el)) {
         return that.windowApi.window.innerWidth;
       }
       if (typeof $el === "string") {
         $el = that.selector($el);
       }
       $el = $el;
-      if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      if (isShow || (!isShow && CommonUtils$1.isShow($el))) {
         const style = that.windowApi.globalThis.getComputedStyle($el, null);
-        const marginLeft = CommonUtils.getStyleValue(style, "marginLeft");
-        const marginRight = CommonUtils.getStyleValue(style, "marginRight");
+        const marginLeft = CommonUtils$1.getStyleValue(style, "marginLeft");
+        const marginRight = CommonUtils$1.getStyleValue(style, "marginRight");
         return $el.offsetWidth + marginLeft + marginRight;
       } else {
-        const { recovery } = CommonUtils.forceShow($el);
+        const { recovery } = CommonUtils$1.forceShow($el);
         const outerWidth = that.outerWidth($el, true);
         recovery();
         return outerWidth;
@@ -3536,20 +3575,20 @@
     }
     outerHeight($el, isShow = false) {
       const that = this;
-      if (CommonUtils.isWin($el)) {
+      if (CommonUtils$1.isWin($el)) {
         return that.windowApi.window.innerHeight;
       }
       if (typeof $el === "string") {
         $el = that.selector($el);
       }
       $el = $el;
-      if (isShow || (!isShow && CommonUtils.isShow($el))) {
+      if (isShow || (!isShow && CommonUtils$1.isShow($el))) {
         const style = that.windowApi.globalThis.getComputedStyle($el, null);
-        const marginTop = CommonUtils.getStyleValue(style, "marginTop");
-        const marginBottom = CommonUtils.getStyleValue(style, "marginBottom");
+        const marginTop = CommonUtils$1.getStyleValue(style, "marginTop");
+        const marginBottom = CommonUtils$1.getStyleValue(style, "marginBottom");
         return $el.offsetHeight + marginTop + marginBottom;
       } else {
-        const { recovery } = CommonUtils.forceShow($el);
+        const { recovery } = CommonUtils$1.forceShow($el);
         const outerHeight = that.outerHeight($el, true);
         recovery();
         return outerHeight;
@@ -3563,7 +3602,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.replaceWith($elItem, $newEl);
         });
@@ -3577,7 +3616,7 @@
         $parent.replaceChild($newEl, $el);
       } else {
         that.after($el, $newEl);
-        $el.remove();
+        this.remove($el);
       }
     }
     wrap($el, wrapperHTML) {
@@ -3588,7 +3627,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         $el.forEach(($elItem) => {
           that.wrap($elItem, wrapperHTML);
         });
@@ -3640,7 +3679,7 @@
       if ($el == null) {
         return;
       }
-      if (CommonUtils.isNodeList($el)) {
+      if (CommonUtils$1.isNodeList($el)) {
         const resultArray = [];
         $el.forEach(($elItem) => {
           resultArray.push(that.parent($elItem));
@@ -3861,7 +3900,7 @@
     }
     checkUserClickInNode($el) {
       const that = this;
-      if (!CommonUtils.isDOM($el)) {
+      if (!CommonUtils$1.isDOM($el)) {
         throw new Error("DOMUtils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
       }
       const clickEvent = that.windowApi.window.event;
@@ -3892,7 +3931,7 @@
       if ($el == null) {
         return;
       }
-      if (!CommonUtils.isDOM($el)) {
+      if (!CommonUtils$1.isDOM($el)) {
         throw new Error("DOMUtils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
       }
       if (typeof parentSelector !== "string") {
@@ -3962,7 +4001,7 @@
     }
   };
   const domUtils$2 = new DOMUtils$1();
-  const version$1 = "4.2.4";
+  const version$1 = "4.2.8";
   const GlobalConfig = {
     config: {},
     setGlobalConfig(config) {
@@ -4182,6 +4221,7 @@
   const OriginPrototype = {
     Object: {
       defineProperty: Object.defineProperty,
+      defineProperties: Object.defineProperties,
     },
   };
   const PopsCoreDefaultApi = {
@@ -5260,8 +5300,18 @@
     }
   }
   const popsUtils = new PopsUtils();
-  const SymbolEvents = Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1));
+  const GlobalData = {
+    domEventSymbol: Symbol("events_" + (((1 + Math.random()) * 65536) | 0).toString(16).substring(1)),
+  };
+  const CommonUtils = {
+    isWin: popsUtils.isWin.bind(popsUtils),
+    delete: popsUtils.delete.bind(popsUtils),
+    isNodeList: popsUtils.isNodeList.bind(popsUtils),
+  };
   class PopsDOMUtilsEvent {
+    get windowApi() {
+      return PopsCore.window;
+    }
     on(element, eventType, selector, callback, option) {
       const getOption = function (args2, startIndex, option2) {
         const currentParam = args2[startIndex];
@@ -5273,17 +5323,12 @@
           if (typeof args2[startIndex + 2] === "boolean") {
             option2.passive = args2[startIndex + 2];
           }
-        } else if (
-          typeof currentParam === "object" &&
-          ("capture" in currentParam ||
-            "once" in currentParam ||
-            "passive" in currentParam ||
-            "isComposedPath" in currentParam)
-        ) {
-          option2.capture = currentParam.capture;
-          option2.once = currentParam.once;
-          option2.passive = currentParam.passive;
-          option2.isComposedPath = currentParam.isComposedPath;
+        } else if (currentParam && typeof currentParam === "object") {
+          for (const key in option2) {
+            if (Reflect.has(currentParam, key)) {
+              Reflect.set(option2, key, currentParam[key]);
+            }
+          }
         }
         return option2;
       };
@@ -5322,6 +5367,7 @@
         once: false,
         passive: false,
         isComposedPath: false,
+        overrideTarget: true,
       };
       if (typeof selector === "function") {
         listenerCallBack = selector;
@@ -5330,6 +5376,7 @@
         listenerOption = getOption(args, 4, listenerOption);
       }
       $elList.forEach(($elItem) => {
+        const targetIsWindow = CommonUtils.isWin($elItem);
         eventTypeList.forEach((eventName) => {
           const checkOptionOnceToRemoveEventListener = () => {
             if (listenerOption.once) {
@@ -5337,6 +5384,9 @@
             }
           };
           const handlerCallBack = function (event) {
+            if (listenerOption.isPreventEvent) {
+              that.preventEvent(event);
+            }
             let call_this = void 0;
             let call_event = void 0;
             let call_$selector = void 0;
@@ -5352,10 +5402,7 @@
               } else {
                 $target = event.target;
               }
-              let $parent = $elItem;
-              if (popsUtils.isWin($parent)) {
-                $parent = PopsCore.document.documentElement;
-              }
+              const $parent = targetIsWindow ? that.windowApi.document.documentElement : $elItem;
               const findValue = selectorList.find((selectors) => {
                 if (that.matches($target, selectors)) {
                   return true;
@@ -5368,13 +5415,23 @@
                 return false;
               });
               if (findValue) {
-                try {
-                  OriginPrototype.Object.defineProperty(event, "target", {
-                    get() {
-                      return $target;
-                    },
-                  });
-                } catch {}
+                if (listenerOption.overrideTarget) {
+                  try {
+                    const originTarget = event.target;
+                    OriginPrototype.Object.defineProperties(event, {
+                      target: {
+                        get() {
+                          return $target;
+                        },
+                      },
+                      originTarget: {
+                        get() {
+                          return originTarget;
+                        },
+                      },
+                    });
+                  } catch {}
+                }
                 execCallback = true;
                 call_this = $target;
                 call_event = event;
@@ -5394,7 +5451,7 @@
             }
           };
           $elItem.addEventListener(eventName, handlerCallBack, listenerOption);
-          const elementEvents = Reflect.get($elItem, SymbolEvents) || {};
+          const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -5402,7 +5459,7 @@
             handlerCallBack,
             callback: listenerCallBack,
           });
-          Reflect.set($elItem, SymbolEvents, elementEvents);
+          Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
         });
       });
       return {
@@ -5419,7 +5476,7 @@
         const currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
-        } else if (typeof currentParam === "object" && currentParam != null && "capture" in currentParam) {
+        } else if (currentParam && typeof currentParam === "object" && "capture" in currentParam) {
           option2.capture = currentParam.capture;
         }
         return option2;
@@ -5465,7 +5522,7 @@
         filter = option;
       }
       $elList.forEach(($elItem) => {
-        const elementEvents = Reflect.get($elItem, SymbolEvents) || {};
+        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
         eventTypeList.forEach((eventName) => {
           const handlers = elementEvents[eventName] || [];
           const handlersFiltered = typeof filter === "function" ? handlers.filter(filter) : handlers;
@@ -5497,10 +5554,13 @@
             }
           }
           if (handlers.length === 0) {
-            popsUtils.delete(elementEvents, eventType);
+            CommonUtils.delete(elementEvents, eventType);
+            if (Object.keys(elementEvents).length === 0) {
+              CommonUtils.delete($elItem, GlobalData.domEventSymbol);
+            }
           }
         });
-        Reflect.set($elItem, SymbolEvents, elementEvents);
+        Reflect.set($elItem, GlobalData.domEventSymbol, elementEvents);
       });
     }
     offAll(element, eventType) {
@@ -5524,12 +5584,12 @@
         eventTypeList = eventTypeList.concat(eventType.split(" "));
       }
       $elList.forEach(($elItem) => {
-        const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), SymbolEvents])];
-        symbolList.forEach((symbolItem) => {
-          if (!symbolItem.toString().startsWith("Symbol(events_")) {
+        const symbolList = [...new Set([...Object.getOwnPropertySymbols($elItem), GlobalData.domEventSymbol])];
+        symbolList.forEach((__symbol__) => {
+          if (!__symbol__.toString().startsWith("Symbol(events_")) {
             return;
           }
-          const elementEvents = Reflect.get($elItem, symbolItem) || {};
+          const elementEvents = Reflect.get($elItem, __symbol__) || {};
           const iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
           iterEventNameList.forEach((eventName) => {
             const handlers = elementEvents[eventName];
@@ -5537,12 +5597,15 @@
               return;
             }
             for (const handler of handlers) {
-              $elItem.removeEventListener(eventName, handler.callback, {
-                capture: handler["option"]["capture"],
+              $elItem.removeEventListener(eventName, handler.handlerCallBack, {
+                capture: handler.option.capture,
               });
             }
-            const events = Reflect.get($elItem, symbolItem);
-            popsUtils.delete(events, eventName);
+            const events = Reflect.get($elItem, __symbol__);
+            CommonUtils.delete(events, eventName);
+            if (Object.keys(events).length === 0) {
+              CommonUtils.delete($elItem, __symbol__);
+            }
           });
         });
       });
@@ -5600,93 +5663,7 @@
         addDomReadyListener();
       }
     }
-    emit(element, eventType, details, useDispatchToEmitEvent = true) {
-      if (typeof element === "string") {
-        element = this.selector(element);
-      }
-      if (element == null) {
-        return;
-      }
-      let elementList = [];
-      if (element instanceof NodeList || Array.isArray(element)) {
-        element = element;
-        elementList = [...element];
-      } else {
-        elementList = [element];
-      }
-      let eventTypeList = [];
-      if (Array.isArray(eventType)) {
-        eventTypeList = eventType;
-      } else if (typeof eventType === "string") {
-        eventTypeList = eventType.split(" ");
-      }
-      elementList.forEach((elementItem) => {
-        const events = elementItem[SymbolEvents] || {};
-        eventTypeList.forEach((_eventType_) => {
-          let event = null;
-          if (details && details instanceof Event) {
-            event = details;
-          } else {
-            event = new Event(_eventType_);
-            if (details) {
-              Object.keys(details).forEach((keyName) => {
-                event[keyName] = details[keyName];
-              });
-            }
-          }
-          if (useDispatchToEmitEvent == false && _eventType_ in events) {
-            events[_eventType_].forEach((eventsItem) => {
-              eventsItem.callback(event);
-            });
-          } else {
-            elementItem.dispatchEvent(event);
-          }
-        });
-      });
-    }
-    click(element, handler, details, useDispatchToEmitEvent) {
-      if (typeof element === "string") {
-        element = this.selector(element);
-      }
-      if (element == null) {
-        return;
-      }
-      if (handler == null) {
-        this.emit(element, "click", details, useDispatchToEmitEvent);
-      } else {
-        const listener = this.on(element, "click", handler);
-        return listener;
-      }
-    }
-    blur(element, handler, details, useDispatchToEmitEvent) {
-      if (typeof element === "string") {
-        element = this.selector(element);
-      }
-      if (element == null) {
-        return;
-      }
-      if (handler === null) {
-        this.emit(element, "blur", details, useDispatchToEmitEvent);
-      } else {
-        const listener = this.on(element, "blur", handler);
-        return listener;
-      }
-    }
-    focus(element, handler, details, useDispatchToEmitEvent) {
-      if (typeof element === "string") {
-        element = this.selector(element);
-      }
-      if (element == null) {
-        return;
-      }
-      if (handler == null) {
-        this.emit(element, "focus", details, useDispatchToEmitEvent);
-      } else {
-        const listener = this.on(element, "focus", handler);
-        return listener;
-      }
-    }
-    onHover(element, handler, option) {
+    emit(element, eventType, extraDetails, useDispatchToTriggerEvent = true) {
       const that = this;
       if (typeof element === "string") {
         element = that.selectorAll(element);
@@ -5694,10 +5671,67 @@
       if (element == null) {
         return;
       }
-      if (popsUtils.isNodeList(element)) {
+      let $elList = [];
+      if (element instanceof NodeList || Array.isArray(element)) {
+        $elList = $elList.concat(Array.from(element));
+      } else {
+        $elList.push(element);
+      }
+      const addExtraProp = (event, obj) => {
+        if (event instanceof Event && typeof obj === "object" && obj != null && !Array.isArray(obj)) {
+          const detailKeys = Object.keys(obj);
+          detailKeys.forEach((keyName) => {
+            const value = Reflect.get(obj, keyName);
+            Reflect.set(event, keyName, value);
+          });
+        }
+      };
+      let eventTypeList = [];
+      let __event__ = null;
+      if (Array.isArray(eventType)) {
+        eventTypeList = eventType.filter((it) => typeof it === "string" && it.trim() !== "");
+      } else if (typeof eventType === "string") {
+        eventTypeList = eventType.split(" ");
+      } else if (eventType instanceof Event) {
+        __event__ = eventType;
+        addExtraProp(__event__, extraDetails);
+      }
+      $elList.forEach(($elItem) => {
+        const elementEvents = Reflect.get($elItem, GlobalData.domEventSymbol) || {};
+        const dispatchEvent = (event, eventTypeItem) => {
+          if (useDispatchToTriggerEvent == false && eventTypeItem in elementEvents) {
+            elementEvents[eventTypeItem].forEach((eventsItem) => {
+              eventsItem.handlerCallBack(event);
+            });
+          } else {
+            $elItem.dispatchEvent(event);
+          }
+        };
+        if (__event__) {
+          const event = __event__;
+          const eventTypeItem = event.type;
+          dispatchEvent(event, eventTypeItem);
+        } else {
+          eventTypeList.forEach((eventTypeItem) => {
+            const event = new Event(eventTypeItem);
+            addExtraProp(event, extraDetails);
+            dispatchEvent(event, eventTypeItem);
+          });
+        }
+      });
+    }
+    onKeyup(element, handler, option) {
+      const that = this;
+      if (element == null) {
+        return;
+      }
+      if (typeof element === "string") {
+        element = that.selectorAll(element);
+      }
+      if (CommonUtils.isNodeList(element)) {
         const listenerList = [];
         element.forEach(($ele) => {
-          const listener = that.onHover($ele, handler, option);
+          const listener = that.onKeyup($ele, handler, option);
           listenerList.push(listener);
         });
         return {
@@ -5711,34 +5745,34 @@
           },
         };
       }
-      const mouseenter_listener = that.on(element, "mouseenter", null, handler, option);
-      const mouseleave_listener = that.on(element, "mouseleave", null, handler, option);
-      return {
-        off() {
-          mouseenter_listener.off();
-          mouseleave_listener.off();
-        },
-      };
+      return that.on(element, "keyup", null, handler, option);
     }
-    onKeyup(target, handler, option) {
-      if (target == null) {
+    onKeydown(element, handler, option) {
+      const that = this;
+      if (element == null) {
         return;
       }
-      if (typeof target === "string") {
-        target = this.selector(target);
+      if (typeof element === "string") {
+        element = that.selectorAll(element);
       }
-      const listener = this.on(target, "keyup", handler, option);
-      return listener;
-    }
-    onKeydown(target, handler, option) {
-      if (target == null) {
-        return;
+      if (CommonUtils.isNodeList(element)) {
+        const listenerList = [];
+        element.forEach(($ele) => {
+          const listener = that.onKeydown($ele, handler, option);
+          listenerList.push(listener);
+        });
+        return {
+          off() {
+            listenerList.forEach((listener) => {
+              if (!listener) {
+                return;
+              }
+              listener.off();
+            });
+          },
+        };
       }
-      if (typeof target === "string") {
-        target = this.selector(target);
-      }
-      const listener = this.on(target, "keydown", handler, option);
-      return listener;
+      return that.on(element, "keydown", null, handler, option);
     }
     preventEvent(...args) {
       const stopEvent = (event, onlyStopPropagation) => {
@@ -5763,7 +5797,8 @@
           eventNameList = [eventNameList];
         }
         let option = void 0;
-        if (typeof args[2] === "string" || Array.isArray(args[2])) {
+        if (args.length === 2);
+        else if (typeof args[2] === "string" || Array.isArray(args[2])) {
           selector = args[2];
           if (typeof args[3] === "object" && args[3] != null) {
             option = args[3];
@@ -5905,6 +5940,32 @@
         const $closest = $el?.closest(selector);
         return $closest;
       }
+    }
+    onInput($el, callback, option) {
+      let isComposite = false;
+      const __callback = async (event) => {
+        if (isComposite) return;
+        await callback(event);
+      };
+      const __composition_start_callback = () => {
+        isComposite = true;
+      };
+      const __composition_end_callback = () => {
+        isComposite = false;
+        this.emit($el, "input", {
+          isComposite,
+        });
+      };
+      const inputListener = this.on($el, "input", __callback, option);
+      const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
+      const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
+      return {
+        off: () => {
+          inputListener.off();
+          compositionStartListener.off();
+          compositionEndListener.off();
+        },
+      };
     }
   }
   class PopsDOMUtils extends PopsDOMUtilsEvent {
@@ -6066,38 +6127,51 @@
         return outerHeight;
       }
     }
-    addClassName($el, className) {
+    addClassName($el, ...args) {
       if ($el == null) return;
-      if (className == null) return;
-      if (typeof className === "function") {
-        className = className();
-      }
-      if (!Array.isArray(className)) {
-        className = [className];
-      }
-      className.forEach((classNameStrItem) => {
-        if (typeof classNameStrItem !== "string") {
+      if (!($el instanceof Element)) return;
+      if (args.length === 0) return;
+      args.forEach((argItem) => {
+        if (argItem == null) return;
+        if (Array.isArray(argItem)) {
+          this.addClassName($el, ...argItem);
           return;
         }
-        if (classNameStrItem.trim() === "") {
+        if (typeof argItem === "function") {
+          argItem = argItem();
+        }
+        if (typeof argItem !== "string") {
           return;
         }
-        const classNameList = classNameStrItem.split(" ").filter((item) => item.trim() !== "");
-        $el?.classList?.add?.(...classNameList);
+        if (argItem.trim() === "") {
+          return;
+        }
+        const classNameList = argItem.split(" ").filter((item) => item.trim() !== "");
+        $el.classList.add(...classNameList);
       });
     }
-    removeClassName($el, className) {
-      if ($el == null) {
-        return;
-      }
-      if (typeof className !== "string") {
-        return;
-      }
-      if (className.trim() === "") {
-        return;
-      }
-      const classNameList = className.split(" ").filter((item) => item.trim() !== "");
-      $el.classList.remove(...classNameList);
+    removeClassName($el, ...args) {
+      if ($el == null) return;
+      if (!($el instanceof Element)) return;
+      if (args.length === 0) return;
+      args.forEach((argItem) => {
+        if (argItem == null) return;
+        if (Array.isArray(argItem)) {
+          this.removeClassName($el, ...argItem);
+          return;
+        }
+        if (typeof argItem === "function") {
+          argItem = argItem();
+        }
+        if (typeof argItem !== "string") {
+          return;
+        }
+        if (argItem.trim() === "") {
+          return;
+        }
+        const classNameList = argItem.split(" ").filter((item) => item.trim() !== "");
+        $el.classList.remove(...classNameList);
+      });
     }
     containsClassName($el, className) {
       if ($el == null) {
@@ -6422,7 +6496,7 @@
       return {
         cloneNode: $cloneNode,
         recovery() {
-          $cloneNode.remove();
+          popsDOMUtils.remove($cloneNode);
         },
       };
     }
@@ -6548,31 +6622,31 @@
         transformTop: transform_top,
       };
     }
-    onInput($el, callback, option) {
-      let isComposite = false;
-      const __callback = async (event) => {
-        if (isComposite) return;
-        await callback(event);
-      };
-      const __composition_start_callback = () => {
-        isComposite = true;
-      };
-      const __composition_end_callback = () => {
-        isComposite = false;
-        this.emit($el, "input", {
-          isComposite,
+    remove($el) {
+      if (typeof $el === "string") {
+        $el = this.selectorAll($el);
+      }
+      if ($el == null) {
+        return;
+      }
+      if (CommonUtils.isNodeList($el)) {
+        $el.forEach(($elItem) => {
+          this.remove($elItem);
         });
-      };
-      const inputListener = this.on($el, "input", __callback, option);
-      const compositionStartListener = this.on($el, "compositionstart", __composition_start_callback, option);
-      const compositionEndListener = this.on($el, "compositionend", __composition_end_callback, option);
-      return {
-        off: () => {
-          inputListener.off();
-          compositionStartListener.off();
-          compositionEndListener.off();
-        },
-      };
+        return;
+      }
+      $el.querySelectorAll("*").forEach(($elItem) => {
+        if (!($elItem instanceof Element)) return;
+        this.offAll($elItem);
+      });
+      this.offAll($el);
+      if (typeof $el.remove === "function") {
+        $el.remove();
+      } else if ($el.parentElement) {
+        $el.parentElement.removeChild($el);
+      } else if ($el.parentNode) {
+        $el.parentNode.removeChild($el);
+      }
     }
   }
   const popsDOMUtils = new PopsDOMUtils();
@@ -6986,7 +7060,7 @@
         this.$data = null;
         this.$data = popsDOMUtils.getKeyFrames($style.sheet);
         popsUtils.setTimeout(() => {
-          $style.remove();
+          popsDOMUtils.remove($style);
         }, 50);
       }
     },
@@ -7030,7 +7104,7 @@
         async exit() {
           const transitionEndCallback = async () => {
             popsDOMUtils.cssShow($el);
-            $next.remove();
+            popsDOMUtils.remove($next);
             if (typeof option.exitToRemoveElementCallback === "function") {
               await option.exitToRemoveElementCallback();
             }
@@ -7142,8 +7216,8 @@
     isHide($el) {
       let flag = false;
       if (
-        $el?.classList?.contains(PopsCommonCSSClassName.hide) ||
-        $el?.classList?.contains(PopsCommonCSSClassName.hideImportant)
+        popsDOMUtils.containsClassName($el, PopsCommonCSSClassName.hide) ||
+        popsDOMUtils.containsClassName($el, PopsCommonCSSClassName.hideImportant)
       ) {
         flag = true;
       } else {
@@ -7174,10 +7248,11 @@
     async removeInstance(totalInstConfigList, guid, isAll = false) {
       const removeInst = async (instCommonConfig) => {
         await instCommonConfig.emitter.emit("pops:before-destory", instCommonConfig);
-        instCommonConfig?.$anim?.remove();
-        instCommonConfig?.$pops?.remove();
-        instCommonConfig?.$mask?.remove();
-        instCommonConfig?.$shadowContainer?.remove();
+        popsDOMUtils.offAll(instCommonConfig.$shadowRoot);
+        popsDOMUtils.remove(instCommonConfig?.$anim);
+        popsDOMUtils.remove(instCommonConfig?.$pops);
+        popsDOMUtils.remove(instCommonConfig?.$mask);
+        popsDOMUtils.remove(instCommonConfig?.$shadowContainer);
         await instCommonConfig.emitter.emit("pops:destory");
         await instCommonConfig.emitter.offAll();
       };
@@ -7584,7 +7659,7 @@
             evt.stopImmediatePropagation();
             evt.stopPropagation();
           },
-          { capture: true }
+          { capture: true, overrideTarget: false }
         );
       }
       return {
@@ -9320,7 +9395,7 @@
           const currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
           if (currentBreadcrumb) {
             while (currentBreadcrumb.nextElementSibling) {
-              currentBreadcrumb.nextElementSibling.remove();
+              popsDOMUtils.remove(currentBreadcrumb.nextElementSibling);
             }
           } else {
             console.error("获取导航按钮失败");
@@ -9418,13 +9493,13 @@
                   $downloadIframe.src = downloadUrl;
                   $downloadIframe.onload = function () {
                     popsUtils.setTimeout(() => {
-                      $downloadIframe.remove();
+                      popsDOMUtils.remove($downloadIframe);
                     }, 1e3);
                   };
                   $shadowRoot.appendChild($downloadIframe);
                   popsUtils.setTimeout(
                     () => {
-                      $downloadIframe.remove();
+                      popsDOMUtils.remove($downloadIframe);
                     },
                     3 * 60 * 1e3
                   );
@@ -9568,15 +9643,12 @@
             ...Array.from(folderListSortFileNameElement.querySelectorAll(".pops-folder-icon-active")),
             ...Array.from(folderListSortLatestTimeElement.querySelectorAll(".pops-folder-icon-active")),
             ...Array.from(folderListSortFileSizeElement.querySelectorAll(".pops-folder-icon-active")),
-          ].forEach((ele) => ele.classList.remove("pops-folder-icon-active"));
+          ].forEach(($elItem) => popsDOMUtils.removeClassName($elItem, "pops-folder-icon-active"));
         }
         changeArrowActive(arrowUp, arrowDown, isDesc) {
           this.removeArrowActiveStatus();
-          if (isDesc) {
-            arrowDown.classList.add("pops-folder-icon-active");
-          } else {
-            arrowUp.classList.add("pops-folder-icon-active");
-          }
+          const activeClassName = "pops-folder-icon-active";
+          popsDOMUtils.addClassName(isDesc ? arrowDown : arrowUp, activeClassName);
         }
         arrowToSortFolderInfoView($target, event, sortName) {
           const notChangeSortRule = Reflect.get(event, "notChangeSortRule");
@@ -9758,15 +9830,15 @@
       const $anim = PopsElementHandler.parseElement(animHTML);
       const {
         $pops,
-        $headerBtnClose: headerCloseBtnElement,
-        $headerControls: headerControlsElement,
+        $headerBtnClose,
+        $headerControls,
         $title,
         $iframe,
-        $loading: loadingElement,
+        $loading,
         $contentLoading,
-        $headerBtnMin: headerMinBtnElement,
-        $headerBtnMax: headerMaxBtnElement,
-        $headerBtnMise: headerMiseBtnElement,
+        $headerBtnMin,
+        $headerBtnMax,
+        $headerBtnMise,
       } = PopsHandler.handleQueryElement($anim, popsType);
       let $iframeContainer = popsDOMUtils.selector(".pops-iframe-container");
       if (!$iframeContainer) {
@@ -9808,10 +9880,10 @@
         $anim.style.height = "0%";
       });
       popsDOMUtils.on($iframe, "load", () => {
-        loadingElement?.remove();
+        popsDOMUtils.remove($loading);
         $contentLoading.style.animation = "iframeLoadingChange_85 0.3s forwards";
         popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
-          $contentLoading.remove();
+          popsDOMUtils.remove($contentLoading);
         });
         if (config.title.text.trim() === "" && $iframe.contentDocument) {
           $title.querySelector("p").innerText = $iframe.contentDocument.title;
@@ -9838,21 +9910,24 @@
       let origin_top = "";
       let origin_is_max = false;
       popsDOMUtils.on(
-        headerMinBtnElement,
+        $headerBtnMin,
         "click",
         (event) => {
           event.preventDefault();
           event.stopPropagation();
           origin_left = $pops.style.left;
           origin_top = $pops.style.top;
-          $pops.classList.add("pops-iframe-unset-top");
-          $pops.classList.add("pops-iframe-unset-left");
-          $pops.classList.add("pops-iframe-unset-transform");
+          popsDOMUtils.addClassName(
+            $pops,
+            "pops-iframe-unset-top",
+            "pops-iframe-unset-left",
+            "pops-iframe-unset-transform"
+          );
           $pops.style.transitionDuration = "";
           $pops.setAttribute(TYPE_MODULE, "min");
-          headerControlsElement.setAttribute("type", "min");
-          headerMaxBtnElement.style.setProperty("display", "none");
-          headerMiseBtnElement.style.setProperty("display", "");
+          $headerControls.setAttribute("type", "min");
+          $headerBtnMax.style.setProperty("display", "none");
+          $headerBtnMise.style.setProperty("display", "");
           if (typeof config?.btn?.min?.callback === "function") {
             config.btn.min.callback(evtConfig, event);
           }
@@ -9863,7 +9938,7 @@
         }
       );
       popsDOMUtils.on(
-        headerMaxBtnElement,
+        $headerBtnMax,
         "click",
         (event) => {
           event.preventDefault();
@@ -9876,15 +9951,18 @@
           $pops.style.transitionDuration = "";
           $pops.style.transform = "";
           $pops.removeAttribute(TYPE_MODULE);
-          $pops.classList.add("pops-iframe-unset-transition");
-          $pops.classList.add("pops-iframe-unset-left");
-          $pops.classList.add("pops-iframe-unset-top");
-          $pops.classList.add("pops-iframe-unset-transform");
-          $pops.classList.remove("pops-iframe-unset-transition");
+          popsDOMUtils.addClassName(
+            $pops,
+            "pops-iframe-unset-transition",
+            "pops-iframe-unset-left",
+            "pops-iframe-unset-top",
+            "pops-iframe-unset-transform"
+          );
+          popsDOMUtils.removeClassName($pops, "pops-iframe-unset-transition");
           $pops.setAttribute(TYPE_MODULE, "max");
-          headerControlsElement.setAttribute("type", "max");
-          headerMaxBtnElement.style.setProperty("display", "none");
-          headerMiseBtnElement.style.setProperty("display", "");
+          $headerControls.setAttribute("type", "max");
+          $headerBtnMax.style.setProperty("display", "none");
+          $headerBtnMise.style.setProperty("display", "");
           if (typeof config?.btn?.max?.callback === "function") {
             config.btn.max.callback(evtConfig, event);
           }
@@ -9894,34 +9972,40 @@
           capture: true,
         }
       );
-      headerMiseBtnElement?.style?.setProperty("display", "none");
+      $headerBtnMise?.style?.setProperty("display", "none");
       popsDOMUtils.on(
-        headerMiseBtnElement,
+        $headerBtnMise,
         "click",
         (event) => {
           event.preventDefault();
           event.stopPropagation();
           if (origin_is_max && $pops.getAttribute(TYPE_MODULE) === "min") {
-            $pops.classList.add("pops-iframe-unset-transition");
-            $pops.classList.add("pops-iframe-unset-left");
-            $pops.classList.add("pops-iframe-unset-top");
-            $pops.classList.add("pops-iframe-unset-transform");
-            $pops.classList.remove("pops-iframe-unset-transition");
+            popsDOMUtils.addClassName(
+              $pops,
+              "pops-iframe-unset-transition",
+              "pops-iframe-unset-left",
+              "pops-iframe-unset-top",
+              "pops-iframe-unset-transform"
+            );
+            popsDOMUtils.removeClassName($pops, "pops-iframe-unset-transition");
             $pops.setAttribute(TYPE_MODULE, "max");
-            headerControlsElement.setAttribute("type", "max");
+            $headerControls.setAttribute("type", "max");
           } else {
             origin_is_max = false;
             $pops.style.left = origin_left;
             $pops.style.top = origin_top;
             $pops.style.transitionDuration = "";
             $pops.style.transform = "";
-            headerControlsElement.removeAttribute("type");
+            $headerControls.removeAttribute("type");
             $pops.removeAttribute(TYPE_MODULE);
-            $pops.classList.remove("pops-iframe-unset-top");
-            $pops.classList.remove("pops-iframe-unset-left");
-            $pops.classList.remove("pops-iframe-unset-transform");
-            headerMaxBtnElement.style.setProperty("display", "");
-            headerMiseBtnElement.style.setProperty("display", "none");
+            popsDOMUtils.removeClassName(
+              $pops,
+              "pops-iframe-unset-top",
+              "pops-iframe-unset-left",
+              "pops-iframe-unset-transform"
+            );
+            $headerBtnMax.style.setProperty("display", "");
+            $headerBtnMise.style.setProperty("display", "none");
           }
           if (typeof config?.btn?.mise?.callback === "function") {
             config.btn.mise.callback(evtConfig, event);
@@ -9933,7 +10017,7 @@
         }
       );
       popsDOMUtils.on(
-        headerCloseBtnElement,
+        $headerBtnClose,
         "click",
         async (event) => {
           event.preventDefault();
@@ -10976,7 +11060,7 @@
       PopsElementHandler.addLightStyle($toolTipContainer, this.$data.config.lightStyle);
       PopsElementHandler.addDarkStyle($toolTipContainer, this.$data.config.darkStyle);
       if (!this.$data.config.showArrow) {
-        $toolTipArrow.remove();
+        popsDOMUtils.remove($toolTipArrow);
       }
       return {
         $toolTipContainer,
@@ -11229,7 +11313,7 @@
     }
     destory() {
       if (this.$el.$toolTip) {
-        this.$el.$toolTip.remove();
+        popsDOMUtils.remove(this.$el.$toolTip);
       }
       this.$el.$toolTip = null;
       this.$el.$arrow = null;
@@ -11467,7 +11551,7 @@
       clearDeepMenuContainer() {
         this.$el.$panelRightSectionWrapper
           ?.querySelectorAll("section.pops-panel-deepMenu-container")
-          .forEach(($el) => $el.remove());
+          .forEach(($el) => popsDOMUtils.remove($el));
       },
       clearAsideItemIsVisited() {
         this.$el.$panelLeftAside.querySelectorAll(".pops-is-visited").forEach(($el) => {
@@ -11524,9 +11608,9 @@
             ? bottomItemConfig.disableHoverCSS()
             : bottomItemConfig.disableHoverCSS;
         if (isDisableHoverCSS) {
-          $li.classList.add(disablHoverCSSClassName);
+          popsDOMUtils.addClassName($li, disablHoverCSSClassName);
         } else {
-          $li.classList.remove(disablHoverCSSClassName);
+          popsDOMUtils.removeClassName($li, disablHoverCSSClassName);
         }
         return $li;
       },
@@ -11557,9 +11641,9 @@
             ? asideConfig.disableAsideItemHoverCSS()
             : asideConfig.disableAsideItemHoverCSS;
         if (isDisableItemHoverCSS) {
-          $li.classList.add(disablHoverCSSClassName);
+          popsDOMUtils.addClassName($li, disablHoverCSSClassName);
         } else {
-          $li.classList.remove(disablHoverCSSClassName);
+          popsDOMUtils.removeClassName($li, disablHoverCSSClassName);
         }
         return $li;
       },
@@ -12283,7 +12367,7 @@
           },
           removeValidErrorMsg() {
             const $validErrorMsg = this.$el.panelInput.querySelector(".pops-panel-input-valid-error");
-            $validErrorMsg?.remove();
+            popsDOMUtils.remove($validErrorMsg);
           },
         };
         PopsPanelInput.init();
@@ -12509,8 +12593,8 @@
                 if (Array.isArray(views)) {
                   const childUListClassName = "pops-panel-select-child-forms";
                   while ($li.nextElementSibling) {
-                    if ($li.nextElementSibling.classList.contains(childUListClassName)) {
-                      $li.nextElementSibling.remove();
+                    if (popsDOMUtils.containsClassName($li.nextElementSibling, childUListClassName)) {
+                      popsDOMUtils.remove($li.nextElementSibling);
                     } else {
                       break;
                     }
@@ -12837,13 +12921,13 @@
             },
             setItemSelected($el) {
               if (this.isItemSelected($el)) return;
-              $el.classList.add("select-item-is-selected");
+              popsDOMUtils.addClassName($el, "select-item-is-selected");
             },
             removeItemSelected($el) {
-              $el.classList.remove("select-item-is-selected");
+              popsDOMUtils.removeClassName($el, "select-item-is-selected");
             },
             isItemSelected($el) {
-              return $el.classList.contains("select-item-is-selected");
+              return popsDOMUtils.containsClassName($el, "select-item-is-selected");
             },
             getItemDataOption($el) {
               return Reflect.get($el, "data-info");
@@ -13147,13 +13231,13 @@
             },
             setItemSelected($select2) {
               if (this.isItemSelected($select2)) return;
-              $select2.classList.add("select__selected-item");
+              popsDOMUtils.addClassName($select2, "select__selected-item");
             },
             removeItemSelected($select2) {
-              $select2.classList.remove("select__selected-item");
+              popsDOMUtils.removeClassName($select2, "select__selected-item");
             },
             isItemSelected($select2) {
-              return $select2.classList.contains("select__selected-item");
+              return popsDOMUtils.containsClassName($select2, "select__selected-item");
             },
             getAllSelectItems(onlySelected = true) {
               return Array.from(this.$el.$wrapper?.querySelectorAll(".select-item") ?? [])
@@ -13361,8 +13445,8 @@
             this.hidePlaceHolderWrapper();
           },
           updateTagItem() {
-            this.$el.$section.querySelectorAll(".el-select__choose_tag").forEach(($ele) => {
-              $ele.remove();
+            this.$el.$section.querySelectorAll(".el-select__choose_tag").forEach(($elItem) => {
+              popsDOMUtils.remove($elItem);
             });
             this.initTagElement();
           },
@@ -13393,13 +13477,13 @@
           },
           setItemSelected($select) {
             if (this.isItemSelected($select)) return;
-            $select.classList.add("select-item-is-selected");
+            popsDOMUtils.addClassName($select, "select-item-is-selected");
           },
           removeItemSelected($select) {
-            $select.classList.remove("select-item-is-selected");
+            popsDOMUtils.removeClassName($select, "select-item-is-selected");
           },
           isItemSelected($select) {
-            return $select.classList.contains("select-item-is-selected");
+            return popsDOMUtils.containsClassName($select, "select-item-is-selected");
           },
           addItemSelected(dataList, $select) {
             const info = this.getSelectedItemInfo($select);
@@ -13606,7 +13690,7 @@
             }
           },
           removeSelectedTagItem($tag) {
-            $tag.remove();
+            popsDOMUtils.remove($tag);
             this.checkTagEmpty();
           },
           removeSelectedInfo(data, emitValueChangeCallBack = true) {
@@ -13632,10 +13716,10 @@
             popsDOMUtils.cssHide(this.$el.$selectedPlaceHolderWrapper, true);
           },
           setSectionIsNear() {
-            this.$el.$section.classList.add("is-near");
+            popsDOMUtils.addClassName(this.$el.$section, "is-near");
           },
           removeSectionIsNear() {
-            this.$el.$section.classList.remove("is-near");
+            popsDOMUtils.removeClassName(this.$el.$section, "is-near");
           },
           disable() {
             popsDOMUtils.addClassName(this.$el.$itemLeftContainer, PopsCommonCSSClassName.textIsDisabled);
@@ -13727,10 +13811,10 @@
             this.$ele.button.removeAttribute("disabled");
           },
           hideIcon() {
-            this.$ele.panelButton.classList.add("pops-panel-button-no-icon");
+            popsDOMUtils.addClassName(this.$ele.panelButton, "pops-panel-button-no-icon");
           },
           showIcon() {
-            this.$ele.panelButton.classList.remove("pops-panel-button-no-icon");
+            popsDOMUtils.removeClassName(this.$ele.panelButton, "pops-panel-button-no-icon");
           },
           setIconSVG(svgHTML) {
             PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
@@ -13745,10 +13829,10 @@
             this.$ele.button.setAttribute("data-type", typeValue);
           },
           setIconRight() {
-            this.$ele.button.classList.add("pops-panel-button-right-icon");
+            popsDOMUtils.addClassName(this.$ele.button, "pops-panel-button-right-icon");
           },
           setIconLeft() {
-            this.$ele.button.classList.remove("pops-panel-button-right-icon");
+            popsDOMUtils.removeClassName(this.$ele.button, "pops-panel-button-right-icon");
           },
           setButtonText(text) {
             PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
@@ -13813,8 +13897,8 @@
               const childViewConfig = containerViewConfig["views"];
               const $itemLi = popsDOMUtils.createElement("li");
               const $itemUL = popsDOMUtils.createElement("ul");
-              $itemUL.classList.add("pops-panel-forms-container-item-formlist");
-              $itemLi.classList.add("pops-panel-forms-container-item");
+              popsDOMUtils.addClassName($itemUL, "pops-panel-forms-container-item-formlist");
+              popsDOMUtils.addClassName($itemLi, "pops-panel-forms-container-item");
               const formHeaderDivElement = popsDOMUtils.createElement("div", {
                 className: "pops-panel-forms-container-item-header-text",
               });
@@ -13995,8 +14079,8 @@
           const childForms = viewConfig["views"];
           const formContainerListElement = popsDOMUtils.createElement("li");
           const formContainerULElement = popsDOMUtils.createElement("ul");
-          formContainerListElement.classList.add("pops-panel-forms-container-item");
-          formContainerULElement.classList.add("pops-panel-forms-container-item-formlist");
+          popsDOMUtils.addClassName(formContainerListElement, "pops-panel-forms-container-item");
+          popsDOMUtils.addClassName(formContainerULElement, "pops-panel-forms-container-item-formlist");
           const formHeaderDivElement = popsDOMUtils.createElement("div", {
             className: "pops-panel-forms-container-item-header-text",
           });
@@ -14098,7 +14182,7 @@
           headerTitleText = headerTitleText ?? title;
           if (typeof headerTitleText === "string" && headerTitleText.trim() !== "") {
             const $containerHeaderTitle = popsDOMUtils.createElement("li");
-            $containerHeaderTitle.classList.add("pops-panel-container-header-title-text");
+            popsDOMUtils.addClassName($containerHeaderTitle, "pops-panel-container-header-title-text");
             Reflect.set($containerHeaderTitle, "__asideConfig__", asideConfig);
             PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
             this.sectionContainerHeaderULElement.appendChild($containerHeaderTitle);
@@ -14769,7 +14853,7 @@
             popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true,
             });
-            $menu.remove();
+            popsDOMUtils.remove($menu);
           };
           if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
             popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
@@ -14786,7 +14870,7 @@
             popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-open`);
             popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
           } else {
-            $menu.remove();
+            popsDOMUtils.remove($menu);
           }
         },
         closeAllMenu($root) {
@@ -14990,7 +15074,7 @@
                       removeElement(menuData.child);
                     }
                   });
-                  $el.remove();
+                  popsDOMUtils.remove($el);
                 }
                 removeElement(li_menuData.child);
               });
@@ -15448,7 +15532,7 @@
                   const result = await dataItem.deleteButtonClickCallback(event, $searchItem, dataItem, config);
                   if (typeof result === "boolean" && result) {
                     data.splice(data.indexOf(dataItem), 1);
-                    $searchItem.remove();
+                    popsDOMUtils.remove($searchItem);
                   }
                 }
                 if (!SearchSuggestion.$el.$dropdownContainer.children.length) {
@@ -15605,9 +15689,11 @@
           SearchSuggestion.addItem($isSearching);
         },
         removePromptsInSearch() {
-          SearchSuggestion.$el.$dropdownContainer
-            .querySelector(`li.pops-${popsType}-search-suggestion-dropdown-searching-item`)
-            ?.remove();
+          popsDOMUtils.remove(
+            SearchSuggestion.$el.$dropdownContainer.querySelector(
+              `li.pops-${popsType}-search-suggestion-dropdown-searching-item`
+            )
+          );
         },
         changeHintULElementPosition(target = config.$target ?? config.$inputTarget, checkPositonAgain = true) {
           let targetRect = null;
@@ -16050,7 +16136,7 @@
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  const version = "2.11.13";
+  const version = "2.12.1";
   const ajaxHooker = function () {
     const version2 = "1.4.8";
     const hookInst = {
@@ -19529,7 +19615,7 @@ ${err.stack}`);
       this.#ctx.fillText(txt, this.#width / 2 - w / 2, this.#height / 2 + h2 / 2);
     }
   }
-  class UtilsGMCookie {
+  class DocumentCookieHandler {
     windowApi = {
       window,
       document,
@@ -19547,7 +19633,7 @@ ${err.stack}`);
     }
     get(cookieName) {
       if (typeof cookieName !== "string") {
-        throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
+        throw new TypeError(".get 参数cookieName 必须为字符串");
       }
       const cookies = this.getCookiesList();
       let findValue = void 0;
@@ -19577,7 +19663,7 @@ ${err.stack}`);
     }
     list(option, callback) {
       if (option == null) {
-        throw new Error("Utils.GMCookie.list 参数不能为空");
+        throw new Error(".list 参数不能为空");
       }
       const resultData = [];
       let error;
@@ -19627,7 +19713,7 @@ ${err.stack}`);
     }
     getList(option) {
       if (option == null) {
-        throw new Error("Utils.GMCookie.list 参数不能为空");
+        throw new Error(".list 参数不能为空");
       }
       const resultData = [];
       let defaultOption = {
@@ -20247,6 +20333,308 @@ ${err.stack}`);
         this.traversal(value[key], set);
       }
       return value;
+    }
+  }
+  const CookieManagerApiNameList = ["document.cookie", "cookieStore", "GM_cookie", "GM.cookie"];
+  const isSupportGM_cookie = () => {
+    if (
+      ((typeof GM_cookie === "object" && GM_cookie) || typeof GM_cookie === "function") &&
+      typeof GM_cookie?.list === "function" &&
+      typeof GM_cookie?.set === "function" &&
+      typeof GM_cookie?.delete === "function"
+    ) {
+      return true;
+    }
+    return false;
+  };
+  const isSupportGM_async_cookie = () => {
+    if (
+      ((typeof GM === "object" && GM) || typeof GM === "function") &&
+      ((typeof GM?.cookie === "object" && GM?.cookie) || typeof GM?.cookie === "function") &&
+      typeof GM?.cookie?.list === "function" &&
+      typeof GM?.cookie?.set === "function" &&
+      typeof GM?.cookie?.delete === "function"
+    ) {
+      return true;
+    }
+    return false;
+  };
+  const __GM_cookie__ = (() => (isSupportGM_cookie() ? GM_cookie : void 0))();
+  const __GM_async_cookie__ = (() => (isSupportGM_async_cookie() ? GM?.cookie : void 0))();
+  const __document_cookie__ = new DocumentCookieHandler();
+  class CookieManagerService {
+    __defaultCookieHandler = "document.cookie";
+    __option = {};
+    constructor(
+      option = {
+        baseCookieHandler: this.__defaultCookieHandler,
+      }
+    ) {
+      this.setOptions(option);
+    }
+    get totalCookieManagerApiNameList() {
+      return CookieManagerApiNameList;
+    }
+    get baseCookieHandler() {
+      const optionBaseCookieHandler =
+        typeof this.__option.baseCookieHandler === "function"
+          ? this.__option.baseCookieHandler(this.__defaultCookieHandler)
+          : this.__option.baseCookieHandler;
+      const baseCookieHandler = optionBaseCookieHandler ?? this.__defaultCookieHandler;
+      if (typeof baseCookieHandler === "string") {
+        if (!this.totalCookieManagerApiNameList.includes(baseCookieHandler)) {
+          throw new Error(`unknown cookie handler: ${baseCookieHandler}`);
+        }
+      } else {
+        throw new TypeError(`unknown cookie handler type: ${baseCookieHandler}`);
+      }
+      return baseCookieHandler;
+    }
+    get cookieManager() {
+      if (this.baseCookieHandler === "GM_cookie") {
+        return {
+          list(options, callback) {
+            __GM_cookie__.list(options, (result) => {
+              callback(result);
+            });
+          },
+          set(cookieInfo, callback) {
+            __GM_cookie__.set(cookieInfo, (result) => {
+              callback(result);
+            });
+          },
+          delete(cookieInfo, callback) {
+            __GM_cookie__.delete(cookieInfo, (result) => {
+              callback(result);
+            });
+          },
+        };
+      } else if (this.baseCookieHandler === "GM.cookie") {
+        return {
+          list(_options, callback) {
+            __GM_async_cookie__.list().then((result) => {
+              callback(result);
+            });
+          },
+          set(cookieInfo, callback) {
+            __GM_async_cookie__
+              .set(cookieInfo)
+              .then((result) => {
+                callback(result ?? null);
+              })
+              .catch((reason) => {
+                callback(reason);
+              });
+          },
+          delete(cookieInfo, callback) {
+            __GM_async_cookie__
+              .delete(cookieInfo)
+              .then((result) => {
+                callback(result ?? null);
+              })
+              .catch((reason) => {
+                callback(reason);
+              });
+          },
+        };
+      } else if (this.baseCookieHandler === "cookieStore") {
+        const cookieStore = globalThis.cookieStore;
+        return {
+          list(_options, callback) {
+            cookieStore
+              .getAll()
+              .then((result) => {
+                result.forEach((it) => {
+                  if (it.domain == null) {
+                    it.domain = globalThis.location.hostname;
+                  }
+                });
+                callback(result);
+              })
+              .catch((reason) => {
+                console.error(reason);
+              });
+          },
+          set(cookieInfo, callback) {
+            cookieStore
+              .set(cookieInfo)
+              .then(() => {
+                callback();
+              })
+              .catch((reason) => {
+                callback(reason);
+              });
+          },
+          delete(cookieInfo, callback) {
+            cookieStore
+              .delete(cookieInfo)
+              .then(() => {
+                callback();
+              })
+              .catch((reason) => {
+                callback(reason);
+              });
+          },
+        };
+      } else {
+        return __document_cookie__;
+      }
+    }
+    get isSupportGM_cookie() {
+      return isSupportGM_cookie();
+    }
+    get isSupportGM_async_cookie() {
+      return isSupportGM_async_cookie();
+    }
+    get isSupportCookieStore() {
+      const __cookie_store__ = globalThis.cookieStore;
+      if (__cookie_store__ == null) {
+        return false;
+      }
+      if (typeof __cookie_store__.set !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.getAll !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.delete !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.get !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.addEventListener !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.removeEventListener !== "function") {
+        return false;
+      }
+      if (typeof __cookie_store__.dispatchEvent !== "function") {
+        return false;
+      }
+      return true;
+    }
+    setOptions(option) {
+      this.__option = option;
+    }
+    listAll() {
+      return new Promise((resolve, reject) => {
+        try {
+          this.cookieManager.list({}, (cookieListResult) => {
+            let __cookieListResult__ = cookieListResult || [];
+            __cookieListResult__ = __cookieListResult__.sort((a2, b2) => a2.name.localeCompare(b2.name));
+            resolve(__cookieListResult__);
+          });
+        } catch (error) {
+          console.error(error);
+          reject(error);
+        }
+      });
+    }
+    clear(filter) {
+      return new Promise((resolve, reject) => {
+        try {
+          this.cookieManager.list({}, async (cookieListResult) => {
+            const __cookieListResult__ = cookieListResult || [];
+            const result = {
+              success: 0,
+              error: 0,
+              ignore: 0,
+            };
+            for (let index = 0; index < __cookieListResult__.length; index++) {
+              const cookieListItem = __cookieListResult__[index];
+              if (typeof filter === "function" && filter(cookieListItem)) {
+                result.ignore++;
+                continue;
+              }
+              const deleteError = await new Promise((deleteResolve) => {
+                this.delete(cookieListItem).then((deleteResult) => {
+                  deleteResolve(deleteResult);
+                });
+              });
+              if (deleteError) {
+                result.error++;
+              } else {
+                result.success++;
+              }
+            }
+            resolve(result);
+          });
+        } catch (error) {
+          console.error(error);
+          reject(error);
+        }
+      });
+    }
+    get(cookieInfo, callback) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const cookieInfos = await this.listAll();
+          const name = typeof cookieInfo === "string" ? cookieInfo : cookieInfo.name;
+          const find = cookieInfos.find((item) => {
+            return item.name === name;
+          });
+          resolve(find);
+        } catch (error) {
+          console.error(error);
+          callback?.(error);
+          reject(error);
+        }
+      });
+    }
+    add(cookieInfo, callback) {
+      return new Promise((resolve, reject) => {
+        try {
+          Reflect.deleteProperty(cookieInfo, "hostOnly");
+          this.cookieManager.set(cookieInfo, (error) => {
+            callback?.(error);
+            resolve(error);
+          });
+        } catch (error) {
+          console.error(error);
+          reject(error);
+        }
+      });
+    }
+    delete(cookieInfo, callback) {
+      return new Promise((resolve, reject) => {
+        try {
+          if (typeof cookieInfo === "string") {
+            cookieInfo = {
+              name: cookieInfo,
+            };
+          }
+          this.cookieManager.delete(cookieInfo, (error) => {
+            callback?.(error);
+            resolve(error);
+          });
+        } catch (error) {
+          console.error(error);
+          reject(error);
+        }
+      });
+    }
+    update(cookieInfo, callback) {
+      return new Promise(async (resolve) => {
+        let result;
+        try {
+          if (this.baseCookieHandler === "document.cookie" || this.baseCookieHandler === "cookieStore") {
+            const deleteError = await this.delete(cookieInfo);
+            if (deleteError) {
+              throw new TypeError(deleteError.toString());
+            }
+          }
+          const addError = await this.add(cookieInfo);
+          if (addError) {
+            throw new TypeError(addError.toString());
+          }
+        } catch (error) {
+          result = error;
+        } finally {
+          callback?.(result);
+          resolve(result);
+        }
+      });
     }
   }
   class Utils2 {
@@ -20957,7 +21345,8 @@ ${err.stack}`);
       }
       return `thunder://${this.windowApi.globalThis.btoa(`AA${url}ZZ`)}`;
     }
-    GM_Cookie = UtilsGMCookie;
+    DocumentCookieHandler = DocumentCookieHandler;
+    CookieManagerService = CookieManagerService;
     GM_Menu = GMMenu;
     Hooks = Hooks;
     Httpx = Httpx;
@@ -22481,41 +22870,6 @@ ${err.stack}`);
     }
   }
   const utils$1 = new Utils2();
-  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
-  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
-  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
-  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
-  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
-  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
-  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
-  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
-  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
   const PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
@@ -22995,7 +23349,21 @@ ${err.stack}`);
   CommonUtil2.addBlockCSS.bind(CommonUtil2);
   domUtils$2.selector.bind(domUtils$2);
   domUtils$2.selectorAll.bind(domUtils$2);
-  new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -23080,12 +23448,24 @@ ${err.stack}`);
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil2.toStr(fileData);
@@ -23105,21 +23485,21 @@ ${err.stack}`);
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -23132,12 +23512,12 @@ ${err.stack}`);
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -23149,7 +23529,9 @@ ${err.stack}`);
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -23157,12 +23539,12 @@ ${err.stack}`);
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  qmsg.success("已清空脚本存储的配置");
+                  qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -23174,13 +23556,13 @@ ${err.stack}`);
                 _GM_setValue(key, value);
               });
             }
-            qmsg.success("配置导入完毕");
+            qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                qmsg.warning("解析为空配置，不导入");
+                qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -23194,7 +23576,7 @@ ${err.stack}`);
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -23212,37 +23594,37 @@ ${err.stack}`);
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      qmsg.error("请填入完整的url");
+                      qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = qmsg.loading("正在获取配置...");
+                    const $loading = qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      qmsg.error("获取配置失败", { consoleLogContent: true });
+                      qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -23265,7 +23647,7 @@ ${err.stack}`);
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -23288,7 +23670,7 @@ ${err.stack}`);
             $alert.close();
             let clipboardText = await CommonUtil2.getClipboardText();
             if (clipboardText.trim() === "") {
-              qmsg.warning("获取到的剪贴板内容为空");
+              qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -23303,13 +23685,13 @@ ${err.stack}`);
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -23317,7 +23699,7 @@ ${err.stack}`);
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -23330,12 +23712,12 @@ ${err.stack}`);
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -23354,40 +23736,38 @@ ${err.stack}`);
               qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              qmsg.success("复制成功");
+              qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              qmsg.error("复制失败");
+              qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -23436,7 +23816,7 @@ ${err.stack}`);
             Reflect.set(configData, key, value);
           });
         } else {
-          qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -23452,15 +23832,17 @@ ${err.stack}`);
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -23537,6 +23919,111 @@ ${err.stack}`);
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag = false;
+      if (typeof this.option.checkExec === "function") {
+        flag = this.option.checkExec(this.option.keyList);
+      } else {
+        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -23866,7 +24353,6 @@ ${err.stack}`);
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -23893,110 +24379,25 @@ ${err.stack}`);
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag = false;
+          if (typeof checkExec === "function") {
+            flag = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
+          return flag;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -24005,11 +24406,11 @@ ${err.stack}`);
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -24023,23 +24424,21 @@ ${err.stack}`);
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -24047,7 +24446,7 @@ ${err.stack}`);
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -24057,8 +24456,8 @@ ${err.stack}`);
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -24082,14 +24481,107 @@ ${err.stack}`);
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -24211,9 +24703,22 @@ ${err.stack}`);
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -24256,13 +24761,13 @@ ${err.stack}`);
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -24310,7 +24815,8 @@ ${err.stack}`);
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -24319,7 +24825,6 @@ ${err.stack}`);
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -24354,7 +24859,11 @@ ${err.stack}`);
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -24375,7 +24884,7 @@ ${err.stack}`);
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  qmsg.error("未找到对应的二级菜单");
+                  qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -24406,7 +24915,7 @@ ${err.stack}`);
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  qmsg.error("未找到对应的菜单项");
+                  qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -24627,14 +25136,17 @@ ${err.stack}`);
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -24644,12 +25156,12 @@ ${err.stack}`);
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },

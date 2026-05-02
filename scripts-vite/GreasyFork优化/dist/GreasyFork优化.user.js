@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.4.4
+// @version            2026.5.2
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,9 +13,9 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@26.0.3/i18next.min.js
@@ -585,7 +585,21 @@
   CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -1142,6 +1156,111 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag2 = handleResult(it);
+        if (typeof flag2 === "boolean" && !flag2) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag22 = handleResult(it2);
+            if (typeof flag22 === "boolean" && !flag22) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag2 = false;
+      if (typeof this.option.checkExec === "function") {
+        flag2 = this.option.checkExec(this.option.keyList);
+      } else {
+        flag2 = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag2;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -1471,7 +1590,6 @@
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -1498,110 +1616,25 @@
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag2 = false;
+          if (typeof checkExec === "function") {
+            flag2 = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag2 = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag2 = handleResult(it);
-          if (typeof flag2 === "boolean" && !flag2) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag22 = handleResult(it2);
-              if (typeof flag22 === "boolean" && !flag22) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag2 = false;
-        if (typeof checkExec === "function") {
-          flag2 = checkExec(keyList);
-        } else {
-          flag2 = keyList.every((key) => getMenuValue(key));
-        }
-        return flag2;
-      };
+          return flag2;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -1610,11 +1643,11 @@
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -1628,23 +1661,21 @@
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -1652,7 +1683,7 @@
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -1662,8 +1693,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1687,14 +1718,107 @@
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -1928,7 +2052,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1937,7 +2062,6 @@
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -2249,14 +2373,17 @@
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -2266,12 +2393,12 @@
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },
@@ -4049,88 +4176,6 @@
       this.#data.localOptions.length = 0;
       this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
     }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      if (!this.#data.localOptions.length) {
-        log.warn("快捷键配置为空");
-        return;
-      }
-      const that = this;
-      const setListenKeyboard = function ($target, option) {
-        domUtils.onKeyboard(
-          $target,
-          "keydown",
-          async (keyName, keyValue, ohterCodeList, event) => {
-            if (that.#flag.isWaitPress) {
-              return;
-            }
-            if (config?.isPrevent) {
-              domUtils.preventEvent(event);
-            }
-            const tempOption = {
-              keyName,
-              keyValue,
-              ohterCodeList,
-            };
-            const tempOptionStr = JSON.stringify(tempOption);
-            const findShortcut = that.#data.localOptions.find((item) => {
-              const __option = item.value;
-              const __optionStr = JSON.stringify(__option);
-              if (__optionStr === tempOptionStr) {
-                return true;
-              }
-            });
-            if (findShortcut) {
-              if (findShortcut.key in option) {
-                log.info("调用快捷键", findShortcut);
-                if (typeof config?.beforeCallBack === "function") {
-                  const flag2 = await config.beforeCallBack();
-                  if (typeof flag2 === "boolean" && !flag2) {
-                    return;
-                  }
-                }
-                const callback = option[findShortcut.key].callback;
-                await callback();
-              }
-            }
-          },
-          {
-            capture: Boolean(config?.capture),
-          }
-        );
-      };
-      const WindowShortCutOption = {};
-      const ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        const option = shortCutOption[localKey];
-        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.onReady(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          const option = ElementShortCutOption[localKey];
-          const shortCutOptionMap = {};
-          let target = null;
-          if (typeof option.target === "string") {
-            target = await domUtils.waitNode(option.target, 1e4);
-          } else if (typeof option.target === "function") {
-            target = await option.target();
-          } else {
-            target = option.target;
-          }
-          if (target) {
-            Reflect.set(shortCutOptionMap, localKey, option);
-            setListenKeyboard(target, shortCutOptionMap);
-          }
-        });
-      });
-    }
     isWaitKeyboardPress() {
       return this.#flag.isWaitPress;
     }
@@ -4221,6 +4266,106 @@
         return defaultShowText;
       }
     }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const setListenKeyboard = ($target, option) => {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          async (keyName, keyValue, ohterCodeList, event) => {
+            if (this.#flag.isWaitPress) {
+              return;
+            }
+            if (config?.isPrevent) {
+              domUtils.preventEvent(event);
+            }
+            if (config?.onlyStopPropagation) {
+              domUtils.preventEvent(event, true);
+            }
+            const tempOption = {
+              keyName,
+              keyValue,
+              ohterCodeList,
+            };
+            const tempOptionStr = JSON.stringify(tempOption);
+            const findShortcuts = this.#data.localOptions.filter((item) => {
+              const __option = item.value;
+              const __optionStr = JSON.stringify(__option);
+              if (__optionStr === tempOptionStr) {
+                return true;
+              }
+              return false;
+            });
+            if (findShortcuts.length) {
+              for (const findShortcut of findShortcuts) {
+                log.info("调用快捷键", findShortcut);
+                if (typeof config?.beforeCallBack === "function") {
+                  const flag2 = await config.beforeCallBack();
+                  if (typeof flag2 === "boolean" && !flag2) {
+                    return;
+                  }
+                }
+                const targetOptions = option.filter((item) => {
+                  return item.menuKey === findShortcut.key;
+                });
+                if (targetOptions.length) {
+                  for (const option2 of targetOptions) {
+                    await option2.option.callback(findShortcut.key);
+                  }
+                }
+              }
+            }
+          },
+          {
+            capture: Boolean(config?.capture),
+          }
+        );
+      };
+      const WindowShortCutOptions = [];
+      const ElementShortCutOptions = [];
+      if (!Array.isArray(shortCutOption)) {
+        shortCutOption = [shortCutOption];
+      }
+      shortCutOption.forEach((shortCutOptionItem) => {
+        Object.keys(shortCutOptionItem).forEach((menuKey) => {
+          const option = shortCutOptionItem[menuKey];
+          if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+            option.target = "window";
+          }
+          if (option.target === "window") {
+            WindowShortCutOptions.push({
+              menuKey,
+              option,
+            });
+          } else {
+            ElementShortCutOptions.push({
+              menuKey,
+              option,
+            });
+          }
+        });
+      });
+      setListenKeyboard(window, WindowShortCutOptions);
+      domUtils.onReady(() => {
+        ElementShortCutOptions.forEach(async (ElementShortCutOption) => {
+          const option = ElementShortCutOption.option;
+          let target = null;
+          if (typeof option.target === "string") {
+            target = await domUtils.waitNode(option.target, 1e4);
+          } else if (typeof option.target === "function") {
+            target = await option.target();
+          } else {
+            target = option.target;
+          }
+          if (target) {
+            setListenKeyboard(target, [ElementShortCutOption]);
+          }
+        });
+      });
+    }
     async enterShortcutKeys(key) {
       this.#flag.isWaitPress = true;
       return new Promise((resolve) => {
@@ -4237,30 +4382,31 @@
             if (Array.isArray(this.#data.otherShortCutOptions)) {
               allOptions = allOptions.concat(this.#data.otherShortCutOptions);
             }
-            for (let index = 0; index < allOptions.length; index++) {
-              let localValue = allOptions[index];
+            const localConflictOptions = allOptions.filter((localValue) => {
               if (localValue.key === key) {
-                continue;
+                return false;
               }
               const localShortCutJSONString = JSON.stringify(localValue.value);
-              let isUsedByOtherOption = false;
               if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                isUsedByOtherOption = true;
+                return true;
               }
-              if (isUsedByOtherOption) {
-                result = {
-                  status: false,
-                  key: localValue.key,
-                  option: currentOption,
-                };
-                return;
-              }
+              return false;
+            });
+            if (localConflictOptions.length) {
+              result = {
+                status: false,
+                key,
+                option: currentOption,
+                localConflictOptions,
+              };
+              return result;
             }
             this.setOption(key, currentOption);
             result = {
               status: true,
               key,
               option: currentOption,
+              localConflictOptions: [],
             };
           } catch (error) {
             log.error(error);
@@ -4268,6 +4414,7 @@
               status: false,
               key,
               option: currentOption,
+              localConflictOptions: [],
             };
           } finally {
             if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {
