@@ -1,4 +1,4 @@
-export interface UtilsGMCookieResult {
+export interface UtilsDocumentCookieHandlerResult {
   /** 为 window.location.hostname */
   domain: string;
   /** 过期时间 */
@@ -17,7 +17,7 @@ export interface UtilsGMCookieResult {
   value: string;
 }
 
-export interface UtilsGMCookieListOptions {
+export interface UtilsDocuementCookieHandlerListOptions {
   /** 默认为当前的url */
   url?: string;
   /**
@@ -34,7 +34,7 @@ export interface UtilsGMCookieListOptions {
   path?: string;
 }
 
-export interface UtilsGMCookieSetOptions {
+export interface UtilsDocumentCookieHandlerSetOptions {
   /**
    * 默认为当前的url
    */
@@ -71,7 +71,7 @@ export interface UtilsGMCookieSetOptions {
   expirationDate?: number;
 }
 
-export interface UtilsGMCookieDeleteOptions {
+export interface UtilsDocumentCookieHandlerDeleteOptions {
   /** 需要检索的Cookie的名字 */
   name: string;
   /** 默认为当前的url */

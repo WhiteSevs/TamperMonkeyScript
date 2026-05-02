@@ -1,5 +1,5 @@
-import type { UtilsGMCookieDeleteOptions, UtilsGMCookieListOptions, UtilsGMCookieResult, UtilsGMCookieSetOptions, WindowApiOption } from "./types/UtilsGMCookie";
-export declare class UtilsGMCookie {
+import type { UtilsDocuementCookieHandlerListOptions, UtilsDocumentCookieHandlerDeleteOptions, UtilsDocumentCookieHandlerResult, UtilsDocumentCookieHandlerSetOptions, WindowApiOption } from "../types/cookie_document";
+export declare class DocumentCookieHandler {
     private windowApi;
     constructor(windowApiOption?: WindowApiOption);
     /**
@@ -10,7 +10,7 @@ export declare class UtilsGMCookie {
      * 获取单个cookie
      * @param cookieName cookie名
      */
-    get(cookieName: string): UtilsGMCookieResult | undefined;
+    get(cookieName: string): UtilsDocumentCookieHandlerResult | undefined;
     /**
      *  获取多组Cookie
      * @param option 配置
@@ -18,28 +18,28 @@ export declare class UtilsGMCookie {
      * + cookies object[]
      * + error string|undefined
      **/
-    list(option: UtilsGMCookieListOptions | object): {
-        cookies: UtilsGMCookieResult[];
+    list(option: UtilsDocuementCookieHandlerListOptions | object): {
+        cookies: UtilsDocumentCookieHandlerResult[];
         error?: Error;
     };
-    list(option: UtilsGMCookieListOptions | object, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
+    list(option: UtilsDocuementCookieHandlerListOptions | object, callback?: (data: UtilsDocumentCookieHandlerResult[], error?: Error) => void): void;
     /**
      * 获取多组Cookie
      * @param option 配置
      **/
-    getList(option: UtilsGMCookieListOptions | object): UtilsGMCookieResult[];
+    getList(option: UtilsDocuementCookieHandlerListOptions | object): UtilsDocumentCookieHandlerResult[];
     /**
      * 设置Cookie
      * @param option 配置
      * @param callback 设置操作后的回调(成功/失败)
      */
-    set(option: UtilsGMCookieSetOptions, callback?: (error?: Error) => void): void;
+    set(option: UtilsDocumentCookieHandlerSetOptions, callback?: (error?: Error) => void): void;
     /**
      * 删除Cookie
      * @param option 配置
      * @param callback 删除操作后的回调(成功/失败)
      */
-    delete(option: UtilsGMCookieDeleteOptions, callback?: (error?: Error) => void): void;
+    delete(option: UtilsDocumentCookieHandlerDeleteOptions, callback?: (error?: Error) => void): void;
     /**
      * 解析cookie字符串，按`;`分割
      *

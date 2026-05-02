@@ -12,9 +12,10 @@ import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { ReactInstance } from "./types/React";
 import type { WindowApiOption } from "./types/WindowApi";
-import { UtilsGMCookie } from "./UtilsGMCookie";
+import { DocumentCookieHandler } from "./cookie/DocumentCookieHandler";
 import { GMMenu } from "./UtilsGMMenu";
 import { Vue } from "./Vue";
+import { CookieManagerService } from "./cookie/CookieManagerService";
 declare class Utils {
     private windowApi;
     constructor(option?: WindowApiOption);
@@ -574,7 +575,19 @@ declare class Utils {
             }
         })
        **/
-    GM_Cookie: typeof UtilsGMCookie;
+    DocumentCookieHandler: typeof DocumentCookieHandler;
+    /**
+     * Cookie管理
+     *
+     * 支持多种Cookie操作
+     * @example
+     * const cookieManager = new Utils.CookieManagerService();
+     * cookieManager.set({name: "xxx", value: "666"});
+     * cookieManager.get("xxx");
+     * cookieManager.delete("xxx");
+     * cookieManager.clear();
+     */
+    CookieManagerService: typeof CookieManagerService;
     /**
        * 注册油猴菜单，要求本地存储的键名不能存在其它键名`GM_Menu_Local_Map`会冲突/覆盖
        * @example

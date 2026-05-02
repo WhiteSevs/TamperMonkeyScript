@@ -1,13 +1,13 @@
-import { CommonUtil } from "./CommonUtil";
+import { CommonUtil } from "../CommonUtil";
 import type {
-  UtilsGMCookieDeleteOptions,
-  UtilsGMCookieListOptions,
-  UtilsGMCookieResult,
-  UtilsGMCookieSetOptions,
+  UtilsDocuementCookieHandlerListOptions,
+  UtilsDocumentCookieHandlerDeleteOptions,
+  UtilsDocumentCookieHandlerResult,
+  UtilsDocumentCookieHandlerSetOptions,
   WindowApiOption,
-} from "./types/UtilsGMCookie";
+} from "../types/cookie_document";
 
-export class UtilsGMCookie {
+export class DocumentCookieHandler {
   private windowApi = {
     window: window,
     document: document,
@@ -32,10 +32,10 @@ export class UtilsGMCookie {
    */
   get(cookieName: string) {
     if (typeof cookieName !== "string") {
-      throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
+      throw new TypeError(".get 参数cookieName 必须为字符串");
     }
     const cookies = this.getCookiesList();
-    let findValue: UtilsGMCookieResult | undefined = void 0;
+    let findValue: UtilsDocumentCookieHandlerResult | undefined = void 0;
     for (const cookieItem of cookies) {
       const item = cookieItem.trim();
       const itemSplit = item.split("=");
@@ -67,28 +67,28 @@ export class UtilsGMCookie {
    * + cookies object[]
    * + error string|undefined
    **/
-  list(option: UtilsGMCookieListOptions | object): {
-    cookies: UtilsGMCookieResult[];
+  list(option: UtilsDocuementCookieHandlerListOptions | object): {
+    cookies: UtilsDocumentCookieHandlerResult[];
     error?: Error;
   };
   list(
-    option: UtilsGMCookieListOptions | object,
-    callback?: (data: UtilsGMCookieResult[], error?: Error) => void
+    option: UtilsDocuementCookieHandlerListOptions | object,
+    callback?: (data: UtilsDocumentCookieHandlerResult[], error?: Error) => void
   ): void;
   list(
-    option: UtilsGMCookieListOptions | object,
-    callback?: (data: UtilsGMCookieResult[], error?: Error) => void
+    option: UtilsDocuementCookieHandlerListOptions | object,
+    callback?: (data: UtilsDocumentCookieHandlerResult[], error?: Error) => void
   ): {
-    cookies: UtilsGMCookieResult[];
+    cookies: UtilsDocumentCookieHandlerResult[];
     error?: Error;
   } | void {
     if (option == null) {
-      throw new Error("Utils.GMCookie.list 参数不能为空");
+      throw new Error(".list 参数不能为空");
     }
-    const resultData: UtilsGMCookieResult[] = [];
+    const resultData: UtilsDocumentCookieHandlerResult[] = [];
     let error;
     try {
-      let defaultOption: Required<UtilsGMCookieListOptions> = {
+      let defaultOption: Required<UtilsDocuementCookieHandlerListOptions> = {
         url: this.windowApi.window.location.href,
         domain: this.windowApi.window.location.hostname,
         name: "",
@@ -137,12 +137,12 @@ export class UtilsGMCookie {
    * 获取多组Cookie
    * @param option 配置
    **/
-  getList(option: UtilsGMCookieListOptions | object): UtilsGMCookieResult[] {
+  getList(option: UtilsDocuementCookieHandlerListOptions | object): UtilsDocumentCookieHandlerResult[] {
     if (option == null) {
-      throw new Error("Utils.GMCookie.list 参数不能为空");
+      throw new Error(".list 参数不能为空");
     }
-    const resultData: UtilsGMCookieResult[] = [];
-    let defaultOption: Required<UtilsGMCookieListOptions> = {
+    const resultData: UtilsDocumentCookieHandlerResult[] = [];
+    let defaultOption: Required<UtilsDocuementCookieHandlerListOptions> = {
       url: this.windowApi.window.location.href,
       domain: this.windowApi.window.location.hostname,
       name: "",
@@ -182,10 +182,10 @@ export class UtilsGMCookie {
    * @param option 配置
    * @param callback 设置操作后的回调(成功/失败)
    */
-  set(option: UtilsGMCookieSetOptions, callback?: (error?: Error) => void) {
+  set(option: UtilsDocumentCookieHandlerSetOptions, callback?: (error?: Error) => void) {
     let errorInfo;
     try {
-      let defaultOption: Required<UtilsGMCookieSetOptions> = {
+      let defaultOption: Required<UtilsDocumentCookieHandlerSetOptions> = {
         url: this.windowApi.window.location.href,
         name: "",
         value: "",
@@ -222,10 +222,10 @@ export class UtilsGMCookie {
    * @param option 配置
    * @param callback 删除操作后的回调(成功/失败)
    */
-  delete(option: UtilsGMCookieDeleteOptions, callback?: (error?: Error) => void) {
+  delete(option: UtilsDocumentCookieHandlerDeleteOptions, callback?: (error?: Error) => void) {
     let errorInfo;
     try {
-      let defaultOption: Required<UtilsGMCookieDeleteOptions> = {
+      let defaultOption: Required<UtilsDocumentCookieHandlerDeleteOptions> = {
         url: this.windowApi.window.location.href,
         name: "",
         path: "/",
