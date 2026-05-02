@@ -311,7 +311,7 @@ export class ViteUtils {
       } else {
         // 未来？啊？怎么可能
       }
-    } catch (error) {
+    } catch {
       // 版本号文件不存在
     }
     fs.writeFileSync(SCRIPT_VERSION_PATH, JSON.stringify(versionInfo, null, 2) + "\n", {
@@ -364,24 +364,10 @@ export class ViteUtils {
       historyTime.setFullYear(history_year, history_month - 1, history_day);
     }
     if (versionLength) {
-      if(history_year <= current_year){
-        // 今年、前年...
-        if(history_month <= current_month){
-          // 本月、上个月
-          if(history_day < current_day){
-            // 昨日、前日...
-          }else if(history_day === current_day){
-            // 今日的
-            // 使用4位版本
-            versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
-          }else{
-          // 未来？啊？怎么可能
-          }
-        }else{
-        // 未来？啊？怎么可能
-        }
-      }else{
-        // 未来？啊？怎么可能
+      if(history_year === current_year && history_month === current_month && history_day === current_day){
+        // 今年今月今日
+        // 使用4位版本
+        versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
       }
     }
     return versionInfo.version;
