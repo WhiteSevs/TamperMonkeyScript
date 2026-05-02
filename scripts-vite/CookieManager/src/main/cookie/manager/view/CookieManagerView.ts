@@ -7,7 +7,6 @@ import { Panel } from "@components/setting/panel";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
 import { CookieManager } from "../CookieManager";
-import { CookieManagerApiNameList } from "../CookieManagerService";
 import { CookieManagerEditView } from "./CookieManagerEditView";
 
 type EmitterFrom = "refreshButton";
@@ -242,7 +241,7 @@ export const CookieManagerView = {
             : encodeURIComponent(cookieInfo.value),
         },
       ];
-      if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
+      if (CookieManager.baseCookieHandler === "GM_cookie" || CookieManager.baseCookieHandler === "GM.cookie") {
         cookieInfo = cookieInfo as GMCookieInstance;
         cookieProperty.push(
           {
@@ -282,7 +281,7 @@ export const CookieManagerView = {
             rightText: cookieInfo.sameSite,
           }
         );
-      } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+      } else if (CookieManager.baseCookieHandler === "cookieStore") {
         cookieInfo = cookieInfo as CookieStoreData;
         cookieProperty.push(
           {
@@ -379,7 +378,7 @@ export const CookieManagerView = {
         if (!result) {
           return;
         }
-        CookieManager.deleteCookie(cookieInfo).then((status) => {
+        CookieManager.delete(cookieInfo).then((status) => {
           if (!status) {
             Qmsg.success("删除成功");
             $cookieItem.parentElement?.removeChild($cookieItem);
@@ -405,7 +404,7 @@ export const CookieManagerView = {
        */
       filterCallBack?: (cookieInfo: GMCookieInstance | CookieStoreData) => boolean
     ) => {
-      const cookieList = await CookieManager.queryAllCookie();
+      const cookieList = await CookieManager.listAll();
       DOMUtils.empty($cookieListWrapper);
       const $fragment = document.createDocumentFragment();
       const excludeSessionCookie = Panel.getValue<boolean>("exclude-session-cookie");
@@ -415,7 +414,7 @@ export const CookieManagerView = {
           if ((<GMCookieInstance>cookieInfo).session) {
             return;
           }
-          if (CookieManager.cookieManagerApiName === "cookieStore" && (<CookieStoreData>cookieInfo).expires == null) {
+          if (CookieManager.baseCookieHandler === "cookieStore" && (<CookieStoreData>cookieInfo).expires == null) {
             // 如果Api是cookieStore的话,expires的值为空时就是session的cookie
             return;
           }
@@ -569,7 +568,7 @@ export const CookieManagerView = {
       if (!result) {
         return;
       }
-      const deleteInfo = await CookieManager.deleteAllCookie();
+      const deleteInfo = await CookieManager.clear();
       if (deleteInfo.error) {
         Qmsg.warning(`清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`);
       } else {
@@ -630,7 +629,7 @@ export const CookieManagerView = {
           "CookieManager Api",
           "cookie-manager-api",
           "document.cookie",
-          CookieManagerApiNameList.map((it) => {
+          CookieManager.totalCookieManagerApiNameList.map((it) => {
             return {
               text: it,
               value: it,
@@ -639,6 +638,7 @@ export const CookieManagerView = {
           void 0,
           "操作Cookie的Api函数",
           () => {
+            // 更新Cookie列表
             emitUpdateCookieListGroupWithSearchFilter();
           }
         )

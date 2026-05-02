@@ -5,13 +5,13 @@ import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 
 let tbs = "";
-let cuid = () => {
+const cuid = () => {
   let __cuid__ = Panel.getValue<string | undefined>("baidu_tieba_index_msg_cuid");
-  let cookie = Panel.getValue<string | undefined>("httpx-cookie-tieba.baidu.com");
+  const cookie = Panel.getValue<string | undefined>("httpx-cookie-tieba.baidu.com");
   if (utils.isNull(__cuid__) && typeof cookie === "string") {
-    let gmCookie = new utils.GM_Cookie();
-    let cookieList = gmCookie.parseCookie(cookie);
-    let findValue = cookieList.find((item) => {
+    const gmCookie = new utils.DocumentCookieHandler();
+    const cookieList = gmCookie.parseCookie(cookie);
+    const findValue = cookieList.find((item) => {
       return item.key === "MAWEBCUID";
     });
     if (findValue) {

@@ -1,6 +1,5 @@
 import { DOMUtils, httpx, log, MenuRegister, pops, utils } from "@/env";
 import { CookieManager } from "@/main/cookie/manager/CookieManager";
-import { CookieManagerApiNameList } from "@/main/cookie/manager/CookieManagerService";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -151,10 +150,10 @@ export const CookieRule = {
               templateData.data.execApiName!,
               [
                 {
-                  text: "（当前）" + CookieManager.cookieManagerApiName,
+                  text: "（当前）" + CookieManager.baseCookieHandler,
                   value: "use-global",
                 },
-                ...CookieManagerApiNameList.map((it) => {
+                ...CookieManager.totalCookieManagerApiNameList.map((it) => {
                   return {
                     text: it,
                     value: it,

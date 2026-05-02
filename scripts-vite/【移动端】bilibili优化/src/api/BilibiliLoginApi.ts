@@ -22,7 +22,7 @@ export const BilibiliLoginApi = {
       // sign: "",
       /** 平台标识 会被拼接到返回的 url query */
       mobi_app: AppKeyInfo.ios.mobi_app,
-      csrf: cookieManager.get("bili_jct")?.value || "",
+      csrf: (await cookieManager.get("bili_jct"))?.value || "",
     };
     const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
     const response = await httpx.post(

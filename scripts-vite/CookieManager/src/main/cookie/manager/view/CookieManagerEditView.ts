@@ -145,7 +145,7 @@ export const CookieManagerEditView = {
             cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
             if (isEdit) {
               // 编辑
-              const result = await CookieManager.updateCookie(cookieInfo);
+              const result = await CookieManager.update(cookieInfo);
               if (result) {
                 Qmsg.error(result.toString());
               } else {
@@ -154,7 +154,7 @@ export const CookieManagerEditView = {
               }
             } else {
               // 添加
-              const result = await CookieManager.addCookie(cookieInfo);
+              const result = await CookieManager.add(cookieInfo);
               if (result) {
                 Qmsg.error(result.toString());
               } else {
@@ -353,7 +353,7 @@ export const CookieManagerEditView = {
         value: "unspecified",
       },
     ];
-    if (CookieManager.cookieManagerApiName === "cookieStore") {
+    if (CookieManager.baseCookieHandler === "cookieStore") {
       // cookieStore只能是三个值
       sameSiteData = [
         {
@@ -379,9 +379,9 @@ export const CookieManagerEditView = {
       )
     ).$el;
     DOMUtils.append($editContent, [$name, $value]);
-    if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
+    if (CookieManager.baseCookieHandler === "GM_cookie" || CookieManager.baseCookieHandler === "GM.cookie") {
       DOMUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
-    } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+    } else if (CookieManager.baseCookieHandler === "cookieStore") {
       DOMUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
     }
   },

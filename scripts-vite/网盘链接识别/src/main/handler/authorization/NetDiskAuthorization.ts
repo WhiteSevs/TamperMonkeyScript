@@ -6,7 +6,7 @@ import { NetDiskAuthorization_Lanzouyx } from "@/main/rule/default-rule/lanzouyx
 /**
  * 规则配置
  */
-export const NetDiskAuthorizationRule: Record<string, () => void> = {
+export const NetDiskAuthorizationRule: Record<string, () => IPromise<void>> = {
   /**
    * 123网盘，一般用于>100MB的文件直链获取
    */

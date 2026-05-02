@@ -1,6 +1,5 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import { CookieManager } from "@/main/cookie/manager/CookieManager";
-import { CookieManagerService } from "@/main/cookie/manager/CookieManagerService";
 import { CookieManagerView } from "@/main/cookie/manager/view/CookieManagerView";
 import { Panel } from "@components/setting/panel";
 import CryptoJS from "crypto-js";
@@ -39,7 +38,7 @@ export const CookieBackUpManager = {
     } else if (type === "json") {
       cookieText = JSON.stringify(
         {
-          api: CookieManager.cookieManagerApiName,
+          api: CookieManager.baseCookieHandler,
           hostname: window.location.hostname,
           data: cookie,
         },
@@ -110,7 +109,7 @@ export const CookieBackUpManager = {
             const url = URL.createObjectURL(blob);
             let $anchor = DOMUtils.createElement("a", {
               download: `${window.location.hostname}_${dialogConfig.exportType}_${
-                CookieManager.cookieManagerApiName
+                CookieManager.baseCookieHandler
               }_${Date.now()}.txt`,
               href: url,
               target: "_blank",
@@ -393,25 +392,25 @@ export const CookieBackUpManager = {
                 // 纯数组格式
                 // 以当前的apiName为准
                 // [{...},{...},...]
-                log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                 for (const cookieInfo of cookie) {
-                  await CookieManager.updateCookie(cookieInfo);
+                  await CookieManager.update(cookieInfo);
                 }
               } else if (typeof cookie === "object" && Object.keys(cookie).length && Array.isArray(cookie["data"])) {
                 // 对象格式
                 // {api:"",data: [{...},{...},...]}
-                const cookieManager = new CookieManagerService(cookie.api);
-                log.info(`使用${cookieManager.cookieManagerApiName}导入cookie数据`);
+                const cookieManager = new utils.CookieManagerService({ baseCookieHandler: cookie.api });
+                log.info(`使用${cookieManager.baseCookieHandler}导入cookie数据`);
                 for (const cookieInfo of cookie.data) {
-                  await cookieManager.updateCookie(cookieInfo);
+                  await cookieManager.update(cookieInfo);
                 }
               } else if (typeof cookie === "object" && !Object.keys(cookie).length) {
                 // header_string类型
-                let utilsCookieManager = new utils.GM_Cookie();
-                log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                let utilsCookieManager = new utils.DocumentCookieHandler();
+                log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                 let cookieObj = utilsCookieManager.parseCookie(cookieListStr);
                 for (const cookieInfo of cookieObj) {
-                  await CookieManager.updateCookie({
+                  await CookieManager.update({
                     name: cookieInfo.key,
                     value: cookieInfo.value,
                     domain: window.location.hostname,
@@ -566,7 +565,7 @@ export const CookieBackUpManager = {
     const $import_cookie_from_file = $confirm.$shadowRoot.querySelector(
       "#import-cookie-import_from_file"
     ) as HTMLInputElement;
-    const $importContainer = $confirm.$shadowRoot.querySelector(".import-cookie-value-container") as HTMLDivElement;
+    // const $importContainer = $confirm.$shadowRoot.querySelector(".import-cookie-value-container") as HTMLDivElement;
     const $importContainer_text = $confirm.$shadowRoot.querySelector(".import-cookie-value-text") as HTMLDivElement;
     const $import_text = $importContainer_text.querySelector("textarea") as HTMLTextAreaElement;
     const $importContainer_file = $confirm.$shadowRoot.querySelector(".import-cookie-value-file") as HTMLDivElement;

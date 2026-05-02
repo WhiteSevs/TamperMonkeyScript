@@ -112,7 +112,7 @@ export const BilibiliVideoApi = {
   async like(config: { aid: number; like: 1 | 2 } | { bvid: string; like: 1 | 2 }) {
     const searchParamsData = {
       like: config.like,
-      csrf: cookieManager.get("bili_jct")?.value || "",
+      csrf: (await cookieManager.get("bili_jct"))?.value || "",
     };
 
     BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);

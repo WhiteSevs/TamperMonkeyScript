@@ -12,7 +12,7 @@ export const NetDiskAuthorization_feijipan_appToken = {
     return GM_getValue<string>(this.KEY);
   },
 };
-export const NetDiskAuthorization_feijipan = function () {
+export const NetDiskAuthorization_feijipan = async function () {
   if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
     return;
   }
@@ -20,7 +20,7 @@ export const NetDiskAuthorization_feijipan = function () {
   if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
     return;
   }
-  const cookie_appToken = cookieManager.get("appToken");
+  const cookie_appToken = await cookieManager.get("appToken");
   if (cookie_appToken) {
     const appToken = cookie_appToken.value;
     log.success("获取小飞机网盘的appToken: " + appToken);

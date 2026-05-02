@@ -1,5 +1,4 @@
-import { DOMUtils, log } from "@/env";
-import { CookieManagerService } from "@/main/cookie/manager/CookieManagerService";
+import { DOMUtils, log, utils } from "@/env";
 import { CookieRule } from "./CookieRule";
 
 export const CookieRuleController = {
@@ -22,11 +21,11 @@ export const CookieRuleController = {
       if (apiName === "use-global") {
         apiName = void 0;
       }
-      const cookieManager = new CookieManagerService(apiName);
-      const cookieListResult = await cookieManager.queryAllCookie();
+      const cookieManager = new utils.CookieManagerService({ baseCookieHandler: apiName });
+      const cookieListResult = await cookieManager.listAll();
       for (let cookieInfoIndex = 0; cookieInfoIndex < cookieListResult.length; cookieInfoIndex++) {
         // cookie信息
-        let cookieInfo = cookieListResult[cookieInfoIndex];
+        const cookieInfo = cookieListResult[cookieInfoIndex];
         // 当前cookie名
         const cookieName = cookieInfo.name;
         // 匹配cookie名的规则
@@ -35,7 +34,7 @@ export const CookieRuleController = {
         let flag = false;
         if (cookieRuleItem.data.enableRegExpToMatchCookieName) {
           // 使用正则来匹配Cookie名
-          let regExpCookieName = new RegExp(ruleCookieName, "i");
+          const regExpCookieName = new RegExp(ruleCookieName, "i");
           if (regExpCookieName.test(cookieName)) {
             flag = true;
           }
@@ -48,7 +47,7 @@ export const CookieRuleController = {
         if (flag) {
           if (operationMode === "delete") {
             // 删除Cookie
-            cookieManager.deleteCookie(cookieInfo);
+            cookieManager.delete(cookieInfo);
           } else if (operationMode.startsWith("extended")) {
             // 延期Cookie
             let currentTime = Date.now();
@@ -65,11 +64,11 @@ export const CookieRuleController = {
               checkTime = oneYear;
             }
             let updateFlag = false;
-            if (cookieManager.cookieManagerApiName === "document.cookie") {
+            if (cookieManager.baseCookieHandler === "document.cookie") {
               // 直接延期，毕竟不知道过期时间
               (<GMCookieInstance>cookieInfo).expirationDate = currentTime + checkTime;
               updateFlag = true;
-            } else if (cookieManager.cookieManagerApiName === "cookieStore") {
+            } else if (cookieManager.baseCookieHandler === "cookieStore") {
               let expireTime = (<CookieStoreData>cookieInfo).expires;
               // 毫秒
               if (typeof expireTime === "number" && expireTime - currentTime < checkTime) {
@@ -77,8 +76,8 @@ export const CookieRuleController = {
                 updateFlag = true;
               }
             } else if (
-              cookieManager.cookieManagerApiName === "GM_cookie" ||
-              cookieManager.cookieManagerApiName === "GM.cookie"
+              cookieManager.baseCookieHandler === "GM_cookie" ||
+              cookieManager.baseCookieHandler === "GM.cookie"
             ) {
               let expireTime = (<GMCookieInstance>cookieInfo).expirationDate;
               // 秒级
@@ -87,10 +86,10 @@ export const CookieRuleController = {
                 updateFlag = true;
               }
             } else {
-              log.error("未知的cookieManagerApiName", cookieManager.cookieManagerApiName);
+              log.error("未知的cookieManagerApiName", cookieManager.baseCookieHandler);
             }
             if (updateFlag) {
-              await cookieManager.updateCookie(cookieInfo);
+              await cookieManager.update(cookieInfo);
             }
           }
         }

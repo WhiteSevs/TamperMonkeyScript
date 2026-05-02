@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.5.2
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
@@ -540,12 +540,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -565,21 +577,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -592,12 +604,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -609,7 +621,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -617,12 +631,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -634,13 +648,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -654,7 +668,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -672,37 +686,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -725,7 +739,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -748,7 +762,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -763,13 +777,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -777,7 +791,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -790,12 +804,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -814,40 +828,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -896,7 +908,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -912,15 +924,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -997,6 +1011,111 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag = false;
+      if (typeof this.option.checkExec === "function") {
+        flag = this.option.checkExec(this.option.keyList);
+      } else {
+        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -1326,7 +1445,6 @@
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -1353,110 +1471,25 @@
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag = false;
+          if (typeof checkExec === "function") {
+            flag = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
+          return flag;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -1465,11 +1498,11 @@
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -1483,23 +1516,21 @@
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -1507,7 +1538,7 @@
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -1517,8 +1548,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1542,14 +1573,107 @@
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -1671,9 +1795,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1716,13 +1853,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1770,7 +1907,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1779,7 +1917,6 @@
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -1814,7 +1951,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1835,7 +1976,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1866,7 +2007,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -2087,14 +2228,17 @@
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -2104,12 +2248,12 @@
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },
@@ -2254,7 +2398,21 @@
   CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   const __DataPaging = DataPaging;
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
@@ -5027,14 +5185,14 @@
       return _GM_getValue(this.KEY);
     },
   };
-  const NetDiskAuthorization_feijipan = function () {
+  const NetDiskAuthorization_feijipan = async function () {
     if (!window.location.hostname.endsWith(".feijipan.com") && window.location.hostname !== "feijipan.com") {
       return;
     }
     if (NetDiskRuleData.function.linkClickMode(NetDiskRule_feijipan.setting.key) !== "parseFile") {
       return;
     }
-    const cookie_appToken = cookieManager.get("appToken");
+    const cookie_appToken = await cookieManager.get("appToken");
     if (cookie_appToken) {
       const appToken = cookie_appToken.value;
       log.success("获取小飞机网盘的appToken: " + appToken);
@@ -6745,11 +6903,11 @@
           
       }
       .rule-form-container li{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 5px 20px;
-          gap: 10px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 5px 20px;
+        gap: 10px;
       }
       .rule-form-ulist-dynamic{
         --button-margin-top: 0px;
@@ -6772,16 +6930,16 @@
         width: 100%;
       }
       .pops-panel-item-left-main-text{
-          max-width: 150px;
+        max-width: 150px;
       }
       .pops-panel-item-right-text{
-          padding-left: 30px;
+        padding-left: 30px;
       }
       .pops-panel-item-right-text,
       .pops-panel-item-right-main-text{
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .pops-panel-item-left-desc-text{
         line-height: normal;
@@ -22070,88 +22228,6 @@
       this.#data.localOptions.length = 0;
       this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
     }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      if (!this.#data.localOptions.length) {
-        log.warn("快捷键配置为空");
-        return;
-      }
-      const that = this;
-      const setListenKeyboard = function ($target, option) {
-        domUtils.onKeyboard(
-          $target,
-          "keydown",
-          async (keyName, keyValue, ohterCodeList, event) => {
-            if (that.#flag.isWaitPress) {
-              return;
-            }
-            if (config?.isPrevent) {
-              domUtils.preventEvent(event);
-            }
-            const tempOption = {
-              keyName,
-              keyValue,
-              ohterCodeList,
-            };
-            const tempOptionStr = JSON.stringify(tempOption);
-            const findShortcut = that.#data.localOptions.find((item) => {
-              const __option = item.value;
-              const __optionStr = JSON.stringify(__option);
-              if (__optionStr === tempOptionStr) {
-                return true;
-              }
-            });
-            if (findShortcut) {
-              if (findShortcut.key in option) {
-                log.info("调用快捷键", findShortcut);
-                if (typeof config?.beforeCallBack === "function") {
-                  const flag = await config.beforeCallBack();
-                  if (typeof flag === "boolean" && !flag) {
-                    return;
-                  }
-                }
-                const callback = option[findShortcut.key].callback;
-                await callback();
-              }
-            }
-          },
-          {
-            capture: Boolean(config?.capture),
-          }
-        );
-      };
-      const WindowShortCutOption = {};
-      const ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        const option = shortCutOption[localKey];
-        if (option.target == null || (typeof option.target === "string" && option.target === "")) {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.onReady(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          const option = ElementShortCutOption[localKey];
-          const shortCutOptionMap = {};
-          let target = null;
-          if (typeof option.target === "string") {
-            target = await domUtils.waitNode(option.target, 1e4);
-          } else if (typeof option.target === "function") {
-            target = await option.target();
-          } else {
-            target = option.target;
-          }
-          if (target) {
-            Reflect.set(shortCutOptionMap, localKey, option);
-            setListenKeyboard(target, shortCutOptionMap);
-          }
-        });
-      });
-    }
     isWaitKeyboardPress() {
       return this.#flag.isWaitPress;
     }
@@ -22242,6 +22318,106 @@
         return defaultShowText;
       }
     }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const setListenKeyboard = ($target, option) => {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          async (keyName, keyValue, ohterCodeList, event) => {
+            if (this.#flag.isWaitPress) {
+              return;
+            }
+            if (config?.isPrevent) {
+              domUtils.preventEvent(event);
+            }
+            if (config?.onlyStopPropagation) {
+              domUtils.preventEvent(event, true);
+            }
+            const tempOption = {
+              keyName,
+              keyValue,
+              ohterCodeList,
+            };
+            const tempOptionStr = JSON.stringify(tempOption);
+            const findShortcuts = this.#data.localOptions.filter((item) => {
+              const __option = item.value;
+              const __optionStr = JSON.stringify(__option);
+              if (__optionStr === tempOptionStr) {
+                return true;
+              }
+              return false;
+            });
+            if (findShortcuts.length) {
+              for (const findShortcut of findShortcuts) {
+                log.info("调用快捷键", findShortcut);
+                if (typeof config?.beforeCallBack === "function") {
+                  const flag = await config.beforeCallBack();
+                  if (typeof flag === "boolean" && !flag) {
+                    return;
+                  }
+                }
+                const targetOptions = option.filter((item) => {
+                  return item.menuKey === findShortcut.key;
+                });
+                if (targetOptions.length) {
+                  for (const option2 of targetOptions) {
+                    await option2.option.callback(findShortcut.key);
+                  }
+                }
+              }
+            }
+          },
+          {
+            capture: Boolean(config?.capture),
+          }
+        );
+      };
+      const WindowShortCutOptions = [];
+      const ElementShortCutOptions = [];
+      if (!Array.isArray(shortCutOption)) {
+        shortCutOption = [shortCutOption];
+      }
+      shortCutOption.forEach((shortCutOptionItem) => {
+        Object.keys(shortCutOptionItem).forEach((menuKey) => {
+          const option = shortCutOptionItem[menuKey];
+          if (option.target == null || (typeof option.target === "string" && option.target === "")) {
+            option.target = "window";
+          }
+          if (option.target === "window") {
+            WindowShortCutOptions.push({
+              menuKey,
+              option,
+            });
+          } else {
+            ElementShortCutOptions.push({
+              menuKey,
+              option,
+            });
+          }
+        });
+      });
+      setListenKeyboard(window, WindowShortCutOptions);
+      domUtils.onReady(() => {
+        ElementShortCutOptions.forEach(async (ElementShortCutOption) => {
+          const option = ElementShortCutOption.option;
+          let target = null;
+          if (typeof option.target === "string") {
+            target = await domUtils.waitNode(option.target, 1e4);
+          } else if (typeof option.target === "function") {
+            target = await option.target();
+          } else {
+            target = option.target;
+          }
+          if (target) {
+            setListenKeyboard(target, [ElementShortCutOption]);
+          }
+        });
+      });
+    }
     async enterShortcutKeys(key) {
       this.#flag.isWaitPress = true;
       return new Promise((resolve) => {
@@ -22258,30 +22434,31 @@
             if (Array.isArray(this.#data.otherShortCutOptions)) {
               allOptions = allOptions.concat(this.#data.otherShortCutOptions);
             }
-            for (let index = 0; index < allOptions.length; index++) {
-              let localValue = allOptions[index];
+            const localConflictOptions = allOptions.filter((localValue) => {
               if (localValue.key === key) {
-                continue;
+                return false;
               }
               const localShortCutJSONString = JSON.stringify(localValue.value);
-              let isUsedByOtherOption = false;
               if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                isUsedByOtherOption = true;
+                return true;
               }
-              if (isUsedByOtherOption) {
-                result = {
-                  status: false,
-                  key: localValue.key,
-                  option: currentOption,
-                };
-                return;
-              }
+              return false;
+            });
+            if (localConflictOptions.length) {
+              result = {
+                status: false,
+                key,
+                option: currentOption,
+                localConflictOptions,
+              };
+              return result;
             }
             this.setOption(key, currentOption);
             result = {
               status: true,
               key,
               option: currentOption,
+              localConflictOptions: [],
             };
           } catch (error) {
             log.error(error);
@@ -22289,6 +22466,7 @@
               status: false,
               key,
               option: currentOption,
+              localConflictOptions: [],
             };
           } finally {
             if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function") {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.2
+// @version      2026.5.2
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,13 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.13/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
-// @grant        GM.cookie
 // @grant        GM_addValueChangeListener
 // @grant        GM_cookie
 // @grant        GM_deleteValue
@@ -36,7 +35,6 @@
 (function (Qmsg, DOMUtils, pops, Utils, CryptoJS) {
   "use strict";
 
-  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
   var _GM_addValueChangeListener = (() =>
     typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
   var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
@@ -457,6 +455,111 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
+  class PanelMenuResultsHandler {
+    data = {
+      storeNodeList: [],
+      destoryFnList: [],
+    };
+    option = {};
+    constructor(option) {
+      this.option = option;
+    }
+    handlerResult(enableValue, args) {
+      const dynamicMenuStoreNodeList = [];
+      const dynamicDestoryFnList = [];
+      let resultValueList = [];
+      if (Array.isArray(args)) {
+        resultValueList = resultValueList.concat(args);
+      } else {
+        const handleArgs = (obj) => {
+          if (typeof obj === "object" && obj != null) {
+            if (obj instanceof Element) {
+              resultValueList.push(obj);
+            } else {
+              if (Array.isArray(obj)) {
+                handleArgs(obj);
+              } else {
+                const { $css, destory } = obj;
+                if ($css != null) {
+                  if (Array.isArray($css)) {
+                    resultValueList = resultValueList.concat($css);
+                  } else if ($css instanceof Element) {
+                    resultValueList.push($css);
+                  } else;
+                }
+                if (typeof destory === "function") {
+                  resultValueList.push(destory);
+                }
+              }
+            }
+          } else {
+            resultValueList.push(obj);
+          }
+        };
+        handleArgs(args);
+      }
+      const handleResult = (it) => {
+        if (it == null) {
+          return;
+        }
+        if (it instanceof Element) {
+          dynamicMenuStoreNodeList.push(it);
+          return;
+        }
+        if (typeof it === "function") {
+          dynamicDestoryFnList.push(it);
+          return;
+        }
+      };
+      for (const it of resultValueList) {
+        const flag = handleResult(it);
+        if (typeof flag === "boolean" && !flag) {
+          break;
+        }
+        if (Array.isArray(it)) {
+          for (const it2 of it) {
+            const flag2 = handleResult(it2);
+            if (typeof flag2 === "boolean" && !flag2) {
+              break;
+            }
+          }
+        }
+      }
+      this.clearStoreNodeList();
+      this.execDestoryFnAndClear();
+      if (enableValue) {
+        this.data.storeNodeList = this.data.storeNodeList.concat(dynamicMenuStoreNodeList);
+        this.data.destoryFnList = this.data.destoryFnList.concat(dynamicDestoryFnList);
+      }
+    }
+    getEnableStatus(key) {
+      const value = this.option.getValue(key);
+      return Boolean(value);
+    }
+    clearStoreNodeList = () => {
+      for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
+        const $css = this.data.storeNodeList[index];
+        $css?.remove();
+        this.data.storeNodeList.splice(index, 1);
+      }
+    };
+    execDestoryFnAndClear = () => {
+      for (let index = this.data.destoryFnList.length - 1; index >= 0; index--) {
+        const destoryFnItem = this.data.destoryFnList[index];
+        destoryFnItem();
+        this.data.destoryFnList.splice(index, 1);
+      }
+    };
+    checkMenuExec() {
+      let flag = false;
+      if (typeof this.option.checkExec === "function") {
+        flag = this.option.checkExec(this.option.keyList);
+      } else {
+        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
+      }
+      return flag;
+    }
+  }
   class StorageUtils {
     storageKey;
     listenerData;
@@ -832,7 +935,6 @@
       PopsPanelStorageApi.emitValueChangeListener(key, newValue, oldValue);
     },
     async exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
         queryKeyFn = () => queryKey;
@@ -859,110 +961,25 @@
           return this.$data.onceExecMenuData.get(storageKey);
         }
       }
-      let storeValueList = [];
       const listenerIdList = [];
-      let destoryFnList = [];
-      const addStoreValueCallback = (enableValue, args) => {
-        const dynamicMenuStoreValueList = [];
-        const dynamicDestoryFnList = [];
-        let resultValueList = [];
-        if (Array.isArray(args)) {
-          resultValueList = resultValueList.concat(args);
-        } else {
-          const handleArgs = (obj) => {
-            if (typeof obj === "object" && obj != null) {
-              if (obj instanceof Element) {
-                resultValueList.push(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else {
-                    resultValueList.push($css);
-                  }
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
-              }
-            } else {
-              resultValueList.push(obj);
-            }
-          };
-          if (args != null && Array.isArray(args)) {
-            for (const it of args) {
-              handleArgs(it);
-            }
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList,
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+        checkExec(keyList2) {
+          let flag = false;
+          if (typeof checkExec === "function") {
+            flag = checkExec(keyList2);
           } else {
-            handleArgs(args);
+            flag = keyList2.every((key) => this.getValue(key));
           }
-        }
-        const handleResult = (it) => {
-          if (it == null) {
-            return;
-          }
-          if (it instanceof Element) {
-            dynamicMenuStoreValueList.push(it);
-            return;
-          }
-          if (typeof it === "function") {
-            dynamicDestoryFnList.push(it);
-            return;
-          }
-        };
-        for (const it of resultValueList) {
-          const flag = handleResult(it);
-          if (typeof flag === "boolean" && !flag) {
-            break;
-          }
-          if (Array.isArray(it)) {
-            for (const it2 of it) {
-              const flag2 = handleResult(it2);
-              if (typeof flag2 === "boolean" && !flag2) {
-                break;
-              }
-            }
-          }
-        }
-        execClearStoreStyleElements();
-        execDestory();
-        if (enableValue) {
-          storeValueList = storeValueList.concat(dynamicMenuStoreValueList);
-          destoryFnList = destoryFnList.concat(dynamicDestoryFnList);
-        }
-      };
-      const getMenuValue = (key) => {
-        const value = this.getValue(key);
-        return Boolean(value);
-      };
-      const execClearStoreStyleElements = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          const $css = storeValueList[index];
-          $css?.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      const execDestory = () => {
-        for (let index = 0; index < destoryFnList.length; index++) {
-          const destoryFnItem = destoryFnList[index];
-          destoryFnItem();
-          destoryFnList.splice(index, 1);
-          index--;
-        }
-      };
-      const checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
+          return flag;
+        },
+      });
       const valueChangeCallback = async (valueOption) => {
-        const execFlag = checkMenuExec();
+        const execFlag = panelMenuResultsHandler.checkMenuExec();
         let callbackResult = [];
         if (execFlag) {
           const valueList = keyList.map((key) => this.getValue(key));
@@ -971,11 +988,11 @@
             triggerKey: valueOption?.key,
             value: isArrayKey ? valueList : valueList[0],
             addStoreValue: (...args) => {
-              return addStoreValueCallback(execFlag, args);
+              return panelMenuResultsHandler.handlerResult(execFlag, args);
             },
           });
         }
-        addStoreValueCallback(execFlag, callbackResult);
+        panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
       if (once) {
         keyList.forEach((key) => {
@@ -989,23 +1006,21 @@
       }
       await valueChangeCallback();
       const result = {
+        checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
+        keyList,
         reload() {
-          this.clearStoreStyleElements();
-          this.destory();
+          this.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           valueChangeCallback();
         },
         clear() {
-          this.clearStoreStyleElements();
-          this.destory();
+          panelMenuResultsHandler.clearStoreNodeList();
+          this.execDestoryFnAndClear();
           this.removeValueChangeListener();
           this.clearOnceExecMenuData();
         },
-        clearStoreStyleElements: () => {
-          return execClearStoreStyleElements();
-        },
-        destory() {
-          return execDestory();
-        },
+        clearStoreNodeList: panelMenuResultsHandler.clearStoreNodeList.bind(panelMenuResultsHandler),
+        execDestoryFnAndClear: panelMenuResultsHandler.execDestoryFnAndClear.bind(panelMenuResultsHandler),
         removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
@@ -1013,7 +1028,7 @@
         },
         clearOnceExecMenuData() {
           if (once) {
-            that.$data.onceExecMenuData.delete(storageKey);
+            Panel.$data.onceExecMenuData.delete(storageKey);
           }
         },
       };
@@ -1023,8 +1038,8 @@
     async execMenu(key, callback, isReverse = false, once = false) {
       return await this.exec(
         key,
-        async (option) => {
-          return await callback(option);
+        async (...args) => {
+          return await callback(...args);
         },
         (keyList) => {
           const execFlag = keyList.every((__key__) => {
@@ -1048,14 +1063,107 @@
       const result = await this.execMenu(key, callback, isReverse, true);
       if (listenUrlChange) {
         if (result) {
-          const urlChangeEvent = () => {
+          const urlChangeCallback = () => {
             result.reload();
           };
           this.removeUrlChangeWithExecMenuOnceListener(key);
-          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeEvent);
+          this.addUrlChangeWithExecMenuOnceListener(key, urlChangeCallback);
         }
       }
       return result;
+    },
+    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+      const results = await Promise.all(
+        menus.map(async ([key, callback]) => {
+          const menuResult = await this.execMenu(
+            key,
+            (...args) => {
+              const result = callback(...args);
+              return result;
+            },
+            isReverse,
+            once
+          );
+          return menuResult;
+        })
+      );
+      const panelMenuResultsHandler = new PanelMenuResultsHandler({
+        keyList: menus.map(([key]) => key),
+        getValue: (key) => {
+          const value = this.getValue(key);
+          return Boolean(value);
+        },
+      });
+      const listenerIdList = [];
+      const __destory__ = (removeListener = false) => {
+        panelMenuResultsHandler.clearStoreNodeList();
+        panelMenuResultsHandler.execDestoryFnAndClear();
+        if (removeListener) {
+          for (const listenerId of listenerIdList) {
+            this.removeValueChangeListener(listenerId);
+          }
+          for (const result of results) {
+            if (result) {
+              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            }
+          }
+        }
+      };
+      const __allExecCallback__ = () => {
+        const allExecFlag = results.every((result) => {
+          if (result) {
+            return result.checkMenuExec();
+          } else {
+            return true;
+          }
+        });
+        __destory__(false);
+        if (allExecFlag) {
+          const execResult = allExecCallback();
+          panelMenuResultsHandler.handlerResult(allExecFlag, execResult);
+        }
+      };
+      __allExecCallback__();
+      for (const result of results) {
+        if (result) {
+          const listenerId = this.addValueChangeListener(result.keyList[0], () => {
+            __allExecCallback__();
+          });
+          listenerIdList.push(listenerId);
+          if (listenUrlChange) {
+            const urlChangeCallback = () => {
+              result.reload();
+            };
+            this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
+            this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
+          }
+        }
+      }
+      return {
+        clear() {
+          for (const result of results) {
+            result?.clear();
+          }
+          this.execDestoryFnAndClear();
+          this.removeValueChangeListener();
+        },
+        execDestoryFnAndClear() {
+          for (const result of results) {
+            result?.execDestoryFnAndClear();
+          }
+          __destory__(false);
+        },
+        removeValueChangeListener() {
+          for (const result of results) {
+            result?.removeValueChangeListener();
+          }
+          __destory__(true);
+        },
+      };
+    },
+    async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
+      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
+      return results;
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
@@ -1177,9 +1285,22 @@
       if (!preventRegisterSearchPlugin) {
         this.registerConfigSearch({ $panel, content });
       }
+      return { $panel, content };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
+      const translateCallback = (text, translateMap) => {
+        if (typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const asyncQueryProperty = async (target, handler) => {
         if (target == null) {
           return;
@@ -1222,13 +1343,13 @@
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
-            text: "搜索配置",
+            text: translateCallback("搜索配置"),
             position: "center",
           },
           content: {
             text: `
 						<div class="search-wrapper">
-							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+							<input class="search-config-text" name="search-config" type="text" placeholder="${translateCallback("请输入需要搜素的配置名称")}">
 						</div>
 						<div class="search-result-wrapper"></div>
 					`,
@@ -1276,7 +1397,8 @@
 					}
 					.search-result-item-path{
 						display: flex;
-    					align-items: center;
+            align-items: center;
+            flex-wrap: wrap;
 					}
 					.search-result-item-description{
 						font-size: 0.8em;
@@ -1285,7 +1407,6 @@
 					${config.searchDialogStyle ?? ""}
 				`,
         });
-        $alert.$shadowRoot.querySelector(".search-wrapper");
         const $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
         const $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
         $searchInput.focus();
@@ -1320,7 +1441,11 @@
             );
             const $targetAsideItem = $asideItems2[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              Qmsg.error(
+                translateCallback(`左侧项下标{{index}}不存在`, {
+                  index: pathInfo.index,
+                })
+              );
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -1341,7 +1466,7 @@
                 if ($findDeepMenu) {
                   $findDeepMenu.click();
                 } else {
-                  Qmsg.error("未找到对应的二级菜单");
+                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -1372,7 +1497,7 @@
                     addFlashingClass($findTargetMenu);
                   });
                 } else {
-                  Qmsg.error("未找到对应的菜单项");
+                  Qmsg.error(translateCallback("未找到对应的菜单项"));
                 }
                 return {
                   isFind: true,
@@ -1593,14 +1718,17 @@
     },
     transformKey(key) {
       if (Array.isArray(key)) {
-        const keyArray = key.sort();
-        return JSON.stringify(keyArray);
+        if (key.length > 1) {
+          const keyArray = key.sort();
+          return JSON.stringify(keyArray);
+        } else {
+          return key[0];
+        }
       } else {
         return key;
       }
     },
     getDynamicValue(key, defaultValue) {
-      const that = this;
       let isInit = false;
       let __value = defaultValue;
       const listenerId = this.addValueChangeListener(key, (_, newValue) => {
@@ -1610,12 +1738,12 @@
         get value() {
           if (!isInit) {
             isInit = true;
-            __value = that.getValue(key, defaultValue);
+            __value = Panel.getValue(key, defaultValue);
           }
           return __value;
         },
         destory() {
-          that.removeValueChangeListener(listenerId);
+          Panel.removeValueChangeListener(listenerId);
         },
       };
     },
@@ -1760,7 +1888,21 @@
   CommonUtil.addBlockCSS.bind(CommonUtil);
   DOMUtils.selector.bind(DOMUtils);
   DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const PanelContent = {
     $data: {
       __contentConfig: null,
@@ -1785,12 +1927,24 @@
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    getDefaultBottomContentConfig() {
+    getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) {
         return this.$data.__defaultBottomContentConfig;
       }
       let isDoubleClick = false;
       let timer = void 0;
+      const translateCallback = (text, translateMap) => {
+        if (config && typeof config.translateCallback === "function") {
+          return config.translateCallback(text, translateMap);
+        } else {
+          if (typeof translateMap === "object" && translateMap) {
+            for (const key in translateMap) {
+              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+            }
+          }
+          return text;
+        }
+      };
       const exportToFile = (fileName, fileData) => {
         if (typeof fileData !== "string") {
           fileData = CommonUtil.toStr(fileData);
@@ -1810,21 +1964,21 @@
         const importConfig = (importEndCallBack) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导入方式",
+              text: translateCallback("请选择导入方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="local">本地导入</div>
-            <div class="btn-control" data-mode="network">网络导入</div>
-            <div class="btn-control" data-mode="clipboard">剪贴板导入</div>`,
+            <div class="btn-control" data-mode="local">${translateCallback("本地导入")}</div>
+            <div class="btn-control" data-mode="network">${translateCallback("网络导入")}</div>
+            <div class="btn-control" data-mode="clipboard">${translateCallback("剪贴板导入")}</div>`,
               html: true,
             },
             btn: {
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -1837,12 +1991,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -1854,7 +2008,9 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）");
+            const clearLocalStorage = confirm(
+              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
+            );
             if (clearLocalStorage) {
               if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
@@ -1862,12 +2018,12 @@
                   localStorageKeys.forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success("已清空脚本存储的配置");
+                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else {
-                  Qmsg.error("不支持GM_deleteValue函数，无法执行删除脚本配置");
+                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
                 }
               } else {
-                Qmsg.error("不支持GM_listValues函数，无法清空脚本存储的配置");
+                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
               }
             }
             if (typeof _GM_setValues === "function") {
@@ -1879,13 +2035,13 @@
                 _GM_setValue(key, value);
               });
             }
-            Qmsg.success("配置导入完毕");
+            Qmsg.success(translateCallback("配置导入完毕"));
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
               if (Object.keys(data).length === 0) {
-                Qmsg.warning("解析为空配置，不导入");
+                Qmsg.warning(translateCallback("解析为空配置，不导入"));
               } else {
                 await updateConfigToStorage(data);
               }
@@ -1899,7 +2055,7 @@
               type: "file",
               accept: ".json",
             });
-            domUtils.on($input, ["propertychange", "input"], (event2) => {
+            domUtils.on($input, ["propertychange", "input"], () => {
               if (!$input.files?.length) {
                 return;
               }
@@ -1917,37 +2073,37 @@
             $alert.close();
             const $prompt = __pops__.prompt({
               title: {
-                text: "网络导入",
+                text: translateCallback("网络导入"),
                 position: "center",
               },
               content: {
                 text: "",
-                placeholder: "请填写URL",
+                placeholder: translateCallback("请填写URL"),
                 focus: true,
               },
               btn: {
                 close: {
                   enable: true,
-                  callback(details, event2) {
+                  callback(details) {
                     details.close();
                   },
                 },
                 ok: {
-                  text: "导入",
-                  callback: async (details, event2) => {
+                  text: translateCallback("导入"),
+                  callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error("请填入完整的url");
+                      Qmsg.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading("正在获取配置...");
+                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
                     const response = await httpx.get(url, {
                       allowInterceptConfig: false,
                     });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error("获取配置失败", { consoleLogContent: true });
+                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
                     const flag = await importFile(response.data.responseText);
@@ -1970,7 +2126,7 @@
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-            domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+            domUtils.on($promptInput, ["input", "propertychange"], () => {
               const value = domUtils.val($promptInput);
               if (value === "") {
                 domUtils.attr($promptOk, "disabled", "true");
@@ -1993,7 +2149,7 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning("获取到的剪贴板内容为空");
+              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
             const flag = await importFile(clipboardText);
@@ -2008,13 +2164,13 @@
         ) => {
           const $alert = __pops__.alert({
             title: {
-              text: "请选择导出方式",
+              text: translateCallback("请选择导出方式"),
               position: "center",
             },
             content: {
               text: `
-            <div class="btn-control" data-mode="export-to-file">导出至文件</div>
-            <div class="btn-control" data-mode="export-to-clipboard">导出至剪贴板</div>
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
             `,
               html: true,
             },
@@ -2022,7 +2178,7 @@
               ok: { enable: false },
               close: {
                 enable: true,
-                callback(details, event) {
+                callback(details) {
                   details.close();
                 },
               },
@@ -2035,12 +2191,12 @@
             height: PanelUISize.info.height,
             style: `
           .btn-control{
-              display: inline-block;
-              margin: 10px;
-              padding: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              cursor: pointer;
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
           }
           .btn-control:hover{
             color: #409eff;
@@ -2059,40 +2215,38 @@
               Qmsg.error(error.toString(), { consoleLogContent: true });
             }
           });
-          domUtils.on($exportToClipboard, "click", async (event) => {
+          domUtils.on($exportToClipboard, "click", async () => {
             const result = await utils.copy(fileData);
             if (result) {
-              Qmsg.success("复制成功");
+              Qmsg.success(translateCallback("复制成功"));
               $alert.close();
             } else {
-              Qmsg.error("复制失败");
+              Qmsg.error(translateCallback("复制失败"));
             }
           });
         };
         const $dialog = __pops__.confirm({
           title: {
-            text: "配置",
+            text: translateCallback("配置"),
             position: "center",
           },
           content: {
-            text: `
-            <textarea name="config-value" id="config" readonly></textarea>
-          `,
+            text: `<textarea name="config-value" id="config" readonly></textarea>`,
             html: true,
           },
           btn: {
             ok: {
               enable: true,
               type: "primary",
-              text: "导入",
-              callback(eventDetails, event) {
+              text: translateCallback("导入"),
+              callback() {
                 importConfig();
               },
             },
             cancel: {
               enable: true,
-              text: "导出",
-              callback(eventDetails, event) {
+              text: translateCallback("导出"),
+              callback() {
                 exportConfig(void 0, configDataStr);
               },
             },
@@ -2141,7 +2295,7 @@
             Reflect.set(configData, key, value);
           });
         } else {
-          Qmsg.warning("不支持函数GM_listValues，仅导出菜单配置");
+          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -2157,15 +2311,17 @@
       return [
         {
           id: "script-version",
-          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          title: translateCallback(`版本：{{version}}`, {
+            version: _GM_info?.script?.version || translateCallback("未知"),
+          }),
           isBottom: true,
           views: [],
           clickFirstCallback() {
             return false;
           },
-          afterRender(config) {
-            const anyTouch = new AnyTouch(config.$asideLiElement);
-            anyTouch.on("tap", function (event) {
+          afterRender(config2) {
+            const anyTouch = new AnyTouch(config2.$asideLiElement);
+            anyTouch.on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -2199,210 +2355,11 @@
   const __GM_cookie__ = _GM_cookie;
   applyObjectThis(__GM_cookie__);
   applyObjectThis(cookieManager);
-  const CookieManagerApiNameList = ["document.cookie", "cookieStore", "GM_cookie", "GM.cookie"];
-  class CookieManagerService {
-    __apiName;
-    constructor(apiName) {
-      if (typeof apiName === "string") {
-        if (!CookieManagerApiNameList.includes(apiName)) {
-          throw new Error(`未知的apiName：${apiName}`);
-        }
-      }
-      this.__apiName = apiName;
-    }
-    get cookieManagerApiName() {
-      let managerApi = Panel.getValue("cookie-manager-api", "document.cookie");
-      return this.__apiName || managerApi;
-    }
-    get cookieManager() {
-      if (this.cookieManagerApiName === "GM_cookie") {
-        return {
-          list(options, callback) {
-            __GM_cookie__.list(options, (result) => {
-              callback(result);
-            });
-          },
-          set(cookieInfo, callback) {
-            __GM_cookie__.set(cookieInfo, (result) => {
-              callback(result);
-            });
-          },
-          delete(cookieInfo, callback) {
-            __GM_cookie__.delete(cookieInfo, (result) => {
-              callback(result);
-            });
-          },
-        };
-      } else if (this.cookieManagerApiName === "GM.cookie") {
-        return {
-          list(options, callback) {
-            _GM.cookie.list().then((result) => {
-              callback(result);
-            });
-          },
-          set(cookieInfo, callback) {
-            _GM.cookie
-              .set(cookieInfo)
-              .then((result) => {
-                callback(result ?? null);
-              })
-              .catch((reason) => {
-                callback(reason);
-              });
-          },
-          delete(cookieInfo, callback) {
-            _GM.cookie
-              .delete(cookieInfo)
-              .then((result) => {
-                callback(result ?? null);
-              })
-              .catch((reason) => {
-                callback(reason);
-              });
-          },
-        };
-      } else if (this.cookieManagerApiName === "cookieStore") {
-        let cookieStore = _unsafeWindow.cookieStore;
-        return {
-          list(options, callback) {
-            cookieStore
-              .getAll()
-              .then((result) => {
-                result.forEach((it) => {
-                  if (it.domain == null) {
-                    it.domain = globalThis.location.hostname;
-                  }
-                });
-                callback(result);
-              })
-              .catch((reason) => {
-                log.error(reason);
-                Qmsg.error(reason.toString());
-              });
-          },
-          set(cookieInfo, callback) {
-            cookieStore
-              .set(cookieInfo)
-              .then(() => {
-                callback();
-              })
-              .catch((reason) => {
-                callback(reason);
-              });
-          },
-          delete(cookieInfo, callback) {
-            cookieStore
-              .delete(cookieInfo)
-              .then(() => {
-                callback();
-              })
-              .catch((reason) => {
-                callback(reason);
-              });
-          },
-        };
-      } else {
-        return cookieManager;
-      }
-    }
-    queryAllCookie() {
-      return new Promise((resolve, reject) => {
-        try {
-          this.cookieManager.list({}, (cookieListResult) => {
-            let __cookieListResult__ = cookieListResult || [];
-            __cookieListResult__ = __cookieListResult__.sort((a, b) => a.name.localeCompare(b.name));
-            resolve(__cookieListResult__);
-          });
-        } catch (error) {
-          log.error(error);
-          Qmsg.error(error.toString());
-          reject(error);
-        }
-      });
-    }
-    deleteAllCookie() {
-      return new Promise((resolve, reject) => {
-        try {
-          this.cookieManager.list({}, async (cookieListResult) => {
-            const __cookieListResult__ = cookieListResult || [];
-            const result = {
-              success: 0,
-              error: 0,
-            };
-            for (let index = 0; index < __cookieListResult__.length; index++) {
-              const cookieListItem = __cookieListResult__[index];
-              let deleteError = await new Promise((deleteResolve) => {
-                this.deleteCookie(cookieListItem).then((deleteResult) => {
-                  deleteResolve(deleteResult);
-                });
-              });
-              if (deleteError) {
-                result.error++;
-              } else {
-                result.success++;
-              }
-            }
-            resolve(result);
-          });
-        } catch (error) {
-          log.error(error);
-          Qmsg.error(error.toString());
-          reject(error);
-        }
-      });
-    }
-    addCookie(cookieInfo) {
-      return new Promise((resolve, reject) => {
-        try {
-          Reflect.deleteProperty(cookieInfo, "hostOnly");
-          this.cookieManager.set(cookieInfo, (error) => {
-            if (false);
-            resolve(error);
-          });
-        } catch (error) {
-          log.error(error);
-          Qmsg.error(error.toString());
-          reject(error);
-        }
-      });
-    }
-    deleteCookie(cookieInfo) {
-      return new Promise((resolve, reject) => {
-        try {
-          this.cookieManager.delete(cookieInfo, (error) => {
-            if (false);
-            resolve(error);
-          });
-        } catch (error) {
-          log.error(error);
-          Qmsg.error(error.toString());
-          reject(error);
-        }
-      });
-    }
-    updateCookie(cookieInfo) {
-      return new Promise(async (resolve) => {
-        let result;
-        try {
-          if (this.cookieManagerApiName === "document.cookie" || this.cookieManagerApiName === "cookieStore") {
-            let deleteError = await this.deleteCookie(cookieInfo);
-            if (deleteError) {
-              throw new TypeError(deleteError.toString());
-            }
-          }
-          let addError = await this.addCookie(cookieInfo);
-          if (addError) {
-            throw new TypeError(addError.toString());
-          }
-        } catch (error) {
-          result = error;
-        } finally {
-          resolve(result);
-        }
-      });
-    }
-  }
-  const CookieManager = new CookieManagerService();
+  const CookieManager = new Utils.CookieManagerService({
+    baseCookieHandler(defaultCookieHandler) {
+      return Panel.getValue("cookie-manager-api", defaultCookieHandler);
+    },
+  });
   const CookieBackUpManager = {
     encrypt(text, secretKey) {
       return CryptoJS.AES.encrypt(text, secretKey).toString();
@@ -2423,7 +2380,7 @@
       } else if (type === "json") {
         cookieText = JSON.stringify(
           {
-            api: CookieManager.cookieManagerApiName,
+            api: CookieManager.baseCookieHandler,
             hostname: window.location.hostname,
             data: cookie,
           },
@@ -2490,7 +2447,7 @@
               const blob = new Blob([cookieText], { type: "text/plain" });
               const url = URL.createObjectURL(blob);
               let $anchor = domUtils.createElement("a", {
-                download: `${window.location.hostname}_${dialogConfig.exportType}_${CookieManager.cookieManagerApiName}_${Date.now()}.txt`,
+                download: `${window.location.hostname}_${dialogConfig.exportType}_${CookieManager.baseCookieHandler}_${Date.now()}.txt`,
                 href: url,
                 target: "_blank",
               });
@@ -2754,22 +2711,22 @@
                 }
                 const cookie = utils.toJSON(cookieListStr);
                 if (Array.isArray(cookie)) {
-                  log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                  log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                   for (const cookieInfo of cookie) {
-                    await CookieManager.updateCookie(cookieInfo);
+                    await CookieManager.update(cookieInfo);
                   }
                 } else if (typeof cookie === "object" && Object.keys(cookie).length && Array.isArray(cookie["data"])) {
-                  const cookieManager2 = new CookieManagerService(cookie.api);
-                  log.info(`使用${cookieManager2.cookieManagerApiName}导入cookie数据`);
+                  const cookieManager2 = new utils.CookieManagerService({ baseCookieHandler: cookie.api });
+                  log.info(`使用${cookieManager2.baseCookieHandler}导入cookie数据`);
                   for (const cookieInfo of cookie.data) {
-                    await cookieManager2.updateCookie(cookieInfo);
+                    await cookieManager2.update(cookieInfo);
                   }
                 } else if (typeof cookie === "object" && !Object.keys(cookie).length) {
-                  let utilsCookieManager = new utils.GM_Cookie();
-                  log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                  let utilsCookieManager = new utils.DocumentCookieHandler();
+                  log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                   let cookieObj = utilsCookieManager.parseCookie(cookieListStr);
                   for (const cookieInfo of cookieObj) {
-                    await CookieManager.updateCookie({
+                    await CookieManager.update({
                       name: cookieInfo.key,
                       value: cookieInfo.value,
                       domain: window.location.hostname,
@@ -2920,7 +2877,6 @@
       let import_file_text = "";
       const $import_cookie_from_text = $confirm.$shadowRoot.querySelector("#import-cookie-import_from_text");
       const $import_cookie_from_file = $confirm.$shadowRoot.querySelector("#import-cookie-import_from_file");
-      $confirm.$shadowRoot.querySelector(".import-cookie-value-container");
       const $importContainer_text = $confirm.$shadowRoot.querySelector(".import-cookie-value-text");
       const $import_text = $importContainer_text.querySelector("textarea");
       const $importContainer_file = $confirm.$shadowRoot.querySelector(".import-cookie-value-file");
@@ -3304,11 +3260,11 @@
           
       }
       .rule-form-container li{
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 5px 20px;
-          gap: 10px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 5px 20px;
+        gap: 10px;
       }
       .rule-form-ulist-dynamic{
         --button-margin-top: 0px;
@@ -3331,16 +3287,16 @@
         width: 100%;
       }
       .pops-panel-item-left-main-text{
-          max-width: 150px;
+        max-width: 150px;
       }
       .pops-panel-item-right-text{
-          padding-left: 30px;
+        padding-left: 30px;
       }
       .pops-panel-item-right-text,
       .pops-panel-item-right-main-text{
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .pops-panel-item-left-desc-text{
         line-height: normal;
@@ -4034,10 +3990,10 @@
                 templateData.data.execApiName,
                 [
                   {
-                    text: "（当前）" + CookieManager.cookieManagerApiName,
+                    text: "（当前）" + CookieManager.baseCookieHandler,
                     value: "use-global",
                   },
-                  ...CookieManagerApiNameList.map((it) => {
+                  ...CookieManager.totalCookieManagerApiNameList.map((it) => {
                     return {
                       text: it,
                       value: it,
@@ -4454,12 +4410,12 @@
   };
   const CookieInfoTransform = {
     beforeEdit(cookieInfo, isEdit) {
-      const cookieManagerApiName = CookieManager.cookieManagerApiName;
-      if (cookieManagerApiName === "cookieStore") {
+      const baseCookieHandler = CookieManager.baseCookieHandler;
+      if (baseCookieHandler === "cookieStore") {
         if (typeof cookieInfo.expires === "number") {
           cookieInfo.expirationDate = cookieInfo.expires;
         }
-      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
+      } else if (baseCookieHandler === "GM_cookie" || baseCookieHandler === "GM.cookie") {
         if (isEdit) {
           if (typeof cookieInfo.expirationDate === "number") {
             cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
@@ -4469,14 +4425,14 @@
       return cookieInfo;
     },
     afterEdit(cookieInfo) {
-      const cookieManagerApiName = CookieManager.cookieManagerApiName;
-      if (cookieManagerApiName === "document.cookie") {
+      const baseCookieHandler = CookieManager.baseCookieHandler;
+      if (baseCookieHandler === "document.cookie") {
         cookieInfo.domain = "";
-      } else if (cookieManagerApiName === "cookieStore") {
+      } else if (baseCookieHandler === "cookieStore") {
         if (typeof cookieInfo.expirationDate === "number") {
           cookieInfo.expires = cookieInfo.expirationDate;
         }
-      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
+      } else if (baseCookieHandler === "GM_cookie" || baseCookieHandler === "GM.cookie") {
         if (typeof cookieInfo.expirationDate === "number") {
           cookieInfo.expirationDate = Math.floor(cookieInfo.expirationDate / 1e3);
         }
@@ -4585,7 +4541,7 @@
               cookieInfo.value = encodeURIComponent(cookieInfo.value);
               cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
               if (isEdit) {
-                const result = await CookieManager.updateCookie(cookieInfo);
+                const result = await CookieManager.update(cookieInfo);
                 if (result) {
                   Qmsg.error(result.toString());
                 } else {
@@ -4593,7 +4549,7 @@
                   eventDetails.close();
                 }
               } else {
-                const result = await CookieManager.addCookie(cookieInfo);
+                const result = await CookieManager.add(cookieInfo);
                 if (result) {
                   Qmsg.error(result.toString());
                 } else {
@@ -4790,7 +4746,7 @@
           value: "unspecified",
         },
       ];
-      if (CookieManager.cookieManagerApiName === "cookieStore") {
+      if (CookieManager.baseCookieHandler === "cookieStore") {
         sameSiteData = [
           {
             text: "lax",
@@ -4815,9 +4771,9 @@
         )
       ).$el;
       domUtils.append($editContent, [$name, $value]);
-      if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
+      if (CookieManager.baseCookieHandler === "GM_cookie" || CookieManager.baseCookieHandler === "GM.cookie") {
         domUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
-      } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+      } else if (CookieManager.baseCookieHandler === "cookieStore") {
         domUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
       }
     },
@@ -5061,7 +5017,7 @@
               : encodeURIComponent(cookieInfo.value),
           },
         ];
-        if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
+        if (CookieManager.baseCookieHandler === "GM_cookie" || CookieManager.baseCookieHandler === "GM.cookie") {
           cookieInfo = cookieInfo;
           cookieProperty.push(
             {
@@ -5101,7 +5057,7 @@
               rightText: cookieInfo.sameSite,
             }
           );
-        } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+        } else if (CookieManager.baseCookieHandler === "cookieStore") {
           cookieInfo = cookieInfo;
           cookieProperty.push(
             {
@@ -5190,7 +5146,7 @@
           if (!result) {
             return;
           }
-          CookieManager.deleteCookie(cookieInfo).then((status) => {
+          CookieManager.delete(cookieInfo).then((status) => {
             if (!status) {
               Qmsg.success("删除成功");
               $cookieItem.parentElement?.removeChild($cookieItem);
@@ -5204,7 +5160,7 @@
         return $cookieItem;
       };
       const updateCookieListGroup = async (filterCallBack) => {
-        const cookieList = await CookieManager.queryAllCookie();
+        const cookieList = await CookieManager.listAll();
         domUtils.empty($cookieListWrapper);
         const $fragment = document.createDocumentFragment();
         const excludeSessionCookie = Panel.getValue("exclude-session-cookie");
@@ -5213,7 +5169,7 @@
             if (cookieInfo.session) {
               return;
             }
-            if (CookieManager.cookieManagerApiName === "cookieStore" && cookieInfo.expires == null) {
+            if (CookieManager.baseCookieHandler === "cookieStore" && cookieInfo.expires == null) {
               return;
             }
           }
@@ -5357,7 +5313,7 @@
         if (!result) {
           return;
         }
-        const deleteInfo = await CookieManager.deleteAllCookie();
+        const deleteInfo = await CookieManager.clear();
         if (deleteInfo.error) {
           Qmsg.warning(`清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`);
         } else {
@@ -5416,7 +5372,7 @@
             "CookieManager Api",
             "cookie-manager-api",
             "document.cookie",
-            CookieManagerApiNameList.map((it) => {
+            CookieManager.totalCookieManagerApiNameList.map((it) => {
               return {
                 text: it,
                 value: it,
@@ -5491,15 +5447,15 @@
         if (apiName === "use-global") {
           apiName = void 0;
         }
-        const cookieManager2 = new CookieManagerService(apiName);
-        const cookieListResult = await cookieManager2.queryAllCookie();
+        const cookieManager2 = new utils.CookieManagerService({ baseCookieHandler: apiName });
+        const cookieListResult = await cookieManager2.listAll();
         for (let cookieInfoIndex = 0; cookieInfoIndex < cookieListResult.length; cookieInfoIndex++) {
-          let cookieInfo = cookieListResult[cookieInfoIndex];
+          const cookieInfo = cookieListResult[cookieInfoIndex];
           const cookieName = cookieInfo.name;
           const ruleCookieName = cookieRuleItem.data.cookieName;
           let flag = false;
           if (cookieRuleItem.data.enableRegExpToMatchCookieName) {
-            let regExpCookieName = new RegExp(ruleCookieName, "i");
+            const regExpCookieName = new RegExp(ruleCookieName, "i");
             if (regExpCookieName.test(cookieName)) {
               flag = true;
             }
@@ -5510,7 +5466,7 @@
           }
           if (flag) {
             if (operationMode === "delete") {
-              cookieManager2.deleteCookie(cookieInfo);
+              cookieManager2.delete(cookieInfo);
             } else if (operationMode.startsWith("extended")) {
               let currentTime = Date.now();
               let oneMonth = 30 * 24 * 60 * 60 * 1e3;
@@ -5526,18 +5482,18 @@
                 checkTime = oneYear;
               }
               let updateFlag = false;
-              if (cookieManager2.cookieManagerApiName === "document.cookie") {
+              if (cookieManager2.baseCookieHandler === "document.cookie") {
                 cookieInfo.expirationDate = currentTime + checkTime;
                 updateFlag = true;
-              } else if (cookieManager2.cookieManagerApiName === "cookieStore") {
+              } else if (cookieManager2.baseCookieHandler === "cookieStore") {
                 let expireTime = cookieInfo.expires;
                 if (typeof expireTime === "number" && expireTime - currentTime < checkTime) {
                   cookieInfo.expires = expireTime + checkTime;
                   updateFlag = true;
                 }
               } else if (
-                cookieManager2.cookieManagerApiName === "GM_cookie" ||
-                cookieManager2.cookieManagerApiName === "GM.cookie"
+                cookieManager2.baseCookieHandler === "GM_cookie" ||
+                cookieManager2.baseCookieHandler === "GM.cookie"
               ) {
                 let expireTime = cookieInfo.expirationDate;
                 if (typeof expireTime === "number" && expireTime * 1e3 - currentTime < checkTime) {
@@ -5545,10 +5501,10 @@
                   updateFlag = true;
                 }
               } else {
-                log.error("未知的cookieManagerApiName", cookieManager2.cookieManagerApiName);
+                log.error("未知的cookieManagerApiName", cookieManager2.baseCookieHandler);
               }
               if (updateFlag) {
-                await cookieManager2.updateCookie(cookieInfo);
+                await cookieManager2.update(cookieInfo);
               }
             }
           }
