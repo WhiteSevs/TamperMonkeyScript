@@ -1,4 +1,4 @@
-import { addStyle, DOMUtils, log } from "@/env";
+import { addStyle, cookieManager, DOMUtils, log } from "@/env";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
@@ -111,6 +111,16 @@ export const DouYin = {
    * 移除ads
    */
   removeAds() {
+    // 左侧导航栏的下面的抖音精选
+    cookieManager.update(
+      {
+        name: "JXEntranceNegative",
+        value: "1",
+      },
+      () => {
+        log.info("添加Cookie清除左侧导航栏的下面的 抖音精选");
+      }
+    );
     DOMUtils.waitNode<HTMLElement>(
       () =>
         DOMUtils.selector<HTMLElement>(

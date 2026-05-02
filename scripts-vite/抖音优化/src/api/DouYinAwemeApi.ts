@@ -38,9 +38,9 @@ export const DouYinAwemeApi = {
    * @param webid 浏览器id
    */
   async dislike(aweme_id: string, webid: string) {
-    const verifyFp = cookieManager.get("s_v_web_id")?.value;
+    const verifyFp = (await cookieManager.get("s_v_web_id"))?.value;
     const msToken = generate_msToken();
-    const uifid = cookieManager.get("UIFID")?.value;
+    const uifid = (await cookieManager.get("UIFID"))?.value;
     const postParam = {
       ...ApiConfig.getCommonData(),
       aweme_id: aweme_id,

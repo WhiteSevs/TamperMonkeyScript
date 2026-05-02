@@ -195,7 +195,7 @@ export const DouYinSearch = {
   setSearchResultFilterWithVideoStyle(lineMode: "one" | "double" = "one") {
     log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
     if (lineMode === "one") {
-      cookieManager.set({
+      cookieManager.update({
         name: "SEARCH_RESULT_LIST_TYPE",
         value: encodeURIComponent(`"single"`),
       });
@@ -207,7 +207,7 @@ export const DouYinSearch = {
 			}
 			`);
     } else if (lineMode === "double") {
-      cookieManager.set({
+      cookieManager.update({
         name: "SEARCH_RESULT_LIST_TYPE",
         value: encodeURIComponent(`"multi"`),
       });

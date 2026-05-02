@@ -9,6 +9,7 @@ import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 import { DouYinLivePlayer } from "./player/DouYinLivePlayer";
+import { GM_cookie } from "ViteGM";
 
 export const VideoQualityMap: {
   [key: string]: {
@@ -160,8 +161,13 @@ export const DouYinLive = {
   chooseQuality(quality = "origin") {
     const qualityName = VideoQualityMap[quality].label;
     window.localStorage.setItem("webcast_local_quality", quality);
-    cookieManager.set({
+    cookieManager.update({
       name: "webcast_local_quality",
+      value: quality,
+      domain: ".douyin.com",
+    });
+    cookieManager.update({
+      name: "live_local_quality",
       value: quality,
       domain: ".douyin.com",
     });

@@ -58,24 +58,29 @@ export const DouYinHook = {
   hookKeyboard() {
     type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
     /**
-     * 是否禁止触发快捷键
+     * 是否忽略处理
      *
      * 检测是否是在.pops组件库内的输入控件（input、textarea）内或者评论区输入框等...
      * @returns
-     * + true 禁用
+     * + true 忽略
      */
-    const isDisableTriggerKeyboard = () => {
+    const isIgnore = (): boolean => {
       const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
       const $active = $shadowRootActive ?? document.activeElement;
-      if ($active == null) return false;
+      if ($active == null) return true;
+      // 输入框内不触发
       const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
       if (isInputNode) return true;
       const isCommentEditor = Boolean(
         $active?.closest(".DraftEditor-editorContainer") ||
         $active?.closest(".im-richtext-container") ||
-        $active?.closest(".comment-input-container")
+        // 评论区输入框
+        $active?.closest(".comment-input-container") ||
+        // 弹幕输入框
+        $active?.closest(".danmakuInputContainer")
       );
       if (isCommentEditor) return true;
+      // pops弹窗内
       const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
       if (isInPops) return true;
       return false;
@@ -84,10 +89,10 @@ export const DouYinHook = {
 
     /**
      * @returns
-     * + false 阻止触发
+     * + true 阻止触发
      */
     const callback = (keyboardEvent: KeyboardEvent) => {
-      let flag = true;
+      let flag = false;
       /** 键值字符串 */
       const code = keyboardEvent.code;
       /** 组合键列表 */
@@ -105,16 +110,8 @@ export const DouYinHook = {
         otherCodeList.push("shift");
       }
 
-      // const $active = document.activeElement;
-      // const $shadowRootActive = $active?.shadowRoot?.activeElement;
-      // if (isDisableTriggerKeyboard($shadowRootActive ?? $active)) {
-      //   // 在输入框内时，禁止触发快捷键
-      //   flag = false;
-      //   return flag;
-      // }
-
-      if (isDisableTriggerKeyboard()) {
-        // 在输入框内时，禁止触发快捷键
+      if (isIgnore()) {
+        // 忽略
         flag = false;
         return flag;
       }
@@ -125,13 +122,13 @@ export const DouYinHook = {
         otherCodeList?: KeyboardOtherCodeName[];
         /**
          * @returns
-         * + false: 自动阻止触发
+         * + true: 自动阻止触发
          */
         callback?: (option: {
           code: string;
           otherCodeList: KeyboardOtherCodeName[];
           keyboardEvent: KeyboardEvent;
-        }) => void | false;
+        }) => void | true;
       }[] = [
         {
           // 取消赞|空格
@@ -166,7 +163,7 @@ export const DouYinHook = {
                 $play.click();
               }
             }, 250);
-            return false;
+            return true;
           },
         },
         {
@@ -354,29 +351,19 @@ export const DouYinHook = {
               keyboardEvent,
             });
             if (result == null) {
+              // 忽略
               continue;
+            } else if (typeof result === "boolean" && result) {
+              // 阻止触发
             }
           }
           // 阻止触发
-          flag = false;
+          flag = true;
           break;
         }
       }
       return flag;
     };
-    // Hook.document_addEventListener((target, eventName, listener) => {
-    //   if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
-    //     return function (this: Document, ...eventArgs: any[]) {
-    //       const keyboardEvent = eventArgs[0] as KeyboardEvent;
-    //       const flag = callback(keyboardEvent);
-    //       if (!flag) {
-    //         return;
-    //       }
-    //       // 触发原始回调
-    //       return Reflect.apply(listener, this, eventArgs);
-    //     };
-    //   }
-    // });
     const listener = DOMUtils.on(
       document,
       "keydown",
@@ -386,13 +373,13 @@ export const DouYinHook = {
           return;
         }
         const flag = callback(keyboardEvent);
-        if (!flag) {
+        if (flag) {
           DOMUtils.preventEvent(keyboardEvent, true);
         }
       },
       {
         capture: true,
-        passive: false,
+        overrideTarget: false,
       }
     );
     return listener.off;
@@ -496,7 +483,7 @@ export const DouYinHook = {
     log.success("hook live message decode success");
     const decode = decoder?.decode;
     decoder.decode = async function (...args2: any[]) {
-      const [data, method] = args2;
+      const [_, method] = args2;
       const payload = await Reflect.apply(decode, this, args2);
       const flag = await DouYinLiveMessage.execFilter(
         {

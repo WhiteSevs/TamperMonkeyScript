@@ -14,6 +14,7 @@ export {
   MountVue,
   VUE_ROOT_ID,
   cookieManager,
+  documentCookieManager,
 } from "@components/env.base";
 
 export { _SCRIPT_NAME_ as SCRIPT_NAME };

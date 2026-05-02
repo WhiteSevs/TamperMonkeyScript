@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.4.29
+// @version      2026.5.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.11.14/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
@@ -2327,7 +2327,21 @@
   const addBlockCSS = CommonUtil.addBlockCSS.bind(CommonUtil);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.GM_Cookie();
+  const cookieManager = new utils.CookieManagerService({
+    baseCookieHandler: "GM_cookie",
+  });
+  if (!cookieManager.isSupportGM_cookie) {
+    if (cookieManager.isSupportCookieStore) {
+      cookieManager.setOptions({
+        baseCookieHandler: "cookieStore",
+      });
+    } else {
+      cookieManager.setOptions({
+        baseCookieHandler: "document.cookie",
+      });
+    }
+  }
+  new utils.DocumentCookieHandler();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinNetWorkHook = {
     __ajaxHooker: null,
@@ -4006,16 +4020,17 @@
       });
     },
     hookKeyboard() {
-      const isDisableTriggerKeyboard = () => {
+      const isIgnore = () => {
         const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
         const $active = $shadowRootActive ?? document.activeElement;
-        if ($active == null) return false;
+        if ($active == null) return true;
         const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
         if (isInputNode) return true;
         const isCommentEditor = Boolean(
           $active?.closest(".DraftEditor-editorContainer") ||
           $active?.closest(".im-richtext-container") ||
-          $active?.closest(".comment-input-container")
+          $active?.closest(".comment-input-container") ||
+          $active?.closest(".danmakuInputContainer")
         );
         if (isCommentEditor) return true;
         const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
@@ -4024,7 +4039,7 @@
       };
       let timeId;
       const callback = (keyboardEvent) => {
-        let flag = true;
+        let flag = false;
         const code = keyboardEvent.code;
         const otherCodeList = [];
         if (keyboardEvent.ctrlKey) {
@@ -4039,7 +4054,7 @@
         if (keyboardEvent.shiftKey) {
           otherCodeList.push("shift");
         }
-        if (isDisableTriggerKeyboard()) {
+        if (isIgnore()) {
           flag = false;
           return flag;
         }
@@ -4075,7 +4090,7 @@
                   $play.click();
                 }
               }, 250);
-              return false;
+              return true;
             },
           },
           {
@@ -4259,7 +4274,7 @@
                 continue;
               }
             }
-            flag = false;
+            flag = true;
             break;
           }
         }
@@ -4274,13 +4289,13 @@
             return;
           }
           const flag = callback(keyboardEvent);
-          if (!flag) {
+          if (flag) {
             domUtils.preventEvent(keyboardEvent, true);
           }
         },
         {
           capture: true,
-          passive: false,
+          overrideTarget: false,
         }
       );
       return listener.off;
@@ -4370,7 +4385,7 @@
       log.success("hook live message decode success");
       const decode = decoder?.decode;
       decoder.decode = async function (...args2) {
-        const [data, method] = args2;
+        const [_, method] = args2;
         const payload = await Reflect.apply(decode, this, args2);
         const flag = await DouYinLiveMessage.execFilter(
           {
@@ -10021,8 +10036,13 @@
     chooseQuality(quality = "origin") {
       const qualityName = VideoQualityMap[quality].label;
       window.localStorage.setItem("webcast_local_quality", quality);
-      cookieManager.set({
+      cookieManager.update({
         name: "webcast_local_quality",
+        value: quality,
+        domain: ".douyin.com",
+      });
+      cookieManager.update({
+        name: "live_local_quality",
         value: quality,
         domain: ".douyin.com",
       });
@@ -11038,7 +11058,7 @@
     setSearchResultFilterWithVideoStyle(lineMode = "one") {
       log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
       if (lineMode === "one") {
-        cookieManager.set({
+        cookieManager.update({
           name: "SEARCH_RESULT_LIST_TYPE",
           value: encodeURIComponent(`"single"`),
         });
@@ -11052,7 +11072,7 @@
 			`
         );
       } else if (lineMode === "double") {
-        cookieManager.set({
+        cookieManager.update({
           name: "SEARCH_RESULT_LIST_TYPE",
           value: encodeURIComponent(`"multi"`),
         });
@@ -13760,6 +13780,15 @@
       }
     },
     removeAds() {
+      cookieManager.update(
+        {
+          name: "JXEntranceNegative",
+          value: "1",
+        },
+        () => {
+          log.info("添加Cookie清除左侧导航栏的下面的 抖音精选");
+        }
+      );
       domUtils
         .waitNode(
           () =>
