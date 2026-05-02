@@ -243,9 +243,29 @@ const MountVue = async function (rootComponent: any, plugins: any[] = []) {
 };
 
 /**
- * cookie管理
+ * cookie管理 - GM_cookie
  */
-const cookieManager = new utils.GM_Cookie();
+const cookieManager = new utils.CookieManagerService({
+  baseCookieHandler: "GM_cookie",
+});
+if (!cookieManager.isSupportGM_cookie) {
+  // 不支持GM_cookie
+  if (cookieManager.isSupportCookieStore) {
+    // 回退至cookieStore
+    cookieManager.setOptions({
+      baseCookieHandler: "cookieStore",
+    });
+  } else {
+    // 回退至document.cookie
+    cookieManager.setOptions({
+      baseCookieHandler: "document.cookie",
+    });
+  }
+}
+/**
+ * cookie管理 - document.cookie
+ */
+const documentCookieManager = new utils.DocumentCookieHandler();
 
 // dev使用
 if (import.meta.env.DEV) {
@@ -261,6 +281,7 @@ export {
   addStyle,
   AnyTouch,
   cookieManager,
+  documentCookieManager,
   DEBUG,
   domUtils as DOMUtils,
   httpx,
