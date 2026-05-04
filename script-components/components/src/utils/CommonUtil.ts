@@ -69,7 +69,10 @@ const CommonUtil = {
         selectorList.push(selector);
       }
     });
-    return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    selectorList = selectorList.map(it=> it.trim()).filter((it) => it !== "");
+    if(selectorList.length){
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    }
   },
   /**
    * 设置GM_getResourceText的style内容
