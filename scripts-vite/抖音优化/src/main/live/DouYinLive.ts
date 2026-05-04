@@ -79,6 +79,7 @@ export const DouYinLive = {
       return this.changeBackgroundColor();
     });
     Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", (option) => {
+      log.info(`禁用鼠标滚轮切换直播间`);
       const switchLiveRoom = Panel.getDynamicValue(option.key[0]);
       const result = DOMUtils.on(
         document,
@@ -90,7 +91,7 @@ export const DouYinLive = {
           if (!DouYinRouter.isLive()) {
             return;
           }
-          DOMUtils.preventEvent(evt);
+          DOMUtils.preventEvent(evt, true);
         },
         {
           capture: true,
@@ -619,6 +620,10 @@ export const DouYinLive = {
           if ($click.closest(".douyin-player-controls")) {
             return;
           }
+          if (!$selector.contains($click)) {
+            // 不在页面中了
+            return;
+          }
         }
         if (options.isDouble) {
           DOMUtils.preventEvent(evt);
@@ -643,7 +648,7 @@ export const DouYinLive = {
       {
         capture: true,
         eventType: "click",
-        checkClickTime: 250,
+        checkClickTime: 300,
         overrideTarget: false,
       }
     );

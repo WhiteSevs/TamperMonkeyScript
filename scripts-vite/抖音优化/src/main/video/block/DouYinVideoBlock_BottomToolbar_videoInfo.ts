@@ -65,7 +65,8 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
       "span:has(+#video-info-wrap):has(img)",
       "span:has(+div #video-info-wrap):has(img)",
       // 游戏评分
-      ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+      ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
+      ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
     );
   },
   /**

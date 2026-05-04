@@ -29,6 +29,7 @@ type FilterRuleCheckConfig = {
 export class DouYinVideoFilterBase {
   $data = {
     dislike_request_queue: <string[]>[],
+    handlerFunctionMap: new Map<string, Function>(),
   };
   /**
    * 获取模板数据
@@ -857,16 +858,22 @@ export class DouYinVideoFilterBase {
         transformAwemeInfo: config.transformAwemeInfo,
         awemeInfo: config.awemeInfo,
       };
-      const handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
-        utils: utils,
-        DOMUtils: DOMUtils,
-        httpx: httpx,
-        Qmsg: Qmsg,
-        pops: pops,
-        log: log,
-        window: window,
-        unsafeWindow: unsafeWindow,
-      });
+      let handlerFunction;
+      if (this.$data.handlerFunctionMap.has(ruleDynamicOption.ruleValue)) {
+        handlerFunction = this.$data.handlerFunctionMap.get(ruleDynamicOption.ruleValue)!;
+      } else {
+        handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
+          utils: utils,
+          DOMUtils: DOMUtils,
+          httpx: httpx,
+          Qmsg: Qmsg,
+          pops: pops,
+          log: log,
+          window: window,
+          unsafeWindow: unsafeWindow,
+        });
+        this.$data.handlerFunctionMap.set(ruleDynamicOption.ruleValue, handlerFunction);
+      }
       const handlerResult = await handlerFunction(data);
       if (typeof handlerResult !== "boolean") {
         log.error(config, ruleDynamicOption);

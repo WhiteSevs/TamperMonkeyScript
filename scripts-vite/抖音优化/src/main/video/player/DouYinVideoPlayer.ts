@@ -356,7 +356,7 @@ export const DouYinVideoPlayer = {
       {
         capture: true,
         eventType: "click",
-        checkClickTime: 250,
+        checkClickTime: 300,
         overrideTarget: false,
       }
     );

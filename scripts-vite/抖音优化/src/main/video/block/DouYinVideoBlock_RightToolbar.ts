@@ -1,7 +1,6 @@
 import { addStyle, log } from "@/env";
 import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 右侧工具栏
@@ -19,6 +18,9 @@ export const DouYinVideoBlock_RightToolbar = {
     });
     Panel.execMenuOnce("blockUserLiveSmallWindow", () => {
       return this.blockUserLiveSmallWindow();
+    });
+    Panel.execMenuOnce("dy-video-blockUserLiveFlashingAvatar", () => {
+      return this.blockUserLiveFlashingAvatar();
     });
     Panel.execMenuOnce("shieldLikeButton", () => {
       return this.blockLikeButton();
@@ -112,6 +114,29 @@ export const DouYinVideoBlock_RightToolbar = {
     return addBlockCSS(
       'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])'
     );
+  },
+  /**
+   * 【屏蔽】右侧直播时闪烁的头像
+   */
+  blockUserLiveFlashingAvatar() {
+    log.info(`【屏蔽】右侧直播时闪烁的头像`);
+    return [
+      addBlockCSS(
+        // 直播 文字
+        '.basePlayerContainer a[href*="live.douyin.com"] div:has(>img[src*="douyin_web/media/avatar-live"]:only-child)'
+      ),
+      // 去除闪烁效果
+      // 去除红色边框
+      addStyle(/*css*/ `
+      .basePlayerContainer a[href*="live.douyin.com"] .semi-avatar-wrapper .semi-avatar-additionalBorder{
+        border: transparent !important;
+      }
+      .basePlayerContainer a[href*="live.douyin.com"] .semi-avatar-wrapper .semi-avatar{
+        animation: none !important;
+        border: 1px solid rgba(255,255,255,.06) !important;
+      }
+    `),
+    ];
   },
   /**
    * 【屏蔽】点赞

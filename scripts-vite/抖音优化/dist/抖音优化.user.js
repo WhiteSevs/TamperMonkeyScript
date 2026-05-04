@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -102,7 +102,10 @@
           selectorList.push(selector);
         }
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) {
+        return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      }
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -5481,7 +5484,8 @@
       return addBlockCSS(
         "span:has(+#video-info-wrap):has(img)",
         "span:has(+div #video-info-wrap):has(img)",
-        ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+        ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
+        ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
       );
     },
     blockVideoUnderTitleTag() {
@@ -5980,6 +5984,9 @@
       Panel.execMenuOnce("blockUserLiveSmallWindow", () => {
         return this.blockUserLiveSmallWindow();
       });
+      Panel.execMenuOnce("dy-video-blockUserLiveFlashingAvatar", () => {
+        return this.blockUserLiveFlashingAvatar();
+      });
       Panel.execMenuOnce("shieldLikeButton", () => {
         return this.blockLikeButton();
       });
@@ -6053,6 +6060,26 @@
       return addBlockCSS(
         'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])'
       );
+    },
+    blockUserLiveFlashingAvatar() {
+      log.info(`【屏蔽】右侧直播时闪烁的头像`);
+      return [
+        addBlockCSS(
+          '.basePlayerContainer a[href*="live.douyin.com"] div:has(>img[src*="douyin_web/media/avatar-live"]:only-child)'
+        ),
+
+        addStyle(
+          `
+      .basePlayerContainer a[href*="live.douyin.com"] .semi-avatar-wrapper .semi-avatar-additionalBorder{
+        border: transparent !important;
+      }
+      .basePlayerContainer a[href*="live.douyin.com"] .semi-avatar-wrapper .semi-avatar{
+        animation: none !important;
+        border: 1px solid rgba(255,255,255,.06) !important;
+      }
+    `
+        ),
+      ];
     },
     blockLikeButton() {
       log.info("【屏蔽】点赞");
@@ -6397,6 +6424,7 @@
   class DouYinVideoFilterBase {
     $data = {
       dislike_request_queue: [],
+      handlerFunctionMap: new Map(),
     };
     getTemplateData() {
       return {
@@ -7060,16 +7088,22 @@
           transformAwemeInfo: config.transformAwemeInfo,
           awemeInfo: config.awemeInfo,
         };
-        const handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
-          utils,
-          DOMUtils,
-          httpx,
-          Qmsg,
-          pops: __pops__,
-          log,
-          window,
-          unsafeWindow: _unsafeWindow,
-        });
+        let handlerFunction;
+        if (this.$data.handlerFunctionMap.has(ruleDynamicOption.ruleValue)) {
+          handlerFunction = this.$data.handlerFunctionMap.get(ruleDynamicOption.ruleValue);
+        } else {
+          handlerFunction = utils.createFunction("data", ruleDynamicOption.ruleValue, true).bind({
+            utils,
+            DOMUtils,
+            httpx,
+            Qmsg,
+            pops: __pops__,
+            log,
+            window,
+            unsafeWindow: _unsafeWindow,
+          });
+          this.$data.handlerFunctionMap.set(ruleDynamicOption.ruleValue, handlerFunction);
+        }
         const handlerResult = await handlerFunction(data);
         if (typeof handlerResult !== "boolean") {
           log.error(config, ruleDynamicOption);
@@ -8031,7 +8065,7 @@
         {
           capture: true,
           eventType: "click",
-          checkClickTime: 250,
+          checkClickTime: 300,
           overrideTarget: false,
         }
       );
@@ -9962,6 +9996,7 @@
         return this.changeBackgroundColor();
       });
       Panel.execMenuOnce("live-prevent-wheel-switchLiveRoom", (option) => {
+        log.info(`禁用鼠标滚轮切换直播间`);
         const switchLiveRoom = Panel.getDynamicValue(option.key[0]);
         const result = domUtils.on(
           document,
@@ -9973,7 +10008,7 @@
             if (!DouYinRouter.isLive()) {
               return;
             }
-            domUtils.preventEvent(evt);
+            domUtils.preventEvent(evt, true);
           },
           {
             capture: true,
@@ -10437,6 +10472,9 @@
             if ($click.closest(".douyin-player-controls")) {
               return;
             }
+            if (!$selector.contains($click)) {
+              return;
+            }
           }
           if (options.isDouble) {
             domUtils.preventEvent(evt);
@@ -10461,7 +10499,7 @@
         {
           capture: true,
           eventType: "click",
-          checkClickTime: 250,
+          checkClickTime: 300,
           overrideTarget: false,
         }
       );
@@ -15298,6 +15336,7 @@
                     void 0,
                     "当用户直播时出现在头像左边的小窗口"
                   ),
+                  UISwitch("【屏蔽】右侧直播时闪烁的头像", "dy-video-blockUserLiveFlashingAvatar", false),
                   UISwitch("【屏蔽】点赞", "shieldLikeButton"),
                   UISwitch("【屏蔽】评论", "shieldCommentButton"),
                   UISwitch("【屏蔽】收藏", "shieldCollectionButton"),
@@ -15318,13 +15357,7 @@
                 type: "container",
                 text: AutoOpenOrClose.text,
                 views: [
-                  UISwitch(
-                    "【屏蔽】视频信息",
-                    "dy-video-bottom-shieldVideoInfoWrap",
-                    false,
-                    void 0,
-                    "可代替【清屏】功能"
-                  ),
+                  UISwitch("【屏蔽】视频信息", "dy-video-bottom-shieldVideoInfoWrap", false),
                   UISwitch(
                     "【屏蔽】<code>点击推荐</code>或<code>共xx人推荐</code>",
                     "dy-video-blockClickRecommend",
@@ -15335,14 +15368,14 @@
                     "dy-video-blockTitleTopTag",
                     false,
                     void 0,
-                    "例如：每周精选、抖音精选、游戏评分"
+                    "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>"
                   ),
                   UISwitch(
                     "【屏蔽】视频标题下面的标签",
                     "dy-video-bottom-shieldVideoUnderTitleTag",
                     false,
                     void 0,
-                    "例如：相关搜索、AI搜索、合集、汽水音乐...等"
+                    "例如：<code>相关搜索</code>、<code>AI搜索</code>、<code>合集</code>、<code>汽水音乐</code>...等"
                   ),
                   UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false),
                   UISwitch(

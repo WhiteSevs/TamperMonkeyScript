@@ -535,6 +535,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "当用户直播时出现在头像左边的小窗口"
                 ),
+                UISwitch("【屏蔽】右侧直播时闪烁的头像", "dy-video-blockUserLiveFlashingAvatar", false),
                 UISwitch("【屏蔽】点赞", "shieldLikeButton"),
                 UISwitch("【屏蔽】评论", "shieldCommentButton"),
                 UISwitch("【屏蔽】收藏", "shieldCollectionButton"),
@@ -555,13 +556,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: AutoOpenOrClose.text,
               views: [
-                UISwitch(
-                  "【屏蔽】视频信息",
-                  "dy-video-bottom-shieldVideoInfoWrap",
-                  false,
-                  void 0,
-                  "可代替【清屏】功能"
-                ),
+                UISwitch("【屏蔽】视频信息", "dy-video-bottom-shieldVideoInfoWrap", false),
                 UISwitch(
                   "【屏蔽】<code>点击推荐</code>或<code>共xx人推荐</code>",
                   "dy-video-blockClickRecommend",
@@ -572,14 +567,14 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-video-blockTitleTopTag",
                   false,
                   void 0,
-                  "例如：每周精选、抖音精选、游戏评分"
+                  "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>"
                 ),
                 UISwitch(
                   "【屏蔽】视频标题下面的标签",
                   "dy-video-bottom-shieldVideoUnderTitleTag",
                   false,
                   void 0,
-                  "例如：相关搜索、AI搜索、合集、汽水音乐...等"
+                  "例如：<code>相关搜索</code>、<code>AI搜索</code>、<code>合集</code>、<code>汽水音乐</code>...等"
                 ),
                 UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false),
                 UISwitch(
