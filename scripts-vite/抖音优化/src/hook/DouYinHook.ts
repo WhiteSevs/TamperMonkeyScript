@@ -135,6 +135,7 @@ export const DouYinHook = {
           enableKey: "dy-keyboard-hook-likeOrDislike",
           code: ["KeyZ", "Space"],
           callback(option) {
+            if (option.code === "KeyZ") return true;
             // 必须是空格时才执行下面的
             if (option.code !== "Space") return;
             if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;

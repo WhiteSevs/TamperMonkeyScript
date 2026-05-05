@@ -12,6 +12,12 @@ export interface DouYinVideoConversionInfo {
   uid?: string;
   /** 视频描述 */
   desc?: string;
+  /** 视频描述（去除 #话题） */
+  originDesc?: string;
+  /** 视频宽度 */
+  width: number;
+  /** 视频高度 */
+  height: number;
   /** 视频话题 */
   textExtra: string[];
   /** 视频标签 */

@@ -210,12 +210,80 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UIInput(
                   "自定义视频/图片下载文件名",
                   "dy-video-parseVideo-downloadFileName",
-                  "{uid}-{nickname}-{desc}-{quality}-{downloadTime}"
+                  "{uid}-{nickname}-{desc}-{quality}-{downloadTime}",
+                  /*html*/ `
+                    <div class="dy-download-option-group">
+                      <div>
+                        <code>{uid}</code>
+                        <p>：作者id</p>
+                      </div>
+                      <div>
+                        <code>{nickname}</code>
+                        <p>：作者名</p>
+                      </div>
+                      <div>
+                        <code>{desc}</code>
+                        <p>：视频描述</p>
+                      </div>
+                      <div>
+                        <code>{originDesc}</code>
+                        <p>：视频描述(不包含 #话题)</p>
+                      </div>
+                      <div>
+                        <code>{quality}</code>
+                        <p>：视频清晰度，例如：3840x2160 @60</p>
+                      </div>
+                      <div>
+                        <code>{downloadTime}</code>
+                        <p>：下载时间，格式为：YYYY-MM-DD_HH_mm_ss</p>
+                      </div>
+                    </div>
+                    <style>
+                      .dy-download-option-group{
+                        display: flex;
+                        flex-direction: column;
+                        font-size: .8em;
+                      }
+                      .dy-download-option-group > div{
+                        display: flex;
+                      }
+                      .dy-download-option-group > div > code{
+                        height: fit-content;
+                      }
+                      .dy-download-option-group > div > p{
+
+                      }
+                    </style>
+                  `
                 ),
                 UIInput(
                   "自定义音乐下载文件名",
                   "dy-video-parseVideoMusic-downloadFileName",
-                  "{author}-{title}-{duration}-{downloadTime}"
+                  "{author}-{title}-{duration}-{downloadTime}",
+                  /*html*/ `
+                    <div class="dy-download-option-group">
+                      <div>
+                        <code>{album}</code>
+                        <p>：专辑名</p>
+                      </div>
+                      <div>
+                        <code>{author}</code>
+                        <p>：音乐人</p>
+                      </div>
+                      <div>
+                        <code>{title}</code>
+                        <p>：音乐名称</p>
+                      </div>
+                      <div>
+                        <code>{duration}</code>
+                        <p>：播放时长</p>
+                      </div>
+                      <div>
+                        <code>{downloadTime}</code>
+                        <p>：下载时间，格式为：YYYY-MM-DD_HH_mm_ss</p>
+                      </div>
+                    </div>
+                  `
                 ),
               ],
             },

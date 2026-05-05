@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.4
+// @version      2026.5.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4066,6 +4066,7 @@
             enableKey: "dy-keyboard-hook-likeOrDislike",
             code: ["KeyZ", "Space"],
             callback(option) {
+              if (option.code === "KeyZ") return true;
               if (option.code !== "Space") return;
               if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
               utils.workerClearTimeout(timeId);
@@ -6440,6 +6441,8 @@
         createTime: void 0,
         uid: void 0,
         desc: void 0,
+        width: 0,
+        height: 0,
         textExtra: [],
         videoTag: [],
         videoTagId: [],
@@ -6484,6 +6487,9 @@
         data.nickname = String(authorInfo?.nickname ?? "");
         data.uid = String(authorInfo?.uid ?? "");
         data.desc = String(awemeInfoWithNetWork.desc ?? "");
+        data.originDesc = data.desc.replace(/ #(.+) /g, "").replace(/#(.+)/g, "");
+        data.width = typeof video?.width === "number" ? video?.width : 0;
+        data.height = typeof video?.height === "number" ? video?.height : 0;
         data.musicAlbum = awemeInfoWithNetWork?.music?.album;
         data.musicAuthor = awemeInfoWithNetWork?.music?.author;
         data.musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
@@ -6507,7 +6513,9 @@
         data.isAds = [
           () => {
             if (awemeInfoWithNetWork.is_ads) {
-              showLog && log.success("广告: is_ads is true");
+              if (showLog) {
+                log.success("广告: is_ads is true");
+              }
               return true;
             }
           },
@@ -6516,7 +6524,9 @@
               typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
               utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
             ) {
-              showLog && log.success("广告: raw_ad_data is not null");
+              if (showLog) {
+                log.success("广告: raw_ad_data is not null");
+              }
               return true;
             }
           },
@@ -6527,7 +6537,9 @@
                 const brand_ad = utils.toJSON(web_raw_data.brand_ad);
                 const is_ad = brand_ad?.is_ad;
                 if (is_ad) {
-                  showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                  if (showLog) {
+                    log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                  }
                   return true;
                 }
               }
@@ -6536,7 +6548,9 @@
         ].some((it) => it());
         if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
           data.isLive = true;
-          showLog && log.success("直播间: cell_room is not null");
+          if (showLog) {
+            log.success("直播间: cell_room is not null");
+          }
           let rawdata;
           if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
             rawdata = utils.toJSON(awemeInfoWithNetWork.cell_room.rawdata);
@@ -6786,9 +6800,13 @@
       } else if (from === "dom") {
         const awemeInfoWithDOM = awemeInfo;
         const authorInfo = awemeInfoWithDOM.authorInfo;
+        const video = awemeInfoWithDOM?.video;
         data.nickname = String(authorInfo?.nickname ?? "");
         data.uid = String(authorInfo?.uid ?? "");
         data.desc = String(awemeInfoWithDOM.desc ?? "");
+        data.originDesc = data.desc.replace(/ #(.+) /g, "").replace(/#(.+)/g, "");
+        data.width = typeof video?.width === "number" ? video?.width : 0;
+        data.height = typeof video?.height === "number" ? video?.height : 0;
         data.musicAlbum = awemeInfoWithDOM?.music?.album;
         data.musicAuthor = awemeInfoWithDOM?.music?.author;
         data.musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
@@ -6797,7 +6815,7 @@
         data.commentCount = awemeInfoWithDOM.stats.commentCount;
         data.diggCount = awemeInfoWithDOM.stats.diggCount;
         data.shareCount = awemeInfoWithDOM.stats.shareCount;
-        data.duration = awemeInfoWithDOM.video.duration;
+        data.duration = video.duration;
         data.awemeId = awemeInfoWithDOM.awemeId;
         data.authorCustomVerify = authorInfo?.customVerify || "";
         data.authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
@@ -6812,24 +6830,32 @@
         data.isAds = [
           () => {
             if (awemeInfoWithDOM.isAds) {
-              showLog && log.success("广告: isAds is true");
+              if (showLog) {
+                log.success("广告: isAds is true");
+              }
               return true;
             }
           },
           () => {
             if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
-              showLog && log.success("广告: rawAdData is not null");
+              if (showLog) {
+                log.success("广告: rawAdData is not null");
+              }
               return true;
             }
           },
           () => {
             if (awemeInfoWithDOM?.webRawData) {
               if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
-                showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+                if (showLog) {
+                  log.success("广告: webRawData.brandAd.is_ad is 1");
+                }
                 return true;
               }
               if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
-                showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
+                if (showLog) {
+                  log.success("广告: webRawData.insertInfo.is_ad is true");
+                }
                 return true;
               }
             }
@@ -6837,7 +6863,9 @@
         ].some((it) => it());
         if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
           data.isLive = true;
-          showLog && log.success("直播间: cellRoom is not null");
+          if (showLog) {
+            log.success("直播间: cellRoom is not null");
+          }
           let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
           if (typeof rawdata == "object" && rawdata != null) {
             data.liveStreamRoomId = rawdata?.owner?.web_rid;
@@ -8740,14 +8768,15 @@
             uid: transformAwemeInfoWithDOM.uid,
             nickname: transformAwemeInfoWithDOM.nickname,
             desc: transformAwemeInfoWithDOM.desc,
+            originDesc: transformAwemeInfoWithDOM.originDesc,
           });
           const musicDownloadFileName = transformDownloadFileName(
             {
-              downloadTime,
               album: transformAwemeInfoWithDOM.musicAlbum,
               author: transformAwemeInfoWithDOM.musicAuthor,
               title: transformAwemeInfoWithDOM.musicTitle,
               duration: transformAwemeInfoWithDOM.musicDuration,
+              downloadTime,
             },
             Panel.getValue("dy-video-parseVideoMusic-downloadFileName")
           );
@@ -8756,6 +8785,7 @@
             uid: transformAwemeInfoWithDOM.uid,
             nickname: transformAwemeInfoWithDOM.nickname,
             desc: transformAwemeInfoWithDOM.desc,
+            originDesc: transformAwemeInfoWithDOM.originDesc,
           });
           showParseInfoDialog({
             videoInfo: {
@@ -15012,12 +15042,80 @@
                   UIInput(
                     "自定义视频/图片下载文件名",
                     "dy-video-parseVideo-downloadFileName",
-                    "{uid}-{nickname}-{desc}-{quality}-{downloadTime}"
+                    "{uid}-{nickname}-{desc}-{quality}-{downloadTime}",
+                    `
+                    <div class="dy-download-option-group">
+                      <div>
+                        <code>{uid}</code>
+                        <p>：作者id</p>
+                      </div>
+                      <div>
+                        <code>{nickname}</code>
+                        <p>：作者名</p>
+                      </div>
+                      <div>
+                        <code>{desc}</code>
+                        <p>：视频描述</p>
+                      </div>
+                      <div>
+                        <code>{originDesc}</code>
+                        <p>：视频描述(不包含 #话题)</p>
+                      </div>
+                      <div>
+                        <code>{quality}</code>
+                        <p>：视频清晰度，例如：3840x2160 @60</p>
+                      </div>
+                      <div>
+                        <code>{downloadTime}</code>
+                        <p>：下载时间，格式为：YYYY-MM-DD_HH_mm_ss</p>
+                      </div>
+                    </div>
+                    <style>
+                      .dy-download-option-group{
+                        display: flex;
+                        flex-direction: column;
+                        font-size: .8em;
+                      }
+                      .dy-download-option-group > div{
+                        display: flex;
+                      }
+                      .dy-download-option-group > div > code{
+                        height: fit-content;
+                      }
+                      .dy-download-option-group > div > p{
+
+                      }
+                    </style>
+                  `
                   ),
                   UIInput(
                     "自定义音乐下载文件名",
                     "dy-video-parseVideoMusic-downloadFileName",
-                    "{author}-{title}-{duration}-{downloadTime}"
+                    "{author}-{title}-{duration}-{downloadTime}",
+                    `
+                    <div class="dy-download-option-group">
+                      <div>
+                        <code>{album}</code>
+                        <p>：专辑名</p>
+                      </div>
+                      <div>
+                        <code>{author}</code>
+                        <p>：音乐人</p>
+                      </div>
+                      <div>
+                        <code>{title}</code>
+                        <p>：音乐名称</p>
+                      </div>
+                      <div>
+                        <code>{duration}</code>
+                        <p>：播放时长</p>
+                      </div>
+                      <div>
+                        <code>{downloadTime}</code>
+                        <p>：下载时间，格式为：YYYY-MM-DD_HH_mm_ss</p>
+                      </div>
+                    </div>
+                  `
                   ),
                 ],
               },

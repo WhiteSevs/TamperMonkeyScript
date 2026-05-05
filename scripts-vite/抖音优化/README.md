@@ -46,6 +46,9 @@
 | createTime                       | number   | 发布时间                                       | 时间戳（毫秒），例如：`1767196800000` |
 | uid                              | string   | 作者的 uid                                     | 发布的视频的作者的 uid                |
 | desc                             | string   | 视频文案                                       | 发布的视频的文案                      |
+| originDesc                       | string   | 视频描述（去除 #话题）                         | 发布的视频的文案                      |
+| width                            | number   | 视频宽度                                       |                                       |
+| height                           | number   | 视频高度                                       |                                       |
 | textExtra                        | string   | 话题                                           | 发布的视频的话题，类似`#话题`这种     |
 | videoTag                         | string   | 视频标签                                       |                                       |
 | videoTagId                       | string   | 视频标签的 id                                  |                                       |

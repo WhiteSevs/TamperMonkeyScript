@@ -1028,18 +1028,22 @@ export const DouYinVideoPlayer = {
      */
     const transformDownloadFileName = (
       data:
+        // 视频、图片
         | {
             uid?: string;
             nickname?: string;
             desc?: string;
+            originDesc?: string;
             downloadTime?: string;
             quality?: string;
           }
+        // 背景音乐
         | {
             album?: string;
             author?: string;
             title?: string;
             duration?: number;
+            downloadTime?: string;
           },
       fileNameTemplate: string = Panel.getValue<string>("dy-video-parseVideo-downloadFileName")
     ): string => {
@@ -1225,15 +1229,16 @@ export const DouYinVideoPlayer = {
           uid: transformAwemeInfoWithDOM.uid,
           nickname: transformAwemeInfoWithDOM.nickname,
           desc: transformAwemeInfoWithDOM.desc,
+          originDesc: transformAwemeInfoWithDOM.originDesc,
         });
         // 音乐下载的文件名
         const musicDownloadFileName = transformDownloadFileName(
           {
-            downloadTime: downloadTime,
             album: transformAwemeInfoWithDOM.musicAlbum,
             author: transformAwemeInfoWithDOM.musicAuthor,
             title: transformAwemeInfoWithDOM.musicTitle,
             duration: transformAwemeInfoWithDOM.musicDuration,
+            downloadTime: downloadTime,
           },
           Panel.getValue<string>("dy-video-parseVideoMusic-downloadFileName")
         );
@@ -1243,6 +1248,7 @@ export const DouYinVideoPlayer = {
           uid: transformAwemeInfoWithDOM.uid,
           nickname: transformAwemeInfoWithDOM.nickname,
           desc: transformAwemeInfoWithDOM.desc,
+          originDesc: transformAwemeInfoWithDOM.originDesc,
         });
         showParseInfoDialog({
           videoInfo: {

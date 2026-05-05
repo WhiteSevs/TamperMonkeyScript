@@ -48,6 +48,8 @@ export class DouYinVideoFilterBase {
       createTime: void 0,
       uid: void 0,
       desc: void 0,
+      width: 0,
+      height: 0,
       textExtra: [],
       videoTag: [],
       videoTagId: [],
@@ -104,6 +106,9 @@ export class DouYinVideoFilterBase {
       data.nickname = String(authorInfo?.nickname ?? "");
       data.uid = String(authorInfo?.uid ?? "");
       data.desc = String(awemeInfoWithNetWork.desc ?? "");
+      data.originDesc = data.desc.replace(/ #(.+) /g, "").replace(/#(.+)/g, "");
+      data.width = typeof video?.width === "number" ? video?.width : 0;
+      data.height = typeof video?.height === "number" ? video?.height : 0;
       data.musicAlbum = awemeInfoWithNetWork?.music?.album;
       data.musicAuthor = awemeInfoWithNetWork?.music?.author;
       data.musicDuration = awemeInfoWithNetWork?.music?.duration ?? 0;
@@ -131,7 +136,9 @@ export class DouYinVideoFilterBase {
       data.isAds = [
         () => {
           if (awemeInfoWithNetWork.is_ads) {
-            showLog && log.success("广告: is_ads is true");
+            if (showLog) {
+              log.success("广告: is_ads is true");
+            }
             return true;
           }
         },
@@ -140,7 +147,9 @@ export class DouYinVideoFilterBase {
             typeof awemeInfoWithNetWork?.raw_ad_data === "string" &&
             utils.isNotNull(awemeInfoWithNetWork.raw_ad_data)
           ) {
-            showLog && log.success("广告: raw_ad_data is not null");
+            if (showLog) {
+              log.success("广告: raw_ad_data is not null");
+            }
             return true;
           }
         },
@@ -158,7 +167,9 @@ export class DouYinVideoFilterBase {
               }>(web_raw_data.brand_ad);
               const is_ad = brand_ad?.is_ad;
               if (is_ad) {
-                showLog && log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                if (showLog) {
+                  log.success("广告: web_raw_data.brand_ad.is_ad is " + is_ad);
+                }
                 return true;
               }
             }
@@ -169,7 +180,9 @@ export class DouYinVideoFilterBase {
       // 直播间
       if (typeof awemeInfoWithNetWork?.cell_room === "object" && awemeInfoWithNetWork?.cell_room != null) {
         data.isLive = true;
-        showLog && log.success("直播间: cell_room is not null");
+        if (showLog) {
+          log.success("直播间: cell_room is not null");
+        }
         let rawdata;
         if (typeof awemeInfoWithNetWork.cell_room.rawdata === "string") {
           rawdata = utils.toJSON<{
@@ -496,9 +509,13 @@ export class DouYinVideoFilterBase {
       const awemeInfoWithDOM = awemeInfo as DouYinVideoAwemeInfoWithDOM;
       // 如果是直播间，那么没有该信息
       const authorInfo = awemeInfoWithDOM.authorInfo;
+      const video = awemeInfoWithDOM?.video;
       data.nickname = String(authorInfo?.nickname ?? "");
       data.uid = String(authorInfo?.uid ?? "");
       data.desc = String(awemeInfoWithDOM.desc ?? "");
+      data.originDesc = data.desc.replace(/ #(.+) /g, "").replace(/#(.+)/g, "");
+      data.width = typeof video?.width === "number" ? video?.width : 0;
+      data.height = typeof video?.height === "number" ? video?.height : 0;
       data.musicAlbum = awemeInfoWithDOM?.music?.album;
       data.musicAuthor = awemeInfoWithDOM?.music?.author;
       data.musicDuration = awemeInfoWithDOM?.music?.duration ?? 0;
@@ -507,7 +524,7 @@ export class DouYinVideoFilterBase {
       data.commentCount = awemeInfoWithDOM.stats.commentCount;
       data.diggCount = awemeInfoWithDOM.stats.diggCount;
       data.shareCount = awemeInfoWithDOM.stats.shareCount;
-      data.duration = awemeInfoWithDOM.video.duration;
+      data.duration = video.duration;
       data.awemeId = awemeInfoWithDOM.awemeId;
       data.authorCustomVerify = authorInfo?.customVerify || "";
       data.authorEnterpriseVerifyReason = authorInfo?.enterpriseVerifyReason || "";
@@ -526,24 +543,32 @@ export class DouYinVideoFilterBase {
       data.isAds = [
         () => {
           if (awemeInfoWithDOM.isAds) {
-            showLog && log.success("广告: isAds is true");
+            if (showLog) {
+              log.success("广告: isAds is true");
+            }
             return true;
           }
         },
         () => {
           if (typeof awemeInfoWithDOM?.rawAdData === "string" && utils.isNotNull(awemeInfoWithDOM.rawAdData)) {
-            showLog && log.success("广告: rawAdData is not null");
+            if (showLog) {
+              log.success("广告: rawAdData is not null");
+            }
             return true;
           }
         },
         () => {
           if (awemeInfoWithDOM?.webRawData) {
             if (awemeInfoWithDOM.webRawData?.brandAd?.is_ad) {
-              showLog && log.success("广告: webRawData.brandAd.is_ad is 1");
+              if (showLog) {
+                log.success("广告: webRawData.brandAd.is_ad is 1");
+              }
               return true;
             }
             if (awemeInfoWithDOM?.webRawData?.insertInfo?.is_ad) {
-              showLog && log.success("广告: webRawData.insertInfo.is_ad is true");
+              if (showLog) {
+                log.success("广告: webRawData.insertInfo.is_ad is true");
+              }
               return true;
             }
           }
@@ -553,7 +578,9 @@ export class DouYinVideoFilterBase {
       // 直播间
       if (typeof awemeInfoWithDOM?.cellRoom === "object" && awemeInfoWithDOM?.cellRoom != null) {
         data.isLive = true;
-        showLog && log.success("直播间: cellRoom is not null");
+        if (showLog) {
+          log.success("直播间: cellRoom is not null");
+        }
         let rawdata = awemeInfoWithDOM.cellRoom?.rawdata;
         if (typeof rawdata == "object" && rawdata != null) {
           data.liveStreamRoomId = rawdata?.owner?.web_rid;
