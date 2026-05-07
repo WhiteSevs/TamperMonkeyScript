@@ -1,14 +1,13 @@
 import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { addBlockCSS, DOMUtils, utils } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "./DouYinVideoBlock_BottomToolbar_PlayerComponents";
 import { DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock_BottomToolbar_videoInfo";
 import { DouYinVideoBlock_Comment } from "./DouYinVideoBlock_Comment";
 import { DouYinVideoBlock_Live } from "./DouYinVideoBlock_Live";
 import { DouYinVideoBlock_RightMenu, DouYinVideoBlock_RightMenu_Live } from "./DouYinVideoBlock_RightMenu";
 import { DouYinVideoBlock_RightToolbar } from "./DouYinVideoBlock_RightToolbar";
-import { addBlockCSS } from "@components/env.base";
 
 /**
  * 总屏蔽
@@ -42,6 +41,9 @@ export const DouYinVideoBlock = {
     });
     Panel.execMenuOnce("dy-video-blockStartPlayIcon", () => {
       return this.blockStartPlayIcon();
+    });
+    Panel.execMenuOnce("dy-video-watchAndRemoveFullScreenTip", () => {
+      return this.watchAndRemoveFullScreenTip();
     });
     DouYinVideoBlock_BottomToolbar_videoInfo.init();
     DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
@@ -173,5 +175,27 @@ export const DouYinVideoBlock = {
   blockStartPlayIcon() {
     log.info(`【屏蔽】中间的播放图标`);
     return addBlockCSS(".xgplayer-start");
+  },
+  /**
+   * 【屏蔽】ESC或Y可退出网页全屏
+   */
+  watchAndRemoveFullScreenTip() {
+    log.info(`【屏蔽】ESC或Y可退出网页全屏`);
+    const lockFn = new utils.LockFunction(() => {
+      if (DouYinRouter.isLive()) return;
+      DOMUtils.remove('body>div:has(>div:only-child)[style*="z-index"]:not(.semi-portal):contains("可退出网页全屏")');
+    });
+    const observer = utils.mutationObserver(document.body, {
+      config: {
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    return () => {
+      observer.disconnect();
+    };
   },
 };

@@ -519,6 +519,12 @@ export const DouYinLive = {
       $video.parentElement,
       "click",
       (evt) => {
+        // if (evt.target instanceof Element) {
+        //   if (evt.target.closest("#ShortTouchLayout")) {
+        //     // 红包之类的
+        //     return;
+        //   }
+        // }
         // disable autoplay listener remove tag
         DOMUtils.preventEvent(evt);
         offAllListener();
@@ -531,6 +537,7 @@ export const DouYinLive = {
       {
         capture: true,
         once: true,
+        overrideTarget: false,
       }
     );
     const keyboardListener = DOMUtils.on(

@@ -184,34 +184,42 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
             },
             {
               type: "container",
-              text: "解析下载",
+              text: "",
               views: [
-                UISwitch(
-                  "视频解析",
-                  "parseVideo",
-                  true,
-                  void 0,
-                  "点击视频右侧工具栏的分享按钮-下载（无视<code>该视频不支持下载</code>的提示）"
-                ),
-                UISwitch(
-                  "添加下载按钮",
-                  "dy-video-downloader-addDownloadButton",
-                  true,
-                  void 0,
-                  "在视频底部组件的最右边添加下载按钮"
-                ),
-                UISwitch(
-                  "弹出下载重命名文件名弹窗",
-                  "dy-video-popupDownloadRenameFileName",
-                  false,
-                  void 0,
-                  "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
-                ),
-                UIInput(
-                  "自定义视频/图片下载文件名",
-                  "dy-video-parseVideo-downloadFileName",
-                  "{uid}-{nickname}-{desc}-{quality}-{downloadTime}",
-                  /*html*/ `
+                {
+                  type: "deepMenu",
+                  text: "解析下载",
+                  views: [
+                    {
+                      type: "container",
+                      text: "",
+                      views: [
+                        UISwitch(
+                          "视频解析",
+                          "parseVideo",
+                          true,
+                          void 0,
+                          "点击视频右侧工具栏的分享按钮-下载（无视<code>该视频不支持下载</code>的提示）"
+                        ),
+                        UISwitch(
+                          "添加下载按钮",
+                          "dy-video-downloader-addDownloadButton",
+                          true,
+                          void 0,
+                          "在视频底部组件的最右边添加下载按钮"
+                        ),
+                        UISwitch(
+                          "弹出下载重命名文件名弹窗",
+                          "dy-video-popupDownloadRenameFileName",
+                          false,
+                          void 0,
+                          "当点击下载时，如果启用该功能，则弹出下载重命名文件名弹窗，可自定义文件名"
+                        ),
+                        UIInput(
+                          "自定义视频/图片下载文件名",
+                          "dy-video-parseVideo-downloadFileName",
+                          "{uid}-{nickname}-{desc}-{quality}-{downloadTime}",
+                          /*html*/ `
                     <div class="dy-download-option-group">
                       <div>
                         <code>{uid}</code>
@@ -220,6 +228,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       <div>
                         <code>{nickname}</code>
                         <p>：作者名</p>
+                      </div>
+                      <div>
+                        <code>{awemeId}</code>
+                        <p>：视频id</p>
                       </div>
                       <div>
                         <code>{desc}</code>
@@ -255,12 +267,12 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       }
                     </style>
                   `
-                ),
-                UIInput(
-                  "自定义音乐下载文件名",
-                  "dy-video-parseVideoMusic-downloadFileName",
-                  "{author}-{title}-{duration}-{downloadTime}",
-                  /*html*/ `
+                        ),
+                        UIInput(
+                          "自定义音乐下载文件名",
+                          "dy-video-parseVideoMusic-downloadFileName",
+                          "{author}-{title}-{duration}-{downloadTime}",
+                          /*html*/ `
                     <div class="dy-download-option-group">
                       <div>
                         <code>{album}</code>
@@ -284,156 +296,178 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       </div>
                     </div>
                   `
-                ),
-              ],
-            },
-            {
-              text: "视频区域背景色",
-              type: "container",
-              views: [
-                UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
-                UIOwn(
-                  ($li) => {
-                    const $left = DOMUtils.createElement("div", {
-                      className: "pops-panel-item-left-text",
-                      innerHTML: /*html*/ `
+                        ),
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "deepMenu",
+                  text: "自动隐藏控件",
+                  views: [
+                    {
+                      type: "container",
+                      text: "视频信息",
+                      views: [
+                        UISwitch(
+                          "自动隐藏视频信息",
+                          "dy-video-titleInfoAutoHide",
+                          false,
+                          void 0,
+                          "鼠标移入时自动显示，鼠标移除时自动隐藏"
+                        ),
+                        UISlider(
+                          "延迟自动隐藏的时间",
+                          "dy-video-titleInfoAutoHide-delayTime",
+                          3000,
+                          0,
+                          8000,
+                          void 0,
+                          (value) => {
+                            return `${value}ms`;
+                          },
+                          "设置首次延迟自动隐藏视频信息的时间，单位（ms）",
+                          100
+                        ),
+                      ],
+                    },
+                    {
+                      type: "container",
+                      text: "底部的视频控件",
+                      views: [
+                        UISwitch(
+                          "自动隐藏视频控件",
+                          "dy-video-videoControlsAutoHide",
+                          false,
+                          void 0,
+                          "鼠标移入时自动显示，鼠标移除时自动隐藏"
+                        ),
+                        UISlider(
+                          "延迟自动隐藏的时间",
+                          "dy-video-videoControlsAutoHide-delayTime",
+                          3000,
+                          0,
+                          8000,
+                          void 0,
+                          (value) => {
+                            return `${value}ms`;
+                          },
+                          "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
+                          100
+                        ),
+                      ],
+                    },
+                    {
+                      type: "container",
+                      text: "右侧工具栏",
+                      views: [
+                        UISwitch(
+                          "自动隐藏右侧工具栏",
+                          "dy-video-rightToolBarAutoHide",
+                          false,
+                          void 0,
+                          "鼠标移入时自动显示，鼠标移除时自动隐藏"
+                        ),
+                        UISlider(
+                          "延迟自动隐藏的时间",
+                          "dy-video-rightToolBarAutoHide-delayTime",
+                          3000,
+                          0,
+                          8000,
+                          void 0,
+                          (value) => {
+                            return `${value}ms`;
+                          },
+                          "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
+                          100
+                        ),
+                      ],
+                    },
+                  ],
+                },
+                {
+                  text: "视频区域背景色",
+                  type: "deepMenu",
+                  views: [
+                    {
+                      type: "container",
+                      text: "",
+                      views: [
+                        UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
+                        UIOwn(
+                          ($li) => {
+                            const $left = DOMUtils.createElement("div", {
+                              className: "pops-panel-item-left-text",
+                              innerHTML: /*html*/ `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
 											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
 											`,
-                    });
-                    const $right = DOMUtils.createElement("div", {
-                      className: "pops-panel-item-right",
-                      innerHTML: /*html*/ `
+                            });
+                            const $right = DOMUtils.createElement("div", {
+                              className: "pops-panel-item-right",
+                              innerHTML: /*html*/ `
 											<input type="color" class="pops-color-choose" />
 											`,
-                    });
-                    const $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
-                    $color.value = Panel.getValue("dy-video-changeBackgroundColor");
-                    const $style = DOMUtils.createElement("style");
-                    DOMUtils.append(document.head, $style);
-                    DOMUtils.on($color, ["input", "propertychange"], () => {
-                      log.info("选择颜色：" + $color.value);
-                      $style.innerHTML = /*css*/ `
+                            });
+                            const $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+                            $color.value = Panel.getValue("dy-video-changeBackgroundColor");
+                            const $style = DOMUtils.createElement("style");
+                            DOMUtils.append(document.head, $style);
+                            DOMUtils.on($color, ["input", "propertychange"], () => {
+                              log.info("选择颜色：" + $color.value);
+                              $style.innerHTML = /*css*/ `
 												#sliderVideo > div{
 													background: ${$color.value};
 												}
 												`;
-                      Panel.setValue("dy-video-changeBackgroundColor", $color.value);
-                    });
+                              Panel.setValue("dy-video-changeBackgroundColor", $color.value);
+                            });
 
-                    $li.appendChild($left);
-                    $li.appendChild($right);
-                    return $li;
-                  },
-                  {
-                    "dy-video-changeBackgroundColor": "#000000",
-                  },
-                  {
-                    text: "视频背景颜色",
-                    desc: "自定义视频背景颜色，包括评论区",
-                  }
-                ),
-              ],
-            },
-            {
-              type: "container",
-              text: "视频信息",
-              views: [
-                UISwitch(
-                  "自动隐藏视频信息",
-                  "dy-video-titleInfoAutoHide",
-                  false,
-                  void 0,
-                  "鼠标移入时自动显示，鼠标移除时自动隐藏"
-                ),
-                UISlider(
-                  "延迟自动隐藏的时间",
-                  "dy-video-titleInfoAutoHide-delayTime",
-                  3000,
-                  0,
-                  8000,
-                  void 0,
-                  (value) => {
-                    return `${value}ms`;
-                  },
-                  "设置首次延迟自动隐藏视频信息的时间，单位（ms）",
-                  100
-                ),
-              ],
-            },
-            {
-              type: "container",
-              text: "底部的视频控件",
-              views: [
-                UISwitch(
-                  "自动隐藏视频控件",
-                  "dy-video-videoControlsAutoHide",
-                  false,
-                  void 0,
-                  "鼠标移入时自动显示，鼠标移除时自动隐藏"
-                ),
-                UISlider(
-                  "延迟自动隐藏的时间",
-                  "dy-video-videoControlsAutoHide-delayTime",
-                  3000,
-                  0,
-                  8000,
-                  void 0,
-                  (value) => {
-                    return `${value}ms`;
-                  },
-                  "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
-                  100
-                ),
-              ],
-            },
-            {
-              type: "container",
-              text: "右侧工具栏",
-              views: [
-                UISwitch(
-                  "自动隐藏右侧工具栏",
-                  "dy-video-rightToolBarAutoHide",
-                  false,
-                  void 0,
-                  "鼠标移入时自动显示，鼠标移除时自动隐藏"
-                ),
-                UISlider(
-                  "延迟自动隐藏的时间",
-                  "dy-video-rightToolBarAutoHide-delayTime",
-                  3000,
-                  0,
-                  8000,
-                  void 0,
-                  (value) => {
-                    return `${value}ms`;
-                  },
-                  "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
-                  100
-                ),
-              ],
-            },
-            {
-              type: "container",
-              text: "倍速播放",
-              views: [
-                UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
-                UISelect(
-                  "倍速",
-                  "dy-video-playbackrate-select-value",
-                  1,
-                  [
-                    0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7, 8, 9, 10,
-                    11, 12, 13, 14, 15, 16,
-                  ].map((it) => {
-                    return {
-                      text: String(it),
-                      value: Number(String(it)),
-                    };
-                  }),
-                  void 0,
-                  "选择视频播放的速度"
-                ),
+                            $li.appendChild($left);
+                            $li.appendChild($right);
+                            return $li;
+                          },
+                          {
+                            "dy-video-changeBackgroundColor": "#000000",
+                          },
+                          {
+                            text: "视频背景颜色",
+                            desc: "自定义视频背景颜色，包括评论区",
+                          }
+                        ),
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "deepMenu",
+                  text: "倍速播放",
+                  views: [
+                    {
+                      type: "container",
+                      text: "",
+                      views: [
+                        UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
+                        UISelect(
+                          "倍速",
+                          "dy-video-playbackrate-select-value",
+                          1,
+                          [
+                            0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7, 8,
+                            9, 10, 11, 12, 13, 14, 15, 16,
+                          ].map((it) => {
+                            return {
+                              text: String(it),
+                              value: Number(String(it)),
+                            };
+                          }),
+                          void 0,
+                          "选择视频播放的速度"
+                        ),
+                      ],
+                    },
+                  ],
+                },
               ],
             },
           ],
@@ -751,6 +785,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "该图标暂停视频时显示在视频中间"
                 ),
+                UISwitch("【屏蔽】ESC或Y可退出网页全屏", "dy-video-watchAndRemoveFullScreenTip", false),
               ],
             },
           ],

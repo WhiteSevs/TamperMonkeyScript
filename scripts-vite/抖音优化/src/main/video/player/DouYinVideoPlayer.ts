@@ -1032,6 +1032,7 @@ export const DouYinVideoPlayer = {
         | {
             uid?: string;
             nickname?: string;
+            awemeId?: string;
             desc?: string;
             originDesc?: string;
             downloadTime?: string;
@@ -1224,13 +1225,17 @@ export const DouYinVideoPlayer = {
         }
         const downloadTime = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss");
         // 视频下载的文件名
-        const videoDownloadFileName = transformDownloadFileName({
+        const videoOrPictureTransformOption: Parameters<typeof transformDownloadFileName>["0"] = {
           downloadTime: downloadTime,
           uid: transformAwemeInfoWithDOM.uid,
           nickname: transformAwemeInfoWithDOM.nickname,
           desc: transformAwemeInfoWithDOM.desc,
+          awemeId: transformAwemeInfoWithDOM.awemeId,
           originDesc: transformAwemeInfoWithDOM.originDesc,
-        });
+        };
+        const videoDownloadFileName = transformDownloadFileName(videoOrPictureTransformOption);
+        // 图片下载的文件名
+        const pictureDownloadFileName = transformDownloadFileName(videoOrPictureTransformOption);
         // 音乐下载的文件名
         const musicDownloadFileName = transformDownloadFileName(
           {
@@ -1242,14 +1247,6 @@ export const DouYinVideoPlayer = {
           },
           Panel.getValue<string>("dy-video-parseVideoMusic-downloadFileName")
         );
-        // 图片下载的文件名
-        const pictureDownloadFileName = transformDownloadFileName({
-          downloadTime: downloadTime,
-          uid: transformAwemeInfoWithDOM.uid,
-          nickname: transformAwemeInfoWithDOM.nickname,
-          desc: transformAwemeInfoWithDOM.desc,
-          originDesc: transformAwemeInfoWithDOM.originDesc,
-        });
         showParseInfoDialog({
           videoInfo: {
             author: transformAwemeInfoWithDOM.nickname,
