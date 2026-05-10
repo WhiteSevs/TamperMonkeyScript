@@ -1,6 +1,6 @@
 {
   "name": "qmsg",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
   "keywords": [
     "ScriptCat",
@@ -53,20 +53,20 @@
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "browserslist": "^4.28.2",
-    "caniuse-lite": "^1.0.30001784",
-    "eslint": "^10.1.0",
+    "caniuse-lite": "^1.0.30001792",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-compat": "^7.0.1",
+    "eslint-plugin-compat": "^7.0.2",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.4.0",
-    "oxfmt": "^0.43.0",
-    "oxlint": "1.58.0",
-    "prettier": "^3.8.1",
-    "rollup": "^4.60.1",
+    "globals": "^17.6.0",
+    "oxfmt": "^0.48.0",
+    "oxlint": "1.63.0",
+    "prettier": "^3.8.3",
+    "rollup": "^4.60.3",
     "rollup-plugin-clear": "^2.0.7",
     "tslib": "^2.8.1",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.0"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2"
   },
   "packageManager": "pnpm@10.29.3"
 }

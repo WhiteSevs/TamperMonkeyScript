@@ -1,5 +1,5 @@
-# v1.7.1
+# v1.7.2
 
-## Feat
+## Chore
 
-- 导出`dist`文件夹，用于`moduleResolution: "bundler"`使用
+- update dependencies

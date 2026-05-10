@@ -1,3 +1,3 @@
 import { Qmsg } from "./src/Qmsg";
 
-export default Qmsg;
+export { Qmsg as default };

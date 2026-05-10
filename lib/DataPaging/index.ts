@@ -1,4 +1,5 @@
 import { Paging } from "./src";
 
 const DataPaging = Paging;
-export default DataPaging;
+
+export { DataPaging as default };
