@@ -503,10 +503,13 @@ class ShortCut {
 }
 
 export {
-  ShortCut,
-  type ShortCutKeyboardOption,
-  type ShortCutLocalStorageOption,
-  type ShortCutOption,
-  type ShortCutOptionElement,
-  type ShortCutOptionWindow,
+  ShortCut
 };
+
+export type { 
+  ShortCutOption,
+  ShortCutKeyboardOption,
+  ShortCutLocalStorageOption, ShortCutOptionElement,
+  ShortCutOptionWindow 
+};
+
