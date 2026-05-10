@@ -62,7 +62,7 @@ const SearchNextPage = {
     }
     this.initPageLineCSS();
     CommonUtil.addBlockCSS(
-      /* 隐藏分页控制器 */
+      //  隐藏分页控制器
       "#page-controller"
     );
     loadingView.initLoadingView(true);
@@ -213,8 +213,8 @@ const SearchNextPage = {
     let urlObj = new URL(url);
     let newUrl = url;
     if (urlObj.hostname !== window.location.hostname) {
-      /* 修复下一页的链接在不同域名下，导致无法请求的问题 */
-      /* 如：下一页是https://m.baidu.com/.... 当前页面是https://www.baidu.com 就会无法请求 */
+      //  修复下一页的链接在不同域名下，导致无法请求的问题
+      //  如：下一页是https://m.baidu.com/.... 当前页面是https://www.baidu.com 就会无法请求
       urlObj.hostname = window.location.hostname;
       newUrl = urlObj.toString();
       log.success("成功修复下一页的链接的不同域名：" + newUrl);
@@ -352,7 +352,7 @@ const SearchNextPage = {
       BaiduHandleResultItem.$data.originURLMap.concat(nextPageScriptOriginUrlMap);
       // 将下一页的样式插入到当前页面
       nextPageDoc.querySelectorAll("style[data-vue-ssr-id]").forEach((item) => {
-        /* 插入vue打包的css需重新引入 */
+        //  插入vue打包的css需重新引入
         let dataVueSsrId = "data-vue-ssr-id";
         let dataVueSsrIdValue = item.getAttribute(dataVueSsrId) as string;
         if (utils.isNull(dataVueSsrIdValue) || !$(`style[data-vue-ssr-id="${dataVueSsrIdValue}"]`)) {
@@ -370,9 +370,9 @@ const SearchNextPage = {
       // 当前页面的搜索结果容器
       let currentResultsDOM = SearchNextPage.$el.results;
       if (nextPageControllerDOM) {
-        /* 添加显示当前是第xx页的分割项 */
+        //  添加显示当前是第xx页的分割项
         this.appendLineDriver(this.pageInfo.pageNum);
-        /* 每一条搜索结果拼接在后面 */
+        //  每一条搜索结果拼接在后面
         let nextPageSearchResultFragment = document.createDocumentFragment();
         searchResultDOM.forEach((item) => {
           nextPageSearchResultFragment.appendChild(item);
@@ -383,7 +383,7 @@ const SearchNextPage = {
         if (Panel.getValue("baidu_search_sync_next_page_address")) {
           window.history.pushState("forward", "", this.nextPageInfo.nextPageUrl);
         }
-        /* 处理下一页的【大家还在搜】 */
+        //  处理下一页的【大家还在搜】
         if (SearchHandleResultEveryOneSearch.refactorEveryoneIsStillSearching) {
           SearchHandleResultEveryOneSearch.handleBottom(Array.from(nextPageDoc.querySelectorAll("#page-relative")));
         }
@@ -480,7 +480,7 @@ const SearchNextPage_SearchCraft = {
    */
   intersectionObserver: null as unknown as IntersectionObserver,
   $data: {
-    /** 更多结果的CSS选择器 */
+    // * 更多结果的CSS选择器
     moreResultSelector: ".infinite-load-wrap .se-infiniteload-text",
   },
   init() {

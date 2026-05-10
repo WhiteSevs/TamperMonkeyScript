@@ -14,7 +14,7 @@ interface BaiduSearchRuleConfig extends BaiDuSearchRuleDetail {
   moreRule?: BaiDuSearchRuleDetail[];
 }
 
-/** 百度搜索自定义拦截规则 */
+// * 百度搜索自定义拦截规则
 export const BaiduSearchBlockRule = {
   defaultRule: `
 // 百度健康
@@ -34,6 +34,8 @@ match-href##author.baidu.com/home/
 match-attr##srcid##(sigma|vid_fourfold)
 // 问一问
 match-attr##data-log##wenda_inquiry
+// 百度问一问
+match-attr##srcid##wenda_edu
 // 百度游戏
 match-attr##srcid##yx_entity_san
 // 大家还在看
@@ -61,6 +63,8 @@ match-attr##srcid##ai_agent_qa_recommend
 match-attr##srcid##yl_actor_agent
 // 百度游戏中心
 match-attr##srcid##yx_entity_pc_san
+// 百度健康
+match-attr##srcid##med_wenzhen_san
 
 
 // 搜索聚合
@@ -123,17 +127,17 @@ match-attr##srcid##yx_entity_pc_san
       ];
     });
   },
-  /** 获取本地存储的自定义拦截规则 */
+  // * 获取本地存储的自定义拦截规则
   getLocalRule() {
     let localRule = Panel.getValue("baidu-search-interception-rules", "");
     localRule = localRule.trim();
     return localRule;
   },
-  /** 设置本地存储的自定义拦截规则 */
+  // * 设置本地存储的自定义拦截规则
   setLocalRule(rule: string) {
     Panel.setValue("baidu-search-interception-rules", rule);
   },
-  /** 清空规则 */
+  // * 清空规则
   clearLocalRule() {
     Panel.deleteValue("baidu-search-interception-rules");
   },
@@ -309,10 +313,11 @@ match-attr##srcid##yx_entity_pc_san
    * @param $searchResult 每一个搜索项
    */
   addFilterButton($searchResult: HTMLElement) {
-    if ($searchResult.hasAttribute("data-is-add-search-result-filter-button")) {
+    const classNameAttr = "data-filter-btn";
+    if ($searchResult.hasAttribute(classNameAttr)) {
       return;
     }
-    $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
+    $searchResult.setAttribute(classNameAttr, "true");
     const $filterBtn = this.createFilterButton();
 
     DOMUtils.on(
@@ -354,7 +359,7 @@ match-attr##srcid##yx_entity_pc_san
             if (utils.isNotNull(tpl)) {
               ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
             }
-          } catch (error) {
+          } catch {
             ruleList.push(`match-href##url##${url}`);
           }
         }
@@ -420,7 +425,7 @@ match-attr##srcid##yx_entity_pc_san
           "click",
           ".quick-add-rule-item",
           (evt2, $ruleItem) => {
-            DOMUtils.preventEvent(evt);
+            DOMUtils.preventEvent(evt2);
             const index = Number($ruleItem.getAttribute("data-list-index")!);
             const rule = ruleList[index];
             if (rule == null) {
@@ -436,18 +441,21 @@ match-attr##srcid##yx_entity_pc_san
             $dialog.close();
           },
           {
+            capture: true,
             overrideTarget: false,
           }
         );
       },
       {
         capture: true,
+        overrideTarget: false,
       }
     );
     const setButtonRuleMap: (() => string | void)[] = [
       () => {
         if ($searchResult.getAttribute("srcid") !== "new_baikan_index") return;
         // AI总结
+        // 百度AI 全网总结xx篇结果
         // 动态的，等待它加载
         DOMUtils.waitNode<HTMLElement>(
           '[data-show="interaction"] [class^="interact-container"]',
@@ -455,6 +463,29 @@ match-attr##srcid##yx_entity_pc_san
           10000
         ).then(($interaction) => {
           if (!$interaction) return;
+          // 添加该按钮又会导致无法展开
+          // 覆盖点击事件
+          const $foldSwitch = $searchResult.querySelector<HTMLElement>(".cos-fold-switch");
+          if ($foldSwitch) {
+            DOMUtils.on(
+              $foldSwitch,
+              "click",
+              (evt) => {
+                DOMUtils.preventEvent(evt);
+                const $baikan = $searchResult.querySelector<HTMLElement>("#baikan-content");
+                if (!$baikan) {
+                  Qmsg.error("未找到#baikan-content");
+                  return;
+                }
+                DOMUtils.css($baikan, "max-height", "");
+                DOMUtils.remove($foldSwitch);
+                DOMUtils.remove($searchResult.querySelectorAll('[class^="cosd-fold-switch"]'));
+              },
+              { capture: true }
+            );
+          } else {
+            log.error("未找到【展开】按钮，无法覆盖点击事件，某些浏览器上会无法进行展开");
+          }
           DOMUtils.append($interaction, $filterBtn);
         });
         return "interaction";
@@ -523,6 +554,6 @@ match-attr##srcid##yx_entity_pc_san
       log.error("未找到用于添加过滤按钮的父元素，无法新增过滤按钮", $searchResult);
     }
     $filterBtn.setAttribute("data-filter-type", attrValue);
-    $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);
+    $searchResult.setAttribute(classNameAttr, attrValue);
   },
 };

@@ -44,7 +44,7 @@ export const BaiduHook = {
     }
 
     let that = this;
-    /* 初始化调用 */
+    //  初始化调用
     log.info("初始化Function.property.apply hook");
     unsafeWindow.Function.prototype.apply = function (...args) {
       /**
@@ -77,7 +77,7 @@ export const BaiduHook = {
             });
           }
         } catch (error) {
-          /*log.error(error);*/
+          // log.error(error);
         }
       }
       if (that.$data.functionApply.includes("scheme")) {
@@ -98,7 +98,7 @@ export const BaiduHook = {
             return;
           }
         } catch (error) {
-          /*log.error(error);*/
+          // log.error(error);
         }
       }
       return OriginPrototype.Function.apply.call(this, ...args);
@@ -118,7 +118,7 @@ export const BaiduHook = {
     }
 
     let that = this;
-    /* 初始化调用 */
+    //  初始化调用
     log.info("初始化Function.property.call hook");
     let originCall = unsafeWindow.Function.prototype.call;
     unsafeWindow.Function.prototype.call = function (...args) {
@@ -516,7 +516,7 @@ export const BaiduHook = {
           webpackExports.exports.init = function (...args) {
             log.info("阻止初始化", ...args);
             if (args?.[0]?.["page"] === "usercenter") {
-              /* 跳转至用户空间 */
+              //  跳转至用户空间
               let homeUrl = "/home/main?id=" + args[0]["param"]["portrait"];
               log.info("跳转至用户空间", homeUrl);
               window.open(homeUrl);

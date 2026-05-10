@@ -17,7 +17,7 @@ const SearchInputEvent = {
     let searchBtn2Selector = "#se-bn2";
     let searchInput_HOME_Selector = "#index-kw";
     let searchBtn_HOME_Selector = "#index-bn";
-    /* 顶部搜索输入框点击后的搜索建议 */
+    //  顶部搜索输入框点击后的搜索建议
     DOMUtils.waitNode<HTMLDivElement>(suggestListSelector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
@@ -26,7 +26,7 @@ const SearchInputEvent = {
         config: { childList: true, attributes: true },
       });
     });
-    /* 底部搜索输入框点击后的搜索建议 */
+    //  底部搜索输入框点击后的搜索建议
     DOMUtils.waitNode<HTMLDivElement>(suggestList2Selector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
@@ -35,7 +35,7 @@ const SearchInputEvent = {
         config: { childList: true, attributes: true },
       });
     });
-    /* 百度主页的搜索输入框点击后的搜索建议 */
+    //  百度主页的搜索输入框点击后的搜索建议
     DOMUtils.waitNode<HTMLDivElement>(suggestList_HOME_Selector).then((element) => {
       utils.mutationObserver(element, {
         callback: () => {
@@ -44,36 +44,36 @@ const SearchInputEvent = {
         config: { childList: true, attributes: true },
       });
     });
-    /* 顶部搜索按钮 */
+    //  顶部搜索按钮
     DOMUtils.on(searchBtnSelector, "click", function (event) {
       return SearchInputEvent.searchBtnJump(
         event as PointerEvent | MouseEvent,
         $(searchInputSelector) as HTMLInputElement
       );
     });
-    /* 顶部搜索输入框 */
+    //  顶部搜索输入框
     DOMUtils.on(searchInputSelector, "keydown", function (event) {
       return SearchInputEvent.enterKeyDownEvent(event as KeyboardEvent, $(searchInputSelector) as HTMLInputElement);
     });
-    /* 底部搜索按钮 */
+    //  底部搜索按钮
     DOMUtils.on(searchBtn2Selector, "click", function (event) {
       return SearchInputEvent.searchBtnJump(
         event as PointerEvent | MouseEvent,
         $(searchInput2Selector) as HTMLInputElement
       );
     });
-    /* 底部部搜索输入框 */
+    //  底部部搜索输入框
     DOMUtils.on($(searchInput2Selector) as HTMLElement, "keydown", function (event) {
       return SearchInputEvent.enterKeyDownEvent(event as KeyboardEvent, $(searchInput2Selector) as HTMLInputElement);
     });
-    /* 百度主页搜索按钮 */
+    //  百度主页搜索按钮
     DOMUtils.on(searchBtn_HOME_Selector, "click", function (event) {
       return SearchInputEvent.searchBtnJump(
         event as MouseEvent | PointerEvent,
         $(searchInput_HOME_Selector) as HTMLInputElement
       );
     });
-    /* 百度主页搜索输入框 */
+    //  百度主页搜索输入框
     DOMUtils.on(searchInput_HOME_Selector, "keydown", function (event) {
       return SearchInputEvent.enterKeyDownEvent(
         event as KeyboardEvent,

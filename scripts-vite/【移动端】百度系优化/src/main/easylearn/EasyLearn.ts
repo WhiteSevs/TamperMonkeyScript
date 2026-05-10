@@ -47,7 +47,7 @@ const BaiduEasyLearn = {
     log.info("屏蔽题卷");
     return CommonUtil.addBlockCSS(
       ".question-shijuan-wrap",
-      /* PC端 */
+      //  PC端
       ".question-cont .timu-wrap .doc-cont-v2 .left"
     );
   },
@@ -65,7 +65,7 @@ const BaiduEasyLearn = {
     log.info("屏蔽本卷相关试卷");
     return CommonUtil.addBlockCSS(
       ".related-papers-wrap",
-      /* PC端 */
+      //  PC端
       ".question-cont .timu-wrap .doc-cont-v2 .right"
     );
   },
@@ -76,7 +76,7 @@ const BaiduEasyLearn = {
     log.info("屏蔽视频解析");
     return CommonUtil.addBlockCSS(
       ".video-doc-compo",
-      /* PC端 */
+      //  PC端
       ".container #questionVideo"
     );
   },
@@ -148,7 +148,7 @@ const BaiduEasyLearn = {
           immediate: true,
         }
       );
-      /* 阻止调用App Scheme */
+      //  阻止调用App Scheme
       vueObj.$parent.openBgkApp = function (...args: any[]) {
         log.success("openBgkApp：阻止调用App Scheme", args);
       };

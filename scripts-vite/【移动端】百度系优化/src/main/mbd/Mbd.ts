@@ -43,14 +43,14 @@ const BaiduMbd = {
         'div[class^="relateTitle"]',
         ".infinite-scroll-component__outerdiv",
         "div#fuseVideo + div[class]",
-        /* 精彩推荐的文字 */
+        //  精彩推荐的文字
         "#content_wrapper + div + div",
-        /* 简单UA下精彩推荐的文字 */
+        //  简单UA下精彩推荐的文字
         "#page_wrapper .searchCraft #content_wrapper + div",
         '.fusionWrapper [class^="reco_"]:has(>[class^="recoConatainer_"])'
       ),
       CommonUtil.addBlockCSS(
-        /* Gecko下的简单UA下精彩推荐 */
+        //  Gecko下的简单UA下精彩推荐
         "#page_wrapper > div > div:nth-child(6)"
       ),
     ];

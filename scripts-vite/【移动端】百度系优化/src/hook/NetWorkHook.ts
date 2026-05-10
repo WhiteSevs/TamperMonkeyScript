@@ -22,7 +22,7 @@ export const NetWorkHook = {
     const sortMap = {
       热门: 2,
       正序: 0,
-      /** 默认值 */
+      // * 默认值
       倒序: 1,
     };
     this.$data.ajaxHooker.hook((request) => {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.10
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -18,12 +18,12 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.30/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.34/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.6.4/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b30c321d562b73843a05b612592f31e4647663d4/lib/Element-Plus/index.full.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@bfd9196f357c73ea5ac0398e71d982ee3bd6336b/lib/Element-Plus/index.full.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.13.0/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.14.0/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
@@ -83,7 +83,7 @@
       return (mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports);
     };
   var require_entrance_001 = __commonJS({
-    "entrance-Bk4La-Cf.js"(exports$1, module) {
+    "entrance-C52GN_Ws.js"(exports, module) {
       var _GM_addValueChangeListener = (() =>
         typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
       var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
@@ -172,7 +172,10 @@
               selectorList.push(selector);
             }
           });
-          return addStyle$1(`${selectorList.join(",\n")}{display: none !important;}`);
+          selectorList = selectorList.map((it2) => it2.trim()).filter((it2) => it2 !== "");
+          if (selectorList.length) {
+            return addStyle$1(`${selectorList.join(",\n")}{display: none !important;}`);
+          }
         },
         setGMResourceCSS(resourceMapData) {
           const cssText =
@@ -4014,7 +4017,6 @@
             ),
             addStyle$1(
               `
-			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
 			}
@@ -5141,7 +5143,7 @@
             if (BaiduHandleResultItem.$data.originURLMap.has(item.href)) {
               articleURL = BaiduHandleResultItem.$data.originURLMap.get(item.href);
             }
-            let originUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet(item);
+            const originUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet(item);
             if (!utils.isNull(originUrl)) {
               articleURL = originUrl;
             }
@@ -5154,21 +5156,21 @@
             item.href = articleURL;
           });
           $result.querySelectorAll('div[data-aftclk][class*="img-container"]').forEach(($imgContainer) => {
-            let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($imgContainer);
+            const domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($imgContainer);
             if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
               $imgContainer.setAttribute("href", domOriginUrl);
               $imgContainer.setAttribute("rl-link-href", domOriginUrl);
             }
           });
           $result.querySelectorAll("div.c-video-container div[data-aftclk]").forEach(($aftclk) => {
-            let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($aftclk);
+            const domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($aftclk);
             if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
               $aftclk.setAttribute("href", domOriginUrl);
               $aftclk.setAttribute("rl-link-href", domOriginUrl);
             }
           });
           $result.querySelectorAll('div[data-module="sc_pc"] div[rl-link-href]').forEach(($rlLinkHref) => {
-            let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($rlLinkHref);
+            const domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($rlLinkHref);
             if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
               $rlLinkHref.setAttribute("href", domOriginUrl);
               $rlLinkHref.setAttribute("rl-link-href", domOriginUrl);
@@ -5182,25 +5184,27 @@
             let url = void 0;
             try {
               url = utils.toJSON(data["log"])["mu"];
-              utils.isNull(url) && (url = void 0);
-            } catch (error) {}
+              if (utils.isNull(url)) {
+                url = void 0;
+              }
+            } catch {}
             return url;
           }
         },
         parseScriptDOMOriginUrlMap($target) {
-          let urlMap = new utils.Dictionary();
+          const urlMap = new utils.Dictionary();
           $target.querySelectorAll("script[id^='atom-data-']").forEach((item) => {
-            let jsonData = utils.toJSON(item.innerHTML);
+            const jsonData = utils.toJSON(item.innerHTML);
             if (jsonData["data"]["resultAtomData"] == null) {
               return;
             }
-            let resultAtomData = jsonData["data"]["resultAtomData"];
+            const resultAtomData = jsonData["data"]["resultAtomData"];
             if (
               resultAtomData["abstract"] &&
               resultAtomData["abstract"]["urlParams"] &&
               resultAtomData["abstract"]["urlParams"]["tcUrl"]
             ) {
-              let url = BaiduHandleResultItem.parseURLParamsOriginURL(resultAtomData["abstract"]["urlParams"]);
+              const url = BaiduHandleResultItem.parseURLParamsOriginURL(resultAtomData["abstract"]["urlParams"]);
               if (url) {
                 urlMap.set(resultAtomData["abstract"]["urlParams"]["tcUrl"], url);
               }
@@ -5211,7 +5215,7 @@
               resultAtomData["content"]["abstract"]["urlParams"] &&
               resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
             ) {
-              let url = BaiduHandleResultItem.parseURLParamsOriginURL(
+              const url = BaiduHandleResultItem.parseURLParamsOriginURL(
                 resultAtomData["content"]["abstract"]["urlParams"]
               );
               if (url) {
@@ -5226,7 +5230,7 @@
               resultAtomData["content"]["links"]["list"].forEach((item2) => {
                 item2.forEach((item22) => {
                   if (item22["urlParams"]["tcUrl"]) {
-                    let url = BaiduHandleResultItem.parseURLParamsOriginURL(item22["urlParams"]);
+                    const url = BaiduHandleResultItem.parseURLParamsOriginURL(item22["urlParams"]);
                     if (url) {
                       urlMap.set(item22["urlParams"]["tcUrl"], url);
                     }
@@ -5237,7 +5241,7 @@
             if (resultAtomData["content"] && resultAtomData["content"]["site"]) {
               resultAtomData["content"]["site"]["list"].forEach((item2) => {
                 if (item2["urlParams"]["tcUrl"]) {
-                  let url = BaiduHandleResultItem.parseURLParamsOriginURL(item2["urlParams"]);
+                  const url = BaiduHandleResultItem.parseURLParamsOriginURL(item2["urlParams"]);
                   if (url) {
                     urlMap.set(item2["urlParams"]["tcUrl"], url);
                   }
@@ -5264,28 +5268,29 @@
         },
         parseOriginUrlFromDataSet($target) {
           let url = null;
-          let dataLogStr = $target.getAttribute("data-log");
-          let $article = $target.querySelector("article");
+          const dataLogStr = $target.getAttribute("data-log");
+          const $article = $target.querySelector("article");
           if (dataLogStr && dataLogStr !== "{") {
             try {
-              let dataLog = utils.toJSON(dataLogStr);
+              const dataLog = utils.toJSON(dataLogStr);
               url = dataLog.mu;
             } catch (error) {
-              log.error("DOM的属性data-log不存在👇");
+              log.error("DOM的属性data-log不存在👇", error);
               log.error(error);
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let rlLinkDataUrl = $article?.getAttribute("rl-link-data-url") || $target.getAttribute("rl-link-data-url");
+            const rlLinkDataUrl =
+              $article?.getAttribute("rl-link-data-url") || $target.getAttribute("rl-link-data-url");
             if (rlLinkDataUrl) {
               url = rlLinkDataUrl;
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let dataIVKStr = $target.getAttribute("data-ivk");
+            const dataIVKStr = $target.getAttribute("data-ivk");
             if (dataIVKStr) {
               try {
-                let dataIVK = utils.toJSON(dataIVKStr);
+                const dataIVK = utils.toJSON(dataIVKStr);
                 if (
                   dataIVK?.control?.default_url &&
                   !BaiduHandleResultItem.isBaiDuTransferStation(dataIVK?.control?.default_url)
@@ -5303,19 +5308,18 @@
                   url = dataIVK?.control?.ext?.url;
                 }
               } catch (error) {
-                log.error("DOM的属性data-ivk不存在👇");
-                log.error(error);
+                log.error("DOM的属性data-ivk不存在👇", error);
               }
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let rlLinkDataLogStr = $target.getAttribute("rl-link-data-log");
+            const rlLinkDataLogStr = $target.getAttribute("rl-link-data-log");
             if (rlLinkDataLogStr) {
               try {
-                let rlLinkDataLog = utils.toJSON(rlLinkDataLogStr);
+                const rlLinkDataLog = utils.toJSON(rlLinkDataLogStr);
                 if (utils.isNull(rlLinkDataLog.mu) && rlLinkDataLog.extra) {
                   try {
-                    let rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
+                    const rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
                     if (
                       rlLinkDataLogExtra.loc &&
                       !BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataLogExtra.loc)
@@ -5328,23 +5332,21 @@
                       url = decodeURIComponent(rlLinkDataLogExtra.log_loc);
                     }
                   } catch (error) {
-                    log.error("DOM的属性rl-link-data-log的extra不存在👇");
-                    log.error(error);
+                    log.error("DOM的属性rl-link-data-log的extra不存在👇", error);
                   }
                 } else {
                   url = rlLinkDataLog.mu;
                 }
               } catch (error) {
-                log.error("DOM的属性rl-link-data-log不存在👇");
-                log.error(error);
+                log.error("DOM的属性rl-link-data-log不存在👇", error);
               }
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let rlLinkDataIvkStr = $target.getAttribute("rl-link-data-ivk");
+            const rlLinkDataIvkStr = $target.getAttribute("rl-link-data-ivk");
             if (rlLinkDataIvkStr) {
               try {
-                let rlLinkDataIvk = utils.toJSON(rlLinkDataIvkStr);
+                const rlLinkDataIvk = utils.toJSON(rlLinkDataIvkStr);
                 if (
                   rlLinkDataIvk?.control?.default_url &&
                   !BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataIvk?.control?.default_url)
@@ -5362,28 +5364,26 @@
                   url = rlLinkDataIvk?.control?.ext?.url;
                 }
               } catch (error) {
-                log.error("DOM的属性rl-link-data-ivk不存在👇");
-                log.error(error);
+                log.error("DOM的属性rl-link-data-ivk不存在👇", error);
               }
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let articleDataLogStr = $article?.getAttribute("rl-link-data-log");
+            const articleDataLogStr = $article?.getAttribute("rl-link-data-log");
             if (articleDataLogStr) {
               try {
-                let articleDataLog = utils.toJSON(articleDataLogStr);
+                const articleDataLog = utils.toJSON(articleDataLogStr);
                 url = articleDataLog.mu;
               } catch (error) {
-                log.error("article DOM的属性的rl-link-data-log不存在👇");
-                log.error($target);
+                log.error("article DOM的属性的rl-link-data-log不存在👇", { $target, error });
               }
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let articleLinkDataIVKStr = $article?.getAttribute("rl-link-data-ivk");
+            const articleLinkDataIVKStr = $article?.getAttribute("rl-link-data-ivk");
             if (articleLinkDataIVKStr) {
               try {
-                let articleLinkDataIVK = utils.toJSON(articleLinkDataIVKStr);
+                const articleLinkDataIVK = utils.toJSON(articleLinkDataIVKStr);
                 if (
                   articleLinkDataIVK?.control?.default_url &&
                   !BaiduHandleResultItem.isBaiDuTransferStation(articleLinkDataIVK?.control?.default_url)
@@ -5396,15 +5396,14 @@
                   url = articleLinkDataIVK?.control?.dataUrl;
                 }
               } catch (error) {
-                log.error("article DOM的属性rl-link-data-ivk不存在👇");
-                log.error(error);
+                log.error("article DOM的属性rl-link-data-ivk不存在👇", error);
               }
             }
           }
           if (this.isNotRlLinkUrl(url)) {
             url = null;
           } else {
-            let chineseArr = url.match(/[\u4e00-\u9fa5]/g);
+            const chineseArr = url.match(/[\u4e00-\u9fa5]/g);
             if (chineseArr) {
               for (let i = 0; i < chineseArr.length; i++) {
                 url = url.replace(chineseArr[i], encodeURI(chineseArr[i]));
@@ -5412,7 +5411,7 @@
             }
           }
           if (this.isNotRlLinkUrl(url)) {
-            let labelUrl = $target.getAttribute("label-url");
+            const labelUrl = $target.getAttribute("label-url");
             if (labelUrl) {
               url = labelUrl;
             }
@@ -5467,7 +5466,7 @@
           if ($result.querySelector(".csdn-flag-component-box")) {
             return;
           }
-          let $titleText = BaiduHandleResultItem.getItemTitleElement($result);
+          const $titleText = BaiduHandleResultItem.getItemTitleElement($result);
           if ($titleText) {
             domUtils.append(
               $titleText,
@@ -5478,13 +5477,13 @@
         },
         removeAds() {
           const TAG = "删除广告 ==> ";
-          let isRemoveEveryOneSearch = Panel.getValue("baidu_search_blocking_everyone_is_still_searching");
-          let $conterEveryOneSearch = [
+          const isRemoveEveryOneSearch = Panel.getValue("baidu_search_blocking_everyone_is_still_searching");
+          const $conterEveryOneSearch = [
             ...Array.from($$(".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation")),
             ...Array.from($$('.c-result[tpl^="recommend_list"]')),
           ];
-          let $bottomEveryOneSearch = [...Array.from($$("#page-relative"))];
-          let $searchCraftEveryOnceSearch = [...Array.from($$("#relativewords"))];
+          const $bottomEveryOneSearch = [...Array.from($$("#page-relative"))];
+          const $searchCraftEveryOnceSearch = [...Array.from($$("#relativewords"))];
           if (isRemoveEveryOneSearch) {
             if ($conterEveryOneSearch.length) {
               log.success(`${TAG}中间 大家都在搜 ${$conterEveryOneSearch.length}个`);
@@ -5504,12 +5503,12 @@
               SearchHandleResultEveryOneSearch.handleBottom($bottomEveryOneSearch);
             }
           }
-          let $popUp = $$("#pop-up");
+          const $popUp = $$("#pop-up");
           if ($popUp.length) {
             log.success(`${TAG}跳转百度app提示 ${$popUp.length}个`);
             domUtils.remove($popUp);
           }
-          let $ec_wise_aad = $$(".ec_wise_ad");
+          const $ec_wise_aad = $$(".ec_wise_ad");
           if ($ec_wise_aad.length) {
             log.success(`${TAG}顶部的部分商品广告 ${$ec_wise_aad.length}个`);
             domUtils.remove(domUtils.parent($ec_wise_aad));
@@ -5526,13 +5525,13 @@
               }
             }
             if (Panel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
-              let $title = $result.querySelector(".rw-little-title");
+              const $title = $result.querySelector(".rw-little-title");
               if ($title && $title.textContent?.startsWith("大家还在搜")) {
                 $result?.remove();
                 log.success(`${TAG}大家都在搜（能看到的）`);
               }
               $result.querySelectorAll("span").forEach((item) => {
-                let resultParentElement = item?.parentElement?.parentElement;
+                const resultParentElement = item?.parentElement?.parentElement;
                 if (
                   (resultParentElement && item.innerText.match(/百度APP内打开/)) ||
                   (resultParentElement && resultParentElement.getAttribute("data-from") === "etpl")
@@ -5552,8 +5551,8 @@
         },
         getSearchArticleOriginal_link($result) {
           const dataLog = $result.getAttribute("data-log");
-          let dataLogJSON = utils.toJSON(dataLog);
-          let url = dataLogJSON["mu"] || $result.querySelector("article")?.getAttribute("rl-link-href") || void 0;
+          const dataLogJSON = utils.toJSON(dataLog);
+          const url = dataLogJSON["mu"] || $result.querySelector("article")?.getAttribute("rl-link-href") || void 0;
           return url;
         },
         redirectTopLink() {
@@ -5596,20 +5595,24 @@
               searchResultItem.getAttribute("preventClick") == null
             ) {
               searchResultItem.setAttribute("preventClick", "true");
-              domUtils.on(searchResultItem, "click", (event) => {
-                domUtils.preventEvent(event);
-                let clickNode = event.target;
-                if (
-                  clickNode.localName &&
-                  clickNode.localName === "sup" &&
-                  clickNode.getAttribute("rl-type") === "stop"
-                ) {
-                  return;
-                } else {
-                  window.stop();
-                  window.location.href = decodeURI(resultItemOriginURL);
+              domUtils.on(
+                searchResultItem,
+                "click",
+                (event) => {
+                  domUtils.preventEvent(event);
+                  log.info(`该item为搜索智能生成该为点击该块，获取url进行跳转`);
+                  const $click = event.target;
+                  if ($click.localName && $click.localName === "sup" && $click.getAttribute("rl-type") === "stop") {
+                    return;
+                  } else {
+                    window.stop();
+                    window.location.href = decodeURI(resultItemOriginURL);
+                  }
+                },
+                {
+                  overrideTarget: false,
                 }
-              });
+              );
               continue;
             }
             if (resultItemOriginURL.match(/^http(s|):\/\/www.internal.video.baidu.com/g)) {
@@ -5646,6 +5649,8 @@ match-href##author.baidu.com/home/
 match-attr##srcid##(sigma|vid_fourfold)
 // 问一问
 match-attr##data-log##wenda_inquiry
+// 百度问一问
+match-attr##srcid##wenda_edu
 // 百度游戏
 match-attr##srcid##yx_entity_san
 // 大家还在看
@@ -5673,6 +5678,8 @@ match-attr##srcid##ai_agent_qa_recommend
 match-attr##srcid##yl_actor_agent
 // 百度游戏中心
 match-attr##srcid##yx_entity_pc_san
+// 百度健康
+match-attr##srcid##med_wenzhen_san
 
 
 // 搜索聚合
@@ -5883,10 +5890,11 @@ match-attr##srcid##yx_entity_pc_san
           return $btn;
         },
         addFilterButton($searchResult) {
-          if ($searchResult.hasAttribute("data-is-add-search-result-filter-button")) {
+          const classNameAttr = "data-filter-btn";
+          if ($searchResult.hasAttribute(classNameAttr)) {
             return;
           }
-          $searchResult.setAttribute("data-is-add-search-result-filter-button", "true");
+          $searchResult.setAttribute(classNameAttr, "true");
           const $filterBtn = this.createFilterButton();
           domUtils.on(
             $filterBtn,
@@ -5927,7 +5935,7 @@ match-attr##srcid##yx_entity_pc_san
                   if (utils.isNotNull(tpl)) {
                     ruleList.push([rule_attr_tpl, rule_href_hostname].join("&&&&"));
                   }
-                } catch (error) {
+                } catch {
                   ruleList.push(`match-href##url##${url}`);
                 }
               }
@@ -5993,7 +6001,7 @@ match-attr##srcid##yx_entity_pc_san
                 "click",
                 ".quick-add-rule-item",
                 (evt2, $ruleItem) => {
-                  domUtils.preventEvent(evt);
+                  domUtils.preventEvent(evt2);
                   const index = Number($ruleItem.getAttribute("data-list-index"));
                   const rule = ruleList[index];
                   if (rule == null) {
@@ -6009,12 +6017,14 @@ match-attr##srcid##yx_entity_pc_san
                   $dialog.close();
                 },
                 {
+                  capture: true,
                   overrideTarget: false,
                 }
               );
             },
             {
               capture: true,
+              overrideTarget: false,
             }
           );
           const setButtonRuleMap = [
@@ -6024,6 +6034,27 @@ match-attr##srcid##yx_entity_pc_san
                 .waitNode('[data-show="interaction"] [class^="interact-container"]', $searchResult, 1e4)
                 .then(($interaction) => {
                   if (!$interaction) return;
+                  const $foldSwitch = $searchResult.querySelector(".cos-fold-switch");
+                  if ($foldSwitch) {
+                    domUtils.on(
+                      $foldSwitch,
+                      "click",
+                      (evt) => {
+                        domUtils.preventEvent(evt);
+                        const $baikan = $searchResult.querySelector("#baikan-content");
+                        if (!$baikan) {
+                          Qmsg.error("未找到#baikan-content");
+                          return;
+                        }
+                        domUtils.css($baikan, "max-height", "");
+                        domUtils.remove($foldSwitch);
+                        domUtils.remove($searchResult.querySelectorAll('[class^="cosd-fold-switch"]'));
+                      },
+                      { capture: true }
+                    );
+                  } else {
+                    log.error("未找到【展开】按钮，无法覆盖点击事件，某些浏览器上会无法进行展开");
+                  }
                   domUtils.append($interaction, $filterBtn);
                 });
               return "interaction";
@@ -6086,7 +6117,7 @@ match-attr##srcid##yx_entity_pc_san
             }
           }
           $filterBtn.setAttribute("data-filter-type", attrValue);
-          $searchResult.setAttribute("data-is-add-search-result-filter-button", attrValue);
+          $searchResult.setAttribute(classNameAttr, attrValue);
         },
       };
       const BaiduSearchHook = {
@@ -7408,98 +7439,100 @@ div[class^="new-summary-container_"] {
               setNodeVisited($title);
             }
           };
-          const globalResultClickEvent = (event, $selectorTarget) => {
-            let url = null;
-            const $click = event.composedPath()[0];
-            let $result = $selectorTarget;
-            if ($click) {
-              if (Panel.getValue("baidu-search-add-filter-button")) {
-                if (CommonUtil.findParentNode($click, ".gm-search-filter-wrapper")) {
-                  log.info(`该点击为自定义的过滤按钮，不跳转`);
-                  return;
-                }
-              }
-              const isWenDa = $result.matches('[srcid="wenda_generate"]');
-              if (isWenDa) {
-                log.warn("该点击来自百度AI总结全网xx篇结果，不跳转", { event, $click, $result, isWenDa });
-                return;
-              }
-              const $tabSwitch =
-                CommonUtil.findParentNode($click, ".cos-tab") ||
-                CommonUtil.findParentNode($click, '[class*="each-tab-name"]');
-              if ($tabSwitch) {
-                log.warn("该点击来自切换tab，不跳转", { event, $click, $result });
-                return;
-              }
-              const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
-              if ($foldSwitch) {
-                log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
-                return;
-              }
-              const $rightBottomMoreBtn =
-                CommonUtil.findParentNode($click, ".cosc-feedback") ||
-                CommonUtil.findParentNode($click, `[data-tool*='"feedback"'][data-tool*='您遇到了什么问题']`);
-              if ($rightBottomMoreBtn) {
-                log.warn("该点击来自右下角的更多按钮，不跳转", { event, $click, $result });
-                return;
-              }
-              if ($click.closest("a")) {
-                const $link = $click.closest("a");
-                const linkUrl = $link.getAttribute("data-url") || $link.href;
-                if (utils.isNotNull(linkUrl)) {
-                  log.info([
-                    "链接来自上层a元素",
-                    {
-                      event,
-                      $click,
-                      $result,
-                      $link,
-                    },
-                  ]);
-                  url = linkUrl;
-                }
-              } else if ($click.closest("[rl-link-href]")) {
-                const $rlLinkDiv = $click.closest("[rl-link-href]");
-                const rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
-                if (utils.isNotNull(rlLinkHref)) {
-                  log.info([
-                    "链接来自上层含有[rl-link-href]属性的元素",
-                    {
-                      event,
-                      $click,
-                      $result,
-                      $rlLinkDiv,
-                    },
-                  ]);
-                  url = rlLinkHref;
-                }
-              }
-            } else {
-              const $article = $result.querySelector("article");
-              url = $article.getAttribute("rl-link-href");
-              log.info("链接来自顶层向下寻找article元素", { event, $click, $result, $article });
-            }
-            if (utils.isNull(url)) {
-              log.warn("未找到有效链接", { event, $click, $result, url });
-              return;
-            }
-            const urlInst = new URL(url);
-            if (urlInst.hostname === "www.baidu.com") {
-              if (urlInst.pathname.match(/\/[\d]+$/)) {
-                log.warn("不符合新标签页打开的链接");
-                return;
-              }
-            }
-            domUtils.preventEvent(event);
-            log.success("新标签页打开-来自click事件", url);
-            changeVisitedNodeColor($click, $result);
-            window.open(url, "_blank");
-          };
           domUtils.on(
             document,
             "click",
             [BaiduHandleResultItem.$data.resultListSelector, BaiduHandleResultItem.$data.realTimeResultListSelector],
-            globalResultClickEvent,
+            (event, $selectorTarget) => {
+              let url = null;
+              const $click = event.composedPath()[0];
+              let $result = $selectorTarget;
+              if ($click) {
+                if (Panel.getValue("baidu-search-add-filter-button")) {
+                  if (CommonUtil.findParentNode($click, ".gm-search-filter-wrapper")) {
+                    log.info(`该点击为自定义的过滤按钮，不跳转`);
+                    return;
+                  }
+                }
+                const isWenDa = $result.matches('[srcid="wenda_generate"]');
+                if (isWenDa) {
+                  log.warn("该点击来自百度AI总结全网xx篇结果，不跳转", { event, $click, $result, isWenDa });
+                  return;
+                }
+                const $tabSwitch =
+                  CommonUtil.findParentNode($click, ".cos-tab") ||
+                  CommonUtil.findParentNode($click, '[class*="each-tab-name"]');
+                if ($tabSwitch) {
+                  log.warn("该点击来自切换tab，不跳转", { event, $click, $result });
+                  return;
+                }
+                const $foldSwitch = CommonUtil.findParentNode($click, ".cos-fold-switch");
+                if ($foldSwitch) {
+                  log.warn("该点击来自折叠/展开剩余xxx内容，不跳转", { event, $click, $foldSwitch, $result });
+                  return;
+                }
+                const $rightBottomMoreBtn =
+                  CommonUtil.findParentNode($click, ".cosc-feedback") ||
+                  CommonUtil.findParentNode($click, `[data-tool*='"feedback"'][data-tool*='您遇到了什么问题']`);
+                if ($rightBottomMoreBtn) {
+                  log.warn("该点击来自右下角的更多按钮，不跳转", { event, $click, $result });
+                  return;
+                }
+                if ($click.closest("a")) {
+                  const $link = $click.closest("a");
+                  const linkUrl = $link.getAttribute("data-url") || $link.href;
+                  if (utils.isNotNull(linkUrl)) {
+                    log.info([
+                      "链接来自上层a元素",
+                      {
+                        event,
+                        $click,
+                        $result,
+                        $link,
+                      },
+                    ]);
+                    url = linkUrl;
+                  }
+                } else if ($click.closest("[rl-link-href]")) {
+                  const $rlLinkDiv = $click.closest("[rl-link-href]");
+                  const rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
+                  if (utils.isNotNull(rlLinkHref)) {
+                    log.info([
+                      "链接来自上层含有[rl-link-href]属性的元素",
+                      {
+                        event,
+                        $click,
+                        $result,
+                        $rlLinkDiv,
+                      },
+                    ]);
+                    url = rlLinkHref;
+                  }
+                }
+              } else {
+                const $article = $result.querySelector("article");
+                url = $article.getAttribute("rl-link-href");
+                log.info("链接来自顶层向下寻找article元素", { event, $click, $result, $article });
+              }
+              if (utils.isNull(url)) {
+                log.warn("未找到有效链接", { event, $click, $result, url });
+                return;
+              }
+              const urlInst = new URL(url);
+              if (urlInst.hostname === "www.baidu.com") {
+                if (urlInst.pathname.match(/\/[\d]+$/)) {
+                  log.warn("不符合新标签页打开的链接，不处理: ", urlInst.toString());
+                  return;
+                }
+              } else if (urlInst.hostname === "ikan.baidu.com" && urlInst.toString().endsWith("/pedia/")) {
+                log.warn("链接异常，不处理: ", urlInst.toString());
+                return;
+              }
+              domUtils.preventEvent(event);
+              log.success("新标签页打开-来自click事件", url);
+              changeVisitedNodeColor($click, $result);
+              window.open(url, "_blank");
+            },
             {
               capture: true,
               overrideTarget: false,
@@ -9462,7 +9495,7 @@ div[class^="new-summary-container_"] {
       function stubFalse() {
         return false;
       }
-      var freeExports$2 = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
+      var freeExports$2 = typeof exports == "object" && exports && !exports.nodeType && exports;
       var freeModule$2 = freeExports$2 && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
       var Buffer$1 = moduleExports$2 ? root.Buffer : void 0;
@@ -9527,7 +9560,7 @@ div[class^="new-summary-container_"] {
           return func(value);
         };
       }
-      var freeExports$1 = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
+      var freeExports$1 = typeof exports == "object" && exports && !exports.nodeType && exports;
       var freeModule$1 = freeExports$1 && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports$1 = freeModule$1 && freeModule$1.exports === freeExports$1;
       var freeProcess = moduleExports$1 && freeGlobal.process;
@@ -9984,7 +10017,7 @@ div[class^="new-summary-container_"] {
       Stack.prototype.get = stackGet;
       Stack.prototype.has = stackHas;
       Stack.prototype.set = stackSet;
-      var freeExports = typeof exports$1 == "object" && exports$1 && !exports$1.nodeType && exports$1;
+      var freeExports = typeof exports == "object" && exports && !exports.nodeType && exports;
       var freeModule = freeExports && typeof module == "object" && module && !module.nodeType && module;
       var moduleExports = freeModule && freeModule.exports === freeExports;
       var Buffer2 = moduleExports ? root.Buffer : void 0;
@@ -10433,7 +10466,7 @@ div[class^="new-summary-container_"] {
           result = {};
         while (++index < length) {
           var pair = pairs[index];
-          result[pair[0]] = pair[1];
+          baseAssignValue(result, pair[0], pair[1]);
         }
         return result;
       }
@@ -10455,24 +10488,12 @@ div[class^="new-summary-container_"] {
         if (!length) {
           return true;
         }
-        var isRootPrimitive = object == null || (typeof object !== "object" && typeof object !== "function");
         while (++index < length) {
-          var key = path[index];
-          if (typeof key !== "string") {
-            continue;
-          }
+          var key = toKey(path[index]);
           if (key === "__proto__" && !hasOwnProperty.call(object, "__proto__")) {
             return false;
           }
-          if (
-            key === "constructor" &&
-            index + 1 < length &&
-            typeof path[index + 1] === "string" &&
-            path[index + 1] === "prototype"
-          ) {
-            if (isRootPrimitive && index === 0) {
-              continue;
-            }
+          if ((key === "constructor" || key === "prototype") && index < length - 1) {
             return false;
           }
         }
@@ -10586,7 +10607,7 @@ div[class^="new-summary-container_"] {
       const keysOf = (arr) => Object.keys(arr);
       const epPropKey = "__epPropKey";
       const definePropType = (val) => val;
-      const isEpProp = (val) => isObject$2(val) && !!val[epPropKey];
+      const isEpProp = (val) => isObject$2(val) && !!val["__epPropKey"];
       const buildProp = (prop, key) => {
         if (!isObject$2(prop) || isEpProp(prop)) return prop;
         const { values, required, default: defaultValue, type, validator } = prop;
@@ -10622,13 +10643,6 @@ div[class^="new-summary-container_"] {
       };
       const buildProps = (props) =>
         fromPairs(Object.entries(props).map(([key, option]) => [key, buildProp(option, key)]));
-      const teleportProps = buildProps({
-        to: {
-          type: definePropType([String, Object]),
-          required: true,
-        },
-        disabled: Boolean,
-      });
       var ElementPlusError = class extends Error {
         constructor(m2) {
           super(m2);
@@ -10668,7 +10682,7 @@ div[class^="new-summary-container_"] {
         );
       };
       function computedEager(fn2, options) {
-        var _a;
+        var _options$flush;
         const result = vue.shallowRef();
         vue.watchEffect(
           () => {
@@ -10676,20 +10690,17 @@ div[class^="new-summary-container_"] {
           },
           {
             ...options,
-            flush: (_a = void 0) != null ? _a : "sync",
+            flush: (_options$flush = void 0) !== null && _options$flush !== void 0 ? _options$flush : "sync",
           }
         );
         return vue.readonly(result);
       }
-      function tryOnScopeDispose(fn2) {
+      function tryOnScopeDispose(fn2, failSilently) {
         if (vue.getCurrentScope()) {
-          vue.onScopeDispose(fn2);
+          vue.onScopeDispose(fn2, failSilently);
           return true;
         }
         return false;
-      }
-      function toValue(r) {
-        return typeof r === "function" ? r() : vue.unref(r);
       }
       const isClient = typeof window !== "undefined" && typeof document !== "undefined";
       typeof WorkerGlobalScope !== "undefined" && globalThis instanceof WorkerGlobalScope;
@@ -10700,19 +10711,37 @@ div[class^="new-summary-container_"] {
       const noop = () => {};
       const isIOS = getIsIOS();
       function getIsIOS() {
-        var _a, _b;
+        var _window, _window2, _window3;
         return (
           isClient &&
-          ((_a = window == null ? void 0 : window.navigator) == null ? void 0 : _a.userAgent) &&
+          !!((_window = window) === null ||
+          _window === void 0 ||
+          (_window = _window.navigator) === null ||
+          _window === void 0
+            ? void 0
+            : _window.userAgent) &&
           (/iP(?:ad|hone|od)/.test(window.navigator.userAgent) ||
-            (((_b = window == null ? void 0 : window.navigator) == null ? void 0 : _b.maxTouchPoints) > 2 &&
-              /iPad|Macintosh/.test(window == null ? void 0 : window.navigator.userAgent)))
+            (((_window2 = window) === null ||
+            _window2 === void 0 ||
+            (_window2 = _window2.navigator) === null ||
+            _window2 === void 0
+              ? void 0
+              : _window2.maxTouchPoints) > 2 &&
+              /iPad|Macintosh/.test(
+                (_window3 = window) === null || _window3 === void 0 ? void 0 : _window3.navigator.userAgent
+              )))
         );
       }
       function createFilterWrapper(filter, fn2) {
         function wrapper(...args) {
           return new Promise((resolve, reject) => {
-            Promise.resolve(filter(() => fn2.apply(this, args), { fn: fn2, thisArg: this, args }))
+            Promise.resolve(
+              filter(() => fn2.apply(this, args), {
+                fn: fn2,
+                thisArg: this,
+                args,
+              })
+            )
               .then(resolve)
               .catch(reject);
           });
@@ -10741,7 +10770,7 @@ div[class^="new-summary-container_"] {
           }
         };
         const filter = (_invoke) => {
-          const duration = toValue(ms);
+          const duration = vue.toValue(ms);
           const elapsed = Date.now() - lastExec;
           const invoke = () => {
             return (lastValue = _invoke());
@@ -10751,10 +10780,10 @@ div[class^="new-summary-container_"] {
             lastExec = Date.now();
             return invoke();
           }
-          if (elapsed > duration && (leading || !isLeading)) {
+          if (elapsed > duration) {
             lastExec = Date.now();
-            invoke();
-          } else if (trailing) {
+            if (leading || !isLeading) invoke();
+          } else if (trailing)
             lastValue = new Promise((resolve, reject) => {
               lastRejector = rejectOnCancel ? reject : resolve;
               timer = setTimeout(
@@ -10767,12 +10796,14 @@ div[class^="new-summary-container_"] {
                 Math.max(0, duration - elapsed)
               );
             });
-          }
           if (!leading && !timer) timer = setTimeout(() => (isLeading = true), duration);
           isLeading = false;
           return lastValue;
         };
         return filter;
+      }
+      function toArray(value) {
+        return Array.isArray(value) ? value : [value];
       }
       function getLifeCycleTarget(target) {
         return vue.getCurrentInstance();
@@ -10781,90 +10812,113 @@ div[class^="new-summary-container_"] {
         return createFilterWrapper(throttleFilter(ms, trailing, leading, rejectOnCancel), fn2);
       }
       function tryOnMounted(fn2, sync = true, target) {
-        const instance = getLifeCycleTarget();
-        if (instance) vue.onMounted(fn2, target);
+        if (getLifeCycleTarget()) vue.onMounted(fn2, target);
         else if (sync) fn2();
         else vue.nextTick(fn2);
+      }
+      function watchImmediate(source, cb, options) {
+        return vue.watch(source, cb, {
+          ...options,
+          immediate: true,
+        });
       }
       const defaultWindow = isClient ? window : void 0;
       const defaultDocument = isClient ? window.document : void 0;
       function unrefElement(elRef) {
-        var _a;
-        const plain = toValue(elRef);
-        return (_a = plain == null ? void 0 : plain.$el) != null ? _a : plain;
+        var _$el;
+        const plain = vue.toValue(elRef);
+        return (_$el = plain === null || plain === void 0 ? void 0 : plain.$el) !== null && _$el !== void 0
+          ? _$el
+          : plain;
       }
       function useEventListener(...args) {
-        let target;
-        let events2;
-        let listeners;
-        let options;
-        if (typeof args[0] === "string" || Array.isArray(args[0])) {
-          [events2, listeners, options] = args;
-          target = defaultWindow;
-        } else {
-          [target, events2, listeners, options] = args;
-        }
-        if (!target) return noop;
-        if (!Array.isArray(events2)) events2 = [events2];
-        if (!Array.isArray(listeners)) listeners = [listeners];
-        const cleanups = [];
-        const cleanup = () => {
-          cleanups.forEach((fn2) => fn2());
-          cleanups.length = 0;
+        const register = (el, event, listener, options) => {
+          el.addEventListener(event, listener, options);
+          return () => el.removeEventListener(event, listener, options);
         };
-        const register = (el, event, listener, options2) => {
-          el.addEventListener(event, listener, options2);
-          return () => el.removeEventListener(event, listener, options2);
-        };
-        const stopWatch = vue.watch(
-          () => [unrefElement(target), toValue(options)],
-          ([el, options2]) => {
-            cleanup();
-            if (!el) return;
-            const optionsClone = isObject(options2) ? { ...options2 } : options2;
-            cleanups.push(
-              ...events2.flatMap((event) => {
-                return listeners.map((listener) => register(el, event, listener, optionsClone));
-              })
-            );
+        const firstParamTargets = vue.computed(() => {
+          const test = toArray(vue.toValue(args[0])).filter((e) => e != null);
+          return test.every((e) => typeof e !== "string") ? test : void 0;
+        });
+        return watchImmediate(
+          () => {
+            var _firstParamTargets$va, _firstParamTargets$va2;
+            return [
+              (_firstParamTargets$va =
+                (_firstParamTargets$va2 = firstParamTargets.value) === null || _firstParamTargets$va2 === void 0
+                  ? void 0
+                  : _firstParamTargets$va2.map((e) => unrefElement(e))) !== null && _firstParamTargets$va !== void 0
+                ? _firstParamTargets$va
+                : [defaultWindow].filter((e) => e != null),
+              toArray(vue.toValue(firstParamTargets.value ? args[1] : args[0])),
+              toArray(vue.unref(firstParamTargets.value ? args[2] : args[1])),
+              vue.toValue(firstParamTargets.value ? args[3] : args[2]),
+            ];
           },
-          { immediate: true, flush: "post" }
+          ([raw_targets, raw_events, raw_listeners, raw_options], _2, onCleanup) => {
+            if (
+              !(raw_targets === null || raw_targets === void 0 ? void 0 : raw_targets.length) ||
+              !(raw_events === null || raw_events === void 0 ? void 0 : raw_events.length) ||
+              !(raw_listeners === null || raw_listeners === void 0 ? void 0 : raw_listeners.length)
+            )
+              return;
+            const optionsClone = isObject(raw_options) ? { ...raw_options } : raw_options;
+            const cleanups = raw_targets.flatMap((el) =>
+              raw_events.flatMap((event) =>
+                raw_listeners.map((listener) => register(el, event, listener, optionsClone))
+              )
+            );
+            onCleanup(() => {
+              cleanups.forEach((fn2) => fn2());
+            });
+          },
+          { flush: "post" }
         );
-        const stop = () => {
-          stopWatch();
-          cleanup();
-        };
-        tryOnScopeDispose(stop);
-        return stop;
       }
       let _iOSWorkaround = false;
       function onClickOutside(target, handler, options = {}) {
-        const { window: window2 = defaultWindow, ignore = [], capture = true, detectIframe = false } = options;
-        if (!window2) return noop;
+        const {
+          window: window2 = defaultWindow,
+          ignore = [],
+          capture = true,
+          detectIframe = false,
+          controls = false,
+        } = options;
+        if (!window2)
+          return controls
+            ? {
+                stop: noop,
+                cancel: noop,
+                trigger: noop,
+              }
+            : noop;
         if (isIOS && !_iOSWorkaround) {
           _iOSWorkaround = true;
-          Array.from(window2.document.body.children).forEach((el) => el.addEventListener("click", noop));
-          window2.document.documentElement.addEventListener("click", noop);
+          const listenerOptions = { passive: true };
+          Array.from(window2.document.body.children).forEach((el) =>
+            el.addEventListener("click", noop, listenerOptions)
+          );
+          window2.document.documentElement.addEventListener("click", noop, listenerOptions);
         }
         let shouldListen = true;
         const shouldIgnore = (event) => {
-          return toValue(ignore).some((target2) => {
-            if (typeof target2 === "string") {
+          return vue.toValue(ignore).some((target2) => {
+            if (typeof target2 === "string")
               return Array.from(window2.document.querySelectorAll(target2)).some(
                 (el) => el === event.target || event.composedPath().includes(el)
               );
-            } else {
+            else {
               const el = unrefElement(target2);
               return el && (event.target === el || event.composedPath().includes(el));
             }
           });
         };
         function hasMultipleRoots(target2) {
-          const vm = toValue(target2);
+          const vm = vue.toValue(target2);
           return vm && vm.$.subTree.shapeFlag === 16;
         }
         function checkMultipleRoots(target2, event) {
-          const vm = toValue(target2);
+          const vm = vue.toValue(target2);
           const children = vm.$.subTree && vm.$.subTree.children;
           if (children == null || !Array.isArray(children)) return false;
           return children.some((child) => child.el === event.target || event.composedPath().includes(child.el));
@@ -10874,7 +10928,7 @@ div[class^="new-summary-container_"] {
           if (event.target == null) return;
           if (!(el instanceof Element) && hasMultipleRoots(target) && checkMultipleRoots(target, event)) return;
           if (!el || el === event.target || event.composedPath().includes(el)) return;
-          if (event.detail === 0) shouldListen = !shouldIgnore(event);
+          if ("detail" in event && event.detail === 0) shouldListen = !shouldIgnore(event);
           if (!shouldListen) {
             shouldListen = true;
             return;
@@ -10895,7 +10949,10 @@ div[class^="new-summary-container_"] {
                 listener(event);
               }
             },
-            { passive: true, capture }
+            {
+              passive: true,
+              capture,
+            }
           ),
           useEventListener(
             window2,
@@ -10907,30 +10964,47 @@ div[class^="new-summary-container_"] {
             { passive: true }
           ),
           detectIframe &&
-            useEventListener(window2, "blur", (event) => {
-              setTimeout(() => {
-                var _a;
-                const el = unrefElement(target);
-                if (
-                  ((_a = window2.document.activeElement) == null ? void 0 : _a.tagName) === "IFRAME" &&
-                  !(el == null ? void 0 : el.contains(window2.document.activeElement))
-                ) {
-                  handler(event);
-                }
-              }, 0);
-            }),
+            useEventListener(
+              window2,
+              "blur",
+              (event) => {
+                setTimeout(() => {
+                  const el = unrefElement(target);
+                  let activeEl = window2.document.activeElement;
+                  while (activeEl === null || activeEl === void 0 ? void 0 : activeEl.shadowRoot)
+                    activeEl = activeEl.shadowRoot.activeElement;
+                  if (
+                    (activeEl === null || activeEl === void 0 ? void 0 : activeEl.tagName) === "IFRAME" &&
+                    !(el === null || el === void 0 ? void 0 : el.contains(window2.document.activeElement))
+                  )
+                    handler(event);
+                }, 0);
+              },
+              { passive: true }
+            ),
         ].filter(Boolean);
         const stop = () => cleanup.forEach((fn2) => fn2());
+        if (controls)
+          return {
+            stop,
+            cancel: () => {
+              shouldListen = false;
+            },
+            trigger: (event) => {
+              shouldListen = true;
+              listener(event);
+              shouldListen = false;
+            },
+          };
         return stop;
       }
       function useMounted() {
-        const isMounted = vue.ref(false);
+        const isMounted = vue.shallowRef(false);
         const instance = vue.getCurrentInstance();
-        if (instance) {
+        if (instance)
           vue.onMounted(() => {
             isMounted.value = true;
           }, instance);
-        }
         return isMounted;
       }
       function useSupported(callback) {
@@ -10942,11 +11016,16 @@ div[class^="new-summary-container_"] {
       }
       function useDocumentVisibility(options = {}) {
         const { document: document2 = defaultDocument } = options;
-        if (!document2) return vue.ref("visible");
-        const visibility = vue.ref(document2.visibilityState);
-        useEventListener(document2, "visibilitychange", () => {
-          visibility.value = document2.visibilityState;
-        });
+        if (!document2) return vue.shallowRef("visible");
+        const visibility = vue.shallowRef(document2.visibilityState);
+        useEventListener(
+          document2,
+          "visibilitychange",
+          () => {
+            visibility.value = document2.visibilityState;
+          },
+          { passive: true }
+        );
         return visibility;
       }
       function useResizeObserver(target, callback, options = {}) {
@@ -10959,22 +11038,22 @@ div[class^="new-summary-container_"] {
             observer = void 0;
           }
         };
-        const targets = vue.computed(() => {
-          const _targets = toValue(target);
-          return Array.isArray(_targets) ? _targets.map((el) => unrefElement(el)) : [unrefElement(_targets)];
-        });
         const stopWatch = vue.watch(
-          targets,
+          vue.computed(() => {
+            const _targets = vue.toValue(target);
+            return Array.isArray(_targets) ? _targets.map((el) => unrefElement(el)) : [unrefElement(_targets)];
+          }),
           (els) => {
             cleanup();
             if (isSupported.value && window2) {
               observer = new ResizeObserver(callback);
-              for (const _el of els) {
-                if (_el) observer.observe(_el, observerOptions);
-              }
+              for (const _el of els) if (_el) observer.observe(_el, observerOptions);
             }
           },
-          { immediate: true, flush: "post" }
+          {
+            immediate: true,
+            flush: "post",
+          }
         );
         const stop = () => {
           cleanup();
@@ -10986,16 +11065,26 @@ div[class^="new-summary-container_"] {
           stop,
         };
       }
-      function useElementSize(target, initialSize = { width: 0, height: 0 }, options = {}) {
+      function useElementSize(
+        target,
+        initialSize = {
+          width: 0,
+          height: 0,
+        },
+        options = {}
+      ) {
         const { window: window2 = defaultWindow, box = "content-box" } = options;
         const isSVG = vue.computed(() => {
-          var _a, _b;
-          return (_b = (_a = unrefElement(target)) == null ? void 0 : _a.namespaceURI) == null
+          var _unrefElement;
+          return (_unrefElement = unrefElement(target)) === null ||
+            _unrefElement === void 0 ||
+            (_unrefElement = _unrefElement.namespaceURI) === null ||
+            _unrefElement === void 0
             ? void 0
-            : _b.includes("svg");
+            : _unrefElement.includes("svg");
         });
-        const width = vue.ref(initialSize.width);
-        const height = vue.ref(initialSize.height);
+        const width = vue.shallowRef(initialSize.width);
+        const height = vue.shallowRef(initialSize.height);
         const { stop: stop1 } = useResizeObserver(
           target,
           ([entry]) => {
@@ -11012,15 +11101,13 @@ div[class^="new-summary-container_"] {
                 width.value = rect.width;
                 height.value = rect.height;
               }
+            } else if (boxSize) {
+              const formatBoxSize = toArray(boxSize);
+              width.value = formatBoxSize.reduce((acc, { inlineSize }) => acc + inlineSize, 0);
+              height.value = formatBoxSize.reduce((acc, { blockSize }) => acc + blockSize, 0);
             } else {
-              if (boxSize) {
-                const formatBoxSize = Array.isArray(boxSize) ? boxSize : [boxSize];
-                width.value = formatBoxSize.reduce((acc, { inlineSize }) => acc + inlineSize, 0);
-                height.value = formatBoxSize.reduce((acc, { blockSize }) => acc + blockSize, 0);
-              } else {
-                width.value = entry.contentRect.width;
-                height.value = entry.contentRect.height;
-              }
+              width.value = entry.contentRect.width;
+              height.value = entry.contentRect.height;
             }
           },
           options
@@ -11050,30 +11137,23 @@ div[class^="new-summary-container_"] {
         };
       }
       function useIntersectionObserver(target, callback, options = {}) {
-        const {
-          root: root2,
-          rootMargin = "0px",
-          threshold = 0,
-          window: window2 = defaultWindow,
-          immediate = true,
-        } = options;
+        const { root: root2, rootMargin, threshold = 0, window: window2 = defaultWindow, immediate = true } = options;
         const isSupported = useSupported(() => window2 && "IntersectionObserver" in window2);
         const targets = vue.computed(() => {
-          const _target = toValue(target);
-          return (Array.isArray(_target) ? _target : [_target]).map(unrefElement).filter(notNullish);
+          return toArray(vue.toValue(target)).map(unrefElement).filter(notNullish);
         });
         let cleanup = noop;
-        const isActive = vue.ref(immediate);
+        const isActive = vue.shallowRef(immediate);
         const stopWatch = isSupported.value
           ? vue.watch(
-              () => [targets.value, unrefElement(root2), isActive.value],
-              ([targets2, root22]) => {
+              () => [targets.value, unrefElement(root2), vue.toValue(rootMargin), isActive.value],
+              ([targets2, root3, rootMargin2]) => {
                 cleanup();
                 if (!isActive.value) return;
                 if (!targets2.length) return;
                 const observer = new IntersectionObserver(callback, {
-                  root: unrefElement(root22),
-                  rootMargin,
+                  root: unrefElement(root3),
+                  rootMargin: rootMargin2,
                   threshold,
                 });
                 targets2.forEach((el) => el && observer.observe(el));
@@ -11082,7 +11162,10 @@ div[class^="new-summary-container_"] {
                   cleanup = noop;
                 };
               },
-              { immediate, flush: "post" }
+              {
+                immediate,
+                flush: "post",
+              }
             )
           : noop;
         const stop = () => {
@@ -11106,14 +11189,25 @@ div[class^="new-summary-container_"] {
       }
       function useWindowFocus(options = {}) {
         const { window: window2 = defaultWindow } = options;
-        if (!window2) return vue.ref(false);
-        const focused = vue.ref(window2.document.hasFocus());
-        useEventListener(window2, "blur", () => {
-          focused.value = false;
-        });
-        useEventListener(window2, "focus", () => {
-          focused.value = true;
-        });
+        if (!window2) return vue.shallowRef(false);
+        const focused = vue.shallowRef(window2.document.hasFocus());
+        const listenerOptions = { passive: true };
+        useEventListener(
+          window2,
+          "blur",
+          () => {
+            focused.value = false;
+          },
+          listenerOptions
+        );
+        useEventListener(
+          window2,
+          "focus",
+          () => {
+            focused.value = true;
+          },
+          listenerOptions
+        );
         return focused;
       }
       const useDeprecated = ({ from, replacement, scope, version, ref: ref2, type = "API" }, condition) => {
@@ -11382,6 +11476,10 @@ For more detail, please visit: ${ref2}
             rightArrow: "Carousel arrow right",
             indicator: "Carousel switch to index {index}",
           },
+          inputOTP: {
+            groupLabel: "OTP Input",
+            defaultLabel: "Please enter OTP character {index}",
+          },
         },
       };
       const buildTranslator = (locale) => (path, option) => translate(path, option, vue.unref(locale));
@@ -11399,7 +11497,6 @@ For more detail, please visit: ${ref2}
         const locale = localeOverrides || vue.inject(localeContextKey, vue.ref());
         return buildLocaleContext(vue.computed(() => locale.value || en_default));
       };
-      const defaultNamespace = "el";
       const statePrefix = "is-";
       const _bem = (namespace, block, blockSuffix, element, modifier) => {
         let cls = `${namespace}-${block}`;
@@ -11412,11 +11509,9 @@ For more detail, please visit: ${ref2}
       const useGetDerivedNamespace = (namespaceOverrides) => {
         const derivedNamespace =
           namespaceOverrides ||
-          (vue.getCurrentInstance()
-            ? vue.inject(namespaceContextKey, vue.ref(defaultNamespace))
-            : vue.ref(defaultNamespace));
+          (vue.getCurrentInstance() ? vue.inject(namespaceContextKey, vue.ref("el")) : vue.ref("el"));
         return vue.computed(() => {
-          return vue.unref(derivedNamespace) || defaultNamespace;
+          return vue.unref(derivedNamespace) || "el";
         });
       };
       const useNamespace = (block, namespaceOverrides) => {
@@ -12886,9 +12981,13 @@ For more detail, please visit: ${ref2}
         let timeoutHandle;
         const registerTimeout = (fn2, delay) => {
           cancelTimeout();
-          timeoutHandle = window.setTimeout(fn2, delay);
+          timeoutHandle = globalThis.setTimeout(fn2, delay);
         };
-        const cancelTimeout = () => window.clearTimeout(timeoutHandle);
+        const cancelTimeout = () => {
+          if (timeoutHandle === void 0) return;
+          globalThis.clearTimeout(timeoutHandle);
+          timeoutHandle = void 0;
+        };
         tryOnScopeDispose(() => cancelTimeout());
         return {
           registerTimeout,
@@ -13055,22 +13154,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           nextZIndex,
         };
       };
-      let PatchFlags = (function (PatchFlags2) {
-        PatchFlags2[(PatchFlags2["TEXT"] = 1)] = "TEXT";
-        PatchFlags2[(PatchFlags2["CLASS"] = 2)] = "CLASS";
-        PatchFlags2[(PatchFlags2["STYLE"] = 4)] = "STYLE";
-        PatchFlags2[(PatchFlags2["PROPS"] = 8)] = "PROPS";
-        PatchFlags2[(PatchFlags2["FULL_PROPS"] = 16)] = "FULL_PROPS";
-        PatchFlags2[(PatchFlags2["HYDRATE_EVENTS"] = 32)] = "HYDRATE_EVENTS";
-        PatchFlags2[(PatchFlags2["STABLE_FRAGMENT"] = 64)] = "STABLE_FRAGMENT";
-        PatchFlags2[(PatchFlags2["KEYED_FRAGMENT"] = 128)] = "KEYED_FRAGMENT";
-        PatchFlags2[(PatchFlags2["UNKEYED_FRAGMENT"] = 256)] = "UNKEYED_FRAGMENT";
-        PatchFlags2[(PatchFlags2["NEED_PATCH"] = 512)] = "NEED_PATCH";
-        PatchFlags2[(PatchFlags2["DYNAMIC_SLOTS"] = 1024)] = "DYNAMIC_SLOTS";
-        PatchFlags2[(PatchFlags2["HOISTED"] = -1)] = "HOISTED";
-        PatchFlags2[(PatchFlags2["BAIL"] = -2)] = "BAIL";
-        return PatchFlags2;
-      })({});
       function isFragment(node) {
         return vue.isVNode(node) && node.type === vue.Fragment;
       }
@@ -13222,29 +13305,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         withPropsDefaultsSetter(component);
         return component;
       };
-      var teleport_vue_vue_type_script_setup_true_lang_default = vue.defineComponent({
-        __name: "teleport",
-        props: teleportProps,
-        setup(__props) {
-          return (_ctx, _cache) => {
-            return _ctx.disabled
-              ? vue.renderSlot(_ctx.$slots, "default", { key: 0 })
-              : (vue.openBlock(),
-                vue.createBlock(
-                  vue.Teleport,
-                  {
-                    key: 1,
-                    to: _ctx.to,
-                  },
-                  [vue.renderSlot(_ctx.$slots, "default")],
-                  8,
-                  ["to"]
-                ));
-          };
-        },
-      });
-      var teleport_default = teleport_vue_vue_type_script_setup_true_lang_default;
-      const ElTeleport = withInstall(teleport_default);
       const iconPropType = definePropType([String, Object, Function]);
       const iconProps = buildProps({
         size: { type: definePropType([Number, String]) },
@@ -13308,7 +13368,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           vue.onBeforeUnmount(() => {
             arrowRef.value = void 0;
           });
-          __expose({ arrowRef });
+          __expose({
+            arrowRef,
+          });
           return (_ctx, _cache) => {
             return (
               vue.openBlock(),
@@ -13384,8 +13446,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         return [null, 0];
       }
       function wrapTextContent(s) {
-        const ns = useNamespace("only-child");
-        return vue.createVNode("span", { class: ns.e("content") }, [s]);
+        return vue.createVNode("span", { class: useNamespace("only-child").e("content") }, [s]);
       }
       var trigger_vue_vue_type_script_setup_true_lang_default$1 = vue.defineComponent({
         name: "ElPopperTrigger",
@@ -13487,7 +13548,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               triggerRef2.value = void 0;
             }
           });
-          __expose({ triggerRef: triggerRef2 });
+          __expose({
+            triggerRef: triggerRef2,
+          });
           return (_ctx, _cache) => {
             return !__props.virtualTriggering
               ? (vue.openBlock(),
@@ -13517,7 +13580,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           default: 5,
         },
       });
-      const POSITIONING_STRATEGIES = ["fixed", "absolute"];
       const popperCoreConfigProps = buildProps({
         boundariesPadding: {
           type: Number,
@@ -13546,7 +13608,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         strategy: {
           type: String,
-          values: POSITIONING_STRATEGIES,
+          values: ["fixed", "absolute"],
           default: "absolute",
         },
       });
@@ -13554,7 +13616,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         ...popperCoreConfigProps,
         ...popperArrowProps,
         id: String,
-        style: { type: definePropType([String, Array, Object]) },
+        style: {
+          type: definePropType([String, Array, Object, Boolean]),
+          default: void 0,
+        },
         className: { type: definePropType([String, Array, Object]) },
         effect: {
           type: definePropType(String),
@@ -13569,7 +13634,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         focusOnShow: Boolean,
         trapping: Boolean,
         popperClass: { type: definePropType([String, Array, Object]) },
-        popperStyle: { type: definePropType([String, Array, Object]) },
+        popperStyle: {
+          type: definePropType([String, Array, Object, Boolean]),
+          default: void 0,
+        },
         referenceEl: { type: definePropType(Object) },
         triggerTargetEl: { type: definePropType(Object) },
         stopPopperMouseEvent: {
@@ -14063,8 +14131,19 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             }
           );
         });
+        let stopResizeObserver;
+        vue.watch(
+          () => props.visible,
+          (visible) => {
+            stopResizeObserver?.();
+            stopResizeObserver = void 0;
+            if (visible) stopResizeObserver = useResizeObserver(contentRef, update).stop;
+          }
+        );
         vue.onBeforeUnmount(() => {
           popperInstanceRef.value = void 0;
+          stopResizeObserver?.();
+          stopResizeObserver = void 0;
         });
         return {
           attributes,
@@ -14318,7 +14397,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       const useTooltipContentProps = buildProps({
         ...useDelayedToggleProps,
         ...popperContentProps,
-        appendTo: { type: teleportProps.to.type },
+        appendTo: { type: definePropType([String, Object]) },
         content: {
           type: String,
           default: "",
@@ -14434,7 +14513,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               onToggle(e);
             }
           });
-          __expose({ triggerRef: triggerRef2 });
+          __expose({
+            triggerRef: triggerRef2,
+          });
           return (_ctx, _cache) => {
             return (
               vue.openBlock(),
@@ -14568,12 +14649,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             },
             { flush: "post" }
           );
-          vue.watch(
-            () => props.content,
-            () => {
-              contentRef.value?.updatePopper?.();
-            }
-          );
           __expose({
             contentRef,
             isFocusInsideContent,
@@ -14582,110 +14657,107 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             return (
               vue.openBlock(),
               vue.createBlock(
-                vue.unref(ElTeleport),
+                vue.Teleport,
                 {
                   disabled: !__props.teleported,
                   to: appendTo.value,
                 },
-                {
-                  default: vue.withCtx(() => [
-                    shouldRender.value || !ariaHidden.value
-                      ? (vue.openBlock(),
-                        vue.createBlock(
-                          vue.Transition,
-                          {
-                            key: 0,
-                            name: transitionClass.value,
-                            appear: !persistentRef.value,
-                            onAfterLeave: onTransitionLeave,
-                            onBeforeEnter,
-                            onAfterEnter: onAfterShow,
-                            onBeforeLeave,
-                            persisted: "",
-                          },
-                          {
-                            default: vue.withCtx(() => [
-                              vue.withDirectives(
-                                vue.createVNode(
-                                  vue.unref(content_default$1),
-                                  vue.mergeProps(
-                                    {
-                                      id: vue.unref(id),
-                                      ref_key: "contentRef",
-                                      ref: contentRef,
-                                    },
-                                    _ctx.$attrs,
-                                    {
-                                      "aria-label": __props.ariaLabel,
-                                      "aria-hidden": ariaHidden.value,
-                                      "boundaries-padding": __props.boundariesPadding,
-                                      "fallback-placements": __props.fallbackPlacements,
-                                      "gpu-acceleration": __props.gpuAcceleration,
-                                      offset: __props.offset,
-                                      placement: __props.placement,
-                                      "popper-options": __props.popperOptions,
-                                      "arrow-offset": __props.arrowOffset,
-                                      strategy: __props.strategy,
-                                      effect: __props.effect,
-                                      enterable: __props.enterable,
-                                      pure: __props.pure,
-                                      "popper-class": __props.popperClass,
-                                      "popper-style": [__props.popperStyle, contentStyle.value],
-                                      "reference-el": __props.referenceEl,
-                                      "trigger-target-el": __props.triggerTargetEl,
-                                      visible: shouldShow.value,
-                                      "z-index": __props.zIndex,
-                                      loop: __props.loop,
-                                      onMouseenter: vue.unref(onContentEnter),
-                                      onMouseleave: vue.unref(onContentLeave),
-                                      onBlur,
-                                      onClose: vue.unref(onClose),
-                                    }
-                                  ),
+                [
+                  shouldRender.value || !ariaHidden.value
+                    ? (vue.openBlock(),
+                      vue.createBlock(
+                        vue.Transition,
+                        {
+                          key: 0,
+                          name: transitionClass.value,
+                          appear: !persistentRef.value,
+                          onAfterLeave: onTransitionLeave,
+                          onBeforeEnter,
+                          onAfterEnter: onAfterShow,
+                          onBeforeLeave,
+                          persisted: "",
+                        },
+                        {
+                          default: vue.withCtx(() => [
+                            vue.withDirectives(
+                              vue.createVNode(
+                                vue.unref(content_default$1),
+                                vue.mergeProps(
                                   {
-                                    default: vue.withCtx(() => [vue.renderSlot(_ctx.$slots, "default")]),
-                                    _: 3,
+                                    id: vue.unref(id),
+                                    ref_key: "contentRef",
+                                    ref: contentRef,
                                   },
-                                  16,
-                                  [
-                                    "id",
-                                    "aria-label",
-                                    "aria-hidden",
-                                    "boundaries-padding",
-                                    "fallback-placements",
-                                    "gpu-acceleration",
-                                    "offset",
-                                    "placement",
-                                    "popper-options",
-                                    "arrow-offset",
-                                    "strategy",
-                                    "effect",
-                                    "enterable",
-                                    "pure",
-                                    "popper-class",
-                                    "popper-style",
-                                    "reference-el",
-                                    "trigger-target-el",
-                                    "visible",
-                                    "z-index",
-                                    "loop",
-                                    "onMouseenter",
-                                    "onMouseleave",
-                                    "onClose",
-                                  ]
+                                  _ctx.$attrs,
+                                  {
+                                    "aria-label": __props.ariaLabel,
+                                    "aria-hidden": ariaHidden.value,
+                                    "boundaries-padding": __props.boundariesPadding,
+                                    "fallback-placements": __props.fallbackPlacements,
+                                    "gpu-acceleration": __props.gpuAcceleration,
+                                    offset: __props.offset,
+                                    placement: __props.placement,
+                                    "popper-options": __props.popperOptions,
+                                    "arrow-offset": __props.arrowOffset,
+                                    strategy: __props.strategy,
+                                    effect: __props.effect,
+                                    enterable: __props.enterable,
+                                    pure: __props.pure,
+                                    "popper-class": __props.popperClass,
+                                    "popper-style": [__props.popperStyle, contentStyle.value],
+                                    "reference-el": __props.referenceEl,
+                                    "trigger-target-el": __props.triggerTargetEl,
+                                    visible: shouldShow.value,
+                                    "z-index": __props.zIndex,
+                                    loop: __props.loop,
+                                    onMouseenter: vue.unref(onContentEnter),
+                                    onMouseleave: vue.unref(onContentLeave),
+                                    onBlur,
+                                    onClose: vue.unref(onClose),
+                                  }
                                 ),
-                                [[vue.vShow, shouldShow.value]]
+                                {
+                                  default: vue.withCtx(() => [vue.renderSlot(_ctx.$slots, "default")]),
+                                  _: 3,
+                                },
+                                16,
+                                [
+                                  "id",
+                                  "aria-label",
+                                  "aria-hidden",
+                                  "boundaries-padding",
+                                  "fallback-placements",
+                                  "gpu-acceleration",
+                                  "offset",
+                                  "placement",
+                                  "popper-options",
+                                  "arrow-offset",
+                                  "strategy",
+                                  "effect",
+                                  "enterable",
+                                  "pure",
+                                  "popper-class",
+                                  "popper-style",
+                                  "reference-el",
+                                  "trigger-target-el",
+                                  "visible",
+                                  "z-index",
+                                  "loop",
+                                  "onMouseenter",
+                                  "onMouseleave",
+                                  "onClose",
+                                ]
                               ),
-                            ]),
-                            _: 3,
-                          },
-                          8,
-                          ["name", "appear"]
-                        ))
-                      : vue.createCommentVNode("v-if", true),
-                  ]),
-                  _: 3,
-                },
+                              [[vue.vShow, shouldShow.value]]
+                            ),
+                          ]),
+                          _: 3,
+                        },
+                        8,
+                        ["name", "appear"]
+                      ))
+                    : vue.createCommentVNode("v-if", true),
+                ],
                 8,
                 ["disabled", "to"]
               )
@@ -14759,6 +14831,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             () => props.disabled,
             (disabled) => {
               if (disabled && open.value) open.value = false;
+              if (!disabled && isBoolean(props.visible)) open.value = props.visible;
             }
           );
           const isFocusInsideContent = (event) => {
@@ -14928,7 +15001,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         },
         native: Boolean,
         wrapStyle: {
-          type: definePropType([String, Object, Array]),
+          type: definePropType([String, Object, Array, Boolean]),
           default: "",
         },
         wrapClass: {
@@ -14940,7 +15013,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           default: "",
         },
         viewStyle: {
-          type: [String, Array, Object],
+          type: definePropType([String, Object, Array, Boolean]),
           default: "",
         },
         noresize: Boolean,
@@ -14965,7 +15038,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         "end-reached": (direction) => ["left", "right", "top", "bottom"].includes(direction),
         scroll: ({ scrollTop, scrollLeft }) => [scrollTop, scrollLeft].every(isNumber),
       };
-      const GAP = 4;
       const BAR_MAP = {
         vertical: {
           offset: "offsetHeight",
@@ -15003,6 +15075,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         always: Boolean,
       });
       const scrollbarContextKey = Symbol("scrollbarContextKey");
+      function isGreaterThan(a, b2, epsilon = 0.03) {
+        return a - b2 > epsilon;
+      }
       const barProps = buildProps({
         always: {
           type: Boolean,
@@ -15181,8 +15256,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const ratioX = vue.ref(1);
           const handleScroll = (wrap) => {
             if (wrap) {
-              const offsetHeight = wrap.offsetHeight - GAP;
-              const offsetWidth = wrap.offsetWidth - GAP;
+              const offsetHeight = wrap.offsetHeight - 4;
+              const offsetWidth = wrap.offsetWidth - 4;
               moveY.value = ((wrap.scrollTop * 100) / offsetHeight) * ratioY.value;
               moveX.value = ((wrap.scrollLeft * 100) / offsetWidth) * ratioX.value;
             }
@@ -15190,16 +15265,16 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const update = () => {
             const wrap = scrollbar?.wrapElement;
             if (!wrap) return;
-            const offsetHeight = wrap.offsetHeight - GAP;
-            const offsetWidth = wrap.offsetWidth - GAP;
+            const offsetHeight = wrap.offsetHeight - 4;
+            const offsetWidth = wrap.offsetWidth - 4;
             const originalHeight = offsetHeight ** 2 / wrap.scrollHeight;
             const originalWidth = offsetWidth ** 2 / wrap.scrollWidth;
             const height = Math.max(originalHeight, props.minSize);
             const width = Math.max(originalWidth, props.minSize);
             ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
             ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
-            sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
-            sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
+            sizeHeight.value = height + 4 < offsetHeight ? `${height}px` : "";
+            sizeWidth.value = width + 4 < offsetWidth ? `${width}px` : "";
           };
           __expose({
             handleScroll,
@@ -15312,11 +15387,16 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               wrapScrollTop = wrapRef.value.scrollTop;
               wrapScrollLeft = wrapRef.value.scrollLeft;
               const arrivedStates = {
-                bottom: wrapScrollTop + wrapRef.value.clientHeight >= wrapRef.value.scrollHeight - props.distance,
+                bottom: !isGreaterThan(
+                  wrapRef.value.scrollHeight - props.distance,
+                  wrapRef.value.clientHeight + wrapScrollTop
+                ),
                 top: wrapScrollTop <= props.distance && prevTop !== 0,
                 right:
-                  wrapScrollLeft + wrapRef.value.clientWidth >= wrapRef.value.scrollWidth - props.distance &&
-                  prevLeft !== wrapScrollLeft,
+                  !isGreaterThan(
+                    wrapRef.value.scrollWidth - props.distance,
+                    wrapRef.value.clientWidth + wrapScrollLeft
+                  ) && prevLeft !== wrapScrollLeft,
                 left: wrapScrollLeft <= props.distance && prevLeft !== 0,
               };
               emit("scroll", {
@@ -15353,6 +15433,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const update = () => {
             barRef.value?.update();
             distanceScrollState[direction] = false;
+            if (wrapRef.value) barRef.value?.handleScroll(wrapRef.value);
           };
           vue.watch(
             () => props.noresize,
@@ -15375,7 +15456,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               if (!props.native)
                 vue.nextTick(() => {
                   update();
-                  if (wrapRef.value) barRef.value?.handleScroll(wrapRef.value);
                 });
             }
           );
@@ -15530,7 +15610,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         popperClass: useTooltipContentProps.popperClass,
         popperStyle: useTooltipContentProps.popperStyle,
         collapseClass: String,
-        collapseStyle: { type: definePropType([String, Array, Object]) },
+        collapseStyle: {
+          type: definePropType([String, Array, Object, Boolean]),
+          default: void 0,
+        },
       };
       const _hoisted_1$m = ["src", "alt", "srcset"];
       var avatar_vue_vue_type_script_setup_true_lang_default = vue.defineComponent({
@@ -15852,10 +15935,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         const config = useGlobalConfig();
         const ns = useNamespace(
           block,
-          vue.computed(() => config.value?.namespace || defaultNamespace)
+          vue.computed(() => config.value?.namespace || "el")
         );
         const locale = useLocale(vue.computed(() => config.value?.locale));
-        const zIndex2 = useZIndex(vue.computed(() => config.value?.zIndex || defaultInitialZIndex));
+        const zIndex2 = useZIndex(vue.computed(() => config.value?.zIndex || 2e3));
         const size = vue.computed(() => vue.unref(sizeFallback) || config.value?.size || "");
         provideGlobalConfig(vue.computed(() => vue.unref(config) || {}));
         return {
@@ -16928,6 +17011,23 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   ? darken(color, 80)
                   : color.tint(80).toString();
               }
+            } else if (props.link || props.text) {
+              const hoverColor = props.dark ? darken(color, 30) : color.tint(30).toString();
+              styles = ns.cssVarBlock({
+                "text-color": buttonColor,
+                "hover-text-color": hoverColor,
+                "active-text-color": activeBgColor,
+              });
+              if (props.link) {
+                styles[ns.cssVarBlockName("hover-link-text-color")] = hoverColor;
+                styles[ns.cssVarBlockName("active-color")] = activeBgColor;
+              }
+              if (_disabled.value) {
+                const disabledColor = props.dark ? darken(color, 50) : color.tint(50).toString();
+                styles[ns.cssVarBlockName("disabled-bg-color")] = "transparent";
+                styles[ns.cssVarBlockName("disabled-text-color")] = disabledColor;
+                styles[ns.cssVarBlockName("disabled-border-color")] = "transparent";
+              }
             } else {
               const hoverBgColor = props.dark ? darken(color, 30) : color.tint(30).toString();
               const textColor = color.isDark()
@@ -17122,7 +17222,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       function requireDayjs_min() {
         if (hasRequiredDayjs_min) return dayjs_min$1.exports;
         hasRequiredDayjs_min = 1;
-        (function (module2, exports$1) {
+        (function (module2, exports2) {
           !(function (t, e) {
             module2.exports = e();
           })(dayjs_min, function () {
@@ -17570,6 +17670,33 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         return dayjs_min$1.exports;
       }
       requireDayjs_min();
+      const useWheel = ({ atEndEdge, atStartEdge, layout }, onWheelDelta) => {
+        let frameHandle;
+        let offset = 0;
+        const hasReachedEdge = (offset2) => {
+          return (offset2 < 0 && atStartEdge.value) || (offset2 > 0 && atEndEdge.value);
+        };
+        const onWheel = (e) => {
+          cAF(frameHandle);
+          let { deltaX, deltaY } = e;
+          if (e.shiftKey && deltaY !== 0) {
+            deltaX = deltaY;
+            deltaY = 0;
+          }
+          const newOffset = layout.value === "horizontal" ? deltaX : deltaY;
+          if (hasReachedEdge(newOffset)) return;
+          offset += newOffset;
+          if (!isFirefox() && newOffset !== 0) e.preventDefault();
+          frameHandle = rAF(() => {
+            onWheelDelta(offset);
+            offset = 0;
+          });
+        };
+        return {
+          hasReachedEdge,
+          onWheel,
+        };
+      };
       const colProps = buildProps({
         tag: {
           type: String,
@@ -18668,303 +18795,300 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             registerEventListener();
             stopWheelListener = useEventListener("wheel", wheelHandler, { passive: false });
           });
-          __expose({ setActiveItem });
+          __expose({
+            setActiveItem,
+          });
           return (_ctx, _cache) => {
             return (
               vue.openBlock(),
               vue.createBlock(
-                vue.unref(ElTeleport),
+                vue.Teleport,
                 {
                   to: "body",
                   disabled: !__props.teleported,
                 },
-                {
-                  default: vue.withCtx(() => [
-                    vue.createVNode(
-                      vue.Transition,
-                      {
-                        name: "viewer-fade",
-                        appear: "",
-                      },
-                      {
-                        default: vue.withCtx(() => [
-                          vue.createElementVNode(
-                            "div",
-                            {
-                              ref_key: "wrapper",
-                              ref: wrapper,
-                              tabindex: -1,
-                              class: vue.normalizeClass(vue.unref(ns).e("wrapper")),
-                              style: vue.normalizeStyle({ zIndex: zIndex2.value }),
-                            },
-                            [
-                              vue.createVNode(
-                                vue.unref(focus_trap_default$1),
-                                {
-                                  loop: "",
-                                  trapped: "",
-                                  "focus-trap-el": wrapper.value,
-                                  "focus-start-el": "container",
-                                  onFocusoutPrevented,
-                                  onReleaseRequested: onCloseRequested,
-                                },
-                                {
-                                  default: vue.withCtx(() => [
-                                    vue.createElementVNode(
-                                      "div",
-                                      {
-                                        class: vue.normalizeClass(vue.unref(ns).e("mask")),
-                                        onClick:
-                                          _cache[0] ||
-                                          (_cache[0] = vue.withModifiers(
-                                            ($event) => __props.hideOnClickModal && hide(),
-                                            ["self"]
-                                          )),
-                                      },
-                                      null,
-                                      2
-                                    ),
-                                    vue.createCommentVNode(" CLOSE "),
-                                    vue.createElementVNode(
-                                      "span",
-                                      {
-                                        class: vue.normalizeClass([vue.unref(ns).e("btn"), vue.unref(ns).e("close")]),
-                                        onClick: hide,
-                                      },
-                                      [
-                                        vue.createVNode(vue.unref(ElIcon), null, {
-                                          default: vue.withCtx(() => [vue.createVNode(vue.unref(iconsVue.Close))]),
-                                          _: 1,
-                                        }),
-                                      ],
-                                      2
-                                    ),
-                                    vue.createCommentVNode(" ARROW "),
-                                    !isSingle.value
-                                      ? (vue.openBlock(),
-                                        vue.createElementBlock(
-                                          vue.Fragment,
-                                          { key: 0 },
-                                          [
-                                            vue.createElementVNode(
-                                              "span",
-                                              {
-                                                class: vue.normalizeClass(arrowPrevKls.value),
-                                                onClick: prev,
-                                              },
-                                              [
-                                                vue.createVNode(vue.unref(ElIcon), null, {
-                                                  default: vue.withCtx(() => [
-                                                    vue.createVNode(vue.unref(iconsVue.ArrowLeft)),
-                                                  ]),
-                                                  _: 1,
-                                                }),
-                                              ],
-                                              2
-                                            ),
-                                            vue.createElementVNode(
-                                              "span",
-                                              {
-                                                class: vue.normalizeClass(arrowNextKls.value),
-                                                onClick: next,
-                                              },
-                                              [
-                                                vue.createVNode(vue.unref(ElIcon), null, {
-                                                  default: vue.withCtx(() => [
-                                                    vue.createVNode(vue.unref(iconsVue.ArrowRight)),
-                                                  ]),
-                                                  _: 1,
-                                                }),
-                                              ],
-                                              2
-                                            ),
-                                          ],
-                                          64
-                                        ))
-                                      : vue.createCommentVNode("v-if", true),
-                                    _ctx.$slots.progress || __props.showProgress
-                                      ? (vue.openBlock(),
-                                        vue.createElementBlock(
-                                          "div",
-                                          {
-                                            key: 1,
-                                            class: vue.normalizeClass([
-                                              vue.unref(ns).e("btn"),
-                                              vue.unref(ns).e("progress"),
-                                            ]),
-                                          },
-                                          [
-                                            vue.renderSlot(
-                                              _ctx.$slots,
-                                              "progress",
-                                              {
-                                                activeIndex: activeIndex.value,
-                                                total: __props.urlList.length,
-                                              },
-                                              () => [vue.createTextVNode(vue.toDisplayString(progress.value), 1)]
-                                            ),
-                                          ],
-                                          2
-                                        ))
-                                      : vue.createCommentVNode("v-if", true),
-                                    vue.createCommentVNode(" ACTIONS "),
-                                    vue.createElementVNode(
-                                      "div",
-                                      {
-                                        class: vue.normalizeClass([vue.unref(ns).e("btn"), vue.unref(ns).e("actions")]),
-                                      },
-                                      [
-                                        vue.createElementVNode(
-                                          "div",
-                                          { class: vue.normalizeClass(vue.unref(ns).e("actions__inner")) },
-                                          [
-                                            vue.renderSlot(
-                                              _ctx.$slots,
-                                              "toolbar",
-                                              {
-                                                actions: handleActions,
-                                                prev,
-                                                next,
-                                                reset: toggleMode,
-                                                activeIndex: activeIndex.value,
-                                                setActiveItem,
-                                              },
-                                              () => [
-                                                vue.createVNode(
-                                                  vue.unref(ElIcon),
-                                                  {
-                                                    onClick:
-                                                      _cache[1] || (_cache[1] = ($event) => handleActions("zoomOut")),
-                                                  },
-                                                  {
-                                                    default: vue.withCtx(() => [
-                                                      vue.createVNode(vue.unref(iconsVue.ZoomOut)),
-                                                    ]),
-                                                    _: 1,
-                                                  }
-                                                ),
-                                                vue.createVNode(
-                                                  vue.unref(ElIcon),
-                                                  {
-                                                    onClick:
-                                                      _cache[2] || (_cache[2] = ($event) => handleActions("zoomIn")),
-                                                  },
-                                                  {
-                                                    default: vue.withCtx(() => [
-                                                      vue.createVNode(vue.unref(iconsVue.ZoomIn)),
-                                                    ]),
-                                                    _: 1,
-                                                  }
-                                                ),
-                                                vue.createElementVNode(
-                                                  "i",
-                                                  { class: vue.normalizeClass(vue.unref(ns).e("actions__divider")) },
-                                                  null,
-                                                  2
-                                                ),
-                                                vue.createVNode(
-                                                  vue.unref(ElIcon),
-                                                  { onClick: toggleMode },
-                                                  {
-                                                    default: vue.withCtx(() => [
-                                                      (vue.openBlock(),
-                                                      vue.createBlock(vue.resolveDynamicComponent(mode.value.icon))),
-                                                    ]),
-                                                    _: 1,
-                                                  }
-                                                ),
-                                                vue.createElementVNode(
-                                                  "i",
-                                                  { class: vue.normalizeClass(vue.unref(ns).e("actions__divider")) },
-                                                  null,
-                                                  2
-                                                ),
-                                                vue.createVNode(
-                                                  vue.unref(ElIcon),
-                                                  {
-                                                    onClick:
-                                                      _cache[3] ||
-                                                      (_cache[3] = ($event) => handleActions("anticlockwise")),
-                                                  },
-                                                  {
-                                                    default: vue.withCtx(() => [
-                                                      vue.createVNode(vue.unref(iconsVue.RefreshLeft)),
-                                                    ]),
-                                                    _: 1,
-                                                  }
-                                                ),
-                                                vue.createVNode(
-                                                  vue.unref(ElIcon),
-                                                  {
-                                                    onClick:
-                                                      _cache[4] || (_cache[4] = ($event) => handleActions("clockwise")),
-                                                  },
-                                                  {
-                                                    default: vue.withCtx(() => [
-                                                      vue.createVNode(vue.unref(iconsVue.RefreshRight)),
-                                                    ]),
-                                                    _: 1,
-                                                  }
-                                                ),
-                                              ]
-                                            ),
-                                          ],
-                                          2
-                                        ),
-                                      ],
-                                      2
-                                    ),
-                                    vue.createCommentVNode(" CANVAS "),
-                                    vue.createElementVNode(
-                                      "div",
-                                      { class: vue.normalizeClass(vue.unref(ns).e("canvas")) },
-                                      [
-                                        loadError.value && _ctx.$slots["viewer-error"]
-                                          ? vue.renderSlot(_ctx.$slots, "viewer-error", {
-                                              key: 0,
+                [
+                  vue.createVNode(
+                    vue.Transition,
+                    {
+                      name: "viewer-fade",
+                      appear: "",
+                    },
+                    {
+                      default: vue.withCtx(() => [
+                        vue.createElementVNode(
+                          "div",
+                          {
+                            ref_key: "wrapper",
+                            ref: wrapper,
+                            tabindex: -1,
+                            class: vue.normalizeClass(vue.unref(ns).e("wrapper")),
+                            style: vue.normalizeStyle({ zIndex: zIndex2.value }),
+                          },
+                          [
+                            vue.createVNode(
+                              vue.unref(focus_trap_default$1),
+                              {
+                                loop: "",
+                                trapped: "",
+                                "focus-trap-el": wrapper.value,
+                                "focus-start-el": "container",
+                                onFocusoutPrevented,
+                                onReleaseRequested: onCloseRequested,
+                              },
+                              {
+                                default: vue.withCtx(() => [
+                                  vue.createElementVNode(
+                                    "div",
+                                    {
+                                      class: vue.normalizeClass(vue.unref(ns).e("mask")),
+                                      onClick:
+                                        _cache[0] ||
+                                        (_cache[0] = vue.withModifiers(
+                                          ($event) => __props.hideOnClickModal && hide(),
+                                          ["self"]
+                                        )),
+                                    },
+                                    null,
+                                    2
+                                  ),
+                                  vue.createCommentVNode(" CLOSE "),
+                                  vue.createElementVNode(
+                                    "span",
+                                    {
+                                      class: vue.normalizeClass([vue.unref(ns).e("btn"), vue.unref(ns).e("close")]),
+                                      onClick: hide,
+                                    },
+                                    [
+                                      vue.createVNode(vue.unref(ElIcon), null, {
+                                        default: vue.withCtx(() => [vue.createVNode(vue.unref(iconsVue.Close))]),
+                                        _: 1,
+                                      }),
+                                    ],
+                                    2
+                                  ),
+                                  vue.createCommentVNode(" ARROW "),
+                                  !isSingle.value
+                                    ? (vue.openBlock(),
+                                      vue.createElementBlock(
+                                        vue.Fragment,
+                                        { key: 0 },
+                                        [
+                                          vue.createElementVNode(
+                                            "span",
+                                            {
+                                              class: vue.normalizeClass(arrowPrevKls.value),
+                                              onClick: prev,
+                                            },
+                                            [
+                                              vue.createVNode(vue.unref(ElIcon), null, {
+                                                default: vue.withCtx(() => [
+                                                  vue.createVNode(vue.unref(iconsVue.ArrowLeft)),
+                                                ]),
+                                                _: 1,
+                                              }),
+                                            ],
+                                            2
+                                          ),
+                                          vue.createElementVNode(
+                                            "span",
+                                            {
+                                              class: vue.normalizeClass(arrowNextKls.value),
+                                              onClick: next,
+                                            },
+                                            [
+                                              vue.createVNode(vue.unref(ElIcon), null, {
+                                                default: vue.withCtx(() => [
+                                                  vue.createVNode(vue.unref(iconsVue.ArrowRight)),
+                                                ]),
+                                                _: 1,
+                                              }),
+                                            ],
+                                            2
+                                          ),
+                                        ],
+                                        64
+                                      ))
+                                    : vue.createCommentVNode("v-if", true),
+                                  _ctx.$slots.progress || __props.showProgress
+                                    ? (vue.openBlock(),
+                                      vue.createElementBlock(
+                                        "div",
+                                        {
+                                          key: 1,
+                                          class: vue.normalizeClass([
+                                            vue.unref(ns).e("btn"),
+                                            vue.unref(ns).e("progress"),
+                                          ]),
+                                        },
+                                        [
+                                          vue.renderSlot(
+                                            _ctx.$slots,
+                                            "progress",
+                                            {
                                               activeIndex: activeIndex.value,
+                                              total: __props.urlList.length,
+                                            },
+                                            () => [vue.createTextVNode(vue.toDisplayString(progress.value), 1)]
+                                          ),
+                                        ],
+                                        2
+                                      ))
+                                    : vue.createCommentVNode("v-if", true),
+                                  vue.createCommentVNode(" ACTIONS "),
+                                  vue.createElementVNode(
+                                    "div",
+                                    { class: vue.normalizeClass([vue.unref(ns).e("btn"), vue.unref(ns).e("actions")]) },
+                                    [
+                                      vue.createElementVNode(
+                                        "div",
+                                        { class: vue.normalizeClass(vue.unref(ns).e("actions__inner")) },
+                                        [
+                                          vue.renderSlot(
+                                            _ctx.$slots,
+                                            "toolbar",
+                                            {
+                                              actions: handleActions,
+                                              prev,
+                                              next,
+                                              reset: toggleMode,
+                                              activeIndex: activeIndex.value,
+                                              setActiveItem,
+                                            },
+                                            () => [
+                                              vue.createVNode(
+                                                vue.unref(ElIcon),
+                                                {
+                                                  onClick:
+                                                    _cache[1] || (_cache[1] = ($event) => handleActions("zoomOut")),
+                                                },
+                                                {
+                                                  default: vue.withCtx(() => [
+                                                    vue.createVNode(vue.unref(iconsVue.ZoomOut)),
+                                                  ]),
+                                                  _: 1,
+                                                }
+                                              ),
+                                              vue.createVNode(
+                                                vue.unref(ElIcon),
+                                                {
+                                                  onClick:
+                                                    _cache[2] || (_cache[2] = ($event) => handleActions("zoomIn")),
+                                                },
+                                                {
+                                                  default: vue.withCtx(() => [
+                                                    vue.createVNode(vue.unref(iconsVue.ZoomIn)),
+                                                  ]),
+                                                  _: 1,
+                                                }
+                                              ),
+                                              vue.createElementVNode(
+                                                "i",
+                                                { class: vue.normalizeClass(vue.unref(ns).e("actions__divider")) },
+                                                null,
+                                                2
+                                              ),
+                                              vue.createVNode(
+                                                vue.unref(ElIcon),
+                                                { onClick: toggleMode },
+                                                {
+                                                  default: vue.withCtx(() => [
+                                                    (vue.openBlock(),
+                                                    vue.createBlock(vue.resolveDynamicComponent(mode.value.icon))),
+                                                  ]),
+                                                  _: 1,
+                                                }
+                                              ),
+                                              vue.createElementVNode(
+                                                "i",
+                                                { class: vue.normalizeClass(vue.unref(ns).e("actions__divider")) },
+                                                null,
+                                                2
+                                              ),
+                                              vue.createVNode(
+                                                vue.unref(ElIcon),
+                                                {
+                                                  onClick:
+                                                    _cache[3] ||
+                                                    (_cache[3] = ($event) => handleActions("anticlockwise")),
+                                                },
+                                                {
+                                                  default: vue.withCtx(() => [
+                                                    vue.createVNode(vue.unref(iconsVue.RefreshLeft)),
+                                                  ]),
+                                                  _: 1,
+                                                }
+                                              ),
+                                              vue.createVNode(
+                                                vue.unref(ElIcon),
+                                                {
+                                                  onClick:
+                                                    _cache[4] || (_cache[4] = ($event) => handleActions("clockwise")),
+                                                },
+                                                {
+                                                  default: vue.withCtx(() => [
+                                                    vue.createVNode(vue.unref(iconsVue.RefreshRight)),
+                                                  ]),
+                                                  _: 1,
+                                                }
+                                              ),
+                                            ]
+                                          ),
+                                        ],
+                                        2
+                                      ),
+                                    ],
+                                    2
+                                  ),
+                                  vue.createCommentVNode(" CANVAS "),
+                                  vue.createElementVNode(
+                                    "div",
+                                    { class: vue.normalizeClass(vue.unref(ns).e("canvas")) },
+                                    [
+                                      loadError.value && _ctx.$slots["viewer-error"]
+                                        ? vue.renderSlot(_ctx.$slots, "viewer-error", {
+                                            key: 0,
+                                            activeIndex: activeIndex.value,
+                                            src: currentImg.value,
+                                          })
+                                        : (vue.openBlock(),
+                                          vue.createElementBlock(
+                                            "img",
+                                            {
+                                              ref_key: "imgRef",
+                                              ref: imgRef,
+                                              key: currentImg.value,
                                               src: currentImg.value,
-                                            })
-                                          : (vue.openBlock(),
-                                            vue.createElementBlock(
-                                              "img",
-                                              {
-                                                ref_key: "imgRef",
-                                                ref: imgRef,
-                                                key: currentImg.value,
-                                                src: currentImg.value,
-                                                style: vue.normalizeStyle(imgStyle.value),
-                                                class: vue.normalizeClass(vue.unref(ns).e("img")),
-                                                crossorigin: __props.crossorigin,
-                                                onLoad: handleImgLoad,
-                                                onError: handleImgError,
-                                                onMousedown: handleMouseDown,
-                                                onTouchstart: handleTouchStart,
-                                              },
-                                              null,
-                                              46,
-                                              _hoisted_1$j
-                                            )),
-                                      ],
-                                      2
-                                    ),
-                                    vue.renderSlot(_ctx.$slots, "default"),
-                                  ]),
-                                  _: 3,
-                                },
-                                8,
-                                ["focus-trap-el"]
-                              ),
-                            ],
-                            6
-                          ),
-                        ]),
-                        _: 3,
-                      }
-                    ),
-                  ]),
-                  _: 3,
-                },
+                                              style: vue.normalizeStyle(imgStyle.value),
+                                              class: vue.normalizeClass(vue.unref(ns).e("img")),
+                                              crossorigin: __props.crossorigin,
+                                              onLoad: handleImgLoad,
+                                              onError: handleImgError,
+                                              onMousedown: handleMouseDown,
+                                              onTouchstart: handleTouchStart,
+                                            },
+                                            null,
+                                            46,
+                                            _hoisted_1$j
+                                          )),
+                                    ],
+                                    2
+                                  ),
+                                  vue.renderSlot(_ctx.$slots, "default"),
+                                ]),
+                                _: 3,
+                              },
+                              8,
+                              ["focus-trap-el"]
+                            ),
+                          ],
+                          6
+                        ),
+                      ]),
+                      _: 3,
+                    }
+                  ),
+                ],
                 8,
                 ["disabled"]
               )
@@ -19107,7 +19231,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             if (isManual.value) addLazyLoadListener();
             else loadImage();
           });
-          __expose({ showPreview: clickHandler });
+          __expose({
+            showPreview: clickHandler,
+          });
           return (_ctx, _cache) => {
             return (
               vue.openBlock(),
@@ -19394,34 +19520,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       });
       var link_default = link_vue_vue_type_script_setup_true_lang_default;
       const ElLink = withInstall(link_default);
-      const HORIZONTAL = "horizontal";
-      const useWheel = ({ atEndEdge, atStartEdge, layout }, onWheelDelta) => {
-        let frameHandle;
-        let offset = 0;
-        const hasReachedEdge = (offset2) => {
-          return (offset2 < 0 && atStartEdge.value) || (offset2 > 0 && atEndEdge.value);
-        };
-        const onWheel = (e) => {
-          cAF(frameHandle);
-          let { deltaX, deltaY } = e;
-          if (e.shiftKey && deltaY !== 0) {
-            deltaX = deltaY;
-            deltaY = 0;
-          }
-          const newOffset = layout.value === HORIZONTAL ? deltaX : deltaY;
-          if (hasReachedEdge(newOffset)) return;
-          offset += newOffset;
-          if (!isFirefox() && newOffset !== 0) e.preventDefault();
-          frameHandle = rAF(() => {
-            onWheelDelta(offset);
-            offset = 0;
-          });
-        };
-        return {
-          hasReachedEdge,
-          onWheel,
-        };
-      };
       const skeletonProps = buildProps({
         animated: Boolean,
         count: {
@@ -19477,7 +19575,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const props = __props;
           const ns = useNamespace("skeleton");
           const uiLoading = useThrottleRender(vue.toRef(props, "loading"), props.throttle);
-          __expose({ uiLoading });
+          __expose({
+            uiLoading,
+          });
           return (_ctx, _cache) => {
             return vue.unref(uiLoading)
               ? (vue.openBlock(),
@@ -19634,7 +19734,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           default: "",
         },
         style: {
-          type: definePropType([String, Array, Object]),
+          type: definePropType([String, Array, Object, Boolean]),
           default: "",
         },
         alignment: {
@@ -19685,7 +19785,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             key: `nested-${parentKey + key}`,
                           },
                           { default: () => [nested] },
-                          PatchFlags.PROPS | PatchFlags.STYLE,
+                          12,
                           ["style", "prefixCls"]
                         )
                       );
@@ -19700,7 +19800,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                       key: `LoopKey${parentKey + loopKey}`,
                     },
                     { default: () => [child] },
-                    PatchFlags.PROPS | PatchFlags.STYLE,
+                    12,
                     ["style", "prefixCls"]
                   )
                 );
@@ -19725,8 +19825,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                           style: [itemStyle.value, direction === "vertical" ? "width: 100%" : null],
                           key: idx,
                         },
-                        [vue.isVNode(spacer) ? spacer : vue.createTextVNode(spacer, PatchFlags.TEXT)],
-                        PatchFlags.STYLE
+                        [vue.isVNode(spacer) ? spacer : vue.createTextVNode(spacer, 1)],
+                        4
                       )
                     );
                   return children2;
@@ -19739,7 +19839,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   style: containerStyle.value,
                 },
                 extractedChildren,
-                PatchFlags.STYLE | PatchFlags.CLASS
+                6
               );
             }
             return children.children;
@@ -19894,11 +19994,16 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const navOffset = vue.ref(0);
           const isFocus = vue.ref(false);
           const focusable = vue.ref(true);
+          const isWheelScrolling = vue.ref(false);
           const tracker = vue.shallowRef();
           const isHorizontal = vue.computed(() => ["top", "bottom"].includes(rootTabs.props.tabPosition));
           const sizeName = vue.computed(() => (isHorizontal.value ? "width" : "height"));
           const navStyle = vue.computed(() => {
-            return { transform: `translate${sizeName.value === "width" ? "X" : "Y"}(-${navOffset.value}px)` };
+            const dir = sizeName.value === "width" ? "X" : "Y";
+            return {
+              transition: isWheelScrolling.value ? "none" : void 0,
+              transform: `translate${dir}(-${navOffset.value}px)`,
+            };
           });
           const { width: navContainerWidth, height: navContainerHeight } = useElementSize(navScroll$);
           const { width: navWidth, height: navHeight } = useElementSize(
@@ -19923,19 +20028,26 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               navOffset.value = clamp$1(navOffset.value + offset, 0, navSize.value - navContainerSize.value);
             }
           );
+          const handleWheel = (event) => {
+            isWheelScrolling.value = true;
+            onWheel(event);
+            rAF(() => {
+              isWheelScrolling.value = false;
+            });
+          };
           const scrollPrev = () => {
             if (!navScroll$.value) return;
-            const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
+            const containerSize = navScroll$.value.getBoundingClientRect()[sizeName.value];
             const currentOffset = navOffset.value;
             if (!currentOffset) return;
             navOffset.value = currentOffset > containerSize ? currentOffset - containerSize : 0;
           };
           const scrollNext = () => {
             if (!navScroll$.value || !nav$.value) return;
-            const navSize2 = nav$.value[`offset${capitalize(sizeName.value)}`];
-            const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
+            const navSize2 = nav$.value.getBoundingClientRect()[sizeName.value];
+            const containerSize = navScroll$.value.getBoundingClientRect()[sizeName.value];
             const currentOffset = navOffset.value;
-            if (navSize2 - currentOffset <= containerSize) return;
+            if (!isGreaterThan(navSize2 - currentOffset, containerSize)) return;
             navOffset.value =
               navSize2 - currentOffset > containerSize * 2 ? currentOffset + containerSize : navSize2 - containerSize;
           };
@@ -19948,16 +20060,19 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             const navScroll = navScroll$.value;
             const activeTabBounding = activeTab.getBoundingClientRect();
             const navScrollBounding = navScroll.getBoundingClientRect();
+            const navScrollLeft = navScrollBounding.left + 1;
+            const navScrollRight = navScrollBounding.right - 1;
+            const navBounding = nav.getBoundingClientRect();
             const maxOffset = isHorizontal.value
-              ? nav.offsetWidth - navScrollBounding.width
-              : nav.offsetHeight - navScrollBounding.height;
+              ? navBounding.width - navScrollBounding.width
+              : navBounding.height - navScrollBounding.height;
             const currentOffset = navOffset.value;
             let newOffset = currentOffset;
             if (isHorizontal.value) {
-              if (activeTabBounding.left < navScrollBounding.left)
-                newOffset = currentOffset - (navScrollBounding.left - activeTabBounding.left);
-              if (activeTabBounding.right > navScrollBounding.right)
-                newOffset = currentOffset + activeTabBounding.right - navScrollBounding.right;
+              if (activeTabBounding.left < navScrollLeft)
+                newOffset = currentOffset - (navScrollLeft - activeTabBounding.left);
+              if (activeTabBounding.right > navScrollRight)
+                newOffset = currentOffset + activeTabBounding.right - navScrollRight;
             } else {
               if (activeTabBounding.top < navScrollBounding.top)
                 newOffset = currentOffset - (navScrollBounding.top - activeTabBounding.top);
@@ -19970,14 +20085,14 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const update = () => {
             if (!nav$.value || !navScroll$.value) return;
             props.stretch && tabBarRef.value?.update();
-            const navSize2 = nav$.value[`offset${capitalize(sizeName.value)}`];
-            const containerSize = navScroll$.value[`offset${capitalize(sizeName.value)}`];
+            const navSize2 = nav$.value.getBoundingClientRect()[sizeName.value];
+            const containerSize = navScroll$.value.getBoundingClientRect()[sizeName.value];
             const currentOffset = navOffset.value;
             if (containerSize < navSize2) {
               scrollable.value = scrollable.value || {};
               scrollable.value.prev = currentOffset;
-              scrollable.value.next = currentOffset + containerSize < navSize2;
-              if (navSize2 - currentOffset < containerSize) navOffset.value = navSize2 - containerSize;
+              scrollable.value.next = isGreaterThan(navSize2, currentOffset + containerSize);
+              if (isGreaterThan(containerSize, navSize2 - currentOffset)) navOffset.value = navSize2 - containerSize;
             } else {
               scrollable.value = false;
               if (currentOffset > 0) navOffset.value = 0;
@@ -20147,7 +20262,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             style: navStyle.value,
                             role: "tablist",
                             onKeydown: changeTab,
-                            onWheel: onWheel,
+                            onWheel: handleWheel,
                           },
                           [
                             ...[

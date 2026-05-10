@@ -48,7 +48,7 @@ const BaiduISite = {
     log.info("自动展开全文");
     return [
       CommonUtil.addBlockCSS(
-        /* 点击查看全文按钮 */
+        //  点击查看全文按钮
         ".fold-wrapper"
       ),
       addStyle(/*css*/ `

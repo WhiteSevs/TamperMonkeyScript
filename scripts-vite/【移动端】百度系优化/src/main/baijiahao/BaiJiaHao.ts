@@ -29,13 +29,13 @@ export const BaiduBaiJiaHao = {
         ".infinite-scroll-component__outerdiv",
         "div#page_wrapper > div > div:nth-child(5)",
         "div:has(+ .infinite-scroll-component__outerdiv)",
-        /* 电脑端的左边的按钮-屏蔽 */
+        // 电脑端的左边的按钮-屏蔽
         '#ssr-content div:has(>[data-testid="like-btn"])',
-        /* 电脑端的右边的推荐-屏蔽 */
+        // 电脑端的右边的推荐-屏蔽
         "#ssr-content .hasRecommendCard"
       ),
+      // 电脑端的文章居中
       addStyle(/*css*/ `
-			/* 电脑端的文章居中 */
 			#ssr-content > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) {
 				width: 55% !important;
 			}
@@ -43,14 +43,14 @@ export const BaiduBaiJiaHao = {
         justify-content: space-around;
       }
       `),
-      /* 某些情况下的CSS */
+      // 某些情况下的CSS
       CommonUtil.addBlockCSS('#page_wrapper > div.other > div[class=""]:nth-child(4)'),
-      /* 简单UA&链接参数wfr=spide下的精彩推荐 */
+      // 简单UA&链接参数wfr=spide下的精彩推荐
       CommonUtil.addBlockCSS(
         '#page_wrapper div.spider > div[class=""]:nth-child(4)',
         'page_wrapper div.spider > div[class=""]:nth-child(5)'
       ),
-      /* Gecko的简单UA下的精彩推荐 */
+      // Gecko的简单UA下的精彩推荐
       CommonUtil.addBlockCSS('#page_wrapper .searchCraft > div[class=""]'),
     ];
   },

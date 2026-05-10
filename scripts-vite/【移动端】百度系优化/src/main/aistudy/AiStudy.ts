@@ -26,7 +26,7 @@ const BaiduAiStudy = {
    */
   autoExpandFullText() {
     log.info("自动展开全文");
-    /* 点击查看全文 */
+    //  点击查看全文
     return [
       CommonUtil.addBlockCSS(".gt-edu-h5-c-article-content .content-wrapper .detail-wrapper .unfold-wrapper"),
       addStyle(/*css*/ `
