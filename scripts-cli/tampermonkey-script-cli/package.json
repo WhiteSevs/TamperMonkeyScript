@@ -11,11 +11,9 @@
     "build": "pnpm run format && vue-tsc --noEmit && vite build && pnpm run format:dist",
     "build:min": "pnpm run format && vue-tsc --noEmit && vite build --minify && pnpm run format:dist",
     "build:all": "pnpm run format && vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir && pnpm run format:dist",
-    "build:all-new": "pnpm run clear:version && pnpm run build:all",
+    "build:all-new": "pnpm run format && vue-tsc --noEmit && vite build && vite build --minify --no-empty-outDir && pnpm run format:dist",
     "build:no-cache": "pnpm run format && pnpm store prune && vue-tsc --noEmit && vite build && pnpm run format:dist",
     "build:watch": "pnpm run format && vue-tsc --noEmit && vite build --watch",
-    "preview": "pnpm run format && vite preview --host 0.0.0.0",
-    "clear": "pnpm run clear:version && del .\\vite.config.ts.timestamp* && pnpm store prune",
-    "clear:version": "del .\\SCRIPT_VERSION.json"
+    "preview": "pnpm run format && vite preview --host 0.0.0.0"
   }
 }
