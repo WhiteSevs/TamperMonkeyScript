@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "useDefineForClassFields": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "useDefineForClassFields": true,
     "strict": true,
     //"noImplicitAny": true,
     "jsx": "preserve",
