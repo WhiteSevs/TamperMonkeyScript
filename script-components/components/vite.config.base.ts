@@ -12,6 +12,7 @@ import mkcert from "vite-plugin-mkcert";
 import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
 import { GetLib, ViteUtils, viteUtils } from "../../vite.utils";
 import { simpleGit } from "simple-git";
+import { getCommandArgv } from "vite-plugin-env-command";
 
 type IArray<T> = T[] | T;
 
@@ -103,7 +104,7 @@ const UserScriptUtils = {
 
     const spaceBeforeAtMatcher = meta.match(/[\s]*\/\/([\s]+)@/);
     let spaceBeforeAt = "";
-    if (spaceBeforeAtMatcher?.length >= 2) {
+    if (spaceBeforeAtMatcher && spaceBeforeAtMatcher?.length >= 2) {
       spaceBeforeAt = spaceBeforeAtMatcher[1];
     }
 
@@ -114,7 +115,7 @@ const UserScriptUtils = {
 
     const spaceAfterKeyMatcher = meta.match(/[\s]*\/\/[\s]+@[\w-]+([\s]+)/);
     let spaceAfterKey = "";
-    if (spaceAfterKeyMatcher?.length >= 2) {
+    if (spaceAfterKeyMatcher && spaceAfterKeyMatcher?.length >= 2) {
       spaceAfterKey = spaceAfterKeyMatcher[1];
     }
 
@@ -240,7 +241,7 @@ const GenerateUserConfig = async (option: {
   const inheritUtils = new ViteUtils(option.__dirname);
   const pkg = inheritUtils.getPackageJSON();
   let SCRIPT_NAME = option.monkeyOption.userscript.name;
-  if (typeof SCRIPT_NAME !== "string") {
+  if (typeof SCRIPT_NAME === "object" && SCRIPT_NAME) {
     SCRIPT_NAME = Object.values(SCRIPT_NAME).find((it) => typeof it === "string");
   }
 
@@ -275,31 +276,38 @@ const GenerateUserConfig = async (option: {
   const devOrLocalVersion = "9999.99.99";
   let VERSION = devOrLocalVersion;
   if (isBuild) {
-    let gitProjectPath = option.gitProjectPath;
-    if (typeof gitProjectPath === "string") {
-      gitProjectPath = gitProjectPath.trim();
-      // 去除开始和末尾的/
-      gitProjectPath = gitProjectPath.replace(/^\//, "");
-      gitProjectPath = gitProjectPath.replace(/\/$/, "");
-      // 获取git提交的历史版本号
-      const git = simpleGit({
-        baseDir: option.__dirname,
-      });
-      const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
-      const fileContent = await git.show(["HEAD:" + filePath]);
-      let historyVersion = "";
-      UserScriptUtils.parseMeta(fileContent, (data) => {
-        if (data.key.toLowerCase() === "version") {
-          historyVersion = data.value;
-        }
-      });
-      if (historyVersion.trim() !== "") {
-        console.log("git history version: ", pc.blue(historyVersion));
-      }
-      VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
-      console.log("script build version: ", pc.green(VERSION));
+    // 获取命令行参数
+    const commandEnv = getCommandArgv();
+    if (commandEnv === "all-new") {
+      VERSION = baseUtils.getLatestScriptVersion();
+      console.log("script build force new version: ", pc.green(VERSION));
     } else {
-      VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+      let gitProjectPath = option.gitProjectPath;
+      if (typeof gitProjectPath === "string") {
+        gitProjectPath = gitProjectPath.trim();
+        // 去除开始和末尾的/
+        gitProjectPath = gitProjectPath.replace(/^\//, "");
+        gitProjectPath = gitProjectPath.replace(/\/$/, "");
+        // 获取git提交的历史版本号
+        const git = simpleGit({
+          baseDir: option.__dirname,
+        });
+        const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
+        const fileContent = await git.show(["HEAD:" + filePath]);
+        let historyVersion = "";
+        UserScriptUtils.parseMeta(fileContent, (data) => {
+          if (data.key.toLowerCase() === "version") {
+            historyVersion = data.value;
+          }
+        });
+        if (historyVersion.trim() !== "") {
+          console.log("git history version: ", pc.blue(historyVersion));
+        }
+        VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
+        console.log("script build version: ", pc.green(VERSION));
+      } else {
+        VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+      }
     }
   }
 
@@ -431,7 +439,7 @@ const GenerateUserConfig = async (option: {
           for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("cdn" in value) {
               const libName = "importName" in value ? value.importName : key;
-              result[libName] = await value.cdn;
+              Reflect.set(result, libName, await value.cdn);
             }
           }
           return result;
@@ -449,6 +457,7 @@ const GenerateUserConfig = async (option: {
           const $css = document.createElement("style");
           $css.setAttribute("type", "text/css");
           $css.setAttribute("data-type", "gm-css");
+          // @ts-ignore
           if (globalThis.trustedTypes) {
             // @ts-ignore
             const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
@@ -481,7 +490,7 @@ const GenerateUserConfig = async (option: {
           for (const [key, value] of Object.entries(externalRequireConfig)) {
             if ("local" in value) {
               const libName = "requireMatch" in value ? value.requireMatch : key;
-              result[libName] = await value.local;
+              Reflect.set(result, libName, await value.local);
             }
           }
           return result;
@@ -494,7 +503,7 @@ const GenerateUserConfig = async (option: {
           let result = {};
           for (const [key, value] of Object.entries(externalResouceConfig)) {
             if ("local" in value) {
-              result[key] = value.local;
+              Reflect.set(result, key, value.local);
             }
           }
           return result;
@@ -510,7 +519,7 @@ const GenerateUserConfig = async (option: {
   /* -------------以下配置不需要动------------- */
   /* -------------以下配置不需要动------------- */
   if (defaultSuperMonkeyOption.disableExternalGlobals) {
-    delete defaultSuperMonkeyOption.disableExternalGlobals;
+    Reflect.deleteProperty(defaultMonkeyOption, "disableExternalGlobals");
     delete option.monkeyOption.disableExternalGlobals;
     if (
       typeof defaultMonkeyOption.build?.externalGlobals === "object" &&
@@ -520,7 +529,7 @@ const GenerateUserConfig = async (option: {
     }
   }
   defaultMonkeyOption = viteUtils.assign(defaultMonkeyOption, option.monkeyOption, true);
-  process.on("exit", (code) => {
+  process.on("exit", () => {
     try {
       const dir = option.__dirname; // 当前目录
       const pattern = /^vite\.config\.ts\.timestamp.+/;
@@ -579,7 +588,7 @@ const GenerateUserConfig = async (option: {
   if (defaultMonkeyOption.userscript!.resource == null) {
     defaultMonkeyOption.userscript!.resource = {};
   }
-  if (!Array.isArray(defaultMonkeyOption.userscript.require)) {
+  if (!Array.isArray(defaultMonkeyOption!.userscript!.require)) {
     defaultMonkeyOption.userscript!.require = [];
   }
 
@@ -609,7 +618,7 @@ const GenerateUserConfig = async (option: {
     {
       checkFn: () => {
         return (
-          !Array.isArray(defaultMonkeyOption.userscript.match) ||
+          !Array.isArray(defaultMonkeyOption!.userscript!.match) ||
           (Array.isArray(defaultMonkeyOption.userscript!.match) && defaultMonkeyOption.userscript!.match.length === 0)
         );
       },
@@ -707,7 +716,7 @@ const GenerateUserConfig = async (option: {
   // 其它脚本管理器的Api引用
   const otherGrant = defaultSuperMonkeyOption.userscript.otherGrant;
   if (Array.isArray(otherGrant)) {
-    if (Array.isArray(defaultMonkeyOption.userscript.grant)) {
+    if (Array.isArray(defaultMonkeyOption!.userscript!.grant)) {
       defaultMonkeyOption.userscript!.grant = defaultMonkeyOption.userscript!.grant.concat(
         // @ts-expect-error
         otherGrant
@@ -756,7 +765,7 @@ const GenerateUserConfig = async (option: {
     load(id) {
       if (VirtualLibName.includes(id)) {
         const name = id.slice(1);
-        const code = LibInfo.find((it) => it.name === name).code;
+        const code = LibInfo.find((it) => it.name === name)?.code;
         if (typeof code === "string") {
           return code;
         }
@@ -769,7 +778,7 @@ const GenerateUserConfig = async (option: {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url;
-        if (!url.includes("vite-plugin-monkey.install.user.js")) {
+        if (url && !url.includes("vite-plugin-monkey.install.user.js")) {
           return next();
         }
         const originEnd = res.end;
@@ -823,6 +832,7 @@ const GenerateUserConfig = async (option: {
             args[0] = text;
             console.log(pc.green("success modify [vite-plugin-monkey] dev .install.user.js"));
           }
+          // @ts-expect-error
           return originEnd.apply(res, args);
         };
         next();
@@ -856,8 +866,8 @@ const GenerateUserConfig = async (option: {
           continue;
         }
         let localMetaFileName = fileName.replace(/\.meta\.js$/gi, "");
-        const chunk = bundle[fileName];
-        const filePath = path.join(options.dir, fileName);
+        // const chunk = bundle[fileName];
+        const filePath = path.join(options.dir!, fileName);
         const content = fs.readFileSync(filePath, "utf-8");
         const splitContent = content.split("\n");
         let insertIndex = -1;
@@ -891,7 +901,7 @@ const GenerateUserConfig = async (option: {
           // replace require lib link to local link
           if (metaItemInfo.key === "require") {
             for (const [requiredMatchKey, requiredUrl] of Object.entries(
-              defaultSuperMonkeyOption.build.externalLocalRequire
+              defaultSuperMonkeyOption.build.externalLocalRequire!
             )) {
               if (metaItemInfo.value.includes(requiredMatchKey)) {
                 splitContent[index] =
@@ -901,7 +911,7 @@ const GenerateUserConfig = async (option: {
             }
           } else if (metaItemInfo.key === "resource") {
             for (const [resourceKey, resourceUrl] of Object.entries(
-              defaultSuperMonkeyOption.build.externalLocalResouce
+              defaultSuperMonkeyOption.build.externalLocalResouce!
             )) {
               const resourceKeyMatcher = metaItemInfo.value.match(/(.+?)[\s]+[\S]+/);
               if (resourceKeyMatcher) {
@@ -921,7 +931,7 @@ const GenerateUserConfig = async (option: {
         // 本地meta文件名
         localMetaFileName = `${localMetaFileName}.meta.local.user.js`;
         // meta文件内容
-        const metaLocalContentSplitList = [].concat(splitContent);
+        const metaLocalContentSplitList = (<string[]>[]).concat(splitContent);
         for (let index = 0; index < metaLocalContentSplitList.length; index++) {
           const metaItem = metaLocalContentSplitList[index];
           const metaItemInfo = UserScriptUtils.parseMetaItem(metaItem);
